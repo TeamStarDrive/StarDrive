@@ -332,7 +332,7 @@ namespace Ship_Game
         public bool AssignTroopToTile(Planet planet = null)
         {
             planet = planet ?? p;
-            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
+            var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
                 if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
@@ -344,15 +344,15 @@ namespace Ship_Game
                 PlanetGridSquare planetGridSquare = list[index];
                 foreach (PlanetGridSquare eventLocation in planet.TilesList)
                 {
-                    if (eventLocation == planetGridSquare)
-                    {
-                        eventLocation.TroopsHere.Add(this);
-                        planet.TroopsHere.Add(this);
-                        this.SetPlanet(planet);
-                        if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
-                            return true;
-                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(planet, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
-                    }
+                    if (eventLocation != planetGridSquare) continue;
+
+                    eventLocation.TroopsHere.Add(this);
+                    planet.TroopsHere.Add(this);
+                    SetPlanet(planet);
+                    if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 
+                        || eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction)
+                        return true;
+                    ResourceManager.Event(eventLocation.building.EventTriggerUID).TriggerPlanetEvent(planet, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
                 }
             }
             return false;

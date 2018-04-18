@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
@@ -49,38 +50,40 @@ namespace Ship_Game
         private Rectangle SideBar;
 
         public ShipModule HighlightedModule;
-        private Vector2 CameraVelocity = Vector2.Zero;
-        private Vector2 StartDragPos = new Vector2();
+        private Vector2 CameraVelocity              = Vector2.Zero;
+        private Vector2 StartDragPos                = new Vector2();
         private ShipData Changeto;
         private string ScreenToLaunch;
         private bool ShowAllArcs;
         private ShipModule HoveredModule;
-        private float TransitionZoom = 1f;
+        private float TransitionZoom                = 1f;
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
         private ActiveModuleState ActiveModState;
         private Selector selector;
-        public bool ToggleOverlay = true;
-        private Vector2 starfieldPos = Vector2.Zero;
+        public bool ToggleOverlay                   = true;
+        private Vector2 starfieldPos                = Vector2.Zero;
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
-        public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
-        private string LastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
-        private Vector2 LastDesignActionPos = Vector2.Zero;
+        public Stack<DesignAction> DesignStack      = new Stack<DesignAction>();
+        private string LastActiveUID                = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 LastDesignActionPos         = Vector2.Zero;
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
-        private bool Fml = false;
-        private bool Fmlevenmore = false;
+        private bool Fml                            = false;
+        private bool Fmlevenmore                    = false;
         public bool CarrierOnly;
         private ShipData.Category LoadCategory;
-        private HashSet<string> Techs = new HashSet<string>();
-        private readonly Texture2D TopBar132 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-        private readonly Texture2D TopBar132Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+        private HashSet<string> Techs               = new HashSet<string>();
+        private readonly Texture2D TopBar132        = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+        private readonly Texture2D TopBar132Hover   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
         private readonly Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
-        private readonly Texture2D TopBar68 = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-        private readonly Texture2D TopBar68Hover = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
-        private readonly Texture2D TopBar68Pressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];        
+        private readonly Texture2D TopBar68         = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
+        private readonly Texture2D TopBar68Hover    = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
+        private readonly Texture2D TopBar68Pressed  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];
+        private ShipData.RoleName Role;
+        private Rectangle DesignRoleRect;
 
 
 #if SHIPYARD
@@ -466,7 +469,7 @@ namespace Ship_Game
         {
             if (stat < 1000f)
                 return stat.ToString("#.#");
-            else if (stat < 10000f)
+            if (stat < 10000f)
                 return stat.ToString("#");
             float single = stat / 1000f;
             if (single < 100)
@@ -634,51 +637,47 @@ namespace Ship_Game
         
         private void InstallModule(SlotStruct slot)
         {
-            if (SlotStructFits(slot))
+            if (!this.SlotStructFits(slot))
             {
-                DesignAction designAction = new DesignAction
-                {
-                    clickedSS = new SlotStruct
-                    {
-                        PQ = slot.PQ,
-                        Restrictions = slot.Restrictions,
-                        Facing = slot.Module?.Facing ?? 0.0f,
-                        ModuleUID = slot.ModuleUID,
-                        Module = slot.Module,
-                        Tex = slot.Tex,
-                        SlotReference = slot.SlotReference,
-                        State = slot.State,
-                        
-                    }
-                };
-                DesignStack.Push(designAction);
-                ClearSlot(slot);
-                ClearDestinationSlots(slot);
-                ChangeModuleState(ActiveModState);
-                slot.ModuleUID            = ActiveModule.UID;
-                slot.Module               = ShipModule.CreateNoParent(ActiveModule.UID);
-                slot.Module.XSIZE         = ActiveModule.XSIZE;
-                slot.Module.YSIZE         = ActiveModule.YSIZE;
-                slot.Module.XMLPosition   = ActiveModule.XMLPosition;
-                slot.State                = ActiveModState;
-                slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
-                slot.Module.Facing        = ActiveModule.Facing;
-                slot.Tex = ResourceManager.Texture(ActiveModule.IconTexturePath);
-                slot.Module.SetAttributesNoParent();
-
-                RecalculatePower();
-                ShipSaved = false;
-                ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
-                ChangeModuleState(ActiveModState);
-
-                //if (ActiveModule.ModuleType != ShipModuleType.Hangar)
-                //{
-                //    ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
-                //    ChangeModuleState(ActiveModState);
-                //}
-                
+                this.PlayNegativeSound();
+                return;
             }
-            else PlayNegativeSound();
+
+            DesignAction designAction = new DesignAction
+            {
+                clickedSS = new SlotStruct
+                {
+                    PQ = slot.PQ,
+                    Restrictions = slot.Restrictions,
+                    Facing = slot.Module?.Facing ?? 0.0f,
+                    ModuleUID = slot.ModuleUID,
+                    Module = slot.Module,
+                    Tex = slot.Tex,
+                    SlotReference = slot.SlotReference,
+                    State = slot.State,
+                }
+            };
+            this.DesignStack.Push(designAction);
+            this.ClearSlot(slot);
+            this.ClearDestinationSlots(slot);
+            this.ChangeModuleState(this.ActiveModState);
+            slot.ModuleUID = this.ActiveModule.UID;
+            slot.Module = ShipModule.CreateNoParent(this.ActiveModule.UID);
+            slot.Module.XSIZE = this.ActiveModule.XSIZE;
+            slot.Module.YSIZE = this.ActiveModule.YSIZE;
+            slot.Module.XMLPosition = this.ActiveModule.XMLPosition;
+            slot.State = this.ActiveModState;
+            slot.Module.hangarShipUID = this.ActiveModule.hangarShipUID;
+            slot.Module.Facing = this.ActiveModule.Facing;
+            slot.Tex = ResourceManager.Texture(this.ActiveModule.IconTexturePath);
+            slot.Module.SetAttributesNoParent();
+
+            this.RecalculatePower();
+            this.ShipSaved = false;
+            this.ActiveModule = ShipModule.CreateNoParent(this.ActiveModule.UID);
+            this.ChangeModuleState(this.ActiveModState);
+
+           
         }
 
         private void InstallModuleFromLoad(SlotStruct slot)
@@ -702,29 +701,33 @@ namespace Ship_Game
 
         private void InstallModuleNoStack(SlotStruct slot)
         {
-            if (SlotStructFits(slot))
+            if (!this.SlotStructFits(slot))
             {
-                ClearSlotNoStack(slot);
-                ClearDestinationSlotsNoStack(slot);
-                slot.ModuleUID            = ActiveModule.UID;
-                slot.Module               = ActiveModule;
-                slot.State                = ActiveModState;
-                slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
-                slot.Module.Facing        = ActiveModule.Facing;
-                slot.Tex = ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath);
-                slot.Module.SetAttributesNoParent();
-
-                RecalculatePower();
-                ShipSaved = false;
-                if (ActiveModule.ModuleType != ShipModuleType.Hangar)
-                {
-                    ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
-                }
-                //grabs a fresh copy of the same module type to cursor 
-                ChangeModuleState(ActiveModState);
-                //set rotation for new module at cursor
+                this.PlayNegativeSound();
+                return;
             }
-            else PlayNegativeSound();
+
+            this.ClearSlotNoStack(slot);
+            this.ClearDestinationSlotsNoStack(slot);
+            slot.ModuleUID = this.ActiveModule.UID;
+            slot.Module = this.ActiveModule;
+            slot.State = this.ActiveModState;
+            slot.Module.hangarShipUID = this.ActiveModule.hangarShipUID;
+            slot.Module.Facing = this.ActiveModule.Facing;
+            slot.Tex = ResourceManager.Texture(ResourceManager.GetModuleTemplate(this.ActiveModule.UID)
+                .IconTexturePath);
+            slot.Module.SetAttributesNoParent();
+
+            this.RecalculatePower();
+            this.ShipSaved = false;
+            if (this.ActiveModule.ModuleType != ShipModuleType.Hangar)
+            {
+                this.ActiveModule = ShipModule.CreateNoParent(this.ActiveModule.UID);
+            }
+
+            //grabs a fresh copy of the same module type to cursor 
+            this.ChangeModuleState(this.ActiveModState);
+            //set rotation for new module at cursor
         }
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
@@ -839,7 +842,21 @@ namespace Ship_Game
             {
                 this.Camera.Zoom = 2.65f;
             }
-
+            Array<ShipModule> modules = new Array<ShipModule>();
+            for (int x = 0; x < Slots.Count; x++)
+            {
+                var slot = Slots[x];
+                if (slot?.Module == null) continue;
+                modules.Add(slot.Module);
+            }
+            var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
+            var designRoleRect = DesignRoleRect;
+            SpriteFont roleFont = Fonts.Arial12;
+            if (role != Role)
+            {
+                ShipData.CreateDesignRoleToolTip(role, roleFont, designRoleRect, true);
+            }
+            Role = role;
             this.CameraPosition.Z = this.OriginalZ / this.Camera.Zoom;
             Vector3 camPos        = this.CameraPosition * new Vector3(-1f, 1f, 1f);
             this.View             = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) 
@@ -847,6 +864,8 @@ namespace Ship_Game
                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
+
+ 
 
 
         public enum ActiveModuleState

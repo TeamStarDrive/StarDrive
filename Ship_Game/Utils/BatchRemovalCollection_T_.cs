@@ -90,6 +90,8 @@ namespace Ship_Game
             return PendingRemovals.Contains(item);
         }
 
+        public int PendingRemovalCount => PendingRemovals.Count;
+        
         public new void Add(T item)
         {
             ThisLock.EnterWriteLock();

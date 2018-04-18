@@ -48,9 +48,6 @@ namespace SDNative
         if (Data.IsEmpty())
             return;
 
-        vector<int> indices;
-        vector<BasicVertex> vertices;
-
         // Sunburn expects ClockWise
         if (Data.Winding == FaceWindCounterClockWise)
         {
@@ -58,41 +55,39 @@ namespace SDNative
             //Data.RecalculateNormals(false);
         }
 
-        Data.CreateGameVertexData(vertices, indices);
+        vector<int> indices;
+        Data.OptimizedFlatten(); // force numVerts == numCoords == numNormals
+        Data.CreateIndexArray(indices);
 
         NumTriangles = Data.NumFaces();
-        int numVertices = NumVertices = (int)vertices.size();
-        int numIndices = NumIndices = (int)indices.size();
-        auto* groupVertices = vertices.data();
-        auto* groupIndices = indices.data();
+        int numVertices = NumVertices = (int)Data.Verts.size();
+        int numIndices  = NumIndices  = (int)indices.size();
+        auto* pVertices = Data.Verts.data();
+        auto* pCoords   = Data.Coords.data();
+        auto* pNormals  = Data.Normals.data();
+        auto* pIndices = indices.data();
 
         if (numVertices == 0 || numIndices == 0) {
             fprintf(stderr, "WARNING: No mesh data for group %d\n", GroupId);
             return;
         }
 
-        bool isTriangulated = Owner.Groups[GroupId].CheckIsTriangulated();
-        if (!isTriangulated) {
-            fprintf(stderr, "WARNING: MeshGroup %d is not triangulated!!!\n", GroupId);
-        }
-
-        IndexData.resize(NumIndices);
-        VertexData.resize(NumVertices);
-        auto* outIndices = Indices = IndexData.data();
+        IndexData.resize(numIndices);
+        VertexData.resize(numVertices);
+        auto* outIndices  = Indices  = IndexData.data();
         auto* outVertices = Vertices = VertexData.data();
 
         for (int i = 0; i < numIndices; ++i)
-            outIndices[i] = (ushort)groupIndices[i];
+            outIndices[i] = (rpp::ushort)pIndices[i];
 
-        Bounds = BoundingSphere::create(groupVertices, numVertices);
+        Bounds = rpp::BoundingSphere::create(pVertices, numVertices);
 
         for (int i = 0; i < numVertices; ++i)
         {
             SDVertex& sdv = outVertices[i];
-            BasicVertex& v = groupVertices[i];
-            sdv.Position = v.pos;
-            sdv.Coords = { v.uv.x, 1.0f - v.uv.y };
-            sdv.Normal = v.norm;
+            sdv.Position = pVertices[i];
+            sdv.Coords = { pCoords[i].x, 1.0f - pCoords[i].y };
+            sdv.Normal = pNormals[i];
         }
 
         Vector3 tangent, binormal;
@@ -103,17 +98,17 @@ namespace SDNative
             SDVertex& v2 = outVertices[outIndices[i + 2]];
             ComputeTangentBasis(v0.Position, v1.Position, v2.Position,
                 v0.Coords, v1.Coords, v2.Coords, tangent, binormal);
-            v0.Tangent = tangent;
+            v0.Tangent  = tangent;
             v0.Binormal = binormal;
-            v1.Tangent = tangent;
+            v1.Tangent  = tangent;
             v1.Binormal = binormal;
-            v2.Tangent = tangent;
+            v2.Tangent  = tangent;
             v2.Binormal = binormal;
         }
     }
 
     void SDMeshGroup::SetData(Vector3* verts, Vector3* normals, Vector2* coords, int numVertices,
-                              ushort* indices, int numIndices)
+                              rpp::ushort* indices, int numIndices)
     {
         Matrix4 transform = Transform.inverse();
         if (verts)
@@ -164,10 +159,10 @@ namespace SDNative
             int v0 = indices[i];
             int v1 = indices[i+1];
             int v2 = indices[i+2];
-            Face& face = destFaces[faceId];
-            face.add(v0, hasCoords?v0:-1, hasNormals?v0:-1);
-            face.add(v1, hasCoords?v1:-1, hasNormals?v1:-1);
-            face.add(v2, hasCoords?v2:-1, hasNormals?v2:-1);
+            Triangle& tri = destFaces[faceId];
+            tri.a = { v0, hasCoords?v0:-1, hasNormals?v0:-1 };
+            tri.b = { v1, hasCoords?v1:-1, hasNormals?v1:-1 };
+            tri.c = { v2, hasCoords?v2:-1, hasNormals?v2:-1 };
         }
     }
 
@@ -196,14 +191,14 @@ namespace SDNative
         if (auto* groupMesh = Groups[groupId].get())
             return groupMesh;
 
-        Groups[groupId] = make_unique<SDMeshGroup>(Data, groupId);
+        Groups[groupId] = std::make_unique<SDMeshGroup>(Data, groupId);
         return Groups[groupId].get();
     }
 
     SDMeshGroup* SDMesh::AddGroup(string groupname)
     {
         MeshGroup& group = Data.CreateGroup(groupname);
-        Groups.emplace_back(make_unique<SDMeshGroup>(Data, group));
+        Groups.emplace_back(std::make_unique<SDMeshGroup>(Data, group));
         return Groups.back().get();
     }
 

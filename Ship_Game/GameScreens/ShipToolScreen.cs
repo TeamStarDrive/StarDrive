@@ -9,6 +9,7 @@ using System.IO;
 using System.Xml.Serialization;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -542,14 +543,14 @@ namespace Ship_Game
                 RemoveObject(shipSO);
             try
             {
-                shipSO = ResourceManager.GetSceneMesh(modelPath);
+                shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath);
                 shipSO.World = worldMatrix;
                 ModelPath = modelPath;
                 AddObject(shipSO);
             }
             catch (Exception)
             {
-                shipSO = ResourceManager.GetSceneMesh(modelPath, animated:true);
+                shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath, animated:true);
                 shipSO.World = worldMatrix;
                 ModelPath = modelPath;
                 AddObject(shipSO);

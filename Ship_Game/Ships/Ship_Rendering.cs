@@ -292,8 +292,8 @@ namespace Ship_Game.Ships
 
         public void DrawRepairDrones(UniverseScreen screen)
         {
-            try
-            {
+            try //very bad but the UI thread calls this and it is occasionally null. 
+            {                
                 for (int i = projectiles.Count - 1; i >= 0; i--)
                 {
                     //I am thinking this is very bad but im not sure. is it faster than a lock? whats the right way to handle this.
@@ -307,23 +307,31 @@ namespace Ship_Game.Ships
             }
             catch
             {
-                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering {Name} beams in ship {projectiles.Count}");
+                string projectilesCount = projectiles?.Count.ToString() ?? "Null";
+                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering in ship {Name ?? "null"} ProjectileCount:  {projectilesCount}");
             }
         }
 
         public void DrawBeams(UniverseScreen screen)
         {
-            for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
+            try
             {
-                Beam beam = Beams[i];
-                if (beam?.Active != true) continue;
-                if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
-                    beam.Draw(screen.ScreenManager);
-                else
+                for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
                 {
-                    Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name} beams in ship {Beams.Count}");
-                    beam.Die(null, true);
+                    Beam beam = Beams[i];
+                    if (beam?.Active != true) continue;
+                    if (beam.Source.InRadius(beam.ActualHitDestination, beam.Range + 10.0f))
+                        beam.Draw(screen.ScreenManager);
+                    else
+                    {
+                        beam.Die(null, true);
+                    }
                 }
+
+            }
+            catch
+            {
+                Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name ?? "null"} beams in ship {Beams?.Count.ToString() ?? "Null"}");
             }
         }
 
@@ -399,6 +407,10 @@ namespace Ship_Game.Ships
                 }
             }
             screen.ScreenManager.SpriteBatch.End();
+        }
+        public void DrawWeaponRangeCircles(UniverseScreen screen)
+        {
+            screen.DrawCircleProjected(Center, maxWeaponsRange, 64, Color.Red);
         }
     }
 }

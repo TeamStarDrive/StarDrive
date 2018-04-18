@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.UI;
 
 namespace Ship_Game.Ships
 {
@@ -245,51 +246,45 @@ namespace Ship_Game.Ships
             if (Ship.loyalty != EmpireManager.Player || Ship.isConstructor) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
-                if (toggleButton.Rect.HitTest(input.CursorPosition))
-                {
-                    toggleButton.Hover = true;
-                    if (toggleButton.HasToolTip)
-                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
-                    if (input.InGameSelect)
+                if (toggleButton.HandleInput(input))
+                {                    
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    switch (toggleButton.Action)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        switch (toggleButton.Action)
-                        {
-                            case "attack":
-                                Ship.AI.CombatState = CombatState.AttackRuns;
-                                break;
-                            case "arty":
-                                Ship.AI.CombatState = CombatState.Artillery;
-                                break;
-                            case "hold":
-                                Ship.AI.CombatState = CombatState.HoldPosition;
-                                Ship.AI.OrderAllStop();
-                                break;
-                            case "orbit_left":
-                                Ship.AI.CombatState = CombatState.OrbitLeft;
-                                break;
-                            case "broadside_left":
-                                Ship.AI.CombatState = CombatState.BroadsideLeft;
-                                break;
-                            case "orbit_right":
-                                Ship.AI.CombatState = CombatState.OrbitRight;
-                                break;
-                            case "broadside_right":
-                                Ship.AI.CombatState = CombatState.BroadsideRight;
-                                break;
-                            case "evade":
-                                Ship.AI.CombatState = CombatState.Evade;
-                                break;
-                            case "short":
-                                Ship.AI.CombatState = CombatState.ShortRange;
-                                break;
-                        }
-                        if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
-                            Ship.AI.State = AIState.AwaitingOrders;
+                        case "attack":
+                            Ship.AI.CombatState = CombatState.AttackRuns;
+                            break;
+                        case "arty":
+                            Ship.AI.CombatState = CombatState.Artillery;
+                            break;
+                        case "hold":
+                            Ship.AI.CombatState = CombatState.HoldPosition;
+                            Ship.AI.OrderAllStop();
+                            break;
+                        case "orbit_left":
+                            Ship.AI.CombatState = CombatState.OrbitLeft;
+                            break;
+                        case "broadside_left":
+                            Ship.AI.CombatState = CombatState.BroadsideLeft;
+                            break;
+                        case "orbit_right":
+                            Ship.AI.CombatState = CombatState.OrbitRight;
+                            break;
+                        case "broadside_right":
+                            Ship.AI.CombatState = CombatState.BroadsideRight;
+                            break;
+                        case "evade":
+                            Ship.AI.CombatState = CombatState.Evade;
+                            break;
+                        case "short":
+                            Ship.AI.CombatState = CombatState.ShortRange;
+                            break;
                     }
-                }
-                else
-                    toggleButton.Hover = false;
+                    if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
+                        Ship.AI.State = AIState.AwaitingOrders;
+                    Ship.shipStatusChanged = true;
+                }            
+
                 switch (toggleButton.Action)
                 {
                     case "attack":
@@ -387,6 +382,10 @@ namespace Ship_Game.Ships
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
                     button.Draw(ScreenManager);
+                    if (button.Hover)
+                    {
+                        Ship.DrawWeaponRangeCircles(Screen);
+                    }
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI

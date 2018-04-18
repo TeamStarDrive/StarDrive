@@ -89,15 +89,7 @@ namespace Ship_Game
         {
             if (SecretTechDiscovered != null)
             {
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
-                {
-                    triggerer.GetTDict()[SecretTechDiscovered].Discovered = true;
-                }
-                else
-                {
-                    triggerer.GetTDict()["Secret"].Discovered = true;
-                    triggerer.GetTDict()[SecretTechDiscovered].Discovered = true;
-                }
+                triggerer.SetEmpireTechDiscovered(SecretTechDiscovered);
             }
             if (UnlockTech != null)
             {

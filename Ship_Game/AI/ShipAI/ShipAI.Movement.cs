@@ -118,8 +118,12 @@ namespace Ship_Game.AI {
                     if (Owner.yRotation > 0f)
                         Owner.yRotation = 0f;
                 }
-                Ship velocity = Owner;
-                velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * Owner.Speed);
+
+                //var angleReduction = Owner.isTurning  ? .25f : 1;
+                Owner.Velocity *= !Owner.isTurning ? 1 : .95f;
+                Vector2 nForward = Vector2.Normalize(forward);
+                
+                Owner.Velocity += nForward * (elapsedTime * Owner.Speed);
                 if (Owner.Velocity.Length() > Owner.velocityMaximum)
                     Owner.Velocity = Vector2.Normalize(Owner.Velocity) * Owner.velocityMaximum;
             }
@@ -212,6 +216,7 @@ namespace Ship_Game.AI {
                 }
                 if (Owner.isSpooling)
                     speedLimit = speedLimit * Owner.loyalty.data.FTLModifier;
+                Owner.Velocity *= !Owner.isTurning ? 1 : .95f;
                 Ship velocity = Owner;
                 velocity.Velocity = velocity.Velocity + Vector2.Normalize(forward) * (elapsedTime * speedLimit);
                 if (Owner.Velocity.Length() > speedLimit)

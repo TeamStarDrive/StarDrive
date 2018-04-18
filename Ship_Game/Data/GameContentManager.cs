@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using SgMotion;
 
 namespace Ship_Game
 {
@@ -23,6 +24,12 @@ namespace Ship_Game
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
         private readonly object LoadSync = new object();
 
+        public Map<string, Model> Models;
+        public Map<string, StaticMesh> Meshes;
+        public Map<string, SkinnedModel> SkinnedModels;
+        public Array<Model> RoidsModels = new Array<Model>();
+        public Array<Model> JunkModels = new Array<Model>();
+
         static GameContentManager()
         {
             FixSunBurnTypeLoader();
@@ -34,6 +41,11 @@ namespace Ship_Game
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
             DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
             RawContent       = new RawContentLoader(this);
+            SkinnedModels = new Map<string, SkinnedModel>();
+            Meshes = new Map<string, StaticMesh>();
+            Models = new Map<string, Model>();
+            JunkModels = new Array<Model>();
+            RoidsModels = new Array<Model>();
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
@@ -76,6 +88,11 @@ namespace Ship_Game
             LoadedAssets     = null;
             DisposableAssets = null;
             RawContent       = null;
+            Meshes = null;
+            SkinnedModels = null;
+            Models = null;
+
+
         }
 
         private static T GetField<T>(object obj, string name)
@@ -181,11 +198,13 @@ namespace Ship_Game
 
             string extension  = "";
             string assetNoExt = assetName;
+            string assetWext = assetName;
             if (assetName[assetName.Length - 4] == '.')
             {
-                extension  = assetName.Substring(assetName.Length - 3).ToLower();
+                extension = assetName.Substring(assetName.Length - 3).ToLower();
                 assetNoExt = assetName.Substring(0, assetName.Length - 4);
             }
+            else assetWext += ".xnb";
 
             assetNoExt = assetNoExt.Replace("\\", "/"); // normalize path
 
@@ -221,12 +240,12 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            T asset = (extension.Length > 0 && extension != "xnb")
+            T asset = (extension.Length > 0 && extension != "xnb") //(T)RawContent.LoadAsset(assetWext, extension); // 
                 ? (T)RawContent.LoadAsset(assetName, extension) 
-                : ReadAsset<T>(assetNoExt, RecordDisposableObject);
+                : ReadAsset<T>(assetNoExt, RecordDisposableObject); //
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
-            #if false
+#if false
                 string[] keys;
                 lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
                 foreach (string key in keys)
@@ -237,8 +256,8 @@ namespace Ship_Game
                         Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
                     }
                 }
-            #endif
-            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);
+#endif
+            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);            
             return asset;
         }
 
@@ -327,5 +346,6 @@ namespace Ship_Game
                 throw;
             }
         }
+
     }
 }

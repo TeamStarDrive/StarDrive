@@ -263,7 +263,7 @@ namespace Ship_Game
 
         public float GetStrength()
         {
-            float num = 0.0f;
+            float num = 0.0f;            
             for (int index = 0; index < this.Ships.Count; index++)
             {
                 Ship ship = this.Ships[index];
@@ -309,26 +309,24 @@ namespace Ship_Game
             if (position == default(Vector2)) position = Position;
             endTask = false;
             bool assembled = true;
-            //using (Ships.AcquireReadLock())
+            for (int index = 0; index < Ships.Count; index++)
             {
-                for (int index = 0; index < Ships.Count; index++)
+                Ship ship = Ships[index];
+                if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
+                    continue;
+                if (ship.Center.OutsideRadius(position + ship.FleetOffset, radius))
                 {
-                    Ship ship = Ships[index];
-                    if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
-                        continue;
-                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, radius))
-                    {
-                        assembled = false;
-                        continue;
-                    }
-
-                    if (!ship.InCombat) continue;
-                    endTask = true;
+                    assembled = false;
+                    continue;
                 }
+
+                if (!ship.InCombat) continue;
+                endTask = true;
             }
+
             return assembled;
         }
-        
+
         public void Dispose()
         {
             Destroy();

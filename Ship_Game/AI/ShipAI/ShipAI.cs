@@ -386,6 +386,7 @@ namespace Ship_Game.AI
 
         private bool UpdateOrderQueueAI(float elapsedTime)
         {
+            ShipGoal toEvaluate;
             if (OrderQueue.IsEmpty)
             {
                 if (Owner.fleet == null)
@@ -506,10 +507,9 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            else if (OrderQueue.NotEmpty)
+            else if (OrderQueue.NotEmpty && (toEvaluate = OrderQueue.PeekFirst) != null)
             {
-                ShipGoal toEvaluate = OrderQueue.PeekFirst;
-                Planet target = toEvaluate.TargetPlanet;
+                Planet targetPlanet = toEvaluate.TargetPlanet;
                 switch (toEvaluate.Plan)
                 {
                     case Plan.HoldPosition:
@@ -523,12 +523,11 @@ namespace Ship_Game.AI
                         ScrapShip(elapsedTime, toEvaluate);
                         break;
                     }
-                    case Plan.Bombard: //Modified by Gretman
-                        target = toEvaluate.TargetPlanet; //Stop Bombing if:
+                    case Plan.Bombard: //Modified by Gretman                        
                         if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
-                            || target.TroopsHere.Count == 0 && target.Population <= 0f //Everyone is dead
-                            || (target.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
-                            <= target.GetGroundStrength(Owner.loyalty))
+                            || targetPlanet.TroopsHere.Count == 0 && targetPlanet.Population <= 0f //Everyone is dead
+                            || (targetPlanet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
+                            <= targetPlanet.GetGroundStrength(Owner.loyalty))
                             //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
 
                         {
@@ -561,9 +560,9 @@ namespace Ship_Game.AI
                         break;
                     case Plan.Exterminate:
                     {
-                        DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                        radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
-                        if (toEvaluate.TargetPlanet.Owner == Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
+                        DoOrbit(targetPlanet, elapsedTime);
+                        radius = targetPlanet.ObjectRadius + Owner.Radius + 1500;
+                        if (targetPlanet.Owner == Owner.loyalty || targetPlanet.Owner == null)
                         {
                             OrderQueue.Clear();
                             OrderFindExterminationTarget(true);
@@ -609,10 +608,10 @@ namespace Ship_Game.AI
                         StopWithBackwardsThrust(elapsedTime, toEvaluate);
                         break;
                     case Plan.Orbit:
-                        DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                        DoOrbit(targetPlanet, elapsedTime);
                         break;
                     case Plan.Colonize:
-                        Colonize(toEvaluate.TargetPlanet);
+                        Colonize(targetPlanet);
                         break;
                     case Plan.Explore:
                         DoExplore(elapsedTime);
@@ -816,6 +815,7 @@ namespace Ship_Game.AI
 
         private void AIStateEscort(float elapsedTime)
         {
+            Owner.AI.HasPriorityOrder = false;
             if (EscortTarget == null || !EscortTarget.Active)
             {
                 EscortTarget = null;
@@ -829,7 +829,7 @@ namespace Ship_Game.AI
                 State = AIState.AwaitingOrders; //fbedard
                 return;
             }
-            if (Owner.BaseStrength == 0 ||
+            if (Owner.GetStrength() <=0 ||
                 Owner.Mothership == null &&
                 EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) ||
                 Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
@@ -843,11 +843,17 @@ namespace Ship_Game.AI
             // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
             //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target. 
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
-            else
+            if(!Owner.InCombat )
             {
-                DoCombat(elapsedTime);
+                OrbitShip(EscortTarget, elapsedTime);
                 return;
             }
+            
+            if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
+            {
+                Owner.AI.HasPriorityOrder = true;
+                OrbitShip(EscortTarget, elapsedTime);
+            }            
         }
 
         private void AIStateAwaitingOrders(float elapsedTime)

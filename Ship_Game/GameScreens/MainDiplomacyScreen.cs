@@ -53,13 +53,7 @@ namespace Ship_Game
 
         public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
         {			
-            this.screen = screen;
-            if (!Empire.Universe.Paused)
-            {
-                Empire.Universe.Paused = Pauses = true;
-
-            }
-            
+            this.screen = screen;                      
 
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
@@ -917,6 +911,23 @@ namespace Ship_Game
         
         }
 
+        private static void GetTechsFromPins(HashSet<string> techs, Dictionary<Guid, ThreatMatrix.Pin>.ValueCollection pins, Empire empire )
+        {
+            
+            var shipTechs = new Array<string>();
+            if (empire == null) return;
+            foreach (ThreatMatrix.Pin pin in pins)
+            {
+                if (pin.Ship?.loyalty != empire) continue;
+
+                shipTechs.AddRange(pin.Ship.GetShipData().techsNeeded);
+            }
+            foreach (string tech in shipTechs)
+                techs.Add(tech);
+
+
+        }
+
         private float GetScientificStr(Empire e)
         {
             float scientificStr = 0f;
@@ -934,29 +945,11 @@ namespace Ship_Game
                 }
                 return scientificStr;
             }
-            HashSet<Ship> knownShips = new HashSet<Ship>();
-     
-            foreach (ThreatMatrix.Pin pins in PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values)
-            {
-                if (pins.Ship == null || pins.Ship.loyalty != e)
-                    continue;
-                knownShips.Add(pins.Ship);
-            }
-
+            var techs = new HashSet<string>();
+            GetTechsFromPins(techs, PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values, e);
             foreach (Empire ally in Friends)
             {
-                foreach (ThreatMatrix.Pin pins in ally.GetGSAI().ThreatMatrix.Pins.Values)
-                {
-                    if (pins.Ship == null || pins.Ship.loyalty != e)
-                        continue;
-                    knownShips.Add(pins.Ship);
-                }
-            }
-            HashSet<string> techs = new HashSet<string>();
-            foreach (Ship ship in knownShips)
-            {
-                foreach (string tech in ship.GetShipData().techsNeeded)
-                    techs.Add(tech);
+                GetTechsFromPins(techs, ally.GetGSAI().ThreatMatrix.Pins.Values, e);
             }
             foreach (string tech in techs)
             {

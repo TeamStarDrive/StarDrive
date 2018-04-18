@@ -337,7 +337,13 @@ namespace Ship_Game
             if (input.PauseGame && !GlobalStats.TakingInput) Paused = !Paused;
             if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
                 return true; //if planet screen is still exiting prevent further input
-
+            HandleEdgeDetection(input);
+            if (DefiningAO)
+            {
+                DefineAO(input);
+                return false;
+            }
+                        
             for (int index = SelectedShipList.Count - 1; index >= 0; --index)
             {
                 Ship ship = SelectedShipList[index];
@@ -384,7 +390,7 @@ namespace Ship_Game
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
 
-            HandleEdgeDetection(input);
+            
             HandleGameSpeedChange(input);
 
             // fbedard: Click button to Cycle through ships in Combat
@@ -443,19 +449,7 @@ namespace Ship_Game
                 }
             }
 
-            if (DefiningAO)
-            {
-                if (NeedARelease)
-                {
-                    if (input.LeftMouseDown)
-                        NeedARelease = false;
-                }
-                else
-                {
-                    DefineAO(input);
-                    return true;
-                }
-            }
+      
             pickedSomethingThisFrame = false;
             if (LookingAtPlanet)
                 workersPanel.HandleInput(input);
@@ -982,7 +976,7 @@ namespace Ship_Game
                     SelectedSomethingTimer = 3f;
                     foreach (Ship ship in SelectedShipList)
                     {
-                        if (ship.loyalty != player && UnselectableShip(ship))
+                        if (ship.loyalty != player || UnselectableShip(ship))
                             return;                            
                     }
 
@@ -1375,7 +1369,7 @@ namespace Ship_Game
                         else
                             ship.AI.OrderRebase(planet, true);
                     }
-                    else if (planet.Habitable &&  ship.loyalty.IsEmpireAttackable(planet.Owner))
+                    else if (planet.Habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
                     {
                         //add new right click troop and troop ship options on planets
                         if (Input.IsShiftKeyDown)
@@ -1456,49 +1450,50 @@ namespace Ship_Game
                 DefiningAO = false;
                 return;
             }
-            if (input.Escaped)      //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
+            if (input.Escaped) //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
             {
                 DefiningAO = false;
                 return;
             }
-            Vector3 position = Viewport.Unproject(input.CursorPosition.ToVec3()
-                , projection, view, Matrix.Identity);
-            Vector3 direction = Viewport.Unproject(input.CursorPosition.ToVec3(1f)
-                , projection, view, Matrix.Identity) - position;
-            direction.Normalize();
-            var ray           = new Ray(position, direction);
-            float num         = -ray.Position.Z / ray.Direction.Z;
-            var vector3       = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-            if (input.LeftMouseClick)
-                AORect        = new Rectangle((int)vector3.X, (int)vector3.Y, 0, 0);
-            if (input.LeftMouseHeld())
-            {
-                int x  = AORect.X;
-                int y  = AORect.Y;
-                int x2 = (int)vector3.X;
-                int y2 = (int)vector3.Y;
-                    
-                AORect = new Rectangle(x, y,  x2 - x, y2 - y);
-            }
-            if (input.LeftMouseReleased)
-            {
-                if (AORect.X > vector3.X)
-                    AORect.X  = (int)vector3.X;
-                if (AORect.Y > vector3.Y)
-                    AORect.Y  = (int)vector3.Y;
-                AORect.Width  = Math.Abs(AORect.Width);
-                AORect.Height = Math.Abs(AORect.Height);
-                if (AORect.Width > 100 && AORect.Height > 100)
+            if (input.RightMouseClick)
+                for (int index = 0; index < SelectedShip.AreaOfOperation.Count; ++index)
                 {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    SelectedShip.AreaOfOperation.Add(AORect);
+                    if (SelectedShip.AreaOfOperation[index].HitTest(UnprojectToWorldPosition(input.MouseScreenPos)))
+                        SelectedShip.AreaOfOperation.Remove(SelectedShip.AreaOfOperation[index]);
                 }
-            }
-            for (int index = 0; index < SelectedShip.AreaOfOperation.Count; ++index)
+
+            Vector2 start;
+            Vector2 end;
+            if (input.LeftMouseHeld(0) && input.MouseDrag)
             {
-                if (SelectedShip.AreaOfOperation[index].HitTest(new Vector2(vector3.X, vector3.Y)) && input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released)
-                    SelectedShip.AreaOfOperation.Remove(SelectedShip.AreaOfOperation[index]);
+
+                start  = UnprojectToWorldPosition(input.StartLeftHold);
+                end    = UnprojectToWorldPosition(input.CursorPosition);
+                AORect = new Rectangle((int) start.X, (int) start.Y, (int) (end.X - start.X), (int) (end.Y - start.Y));
+                return;
             }
+            if (!input.LeftMouseWasHeld)
+            {
+                AORect = new Rectangle();
+                return;
+            }
+            start  = UnprojectToWorldPosition(input.StartLeftHold);
+            end    = UnprojectToWorldPosition(input.EndLeftHold);
+            AORect = new Rectangle((int) start.X, (int) start.Y, (int) (end.X - start.X), (int) (end.Y - start.Y));
+
+
+            if (AORect.X > end.X)
+                AORect.X = (int)end.X;
+            if (AORect.Y > end.Y)
+                AORect.Y = (int)end.Y;
+
+            AORect.Width = Math.Abs(AORect.Width);
+            AORect.Height = Math.Abs(AORect.Height);
+
+            if (AORect.Width <= 5000 || AORect.Height <= 5000) return;
+
+            GameAudio.PlaySfxAsync("echo_affirm");
+            SelectedShip.AreaOfOperation.Add(AORect);            
         }
 
         private void InputClickableItems(InputState input)
@@ -1813,31 +1808,32 @@ namespace Ship_Game
 
         private void HandleEdgeDetection(InputState input)
         {
-            if (LookingAtPlanet || ViewingShip )
+            if (LookingAtPlanet  )
                 return;
             PresentationParameters p = ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 spaceFromScreenSpace1 = UnprojectToWorldPosition(new Vector2(0.0f, 0.0f));
             float num = UnprojectToWorldPosition(new Vector2(p.BackBufferWidth, p.BackBufferHeight)).X - spaceFromScreenSpace1.X;
             input.Repeat = true;
-            if (input.CursorPosition.X <= 1f || input.Left)
+
+            if (input.CursorPosition.X <= 1f || input.Left && !ViewingShip)
             {
                 CamDestination.X -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.X >= (p.BackBufferWidth - 1) || input.Right )
+            if (input.CursorPosition.X >= p.BackBufferWidth - 1 || input.Right && !ViewingShip)
             {
                 CamDestination.X += 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.Y <= 0.0f || input.Up )
+            if (input.CursorPosition.Y <= 0.0f || input.Up && !ViewingShip)
             {
                 CamDestination.Y -= 0.008f * num;
                 snappingToShip = false;
                 ViewingShip    = false;
             }
-            if (input.CursorPosition.Y >= (p.BackBufferHeight - 1) || input.Down )
+            if (input.CursorPosition.Y >= p.BackBufferHeight - 1 || input.Down && !ViewingShip)
             {
                 CamDestination.Y += 0.008f * num;
                 snappingToShip = false;
