@@ -63,7 +63,8 @@ namespace Ship_Game.Ships
 
         private void UpdateAlive(float elapsedTime)
         {
-            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false && !System.IsFullyExploredBy(loyalty))  //Added easy out for fully explorered systems
+            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false && !System.IsFullyExploredBy(loyalty)
+                && System.PlanetList != null)  //Added easy out for fully explorered systems
             {
                 foreach (Planet p in System.PlanetList)
                 {
