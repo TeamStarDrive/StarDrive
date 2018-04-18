@@ -863,7 +863,8 @@ namespace Ship_Game.AI {
             //Added by McShooterz: refit keeps name and level
             if (Owner.VanityName != Owner.Name)
                 qi.RefitName = Owner.VanityName;
-            qi.sData.Level = (byte) Owner.Level;
+            if (qi.sData != null)
+                qi.sData.Level = (byte)Owner.Level;
             if (Owner.fleet != null)
             {
                 var refitgoal = new FleetRequisition(goal, this);
