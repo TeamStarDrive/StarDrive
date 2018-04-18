@@ -413,13 +413,13 @@ namespace Ship_Game.Ships
                                          bool InternalExplosion = false, bool ablation = true)
         {
             float damageTracker = damageAmount ;
-            if (!ignoreShields)
+            if (!ignoreShields && !InternalExplosion)
             {
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
                     if (module.HitTestShield(worldHitPos, hitRadius) &&
-                        module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, internalexplosion : InternalExplosion))
+                        module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
                 }
             }
