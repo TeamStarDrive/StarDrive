@@ -736,7 +736,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Flak)      AddModifiers("Flak", projectile, ref actualshieldpenchance);
             if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualshieldpenchance);
 
-            projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance * 100;
+            projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance;
         }
 
         private void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
@@ -747,7 +747,7 @@ namespace Ship_Game.Gameplay
             projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
             // Shield Penetration
             float currenshieldpenchance   = Module.GetParent().loyalty.data.ShieldPenBonusChance; // check the old calcs first
-            currenshieldpenchance        += wepTags[tag].ShieldPenetration; // new calcs
+            currenshieldpenchance        += wepTags[tag].ShieldPenetration * 100; // new calcs
             currenshieldpenchance        += ShieldPenChance;
             actualShieldPenChance = Math.Max(currenshieldpenchance, actualShieldPenChance);
             if (isBeam) return;
