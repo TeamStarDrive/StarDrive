@@ -293,7 +293,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             this.ScreenManager.SpriteBatch.Draw(this.FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             float num = 512f / UniverseSize;
-            var uiNode = ResourceManager.TextureDict["UI/node"];
+            var uiNode = ResourceManager.Texture("UI/node");
             foreach (Ship ship in player.GetShips())
             {
                 if (ScreenRectangle.HitTest(ship.ScreenPosition))
@@ -1028,7 +1028,7 @@ namespace Ship_Game
             for (int i = 0; i < ship.Projectiles.Count; i++)
             {
                 Projectile projectile = ship.Projectiles[i];
-                projectile.DrawProjectile(this);
+                projectile?.DrawProjectile(this);
             }
         }
 

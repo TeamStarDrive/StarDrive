@@ -251,11 +251,8 @@ namespace Ship_Game.Ships
 
             string roleName = DesignRole.ToString();
             string iconName = $"TacticalIcons/symbol_";
-            Texture2D icon = ResourceManager.Texture(iconName + roleName, "") ??
-                ResourceManager.Texture(iconName + shipData.HullRole, "");
-            if (icon != null) return icon;
-            
-            return ResourceManager.Texture("TacticalIcons/symbol_construction");
+            return ResourceManager.Texture(iconName + roleName, "") ??
+                ResourceManager.Texture(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
         private int Calculatesize()
         {
@@ -1465,7 +1462,7 @@ namespace Ship_Game.Ships
                 {
                     maintModReduction *= 2f;
                 }
-                if (ActiveInternalSlotCount < InternalSlotCount)
+                if (ActiveInternalSlotCount >0 && ActiveInternalSlotCount < InternalSlotCount)
                 {
                     float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
                     if (damRepair > 1.5f) damRepair = 1.5f;
