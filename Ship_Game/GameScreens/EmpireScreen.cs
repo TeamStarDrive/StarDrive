@@ -243,16 +243,16 @@ namespace Ship_Game
                 if (pgs.building != null)
                 {
                     Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.building.Icon, "_48x48")], bRect, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.building.Icon, "_48x48")), bRect, Color.White);
                 }
                 else if (pgs.QItem != null)
                 {
                     Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 24, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 24, 48, 48);
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.QItem.Building.Icon, "_48x48")], bRect, new Color(255, 255, 255, 128));
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.QItem.Building.Icon, "_48x48")), bRect, new Color(255, 255, 255, 128));
                 }
                 DrawPGSIcons(pgs);
             }
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("PlanetTiles/", SelectedPlanet.GetTile())], buildingsRect, Color.White);
+            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("PlanetTiles/", SelectedPlanet.GetTile())), buildingsRect, Color.White);
     
             int xpos = (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - MapRect.Width) / 2;
             int ypos = (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - MapRect.Height) / 2;
@@ -266,11 +266,11 @@ namespace Ship_Game
                 portraitRect.Height = portraitRect.Height - (int)(0.25 * (double)portraitRect.Height);
                 portraitRect.Width = portraitRect.Width - (int)(0.25 * (double)portraitRect.Width);
             }
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", EmpireManager.Player.data.PortraitName)], portraitRect, Color.White);
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], portraitRect, Color.White);
+            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", EmpireManager.Player.data.PortraitName)), portraitRect, Color.White);
+            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), portraitRect, Color.White);
             if (SelectedPlanet.colonyType == Planet.ColonyType.Colony)
             {
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/x_red"], portraitRect, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/x_red"), portraitRect, Color.White);
             }
             base.ScreenManager.SpriteBatch.DrawRectangle(portraitRect, new Color(118, 102, 67, 255));
             Vector2 TextPosition = new Vector2((float)(portraitRect.X + portraitRect.Width + 25), (float)portraitRect.Y);

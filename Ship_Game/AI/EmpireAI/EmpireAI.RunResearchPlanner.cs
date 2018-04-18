@@ -751,8 +751,8 @@ namespace Ship_Game.AI {
                 float rand = RandomMath.AvgRandomBetween(.01f, 1f);
                 var hullRole = role.Value[0].shipData.HullRole;
                 var hullUnlocked = OwnerEmpire.IsHullUnlocked(role.Value[0].shipData.Hull);
-                if (hullRole == ShipData.RoleName.platform || hullRole == ShipData.RoleName.station || hullUnlocked)
-                    chance /= 3f;
+                //if (hullRole == ShipData.RoleName.platform || hullRole == ShipData.RoleName.station || hullUnlocked)
+                //    chance /= 1.5f;
                 if (rand > chance) continue;
                 return role.Key;
             }
