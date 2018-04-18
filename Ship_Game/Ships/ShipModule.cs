@@ -316,12 +316,17 @@ namespace Ship_Game.Ships
             return damagemodifier;
         }
 
-        private float ApplyResistances(Weapon weapon, float damagemodifier)
+        private float ApplyResistances(Weapon weapon, float damagemodifier,bool internalexplosion)
         {
             /* Using else if since every weapon should be tagged with one of the top types of projectiles (Kinetic, Beam, Energy, Missile or Torpedo.
             all the rest simply doesnt matter and wastes time being called every time there is a hit. there is no need to make more methods of this since its rather a simple one.
             Modules will have one or more of the types of resist below.
              */
+            if (internalexplosion) // damage from reactor explosion. so only explosive resist applies
+            {
+                damagemodifier = damagemodifier * (1f - ExplosiveResist);
+                return damagemodifier;
+            }
             if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - ExplosiveResist);
             if (weapon.Tag_Kinetic) damagemodifier = damagemodifier * (1f - KineticResist);
             else if (weapon.Tag_Beam) damagemodifier = damagemodifier * (1f - BeamResist);
@@ -332,7 +337,6 @@ namespace Ship_Game.Ships
             //else if (weapon.Tag_Cannon) damagemodifier    = damagemodifier * (1f - CannonResist);
             //else if (weapon.Tag_Hybrid) damagemodifier    = damagemodifier * (1f - HybridResist);
             //else if (weapon.Tag_Intercept) damagemodifier = damagemodifier * (1f - InterceptResist);
-            //else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - ExplosiveResist);
             //else if (weapon.Tag_Railgun) damagemodifier   = damagemodifier * (1f - RailgunResist);
             //else if (weapon.Tag_SpaceBomb) damagemodifier = damagemodifier * (1f - SpaceBombResist);
             //else if (weapon.Tag_Bomb) damagemodifier      = damagemodifier * (1f - BombResist);
@@ -503,7 +507,7 @@ namespace Ship_Game.Ships
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius
-            , ref float damageInOut, bool damageReduction = true)
+            , ref float damageInOut, bool damageReduction = true, bool internalexplosion = false)
         {
             if (damageInOut <= 0f) return true;
             float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, ShieldPower > 0 ? ShieldHitRadius : Radius, 0f);
@@ -511,7 +515,7 @@ namespace Ship_Game.Ships
                 return damageInOut <= 0f;
             if (Empire.Universe.DebugWin != null)
                 Empire.Universe.DebugWin.DrawCircle(DebugModes.SpatialManager, Center, Radius);
-            DamageWithDamageDone(damageSource, damage, out float damageDone);
+            DamageWithDamageDone(damageSource, damage, out float damageDone, internalexplosion);
             if (damageReduction)
                 damageInOut -= damageDone;
             return damageInOut <= 0f;
@@ -534,19 +538,69 @@ namespace Ship_Game.Ships
             damageRemainder = damageAmount * this.DamageModifier - (health - Health - ShieldPower);
             if (this.DamageModifier <= 1f) return result;
             damageRemainder /= this.DamageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
-            damageRemainder = (int)Math.Round(this.DamageModifier, 0);
+            damageRemainder = (int)Math.Round(damageRemainder, 0);
             return result;
         }
 
-        public bool DamageWithDamageDone(GameplayObject source, float damageAmount, out float damageDone)
+        public bool DamageWithDamageDone(GameplayObject source, float damageAmount, out float damageDone, bool internalexplosion = false)
         {
             float health = Health + ShieldPower;
-            bool result = Damage(source, damageAmount);
-            damageDone = health - Health - ShieldPower;
+            bool result = Damage(source, damageAmount, internalexplosion);
+            if (Health > 0)
+            {
+                damageDone = health - Health - ShieldPower;
+                return result;
+            }
+            if (DamageModifier >= 0.01 || DamageModifier <= -0.01) damageDone = (health - Health - ShieldPower) / DamageModifier ; // add the dmg resisted
+            else damageDone = damageAmount; // everything was absorbed in this module
             return result;
         }
 
-        private float CalcDamageModifier(Projectile proj, Beam beam, float shieldpower)
+        public override bool Damage(GameplayObject source, float damageAmount, bool internalexplosion = false)
+        {
+            if (source != null) Parent.LastDamagedBy = source;
+            Parent.InCombatTimer = 15f;
+            Parent.ShieldRechargeTimer = 0f;
+            var beam = source as Beam;
+            Projectile proj = null;
+            if (beam == null)
+                proj = source as Projectile;
+
+            if (ShieldPower < 1f || proj?.IgnoresShields == true)
+            {
+                this.DamageModifier = CalcDamageModifier(proj, beam, ShieldPower, internalexplosion);
+                damageAmount *= this.DamageModifier;
+                damageAmount = CalcDamageThreshold(proj, damageAmount);
+                CalcEMPDamage(proj);
+                CalcBeamDamageTypes(beam);
+
+                if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
+                    return false; // Fat Batstard: I dont understand why this bit is needed.
+                /*CG: as i remember this is because its a shield module. if this does not return the shield module will be hit when
+                 a module it is shielding get hit. that was a long time ago though. it may be different now. 
+
+    */
+                DebugPerseveranceNoDamage();
+                Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
+                //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
+            }
+            else // damaging shields
+            {
+                this.DamageModifier = CalcDamageModifier(proj, beam, ShieldPower, internalexplosion);
+                damageAmount *= this.DamageModifier;
+                damageAmount = CalcShieldDamageThreshold(proj, damageAmount);
+                ShieldPower = ApplyShieldDamage(ShieldPower, damageAmount);
+                //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
+                if (source != null) ShieldPower = CalcSiphonDamage(beam, ShieldPower);
+                Parent.UpdateShields();
+                if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum) return true;
+                if (beam != null) shield.HitShield(this, beam);
+                else if (proj != null && !proj.IgnoresShields) shield.HitShield(this, proj);
+            }
+            return true;
+        }
+
+        private float CalcDamageModifier(Projectile proj, Beam beam, float shieldpower, bool internalexplosion = false)
         {
             float damagemodifier = 1f;
 
@@ -563,8 +617,8 @@ namespace Ship_Game.Ships
                 damagemodifier = CalcEffectVsArmor(damagemodifier, beam, proj);
                 damagemodifier = CalcArmorBonus(damagemodifier);
                 // Vulnerabilities and resistances for modules, XML-defined. what about beams?
-                if (proj != null) damagemodifier = ApplyResistances(proj.Weapon, damagemodifier);
-                else if (beam != null) damagemodifier = ApplyResistances(beam.Weapon, damagemodifier);
+                if (proj != null) damagemodifier = ApplyResistances(proj.Weapon, damagemodifier, internalexplosion);
+                else if (beam != null) damagemodifier = ApplyResistances(beam.Weapon, damagemodifier, internalexplosion);
             }
             return damagemodifier;
         }
@@ -733,50 +787,6 @@ namespace Ship_Game.Ships
 
             }
             return shieldpower;
-        }
-
-        public override bool Damage(GameplayObject source, float damageAmount)
-        {
-            if (source != null) Parent.LastDamagedBy = source;
-            Parent.InCombatTimer = 15f;
-            Parent.ShieldRechargeTimer = 0f;
-            var beam = source as Beam;
-            Projectile proj = null;
-            if (beam == null)
-                proj = source as Projectile;
-
-            if (ShieldPower < 1f || proj?.IgnoresShields == true)
-            {
-                this.DamageModifier = CalcDamageModifier(proj, beam, ShieldPower);
-                damageAmount *= this.DamageModifier;
-                damageAmount = CalcDamageThreshold(proj,damageAmount);
-                CalcEMPDamage(proj);
-                CalcBeamDamageTypes(beam);
-
-                if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0)) 
-                    return false; // Fat Batstard: I dont understand why this bit is needed.
-                /*CG: as i remember this is because its a shield module. if this does not return the shield module will be hit when
-                 a module it is shielding get hit. that was a long time ago though. it may be different now. 
-
-    */
-                DebugPerseveranceNoDamage();
-                Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
-                //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
-            }
-            else // damaging shields
-            {
-                this.DamageModifier = CalcDamageModifier(proj, beam, ShieldPower);
-                damageAmount *= this.DamageModifier;
-                damageAmount = CalcShieldDamageThreshold(proj, damageAmount);
-                ShieldPower = ApplyShieldDamage(ShieldPower, damageAmount);
-                //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
-                if (source != null) ShieldPower = CalcSiphonDamage(beam, ShieldPower);
-                Parent.UpdateShields();
-                if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum) return true;
-                if (beam != null) shield.HitShield(this, beam);
-                else if (proj != null && !proj.IgnoresShields) shield.HitShield(this, proj);
-            }
-            return true;
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)

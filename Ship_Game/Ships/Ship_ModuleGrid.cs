@@ -419,7 +419,7 @@ namespace Ship_Game.Ships
                 {
                     ShipModule module = Shields[i];
                     if (module.HitTestShield(worldHitPos, hitRadius) &&
-                        module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
+                        module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, internalexplosion : InternalExplosion))
                             return; // no more damage to dish, exit early
                 }
             }
@@ -443,7 +443,7 @@ namespace Ship_Game.Ships
             if (a == b)
             {
                 if ((m = grid[a.X + a.Y*width]) != null && m.Active 
-                    && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation))
+                    && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation, InternalExplosion))
                     return;
                 return;
             }
@@ -457,7 +457,7 @@ namespace Ship_Game.Ships
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
             if ((m = grid[minX + minY*width]) != null && m.Active )
-                  m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation);
+                  m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation, InternalExplosion);
 
             // spread out the damage in 4 directions but apply a new set of full damage to external modules.
 
@@ -476,7 +476,7 @@ namespace Ship_Game.Ships
                                     , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageTracker, ablation);
+                                    , ref damageTracker, ablation, InternalExplosion);
 
 
                 }
@@ -489,7 +489,7 @@ namespace Ship_Game.Ships
                                     , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                                , ref damageTracker, ablation);
+                                                , ref damageTracker, ablation, InternalExplosion);
                              
                 }
                 if (minY > firstY) { // test all top modules
@@ -501,7 +501,7 @@ namespace Ship_Game.Ships
                                     , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageTracker, ablation);
+                                    , ref damageTracker, ablation, InternalExplosion);
                 }
                 if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
@@ -512,7 +512,7 @@ namespace Ship_Game.Ships
                                     , ref damageBurstExternal, ablation);
                             else
                                 m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageTracker, ablation);
+                                    , ref damageTracker, ablation, InternalExplosion);
                 }
                 if (!didExpand) return; // wellll, looks like we're done here!
             }
