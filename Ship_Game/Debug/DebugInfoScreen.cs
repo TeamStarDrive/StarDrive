@@ -62,7 +62,8 @@ namespace Ship_Game.Debug
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
         private static DebugModes Mode;
-        private HashSet<Circle> Circles = new HashSet<Circle>();
+        private Array<Circle> Circles = new Array<Circle>();
+        private Array<GameplayObject> GPObjects = new Array<GameplayObject>();
         private int CircleTimer = 0;
         private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
@@ -142,7 +143,7 @@ namespace Ship_Game.Debug
 
         public override void Update()
         {
-            
+            CircleTimer--;
         }
 
         private void SetTextCursor(float x, float y, Color color)
@@ -171,41 +172,46 @@ namespace Ship_Game.Debug
 
         public void Draw(GameTime gameTime)
         {
-            TextFont = Fonts.Arial20Bold;
-            SetTextCursor(50f, 50f, Color.Red);
-
-            DrawString(Color.Yellow, Mode.ToString());
-            DrawString("Ships Died:   " + ShipsDied);
-            DrawString("Proj Died:    " + ProjDied);
-            DrawString("Proj Created: " + ProjCreated);
-            DrawString("Mods Created: " + ModulesCreated);
-            DrawString("Mods Died:    " + ModulesDied);
-
-            TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
-            TextCursor.X += Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X;
-            DrawString("LastMTaskCanceled: "+ CanceledMTaskName);
-
-            DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
-            DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
-            DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
-            DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
-
-            DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
-            DrawCircles();
-            TextFont = Fonts.Arial12Bold;
-            switch (Mode)
+            try
             {
-                case DebugModes.Normal:       EmpireInfo();       break;
-                case DebugModes.DefenseCo:    DefcoInfo();        break;
-                case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
-                case DebugModes.Pathing:      PathingInfo();      break;
-                case DebugModes.Trade:        TradeInfo();        break;
-                case DebugModes.Targeting:    Targeting();        break;
-                case DebugModes.SpatialManager: SpatialManagement(); break;
-                case DebugModes.input:          InputDebug();        break;
-                case DebugModes.Tech:           Tech();              break;
+                TextFont = Fonts.Arial20Bold;
+                SetTextCursor(50f, 50f, Color.Red);
+
+                DrawString(Color.Yellow, Mode.ToString());
+                DrawString("Ships Died:   " + ShipsDied);
+                DrawString("Proj Died:    " + ProjDied);
+                DrawString("Proj Created: " + ProjCreated);
+                DrawString("Mods Created: " + ModulesCreated);
+                DrawString("Mods Died:    " + ModulesDied);
+
+                TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
+                TextCursor.X += Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X;
+                DrawString("LastMTaskCanceled: " + CanceledMTaskName);
+
+                DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
+                DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
+                DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
+                DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
+
+                DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
+                DrawGPObjects();
+                DrawCircles();
+                TextFont = Fonts.Arial12Bold;
+                switch (Mode)
+                {
+                    case DebugModes.Normal: EmpireInfo(); break;
+                    case DebugModes.DefenseCo: DefcoInfo(); break;
+                    case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
+                    case DebugModes.Pathing: PathingInfo(); break;
+                    case DebugModes.Trade: TradeInfo(); break;
+                    case DebugModes.Targeting: Targeting(); break;
+                    case DebugModes.SpatialManager: SpatialManagement(); break;
+                    case DebugModes.input: InputDebug(); break;
+                    case DebugModes.Tech: Tech(); break;
+                }
+                ShipInfo();
             }
-            ShipInfo();
+            catch { }
         }
         private void Tech()
         {
@@ -213,7 +219,7 @@ namespace Ship_Game.Debug
             int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isFaction || e.MinorRace)
+                if (e.isFaction || e.MinorRace || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
@@ -408,11 +414,11 @@ namespace Ship_Game.Debug
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
                 DrawString($"Ship Count:    {e.GetShips().Count}" +
-                           $" :{e.GetShips().Count(warship=> warship.DesignRole ==  ShipData.RoleName.fighter)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.frigate)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.cruiser)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole > ShipData.RoleName.cruiser)}"
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
+                           $" :{e.GetShips().Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser || warship?.DesignRole == ShipData.RoleName.frigate)}" +                           
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole >= ShipData.RoleName.bomber && warship?.DesignRole <= ShipData.RoleName.carrier)}"
                            );
                 DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
@@ -521,7 +527,7 @@ namespace Ship_Game.Debug
               
                 foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values.ToArray())
                 {
-                    if (pin.Position == Vector2.Zero) continue;
+                    if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;
                     Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);
 
                     if (!pin.InBorders) continue;
@@ -598,7 +604,7 @@ namespace Ship_Game.Debug
             if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
                 return false;
             ResearchText.Clear();
-            CircleTimer = int.MinValue;
+            CircleTimer = 0;
             if      (input.WasKeyPressed(Keys.Left))  --Mode;
             else  ++Mode;
 
@@ -648,29 +654,73 @@ namespace Ship_Game.Debug
 
         public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius) => DrawCircle(mode, screenPos, radius, Color.Red);
 
-        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color)
+        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color, Ship ship = null)
         {
             if (mode != Mode) return;
+            if (ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship) return;
+            
             Circle circle = new Circle(screenPos, radius);
             circle.C = color;
             Circles.Add(circle);            
         }
         private void DrawCircles()
         {
-            if (Circles.Count == 0) return;
-            foreach (Circle circle in Circles) 
+            var circles = Circles;
+            if (Screen.Paused)
             {
-                Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
+                foreach (var circle in circles)
+                {
+                    Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
+                }
+                return;
             }
 
-            if (CircleTimer > 15)
+            while (circles.Count > 0)
             {
-                Circles.Remove(Circles.First());
-                CircleTimer = 0;
+                var circle = circles.PopLast();
+                Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0, 32,
+                    circle?.C ?? Color.Black, 3);
             }
-            if (CircleTimer == int.MinValue)
-                Circles.Clear();
-            CircleTimer++;
+        }
+        TimeSpan LastHit =TimeSpan.MaxValue;
+        public void DrawGPObjects(DebugModes mode, GameplayObject gameplay, Ship ship = null)
+        {
+            if (mode != Mode) return;
+            if (ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship) return;            
+            GPObjects.Add(gameplay);
+            var time = Screen.GameTime.TotalGameTime;
+            if (LastHit == time)
+                return;
+            CircleTimer += 20;
+            LastHit = time;
+
+        }
+        private void DrawGPObjects()
+        {
+            var circles = GPObjects;
+            for (int x = 0; x < circles.Count; x++)
+            {
+                try
+                {
+                    var circle = circles[x];
+                    if (!circle.Active) continue;
+                    Screen.DrawCircleProjected(circle.Center, circle.Radius, 3, Color.Red, 3);
+                }
+                catch { }
+            }
+            if (Screen.Paused) return;
+            CircleTimer = Math.Max(0, --CircleTimer);
+            
+
+            int test = Math.DivRem(CircleTimer, 20, out int rem);
+
+            if (rem >5 )
+                return;
+            if (circles.Count > 0)
+                circles.PopLast();
+            if (CircleTimer == 0)
+                circles.Clear();
+           
         }
     }
 }

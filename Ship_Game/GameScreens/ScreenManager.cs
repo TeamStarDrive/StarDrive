@@ -30,7 +30,19 @@ namespace Ship_Game
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
-        public float exitScreenTimer;
+        
+
+        public float exitScreenTimer
+        {
+            get => input.ExitScreenTimer;
+            set => input.ExitScreenTimer = value;
+        }
+
+
+        //public float exitScreenTimer
+        //{
+            
+        //} input.ExitScreenTimer;
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => Screens.Count;
@@ -285,9 +297,9 @@ namespace Ship_Game
         public void RemoveScreen(GameScreen screen)
         {
             if (GraphicsDeviceService?.GraphicsDevice != null)
-                screen.UnloadContent();
+                screen.UnloadContent();            
             Screens.Remove(screen);
-            exitScreenTimer = .025f;
+            exitScreenTimer = .25f;
         }
 
         public void Update(GameTime gameTime)
@@ -303,7 +315,7 @@ namespace Ship_Game
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
                 if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
                     continue;
-                if (!otherScreenHasFocus)
+                if (!otherScreenHasFocus && exitScreenTimer <=0f)
                 {
                     screen.HandleInput(input);
                     otherScreenHasFocus = true;
@@ -318,11 +330,11 @@ namespace Ship_Game
         {
             if (!stopFurtherInput)
             {
-                exitScreenTimer -= .0016f;
+                //exitScreenTimer -= .0016f;
                 if (exitScreenTimer > 0f)
                     return true;
             }
-            else exitScreenTimer = .025f;
+            //else exitScreenTimer = .025f;
             return false;
         }
 

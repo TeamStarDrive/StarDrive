@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -129,41 +130,41 @@ namespace Ship_Game
             OrdersBarPos.X = OrdersBarPos.X - 15;
             ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon");			
             this.CombatStatusButtons.Add(AttackRuns);
-            AttackRuns.Action = "attack";
+            AttackRuns.Action = CombatState.AttackRuns.ToString();
             AttackRuns.HasToolTip = true;
             AttackRuns.WhichToolTip = 1;
 
             OrdersBarPos.X = OrdersBarPos.X + 29f;
             ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
             this.CombatStatusButtons.Add(ShortRange);
-            ShortRange.Action = "short";
+            ShortRange.Action = CombatState.ShortRange.ToString();
             ShortRange.HasToolTip = true;
             ShortRange.WhichToolTip = 228;
 
             OrdersBarPos.X = OrdersBarPos.X + 29f;
             ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_aft");
             this.CombatStatusButtons.Add(Artillery);
-            Artillery.Action = "arty";
+            Artillery.Action = CombatState.Artillery.ToString();
             Artillery.HasToolTip = true;
             Artillery.WhichToolTip = 2;
 
             OrdersBarPos.X = OrdersBarPos.X + 29f;			
             ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_x");
             this.CombatStatusButtons.Add(HoldPos);
-            HoldPos.Action = "hold";
+            HoldPos.Action = CombatState.HoldPosition.ToString();
             HoldPos.HasToolTip = true;
             HoldPos.WhichToolTip = 65;
             OrdersBarPos.X = OrdersBarPos.X + 29f;
             ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_left");
             this.CombatStatusButtons.Add(OrbitLeft);
-            OrbitLeft.Action = "orbit_left";
+            OrbitLeft.Action = CombatState.OrbitLeft.ToString();
             OrbitLeft.HasToolTip = true;
             OrbitLeft.WhichToolTip = 3;
             OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 
             ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bleft");
             this.CombatStatusButtons.Add(BroadsideLeft);
-            BroadsideLeft.Action = "broadside_left";
+            BroadsideLeft.Action = CombatState.BroadsideLeft.ToString();
             BroadsideLeft.HasToolTip = true;
             BroadsideLeft.WhichToolTip = 159;
             OrdersBarPos.Y = OrdersBarPos.Y + 29f;
@@ -171,14 +172,14 @@ namespace Ship_Game
 
             ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_right");
             this.CombatStatusButtons.Add(OrbitRight);
-            OrbitRight.Action = "orbit_right";
+            OrbitRight.Action = CombatState.OrbitRight.ToString();
             OrbitRight.HasToolTip = true;
             OrbitRight.WhichToolTip = 4;
             OrdersBarPos.Y = OrdersBarPos.Y - 29f;
 
             ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bright");
             this.CombatStatusButtons.Add(BroadsideRight);
-            BroadsideRight.Action = "broadside_right";
+            BroadsideRight.Action = CombatState.BroadsideRight.ToString();
             BroadsideRight.HasToolTip = true;
             BroadsideRight.WhichToolTip = 160;
             OrdersBarPos.Y = OrdersBarPos.Y + 29f;
@@ -186,7 +187,7 @@ namespace Ship_Game
 
             ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_stop");
             this.CombatStatusButtons.Add(Evade);
-            Evade.Action = "evade";
+            Evade.Action = CombatState.Evade.ToString();
             Evade.HasToolTip = true;
             Evade.WhichToolTip = 6;
             Rectangle slsubRect = new Rectangle(this.RightRect.X, this.Housing.Y + 110 - 35, this.RightRect.Width - 5, 140);
@@ -347,225 +348,44 @@ namespace Ship_Game
             {
                 return false;
             }
-            if (this.ShipList == null || this.ShipList.Count == 0)
+            if (ShipList == null || ShipList.Count == 0)
             {
                 return false;
             }
-            if (this.gridbutton.HandleInput(input))
+            if (gridbutton.HandleInput(input))
             {
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                this.ShowModules = !this.ShowModules;
-                if (!this.ShowModules)
-                {
-                    this.gridbutton.Active = false;
-                }
-                else
-                {
-                    this.gridbutton.Active = true;
-                }
+                ShowModules = !this.ShowModules;
+                gridbutton.Active = ShowModules;
                 return true;
             }
-            if (this.AllShipsMine)
+            if (AllShipsMine)
             {
                 foreach (ToggleButton button in this.CombatStatusButtons)
                 {
-                    if (!button.Rect.HitTest(input.CursorPosition))
+                    if (button.HandleInput(input))
                     {
-                        button.Hover = false;
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        
+
+
+                        CombatState action = (CombatState) Enum.Parse(typeof(CombatState), button.Action);
+                        foreach(Ship ship in ShipList)
+                        {
+                            ship.AI.CombatState = action;
+                        }
+                                  
                     }
                     else
+                    foreach (CombatState combatState in Enum.GetValues(typeof(CombatState)))
                     {
-                        button.Hover = true;
-                        if (button.HasToolTip)
-                        {
-                            ToolTip.CreateTooltip(button.WhichToolTip);
-                        }
-                        if (input.InGameSelect)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            string action = button.Action;
-                            string str = action;
-                            if (action != null)
-                            {
-                                if (str == "attack")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.AttackRuns;
-                                    }
-                                }
-                                else if (str == "arty")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.Artillery;
-                                    }
-                                }
-                                else if (str == "hold")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.HoldPosition;
-                                    }
-                                }
-                                else if (str == "orbit_left")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.OrbitLeft;
-                                    }
-                                }
-                                else if (str == "broadside_left")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.BroadsideLeft;
-                                    }
-                                }
-                                else if (str == "orbit_right")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.OrbitRight;
-                                    }
-                                }
-                                else if (str == "broadside_right")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.BroadsideRight;
-                                    }
-                                }
-                                else if (str == "short")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.ShortRange;
-                                    }
-                                }
-                                else if (str == "evade")
-                                {
-                                    foreach (Ship ship in this.ShipList)
-                                    {
-                                        ship.AI.CombatState = CombatState.Evade;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (this.HoveredShip == null)
-                    {
-                        button.Active = false;
-                    }
-                    else
-                    {
-                        string action1 = button.Action;
-                        string str1 = action1;
-                        if (action1 == null)
-                        {
-                            continue;
-                        }
-                        if (str1 == "attack")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.AttackRuns)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (str1 == "arty")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.Artillery)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (str1 == "hold")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.HoldPosition)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (str1 == "orbit_left")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.OrbitLeft)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (str1 == "broadside_left")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.BroadsideLeft)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (str1 != "orbit_right")
-                        {
-                            if (str1 == "evade")
-                            {
-                                if (this.HoveredShip.AI.CombatState != CombatState.Evade)
-                                {
-                                    button.Active = false;
-                                }
-                                else
-                                {
-                                    button.Active = true;
-                                }
-                            }
-                        }
-                        else if (str1 == "broadside_right")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.BroadsideRight)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (str1 == "short")
-                        {
-                            if (this.HoveredShip.AI.CombatState != CombatState.ShortRange)
-                            {
-                                button.Active = false;
-                            }
-                            else
-                            {
-                                button.Active = true;
-                            }
-                        }
-                        else if (this.HoveredShip.AI.CombatState != CombatState.OrbitRight)
-                        {
-                            button.Active = false;
-                        }
-                        else
-                        {
-                            button.Active = true;
-                        }
+                        if (combatState.ToString() != button.Action) continue;
+
+                        button.Active = AllShipsInState(combatState);
+                        if (button.Active) break;
                     }
                 }
+                
                 if (this.sliding_element.HandleInput(input))
                 {
                     if (!this.sliding_element.Open)
@@ -686,6 +506,16 @@ namespace Ship_Game
             if (sliding_element.ButtonHousing.HitTest(input.CursorPosition))
                 return true;
             return false;
+        }
+
+        private bool AllShipsInState(CombatState state)
+        {
+            foreach (Ship ship in ShipList)
+            {
+                if (ship.AI.CombatState != state)
+                    return false;
+            }
+            return true;
         }
 
         public void SetShipList(Array<Ship> shipList, bool isFleet)

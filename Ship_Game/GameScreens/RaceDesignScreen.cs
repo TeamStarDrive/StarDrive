@@ -1325,6 +1325,7 @@ namespace Ship_Game
                     {
                         GameAudio.PlaySfxAsync("echo_affirm");
                         this.OnEngage();
+                        return true;
                     }
                     else if (str == "Rule Options")
                     {
@@ -1335,6 +1336,7 @@ namespace Ship_Game
                     {
                         GameAudio.PlaySfxAsync("echo_affirm");
                         this.ExitScreen();
+                        
                     }
                     else if (str == "Clear")
                     {

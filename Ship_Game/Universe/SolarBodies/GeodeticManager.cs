@@ -261,7 +261,7 @@ namespace Ship_Game.Universe.SolarBodies
                         Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vel * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
                     }
                 }
-                SolarSystemBody.ShieldStrengthCurrent = SolarSystemBody.ShieldStrengthCurrent - ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
+                SolarSystemBody.ShieldStrengthCurrent = SolarSystemBody.ShieldStrengthCurrent - ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
                 if (!(ShieldStrengthCurrent < 0f)) return;
                 SolarSystemBody.ShieldStrengthCurrent = 0f;
                 

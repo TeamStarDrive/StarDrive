@@ -9,7 +9,9 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.ShipDesignScreen;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game {
@@ -20,6 +22,7 @@ namespace Ship_Game {
 #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
 #endif
+            if (hull == null) return;
             ModSel.ResetLists();
             DesignStack.Clear();
             LastDesignActionPos = Vector2.Zero;
@@ -32,7 +35,7 @@ namespace Ship_Game {
                 CombatState  = hull.CombatState,
                 Hull         = hull.Hull,
                 IconPath     = hull.IconPath,
-                ModelPath    = hull.ModelPath,
+                ModelPath    = hull.HullModel,
                 Name         = hull.Name,
                 Role         = hull.Role,
                 ShipStyle    = hull.ShipStyle,
@@ -120,7 +123,10 @@ namespace Ship_Game {
             foreach (SlotStruct slot in Slots)
             {
                 if (slot.ModuleUID == null && slot.Parent == null)
+                {
                     emptySlots = false;
+                    break;
+                }
                 hasBridge = hasBridge || (slot.Module?.IsCommandModule ?? false);                
             }
             return (hasBridge || ActiveHull.Role == ShipData.RoleName.platform 
@@ -134,7 +140,7 @@ namespace Ship_Game {
             if (shipSO != null)
                 RemoveObject(shipSO);
 
-            shipSO = ResourceManager.GetSceneMesh(ActiveHull.ModelPath, ActiveHull.Animated);
+            shipSO = ResourceManager.GetSceneMesh(TransientContent, ActiveHull.ModelPath, ActiveHull.Animated);
 
             AddObject(shipSO);
             SetupSlots();
@@ -148,35 +154,51 @@ namespace Ship_Game {
 
         public override void ExitScreen()
         {
-            if (!ShipSaved && !CheckDesign())
+            bool goodDesign = CheckDesign();
+
+            if (!ShipSaved && !goodDesign)
             {
                 ExitMessageBox(this, DoExit, SaveWIP, 2121);
                 return;
             }
-            if (ShipSaved || !CheckDesign())
+            if (ShipSaved || !goodDesign)
             {
                 ReallyExit();
                 return;
             }
-
             ExitMessageBox(this, DoExit, SaveChanges, 2137);
         }
 
         public void ExitToMenu(string launches)
         {
             ScreenToLaunch = launches;
-            if (ShipSaved && CheckDesign())
+            bool noSlotsFilled = true;
+            foreach (SlotStruct slot in Slots)
+            {
+                if (slot.ModuleUID == null && slot.Parent == null) continue;
+                noSlotsFilled = false;
+                break;
+            }
+
+            bool goodDesign = CheckDesign();
+
+            if (noSlotsFilled || (ShipSaved && goodDesign))
             {
                 LaunchScreen(null, null);
                 ReallyExit();
                 return;
             }
-            if (!ShipSaved && CheckDesign())
+            if (!ShipSaved && !goodDesign)
+            {
+                ExitMessageBox(this, LaunchScreen, SaveWIP, 2121);
+                return;
+            }
+
+            if (!ShipSaved && goodDesign)
             {
                 ExitMessageBox(this, LaunchScreen, SaveChanges, 2137);
                 return;
             }
-
             ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
         }
 
@@ -184,7 +206,8 @@ namespace Ship_Game {
         {
             CategoryList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
-
+            if (DesignRoleRect.HitTest(input.CursorPosition))
+                ShipData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
                 if (input.ArrowLeft)
@@ -629,47 +652,41 @@ namespace Ship_Game {
             if (ActiveHull == null) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
-                if (toggleButton.Rect.HitTest(input.CursorPosition))
+                if (toggleButton.HandleInput(input)) 
                 {
-                    if (toggleButton.HasToolTip)
-                        ToolTip.CreateTooltip(toggleButton.WhichToolTip);
-                    if (input.InGameSelect)
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    switch (toggleButton.Action)
                     {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        switch (toggleButton.Action)
-                        {
-                            case "attack":
-                                CombatState = CombatState.AttackRuns;
-                                break;
-                            case "arty":
-                                CombatState = CombatState.Artillery;
-                                break;
-                            case "hold":
-                                CombatState = CombatState.HoldPosition;
-                                break;
-                            case "orbit_left":
-                                CombatState = CombatState.OrbitLeft;
-                                break;
-                            case "broadside_left":
-                                CombatState = CombatState.BroadsideLeft;
-                                break;
-                            case "orbit_right":
-                                CombatState = CombatState.OrbitRight;
-                                break;
-                            case "broadside_right":
-                                CombatState = CombatState.BroadsideRight;
-                                break;
-                            case "evade":
-                                CombatState = CombatState.Evade;
-                                break;
-                            case "short":
-                                CombatState = CombatState.ShortRange;
-                                break;
-                        }
+                        case "attack":
+                            CombatState = CombatState.AttackRuns;
+                            break;
+                        case "arty":
+                            CombatState = CombatState.Artillery;
+                            break;
+                        case "hold":
+                            CombatState = CombatState.HoldPosition;
+                            break;
+                        case "orbit_left":
+                            CombatState = CombatState.OrbitLeft;
+                            break;
+                        case "broadside_left":
+                            CombatState = CombatState.BroadsideLeft;
+                            break;
+                        case "orbit_right":
+                            CombatState = CombatState.OrbitRight;
+                            break;
+                        case "broadside_right":
+                            CombatState = CombatState.BroadsideRight;
+                            break;
+                        case "evade":
+                            CombatState = CombatState.Evade;
+                            break;
+                        case "short":
+                            CombatState = CombatState.ShortRange;
+                            break;
                     }
                 }
-                else
-                    toggleButton.Hover = false;
+                
                 switch (toggleButton.Action)
                 {
                     case "attack":
@@ -940,7 +957,7 @@ namespace Ship_Game {
             var categories = new Array<string>();
             foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
             {
-                if (!EmpireManager.Player.GetHDict()[hull.Key])
+                if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key])
                 {
                     continue;
                 }
@@ -961,7 +978,7 @@ namespace Ship_Game {
             {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
-                    if (!EmpireManager.Player.GetHDict()[hull.Key] ||
+                    if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key] ||
                         ((ModuleHeader) e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
                     {
                         continue;
@@ -1090,7 +1107,7 @@ namespace Ship_Game {
             newShip.IsPlayerDesign = true;
             ResourceManager.ShipsDict[name] = newShip;
             newShip.BaseStrength = -1;
-            newShip.BaseStrength = newShip.GetStrength();
+            newShip.BaseStrength = newShip.GetStrength(true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
             ActiveHull = newShip.GetShipData();
             ActiveHull.CombatState = CombatState;

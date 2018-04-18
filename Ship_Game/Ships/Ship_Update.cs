@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         {
             bool inFrustrum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && Empire.Universe.Frustum.Contains(Position, 2000f);
+                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI.Target != null && Empire.Universe.Frustum.Contains(AI.Target.Position, maxWeaponsRange)) ;
 
             InFrustum = inFrustrum;
             ShipSO.Visibility = inFrustrum ? ObjectVisibility.Rendered : ObjectVisibility.None;
@@ -63,7 +63,8 @@ namespace Ship_Game.Ships
 
         private void UpdateAlive(float elapsedTime)
         {
-            if (System != null && elapsedTime > 0f && !loyalty.isFaction && !System.IsFullyExploredBy(loyalty))  //Added easy out for fully explorered systems
+            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false && !System.IsFullyExploredBy(loyalty)
+                && System.PlanetList != null)  //Added easy out for fully explorered systems
             {
                 foreach (Planet p in System.PlanetList)
                 {
@@ -118,7 +119,7 @@ namespace Ship_Game.Ships
             }
 
             Rotation += RotationalVelocity * elapsedTime;
-            if (RotationalVelocity != 0.0)
+            if (RotationalVelocity > 0 || RotationalVelocity < 0)
                 isTurning = true;
 
             if (!isSpooling && Afterburner.IsPlaying)
@@ -397,8 +398,8 @@ namespace Ship_Game.Ships
         {
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                ShipModule slot = ModuleSlotList[i];
-                slot.Powered = false;
+                ShipModule slot      = ModuleSlotList[i];                
+                slot.Powered         = false;
                 slot.CheckedConduits = false;
             }
 
@@ -463,8 +464,11 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule module in ModuleSlotList)
             {
-                if (!module.Powered && module.IndirectPower)
+                //Bug workaround. 0 powerdraw modules get marked as unpowered which causes issues when function 
+                //depends on powered even if no power is used. 
+                if (!module.Powered && module.IndirectPower || module.PowerDraw <=0)
                     module.Powered = true;
+
             }
         }
     }

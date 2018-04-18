@@ -589,7 +589,7 @@ namespace Ship_Game.Ships
                     Point p = GridLocalToPoint(pos);
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
                     if (m != null && m.Active)
-                        path.Add(m);
+                        path.AddUniqueRef(m);
                 }
             }
             return path;
@@ -634,5 +634,6 @@ namespace Ship_Game.Ships
             float searchRange = projPos.SqDist(Center) + 48*48; // only pick modules that are "visible" to the projectile
             return TargetRandomInternalModule(projPos, level, searchRange);
         }
+        
     }
 }

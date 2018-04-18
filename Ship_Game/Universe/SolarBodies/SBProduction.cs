@@ -197,7 +197,7 @@ namespace Ship_Game.Universe.SolarBodies
                     ConstructionQueue.QueuePendingRemoval(queueItem);
                     ProductionHere += queueItem.productionTowards;
                 }
-                else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost)
+                else if (queueItem.isShip && queueItem.productionTowards >= queueItem.Cost * ShipBuildingModifier)
                 {
                     Ship shipAt;
                     if (queueItem.isRefit)
@@ -312,7 +312,7 @@ namespace Ship_Game.Universe.SolarBodies
             qi.IsPlayerAdded     = PlayerAdded;
             qi.isBuilding        = true;
             qi.Building          = b;
-            qi.Cost              = b.Cost;
+            qi.Cost              = b.Cost * UniverseScreen.GamePaceStatic;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty     = false;
             ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer);

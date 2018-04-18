@@ -25,23 +25,15 @@ namespace Ship_Game
 
         public bool Unlockable;
 
-        public Array<LeadsToTech> LeadsTo = new Array<LeadsToTech>();
-
-        public Array<LeadsToTech> ComesFrom = new Array<LeadsToTech>();
-
-        public Array<UnlockedMod> ModulesUnlocked = new Array<UnlockedMod>();
-
+        public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
+        public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();
+        public Array<UnlockedMod> ModulesUnlocked        = new Array<UnlockedMod>();
         public Array<UnlockedBuilding> BuildingsUnlocked = new Array<UnlockedBuilding>();
-
-        public Array<UnlockedBonus> BonusUnlocked = new Array<UnlockedBonus>();
-
-        public Array<UnlockedTroop> TroopsUnlocked = new Array<UnlockedTroop>();
-
-        public Array<UnlockedHull> HullsUnlocked = new Array<UnlockedHull>();
-
-        public Array<TriggeredEvent> EventsTriggered = new Array<TriggeredEvent>();
-
-        public Array<RevealedTech> TechsRevealed = new Array<RevealedTech>();
+        public Array<UnlockedBonus> BonusUnlocked        = new Array<UnlockedBonus>();
+        public Array<UnlockedTroop> TroopsUnlocked       = new Array<UnlockedTroop>();
+        public Array<UnlockedHull> HullsUnlocked         = new Array<UnlockedHull>();
+        public Array<TriggeredEvent> EventsTriggered     = new Array<TriggeredEvent>();
+        public Array<RevealedTech> TechsRevealed         = new Array<RevealedTech>();
 
         //Added by McShooterz to allow for techs with more than one level
         public byte MaxLevel = 1;
@@ -127,7 +119,6 @@ namespace Ship_Game
             public string RevUID;
             public string Type;
         }
-
        
     }
 }

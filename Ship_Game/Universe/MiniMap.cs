@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -64,6 +66,7 @@ namespace Ship_Game
 
             EndLayout();
             Scale = ActualMap.Width / (Screen.UniverseSize * 2.1f);        //Updated to play nice with the new negative map values
+            Math.Round(Scale, 3);
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
         }     
         
@@ -73,9 +76,9 @@ namespace Ship_Game
         private float WorldToMiniRadius(float radius)
         {
             float miniRadius = radius * Scale;
-            float rscale = miniRadius * 0.005f;
-
-            if (rscale < 0.006f) rscale = 0.006f;
+            float rscale = miniRadius * 0.004f;
+            
+            rscale = Math.Max(.006f, rscale);
             return rscale;
         }
 
@@ -93,17 +96,16 @@ namespace Ship_Game
                 var star = new Rectangle((int)miniSystemPos.X, (int)miniSystemPos.Y, 2, 2);
                 screenManager.SpriteBatch.FillRectangle(star, Color.Gray);
             }
-
             DrawInfluenceNodes(screenManager);
-
+            
             Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            upperLeftView         = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 20000), HelperFunctions.RoundTo(upperLeftView.Y, 20000));
+            upperLeftView         = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
             Vector2 right         = screen.UnprojectToWorldPosition(new Vector2(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
-            right                 = new Vector2(HelperFunctions.RoundTo(right.X, 20000), 0f);
+            right                 = new Vector2(HelperFunctions.RoundTo(right.X, 1), 0f);
             float xdist           = (right.X - upperLeftView.X) * Scale;
             xdist                 = HelperFunctions.RoundTo(xdist, 1);
             float ydist           = xdist * screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-
+            ydist = HelperFunctions.RoundTo(ydist, 1);
             //draw and clamp minimap viewing area rectangle.
             Rectangle lookingAt   = new Rectangle((int)MiniMapZero.X + (int)(upperLeftView.X * Scale), (int)MiniMapZero.Y + (int)(upperLeftView.Y * Scale), (int)xdist, (int)ydist);
             if (lookingAt.Width < 2)
@@ -126,7 +128,7 @@ namespace Ship_Game
 
             screenManager.SpriteBatch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
             screenManager.SpriteBatch.DrawRectangle(lookingAt, Color.White);
-            var topMiddleView   = new Vector2(lookingAt.X + lookingAt.Width / 2, lookingAt.Y);
+            var topMiddleView   = new Vector2(lookingAt.X +  lookingAt.Width / 2, lookingAt.Y);
             var botMiddleView   = new Vector2(topMiddleView.X - 1f, lookingAt.Y + lookingAt.Height);
             var leftMiddleView  = new Vector2(lookingAt.X, lookingAt.Y + lookingAt.Height / 2);
             var rightMiddleView = new Vector2(lookingAt.X + lookingAt.Width, leftMiddleView.Y + 1f);
@@ -142,37 +144,46 @@ namespace Ship_Game
             base.Draw(screenManager.SpriteBatch);
         }
 
+        void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list, ScreenManager screenManager)
+        {
+            using (list.AcquireReadLock())
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Empire.InfluenceNode node = list[i];
+                    if (!Empire.Universe.Debug)
+                        if (!node.Known)
+                            continue;
+
+                    float nodeRad = WorldToMiniRadius(node.Radius);
+                    if (node.SourceObject is GameplayObject)
+                    {
+                        nodeRad = Math.Max(nodeRad, .007f);
+                    }
+                    else
+                    {
+                        nodeRad = Math.Max(nodeRad, .016f);
+                    }
+                    float radius = nodeRad;
+                    Vector2 nodePos = WorldToMiniPos(node.Position);
+                    Color ec = new Color(empire.EmpireColor, 200);
+
+                    screenManager.SpriteBatch.Draw(Node1, nodePos, null, ec, 0f, Node.Center(), radius,
+                        SpriteEffects.None, 1f);
+                    screenManager.SpriteBatch.Draw(Node1, nodePos, null, new Color(Color.Black, 40), 0f, Node.Center(), radius,
+                        SpriteEffects.None, 1f);
+                }
+        }
+
         private void DrawInfluenceNodes(ScreenManager screenManager)
         {
-            Texture2D uiNode = Node;
-            Texture2D uiNode1 = Node1;
-
-            void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list)
-            {
-                using (list.AcquireReadLock())
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        Empire.InfluenceNode node = list[i];
-                        if (!Empire.Universe.Debug)
-                            if (!node.Known)
-                                continue;
-
-                        float radius = WorldToMiniRadius(node.Radius) * 1.2f;
-                        Vector2 nodePos = WorldToMiniPos(node.Position);
-                        var ec = new Color(empire.EmpireColor.R, empire.EmpireColor.G, empire.EmpireColor.B, 80);
-
-                        screenManager.SpriteBatch.Draw(uiNode1, nodePos, null, ec, 0f, uiNode.Center(), radius,
-                            SpriteEffects.None, 1f);
-                    }
-            }
 
             foreach (Empire e in EmpireManager.Empires)
             {
                 Relationship rel = EmpireManager.Player.GetRelations(e);
                 if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
                     continue;
-                DrawNode(e, e.BorderNodes);
-                DrawNode(e, e.SensorNodes);
+                DrawNode(e, e.BorderNodes, screenManager);
+                DrawNode(e, e.SensorNodes, screenManager);
             }
         }
 

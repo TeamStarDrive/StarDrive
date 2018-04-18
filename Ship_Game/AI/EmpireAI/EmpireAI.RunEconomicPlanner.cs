@@ -1,9 +1,7 @@
 // ReSharper disable once CheckNamespace
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Ship_Game.Gameplay;
+
 
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
@@ -30,7 +28,7 @@ namespace Ship_Game.AI {
                                  OwnerEmpire.TradeMoneyAddedThisTurn +
                                  OwnerEmpire.data.FlatMoneyBonus; //mmore savings than GDP 
             treasuryGoal *= (OwnerEmpire.data.treasuryGoal * 100);
-            treasuryGoal  =Math.Max(1,treasuryGoal);
+            treasuryGoal  = Math.Max(1,treasuryGoal);
             float goalClamped = 1f.Clamp(0,money / treasuryGoal);
             float treasuryGoalRatio =  1 - goalClamped;
             treasuryGoal *= treasuryGoalRatio;
@@ -39,12 +37,13 @@ namespace Ship_Game.AI {
                 OwnerEmpire.data.TaxRate += .02f;
             else
                 OwnerEmpire.data.TaxRate = tempTax;
-            float militaryRatio = OwnerEmpire.getResStrat().MilitaryRatio;
             var resStrat = OwnerEmpire.getResStrat();
-            SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, militaryRatio));            
-            SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(goalClamped * .1f, ref BuildCapacity, Math.Max(risk, militaryRatio));           
-            SetBudgetForeArea(goalClamped *.25f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, militaryRatio));
+            float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
+            
+            SetBudgetForeArea(goalClamped * .02f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
+            SetBudgetForeArea(goalClamped * .02f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goalClamped * .25f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(goalClamped * .08f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
         }
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {

@@ -14,7 +14,7 @@ namespace Ship_Game
 
 		protected IList<string> MenuEntries => menuEntries;
 
-	    protected MenuScreen(GameScreen parent) : base(parent, new Rectangle(0,0, 400, 400))
+	    protected MenuScreen(GameScreen parent) : base(parent, new Rectangle(0,0, 400, 400), false)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);

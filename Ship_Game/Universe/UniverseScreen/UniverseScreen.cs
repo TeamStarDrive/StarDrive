@@ -232,7 +232,9 @@ namespace Ship_Game
         public int globalshipCount;
         public int empireShipCountReserve;
         //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
-        public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
+        //public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
+        private Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
+        private Array<Ship> ShipsToAddToWorld = new Array<Ship>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -295,48 +297,73 @@ namespace Ship_Game
             }
 
             ScreenManager.RemoveAllLights();
+            
+            //Global fill light. 
+            AddLight(new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+            //Global Back
+            AddLight(new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+
             foreach (SolarSystem system in SolarSystemList)
             {
-                float intensity = 2.5f;
+                Color color = Color.White;
+                float intensity = 1.5f;
                 float radius = 150000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= 5f;
+                        intensity -= .1f;
                         radius -= 50000f;
+                        color = Color.LightSalmon;
                         break;
-                    case "star_yellow":                            
-                    case "star_yellow2":break;
-                    case "star_green":  break;
+                    case "star_yellow":
+                        color = Color.LightYellow;
+                        break;
+                    case "star_yellow2":
+                        color = Color.White;
+                        break;
+                    case "star_green":
+                        color = Color.LightGreen;
+                        break;
                     case "star_blue":
+                        color = Color.LightBlue;
+                        break;
                     case "star_binary":                            
-                        intensity += .5f;
+                        intensity += .2f;
                         radius += 50000f;
                         break; 
                 }
-                // standard 3 point lighting
-                AddLight(system, intensity, radius, zpos: +2500f, fillLight: true);
-                AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
-                AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
+                
+                //Key                              
+                AddLight(system.Position, intensity, radius, color, zpos:   -5500, fillLight: false, fallOff: 1);
+                //OverSaturationKey
+                AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
+                //localfill
+                AddLight(system.Position, intensity * .55f, radius, Color.White, zpos: 0, fillLight: false, fallOff: 1);
+                ////back
+                //AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
+
             }
         }
 
-        private void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
+        private void AddLight(Vector2 source, float intensity, float radius, Color color, float zpos,  bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
             {
-                DiffuseColor = new Vector3(1f, 1f, 0.85f),
-                Intensity    = intensity,
-                ObjectType   = ObjectType.Static, // RedFox: changed this to Static
-                FillLight    = true,
-                Radius       = radius,
-                Position     = new Vector3(system.Position, zpos),
-                Enabled      = true
+                DiffuseColor        = color.ToVector3(),//fox used this vector3 so leaving it for refence new Vector3(1f, 1f, 0.85f)
+                Intensity           = intensity,
+                ObjectType          = ObjectType.Static, // RedFox: changed this to Static
+                FillLight           = fillLight,
+                Radius              = radius,
+                Position            = new Vector3(source, zpos),
+                Enabled             = true,
+                FalloffStrength     = fallOff,
+                ShadowPerSurfaceLOD = true,
+                ShadowQuality = shadowQuality
             };
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
         }
-
+        
         public void ContactLeader(object sender)
         {
             if (this.SelectedShip == null)
@@ -494,12 +521,22 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
+            foreach (var empire in EmpireManager.Empires)
+                if(!ResourceManager.PreLoadModels(empire))
+                {
+                    ExitScreen();
+                    Game1.Instance.Exit();
+                    return;
+                }
+
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
         }
+
+
 
         private void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
         {
@@ -711,6 +748,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
+            IsExiting = true;
             var processTurnsThread = ProcessTurnsThread;
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
@@ -726,7 +764,7 @@ namespace Ship_Game
             playerShip = null;
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
-                ship.TotallyRemove();
+                ship?.RemoveFromUniverseUnsafe();
             MasterShipList.ApplyPendingRemovals();
             MasterShipList.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
@@ -813,8 +851,9 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
             HelperFunctions.CollectMemory();
-            Dispose();
             base.ExitScreen();
+            Dispose();
+            
         }
 
         private void ClearParticles()
@@ -865,15 +904,6 @@ namespace Ship_Game
             return multiShipData;
         }
 
-        private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-        {
-            return new Vector2(0.0f, 0.0f)
-            {
-                X = (float)-((double)OwnerPos.X - (double)TargetPos.X),
-                Y = OwnerPos.Y - TargetPos.Y
-            };
-        }
-
         // Refactored by RedFox
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
@@ -918,8 +948,43 @@ namespace Ship_Game
         //This will likely only work with "this UI\planetNamePointer" texture 
         //Other textures might work but would need the x and y offset adjusted. 
 
-        protected override void Destroy()
+        public void QueueGameplayObjectRemoval (GameplayObject gameplayObject)
         {
+            if (gameplayObject == null) return;
+            GamePlayObjectToRemove.Add(gameplayObject);
+        }
+
+        public void TotallyRemoveGameplayObjects()
+        {
+            while (!GamePlayObjectToRemove.IsEmpty)            
+                GamePlayObjectToRemove.PopLast().RemoveFromUniverseUnsafe();             
+        }
+
+        public void QueueShipToWorldScene(Ship ship)
+        {            
+            ShipsToAddToWorld.Add(ship);
+        }
+        private void AddShipSceneObjectsFromQueue()
+        {            
+            while (!ShipsToAddToWorld.IsEmpty)
+            {
+                var ship = ShipsToAddToWorld.PopLast();
+                if (!ship.Active) continue;
+                try
+                {
+                    ship.InitiizeShipScene();
+                }
+                catch(Exception ex)
+                {
+                    Log.Error(ex,$"Crash attempting to create sceneobject. Destroying");
+                    ship.RemoveFromUniverseUnsafe();
+
+                }
+            }           
+        }
+
+        protected override void Destroy()
+        {            
             starfield               ?.Dispose(ref starfield);
             DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
             EmpireDone              ?.Dispose(ref EmpireDone);

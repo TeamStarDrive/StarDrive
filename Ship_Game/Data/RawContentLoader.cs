@@ -44,8 +44,25 @@ namespace Ship_Game
             return IsSupportedMeshExtension(Path.GetExtension(modelNameWithExtension));
         }
 
-        public object LoadAsset(string fileNameWithExt, string ext)
+        private static string GetContentPath(string contentName)
         {
+            if (contentName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase))
+            {
+                if (File.Exists(contentName))
+                    return contentName;
+            }
+            else if (GlobalStats.HasMod)
+            {
+                string modPath = GlobalStats.ModPath + contentName;
+                if (File.Exists(modPath)) return modPath;
+            }
+            else if (contentName.StartsWith("Content/"))
+                return contentName;
+            return "Content/" + contentName;
+        }
+
+        public object LoadAsset(string fileNameWithExt, string ext)
+        {            
             if (IsSupportedMeshExtension(ext))
             {
                 Log.Info(ConsoleColor.Magenta, "Raw LoadMesh: {0}", fileNameWithExt);
@@ -63,9 +80,8 @@ namespace Ship_Game
 
         private Texture2D LoadImageAsTexture(string fileNameWithExt)
         {
-            //return Texture2D.FromFile(Device, fileNameWithExt);
-
-            using (var fs = new FileStream(fileNameWithExt, FileMode.Open))
+            string contentPath = GetContentPath(fileNameWithExt);
+            using (var fs = new FileStream(contentPath, FileMode.Open))
             {
                 TextureCreationParameters parameters = Texture.GetCreationParameters(Device, fs);
 
@@ -242,20 +258,6 @@ namespace Ship_Game
             return Layout;
         }
 
-        private static string GetContentPath(string modelName)
-        {
-            if (modelName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
-            {
-                if (File.Exists(modelName))
-                    return modelName;
-            }
-            else if (GlobalStats.HasMod)
-            {
-                string modPath = GlobalStats.ModPath + modelName;
-                if (File.Exists(modPath)) return modPath;
-            }
-            return "Content/" + modelName;
-        }
 
         private unsafe StaticMesh StaticMeshFromFile(string modelName)
         {

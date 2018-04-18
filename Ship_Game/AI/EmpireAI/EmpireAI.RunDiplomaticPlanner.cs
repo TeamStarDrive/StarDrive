@@ -56,10 +56,10 @@ namespace Ship_Game.AI {
                         case Posture.Friendly:
                             if (Relationship.Value.TurnsKnown > this.SecondDemand && !Relationship.Value.Treaty_Trade &&
                                 (!Relationship.Value.HaveRejected_TRADE &&
-                                 (double) Relationship.Value.Trust - (double) usedTrust >
-                                 (double) this.OwnerEmpire.data.DiplomaticPersonality.Trade) &&
+                                 Relationship.Value.Trust - usedTrust >
+                                 OwnerEmpire.data.DiplomaticPersonality.Trade) &&
                                 (!Relationship.Value.Treaty_Trade &&
-                                 Relationship.Value.turnsSinceLastContact > this.SecondDemand &&
+                                 Relationship.Value.turnsSinceLastContact > SecondDemand &&
                                  !Relationship.Value.HaveRejected_TRADE))
                             {
                                 Offer offer1 = new Offer();
