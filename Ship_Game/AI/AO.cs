@@ -79,7 +79,10 @@ namespace Ship_Game.AI
 
         public bool AddShip(Ship ship)
         {
-            if (ship.BaseStrength < 1f || ship.BombBays.Count > 0 || ship.hasAssaultTransporter || ship.HasTroopBay)
+            if (ship.BaseStrength < 1f 
+                || ship.DesignRole == ShipData.RoleName.bomber 
+                || ship.DesignRole == ShipData.RoleName.troopShip 
+                || ship.DesignRole == ShipData.RoleName.support)
                 return false;
             if (OffensiveForcePool.Contains(ship))
             {
@@ -89,7 +92,7 @@ namespace Ship_Game.AI
             if (ship.fleet != null)
                 Log.Error("corefleet ship in {0}" , ship.fleet.Name);
             Owner.GetGSAI().RemoveShipFromForce(ship);
-            if (IsCoreFleetFull() || OffensiveForcePool.Count < 4) // )
+            if (IsCoreFleetFull() || GetPoolStrength() < Owner.currentMilitaryStrength * .05f) 
             {
                 OffensiveForcePool.Add(ship);
 
@@ -180,6 +183,21 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 ShipsWaitingGuids.Add(ship.guid);
             FleetGuid = CoreFleet.Guid;
+        }
+
+        public float GetPoolStrength()
+        {
+            float str = 0;
+            foreach (Ship ship in OffensiveForcePool)
+            {
+                if (ship.AI.State == AIState.Scrap
+                    || ship.AI.State == AIState.Refit
+                    || ship.AI.State == AIState.Resupply
+                    || !ship.ShipIsGoodForGoals()
+                    ) continue;
+                str += ship.GetStrength();
+            }
+            return str;
         }
 
         public void SetFleet(Fleet f)

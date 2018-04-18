@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Ship_Game
+namespace Ship_Game.UI
 {
-    public sealed class ToggleButton : UIElementV2
+    public class ToggleButton : UIElementV2
     {
         public object ReferenceObject;
 
@@ -64,17 +64,15 @@ namespace Ship_Game
         public override void Draw(SpriteBatch spriteBatch)       => Draw(spriteBatch, false);
         
 
-        public void Draw(SpriteBatch spriteBatch, bool resizeIcon)
+        public void Draw(SpriteBatch spriteBatch, bool resizeIcon, ScreenManager screenManager = null)
         {
             Rectangle iconRect = IconActive == null ? IconRect : Rect;
-
+            
             if (Pressed)
                 spriteBatch.Draw(PressTexture, Rect, Color.White);
             else if (Hover)
             {
-                spriteBatch.Draw(HoverTexture, Rect, Color.White);
-                
-
+                spriteBatch.Draw(HoverTexture, Rect, Color.White);                
             }
             else if (Active)
                 spriteBatch.Draw(ActiveTexture, Rect, Color.White);
@@ -91,8 +89,7 @@ namespace Ship_Game
                 spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
             }
             else
-                spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);
-            
+                spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);            
         }
 
         public override void PerformLegacyLayout(Vector2 pos)
@@ -104,21 +101,34 @@ namespace Ship_Game
         {
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
-                Hover = false;
-            else
             {
-                if (!Hover)
-                    GameAudio.MiniMapMouseOver();
-                Hover = true;
-                if (input.LeftMouseClick)
+                if (Hover)
                 {
-                    OnClick?.Invoke(this);
-                    Pressed = true;
+                    if (ToolTip.TipTimer > 3)
+                    {
+                        ToolTip.LastWhich = 0;
+                        ToolTip.TextLast = string.Empty;
+                    }
+
+                    ToolTip.TipTimer = 0;                    
                 }
-                if (input.InGameSelect)
-                    return true;
+                Hover = false;                
+                return false;
             }
-            return false;
+            if (!Hover)
+            {
+                GameAudio.MiniMapMouseOver();
+                if (WhichToolTip != 0)
+                    ToolTip.CreateTooltip(WhichToolTip);
+            }
+            Hover = true;
+            
+            if (input.LeftMouseClick)
+            {
+                OnClick?.Invoke(this);
+                Pressed = true;
+            }
+            return input.InGameSelect;
         }
     }
 }

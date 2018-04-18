@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -1798,11 +1799,13 @@ namespace Ship_Game
 
         public void LoadData(FleetDesign data)
         {
-            foreach (Ship ship in EmpireManager.Player.GetFleetsDict()[FleetToEdit].Ships)
+            var fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+
+            for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
+                Ship ship = fleet.Ships[i];
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                ship.fleet?.RemoveShip(ship);
-                EmpireManager.Player.GetFleetsDict()[FleetToEdit].RemoveShip(ship);
+                ship?.fleet?.RemoveShip(ship);         
             }
             SelectedFleet.DataNodes.Clear();
             SelectedFleet.Ships.Clear();

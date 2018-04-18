@@ -116,7 +116,7 @@ namespace Ship_Game
 
         public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which) : base(parent)
         {
-            float TheirOpinionOfUs;
+            float TheirOpinionOfUs;            
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
             playerEmpire = us;
@@ -709,9 +709,9 @@ namespace Ship_Game
             //        VideoPlaying.Dispose();
             //    }
             //}
-            //VideoPlaying = null;
+            //VideoPlaying = null;            
+            base.ExitScreen();
             Dispose();
-            base.ScreenManager.RemoveScreen(this);
         }
 
         private void FillOurItems()

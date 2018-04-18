@@ -71,6 +71,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -93,6 +94,7 @@
       <MinimalRebuild>true</MinimalRebuild>
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -102,14 +104,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="mesh\CollectionExt.h" />
     <ClInclude Include="mesh\Mesh.h" />
     <ClInclude Include="rapidxml\rapidxml.hpp" />
     <ClInclude Include="rapidxml\rapidxml_iterators.hpp" />
     <ClInclude Include="rapidxml\rapidxml_print.hpp" />
     <ClInclude Include="rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\debugging.h" />
     <ClInclude Include="ReCpp\rpp\file_io.h" />
+    <ClInclude Include="ReCpp\rpp\sprint.h" />
     <ClInclude Include="ReCpp\rpp\strview.h" />
     <ClInclude Include="ReCpp\rpp\vec.h" />
     <ClInclude Include="ShipDataSerializer.h" />
@@ -124,6 +127,7 @@
     <ClCompile Include="mesh\Mesh_Obj.cpp" />
     <ClCompile Include="ReCpp\rpp\debugging.cpp" />
     <ClCompile Include="ReCpp\rpp\file_io.cpp" />
+    <ClCompile Include="ReCpp\rpp\sprint.cpp" />
     <ClCompile Include="ReCpp\rpp\strview.cpp" />
     <ClCompile Include="ReCpp\rpp\vec.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />

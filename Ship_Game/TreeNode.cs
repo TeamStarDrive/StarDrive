@@ -185,45 +185,25 @@ namespace Ship_Game
         {
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             if (this.complete)
-                this.DrawGlow(ScreenManager);
+            {
+                this.DrawGlow(ScreenManager,tech.Tech.Secret ? Color.Green : Color.White );
+            }
             switch (this.nodeState)
             {
                 case NodeState.Normal:
-                    bool flag = false;
-                    if (EmpireManager.Player.ResearchTopic == this.tech.UID || EmpireManager.Player.data.ResearchQueue.Contains(this.tech.UID))
-                        flag = true;
+                    bool flag = EmpireManager.Player.ResearchTopic == this.tech.UID || EmpireManager.Player.data.ResearchQueue.Contains(this.tech.UID);
                     spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
                     spriteBatch.DrawRectangle(this.UnlocksRect, this.complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
                     this.grid.Draw(spriteBatch);
-                    spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base"], this.BaseRect, Color.White);
+                    spriteBatch.Draw(complete || flag ? ResourceManager.Texture("ResearchMenu/tech_base_complete") : 
+                        ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    if(ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
-                    {
-                        try
-                        {
-                            spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.Tech.IconPath], this.IconRect, Color.White);
-                        }
-                        catch (Exception e)
-                        {
-                            e.Data.Add("TechIcons", this.tech.UID);
-                            throw e;
-                            
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
-                        }
-                        catch (Exception e)
-                        {
-                            
-                            e.Data.Add("TechIcons", this.tech.UID);
-                            throw e;
-                        }
-                    }
-                    spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_title_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base_title"], this.TitleRect, Color.White);
+                    var techIcon = ResourceManager.Texture($"TechIcons/{tech.Tech.IconPath}", returnNull: true) 
+                        ?? ResourceManager.Texture($"TechIcons/{tech.UID}");
+                    
+                    spriteBatch.Draw(techIcon, this.IconRect, Color.White);                    
+                    spriteBatch.Draw(this.complete || flag ? ResourceManager.Texture("ResearchMenu/tech_base_title_complete") 
+                        : ResourceManager.Texture("ResearchMenu/tech_base_title"), this.TitleRect, Color.White);
                     string str1 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
                     Vector2 vector2_1 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str1).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str1).Y / 2f);
@@ -238,24 +218,25 @@ namespace Ship_Game
                     int num2 = (int)((double)this.progressRect.Height - (double)(EmpireManager.Player.GetTDict()[this.tech.UID].Progress / EmpireManager.Player.GetTDict()[this.tech.UID].TechCost) * (double)this.progressRect.Height);
                     Rectangle destinationRectangle1 = this.progressRect;
                     destinationRectangle1.Height = num2;
-                    spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_progress"] : ResourceManager.TextureDict["ResearchMenu/tech_progress_inactive"], this.progressRect, Color.White);
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle1, Color.White);
+                    spriteBatch.Draw(this.complete || flag ? ResourceManager.Texture("ResearchMenu/tech_progress") 
+                        : ResourceManager.Texture("ResearchMenu/tech_progress_inactive"), this.progressRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle1, Color.White);
                     break;
                 case NodeState.Hover:
                     spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
                     spriteBatch.DrawRectangle(this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
                     if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.Tech.IconPath], this.IconRect, Color.White);
+                        spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.Tech.IconPath), this.IconRect, Color.White);
                     }
                     else
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
+                        spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.UID), this.IconRect, Color.White);
                     }
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_title_hover"], this.TitleRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), this.TitleRect, Color.White);
                     string str2 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
                     string[] strArray2 = Regex.Split(str2, "\n");
                     Vector2 vector2_2 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str2).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str2).Y / 2f);
@@ -270,24 +251,24 @@ namespace Ship_Game
                     int num4 = (int)((double)this.progressRect.Height - (double)(EmpireManager.Player.GetTDict()[this.tech.UID].Progress / ResourceManager.TechTree[this.tech.UID].Cost) * (double)this.progressRect.Height);
                     Rectangle destinationRectangle2 = this.progressRect;
                     destinationRectangle2.Height = num4;
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress"], this.progressRect, Color.White);
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle2, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), this.progressRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle2, Color.White);
                     break;
                 case NodeState.Press:
                     spriteBatch.FillRectangle(this.UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
                     spriteBatch.DrawRectangle(this.UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
                     this.grid.Draw(spriteBatch);
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
                     if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.Tech.IconPath], this.IconRect, Color.White);
+                        spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.Tech.IconPath), this.IconRect, Color.White);
                     }
                     else
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
+                        spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.UID), this.IconRect, Color.White);
                     }
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_title_hover"], this.TitleRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), this.TitleRect, Color.White);
                     string str3 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
                     string[] strArray3 = Regex.Split(str3, "\n");
                     Vector2 vector2_3 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str3).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str3).Y / 2f);
@@ -302,22 +283,26 @@ namespace Ship_Game
                     int num6 = (int)((double)this.progressRect.Height - (double)(EmpireManager.Player.GetTDict()[this.tech.UID].Progress / EmpireManager.Player.GetTDict()[this.tech.UID].TechCost) * (double)this.progressRect.Height);
                     Rectangle destinationRectangle3 = this.progressRect;
                     destinationRectangle3.Height = num6;
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress"], this.progressRect, Color.White);
-                    spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle3, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), this.progressRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle3, Color.White);
                     break;
             }
             spriteBatch.DrawString(this.TitleFont, ((float)(int)EmpireManager.Player.GetTDict()[this.tech.UID].TechCost).ToString(), this.CostPos, Color.White);
         }
 
-		public void DrawGlow(Ship_Game.ScreenManager ScreenManager)
+		public void DrawGlow(Ship_Game.ScreenManager ScreenManager) 
 		{
-			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-			spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_underglow_base"], this.BaseRect, Color.White);
-			spriteBatch.DrawRectangleGlow(this.TitleRect);
-			spriteBatch.DrawRectangleGlow(this.UnlocksRect);
+            DrawGlow(ScreenManager, Color.White);
 		}
+	    public void DrawGlow(Ship_Game.ScreenManager ScreenManager, Color color)
+	    {
+	        SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+	        spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_underglow_base"), this.BaseRect, color);
+	        spriteBatch.DrawRectangleGlow(this.TitleRect);
+	        spriteBatch.DrawRectangleGlow(this.UnlocksRect);
+        }
 
-		public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2D camera)
+        public bool HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager, Camera2D camera)
 		{
 			Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)this.BaseRect.X, (float)this.BaseRect.Y));
 			Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, this.BaseRect.Width, this.BaseRect.Height);

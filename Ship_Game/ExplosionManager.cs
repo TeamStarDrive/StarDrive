@@ -71,7 +71,7 @@ namespace Ship_Game
                 case 2:
                     newExp.AnimationTexture  = "sd_explosion_07a_cc/sd_explosion_07a_cc_00000";
                     newExp.AnimationBasePath = "sd_explosion_07a_cc/sd_explosion_07a_cc_";
-                    break;
+                    break;                               
             }
         }
 
@@ -265,7 +265,7 @@ namespace Ship_Game
                     int radiusOnScreen = (int)Math.Abs(edgeOnScreen.X - expOnScreen.X);
                     exp.ExplosionRect = new Rectangle((int)expOnScreen.X, (int)expOnScreen.Y, radiusOnScreen, radiusOnScreen);
 
-                    var tex = ResourceManager.TextureDict[exp.AnimationTexture];
+                    var tex = ResourceManager.Texture(exp.AnimationTexture);
                     screen.SpriteBatch.Draw(tex, exp.ExplosionRect, null, exp.color, exp.Rotation, tex.Center(), SpriteEffects.None, 1f);
                 }
             }

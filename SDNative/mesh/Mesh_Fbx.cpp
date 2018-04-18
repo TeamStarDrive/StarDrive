@@ -1,7 +1,7 @@
 #include "Mesh.h"
+#include <rpp/debugging.h>
 #if _WIN32
 #include <memory> // unique_ptr
-#include <cassert>
 #include <fbxsdk.h>
 #include <rpp/file_io.h>
 
@@ -9,14 +9,15 @@ namespace mesh
 {
     static FbxManager*    SdkManager;
     static FbxIOSettings* IOSettings;
-    static FbxAxisSystem  SaveAxisSystem = { FbxAxisSystem::eDirectX };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     // scoped pointer for safely managing FBX resources
-    template<class T> struct FbxPtr : unique_ptr<T, void(*)(T*)>
+    template<class T> using scoped_ptr = std::unique_ptr<T, void(*)(T*)>;
+
+    template<class T> struct FbxPtr : scoped_ptr<T>
     {
-        FbxPtr(T* obj) : unique_ptr<T, void(*)(T*)>(obj, [](T* o) { o->Destroy(); }) {}
+        FbxPtr(T* obj) : scoped_ptr<T>(obj, [](T* o) { o->Destroy(); }) {}
     };
 
     // scoped read lock
@@ -58,7 +59,7 @@ namespace mesh
     {
         switch (mode)
         {
-            default: assert(false && "Unsupported mesh reference mode");
+            default: Assert(false, "Unsupported mesh reference mode");
             case MapNone:          return FbxGeometryElement::eNone;
             case MapPerVertex:     return FbxGeometryElement::eByControlPoint;
             case MapPerFaceVertex: return FbxGeometryElement::eByPolygonVertex;
@@ -70,7 +71,7 @@ namespace mesh
     {
         switch (mode)
         {
-            default: assert(false && "Unsupported mesh reference mode");
+            default: Assert(false, "Unsupported mesh reference mode");
             case MapNone:
             case MapPerVertex:     return FbxLayerElement::eDirect;
             case MapPerFaceVertex: return FbxLayerElement::eIndexToDirect;
@@ -93,48 +94,103 @@ namespace mesh
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    static FINLINE Vector3 FbxToOpenGL(FbxVector4 v)
+    {
+        return {
+             (float)v.mData[0],
+             (float)v.mData[2],  // in OGL/D3D Y axis is up, so ourUpY = fbxUpZ
+            -(float)v.mData[1],  // OGL Z is fwd, so ourFwdZ = fbxFwdY
+        };
+    }
+    static FINLINE Vector3 FbxToOpenGL(FbxDouble3 v)
+    {
+        return {
+             (float)v.mData[0],
+             (float)v.mData[2],  // in OGL/D3D Y axis is up, so ourUpY = fbxUpZ
+            -(float)v.mData[1],  // OGL Z is fwd, so ourFwdZ = fbxFwdY
+        };
+    }
+    static FINLINE FbxVector4 GLToFbxVec4(Vector3 v)
+    {
+        return {
+            (double)v.x,
+           -(double)v.z,
+            (double)v.y 
+        };
+    }
+    static FINLINE FbxDouble3 GLToFbxDouble3(Vector3 v)
+    {
+        return {
+            (double)v.x,
+           -(double)v.z,
+            (double)v.y 
+        };
+    }
 
-    static void LoadVertsAndFaces(MeshGroup& meshGroup, const FbxMesh* fbxMesh)
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    
+    static void LoadVertsAndFaces(
+        MeshGroup& meshGroup, const FbxMesh* fbxMesh, 
+        vector<int>& oldIndices)
     {
         int numVerts = fbxMesh->GetControlPointsCount();
         meshGroup.Verts.resize(numVerts);
         Vector3*    verts    = meshGroup.Verts.data();
         FbxVector4* fbxVerts = fbxMesh->GetControlPoints();
 
-        for (int i = 0; i < numVerts; ++i) // indexing: enable AVX optimization
-        {
-            verts[i].x =  (float)fbxVerts[i].mData[0];
-            verts[i].z = -(float)fbxVerts[i].mData[1]; // OGL Z is fwd, so ourFwdZ = fbxFwdY
-            verts[i].y =  (float)fbxVerts[i].mData[2]; // in OGL/D3D Y axis is up, so ourUpY = fbxUpZ
-        }
-
-        //int polyVertCount = fbxMesh->GetPolygonVertexCount(); // num indices???
+        for (int i = 0; i < numVerts; ++i)
+            verts[i] = FbxToOpenGL(fbxVerts[i]);
 
         int numPolys = fbxMesh->GetPolygonCount();
-        int* indices = fbxMesh->GetPolygonVertices();
-        meshGroup.Faces.resize(numPolys);
-        Face* faces = meshGroup.Faces.data();
+        int* indices = fbxMesh->GetPolygonVertices(); // control point indices
 
-        //printf("  %5d  vertices\n", numVerts);
-        //printf("  %5d  faces\n", numPolys);
+        vector<Triangle>& faces = meshGroup.Faces;
+        faces.reserve(numPolys);
+        oldIndices.reserve(numPolys * 3);
 
+        int oldPolyVertId = 0;
         for (int ipoly = 0; ipoly < numPolys; ++ipoly)
         {
-            Face& face = faces[ipoly];
             int numPolyVerts = fbxMesh->GetPolygonSize(ipoly);
-            int* vertexIds = &indices[fbxMesh->GetPolygonVertexIndex(ipoly)];
+            int* vertexIds   = &indices[ fbxMesh->GetPolygonVertexIndex(ipoly) ];
             
-            for (int i = 0; i < numPolyVerts; ++i)
-                face.emplace_elem().v = vertexIds[i];
+            Assert(numPolyVerts >= 3, "Not enough polygon vertices: %d. Expected at least 3.", numPolyVerts);
+
+            Triangle* f = &rpp::emplace_back(faces);
+            f->a.v = vertexIds[0];
+            f->b.v = vertexIds[1];
+            f->c.v = vertexIds[2];
+            oldIndices.push_back(oldPolyVertId + 0);
+            oldIndices.push_back(oldPolyVertId + 1);
+            oldIndices.push_back(oldPolyVertId + 2);
+
+            // if we have Quads or Polys, then force triangulation:
+            for (int i = 3; i < numPolyVerts; ++i)
+            {
+                // CCW order:
+                // v[0], v[2], v[3]
+                VertexDescr vd0 = f->a; // by value, because emplace_back may realloc
+                VertexDescr vd2 = f->c;
+                f = &rpp::emplace_back(faces);
+                f->a = vd0;
+                f->b = vd2;
+                f->c.v = vertexIds[i];
+
+                int id0 = oldIndices[oldIndices.size() - 3];
+                int id2 = oldIndices[oldIndices.size() - 1];
+                oldIndices.push_back(id0);
+                oldIndices.push_back(id2);
+                oldIndices.push_back(oldPolyVertId + i);
+            }
+            oldPolyVertId += numPolyVerts;
         }
     }
 
-    static void LoadNormals(MeshGroup& meshGroup, FbxGeometryElementNormal* elementNormal)
+    static void LoadNormals(MeshGroup& meshGroup, 
+        FbxGeometryElementNormal* elementNormal, 
+        const vector<int>& oldIndices)
     {
         FbxLayerElement::EMappingMode mapMode = elementNormal->GetMappingMode();
-        const bool perPointMapping = mapMode == FbxLayerElement::eByControlPoint; // vertex or polygon normals?
-
         FbxReadLock<FbxVector4> normalsLock = elementNormal->GetDirectArray();
         FbxReadLock<int>        indexLock   = elementNormal->GetIndexArray();
         const FbxVector4* fbxNormals = normalsLock.data;
@@ -143,34 +199,34 @@ namespace mesh
         //printf("  %5d  %s normals\n", normalsLock.count, toString(mapMode));
 
         const int numNormals = normalsLock.count;
+        const int maxNormals = indices ? indexLock.count : numNormals;
         meshGroup.Normals.resize(numNormals);
         Vector3* normals = meshGroup.Normals.data();
 
         // copy all normals; at this point it's not important if they are indexed or unindexed
         for (int i = 0; i < numNormals; ++i)
-        {
-            normals[i].x =  (float)fbxNormals[i].mData[0];
-            normals[i].z = -(float)fbxNormals[i].mData[1];
-            normals[i].y =  (float)fbxNormals[i].mData[2];
-        }
+            normals[i] = FbxToOpenGL(fbxNormals[i]);
 
         const int numFaces = meshGroup.NumFaces();
-        Face* faces = meshGroup.Faces.data();
+        Triangle* faces = meshGroup.Faces.data();
 
-        // each polygon vertex can have multiple normals, but if indices are used, most will be shared normals
+        // each polygon vertex can have multiple normals, 
+        // but if indices are used, most will be shared normals
+        // eByPolygonVertex There will be one mapping coordinate for each vertex, 
+        // for every polygon of which it is a part. This means that a vertex will 
+        // have as many mapping coordinates as polygons of which it is a part.
         if (mapMode == FbxLayerElement::eByPolygonVertex)
         {
             meshGroup.NormalsMapping = MapPerFaceVertex;
 
-            // @todo optimize normals by joining duplicate normals
-            int nextNormalId = 0; // per-face-vertex ID
-            for (int faceId = 0; faceId < numFaces; ++faceId)
+            const int* oldPolyVertIds = oldIndices.data();
+            for (int nextId = 0, faceId = 0; faceId < numFaces; ++faceId)
             {
                 for (VertexDescr& vd : faces[faceId])
                 {
-                    assert((indices ? nextNormalId < indexLock.count : nextNormalId < numNormals));
-                    vd.n = indices ? indices[nextNormalId] : nextNormalId;
-                    ++nextNormalId;
+                    const int polyVertId = oldPolyVertIds[nextId++];
+                    Assert(polyVertId < maxNormals, "Normal index out of bounds: %d / %d", polyVertId, maxNormals);
+                    vd.n = indices ? indices[polyVertId] : polyVertId;
                 }
             }
         }
@@ -180,7 +236,11 @@ namespace mesh
 
             for (int faceId = 0; faceId < numFaces; ++faceId)
                 for (VertexDescr& vd : faces[faceId])
-                    vd.n = indices ? indices[vd.v] : vd.v; // indexed by VertexId OR same as VertexId
+                {
+                    const int vertexId = vd.v;
+                    Assert(vertexId < maxNormals, "Normal index out of bounds: %d / %d", vertexId, maxNormals);
+                    vd.n = indices ? indices[vertexId] : vertexId; // indexed by VertexId OR same as VertexId
+                }
         }
         else if (mapMode == FbxLayerElement::eByPolygon) // each polygon has a single normal, OK case, but not ideal
         {
@@ -189,14 +249,19 @@ namespace mesh
             // @todo indices[faceId] might be wrong
             for (int faceId = 0; faceId < numFaces; ++faceId)
                 for (VertexDescr& vd : faces[faceId])
+                {
+                    Assert(faceId < maxNormals, "Normal index out of bounds: %d / %d", faceId, maxNormals);
                     vd.n = indices ? indices[faceId] : faceId;
+                }
         }
     }
 
-    static void LoadCoords(MeshGroup& meshGroup, FbxGeometryElementUV* elementUVs)
+    static void LoadCoords(MeshGroup& meshGroup, 
+        FbxGeometryElementUV* elementUVs, 
+        const vector<int>& oldIndices)
     {
         FbxLayerElement::EMappingMode mapMode = elementUVs->GetMappingMode();
-        assert(mapMode == FbxLayerElement::eByPolygonVertex);
+        Assert(mapMode == FbxLayerElement::eByPolygonVertex, "Only ByPolygonVertex mapping is supported");
 
         FbxReadLock<FbxVector2> uvsLock   = elementUVs->GetDirectArray();
         FbxReadLock<int>        indexLock = elementUVs->GetIndexArray();
@@ -204,10 +269,9 @@ namespace mesh
         const int*        indices = indexLock.data; // if != null, UVs are indexed
 
         const int numCoords = uvsLock.count;
+        const int maxCoords = indices ? indexLock.count : numCoords;
         meshGroup.Coords.resize(numCoords);
         Vector2* coords = meshGroup.Coords.data();
-
-        //printf("  %5d  %s coords\n", numCoords, toString(mapMode));
 
         for (int i = 0; i < numCoords; ++i)
         {
@@ -216,7 +280,7 @@ namespace mesh
         }
 
         const int numFaces = meshGroup.NumFaces();
-        Face* faces = meshGroup.Faces.data();
+        Triangle* faces = meshGroup.Faces.data();
 
         // each polygon vertex can have multiple UV coords,
         // this allows multiple UV shells, so UV-s aren't forced to be contiguous
@@ -225,14 +289,14 @@ namespace mesh
         {
             meshGroup.CoordsMapping = MapPerFaceVertex;
 
-            int nextCoordId = 0; // per-face-vertex ID
-            for (int faceId = 0; faceId < numFaces; ++faceId)
+            const int* oldPolyVertIds = oldIndices.data();
+            for (int nextId = 0, faceId = 0; faceId < numFaces; ++faceId)
             {
                 for (VertexDescr& vd : faces[faceId])
                 {
-                    assert((indices ? nextCoordId < indexLock.count : nextCoordId < numCoords));
-                    vd.t = indices ? indices[nextCoordId] : nextCoordId;
-                    ++nextCoordId;
+                    const int polyVertId = oldPolyVertIds[nextId++];
+                    Assert(polyVertId < maxCoords, "UV index out of bounds: %d / %d", polyVertId, maxCoords);
+                    vd.t = indices ? indices[polyVertId] : polyVertId;
                 }
             }
         }
@@ -242,26 +306,29 @@ namespace mesh
 
             for (int faceId = 0; faceId < numFaces; ++faceId)
                 for (VertexDescr& vd : faces[faceId])
-                    vd.t = indices ? indices[vd.v] : vd.v; // indexed separately OR same as VertexId
+                {
+                    const int vertexId = vd.v;
+                    Assert(vertexId < maxCoords, "UV index out of bounds: %d / %d", vertexId, maxCoords);
+                    vd.t = indices ? indices[vertexId] : vertexId; // indexed separately OR same as VertexId
+                }
         }
-        else assert(false && "Unsupported UV map mode");
+        else Assert(false, "Unsupported UV map mode");
     }
 
-    static void LoadVertexColors(MeshGroup& meshGroup, FbxGeometryElementVertexColor* elementColors)
+    static void LoadColors(MeshGroup& meshGroup, 
+        FbxGeometryElementVertexColor* elementColors, 
+        const vector<int>& oldIndices)
     {
         FbxLayerElement::EMappingMode mapMode = elementColors->GetMappingMode();
-        const bool perPointMapping = mapMode == FbxLayerElement::eByControlPoint; // vertex or polygon colors?
-
         FbxReadLock<FbxColor> colorsLock = elementColors->GetDirectArray();
         FbxReadLock<int>      indexLock  = elementColors->GetIndexArray();
         const FbxColor* fbxColors = colorsLock.data;
         const int*      indices   = indexLock.data; // if != null, colors are indexed
 
         const int numColors = colorsLock.count;
+        const int maxColors = indices ? indexLock.count : numColors;
         meshGroup.Colors.resize(numColors);
         Vector3* colors = meshGroup.Colors.data();
-
-        //printf("  %5d  %s colors\n", numColors, toString(mapMode));
 
         for (int i = 0; i < numColors; ++i)
         {
@@ -271,7 +338,7 @@ namespace mesh
         }
 
         const int numFaces = meshGroup.NumFaces();
-        Face* faces = meshGroup.Faces.data();
+        Triangle* faces = meshGroup.Faces.data();
 
         // with eByPolygonVertex, each polygon vertex can have multiple colors,
         // this allows full face coloring with no falloff blending with neighbouring faces
@@ -280,16 +347,14 @@ namespace mesh
         {
             meshGroup.ColorMapping = MapPerFaceVertex;
 
-            // @todo Optimize, Detect identical colors for non-optimized index colors
-
-            int nextColorId = 0; // per-face-vertex ID
-            for (int faceId = 0; faceId < numFaces; ++faceId)
+            const int* oldPolyVertIds = oldIndices.data();
+            for (int nextId = 0, faceId = 0; faceId < numFaces; ++faceId)
             {
                 for (VertexDescr& vd : faces[faceId])
                 {
-                    assert((indices ? nextColorId < indexLock.count : nextColorId < numColors));
-                    vd.c = indices ? indices[nextColorId] : nextColorId;
-                    ++nextColorId;
+                    const int polyVertId = oldPolyVertIds[nextId++];
+                    Assert(polyVertId < maxColors, "Color index out of bounds: %d / %d", polyVertId, maxColors);
+                    vd.c = indices ? indices[polyVertId] : polyVertId;
                 }
             }
         }
@@ -314,7 +379,7 @@ namespace mesh
 
     bool Mesh::IsFBXSupported() noexcept { return true; }
 
-    bool Mesh::LoadFBX(strview meshPath) noexcept
+    bool Mesh::LoadFBX(strview meshPath, MeshLoaderOptions options) noexcept
     {
         Clear();
         InitFbxManager();
@@ -323,13 +388,13 @@ namespace mesh
         int format = -1;
 
         if (!importer->Initialize(meshPath.to_cstr(), format, SdkManager->GetIOSettings())) {
-            fprintf(stderr, "Failed to open file '%s': %s\n", meshPath.to_cstr(), importer->GetStatus().GetErrorString());
+            LogWarning("Failed to open file '%s': %s\n", meshPath, importer->GetStatus().GetErrorString());
             return false;
         }
 
         FbxPtr<FbxScene> scene = FbxScene::Create(SdkManager, "scene");
         if (!importer->Import(scene.get())) {
-            fprintf(stderr, "Failed to load FBX '%s': %s\n", meshPath.to_cstr(), importer->GetStatus().GetErrorString());
+            LogWarning("Failed to load FBX '%s': %s\n", meshPath, importer->GetStatus().GetErrorString());
             return false;
         }
         importer.reset();
@@ -337,37 +402,38 @@ namespace mesh
         if (FbxNode* root = scene->GetRootNode())
         {
             Name = file_name(meshPath);
-            printf("LoadFBX %20s:", Name.c_str());
+            LogInfo("LoadFBX %-20s", Name);
 
             // @note ConvertScene only affects the global/local matrices, it doesn't modify the vertices themselves
-            //FbxAxisSystem sceneAxisSys = scene->GetGlobalSettings().GetAxisSystem();
-            //if (sceneAxisSys != AxisSystem)
-            //    AxisSystem.ConvertScene(scene.get());
+            FbxAxisSystem sceneAxisSys = scene->GetGlobalSettings().GetAxisSystem();
+            if (sceneAxisSys != FbxAxisSystem{ FbxAxisSystem::eOpenGL })
+                LogWarning("Invalid AxisSystem! Please Re-Export the FBX in OpenGL Axis System");
 
             int numChildren = root->GetChildCount();
+
             for (int ichild = 0; ichild < numChildren; ++ichild)
             {
                 FbxNode* child = root->GetChild(ichild);
                 if (FbxMesh* mesh = child->GetMesh())
                 {
-                    assert(NumGroups() == 0 && "Multiple SubMeshes not supported yet");
-                    //printf("FbxMesh '%s':", child->GetName());
-                    //FbxDouble3 rot = child->LclRotation.Get();
-                    //printf("  rotation %.1f, %.1f, %.1f\n", rot[0], rot[1], rot[2]);
+                    MeshGroup& group = CreateGroup(child->GetName());
 
-                    auto& meshGroup = CreateGroup(child->GetName());
+                    FbxDouble3 offset = child->LclTranslation.Get();
+                    FbxDouble3 rot    = child->LclRotation.Get();   // @note Euler XYZ Degrees
+                    FbxDouble3 scale  = child->LclScaling.Get();
 
-                    LoadVertsAndFaces(meshGroup, mesh);
-                    if (auto* normals = mesh->GetElementNormal())      LoadNormals(meshGroup, normals);
-                    if (auto* uvs     = mesh->GetElementUV())          LoadCoords(meshGroup, uvs);
-                    if (auto* colors  = mesh->GetElementVertexColor()) LoadVertexColors(meshGroup, colors);
+                    group.Offset   = FbxToOpenGL(offset);
+                    group.Rotation = FbxToOpenGL(rot);
+                    group.Scale    = FbxToOpenGL(scale);
 
-                    NumFaces += meshGroup.NumFaces();
+                    vector<int> oldIndices;
+                    LoadVertsAndFaces(group, mesh, oldIndices);
+                    if (auto* normals = mesh->GetElementNormal())      LoadNormals(group, normals, oldIndices);
+                    if (auto* uvs     = mesh->GetElementUV())          LoadCoords(group,  uvs,     oldIndices);
+                    if (auto* colors  = mesh->GetElementVertexColor()) LoadColors(group,  colors,  oldIndices);
 
-                    printf("  %5d verts  %5d polys", meshGroup.NumVerts(), meshGroup.NumFaces());
-                    if (meshGroup.NumCoords()) printf("  %5d uvs", meshGroup.NumCoords());
-                    if (meshGroup.NumColors()) printf("  %5d colors", meshGroup.NumColors());
-                    printf("\n");
+                    NumFaces += group.NumFaces();
+                    group.Print();
                 }
             }
             return true;
@@ -384,13 +450,9 @@ namespace mesh
         FbxVector4* points = mesh->GetControlPoints();
         const Vector3* verts = group.Verts.data();
 
-        printf("  %20s:  %5d verts  %5d polys", group.Name.c_str(), numVerts, group.NumFaces());
-
-        for (int i = 0; i < numVerts; ++i) // indexing: enable AVX optimization
+        for (int i = 0; i < numVerts; ++i)
         {
-            points[i].mData[0] = verts[i].x;
-            points[i].mData[1] = -verts[i].y;
-            points[i].mData[2] = -verts[i].z;
+            points[i] = GLToFbxVec4(verts[i]);
         }
     }
 
@@ -400,8 +462,8 @@ namespace mesh
         {
             //printf("  %5d  normals\n", numNormals);
 
-            assert((group.NormalsMapping == MapPerVertex || group.NormalsMapping == MapPerFaceVertex)
-                && "Only per-vertex or per-face-vertex normals are supported");
+            Assert((group.NormalsMapping == MapPerVertex || group.NormalsMapping == MapPerFaceVertex), 
+                    "Only per-vertex or per-face-vertex normals are supported");
 
             FbxGeometryElementNormal* elementNormal = mesh->CreateElementNormal();
             elementNormal->SetMappingMode(toFbxMapping(group.NormalsMapping));
@@ -412,17 +474,13 @@ namespace mesh
 
             for (int i = 0; i < numNormals; ++i)
             {
-                elements.Add(FbxVector4{
-                     normals[i].x,
-                    -normals[i].y,
-                    -normals[i].z
-                });
+                elements.Add(GLToFbxVec4(normals[i]));
             }
 
             if (group.NormalsMapping == MapPerFaceVertex)
             {
                 auto& indices = elementNormal->GetIndexArray();
-                for (const Face& face : group)
+                for (const Triangle& face : group)
                     for (const VertexDescr& vd : face)
                         indices.Add(vd.n);
             }
@@ -433,10 +491,8 @@ namespace mesh
     {
         if (const int numCoords = group.NumCoords())
         {
-            printf("  %5d uvs", numCoords);
-
-            assert((group.CoordsMapping == MapPerVertex || group.CoordsMapping == MapPerFaceVertex)
-                && "Only per-vertex or per-face-vertex UV coords are supported");
+            Assert((group.CoordsMapping == MapPerVertex || group.CoordsMapping == MapPerFaceVertex), 
+                    "Only per-vertex or per-face-vertex UV coords are supported");
 
             FbxGeometryElementUV* elementUVs = mesh->CreateElementUV("DiffuseUV");
             elementUVs->SetMappingMode(toFbxMapping(group.CoordsMapping));
@@ -453,7 +509,7 @@ namespace mesh
             if (group.CoordsMapping == MapPerFaceVertex)
             {
                 auto& indices = elementUVs->GetIndexArray();
-                for (const Face& face : group)
+                for (const Triangle& face : group)
                     for (const VertexDescr& vd : face)
                         indices.Add(vd.t);
             }
@@ -464,10 +520,8 @@ namespace mesh
     {
         if (const int numColors = group.NumColors())
         {
-            printf("  %5d colors", numColors);
-
-            assert((group.ColorMapping == MapPerVertex || group.ColorMapping == MapPerFaceVertex) 
-                && "Only per-vertex or per-face-vertex colors are supported");
+            Assert((group.ColorMapping == MapPerVertex || group.ColorMapping == MapPerFaceVertex), 
+                "Only per-vertex or per-face-vertex colors are supported");
 
             FbxGeometryElementVertexColor* elementColors = mesh->CreateElementVertexColor();
             elementColors->SetMappingMode(toFbxMapping(group.ColorMapping));
@@ -483,7 +537,7 @@ namespace mesh
             if (group.ColorMapping == MapPerFaceVertex)
             {
                 auto& indices = elementColors->GetIndexArray();
-                for (const Face& face : group)
+                for (const Triangle& face : group)
                     for (const VertexDescr& vd : face)
                         indices.Add(vd.c);
             }
@@ -492,7 +546,7 @@ namespace mesh
 
     static void CreatePolygons(const MeshGroup& group, FbxMesh* mesh)
     {
-        for (const Face& face : group)
+        for (const Triangle& face : group)
         {
             mesh->BeginPolygon(-1, -1, -1, false);
             for (const VertexDescr& vd : face)
@@ -507,11 +561,11 @@ namespace mesh
     bool Mesh::SaveAsFBX(strview meshPath) const noexcept
     {
         if (!NumFaces) {
-            fprintf(stderr, "Warning: no faces to export to '%s'\n", meshPath.to_cstr());
+            LogWarning("No faces to export to '%s'\n", meshPath);
             return false;
         }
         if (!NumGroups()) {
-            fprintf(stderr, "Warning: no mesh groups to export to '%s'\n", meshPath.to_cstr());
+            LogWarning("No mesh groups to export to '%s'\n", meshPath);
             return false;
         }
 
@@ -521,24 +575,26 @@ namespace mesh
         int format = -1;
 
         if (!exporter->Initialize(meshPath.to_cstr(), format, SdkManager->GetIOSettings())) {
-            fprintf(stderr, "Failed to open file '%s' for writing: %s\n", meshPath.to_cstr(), exporter->GetStatus().GetErrorString());
+            LogWarning("Failed to open file '%s' for writing: %s\n", meshPath, exporter->GetStatus().GetErrorString());
             return false;
         }
         if (!exporter->SetFileExportVersion(FBX_2014_00_COMPATIBLE, FbxSceneRenamer::eNone)) {
-            fprintf(stderr, "Failed to set FBX export version: %s\n", exporter->GetStatus().GetErrorString());
+            LogWarning("Failed to set FBX export version: %s\n", exporter->GetStatus().GetErrorString());
             return false;
         }
 
         FbxPtr<FbxScene> scene = FbxScene::Create(SdkManager, "scene");
-        scene->GetGlobalSettings().SetAxisSystem(SaveAxisSystem);
+
+        FbxAxisSystem axisSys = { FbxAxisSystem::eOpenGL };
+        scene->GetGlobalSettings().SetAxisSystem(axisSys);
         scene->GetGlobalSettings().SetSystemUnit(FbxSystemUnit(100.0/*meters*/));
 
         if (FbxNode* root = scene->GetRootNode())
         {
-            printf("SaveFBX  %20s:  %5d verts  %5d polys", Name.c_str(), TotalVerts(), TotalFaces());
-
+            LogInfo("SaveFBX %-28s  %5d verts  %5d tris", Name, TotalVerts(), TotalFaces());
             for (const MeshGroup& group : Groups)
             {
+                group.Print();
                 FbxMesh* mesh = FbxMesh::Create(scene.get(), "");
                 SaveVertices(group, mesh);
                 SaveNormals(group, mesh);
@@ -547,14 +603,21 @@ namespace mesh
                 CreatePolygons(group, mesh);
 
                 FbxNode* node = FbxNode::Create(scene.get(), group.Name.c_str());
+
+                FbxDouble3 pos   = GLToFbxDouble3(group.Offset);
+                FbxDouble3 rot   = GLToFbxDouble3(group.Rotation);
+                FbxDouble3 scale = GLToFbxDouble3(group.Scale);
+                node->LclTranslation.Set(pos);
+                node->LclRotation.Set(rot);
+                node->LclScaling.Set(scale);
+
                 node->SetNodeAttribute(mesh);
                 root->AddChild(node);
             }
-            printf("\n");
         }
 
         if (!exporter->Export(scene.get())) {
-            fprintf(stderr, "Failed to export FBX '%s': %s\n", meshPath.to_cstr(), exporter->GetStatus().GetErrorString());
+            LogWarning("Failed to export FBX '%s': %s\n", meshPath, exporter->GetStatus().GetErrorString());
             return false;
         }
         return true;
@@ -566,14 +629,15 @@ namespace mesh
 namespace Wolf3D
 {
     bool Mesh::IsFBXSupported() noexcept { return false; }
-    bool Mesh::LoadFBX(const string& meshPath) noexcept
+    bool Mesh::LoadFBX(strview meshPath, MeshLoaderOptions
+     options) noexcept
     {
-        fprintf(stderr, "Error: FBX not supported on this platform!\n%s\n", meshPath.c_str());
+        LogError("FBX not supported on this platform!\n%s", meshPath);
         return false;
     }
-    bool Mesh::SaveAsFBX(const string& meshPath) const noexcept
+    bool Mesh::SaveAsFBX(strview meshPath) const noexcept
     {
-        fprintf(stderr, "Error: FBX not supported on this platform!\n%s\n", meshPath.c_str());
+        LogError("FBX not supported on this platform!\n%s", meshPath);
         return false;
     }
 }

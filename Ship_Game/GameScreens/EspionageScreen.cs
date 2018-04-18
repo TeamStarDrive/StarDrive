@@ -50,7 +50,8 @@ namespace Ship_Game
 		{
 			this.screen = screen;
 			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+		
+            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 

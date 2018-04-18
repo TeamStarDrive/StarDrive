@@ -215,7 +215,7 @@ namespace Ship_Game.AI
 
         public void CalculateTroopNeeds()
         {
-            int mintroopLevel = (int)(Empire.Universe.GameDifficulty + 1) * 2;
+            int mintroopLevel = (int)RankImportance + (int)(Empire.Universe.GameDifficulty + 1) * 2;
             TroopCount = 0;
             {
                 // find max number of troops for system.
@@ -237,8 +237,9 @@ namespace Ship_Game.AI
         }
         public void CalculateShipneeds()
         {
-            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 300000, Us);
+            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);            
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
+            min /= 4;
             IdealShipStrength = Math.Max(predicted, min);
             
         }

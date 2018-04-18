@@ -36,10 +36,11 @@ namespace Ship_Game
         public GameplayObject Target { get; }
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
-        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
+        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false) : base(GameObjectType.Beam)
         {
             //there is an error here in beam creation where the weapon has no module. 
-            // i am setting these values in the weapon CreateDroneBeam where possible.             
+            // i am setting these values in the weapon CreateDroneBeam where possible. 
+            FollowMouse             = followMouse;
             Weapon                  = weapon;
             Target                  = target;
             TargetPosistion         = destination;
@@ -52,28 +53,25 @@ namespace Ship_Game
             WeaponEffectType        = weapon.WeaponEffectType;
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
-            DisableSpatialCollision = DamageAmount < 0f;
-            //Jitter                  = Vector2.Zero;
-            var targetVector        = Target?.Center ?? destination;
+            DisableSpatialCollision = DamageAmount < 0f;            
+            Jitter                  = destination;
             JitterRadius            = 0;
-
+            Emitter.Position        = new Vector3(source, 0f);
             Owner                   = weapon.Owner ;
             Source                  = source;
-            //if (DamageAmount > 0)
-            //{
-            //    Jitter = Weapon.AdjustTargetting(); 
+            Destination             = destination;
+            //WanderPath = Owner?.Center.RightVector() ?? source.RightVector();
+            // if (target != null && destination.OutsideRadius(target.Center, 32))
 
-            //    SetDestination(destination, 4000f);
-            //    Destination += Jitter;
-            //}
-            //SetDestination(destination);
-            Destination = destination;
-            if (target != null && destination.OutsideRadius(target.Center, 32))
-            {
-                TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
-                JitterRadius = target.Center.Distance(TargetPosistion);
-                WanderPath = Vector2.Normalize(destination - target.Center) * 16f;
-            }
+            TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
+            JitterRadius = target?.Center.Distance(Jitter) ?? 0 ;
+            if (JitterRadius > 0)
+                WanderPath = Vector2.Normalize(destination - target.Center) * 8f;
+            if (float.IsNaN(WanderPath.X))
+                WanderPath = Vector2.Zero;
+
+            
+            
             ActualHitDestination    = Destination;                        
             Initialize();
             weapon.ModifyProjectile(this);
@@ -116,8 +114,7 @@ namespace Ship_Game
             Vector2 deltaVec = destination - Source;            
             if (!DisableSpatialCollision)
             {
-                TargetPosistion = Target.Center.NearestPointOnFiniteLine(Source, destination);
-                //JitterRadius = Target.Center.Distance(TargetPosistion);
+                TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
             }
             else
                 TargetPosistion = destination;
@@ -234,6 +231,7 @@ namespace Ship_Game
                 return false;
             if (target is Projectile projectile)
             {
+                if (!Weapon.Tag_PD && !Weapon.TruePD) return false;
                 if (projectile.Weapon?.Tag_Intercept != true || projectile.Weapon?.Tag_PD == true)
                     return false;
                 if (!Loyalty.IsEmpireAttackable(projectile.Loyalty))
@@ -275,25 +273,35 @@ namespace Ship_Game
             }
             Duration -= elapsedTime;
             Source    = srcCenter;
-            if (ship != null && ship.Active && !DisableSpatialCollision)
+            if (ship != null && ship.Active && !DisableSpatialCollision )
             {
-                float distanceFromJitter = TargetPosistion.Distance(Target.Center);
-                distanceFromJitter = Math.Min(24 / (1 + Owner?.Level ?? 1), distanceFromJitter);
-                float sweep = distanceFromJitter * ((Module?.WeaponRotationSpeed ?? 1f) * .25f);
-                WanderPath = Vector2.Normalize(Target.Center - TargetPosistion) * sweep;
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;//* .25f);                
+                //sweep *= RandomMath.AvgRandomBetween(1, 100) > 80 ? -1 : 1;
+                if (Destination.OutsideRadius(Target.Center, JitterRadius * .5f))
+                    WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
+                if (float.IsNaN(WanderPath.X))
+                    WanderPath = Vector2.Normalize(Target.Center - ActualHitDestination) * sweep;
+            }
+
+            if (FollowMouse)
+            {
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;//* .25f);                                           
+                WanderPath = Vector2.Normalize(Empire.Universe.mouseWorldPos - Destination) * sweep;           
             }
 
             // always update Destination to ensure beam stays in range
-            SetDestination(FollowMouse
-                        ? Empire.Universe.mouseWorldPos
-                        : DisableSpatialCollision ? Target?.Center ?? Destination
+            SetDestination(//FollowMouse
+                        //? Empire.Universe.mouseWorldPos
+                         DisableSpatialCollision ? Target?.Center ?? Destination
                         : Destination + WanderPath );
+
+      
 
             if (!BeamCollidedThisFrame) ActualHitDestination = Destination;           
             
             BeamCollidedThisFrame = false;
 
-            if (!Owner.PlayerShip)
+            //if (!Owner.PlayerShip)
             {
                 //if (Destination.OutsideRadius(Source, Range + Owner.Radius)) // +Radius So beams at the back of a ship can hit too!
                 //{

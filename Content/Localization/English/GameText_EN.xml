@@ -4700,6 +4700,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     
     <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
     <Token>
+      <Index>1999</Index>
+      <Text>Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons.</Text>
+    </Token>
+    <Token>
       <Index>2000</Index>
       <!-- planetname was destroyed by unknown forces-->
       <Text>was destroyed by unknown forces</Text>
@@ -4714,19 +4718,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2003</Index>
-      <Text>Plasma Ordnance provides a 25% greater explosive radius and 25% damage bonus to all of our Ordnance-based weapons.</Text>
+      <Text>Plasma Ordnance provides a 25% greater explosive radius to all of our Ordnance-based weapons.</Text>
     </Token>
     <Token>
       <Index>2004</Index>
-      <Text>Reactive Armor</Text>
+      <Text>Reinforced Components</Text>
     </Token>
     <Token>
       <Index>2005</Index>
-      <Text>Reactive armor employs a basic energy field to detect imminent impacts, triggering microexplosives contained in the armor that explode towards the incoming ordnance. This effectively weakens the incoming assault. </Text>
+      <Text>Integration of hardened ship components reduces the effectiveness of explosion damage.</Text>
     </Token>
     <Token>
       <Index>2006</Index>
-      <Text>All armors are now equipped with reactive systems, which reduces the effectiveness of explosive weapons by 25%.</Text>
+      <Text>All ship modules are now slightly reinforced. Reducing radius of explosions by 25%.</Text>
     </Token>
     <Token>
       <Index>2007</Index>
@@ -6890,7 +6894,31 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4105</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
     </Token>
-  
+
+    <Token>
+      <Index>4106</Index>
+      <Text>Support</Text>
+    </Token>
+    <Token>
+      <Index>4107</Index>
+      <Text>TroopShip</Text>
+    </Token>
+    <Token>
+      <Index>4108</Index>
+      <Text>GunBoat</Text>
+    </Token>
+    <Token>
+      <Index>4109</Index>
+      <Text>Drone</Text>
+    </Token>
+    <Token>
+      <Index>4110</Index>
+      <Text>Destroyer</Text>
+    </Token>
+    <Token>
+      <Index>4111</Index>
+      <Text>Bomber</Text>
+    </Token>
   
     <Token>
       <Index>5000</Index>
@@ -7958,11 +7986,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6175</Index>
-      <Text>Dam Thr</Text>
+      <Text>Deflection</Text>
     </Token>
   <Token>
       <Index>6176</Index>
-      <Text>SDam Thr</Text>
+      <Text>SD Deflect</Text>
     </Token>
   <Token>
       <Index>6177</Index>
@@ -8341,11 +8369,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7078</Index>
-      <Text>Weapons that damage less than this threshold do no damage whatsoever to this module.</Text>
+      <Text>Weapons which do less damage than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
     </Token>
   <Token>
       <Index>7079</Index>
-      <Text>Weapons that damage less than this threshold do no damage whatsoever to this shield.</Text>
+      <Text>Weapons which do less damage than this value will simply be deflected by this Shield due to it's intensity. Beams are not affected by this due to their tunneling ability.</Text>
     </Token>
   
   <Token>

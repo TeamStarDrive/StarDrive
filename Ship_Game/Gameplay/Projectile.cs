@@ -5,6 +5,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -155,8 +156,8 @@ namespace Ship_Game.Gameplay
             InitialDuration = Duration = (Range/Speed) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
 
-            if (Owner?.loyalty.data.ArmorPiercingBonus > 0 
-                && (Weapon.WeaponType == "Missile" || Weapon.WeaponType == "Ballistic Cannon"))
+            if (Owner?.loyalty.data.ArmorPiercingBonus > 0
+                && (Weapon.Tag_Kinetic  || Weapon.Tag_Missile || Weapon.Tag_Torpedo))
             {
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
             }
@@ -270,12 +271,11 @@ namespace Ship_Game.Gameplay
         public void DrawProjectile(UniverseScreen screen)
         {
             // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
-            if (!UsesVisibleMesh && screen.Frustum.Contains(Center, Radius))
-            {
-                var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
-                var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
-                screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Weapon.Scale);
-            }
+            if (UsesVisibleMesh || !(Owner?.InFrustum ?? true) || !screen.Frustum.Contains(Center,  Radius)) return;
+
+            var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
+            var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
+            screen.DrawTransparentModel(projMesh, WorldMatrix, tex, Weapon.Scale);
         }
 
         public void DamageMissile(GameplayObject source, float damageAmount)
@@ -304,7 +304,7 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.RemoveObject(ProjSO);
                     ProjSO.Clear();
                 }
-            }
+            }            
             if (DroneAI != null)
             {
                 foreach (Beam beam in DroneAI.Beams)
@@ -390,85 +390,41 @@ namespace Ship_Game.Gameplay
         {
             if (Miss || target == Owner)
                 return false;
+            //
+            switch (target) {
+                case Projectile projectile:
+                    if (!Weapon.Tag_PD && !Weapon.TruePD) return false;
+                    if (!projectile.Weapon.Tag_Intercept) return false;
+                    if (projectile.Weapon.Tag_PD || projectile.Weapon.TruePD) return false;
 
-            if (target is Projectile projectile)
-            {
-                if (projectile.Loyalty == null || Owner?.loyalty?.IsEmpireAttackable(projectile.Loyalty) == false)
-                    return false;
-
-                if (projectile.Weapon.Tag_Intercept && !projectile.Weapon.Tag_PD)
-                {
-                    if (projectile.Loyalty.data.MissileDodgeChance > UniverseRandom.RandomBetween(0f, 1f))
-                        return false;
+                    if (projectile.Loyalty == null || Owner?.loyalty?.IsEmpireAttackable(projectile.Loyalty) == false)
+                        return false;                
                     projectile.DamageMissile(this, DamageAmount);
-                    return true;
-                }
-
-                if (false)
-                if (projectile.WeaponType == "Missile" || projectile.Weapon.Tag_Intercept )
-                {
-                    if (projectile.Loyalty != null && 
-                        projectile.Loyalty.data.MissileDodgeChance <= UniverseRandom.RandomBetween(0f, 1f))
-                    {
-                        projectile.DamageMissile(this, DamageAmount);
-                        DieNextFrame = true;
-                        return true;
-                    }
-                }
-                else if (WeaponType == "Missile")
-                {
-                    if (Loyalty != null &&
-                        Loyalty.data.MissileDodgeChance <= UniverseRandom.RandomBetween(0f, 1f))
-                    {
-                        DamageMissile(this, projectile.DamageAmount);
-                        projectile.DieNextFrame = true;
-                        return true;
-                    }
-                }
-                else if (Weapon.Tag_Intercept || projectile.Weapon.Tag_Intercept)
-                {
-                    if (projectile.Weapon.Tag_Intercept)
-                        DamageMissile(this, projectile.DamageAmount);
-                    else
-                        DieNextFrame = true;
-                    projectile.DieNextFrame = true;
-                    return true;
-                }
-                return false;
-            }
-            if (target is Asteroid)
-            {
-                if (!Explodes)
-                {
-                    target.Damage(this, DamageAmount);
-                }
-                Die(null, false);
-                return true;
-            }
-            if (target is ShipModule module)
-            {
-                Ship parent = module.GetParent();
-                if (!Loyalty.IsEmpireAttackable(parent.loyalty))
-                    return false;
-
-                if (Weapon.TruePD)
-                {
                     DieNextFrame = true;
                     return true;
-                }
-                //if (parent.shipData.Role == ShipData.RoleName.fighter && 
-                //    parent.loyalty.data.Traits.DodgeMod > 0f &&
-                //    parent.loyalty.data.Traits.DodgeMod > UniverseRandom.RandomBetween(0f, 1f))
-                //{
-                //    Miss = true;
-                //    return false;       
-                //}
+                case Asteroid _:
+                    if (!Explodes)
+                    {
+                        target.Damage(this, DamageAmount);
+                    }
+                    Die(null, false);
+                    return true;
+                case ShipModule module:
+                    Ship parent = module.GetParent();
+                    if (!Loyalty.IsEmpireAttackable(parent.loyalty))
+                        return false;
 
-                // Non exploding projectiles should go through multiple modules if it has enough damage
-                if (!Explodes && module.Active)
-                    ArmourPiercingTouch(module, parent);
+                    if (Weapon.TruePD)
+                    {
+                        DieNextFrame = true;
+                        return true;
+                    }
+                    // Non exploding projectiles should go through multiple modules if it has enough damage
+                    if (!Explodes && module.Active)
+                        ArmourPiercingTouch(module, parent);
 
-                Health = 0f;
+                    Health = 0f;
+                    break;
             }
             if (WeaponEffectType == "Plasma")
             {
@@ -507,8 +463,14 @@ namespace Ship_Game.Gameplay
                 if (target is ShipModule shipModule && shipModule.ModuleType != ShipModuleType.Shield)
                     GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
             }
+            
             DieNextFrame = true;
             return true;
+        }
+
+        private void DebugTargetCircle()
+        {
+            Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Owner);
         }
 
         private void ArmourPiercingTouch(ShipModule module, Ship parent)
@@ -522,21 +484,28 @@ namespace Ship_Game.Gameplay
 
             if (DamageAmount <= 0f)
                 return;
-
+            var projectedModules = new Array<ShipModule>();
+            projectedModules.Add(module);
             Vector2 projectileDir = Velocity.Normalized();
-            var projectedModules = parent.RayHitTestModules(Center, projectileDir, distance:parent.Radius, rayRadius:Radius);
+            projectedModules = parent.RayHitTestModules(module.Center, projectileDir, distance:parent.Radius, rayRadius:Radius);
             if (projectedModules == null)
                 return;
-
-            foreach (ShipModule impactModule in projectedModules)
+            DebugTargetCircle();
+            for (int x = 0; x < projectedModules.Count; x++)
             {
+                ShipModule impactModule = projectedModules[x];
+                if (!impactModule.Active)
+                    continue;
                 if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
                 {
-                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                    ArmorPiercing -= impactModule.XSIZE; // armor is always squared anyway.
+                    impactModule.DebugDamageCircle();
                     if (ArmorPiercing >= 0)
+                    {
                         continue; // SKIP/Phase through this armor module (yikes!)
+                    }
                 }
-
+                impactModule.DebugDamageCircle();
                 impactModule.Damage(this, DamageAmount, out DamageAmount);
                 if (DamageAmount <= 0f)
                     return;

@@ -546,7 +546,7 @@ namespace Ship_Game
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6169), (float)mod.shield_subspace_resist, 216);
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6170), (float)mod.shield_warp_resist, 217);
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6171), (float)mod.shield_beam_resist, 218);
-            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222);
+            DrawStatShieldResist(ref modTitlePos, Localizer.Token(6176), (float)mod.shield_threshold, 222, isPercent: false);
 
             DrawStat(ref modTitlePos, Localizer.Token(126), (float)mod.SensorRange, 96);
             DrawStat(ref modTitlePos, Localizer.Token(6121), (float)mod.SensorBonus, 167);
@@ -597,7 +597,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6158), (float)mod.SubspaceResist, 205, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6159), (float)mod.PDResist, 206, isPercent: true);
             DrawStat(ref modTitlePos, Localizer.Token(6160), (float)mod.FlakResist, 207, isPercent: true);
-            DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208, isPercent: true);
+            DrawStat(ref modTitlePos, Localizer.Token(6161), (float)mod.APResist, 208);
             DrawStat(ref modTitlePos, Localizer.Token(6175), (float)mod.DamageThreshold, 221);
             DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
             DrawStat(ref modTitlePos, Localizer.Token(6187), (float)mod.FixedTracking, 231);
@@ -700,7 +700,7 @@ namespace Ship_Game
             //if (w.EffectVSShields != 1f)
                 DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
             //if (w.ShieldPenChance > 0)
-                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance, 181);            
+                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);            
                 DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
 
             if (w.TruePD)

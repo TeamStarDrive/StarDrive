@@ -16,7 +16,7 @@ namespace Ship_Game
         public bool AlwaysUpdate;
         private bool OtherScreenHasFocus;
 
-        public bool IsActive => !OtherScreenHasFocus
+        public bool IsActive => !OtherScreenHasFocus && !IsExiting
                                 && ScreenState == ScreenState.TransitionOn 
                                 || ScreenState == ScreenState.Active;
 
@@ -38,7 +38,7 @@ namespace Ship_Game
         public Vector2 ScreenArea   => Game1.Instance.ScreenArea;
         public Vector2 ScreenCenter => Game1.Instance.ScreenArea * 0.5f;
         public GameTime GameTime    => Game1.Instance.GameTime;
-        protected bool Pauses = false;
+        protected bool Pauses = true;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -49,17 +49,25 @@ namespace Ship_Game
         protected VideoPlayer VideoPlaying;
         protected Texture2D VideoTexture;
 
-        protected GameScreen(GameScreen parent) 
-            : this(parent, new Rectangle(0, 0, Game1.Instance.ScreenWidth, Game1.Instance.ScreenHeight))
+        protected GameScreen(GameScreen parent, bool pause = true) 
+            : this(parent, new Rectangle(0, 0, Game1.Instance.ScreenWidth, Game1.Instance.ScreenHeight), pause)
         {
         }
-
-        protected GameScreen(GameScreen parent, Rectangle rect) : base(parent, rect)
+        
+        protected GameScreen(GameScreen parent, Rectangle rect, bool pause = true ) : base(parent, rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
             UpdateViewport();
+            if (Empire.Universe?.IsActive == false)
+                Log.Info("");
+            if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
+            {
+                Empire.Universe.Paused = true;
+            }
+            else
+                Pauses = false;
             if (Input == null)
                 Input = ScreenManager.input;
         }
@@ -74,15 +82,14 @@ namespace Ship_Game
         public void RemoveAllLights()             => ScreenManager.RemoveAllLights();
         public void AssignLightRig(string rigContentPath)
         {
-            var lightRig = TransientContent.Load<LightRig>(rigContentPath);
+            LightRig lightRig = TransientContent.Load<LightRig>(rigContentPath);
             ScreenManager.AssignLightRig(lightRig);
         }
 
         public virtual void ExitScreen()
         {
-            ScreenManager.exitScreenTimer =.024f;
-            Input.CancelInput = true;            
-            if (Pauses)
+            ScreenManager.exitScreenTimer =.25f;            
+            if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
             if (TransitionOffTime != TimeSpan.Zero)
             {

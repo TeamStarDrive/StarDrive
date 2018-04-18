@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Runtime;
 using System.Text;
 using Ship_Game.AI;
 using Ship_Game.Ships;
@@ -93,6 +94,7 @@ namespace Ship_Game
                 foreach (FleetDataNode node in fleet.DataNodes)
                 {
                     Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+                    if (s == null) continue;
                     s.RelativeFleetOffset = node.FleetOffset;
                     node.Ship = s;
                     fleet.AddShip(s);
@@ -335,22 +337,30 @@ namespace Ship_Game
                 default:                          return 5;
             }
         }
-
+        public static void CompactLargeObjectHeap()
+        {
+            
+            
+        }
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
 
-            Log.Info(ConsoleColor.DarkYellow, " ========= CollectMemory ========= ");
+            Log.TestMessage(" ========= CollectMemory ========= ", Log.Importance.Important);
             float before = GC.GetTotalMemory(false) / (1024f * 1024f);
+            CollectMemorySilent();
             float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
-            Log.Info(ConsoleColor.DarkYellow, "   Before: {0:0.0}MB  After: {1:0.0}MB", before, after);
-            Log.Info(ConsoleColor.DarkYellow, " ================================= ");
+            Log.TestMessage($"   Before: {before:0.0}MB  After: {after:0.0}MB", Log.Importance.Important);
+            Log.TestMessage($"   Process Memory : {ProcessMemoryMb}", Log.Importance.Important);
+            Log.TestMessage(" ================================= ", Log.Importance.Important);
+            
         }
 
         public static void CollectMemorySilent()
         {
             GC.WaitForPendingFinalizers();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
 

@@ -183,6 +183,8 @@ namespace Ship_Game
                 {
                     continue;
                 }
+                var building = ResourceManager.GetBuildingTemplate(pgs.building.Name);
+                pgs.building.Scrappable = building.Scrappable;
                 p.BuildingList.Add(pgs.building);
                 if (!pgs.building.isWeapon)
                 {
@@ -400,9 +402,8 @@ namespace Ship_Game
             data.EnemyFTLSpeedModifier = savedData.EnemyFTLModifier;
             data.GravityWells          = savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
-            //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
-            if (data.Size.X > 5500000)  //3500000f) 
-            Empire.ProjectorRadius = data.Size.X / 70f;
+            //Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(data.Size.X);            
+
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
@@ -773,6 +774,7 @@ namespace Ship_Game
 
         private void AddShipFromSaveData(SavedGame.ShipSaveData shipData, Empire e)
         {
+            shipData.data.Hull = shipData.Hull;
             Ship ship = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
             if (ship == null) // happens if module creation failed
                 return;
@@ -917,7 +919,7 @@ namespace Ship_Game
             if (systemToMake == data.SolarSystemsList.Count)
             {
                 foreach (Ship ship in data.MasterShipList)
-                {
+                {                    
                     ship.InitializeShip(loadingFromSavegame: true);
                     if (ship.GetHangars().Count > 0)
                     {
