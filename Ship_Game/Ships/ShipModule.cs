@@ -299,9 +299,8 @@ namespace Ship_Game.Ships
             return module;
         }
 
-        // @todo Why isn't this used? A bug?
-        // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
-        // Fat Bastard - It is now working :)
+
+        // Fat Bastard - Shield Resistance  is now working
         private float ApplyShieldResistances(Weapon weapon, float damagemodifier)
         {
             if (weapon.Tag_Kinetic) damagemodifier = damagemodifier * (1f - shield_kinetic_resist);
@@ -323,12 +322,12 @@ namespace Ship_Game.Ships
             all the rest simply doesnt matter and wastes time being called every time there is a hit. there is no need to make more methods of this since its rather a simple one.
             Modules will have one or more of the types of resist below.
              */
+            if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - ExplosiveResist);
             if (weapon.Tag_Kinetic) damagemodifier = damagemodifier * (1f - KineticResist);
             else if (weapon.Tag_Beam) damagemodifier = damagemodifier * (1f - BeamResist);
             else if (weapon.Tag_Energy) damagemodifier = damagemodifier * (1f - EnergyResist);
             else if (weapon.Tag_Missile) damagemodifier = damagemodifier * (1f - MissileResist);
             else if (weapon.Tag_Torpedo) damagemodifier = damagemodifier * (1f - TorpedoResist);
-            else if (weapon.Tag_Explosive) damagemodifier = damagemodifier * (1f - KineticResist);
             //else if (weapon.Tag_Guided) damagemodifier = damagemodifier * (1f - GuidedResist);
             //else if (weapon.Tag_Cannon) damagemodifier    = damagemodifier * (1f - CannonResist);
             //else if (weapon.Tag_Hybrid) damagemodifier    = damagemodifier * (1f - HybridResist);
