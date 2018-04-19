@@ -1195,5 +1195,15 @@
       <Title>Player Designs</Title>
       <Data>2225</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>238</TIP_ID>
+      <Title>Explosion Damage</Title>
+      <Data>1996</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>239</TIP_ID>
+      <Title>Explosion Radius</Title>
+      <Data>1995</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
