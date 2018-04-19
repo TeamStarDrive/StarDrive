@@ -119,6 +119,8 @@ namespace Ship_Game.Gameplay
         public readonly int TargetTracking;
         public readonly int FixedTracking;
         public readonly bool IsRotable;
+        public readonly int ExplosionDamage;
+        public readonly int ExplosionRadius;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
@@ -227,6 +229,8 @@ namespace Ship_Game.Gameplay
             FlakResist                  = s.FlakResist;
             DamageThreshold             = s.DamageThreshold;
             APResist                    = s.APResist;
+            ExplosionDamage             = s.ExplosionDamage;
+            ExplosionRadius             = s.ExplosionRadius;
             IndirectPower               = s.IndirectPower;
             isPowerArmour               = s.isPowerArmour;
             isBulkhead                  = s.isBulkhead;
@@ -380,5 +384,7 @@ namespace Ship_Game.Gameplay
         public int TargetTracking;
         public int FixedTracking;
         public bool? IsRotable = null;
+        public int ExplosionRadius;
+        public int ExplosionDamage;
     }
 }

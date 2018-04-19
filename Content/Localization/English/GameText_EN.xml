@@ -4700,6 +4700,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
     
     <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
     <Token>
+      <Index>1995</Index>
+      <Text>The damage radius of this module's explosion, when it is destroyed. The radius will get smaller as modules nearby absorb the explosion</Text>
+    </Token>
+    <Token>
+      <Index>1996</Index>
+      <Text>The damage caused to nearby modules if this module explodes.</Text>
+    </Token>
+    <Token>
+      <Index>1997</Index>
+      <Text>Exp Rad</Text>
+    </Token>
+    <Token>
+      <Index>1998</Index>
+      <Text>Exp Dmg</Text>
+    </Token>
+    <Token>
       <Index>1999</Index>
       <Text>Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons.</Text>
     </Token>
