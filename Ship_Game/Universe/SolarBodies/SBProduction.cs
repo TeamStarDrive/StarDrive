@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -215,14 +216,15 @@ namespace Ship_Game.Universe.SolarBodies
                     }
                     if (queueItem.Goal != null)
                     {
-                        if (queueItem.Goal.GoalName == "BuildConstructionShip")
+                        if (queueItem.Goal is BuildConstructionShip)
                         {
                             shipAt.AI.OrderDeepSpaceBuild(queueItem.Goal);
-
                             shipAt.isConstructor = true;
                             shipAt.VanityName = "Construction Ship";
                         }
-                        else if (queueItem.Goal.GoalName != "BuildDefensiveShips" && queueItem.Goal.GoalName != "BuildOffensiveShips" && queueItem.Goal.GoalName != "FleetRequisition")
+                        else if (!(queueItem.Goal is BuildDefensiveShips) 
+                            && !(queueItem.Goal is BuildOffensiveShips) 
+                            && !(queueItem.Goal is FleetRequisition))
                         {
                             ++queueItem.Goal.Step;
                         }

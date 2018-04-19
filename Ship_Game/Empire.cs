@@ -8,9 +8,8 @@ using System.Threading;
 using System.Xml.Serialization;
 using Ship_Game.AI;
 using Newtonsoft.Json;
-using SgMotion.Controllers;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -2684,14 +2683,14 @@ namespace Ship_Game
             unusedFreighters.AddRange(assignedShips);
             freighters = 0; // unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
-            foreach (Goal goal in (Array<Goal>)this.EmpireAI.Goals)
+            foreach (Goal goal in EmpireAI.Goals)
             {
-                if (goal.GoalName == "IncreaseFreighters")
+                if (goal is IncreaseFreighters)
                 {
                     ++freighters;
                     goalLimt--;
                 }
-                else if (goal.GoalName == "IncreasePassengerShips")
+                else if (goal is IncreasePassengerShips)
                 {
                     goalLimt--;
                     ++freighters;
@@ -2701,12 +2700,8 @@ namespace Ship_Game
             freighters += unusedFreighters.Count ;
              if (moneyForFreighters > 0 && freighters < minFreightCount && goalLimt >0)
             {
-                freighters++;
-                this.EmpireAI.Goals.Add(new Goal(this)
-                {
-                    GoalName = "IncreaseFreighters",
-                    type = GoalType.BuildShips
-                });
+                ++freighters;
+                EmpireAI.Goals.Add(new IncreaseFreighters(this));
                 moneyForFreighters -= avgmaint;
 
                 //if (freighters < minFreightCount && moneyForFreighters > 0)
@@ -2811,7 +2806,7 @@ namespace Ship_Game
             {
 
 
-                var buildScout = new Goal(GoalType.BuildScout, "Build Scout", this);
+                var buildScout = new BuildScout(this);
 
                 // get at least 2 scouts by default
                 EmpireAI.Goals.Add(buildScout);
@@ -2831,20 +2826,10 @@ namespace Ship_Game
                     }
                 }
                 if (notBuilding)
-                    EmpireAI.Goals.Add(new Goal()
-                    {
-                        type = GoalType.BuildScout,
-                        empire = this,
-                        GoalName = "Build Scout"
-                    });
+                    EmpireAI.Goals.Add(new BuildScout(this));
                 if (data.DiplomaticPersonality.Name != "Expansionist" || !notBuilding)
                     return;
-                EmpireAI.Goals.Add(new Goal()
-                {
-                    type = GoalType.BuildScout,
-                    empire = this,
-                    GoalName = "Build Scout"
-                });
+                EmpireAI.Goals.Add(new BuildScout(this));
             }
         }
 
