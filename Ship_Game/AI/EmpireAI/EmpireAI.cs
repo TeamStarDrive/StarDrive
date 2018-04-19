@@ -474,7 +474,8 @@ namespace Ship_Game.AI
             if (!OwnerEmpire.isFaction)            
                 RunManagers();
             
-            foreach (Goal g in Goals) g.Evaluate();
+            foreach (Goal g in Goals)
+                g.Evaluate();
             
             Goals.ApplyPendingRemovals();
         }

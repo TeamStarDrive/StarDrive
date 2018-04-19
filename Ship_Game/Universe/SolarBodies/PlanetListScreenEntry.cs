@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -66,7 +67,6 @@ namespace Ship_Game
                 width = width + 1f;
             }
 
-            Goal goal = new Goal();
             foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
             {
                 if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
@@ -366,8 +366,8 @@ namespace Ship_Game
                     if (!this.marked)
                     {
                         GameAudio.PlaySfxAsync("echo_affirm");
-                        Goal g = new Goal(this.planet, Empire.Universe.player);
-                        Empire.Universe.player.GetGSAI().Goals.Add(g);
+                        Empire.Universe.player.GetGSAI().Goals.Add(
+                            new MarkForColonization(planet, Empire.Universe.player));
                         Colonize.Text = "Cancel Colonize";
                         Colonize.Style = ButtonStyle.Default;
                         marked = true;

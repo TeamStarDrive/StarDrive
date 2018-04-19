@@ -47,14 +47,8 @@ namespace Ship_Game
             e.isPlayer = isPlayer;
             //TempEmpireData  Tdata = new TempEmpireData();
 
-            if (sdata.IsFaction)
-            {
-                e.isFaction = true;
-            }
-            if (sdata.isMinorRace)
-            {
-                e.MinorRace = true;
-            }
+            e.isFaction = sdata.IsFaction;
+            e.MinorRace = sdata.isMinorRace;
             if (sdata.empireData == null)
             {
                 e.data.Traits = sdata.Traits;
@@ -567,19 +561,15 @@ namespace Ship_Game
                 }
                 foreach (SavedGame.GoalSave gsave in d.GSAIData.Goals)
                 {
-                    var g = new Goal
-                    {
-                        empire = e,
-                        type = gsave.type
-                    };
-                    if (g.type == GoalType.BuildShips && gsave.ToBuildUID != null && !ResourceManager.ShipsDict.ContainsKey(gsave.ToBuildUID))
-                    {
+                    if (gsave.type == GoalType.BuildShips && gsave.ToBuildUID != null 
+                        && !ResourceManager.ShipsDict.ContainsKey(gsave.ToBuildUID))
                         continue;
-                    }
+
+                    Goal g = Goal.CreateInstance(gsave.GoalName);
+                    g.empire        = e;
                     g.ToBuildUID    = gsave.ToBuildUID;
                     g.Step          = gsave.GoalStep;
                     g.guid          = gsave.GoalGuid;
-                    g.GoalName      = gsave.GoalName;
                     g.BuildPosition = gsave.BuildPosition;
                     if (gsave.fleetGuid != Guid.Empty)
                     {

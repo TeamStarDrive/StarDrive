@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -510,10 +511,10 @@ namespace Ship_Game
             if (this.Mark.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 bool marked = false;
-                Goal markedGoal = new Goal();
+                Goal markedGoal = null;
                 foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
                 {
-                    if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.p)
+                    if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
                     {
                         continue;
                     }
@@ -537,8 +538,7 @@ namespace Ship_Game
                 else
                 {
                     GameAudio.PlaySfxAsync("echo_affirm");
-                    Goal g = new Goal(this.p, EmpireManager.Player);
-                    EmpireManager.Player.GetGSAI().Goals.Add(g);
+                    EmpireManager.Player.GetGSAI().Goals.Add(new MarkForColonization(p, EmpireManager.Player));
                 }
             }
             if (this.SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
