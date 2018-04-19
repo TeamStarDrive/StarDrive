@@ -71,9 +71,9 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
-        public virtual bool Damage(GameplayObject source, float damageAmount)
+        public virtual float Damage(GameplayObject source, float damageAmount, bool internalexplosion = false)
         {
-            return false;
+            return 1;
         }
 
         public virtual void Initialize()

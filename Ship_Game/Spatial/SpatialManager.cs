@@ -164,7 +164,7 @@ namespace Ship_Game.Gameplay
 
         // Refactored by RedFox
         public void ExplodeAtModule(GameplayObject damageSource, ShipModule hitModule, 
-                                    bool ignoreShields, float damageAmount, float damageRadius)
+                                    bool ignoreShields, float damageAmount, float damageRadius, bool internalExplosion = false)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
@@ -172,7 +172,7 @@ namespace Ship_Game.Gameplay
             if (shipToDamage.dying || !shipToDamage.Active)
                 return;
 
-            shipToDamage.DamageModulesInRange(damageSource, damageAmount, hitModule.Center, damageRadius, ignoreShields, InternalExplosion:true);
+            shipToDamage.DamageModulesInRange(damageSource, damageAmount, hitModule.Center, damageRadius, ignoreShields, internalExplosion);
         }
 
         // @note This is called quite rarely, so optimization is not a priority
