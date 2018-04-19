@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -307,7 +308,7 @@ namespace Ship_Game
             Ray pickRay = new Ray(nearPoint, direction);
             float k = -pickRay.Position.Z / pickRay.Direction.Z;
             Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-            Goal buildstuff = new Goal(new Vector2(pickedPosition.X, pickedPosition.Y), this.itemToBuild.Name, EmpireManager.Player);
+            Goal buildstuff = new BuildConstructionShip(pickedPosition.ToVec2(), itemToBuild.Name, EmpireManager.Player);
             if (this.TargetPlanet != Guid.Empty)
             {
                 buildstuff.TetherOffset = this.TetherOffset;

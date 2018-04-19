@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         private void RunMilitaryPlanner()
@@ -27,7 +29,7 @@ namespace Ship_Game.AI {
             float troopStrengthUnderConstruction = 0f;
             foreach (Goal g in Goals)
             {
-                if (g.GoalName == "BuildOffensiveShips" || g.GoalName == "BuildDefensiveShips")
+                if (g is BuildOffensiveShips || g is BuildDefensiveShips)
                 {
 
                     underConstruction = underConstruction +
@@ -38,7 +40,7 @@ namespace Ship_Game.AI {
 
                     numgoals = numgoals + 1f;
                 }
-                if (g.GoalName != "BuildConstructionShip")                
+                if (!(g is BuildConstructionShip))                
                     continue;
                 
                                
@@ -88,8 +90,8 @@ namespace Ship_Game.AI {
                 {
                     var added = 0f;
                     foreach (Goal g in Goals
-                        .Where(goal => goal.GoalName == "BuildOffensiveShips" ||
-                                       goal.GoalName == "BuildDefensiveShips")
+                        .Where(goal => goal is BuildOffensiveShips ||
+                                       goal is BuildDefensiveShips)
                         .OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID]
                             .GetMaintCost(OwnerEmpire)))
                     {
@@ -134,12 +136,7 @@ namespace Ship_Game.AI {
                 if (Recyclepool > 0)
                     Recyclepool--;
 
-
-                var g = new Goal(s, "BuildOffensiveShips", OwnerEmpire)
-                {
-                    type = GoalType.BuildShips
-                };
-                Goals.Add(g);
+                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
                 capacity = capacity - ResourceManager.ShipsDict[s].GetMaintCost(OwnerEmpire);                
                 numgoals = numgoals + 1f;
             }
