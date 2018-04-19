@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 

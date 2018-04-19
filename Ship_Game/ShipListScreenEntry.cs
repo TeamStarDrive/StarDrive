@@ -562,39 +562,38 @@ namespace Ship_Game
 
         public void HandleInput(InputState input)
         {
-            
             if (isCombat)
             {
-            // Explore button for ship list
-            if (this.ExploreButton.HandleInput(input))
-            {
-                if (this.ship.AI.State == AIState.Explore)
+                // Explore button for ship list
+                if (this.ExploreButton.HandleInput(input))
                 {
-                    this.ship.AI.State = AIState.AwaitingOrders;
-                    this.ship.AI.OrderQueue.Clear();
+                    if (this.ship.AI.State == AIState.Explore)
+                    {
+                        this.ship.AI.State = AIState.AwaitingOrders;
+                        this.ship.AI.OrderQueue.Clear();
+                    }
+                    else
+                    {
+                        this.ship.AI.OrderExplore();
+                    }
+                    this.Status_Text = GetStatusText(this.ship);
                 }
-                else
-                {
-                    this.ship.AI.OrderExplore();
-                }
-                this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
-            }
 
-            // System defence button for ship list
-            if (this.PatrolButton.HandleInput(input))
-            {
-                if (this.ship.AI.State == AIState.SystemDefender || this.ship.DoingSystemDefense)
+                // System defence button for ship list
+                if (this.PatrolButton.HandleInput(input))
                 {
-                    this.ship.DoingSystemDefense = false;
-                    this.ship.AI.State = AIState.AwaitingOrders;
-                    this.ship.AI.OrderQueue.Clear();
+                    if (this.ship.AI.State == AIState.SystemDefender || this.ship.DoingSystemDefense)
+                    {
+                        this.ship.DoingSystemDefense = false;
+                        this.ship.AI.State = AIState.AwaitingOrders;
+                        this.ship.AI.OrderQueue.Clear();
+                    }
+                    else
+                    {
+                        this.ship.DoingSystemDefense = true;
+                    }
+                    this.Status_Text = GetStatusText(this.ship);
                 }
-                else
-                {
-                    this.ship.DoingSystemDefense = true;
-                }
-                this.Status_Text = GetStatusText(this.ship);
-            }
             }
             if (this.RefitButton.HandleInput(input))
             {
@@ -642,29 +641,29 @@ namespace Ship_Game
                         this.ship.AI.HasPriorityOrder = true;
                         this.ship.AI.OrderQueue.Clear();
                     }
-                    this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
+                    this.Status_Text = GetStatusText(this.ship);
                 }
             }
-            if (!this.ShipNameEntry.ClickableArea.HitTest(input.CursorPosition))
+            if (!ShipNameEntry.ClickableArea.HitTest(input.CursorPosition))
             {
-                this.ShipNameEntry.Hover = false;
+                ShipNameEntry.Hover = false;
             }
             else
             {
-                this.ShipNameEntry.Hover = true;
+                ShipNameEntry.Hover = true;
                 if (input.InGameSelect)
                 {
-                    this.ShipNameEntry.HandlingInput = true;
+                    ShipNameEntry.HandlingInput = true;
                 }
             }
-            if (!this.ShipNameEntry.HandlingInput)
+            if (!ShipNameEntry.HandlingInput)
             {
                 GlobalStats.TakingInput = false;
                 return;
             }
             GlobalStats.TakingInput = true;
-            this.ShipNameEntry.HandleTextInput(ref this.ship.VanityName);
-            this.ShipNameEntry.Text = this.ship.VanityName;
+            ShipNameEntry.HandleTextInput(ref ship.VanityName, input);
+            ShipNameEntry.Text = ship.VanityName;
         }
 
         public void SetNewPos(int x, int y)

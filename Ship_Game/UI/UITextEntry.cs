@@ -6,699 +6,209 @@ using System.Windows.Forms;
 
 namespace Ship_Game
 {
-	public class UITextEntry
-	{
-		public Rectangle ClickableArea;
+    using InputKeys = Microsoft.Xna.Framework.Input.Keys;
 
-		public string Text;
+    public class UITextEntry
+    {
+        public Rectangle ClickableArea;
+        public string Text;
+        public bool HandlingInput;
+        public bool Hover;
+        private readonly InputKeys[] KeysToCheck =
+        {
+            InputKeys.A, InputKeys.B, InputKeys.C, InputKeys.D,
+            InputKeys.E, InputKeys.F,
+            InputKeys.G, InputKeys.H,
+            InputKeys.I, InputKeys.J,
+            InputKeys.K, InputKeys.L,
+            InputKeys.M, InputKeys.N,
+            InputKeys.O, InputKeys.P,
+            InputKeys.Q, InputKeys.R,
+            InputKeys.S, InputKeys.T,
+            InputKeys.U, InputKeys.V,
+            InputKeys.W, InputKeys.X,
+            InputKeys.Y, InputKeys.Z,
+            InputKeys.Back, InputKeys.Space,
+            InputKeys.NumPad0, InputKeys.NumPad1,
+            InputKeys.NumPad2, InputKeys.NumPad3,
+            InputKeys.NumPad4, InputKeys.NumPad5,
+            InputKeys.NumPad6, InputKeys.NumPad7,
+            InputKeys.NumPad8, InputKeys.NumPad9,
+            InputKeys.OemMinus, InputKeys.OemQuotes,
+            InputKeys.D0, InputKeys.D1,
+            InputKeys.D2, InputKeys.D3,
+            InputKeys.D4, InputKeys.D5,
+            InputKeys.D6, InputKeys.D7,
+            InputKeys.D8, InputKeys.D9
+        };
+        public int MaxCharacters = 30;
+        private int boop;
 
-		public bool HandlingInput;
+        public UITextEntry()
+        {
+        }
 
-		public bool Hover;
+        private void AddKeyToText(ref string text, InputKeys key, InputState input)
+        {
+            if (text.Length >= 60 && key != InputKeys.Back)
+                return;
 
-		private Microsoft.Xna.Framework.Input.Keys[] keysToCheck = new Microsoft.Xna.Framework.Input.Keys[] { Microsoft.Xna.Framework.Input.Keys.A, Microsoft.Xna.Framework.Input.Keys.B, Microsoft.Xna.Framework.Input.Keys.C, Microsoft.Xna.Framework.Input.Keys.D, Microsoft.Xna.Framework.Input.Keys.E, Microsoft.Xna.Framework.Input.Keys.F, Microsoft.Xna.Framework.Input.Keys.G, Microsoft.Xna.Framework.Input.Keys.H, Microsoft.Xna.Framework.Input.Keys.I, Microsoft.Xna.Framework.Input.Keys.J, Microsoft.Xna.Framework.Input.Keys.K, Microsoft.Xna.Framework.Input.Keys.L, Microsoft.Xna.Framework.Input.Keys.M, Microsoft.Xna.Framework.Input.Keys.N, Microsoft.Xna.Framework.Input.Keys.O, Microsoft.Xna.Framework.Input.Keys.P, Microsoft.Xna.Framework.Input.Keys.Q, Microsoft.Xna.Framework.Input.Keys.R, Microsoft.Xna.Framework.Input.Keys.S, Microsoft.Xna.Framework.Input.Keys.T, Microsoft.Xna.Framework.Input.Keys.U, Microsoft.Xna.Framework.Input.Keys.V, Microsoft.Xna.Framework.Input.Keys.W, Microsoft.Xna.Framework.Input.Keys.X, Microsoft.Xna.Framework.Input.Keys.Y, Microsoft.Xna.Framework.Input.Keys.Z, Microsoft.Xna.Framework.Input.Keys.Back, Microsoft.Xna.Framework.Input.Keys.Space, Microsoft.Xna.Framework.Input.Keys.NumPad0, Microsoft.Xna.Framework.Input.Keys.NumPad1, Microsoft.Xna.Framework.Input.Keys.NumPad2, Microsoft.Xna.Framework.Input.Keys.NumPad3, Microsoft.Xna.Framework.Input.Keys.NumPad4, Microsoft.Xna.Framework.Input.Keys.NumPad5, Microsoft.Xna.Framework.Input.Keys.NumPad6, Microsoft.Xna.Framework.Input.Keys.NumPad7, Microsoft.Xna.Framework.Input.Keys.NumPad8, Microsoft.Xna.Framework.Input.Keys.NumPad9, Microsoft.Xna.Framework.Input.Keys.OemMinus, Microsoft.Xna.Framework.Input.Keys.OemQuotes, Microsoft.Xna.Framework.Input.Keys.D0, Microsoft.Xna.Framework.Input.Keys.D1, Microsoft.Xna.Framework.Input.Keys.D2, Microsoft.Xna.Framework.Input.Keys.D3, Microsoft.Xna.Framework.Input.Keys.D4, Microsoft.Xna.Framework.Input.Keys.D5, Microsoft.Xna.Framework.Input.Keys.D6, Microsoft.Xna.Framework.Input.Keys.D7, Microsoft.Xna.Framework.Input.Keys.D8, Microsoft.Xna.Framework.Input.Keys.D9 };
+            void AppendKeyChar(ref string textRef, char ch)
+            {
+                if (input.IsKeyDown(InputKeys.RightShift) || input.IsKeyDown(InputKeys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
+                    ch = char.ToUpper(ch);
+                textRef += ch;
+            }
 
-		private KeyboardState currentKeyboardState;
+            switch (key)
+            {
+                case InputKeys.Space: AppendKeyChar(ref text, ' '); return;
+                case InputKeys.PageUp:
+                case InputKeys.PageDown:
+                case InputKeys.End:
+                case InputKeys.Home:
+                case InputKeys.Left:
+                case InputKeys.Up:
+                case InputKeys.Right:
+                case InputKeys.Down:
+                case InputKeys.Select:
+                case InputKeys.Print:
+                case InputKeys.Execute:
+                case InputKeys.PrintScreen:
+                case InputKeys.Insert:
+                case InputKeys.Delete:
+                case InputKeys.Help:
+                case InputKeys.Back | InputKeys.D0 | InputKeys.D2 | InputKeys.D8 | InputKeys.Down | InputKeys.PageDown | InputKeys.Print | InputKeys.Space:
+                case InputKeys.Back | InputKeys.D0 | InputKeys.D1 | InputKeys.D2 | InputKeys.D3 | InputKeys.D8 | InputKeys.D9 | InputKeys.Down | InputKeys.End | InputKeys.Escape | InputKeys.Execute | InputKeys.Kanji | InputKeys.PageDown | InputKeys.PageUp | InputKeys.Pause | InputKeys.Print | InputKeys.Select | InputKeys.Space | InputKeys.Tab:
+                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D4 | InputKeys.D8 | InputKeys.Down | InputKeys.Home | InputKeys.ImeConvert | InputKeys.PrintScreen | InputKeys.Space:
+                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D1 | InputKeys.D4 | InputKeys.D5 | InputKeys.D8 | InputKeys.D9 | InputKeys.Down | InputKeys.Enter | InputKeys.Home | InputKeys.ImeConvert | InputKeys.ImeNoConvert | InputKeys.Insert | InputKeys.Kana | InputKeys.Kanji | InputKeys.Left | InputKeys.PageUp | InputKeys.PrintScreen | InputKeys.Select | InputKeys.Space | InputKeys.Tab:
+                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D2 | InputKeys.D4 | InputKeys.D6 | InputKeys.D8 | InputKeys.Delete | InputKeys.Down | InputKeys.Home | InputKeys.ImeConvert | InputKeys.PageDown | InputKeys.Print | InputKeys.PrintScreen | InputKeys.Space | InputKeys.Up:
+                case InputKeys.Back | InputKeys.CapsLock | InputKeys.D0 | InputKeys.D1 | InputKeys.D2 | InputKeys.D3 | InputKeys.D4 | InputKeys.D5 | InputKeys.D6 | InputKeys.D7 | InputKeys.D8 | InputKeys.D9 | InputKeys.Delete | InputKeys.Down | InputKeys.End | InputKeys.Enter | InputKeys.Escape | InputKeys.Execute | InputKeys.Help | InputKeys.Home | InputKeys.ImeConvert | InputKeys.ImeNoConvert | InputKeys.Insert | InputKeys.Kana | InputKeys.Kanji | InputKeys.Left | InputKeys.PageDown | InputKeys.PageUp | InputKeys.Pause | InputKeys.Print | InputKeys.PrintScreen | InputKeys.Right | InputKeys.Select | InputKeys.Space | InputKeys.Tab | InputKeys.Up:
+                //case 64:  wtf?
+                case InputKeys.LeftWindows:
+                case InputKeys.RightWindows:
+                case InputKeys.Apps:
+                case InputKeys.B | InputKeys.Back | InputKeys.CapsLock | InputKeys.D | InputKeys.F | InputKeys.H | InputKeys.ImeConvert | InputKeys.J | InputKeys.L | InputKeys.N | InputKeys.P | InputKeys.R | InputKeys.RightWindows | InputKeys.T | InputKeys.V | InputKeys.X | InputKeys.Z:
+                case InputKeys.Sleep: return;
+                case InputKeys.D0: AppendKeyChar(ref text, '0'); return;
+                case InputKeys.D1: AppendKeyChar(ref text, '1'); return;
+                case InputKeys.D2: AppendKeyChar(ref text, '2'); return;
+                case InputKeys.D3: AppendKeyChar(ref text, '3'); return;
+                case InputKeys.D4: AppendKeyChar(ref text, '4'); return;
+                case InputKeys.D5: AppendKeyChar(ref text, '5'); return;
+                case InputKeys.D6: AppendKeyChar(ref text, '6'); return;
+                case InputKeys.D7: AppendKeyChar(ref text, '7'); return;
+                case InputKeys.D8: AppendKeyChar(ref text, '8'); return;
+                case InputKeys.D9: AppendKeyChar(ref text, '9'); return;
+                case InputKeys.A: AppendKeyChar(ref text, 'a'); return;
+                case InputKeys.B: AppendKeyChar(ref text, 'b'); return;
+                case InputKeys.C: AppendKeyChar(ref text, 'c'); return;
+                case InputKeys.D: AppendKeyChar(ref text, 'd'); return;
+                case InputKeys.E: AppendKeyChar(ref text, 'e'); return;
+                case InputKeys.F: AppendKeyChar(ref text, 'f'); return;
+                case InputKeys.G: AppendKeyChar(ref text, 'g'); return;
+                case InputKeys.H: AppendKeyChar(ref text, 'h'); return;
+                case InputKeys.I: AppendKeyChar(ref text, 'i'); return;
+                case InputKeys.J: AppendKeyChar(ref text, 'j'); return;
+                case InputKeys.K: AppendKeyChar(ref text, 'k'); return;
+                case InputKeys.L: AppendKeyChar(ref text, 'l'); return;
+                case InputKeys.M: AppendKeyChar(ref text, 'm'); return;
+                case InputKeys.N: AppendKeyChar(ref text, 'n'); return;
+                case InputKeys.O: AppendKeyChar(ref text, 'o'); return;
+                case InputKeys.P: AppendKeyChar(ref text, 'p'); return;
+                case InputKeys.Q: AppendKeyChar(ref text, 'q'); return;
+                case InputKeys.R: AppendKeyChar(ref text, 'r'); return;
+                case InputKeys.S: AppendKeyChar(ref text, 's'); return;
+                case InputKeys.T: AppendKeyChar(ref text, 't'); return;
+                case InputKeys.U: AppendKeyChar(ref text, 'u'); return;
+                case InputKeys.V: AppendKeyChar(ref text, 'v'); return;
+                case InputKeys.W: AppendKeyChar(ref text, 'w'); return;
+                case InputKeys.X: AppendKeyChar(ref text, 'x'); return;
+                case InputKeys.Y: AppendKeyChar(ref text, 'y'); return;
+                case InputKeys.Z: AppendKeyChar(ref text, 'z'); return;
+                case InputKeys.NumPad0: AppendKeyChar(ref text, '0'); return;
+                case InputKeys.NumPad1: AppendKeyChar(ref text, '1'); return;
+                case InputKeys.NumPad2: AppendKeyChar(ref text, '2'); return;
+                case InputKeys.NumPad3: AppendKeyChar(ref text, '3'); return;
+                case InputKeys.NumPad4: AppendKeyChar(ref text, '4'); return;
+                case InputKeys.NumPad5: AppendKeyChar(ref text, '5'); return;
+                case InputKeys.NumPad6: AppendKeyChar(ref text, '6'); return;
+                case InputKeys.NumPad7: AppendKeyChar(ref text, '7'); return;
+                case InputKeys.NumPad8: AppendKeyChar(ref text, '8'); return;
+                case InputKeys.NumPad9: AppendKeyChar(ref text, '9'); return;
+                case InputKeys.OemMinus: AppendKeyChar(ref text, '-'); return;
+                case InputKeys.OemQuotes: AppendKeyChar(ref text, '\''); return;
+            }
+        }
 
-		private KeyboardState lastKeyboardState;
+        private bool CheckKey(InputKeys key, InputState input)
+        {
+            if (key == InputKeys.Back && boop == 0)
+                return input.IsKeyDown(key);
+            return input.WasKeyPressed(key);
+        }
 
-		public int MaxCharacters = 30;
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        {
+            spriteBatch.DrawRectangle(this.ClickableArea, Color.Orange);
+            Vector2 cursor = new Vector2((float)(this.ClickableArea.X + 5), (float)(this.ClickableArea.Y + 2));
+            spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, cursor, Color.Orange);
+            cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(this.Text).X;
+            if (this.HandlingInput)
+            {
+                TimeSpan totalGameTime = gameTime.TotalGameTime;
+                float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                f = Math.Abs(f) * 255f;
+                Color flashColor = new Color(255, 255, 255, (byte)f);
+                spriteBatch.DrawString(Fonts.Arial12Bold, "|", cursor, flashColor);
+            }
+        }
 
-		private int boop;
+        public void Draw(SpriteFont Font, SpriteBatch spriteBatch, Vector2 pos, GameTime gameTime, Color c)
+        {
+            spriteBatch.DrawString(Font, this.Text, pos, c);
+            pos.X = pos.X + Font.MeasureString(this.Text).X;
+            if (this.HandlingInput)
+            {
+                TimeSpan totalGameTime = gameTime.TotalGameTime;
+                float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                f = Math.Abs(f) * 255f;
+                Color flashColor = new Color(255, 255, 255, (byte)f);
+                spriteBatch.DrawString(Font, "|", pos, flashColor);
+            }
+        }
 
-		public UITextEntry()
-		{
-		}
+        public void HandleTextInput(ref string text, InputState input)
+        {
+            InputKeys[] keysArray = KeysToCheck;
+            for (int i = 0; i < keysArray.Length; i++)
+            {
+                InputKeys key = keysArray[i];
+                if (CheckKey(key, input))
+                {
+                    if (text.Length >= MaxCharacters)
+                    {
+                        GameAudio.PlaySfxAsync("UI_Misc20");
+                    }
+                    else
+                    {
+                        AddKeyToText(ref text, key, input);
+                        GameAudio.PlaySfxAsync("blip_click");
+                        break;
+                    }
+                }
+            }
 
-		private void AddKeyToText(ref string text, Microsoft.Xna.Framework.Input.Keys key)
-		{
-			string newChar = "";
-			if (text.Length >= 60 && key != Microsoft.Xna.Framework.Input.Keys.Back)
-			{
-				return;
-			}
-			Microsoft.Xna.Framework.Input.Keys key1 = key;
-			switch (key1)
-			{
-				case Microsoft.Xna.Framework.Input.Keys.Space:
-				{
-					newChar = string.Concat(newChar, " ");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.PageUp:
-				case Microsoft.Xna.Framework.Input.Keys.PageDown:
-				case Microsoft.Xna.Framework.Input.Keys.End:
-				case Microsoft.Xna.Framework.Input.Keys.Home:
-				case Microsoft.Xna.Framework.Input.Keys.Left:
-				case Microsoft.Xna.Framework.Input.Keys.Up:
-				case Microsoft.Xna.Framework.Input.Keys.Right:
-				case Microsoft.Xna.Framework.Input.Keys.Down:
-				case Microsoft.Xna.Framework.Input.Keys.Select:
-				case Microsoft.Xna.Framework.Input.Keys.Print:
-				case Microsoft.Xna.Framework.Input.Keys.Execute:
-				case Microsoft.Xna.Framework.Input.Keys.PrintScreen:
-				case Microsoft.Xna.Framework.Input.Keys.Insert:
-				case Microsoft.Xna.Framework.Input.Keys.Delete:
-				case Microsoft.Xna.Framework.Input.Keys.Help:
-				case Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.D0 | Microsoft.Xna.Framework.Input.Keys.D2 | Microsoft.Xna.Framework.Input.Keys.D8 | Microsoft.Xna.Framework.Input.Keys.Down | Microsoft.Xna.Framework.Input.Keys.PageDown | Microsoft.Xna.Framework.Input.Keys.Print | Microsoft.Xna.Framework.Input.Keys.Space:
-				case Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.D0 | Microsoft.Xna.Framework.Input.Keys.D1 | Microsoft.Xna.Framework.Input.Keys.D2 | Microsoft.Xna.Framework.Input.Keys.D3 | Microsoft.Xna.Framework.Input.Keys.D8 | Microsoft.Xna.Framework.Input.Keys.D9 | Microsoft.Xna.Framework.Input.Keys.Down | Microsoft.Xna.Framework.Input.Keys.End | Microsoft.Xna.Framework.Input.Keys.Escape | Microsoft.Xna.Framework.Input.Keys.Execute | Microsoft.Xna.Framework.Input.Keys.Kanji | Microsoft.Xna.Framework.Input.Keys.PageDown | Microsoft.Xna.Framework.Input.Keys.PageUp | Microsoft.Xna.Framework.Input.Keys.Pause | Microsoft.Xna.Framework.Input.Keys.Print | Microsoft.Xna.Framework.Input.Keys.Select | Microsoft.Xna.Framework.Input.Keys.Space | Microsoft.Xna.Framework.Input.Keys.Tab:
-				case Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.CapsLock | Microsoft.Xna.Framework.Input.Keys.D0 | Microsoft.Xna.Framework.Input.Keys.D4 | Microsoft.Xna.Framework.Input.Keys.D8 | Microsoft.Xna.Framework.Input.Keys.Down | Microsoft.Xna.Framework.Input.Keys.Home | Microsoft.Xna.Framework.Input.Keys.ImeConvert | Microsoft.Xna.Framework.Input.Keys.PrintScreen | Microsoft.Xna.Framework.Input.Keys.Space:
-				case Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.CapsLock | Microsoft.Xna.Framework.Input.Keys.D0 | Microsoft.Xna.Framework.Input.Keys.D1 | Microsoft.Xna.Framework.Input.Keys.D4 | Microsoft.Xna.Framework.Input.Keys.D5 | Microsoft.Xna.Framework.Input.Keys.D8 | Microsoft.Xna.Framework.Input.Keys.D9 | Microsoft.Xna.Framework.Input.Keys.Down | Microsoft.Xna.Framework.Input.Keys.Enter | Microsoft.Xna.Framework.Input.Keys.Home | Microsoft.Xna.Framework.Input.Keys.ImeConvert | Microsoft.Xna.Framework.Input.Keys.ImeNoConvert | Microsoft.Xna.Framework.Input.Keys.Insert | Microsoft.Xna.Framework.Input.Keys.Kana | Microsoft.Xna.Framework.Input.Keys.Kanji | Microsoft.Xna.Framework.Input.Keys.Left | Microsoft.Xna.Framework.Input.Keys.PageUp | Microsoft.Xna.Framework.Input.Keys.PrintScreen | Microsoft.Xna.Framework.Input.Keys.Select | Microsoft.Xna.Framework.Input.Keys.Space | Microsoft.Xna.Framework.Input.Keys.Tab:
-				case Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.CapsLock | Microsoft.Xna.Framework.Input.Keys.D0 | Microsoft.Xna.Framework.Input.Keys.D2 | Microsoft.Xna.Framework.Input.Keys.D4 | Microsoft.Xna.Framework.Input.Keys.D6 | Microsoft.Xna.Framework.Input.Keys.D8 | Microsoft.Xna.Framework.Input.Keys.Delete | Microsoft.Xna.Framework.Input.Keys.Down | Microsoft.Xna.Framework.Input.Keys.Home | Microsoft.Xna.Framework.Input.Keys.ImeConvert | Microsoft.Xna.Framework.Input.Keys.PageDown | Microsoft.Xna.Framework.Input.Keys.Print | Microsoft.Xna.Framework.Input.Keys.PrintScreen | Microsoft.Xna.Framework.Input.Keys.Space | Microsoft.Xna.Framework.Input.Keys.Up:
-				case Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.CapsLock | Microsoft.Xna.Framework.Input.Keys.D0 | Microsoft.Xna.Framework.Input.Keys.D1 | Microsoft.Xna.Framework.Input.Keys.D2 | Microsoft.Xna.Framework.Input.Keys.D3 | Microsoft.Xna.Framework.Input.Keys.D4 | Microsoft.Xna.Framework.Input.Keys.D5 | Microsoft.Xna.Framework.Input.Keys.D6 | Microsoft.Xna.Framework.Input.Keys.D7 | Microsoft.Xna.Framework.Input.Keys.D8 | Microsoft.Xna.Framework.Input.Keys.D9 | Microsoft.Xna.Framework.Input.Keys.Delete | Microsoft.Xna.Framework.Input.Keys.Down | Microsoft.Xna.Framework.Input.Keys.End | Microsoft.Xna.Framework.Input.Keys.Enter | Microsoft.Xna.Framework.Input.Keys.Escape | Microsoft.Xna.Framework.Input.Keys.Execute | Microsoft.Xna.Framework.Input.Keys.Help | Microsoft.Xna.Framework.Input.Keys.Home | Microsoft.Xna.Framework.Input.Keys.ImeConvert | Microsoft.Xna.Framework.Input.Keys.ImeNoConvert | Microsoft.Xna.Framework.Input.Keys.Insert | Microsoft.Xna.Framework.Input.Keys.Kana | Microsoft.Xna.Framework.Input.Keys.Kanji | Microsoft.Xna.Framework.Input.Keys.Left | Microsoft.Xna.Framework.Input.Keys.PageDown | Microsoft.Xna.Framework.Input.Keys.PageUp | Microsoft.Xna.Framework.Input.Keys.Pause | Microsoft.Xna.Framework.Input.Keys.Print | Microsoft.Xna.Framework.Input.Keys.PrintScreen | Microsoft.Xna.Framework.Input.Keys.Right | Microsoft.Xna.Framework.Input.Keys.Select | Microsoft.Xna.Framework.Input.Keys.Space | Microsoft.Xna.Framework.Input.Keys.Tab | Microsoft.Xna.Framework.Input.Keys.Up:
-				//case 64:  wtf?
-				case Microsoft.Xna.Framework.Input.Keys.LeftWindows:
-				case Microsoft.Xna.Framework.Input.Keys.RightWindows:
-				case Microsoft.Xna.Framework.Input.Keys.Apps:
-				case Microsoft.Xna.Framework.Input.Keys.B | Microsoft.Xna.Framework.Input.Keys.Back | Microsoft.Xna.Framework.Input.Keys.CapsLock | Microsoft.Xna.Framework.Input.Keys.D | Microsoft.Xna.Framework.Input.Keys.F | Microsoft.Xna.Framework.Input.Keys.H | Microsoft.Xna.Framework.Input.Keys.ImeConvert | Microsoft.Xna.Framework.Input.Keys.J | Microsoft.Xna.Framework.Input.Keys.L | Microsoft.Xna.Framework.Input.Keys.N | Microsoft.Xna.Framework.Input.Keys.P | Microsoft.Xna.Framework.Input.Keys.R | Microsoft.Xna.Framework.Input.Keys.RightWindows | Microsoft.Xna.Framework.Input.Keys.T | Microsoft.Xna.Framework.Input.Keys.V | Microsoft.Xna.Framework.Input.Keys.X | Microsoft.Xna.Framework.Input.Keys.Z:
-				case Microsoft.Xna.Framework.Input.Keys.Sleep:
-				{
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D0:
-				{
-					newChar = string.Concat(newChar, "0");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D1:
-				{
-					newChar = string.Concat(newChar, "1");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D2:
-				{
-					newChar = string.Concat(newChar, "2");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D3:
-				{
-					newChar = string.Concat(newChar, "3");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D4:
-				{
-					newChar = string.Concat(newChar, "4");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D5:
-				{
-					newChar = string.Concat(newChar, "5");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D6:
-				{
-					newChar = string.Concat(newChar, "6");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D7:
-				{
-					newChar = string.Concat(newChar, "7");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D8:
-				{
-					newChar = string.Concat(newChar, "8");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D9:
-				{
-					newChar = string.Concat(newChar, "9");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.A:
-				{
-					newChar = string.Concat(newChar, "a");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.B:
-				{
-					newChar = string.Concat(newChar, "b");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.C:
-				{
-					newChar = string.Concat(newChar, "c");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.D:
-				{
-					newChar = string.Concat(newChar, "d");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.E:
-				{
-					newChar = string.Concat(newChar, "e");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.F:
-				{
-					newChar = string.Concat(newChar, "f");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.G:
-				{
-					newChar = string.Concat(newChar, "g");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.H:
-				{
-					newChar = string.Concat(newChar, "h");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.I:
-				{
-					newChar = string.Concat(newChar, "i");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.J:
-				{
-					newChar = string.Concat(newChar, "j");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.K:
-				{
-					newChar = string.Concat(newChar, "k");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.L:
-				{
-					newChar = string.Concat(newChar, "l");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.M:
-				{
-					newChar = string.Concat(newChar, "m");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.N:
-				{
-					newChar = string.Concat(newChar, "n");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.O:
-				{
-					newChar = string.Concat(newChar, "o");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.P:
-				{
-					newChar = string.Concat(newChar, "p");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.Q:
-				{
-					newChar = string.Concat(newChar, "q");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.R:
-				{
-					newChar = string.Concat(newChar, "r");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.S:
-				{
-					newChar = string.Concat(newChar, "s");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.T:
-				{
-					newChar = string.Concat(newChar, "t");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.U:
-				{
-					newChar = string.Concat(newChar, "u");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.V:
-				{
-					newChar = string.Concat(newChar, "v");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.W:
-				{
-					newChar = string.Concat(newChar, "w");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.X:
-				{
-					newChar = string.Concat(newChar, "x");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.Y:
-				{
-					newChar = string.Concat(newChar, "y");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.Z:
-				{
-					newChar = string.Concat(newChar, "z");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad0:
-				{
-					newChar = string.Concat(newChar, "0");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad1:
-				{
-					newChar = string.Concat(newChar, "1");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad2:
-				{
-					newChar = string.Concat(newChar, "2");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad3:
-				{
-					newChar = string.Concat(newChar, "3");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad4:
-				{
-					newChar = string.Concat(newChar, "4");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad5:
-				{
-					newChar = string.Concat(newChar, "5");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad6:
-				{
-					newChar = string.Concat(newChar, "6");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad7:
-				{
-					newChar = string.Concat(newChar, "7");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad8:
-				{
-					newChar = string.Concat(newChar, "8");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				case Microsoft.Xna.Framework.Input.Keys.NumPad9:
-				{
-					newChar = string.Concat(newChar, "9");
-					if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-					{
-						newChar = newChar.ToUpper();
-					}
-					text = string.Concat(text, newChar);
-					return;
-				}
-				default:
-				{
-					if (key1 == Microsoft.Xna.Framework.Input.Keys.OemMinus)
-					{
-						newChar = string.Concat(newChar, "-");
-						if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-						{
-							newChar = newChar.ToUpper();
-						}
-						text = string.Concat(text, newChar);
-						return;
-					}
-					else if (key1 == Microsoft.Xna.Framework.Input.Keys.OemQuotes)
-					{
-						newChar = string.Concat(newChar, "'");
-						if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-						{
-							newChar = newChar.ToUpper();
-						}
-						text = string.Concat(text, newChar);
-						return;
-					}
-					else
-					{
-						if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || Control.IsKeyLocked(System.Windows.Forms.Keys.Capital))
-						{
-							newChar = newChar.ToUpper();
-						}
-						text = string.Concat(text, newChar);
-						return;
-					}
-				}
-			}
-		}
+            if (input.IsEnterOrEscape)
+                HandlingInput = false;
 
-		private bool CheckKey(Microsoft.Xna.Framework.Input.Keys theKey)
-		{
-			if (theKey == Microsoft.Xna.Framework.Input.Keys.Back && this.boop == 0)
-			{
-				return this.currentKeyboardState.IsKeyDown(theKey);
-			}
-			if (!this.lastKeyboardState.IsKeyUp(theKey))
-			{
-				return false;
-			}
-			return this.currentKeyboardState.IsKeyDown(theKey);
-		}
+            if (input.IsKeyDown(InputKeys.Back) && boop == 0 && text.Length != 0)
+                text = text.Remove(text.Length - 1);
 
-		public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
-		{
-			spriteBatch.DrawRectangle(this.ClickableArea, Color.Orange);
-			Vector2 cursor = new Vector2((float)(this.ClickableArea.X + 5), (float)(this.ClickableArea.Y + 2));
-			spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, cursor, Color.Orange);
-			cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(this.Text).X;
-			if (this.HandlingInput)
-			{
-				TimeSpan totalGameTime = gameTime.TotalGameTime;
-				float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
-				f = Math.Abs(f) * 255f;
-				Color flashColor = new Color(255, 255, 255, (byte)f);
-				spriteBatch.DrawString(Fonts.Arial12Bold, "|", cursor, flashColor);
-			}
-		}
+            boop++;
+            if (boop == 7)
+                boop = 0;
+        }
 
-		public void Draw(SpriteFont Font, SpriteBatch spriteBatch, Vector2 pos, GameTime gameTime, Color c)
-		{
-			spriteBatch.DrawString(Font, this.Text, pos, c);
-			pos.X = pos.X + Font.MeasureString(this.Text).X;
-			if (this.HandlingInput)
-			{
-				TimeSpan totalGameTime = gameTime.TotalGameTime;
-				float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
-				f = Math.Abs(f) * 255f;
-				Color flashColor = new Color(255, 255, 255, (byte)f);
-				spriteBatch.DrawString(Font, "|", pos, flashColor);
-			}
-		}
-
-		public void HandleTextInput(ref string text, InputState input)
-		{
-			this.currentKeyboardState = Keyboard.GetState();
-			Microsoft.Xna.Framework.Input.Keys[] keysArray = this.keysToCheck;
-			for (int i = 0; i < (int)keysArray.Length; i++)
-			{
-				Microsoft.Xna.Framework.Input.Keys key = keysArray[i];
-				if (this.CheckKey(key))
-				{
-					if (text.Length >= this.MaxCharacters)
-					{
-						GameAudio.PlaySfxAsync("UI_Misc20");
-					}
-					else
-					{
-						this.AddKeyToText(ref text, key);
-						GameAudio.PlaySfxAsync("blip_click");
-						break;
-					}
-				}
-			}
-			if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Enter) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
-			{
-				this.HandlingInput = false;
-			}
-			if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Back) && this.boop == 0 && text.Length != 0)
-			{
-				text = text.Remove(text.Length - 1);
-			}
-			this.lastKeyboardState = this.currentKeyboardState;
-			UITextEntry uITextEntry = this;
-			uITextEntry.boop = uITextEntry.boop + 1;
-			if (this.boop == 7)
-			{
-				this.boop = 0;
-			}
-		}
-
-		public void HandleTextInput(ref string text)
-		{
-			this.currentKeyboardState = Keyboard.GetState();
-			if (!this.ClickableArea.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)) && this.HandlingInput && Mouse.GetState().LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
-			{
-				this.HandlingInput = false;
-			}
-			Microsoft.Xna.Framework.Input.Keys[] keysArray = this.keysToCheck;
-			int num = 0;
-			while (num < (int)keysArray.Length)
-			{
-				Microsoft.Xna.Framework.Input.Keys key = keysArray[num];
-				if (!this.CheckKey(key))
-				{
-					num++;
-				}
-				else
-				{
-					this.AddKeyToText(ref text, key);
-					GameAudio.PlaySfxAsync("blip_click");
-					break;
-				}
-			}
-			if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Enter) || this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
-			{
-				this.HandlingInput = false;
-			}
-			if (this.currentKeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Back) && this.boop == 0 && text.Length != 0)
-			{
-				text = text.Remove(text.Length - 1);
-			}
-			this.lastKeyboardState = this.currentKeyboardState;
-			UITextEntry uITextEntry = this;
-			uITextEntry.boop = uITextEntry.boop + 1;
-			if (this.boop == 7)
-			{
-				this.boop = 0;
-			}
-		}
-	}
+    }
 }
