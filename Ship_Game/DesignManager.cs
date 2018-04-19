@@ -181,10 +181,10 @@ namespace Ship_Game
             else
             {
                 GlobalStats.TakingInput = true;
-                this.EnterNameArea.HandleTextInput(ref this.EnterNameArea.Text);
-                if (input.KeysCurr.IsKeyDown(Keys.Enter))
+                EnterNameArea.HandleTextInput(ref EnterNameArea.Text, input);
+                if (input.IsKeyDown(Keys.Enter))
                 {
-                    this.EnterNameArea.HandlingInput = false;
+                    EnterNameArea.HandlingInput = false;
                 }
             }
             this.previousMouse = input.MousePrev;
