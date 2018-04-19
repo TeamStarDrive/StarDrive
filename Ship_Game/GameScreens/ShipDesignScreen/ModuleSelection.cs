@@ -579,9 +579,8 @@ namespace Ship_Game
             }
             if (mod.explodes)
             {
-                int size = mod.XSIZE * mod.YSIZE;    
-                DrawStat(ref modTitlePos, Localizer.Token(1998), mod.GetExplosionDamage(mod.ExplosionDamage,size), 238);
-                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.GetExplosionRadius(mod.ExplosionRadius,size), 239);
+                DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
+                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
             }
             DrawString(ref modTitlePos, "Explodes",  mod.explodes);
             DrawStat(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189, true);

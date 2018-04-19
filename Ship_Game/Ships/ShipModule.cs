@@ -800,7 +800,7 @@ namespace Ship_Game.Ships
             }
             base.Die(source, cleanupOnly);
             Parent.UpdateExternalSlots(this, becameActive: false);
-            int size = XSIZE * YSIZE;
+            int size = Area;
             if (!cleanupOnly)
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -812,10 +812,8 @@ namespace Ship_Game.Ships
                     GameplayObject damageCauser = Parent.LastDamagedBy;
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
-                    int explosiondamage = GetExplosionDamage(ExplosionDamage, size);
-                    int explosionradius = GetExplosionRadius(ExplosionRadius, size);
                     UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                        ignoreShields: true, damageAmount: explosiondamage, damageRadius: explosionradius, internalExplosion:true);
+                        ignoreShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius, internalExplosion:true);
                 }            
             }
             if (PowerFlowMax > 0 || PowerRadius > 0)
@@ -825,17 +823,6 @@ namespace Ship_Game.Ships
             float debriScale = size * 0.1f;
             SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
-
-        public int GetExplosionDamage (int explosionDamage, int size)
-        {
-            return explosionDamage > 0 ? explosionDamage : size * 2500;
-        }
-
-        public int GetExplosionRadius(int explosionRadius, int size)
-        {
-            return explosionRadius > 0 ? explosionRadius : size * 64;
-        }
-
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;

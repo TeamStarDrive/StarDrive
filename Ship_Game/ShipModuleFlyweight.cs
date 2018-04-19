@@ -229,14 +229,14 @@ namespace Ship_Game.Gameplay
             FlakResist                  = s.FlakResist;
             DamageThreshold             = s.DamageThreshold;
             APResist                    = s.APResist;
-            ExplosionDamage             = s.ExplosionDamage;
-            ExplosionRadius             = s.ExplosionRadius;
+            ExplosionDamage             = s.ExplosionDamage > 0 ? s.ExplosionDamage : s.XSIZE * s.YSIZE * 2500;
+            ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius: s.XSIZE * s.YSIZE * 64;
             IndirectPower               = s.IndirectPower;
             isPowerArmour               = s.isPowerArmour;
             isBulkhead                  = s.isBulkhead;
             TargetTracking              = s.TargetTracking;
             FixedTracking               = s.FixedTracking;
-            IsRotable                   = (bool)s.IsRotable;
+            IsRotable                   = s.IsRotable == true;
             UID                         = s.UID;    
         }
     }
