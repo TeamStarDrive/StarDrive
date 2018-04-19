@@ -169,6 +169,8 @@ namespace Ship_Game.Ships
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int FixedTracking                 => Flyweight.FixedTracking;
+        public int ExplosionDamage               => Flyweight.ExplosionDamage;
+        public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public bool IsRotatable                  => (bool)Flyweight.IsRotable;
         public bool IsWeapon                     => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -176,7 +178,6 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.MissileLauncher
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
-
 
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
@@ -811,8 +812,10 @@ namespace Ship_Game.Ships
                     GameplayObject damageCauser = Parent.LastDamagedBy;
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
+                    int explosiondamage = GetExplosionDamage(ExplosionDamage, size);
+                    int explosionradius = GetExplosionRadius(ExplosionRadius, size);
                     UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                        ignoreShields: true, damageAmount: size * 2500, damageRadius: size * 64, internalExplosion:true);
+                        ignoreShields: true, damageAmount: explosiondamage, damageRadius: explosionradius, internalExplosion:true);
                 }            
             }
             if (PowerFlowMax > 0 || PowerRadius > 0)
@@ -822,6 +825,17 @@ namespace Ship_Game.Ships
             float debriScale = size * 0.1f;
             SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
+
+        public int GetExplosionDamage (int explosionDamage, int size)
+        {
+            return explosionDamage > 0 ? explosionDamage : size * 2500;
+        }
+
+        public int GetExplosionRadius(int explosionRadius, int size)
+        {
+            return explosionRadius > 0 ? explosionRadius : size * 64;
+        }
+
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;

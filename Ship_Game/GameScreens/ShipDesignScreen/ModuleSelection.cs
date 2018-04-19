@@ -577,6 +577,12 @@ namespace Ship_Game
             {
                 DrawStat(ref modTitlePos, Localizer.Token(136), (float) mod.hangarTimerConstant, 98);                
             }
+            if (mod.explodes)
+            {
+                int size = mod.XSIZE * mod.YSIZE;    
+                DrawStat(ref modTitlePos, Localizer.Token(1998), mod.GetExplosionDamage(mod.ExplosionDamage,size), 238);
+                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.GetExplosionRadius(mod.ExplosionRadius,size), 239);
+            }
             DrawString(ref modTitlePos, "Explodes",  mod.explodes);
             DrawStat(ref modTitlePos, Localizer.Token(6142), (float)mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), (float)mod.EnergyResist, 190,  true);
