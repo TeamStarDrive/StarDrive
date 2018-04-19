@@ -1434,19 +1434,19 @@ namespace Ship_Game
                 }
                 if (this.RaceName.HandlingInput)
                 {
-                    this.RaceName.HandleTextInput(ref this.RaceName.Text);
+                    this.RaceName.HandleTextInput(ref this.RaceName.Text, input);
                 }
                 if (this.SingEntry.HandlingInput)
                 {
-                    this.SingEntry.HandleTextInput(ref this.SingEntry.Text);
+                    this.SingEntry.HandleTextInput(ref this.SingEntry.Text, input);
                 }
                 if (this.PlurEntry.HandlingInput)
                 {
-                    this.PlurEntry.HandleTextInput(ref this.PlurEntry.Text);
+                    this.PlurEntry.HandleTextInput(ref this.PlurEntry.Text, input);
                 }
                 if (this.HomeSystemEntry.HandlingInput)
                 {
-                    this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text);
+                    this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text, input);
                 }
                 this.traitsSL.HandleInput(input);
                 for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
