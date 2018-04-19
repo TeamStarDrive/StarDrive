@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -1422,7 +1423,8 @@ namespace Ship_Game
             for (int index = 0; index < EmpireManager.Player.GetGSAI().Goals.Count; ++index)
             {
                 Goal goal = player.GetGSAI().Goals[index];
-                if (goal.GoalName != "BuildConstructionShip") continue;
+                if (!(goal is BuildConstructionShip))
+                    continue;
                 const float radius = 100f;                    
                 Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), projection, view, Matrix.Identity).ToVec2();
                 Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), projection, view, Matrix.Identity);
