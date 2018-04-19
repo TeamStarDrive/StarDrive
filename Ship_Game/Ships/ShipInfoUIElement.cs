@@ -602,20 +602,14 @@ namespace Ship_Game.Ships
                     return true;
                 if (State == UIElement.ElementState.Open)
                 {                    
-                    bool flag = false;
                     foreach (OrdersButton ordersButton in Orders)
                     {
                         if (ordersButton.HandleInput(input, ScreenManager))
-                        {
-                            flag = true;
                             return true;
-                        }
                     }
                     if (SlidingElement.ButtonHousing.HitTest(input.CursorPosition))
                         return true;
                 }
-                
-                    
                 return false;
             }
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 
 // ReSharper disable once CheckNamespace
@@ -103,11 +104,7 @@ namespace Ship_Game.AI {
             }
             if (!ok) return;
 
-            var cgoal = new Goal(toMark, OwnerEmpire)
-            {
-                GoalName = "MarkForColonization"
-            };
-            Goals.Add(cgoal);
+            Goals.Add(new MarkForColonization(toMark, OwnerEmpire));
         }
 
         private static Planet MarkBestPlanet(IReadOnlyCollection<Goal.PlanetRanker> ranker)

@@ -102,10 +102,11 @@ namespace Ship_Game.AI {
         public void OrderDeepSpaceBuild(Goal goal)
         {
             OrderQueue.Clear();
-            OrderMoveTowardsPosition(goal.BuildPosition, Owner.Center.RadiansToTarget(goal.BuildPosition),
-                Owner.Center.DirectionToTarget(goal.BuildPosition), true, null);
-            var Deploy = new ShipGoal(Plan.DeployStructure, goal.BuildPosition,
-                Owner.Center.RadiansToTarget(goal.BuildPosition))
+            var pos = goal.BuildPosition;
+            OrderMoveTowardsPosition(pos, Owner.Center.RadiansToTarget(pos),
+                Owner.Center.DirectionToTarget(pos), true, null);
+            var Deploy = new ShipGoal(Plan.DeployStructure, pos,
+                Owner.Center.RadiansToTarget(pos))
             {
                 goal = goal,
                 VariableString = goal.ToBuildUID

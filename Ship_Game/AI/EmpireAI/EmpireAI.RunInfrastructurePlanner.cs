@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -27,7 +28,7 @@ namespace Ship_Game.AI {
             float underConstruction = 0f;
             foreach (Goal g in Goals)
             {
-                if (g.GoalName != "BuildConstructionShip")
+                if (!(g is BuildConstructionShip))
                     continue;
                 underConstruction = underConstruction +
                                     ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
@@ -127,7 +128,8 @@ namespace Ship_Game.AI {
                                 addNew = false;
                                 break;
                             }
-                        if (addNew) Goals.Add(new Goal(node.Position, "Subspace Projector", OwnerEmpire));
+                        if (addNew)
+                            Goals.Add(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
                     }
                 }
             }

@@ -975,7 +975,7 @@ namespace Ship_Game
             else
             {
                 GlobalStats.TakingInput = true;
-                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name);
+                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name, input);
             }
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);
