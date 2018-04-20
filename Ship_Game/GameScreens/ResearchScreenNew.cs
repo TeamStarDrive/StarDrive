@@ -811,32 +811,31 @@ namespace Ship_Game
 
         private void UnlockTree(string key)
         {
-            var techd = ResourceManager.TechTree[key];
+            var techd      = ResourceManager.TechTree[key];
             var playerDict = EmpireManager.Player.GetTDict()[key];
-            if (playerDict.Discovered && EmpireManager.Player.HavePreReq(key)) //EmpireManager.Player.HavePreReq(key) && (!techd.Secret || (techd.Secret && playerDict.Discovered)))
-            {
-                EmpireManager.Player.UnlockTech(key);
-                foreach (Technology.LeadsToTech tech in techd.LeadsTo)
-                {
-                    this.UnlockTree(tech.UID);
-                }
-            }
+            if (!playerDict.Discovered || !EmpireManager.Player.HavePreReq(key)) return;
+
+            /* Fat Bastard: The line below was missing the "if" statement. without the if to check if the tech is unlocked already,
+                it will unlock bonus techs again and again, giving you massive amount of bonuses when you press the Ctrl F2.
+                I added the same if to the UnlockTreeNoBonus method below 
+                This code is called only when cheating and not in a regular game */
+
+            if (!playerDict.Unlocked) EmpireManager.Player.UnlockTech(key);
+            foreach (Technology.LeadsToTech tech in techd.LeadsTo)
+                UnlockTree(tech.UID);
         }
 
         private void UnlockTreeNoBonus(string key)
         {
             Technology technology2 = ResourceManager.TechTree[key];
-            Technology technology = technology2;
+            Technology technology  = technology2;
             Technology technology1 = technology2;
-            if (EmpireManager.Player.GetTDict()[key].Discovered && EmpireManager.Player.HavePreReq(key))// && (!technology.Secret || technology1.Secret && EmpireManager.Player.GetTDict()[key].Discovered))
-            {
-                if(technology2.BonusUnlocked.Count == 0)
-                    EmpireManager.Player.UnlockTech(key);
-                foreach (Technology.LeadsToTech tech in technology2.LeadsTo)
-                {
-                    this.UnlockTreeNoBonus(tech.UID);
-                }
-            }
+            var playerDict = EmpireManager.Player.GetTDict()[key];
+            if (!playerDict.Discovered || !EmpireManager.Player.HavePreReq(key)) return;
+            if(technology2.BonusUnlocked.Count == 0)
+                if (!playerDict.Unlocked)  EmpireManager.Player.UnlockTech(key);
+            foreach (Technology.LeadsToTech tech in technology2.LeadsTo)
+                UnlockTreeNoBonus(tech.UID);
         }
 
         //Added by McShooterz: find size of tech tree before it is built
