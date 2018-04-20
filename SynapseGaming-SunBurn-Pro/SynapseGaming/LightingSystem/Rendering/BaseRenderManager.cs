@@ -184,7 +184,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <param name="texture"></param>
     protected void SetTextureLOD(Texture texture)
     {
-      if (texture == null || texture.LevelCount < 1)
+      if (texture == null || texture.IsDisposed || texture.LevelCount < 1)
         return;
       int num = Math.Min(texture.LevelCount - 1, this.MaxLoadedMipLevel);
       if (texture.LevelOfDetail == num)
