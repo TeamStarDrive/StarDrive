@@ -37,7 +37,13 @@ namespace Ship_Game.Commands.Goals
             empire = owner;
             ToBuildUID = shipName;
             beingBuilt = ResourceManager.GetShipTemplate(shipName);
-            Evaluate();
+            //Evaluate();
+            Steps = new Func<GoalStep>[]
+            {
+                FindPlanetForFleetRequisition,
+                DummyStepTryAgain,
+                DoSomeStuffWithFleets
+            };
         }
 
         private GoalStep FindPlanetForFleetRequisition()

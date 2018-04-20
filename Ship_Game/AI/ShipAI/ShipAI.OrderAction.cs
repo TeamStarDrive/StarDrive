@@ -388,7 +388,7 @@ namespace Ship_Game.AI {
             DesiredFacing = desiredFacing;
             bool inCombat = Owner.InCombat;
             AddShipGoal(Plan.RotateToFaceMovePosition, MovePosition, 0f);
-            var to1k = new ShipGoal(Plan.MoveToWithin1000Fleet, MovePosition, desiredFacing)
+            var to1k = new ShipGoal(Plan.MoveToWithin1000, MovePosition, desiredFacing)
             {
                 SpeedLimit = SpeedLimit,
                 fleet = fleet

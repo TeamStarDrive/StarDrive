@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                OrderExploreForLastFoundScoutInEmpire,
+                DummyStepTryAgain,  
                 ReportGoalCompleteToEmpire,
             };
         }
@@ -29,15 +29,10 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep FindPlanetToBuildAt()
         {
-            var list1 = new Array<Planet>();
-            foreach (Planet planet in empire.GetPlanets())
-            {
-                if (planet.HasShipyard)
-                    list1.Add(planet);
-            }
+        
             Planet planet1 = null;
             int num1 = 9999999;
-            foreach (Planet planet2 in list1)
+            foreach (Planet planet2 in empire.BestShipYards)
             {
                 int num2 = 0;
                 foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
@@ -63,29 +58,27 @@ namespace Ship_Game.Commands.Goals
                 });
                 return GoalStep.GoToNextStep;
             }
-            else
-            {
-                Array<Ship> list2 = new Array<Ship>();
-                foreach (string index in this.empire.ShipsWeCanBuild)
-                {
-                    if (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.scout)
-                        list2.Add(ResourceManager.ShipsDict[index]);
-                }
-                IOrderedEnumerable<Ship> orderedEnumerable = (list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
-                if (!orderedEnumerable.Any())
-                    return GoalStep.TryAgain;
-                planet1.ConstructionQueue.Add(new QueueItem()
-                {
-                    isShip = true,
-                    QueueNumber = planet1.ConstructionQueue.Count,
-                    sData = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetShipData(),
-                    Goal = this,
-                    Cost = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetCost(this.empire)
-                });
-                return GoalStep.GoToNextStep;
-            }
-        }
 
+            Array<Ship> list2 = new Array<Ship>();
+            foreach (string index in this.empire.ShipsWeCanBuild)
+            {
+                if (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.scout)
+                    list2.Add(ResourceManager.ShipsDict[index]);
+            }
+            IOrderedEnumerable<Ship> orderedEnumerable = (list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
+            if (!orderedEnumerable.Any())
+                return GoalStep.TryAgain;
+            planet1.ConstructionQueue.Add(new QueueItem()
+            {
+                isShip = true,
+                QueueNumber = planet1.ConstructionQueue.Count,
+                sData = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetShipData(),
+                Goal = this,
+                Cost = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetCost(this.empire)
+            });
+            return GoalStep.GoToNextStep;
+        }
+       
         private GoalStep OrderExploreForLastFoundScoutInEmpire()
         {
             bool foundFreighter = false;
