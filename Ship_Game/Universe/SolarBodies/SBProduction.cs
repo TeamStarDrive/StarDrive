@@ -226,7 +226,7 @@ namespace Ship_Game.Universe.SolarBodies
                             && !(queueItem.Goal is BuildOffensiveShips) 
                             && !(queueItem.Goal is FleetRequisition))
                         {
-                            ++queueItem.Goal.Step;
+                            queueItem.Goal.AdvanceToNextStep();
                         }
                         else
                         {

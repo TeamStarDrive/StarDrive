@@ -2769,23 +2769,25 @@ namespace Ship_Game
 
         private void AssignExplorationTasks()
         {
+            int unexplored =0;
             bool haveUnexploredSystems = false;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
-                if (!solarSystem.IsExploredBy(this))
-                {
-                    haveUnexploredSystems = true;
-                    break;
-                }
+                if (solarSystem.IsExploredBy(this)) continue;
+                if (++unexplored > 20) break;
+                
+                
             }
+            haveUnexploredSystems = unexplored != 0;
             int numScouts = 0;
             if (!haveUnexploredSystems)
             {
                 foreach (Ship ship in OwnedShips)
                 {
                     if (ship.AI.State == AIState.Explore)
-                        ship.AI.OrderRebaseToNearest();
+                        ship.AI.OrderOrbitNearest(true);
                 }
+
                 return;
             }
 
@@ -2793,44 +2795,28 @@ namespace Ship_Game
             foreach (Goal goal in EmpireAI.Goals)
                 if (goal.type == GoalType.BuildScout)
                     return;
-
+            var desiredScouts = unexplored * economicResearchStrategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
-                if (ship.shipData.Role != ShipData.RoleName.scout || ship.PlayerShip)
+                if (ship.DesignRole != ShipData.RoleName.scout || ship.PlayerShip)
                     continue;
                 ship.DoExplore();
-                if (++numScouts == 2)
-                    break;
-            }
-            if (numScouts == 0)
-            {
-
-
-                var buildScout = new BuildScout(this);
-
-                // get at least 2 scouts by default
-                EmpireAI.Goals.Add(buildScout);
-                EmpireAI.Goals.Add(buildScout);
-            }
-            else
-            {
-                if (numScouts >= 2 || data.DiplomaticPersonality == null)
+                if (++numScouts >= desiredScouts)
                     return;
-                bool notBuilding = true;
-                foreach (Goal goal in EmpireAI.Goals)
+            }
+            
+            bool notBuilding = true;
+            foreach (Goal goal in EmpireAI.Goals)
+            {
+                if (goal.type == GoalType.BuildScout)
                 {
-                    if (goal.type == GoalType.BuildScout)
-                    {
-                        notBuilding = false;
-                        break;
-                    }
+                    notBuilding = false;
+                    break;
                 }
-                if (notBuilding)
-                    EmpireAI.Goals.Add(new BuildScout(this));
-                if (data.DiplomaticPersonality.Name != "Expansionist" || !notBuilding)
-                    return;
-                EmpireAI.Goals.Add(new BuildScout(this));
             }
+
+            if (notBuilding)
+                EmpireAI.Goals.Add(new BuildScout(this));
         }
 
         public void AddArtifact(Artifact art)

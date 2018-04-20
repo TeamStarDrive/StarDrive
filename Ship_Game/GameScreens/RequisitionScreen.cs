@@ -91,6 +91,7 @@ namespace Ship_Game
                 g.SetFleet(this.f);
                 node.GoalGUID = g.guid;
                 this.f.Owner.GetGSAI().Goals.Add(g);
+                g.Evaluate();
             }
         }
 
