@@ -223,22 +223,7 @@ namespace Ship_Game
             AllSaves.AddTab(Localizer.Token(4013));
             ModsSL = new ScrollList(AllSaves, 140);
 
-            var ser = new XmlSerializer(typeof(ModInformation));
-            foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
-            {
-                if (!info.Name.EndsWith(".xml"))
-                    continue;
-                try
-                {
-                    ModsSL.AddItem(new ModEntry(ser.Deserialize<ModInformation>(info)));
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning("Load error in file {0}", info.Name);
-                    ex.Data.Add("Load Error in file", info.Name);
-                    
-                }
-            }
+            loadMods();
             EnternamePos  = TitlePosition;
             EnterNameArea = new UITextEntry();
             EnterNameArea.Text = "";
@@ -250,6 +235,27 @@ namespace Ship_Game
             Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Disable", titleId:4016);
 
             base.LoadContent();
+        }
+
+        private void loadMods()
+        {
+            XmlSerializer ser = new XmlSerializer(typeof(ModInformation));
+            foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
+            {
+                if (!info.Name.EndsWith(".xml"))
+                    continue;
+                try
+                {                    
+                    var modInfo = new FileInfo($"Mods\\{info.NameNoExt()}\\{info.Name}");
+                    ModsSL.AddItem(new ModEntry(ser.Deserialize<ModInformation>(modInfo.Exists ? modInfo : info)));
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Load error in file {0}", info.Name);
+                    ex.Data.Add("Load Error in file", info.Name);
+                }
+            }
+
         }
     }
 }

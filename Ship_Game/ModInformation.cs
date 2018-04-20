@@ -19,6 +19,7 @@ namespace Ship_Game
         public string DownLoadSite;
         public float GlobalExplosionVisualIncreaser     = 1f;
         public float GlobalShipExplosionVisualIncreaser = 1f;
+        public int MaxOpponents = 7;
 
         //added by McShooterz
         public bool useAlternateTech;
