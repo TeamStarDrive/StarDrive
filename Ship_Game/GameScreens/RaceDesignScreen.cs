@@ -192,6 +192,7 @@ namespace Ship_Game
                 AllTraits.Add(te);
             }
             GlobalStats.Statreset();
+            numOpponents = GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
         }
 
         private void AddKeyToText(ref string text, Keys key)
@@ -1553,14 +1554,14 @@ namespace Ship_Game
                 }
                 if (this.NumOpponentsRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
-                    GameAudio.PlaySfxAsync("blip_click");
-                    //RaceDesignScreen raceDesignScreen1 = this;
-                    this.numOpponents = this.numOpponents + 1;
-                    if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3; // Added by Gretman to enfoce 4 total players for corners game
-                    if (this.numOpponents > 7)
-                    {
-                        this.numOpponents = 1;
-                    }
+                    GameAudio.BlipClick();
+                    int maxOpponents = mode == GameMode.Corners ? 3 
+                        : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
+                    numOpponents = numOpponents + 1;
+                    
+                    if (numOpponents > maxOpponents)                    
+                        numOpponents = 1;
+                    
                 }
                 //MathExt.HitTest(this.GameModeRect, mousePos); // I believe this is here by mistake, since the returned value would do nothing... - Gretman
                 if (this.ScaleRect.HitTest(mousePos))
