@@ -200,18 +200,18 @@ namespace Ship_Game
             Rectangle screenRect = new Rectangle(0, 0, width, height);
             ScreenManager.SpriteBatch.Draw(StarField, StarFieldRect, Color.White);
             Rectangle planetRect = new Rectangle(0, height - 680, 1016, 680);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet"], planetRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet"), planetRect, Color.White);
             if (AnimationFrame >= 127 && AnimationFrame < 145)
             {
                 float alphaStep = 255f / 18;
                 float alpha = (AnimationFrame - 127) * alphaStep;
                 Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid"], planetGridRect, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid"), planetGridRect, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame >= 145 && AnimationFrame <= 148)
             {
                 Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid"], planetGridRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid"), planetGridRect, Color.White);
             }
             if (AnimationFrame > 148 && AnimationFrame <= 180)
             {
@@ -219,49 +219,49 @@ namespace Ship_Game
                 float alpha = 255f - (AnimationFrame - 148) * alphaStep;
                 if (alpha < 0f) alpha = 0f;
                 Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid"], planetGridRect, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid"), planetGridRect, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame >= 141 && AnimationFrame <= 149)
             {
                 float alphaStep = 255f / 9;
                 float alpha = (AnimationFrame - 141) * alphaStep;
                 Rectangle grid1Hex = new Rectangle(277, height - 592, 77, 33);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], grid1Hex, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid_hex_1"), grid1Hex, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame > 149 && AnimationFrame <= 165)
             {
                 float alphaStep = 255f / 16;
                 float alpha = 255f - (AnimationFrame - 149) * alphaStep;
                 Rectangle grid1Hex = new Rectangle(277, height - 592, 77, 33);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], grid1Hex, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid_hex_1"), grid1Hex, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame >= 159 && AnimationFrame <= 168)
             {
                 float alphaStep = 255f / 10;
                 float alpha = (AnimationFrame - 159) * alphaStep;
                 Rectangle grid1Hex = new Rectangle(392, height - 418, 79, 60);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], grid1Hex, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid_hex_2"), grid1Hex, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame > 168 && AnimationFrame <= 183)
             {
                 float alphaStep = 255f / 15;
                 float alpha = 255f - (AnimationFrame - 168) * alphaStep;
                 Rectangle grid1Hex = new Rectangle(392, height - 418, 79, 60);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], grid1Hex, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid_hex_2"), grid1Hex, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame >= 150 && AnimationFrame <= 158)
             {
                 float alphaStep = 255f / 9;
                 float alpha = (AnimationFrame - 150) * alphaStep;
                 Rectangle grid1Hex = new Rectangle(682, height - 295, 63, 67);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_3"], grid1Hex, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid_hex_3"), grid1Hex, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame > 158 && AnimationFrame <= 174)
             {
                 float alphaStep = 255f / 16;
                 float alpha = 255f - (AnimationFrame - 158) * alphaStep;
                 Rectangle grid1Hex = new Rectangle(682, height - 295, 63, 67);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_3"], grid1Hex, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_grid_hex_3"), grid1Hex, new Color(Color.White, (byte)alpha));
             }
             if (AnimationFrame >= 7 || StayOn)
             {
@@ -273,17 +273,17 @@ namespace Ship_Game
                     StayOn = true;
                 }
                 Rectangle cornerTl = new Rectangle(31, 30, 608, 340);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/corner_TL"], cornerTl, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/corner_TL"), cornerTl, new Color(Color.White, (byte)alpha));
                 Rectangle cornerBr = new Rectangle(width - 551, height - 562, 520, 532);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/corner_BR"], cornerBr, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/corner_BR"), cornerBr, new Color(Color.White, (byte)alpha));
                 
                 Rectangle version = new Rectangle(205, height - 37, 318, 12);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], version, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/version_bar"), version, new Color(Color.White, (byte)alpha));
                 Vector2 textPos = new Vector2(20f, version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "StarDrive 15B", textPos, Color.White);
 
                 version = new Rectangle(20+ (int)Fonts.Pirulen12.MeasureString(GlobalStats.ExtendedVersion).X , height - 85, 318, 12);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], version, new Color(Color.White, (byte)alpha));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/version_bar"), version, new Color(Color.White, (byte)alpha));
                 textPos = new Vector2(20f, version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, GlobalStats.ExtendedVersion, textPos, Color.White);
 
@@ -295,7 +295,7 @@ namespace Ship_Game
                         title = string.Concat(title, " - ", GlobalStats.ActiveModInfo.Version);
 
                     version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(title).X, height - 60, 318, 12);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], version, new Color(Color.White, (byte)alpha));
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/version_bar"), version, new Color(Color.White, (byte)alpha));
 
                     textPos = new Vector2(20f, version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, title, textPos, Color.White);
