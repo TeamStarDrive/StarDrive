@@ -169,6 +169,8 @@ namespace Ship_Game.Ships
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int FixedTracking                 => Flyweight.FixedTracking;
+        public int ExplosionDamage               => Flyweight.ExplosionDamage;
+        public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public bool IsRotatable                  => (bool)Flyweight.IsRotable;
         public bool IsWeapon                     => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -176,7 +178,6 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.MissileLauncher
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
-
 
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
@@ -799,7 +800,7 @@ namespace Ship_Game.Ships
             }
             base.Die(source, cleanupOnly);
             Parent.UpdateExternalSlots(this, becameActive: false);
-            int size = XSIZE * YSIZE;
+            int size = Area;
             if (!cleanupOnly)
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -812,7 +813,7 @@ namespace Ship_Game.Ships
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
                     UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                        ignoreShields: true, damageAmount: size * 2500, damageRadius: size * 64, internalExplosion:true);
+                        ignoreShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius, internalExplosion:true);
                 }            
             }
             if (PowerFlowMax > 0 || PowerRadius > 0)
