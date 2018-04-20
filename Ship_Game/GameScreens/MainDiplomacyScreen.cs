@@ -270,7 +270,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.Money + empire.GetAverageNetIncome() descending
+                    orderby empire.Grossincome(1) descending
                     select empire;
                 int rank = 1;
                 foreach (Empire e in MoneySortedList)
@@ -303,7 +303,7 @@ namespace Ship_Game
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
                     from empire in Sortlist
-                    orderby GetMilitaryStr(empire) descending
+                    orderby empire.currentMilitaryStrength descending
                     select empire;
                 rank = 1;
                 foreach (Empire e in MilSorted)
@@ -463,9 +463,10 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.Money + empire.GetAverageNetIncome() descending
+                    orderby empire.Grossincome(1) descending
                     select empire;
                 int rank = 1;
+
                 foreach (Empire e in MoneySortedList)
                 {
                     if (e == SelectedEmpire)
@@ -496,7 +497,7 @@ namespace Ship_Game
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
                     from empire in Sortlist
-                    orderby GetMilitaryStr(empire) descending
+                    orderby empire.currentMilitaryStrength descending
                     select empire;
                 rank = 1;
                 foreach (Empire e in MilSorted)

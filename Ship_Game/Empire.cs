@@ -1478,9 +1478,10 @@ namespace Ship_Game
         {
             return (GrossTaxes + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus - (GetTotalBuildingMaintenance() + GetTotalShipMaintenance())) * rate;
         }
-        public float Grossincome()
+        public float Grossincome(float tax = -1)
         {
-            return GrossTaxes * data.TaxRate + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
+            if (tax  < 0) tax = data.TaxRate;
+            return GrossTaxes * tax + OtherIncome + TradeMoneyAddedThisTurn + data.FlatMoneyBonus;
         }
         public float EstimateShipCapacityAtTaxRate(float rate)
         {
