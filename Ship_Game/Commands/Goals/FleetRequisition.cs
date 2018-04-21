@@ -25,26 +25,20 @@ namespace Ship_Game.Commands.Goals
         {
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
             beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
-            Step = 1;
+            
             beingBuilt.fleet = ai.Owner.fleet;
             beingBuilt.RelativeFleetOffset = node.FleetOffset;
             SetFleet(ai.Owner.fleet);
             SetPlanetWhereBuilding(ai.OrbitTarget);
-        }
+   }
 
         public FleetRequisition(string shipName, Empire owner) : base(GoalType.FleetRequisition)
         {
             empire = owner;
             ToBuildUID = shipName;
             beingBuilt = ResourceManager.GetShipTemplate(shipName);
-            //Evaluate();
-            Steps = new Func<GoalStep>[]
-            {
-                FindPlanetForFleetRequisition,
-                DummyStepTryAgain,
-                DoSomeStuffWithFleets
-            };
-        }
+            
+         }
 
         private GoalStep FindPlanetForFleetRequisition()
         {

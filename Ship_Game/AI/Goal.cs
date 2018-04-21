@@ -53,7 +53,7 @@ namespace Ship_Game.AI
         protected Func<GoalStep>[] Steps;
 
         public abstract string UID { get; }
-        public override string ToString() => $"Goal.{UID} {ToBuildUID}";
+        public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
         public static Goal CreateInstance(string uid)
         {
@@ -93,19 +93,20 @@ namespace Ship_Game.AI
         {
             if (Held)
                 return;
-            if (Step >= Steps.Length)
-            {
-                throw new ArgumentOutOfRangeException(
-                    $"{this} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
-            }
-            switch (Steps[Step].Invoke())
-            {
-                case GoalStep.GoToNextStep: ++Step; break;
-                case GoalStep.TryAgain: break;
-                case GoalStep.GoalComplete:
-                    empire?.GetGSAI().Goals.QueuePendingRemoval(this);
-                    break;
-            }
+            
+                if (Step >= (Steps?.Length ?? int.MinValue))
+                {
+                    throw new ArgumentOutOfRangeException(
+                        $"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps?.Length}");
+                }
+                switch (Steps[Step].Invoke())
+                {
+                    case GoalStep.GoToNextStep: ++Step; break;
+                    case GoalStep.TryAgain: break;
+                    case GoalStep.GoalComplete:
+                        empire?.GetGSAI().Goals.QueuePendingRemoval(this);
+                        break;
+                }            
         }
 
         public void AdvanceToNextStep()
