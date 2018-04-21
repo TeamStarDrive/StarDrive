@@ -1178,9 +1178,9 @@ namespace Ship_Game.Ships
                 shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
                 // normalizing for smalle ships
                 if (slotCount < 10)
-                    shieldcoverage = shieldcoverage * 0.0625f;
+                    shieldcoverage = shieldcoverage * 0.03125f;
                 else if (slotCount < 32)
-                    shieldcoverage = shieldcoverage * 0.125f;
+                    shieldcoverage = shieldcoverage * 0.0625f;
                 else if (slotCount < 60)
                     shieldcoverage = shieldcoverage * 0.25f;
                 else if (slotCount < 200)
@@ -1227,10 +1227,14 @@ namespace Ship_Game.Ships
             def += ECM;
             def *= 1 + EMP_Protection / slotCount;
 
-            def = Area > 1 ?  def / (Area / 2f) : def;
+            // Engines
+            def += (TurnThrust + WarpThrust + thrust) / 15000f;
 
             // FB: Reactors should also have some value
-            def += PowerFlowMax / 200;
+            def += PowerFlowMax / 100;
+
+            // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
+            def = Area > 1 ? def / (Area / 2f) : def;
 
             return def;
         }
@@ -1240,22 +1244,17 @@ namespace Ship_Game.Ships
             float off = 0f;
             if (InstalledWeapon != null)
             {
-                //weapons = true;
                 Weapon w = InstalledWeapon;
 
-                //Doctor: The 25% penalty to explosive weapons was presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
-                //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
-
-                off += w.Tag_Guided ? w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) :
-                      !w.isBeam ? w.DamageAmount * w.SalvoCount * w.ProjectileCount  * (1f / w.fireDelay) :
-                       w.DamageAmount * 18f;
-                off += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                off += w.Tag_Guided ? w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) : // Guided
+                      !w.isBeam ? w.DamageAmount * w.SalvoCount * w.ProjectileCount  * (1f / w.fireDelay) : // Projectiles
+                       w.DamageAmount * 90f * w.BeamDuration *(1f / w.fireDelay); // Beams
+                off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .2f;
                 off += w.MassDamage * (1f / w.fireDelay) * .5f;
                 off += w.PowerDamage * (1f / w.fireDelay);
                 off += w.RepulsionDamage * (1f / w.fireDelay);
                 off += w.SiphonDamage * (1f / w.fireDelay);
                 off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
-
 
                 //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
                 off *= w.Tag_Guided ? 1.25f : 1f;
@@ -1277,7 +1276,7 @@ namespace Ship_Game.Ships
                 off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
 
                 // FB: offense calcs for true pd are halved since these have large damage radius due to their nature
-                off *= w.DamageRadius > 8 && !w.TruePD ? w.DamageRadius / 16f : w.DamageRadius > 8 && w.TruePD ? w.DamageRadius / 32f : 1f;
+                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : w.DamageRadius > 36 && w.TruePD ? w.DamageRadius / 48f : 1f;
 
                 // FB: Added shield pen chance
                 off *= 1 + w.ShieldPenChance / 100;
@@ -1287,8 +1286,6 @@ namespace Ship_Game.Ships
 
                 // FB: Field of Fire is also important
                 off *= FieldOfFire > 45 ? FieldOfFire / 45f : 1f;
-
-
 
                 int allRoles = 0;
                 int restrictedRoles = 0;
@@ -1309,7 +1306,7 @@ namespace Ship_Game.Ships
                 }
                 else off += 100f;
             }
-            // FB: Normilize off based on its area
+            // FB: Normilize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
             off = Area > 1 ? off / (Area / 2f) : off;
             return off;
         }
