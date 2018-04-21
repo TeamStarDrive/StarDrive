@@ -1173,7 +1173,7 @@ namespace Ship_Game.Ships
             // FB: Added Shield related calcs
             if (shield_power_max > 0)
             {
-                def                 += shield_power_max / 100; // * 4 to normilize corvettes and below
+                def                 += shield_power_max / 100; 
                 float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
                 shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
                 // normalizing for smalle ships
