@@ -1276,7 +1276,7 @@ namespace Ship_Game.Ships
                 off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
 
                 // FB: offense calcs for true pd are halved since these have large damage radius due to their nature
-                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : w.DamageRadius > 36 && w.TruePD ? w.DamageRadius / 48f : 1f;
+                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : w.DamageRadius > 36 && w.TruePD ? w.DamageRadius / 36f : 1f;
 
                 // FB: Added shield pen chance
                 off *= 1 + w.ShieldPenChance / 100;
@@ -1306,7 +1306,7 @@ namespace Ship_Game.Ships
                 }
                 else off += 100f;
             }
-            // FB: Normilize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
+            // FB: Normalize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
             off = Area > 1 ? off / (Area / 2f) : off;
             return off;
         }
