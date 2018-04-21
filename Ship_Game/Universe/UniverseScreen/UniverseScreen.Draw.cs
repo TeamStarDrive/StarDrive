@@ -1022,7 +1022,7 @@ namespace Ship_Game
 
         private void DrawShipProjectilesInRange(Ship ship)
         {
-            if (viewState > UnivScreenState.SystemView || !ship.InFrustum)
+            if (viewState > UnivScreenState.SystemView || !ship.InFrustum || ship.Projectiles == null)
                 return;
             
             for (int i = 0; i < ship.Projectiles.Count; i++)
