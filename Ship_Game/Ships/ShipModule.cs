@@ -1167,31 +1167,71 @@ namespace Ship_Game.Ships
                 return 0f;
 
             float def = 0f;
-            def += shield_power_max * ((shield_radius * .05f) / slotCount);
-            //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
+
             def += HealthMax * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
-            def *= 1 + BeamResist;
-            def *= 1 + KineticResist;
-            def *= 1 + EnergyResist;
-            def *= 1 + GuidedResist;
-            def *= 1 + MissileResist;
-            def *= 1 + HybridResist;
-            def *= 1 + InterceptResist;
-            def *= 1 + ExplosiveResist;
-            def *= 1 + RailgunResist;
-            def *= 1 + SpaceBombResist;
-            def *= 1 + BombResist;
-            def *= 1 + BioWeaponResist;
-            def *= 1 + DroneResist;
-            def *= 1 + WarpResist;
-            def *= 1 + TorpedoResist;
-            def *= 1 + CannonResist;
-            def *= 1 + SubspaceResist;
-            def *= 1 + PDResist;
-            def *= 1 + FlakResist;
-            def *= 1 + DamageThreshold / Health;
+
+            // FB: Added Shield related calcs
+            if (shield_power_max > 0)
+            {
+                def                 += shield_power_max / 100; // * 4 to normilize corvettes and below
+                float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
+                shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
+                // normalizing for smalle ships
+                if (slotCount < 10)
+                    shieldcoverage = shieldcoverage * 0.0625f;
+                else if (slotCount < 32)
+                    shieldcoverage = shieldcoverage * 0.125f;
+                else if (slotCount < 60)
+                    shieldcoverage = shieldcoverage * 0.25f;
+                else if (slotCount < 200)
+                    shieldcoverage = shieldcoverage * 0.5f;
+
+                def *= shieldcoverage > 0 ? 1 + shieldcoverage : 1f; 
+                def *= 1 + shield_kinetic_resist / 5;
+                def *= 1 + shield_energy_resist / 5;
+                def *= 1 + shield_beam_resist / 5;
+                def *= 1 + shield_missile_resist / 5;
+                def *= 1 + shield_explosive_resist / 5;
+
+                def *= shield_recharge_rate > 0 ? shield_recharge_rate / (shield_power_max / 100) : 1f;
+                def *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
+                def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shield_power_max / 25) : 1f;
+
+                def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it applys to the shield bubble.
+            }
+
+            // FB: all resists are divided by 5 since there are 5-6 weapon types
+            def *= 1 + BeamResist / 5;
+            def *= 1 + KineticResist / 5 ;
+            def *= 1 + EnergyResist / 5;
+            def *= 1 + GuidedResist / 5;
+            def *= 1 + MissileResist / 5;
+            def *= 1 + HybridResist / 5;
+            def *= 1 + InterceptResist / 5;
+            def *= 1 + ExplosiveResist / 5;
+            def *= 1 + RailgunResist / 5;
+            def *= 1 + SpaceBombResist / 5;
+            def *= 1 + BombResist / 5;
+            def *= 1 + BioWeaponResist / 5;
+            def *= 1 + DroneResist / 5;
+            def *= 1 + WarpResist / 5;
+            def *= 1 + TorpedoResist / 5;
+            def *= 1 + CannonResist / 5;
+            def *= 1 + SubspaceResist / 5;
+            def *= 1 + PDResist / 5;
+            def *= 1 + FlakResist / 5;
+
+            def *= 1 + DamageThreshold / 100f;
+            def *= ModuleType == ShipModuleType.Armor ? 1 + APResist / 2 : 1f;
+
             def += ECM;
             def *= 1 + EMP_Protection / slotCount;
+
+            def = Area > 1 ?  def / (Area / 2f) : def;
+
+            // FB: Reactors should also have some value
+            def += PowerFlowMax / 200;
+
             return def;
         }
 
@@ -1206,7 +1246,9 @@ namespace Ship_Game.Ships
                 //Doctor: The 25% penalty to explosive weapons was presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
                 //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
 
-                off += w.Tag_Guided ? w.DamageAmount * w.SalvoCount * (1f / w.fireDelay) : !w.isBeam ? w.DamageAmount * w.SalvoCount * (1f / w.fireDelay) / (1 + w.FireCone * .25f) : w.DamageAmount * 18f;
+                off += w.Tag_Guided ? w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) :
+                      !w.isBeam ? w.DamageAmount * w.SalvoCount * w.ProjectileCount  * (1f / w.fireDelay) :
+                       w.DamageAmount * 18f;
                 off += w.EMPDamage * (1f / w.fireDelay) * .2f;
                 off += w.MassDamage * (1f / w.fireDelay) * .5f;
                 off += w.PowerDamage * (1f / w.fireDelay);
@@ -1216,51 +1258,35 @@ namespace Ship_Game.Ships
 
 
                 //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
-                if (w.Tag_Guided)
-                    off *= 1.25f;
+                off *= w.Tag_Guided ? 1.25f : 1f;
 
                 //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
                 off *= w.Range / 4000;// (1 + (w.Range / 1000) *.1f);
 
-                //Doctor: Here follows multipliers which modify the perceived offensive value of weapons based on any modifiers they may have against armour and shields
-                //Previously if e.g. a rapid-fire cannon only did 20% damage to armour, it could have amuch higher off rating than a railgun that had less technical DPS but did double armour damage.
-                if (w.EffectVsArmor < 1)
-                {
-                    if (w.EffectVsArmor > 0.75f) off *= 0.9f;
-                    else if (w.EffectVsArmor > 0.5f) off *= 0.85f;
-                    else if (w.EffectVsArmor > 0.25f) off *= 0.8f;
-                    else off *= 0.75f;
-                }
-                if (w.EffectVsArmor > 1)
-                {
-                    if (w.EffectVsArmor > 2.0f) off *= 1.5f;
-                    else if (w.EffectVsArmor > 1.5f) off *= 1.3f;
-                    else off *= 1.1f;
-                }
-                if (w.EffectVSShields < 1)
-                {
-                    if (w.EffectVSShields > 0.75f) off *= 0.9f;
-                    else if (w.EffectVSShields > 0.5f) off *= 0.85f;
-                    else if (w.EffectVSShields > 0.25f) off *= 0.8f;
-                    else off *= 0.75f;
-                }
-                if (w.EffectVSShields > 1)
-                {
-                    if (w.EffectVSShields > 2f) off *= 1.5f;
-                    else if (w.EffectVSShields > 1.5f) off *= 1.3f;
-                    else off *= 1.1f;
-                }
+                // FB: simpler calcs for these. 
+                off *= w.EffectVsArmor > 1  ? 1f + (w.EffectVsArmor - 1f) / 2f : 1f;
+                off *= w.EffectVsArmor < 1 ? 1f - (1f - w.EffectVsArmor) / 2f : 1f;
+                off *= w.EffectVSShields > 1 ? 1f + (w.EffectVSShields - 1f) / 2f : 1f;
+                off *= w.EffectVSShields < 1 ? 1f - (1f - w.EffectVSShields) / 2f : 1f;
 
                 //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
                 off *= w.OffPowerMod;
-                if (w.TruePD)
-                    off *= .2f;
-                if (w.Tag_Intercept && w.Tag_Missile)
-                    off *= .8f;
-                if (w.ProjectileSpeed > 1)
-                    off *= w.ProjectileSpeed / 4000;
-                if (w.DamageRadius > 1)
-                    off *= w.DamageRadius / 16f;
+
+                off *= w.TruePD ? .2f : 1f;
+                off *= w.Tag_Intercept && w.Tag_Missile ? .8f : 1f;
+                off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
+
+                // FB: offense calcs for true pd are halved since these have large damage radius due to their nature
+                off *= w.DamageRadius > 8 && !w.TruePD ? w.DamageRadius / 16f : w.DamageRadius > 8 && w.TruePD ? w.DamageRadius / 32f : 1f;
+
+                // FB: Added shield pen chance
+                off *= 1 + w.ShieldPenChance / 100;
+
+                // FB: Turrets get some off
+                off *= ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
+
+                // FB: Field of Fire is also important
+                off *= FieldOfFire > 45 ? FieldOfFire / 45f : 1f;
 
 
 
@@ -1283,6 +1309,8 @@ namespace Ship_Game.Ships
                 }
                 else off += 100f;
             }
+            // FB: Normilize off based on its area
+            off = Area > 1 ? off / (Area / 2f) : off;
             return off;
         }
 
