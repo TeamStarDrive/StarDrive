@@ -4697,8 +4697,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 
 
-    
-    <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
+    <!-- Data added in Texas Alpha1 -->
+    <Token>
+      <Index>1993</Index>
+      <Text>This shield can recharge even during combat.</Text>
+    </Token>
+    <Token>
+      <Index>1994</Index>
+      <Text>C.Recharge</Text>
+    </Token>
     <Token>
       <Index>1995</Index>
       <Text>The damage radius of this module's explosion, when it is destroyed. The radius will get smaller as modules nearby absorb the explosion</Text>
@@ -4719,6 +4726,9 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1999</Index>
       <Text>Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons.</Text>
     </Token>
+
+    <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
+
     <Token>
       <Index>2000</Index>
       <!-- planetname was destroyed by unknown forces-->
@@ -8180,7 +8190,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7028</Index>
-      <Text>The effective power drain of this module when the ship is at FTL</Text>
+      <Text>The effective power drain of this module when the ship is at FTL. You will see this info only if this module has modifiers to the usual power draw at warp.</Text>
     </Token>
   <Token>
       <Index>7029</Index>
