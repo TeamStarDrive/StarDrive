@@ -27,7 +27,7 @@ namespace Ship_Game
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
                 HandleScrolls(input);
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseDown)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
                     float num = MinimapDisplayRect.Width / (UniverseSize * 2);
