@@ -1205,5 +1205,10 @@
       <Title>Explosion Radius</Title>
       <Data>1995</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>240</TIP_ID>
+      <Title>Shield Combat Recharge</Title>
+      <Data>1993</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
