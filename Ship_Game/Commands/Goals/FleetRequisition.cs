@@ -30,16 +30,14 @@ namespace Ship_Game.Commands.Goals
             beingBuilt.RelativeFleetOffset = node.FleetOffset;
             SetFleet(ai.Owner.fleet);
             SetPlanetWhereBuilding(ai.OrbitTarget);
-   }
+        }
 
         public FleetRequisition(string shipName, Empire owner) : this()
         {
             empire = owner;
             ToBuildUID = shipName;
             beingBuilt = ResourceManager.GetShipTemplate(shipName);
-            
-         }
-
+        }
         private GoalStep FindPlanetForFleetRequisition()
         {
             Planet planet1 = null;
