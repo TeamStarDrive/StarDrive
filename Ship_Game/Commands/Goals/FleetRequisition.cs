@@ -21,7 +21,7 @@ namespace Ship_Game.Commands.Goals
                 DoSomeStuffWithFleets
             };
         }
-        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : base(GoalType.FleetRequisition)
+        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : this()
         {
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
             beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
             SetPlanetWhereBuilding(ai.OrbitTarget);
    }
 
-        public FleetRequisition(string shipName, Empire owner) : base(GoalType.FleetRequisition)
+        public FleetRequisition(string shipName, Empire owner) : this()
         {
             empire = owner;
             ToBuildUID = shipName;
