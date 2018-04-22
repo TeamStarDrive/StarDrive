@@ -69,7 +69,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         
         private void DeleteAccepted(object sender, EventArgs e)
         {            
-            GameAudio.Affirmative();
+            GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[this.ShipToDelete].Deleted = true;
             this.Buttons.Clear();
             this.ShipsToLoad.Clear();
@@ -80,7 +80,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private void DeleteDataAccepted(object sender, EventArgs e)
         {
-            GameAudio.Affirmative();
+            GameAudio.EchoAffirmative();
             this.Buttons.Clear();
             this.ShipsToLoad.Clear();
             this.ShipDesigns.Reset();
