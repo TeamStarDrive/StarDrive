@@ -533,8 +533,8 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(133), (float)mod.shield_radius, 94);
             
             DrawStat(ref modTitlePos, Localizer.Token(134), (float)mod.shield_recharge_rate, 95);
+            DrawStat(ref modTitlePos, Localizer.Token(1994), (float)mod.shield_recharge_combat_rate, 1993);
 
-            
             // Doc: new shield resistances, UI info.
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6162), (float)mod.shield_kinetic_resist, 209);
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6163), (float)mod.shield_energy_resist, 210);
@@ -565,8 +565,10 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(2235),
                 (float)(mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
                 145);
-            DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(-mod.PowerDrawAtWarp), 178);
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+            // FB: if the module has power draw at warp modifer, show this to the player and use the correct forumla
+            float actualwarppowerdraw = -(mod.PowerDraw * EmpireManager.Player.data.FTLPowerDrainModifier + mod.PowerDrawAtWarp / (2 / EmpireManager.Player.data.FTLPowerDrainModifier));
+            DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(actualwarppowerdraw), 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
             {
