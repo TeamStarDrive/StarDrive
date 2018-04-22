@@ -1251,11 +1251,11 @@ namespace Ship_Game.Ships
                        w.DamageAmount * 90f * w.BeamDuration *(1f / w.fireDelay); // Beams
 
                 off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .5f;
-                off += w.isBeam ? w.MassDamage * (1f / w.fireDelay) * .5f : 1f;
-                off += w.isBeam ? w.PowerDamage * (1f / w.fireDelay) : 1f;
-                off += w.isBeam ? w.RepulsionDamage * (1f / w.fireDelay) : 1f;
-                off += w.isBeam ? w.SiphonDamage * (1f / w.fireDelay) : 1f;
-                off += w.isBeam ? w.TroopDamageChance * (1f / w.fireDelay) * .2f : 1f;
+                off += w.isBeam ? w.MassDamage * (1f / w.fireDelay) * .5f : 0f;
+                off += w.isBeam ? w.PowerDamage * (1f / w.fireDelay) : 0f;
+                off += w.isBeam ? w.RepulsionDamage * (1f / w.fireDelay) : 0f;
+                off += w.isBeam ? w.SiphonDamage * (1f / w.fireDelay) : 0f;
+                off += w.isBeam ? w.TroopDamageChance * (1f / w.fireDelay) * .2f : 0f;
 
                 //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
                 off *= w.Tag_Guided ? 1.25f : 1f;
