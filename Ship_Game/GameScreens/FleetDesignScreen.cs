@@ -226,7 +226,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch spriteBatch)
         {
             Viewport viewport;
-            Texture2D nodeTexture = ResourceManager.TextureDict["UI/node"];
+            Texture2D nodeTexture = ResourceManager.Texture("UI/node");
             ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
@@ -426,7 +426,7 @@ namespace Ship_Game
                     }
                 }
                 Selector sel = new Selector(r, Color.TransparentBlack);
-                spriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_square"], r,
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
                 sel.Draw(spriteBatch);
                 Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
@@ -606,9 +606,10 @@ namespace Ship_Game
                 float scale;
                 Vector2 iconOrigin;
                 Texture2D item;
-                using (Ship ship = ActiveShipDesign) {
-                    scale = ship.Size / (float) (30 + ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width);
-                    iconOrigin = new Vector2(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2f, ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2f);
+                Ship ship = ActiveShipDesign;
+                {
+                    scale = ship.Size / (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
+                    iconOrigin = new Vector2(ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f, ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f);
                     scale = scale * 4000f / CamPos.Z;
                     if (scale > 1f)
                         scale = 1f;
@@ -949,7 +950,7 @@ namespace Ship_Game
             }
             if (Input.FleetExitScreen && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }
@@ -1218,7 +1219,8 @@ namespace Ship_Game
                 {
                     if (!(e.item is ModuleHeader))
                     {
-                        if (!e.clickRect.HitTest(mousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
+                        if (!e.clickRect.HitTest(mousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed 
+                                                           || input.MousePrev.LeftButton != ButtonState.Released)
                         {
                             continue;
                         }
@@ -1838,7 +1840,7 @@ namespace Ship_Game
             {
                 Array<string> roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
-                {
+                {                    
                     if (roles.Contains(ResourceManager.ShipsDict[shipname].shipData.GetRole()))
                     {
                         continue;
@@ -1852,6 +1854,7 @@ namespace Ship_Game
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
+                        if (!ship.ShipIsGoodForGoals()) continue;
                         if (ship.shipData.GetRole() != (e.item as ModuleHeader)?.Text)
                         {
                             continue;
