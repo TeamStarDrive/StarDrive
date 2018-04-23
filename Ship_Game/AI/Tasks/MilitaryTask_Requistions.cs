@@ -624,7 +624,7 @@ namespace Ship_Game.AI.Tasks {
         private bool RequisitionClaimForce()
         {
             AO closestAO = null;
-            if ((closestAO = FindClosestAO()) == null) return false; 
+            if ((closestAO = FindClosestAO(MinimumTaskForceStrength)) == null) return false; 
             float tfstrength = 0f;
             Array<Ship> elTaskForce = new Array<Ship>();
             int shipCount = 0;
@@ -635,8 +635,9 @@ namespace Ship_Game.AI.Tasks {
 
             foreach (Ship ship in closestAO.GetOffensiveForcePool().OrderBy(str => str.GetStrength()))
             {
-                if (shipCount >= 3 && (strengthNeeded < Owner.currentMilitaryStrength * .02f &&
-                                       strengthNeeded < tfstrength))
+                if (shipCount >= 3 && tfstrength > strengthNeeded * 2)
+                    //(strengthNeeded < Owner.currentMilitaryStrength * .02f &&
+                    //                   strengthNeeded < tfstrength))
                     break;
 
                 if (ship.GetStrength() <= 0f || ship.InCombat || ship.fleet != null)
@@ -649,7 +650,7 @@ namespace Ship_Game.AI.Tasks {
                 tfstrength += ship.GetStrength();
             }
 
-            if (shipCount < 3 && tfstrength == 0 || tfstrength < strengthNeeded)
+            if (shipCount < 3 && tfstrength == 0 || tfstrength < strengthNeeded * .25f)
                 return false;
 
             TaskForce = elTaskForce;
