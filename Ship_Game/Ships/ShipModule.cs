@@ -1297,8 +1297,7 @@ namespace Ship_Game.Ships
                 off *= FieldOfFire > 60 ? FieldOfFire / 60f : 1f;
 
                 // FB: A weapon which can be installed on Internal slots is quite valuable.
-                off *= Restrictions == Restrictions.IO ? 2f : 1f;
-                off *= Restrictions == Restrictions.IOE ? 2f : 1f;
+                off *= Restrictions.ToString().Contains("I") ? 2f : 1f;
 
                 int allRoles = 0;
                 int restrictedRoles = 0;
