@@ -1234,7 +1234,8 @@ namespace Ship_Game.Ships
             def += PowerFlowMax / 100;
 
             // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
-            def = Area > 1 ? def / (Area / 2f) : def;
+            def  = Area > 1 ? def / (Area / 2f) : def;
+            def *= 0.5f; // So defense will have more chance to be lower than offense, otherwise defense is not calculated in the total offense of the ship
 
             return def;
         }
