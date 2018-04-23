@@ -49,6 +49,7 @@ namespace Ship_Game.Commands.Goals
             }
             int num1 = 9999999;
             int x = 0;
+            if (list.IsEmpty) return GoalStep.TryAgain;
             //empire.RallyPoints.OrderBy(p => p.ConstructionQueue.Count);
             foreach (Planet planet2 in list.OrderBy(planet =>
             {
