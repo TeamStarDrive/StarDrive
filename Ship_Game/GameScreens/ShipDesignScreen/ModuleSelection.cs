@@ -566,10 +566,8 @@ namespace Ship_Game
                 (float)(mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
                 145);
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
-            // FB: if the module has power draw at warp modifer, show this to the player and use the correct forumla
-            // FB: This should be checked as a method, but right now ShipDesignScreenDraw.cs is not refactored and its hard to do it. 
-            float actualWarpPowerDraw = -(mod.PowerDraw * EmpireManager.Player.data.FTLPowerDrainModifier + mod.PowerDrawAtWarp / (2 / EmpireManager.Player.data.FTLPowerDrainModifier));
-            DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(actualWarpPowerDraw), 178);
+            // FB: Added a method in ShipModule to deal with this
+            DrawStat(ref modTitlePos, Localizer.Token(6011), mod.GetActualWarpDraw(), 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
             {
