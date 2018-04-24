@@ -1149,7 +1149,7 @@ namespace Ship_Game
             }
             if (ActiveShipDesign != null)
             {
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                if (input.LeftMouseClick)
                 {
                     Viewport viewport = Viewport;
                     Vector3 nearPoint = viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 0f), Projection, View, Matrix.Identity);
@@ -1165,7 +1165,7 @@ namespace Ship_Game
                         FleetOffset = new Vector2(pickedPosition.X, pickedPosition.Y),
                         ShipName = ActiveShipDesign.Name
                     };
-                    SelectedFleet.DataNodes.Add(node);
+                    SelectedFleet.DataNodes.Add(node);                    
                     if (AvailableShips.Contains(ActiveShipDesign))
                     {
                         if (SelectedFleet.Ships.Count == 0)
@@ -1175,9 +1175,9 @@ namespace Ship_Game
                         node.Ship = ActiveShipDesign;
                         node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.FleetOffset, 0f));
                         node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        AvailableShips.Remove(ActiveShipDesign);
-                        node.Ship.fleet = SelectedFleet;
-                        SelectedFleet.AddShip(node.Ship);
+                        AvailableShips.Remove(ActiveShipDesign);                        
+                        SelectedFleet.AddShip(node.Ship);                
+                        
                         if (SubShips.Tabs[1].Selected)
                         {
                             ScrollList.Entry toremove = null;
@@ -1203,7 +1203,7 @@ namespace Ship_Game
                         }
                         ActiveShipDesign = null;
                     }
-                    if (!input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                    if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) )
                     {
                         ActiveShipDesign = null;
                     }

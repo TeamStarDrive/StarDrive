@@ -178,7 +178,7 @@ namespace Ship_Game
 
         //FleetDesignScreen
         public bool FleetRemoveSquad => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);
-        public bool FleetExitScreen => KeyPressed(Keys.J);
+        public bool FleetExitScreen => KeyPressed(Keys.J) || KeyPressed(Keys.Escape);
 
         //debug
         public bool DebugMode            => LeftCtrlShift && (KeyPressed(Keys.OemTilde) || KeyPressed(Keys.Tab));
