@@ -1176,7 +1176,7 @@ namespace Ship_Game.Ships
                 def                 += shield_power_max / 100; 
                 float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
                 shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
-                // normalizing for smalle ships
+                // normalizing for small ships
                 if (slotCount < 10)
                     shieldcoverage = shieldcoverage * 0.03125f;
                 else if (slotCount < 32)
@@ -1234,7 +1234,8 @@ namespace Ship_Game.Ships
             def += PowerFlowMax / 100;
 
             // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
-            def = Area > 1 ? def / (Area / 2f) : def;
+            def  = Area > 1 ? def / (Area / 2f) : def;
+            def *= 0.5f; // So defense will have more chance to be lower than offense, otherwise defense is not calculated in the total offense of the ship
 
             return def;
         }
@@ -1246,21 +1247,32 @@ namespace Ship_Game.Ships
             {
                 Weapon w = InstalledWeapon;
 
-                off += w.Tag_Guided ? w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) : // Guided
-                      !w.isBeam ? w.DamageAmount * w.SalvoCount * w.ProjectileCount  * (1f / w.fireDelay) : // Projectiles
-                       w.DamageAmount * 90f * w.BeamDuration *(1f / w.fireDelay); // Beams
-                off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .2f;
-                off += w.MassDamage * (1f / w.fireDelay) * .5f;
-                off += w.PowerDamage * (1f / w.fireDelay);
-                off += w.RepulsionDamage * (1f / w.fireDelay);
-                off += w.SiphonDamage * (1f / w.fireDelay);
-                off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
+                if (w.isBeam)
+                {
+                    off += w.DamageAmount * 90f * w.BeamDuration * (1f / w.fireDelay);
+                    off += w.MassDamage * (1f / w.fireDelay) * .5f;
+                    off += w.PowerDamage * (1f / w.fireDelay);
+                    off += w.RepulsionDamage * (1f / w.fireDelay);
+                    off += w.SiphonDamage * (1f / w.fireDelay);
+                    off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
+                }
+                else
+                {
+                    off += w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay);
+                    off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .5f;
+                }
 
                 //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
                 off *= w.Tag_Guided ? 1.25f : 1f;
 
-                //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
-                off *= w.Range / 4000;// (1 + (w.Range / 1000) *.1f);
+                //FB: Kinetics which does also require more than minimal power to shoot is less effective
+                off *= w.Tag_Kinetic && w.PowerRequiredToFire > 10 * Area ? 0.5f : 1f;
+
+                //FB: Kinetics which does also require more than minimal power to maintain is less effective
+                off *= w.Tag_Kinetic && PowerDraw > 2 * Area ? 0.5f : 1f;
+
+                //FB: Range margins are less steep for missiles
+                off *= !w.Tag_Missile && !w.Tag_Torpedo ?  (w.Range / 4000) * (w.Range / 4000) : (w.Range / 4000);
 
                 // FB: simpler calcs for these. 
                 off *= w.EffectVsArmor > 1  ? 1f + (w.EffectVsArmor - 1f) / 2f : 1f;
@@ -1268,15 +1280,12 @@ namespace Ship_Game.Ships
                 off *= w.EffectVSShields > 1 ? 1f + (w.EffectVSShields - 1f) / 2f : 1f;
                 off *= w.EffectVSShields < 1 ? 1f - (1f - w.EffectVSShields) / 2f : 1f;
 
-                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-                off *= w.OffPowerMod;
-
                 off *= w.TruePD ? .2f : 1f;
                 off *= w.Tag_Intercept && w.Tag_Missile ? .8f : 1f;
                 off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
 
-                // FB: offense calcs for true pd are halved since these have large damage radius due to their nature
-                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : w.DamageRadius > 36 && w.TruePD ? w.DamageRadius / 36f : 1f;
+                // FB: offense calcs for damage radius
+                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : 1f;
 
                 // FB: Added shield pen chance
                 off *= 1 + w.ShieldPenChance / 100;
@@ -1285,7 +1294,10 @@ namespace Ship_Game.Ships
                 off *= ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
                 // FB: Field of Fire is also important
-                off *= FieldOfFire > 45 ? FieldOfFire / 45f : 1f;
+                off *= FieldOfFire > 60 ? FieldOfFire / 60f : 1f;
+
+                // FB: A weapon which can be installed on Internal slots is quite valuable.
+                off *= Restrictions.ToString().Contains("I") ? 2f : 1f;
 
                 int allRoles = 0;
                 int restrictedRoles = 0;
@@ -1297,8 +1309,11 @@ namespace Ship_Game.Ships
                 }
                 float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
                 off *= restrictions;
+
+                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+                off *= w.OffPowerMod;
             }
-            if (hangarShipUID.NotEmpty() && !IsSupplyBay && !IsTroopBay)
+            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() && hangarShipUID != "NotApplicable" && !IsSupplyBay && !IsTroopBay)
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
                 {
@@ -1306,8 +1321,10 @@ namespace Ship_Game.Ships
                 }
                 else off += 100f;
             }
+
             // FB: Normalize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
             off = Area > 1 ? off / (Area / 2f) : off;
+
             return off;
         }
 

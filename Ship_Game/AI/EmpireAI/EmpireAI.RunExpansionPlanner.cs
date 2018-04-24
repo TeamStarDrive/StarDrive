@@ -10,7 +10,7 @@ namespace Ship_Game.AI {
     public sealed partial class EmpireAI
     {
         private int DesiredColonyGoals = 2;
-        private readonly Array<Planet> DesiredPlanets = new Array<Planet>();
+        private Array<Planet> DesiredPlanets = new Array<Planet>();
 
         public void CheckClaim(KeyValuePair<Empire, Relationship> them, Planet claimedPlanet)
         {
@@ -77,54 +77,43 @@ namespace Ship_Game.AI {
             if (FindCenterAndHungry(ref weightedCenter)) return;
             var ranker = new Array<Goal.PlanetRanker>();
             var allPlanetsRanker = new Array<Goal.PlanetRanker>();
-            
+
             GatherAllPlanetRanks(weightedCenter, ranker, allPlanetsRanker);
-            Planet toMark = MarkBestPlanet(ranker);
-      
-            if (toMark == null) return;
 
-            if (allPlanetsRanker.Count > 0)
-            {
-                DesiredPlanets.Clear();
-                IOrderedEnumerable<Goal.PlanetRanker> sortedList =
-                    from ran in allPlanetsRanker
-                    orderby ran.Value descending
-                    select ran;
-                foreach (Goal.PlanetRanker planetRanker in sortedList)
-                    DesiredPlanets.Add(planetRanker.Planet);
-            }
+            if (allPlanetsRanker.Count < 1) return;
+            Planet
+                toMark = null; // allPlanetsRanker.OrderByDescending(rank => rank).FirstOrDefault().Planet; //  MarkBestPlanet(ranker);
 
-            bool ok = true;
-            foreach (Goal g in Goals)
-            {
-                if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != toMark)
-                    continue;
+            
+            DesiredPlanets.Clear();
 
-                ok = false;
-            }
-            if (!ok) return;
+            IOrderedEnumerable<Goal.PlanetRanker> sortedList =
+                from ran in allPlanetsRanker
+                orderby ran.Value descending
+                select ran;
+            foreach (Goal.PlanetRanker planetRanker in sortedList)
+                DesiredPlanets.Add(planetRanker.Planet);
 
+            toMark = sortedList.First().Planet;
             Goals.Add(new MarkForColonization(toMark, OwnerEmpire));
         }
 
         private static Planet MarkBestPlanet(IReadOnlyCollection<Goal.PlanetRanker> ranker)
         {
             Planet toMark = null;
-            if (ranker.Count > 0)
+            if (ranker.Count <= 0) return toMark;            
+            Goal.PlanetRanker winner;
+            winner.Planet = null;
+            float highest = float.MinValue;                
+            foreach (Goal.PlanetRanker pr in ranker)
             {
-                Goal.PlanetRanker winner;
-                winner.Planet = null;
-                float highest = float.MinValue;                
-                foreach (Goal.PlanetRanker pr in ranker)
-                {
-                    if (pr.Value <= highest)
-                        continue;                  
+                if (pr.Value <= highest)
+                    continue;                  
 
-                    winner = pr;
-                    highest = pr.Value;
-                }
-                toMark = winner.Planet;
+                winner = pr;
+                highest = pr.Value;
             }
+            toMark = winner.Planet;
             return toMark;
         }
 
@@ -132,6 +121,7 @@ namespace Ship_Game.AI {
         {
             bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.data.Traits.Cybernetic > 0;
             bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
+            float valueTotal = 0;
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
                 //added by gremlin make non offensive races act like it.
@@ -139,8 +129,9 @@ namespace Ship_Game.AI {
                     continue;
                 if (ColonizeBlockedByMorals(s)) continue;
 
-                float str = ThreatMatrix.PingRadarStr(s.Position, 300000f, OwnerEmpire, true);
-                if (str > 0) continue;
+                float str = ThreatMatrix.PingRadarStr(s.Position, 150000f, OwnerEmpire, true, any: true);
+               // if (str > 0) continue;
+                
                 foreach (Planet planetList in s.PlanetList)
                 {
                     if (!planetList.Habitable)
@@ -156,18 +147,20 @@ namespace Ship_Game.AI {
 
                     if (IsBadWorld(planetList, canColonizeBarren, hasCommodities, foodBonus)) continue;
                     r2.OutOfRange = PlanetToFarToColonize(planetList);
-
+                    if (str > 0)
+                        r2.Value /= (str / OwnerEmpire.currentMilitaryStrength);
                     allPlanetsRanker.Add(r2);
 
-                    
+                    valueTotal += r2.Value;
                     
 
-                    if (str >0 && ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire, false, any: true) >0 )
-                        continue;
+                    //if (str >0 && ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire, false, any: true) >0 )
+                    //    continue;
                     ranker.Add(r2);
                     
                 }
-            }
+            }            
+
         }
 
         private bool PlanetToFarToColonize(Planet planetList)
@@ -241,23 +234,16 @@ namespace Ship_Game.AI {
             {
                 if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != planetList)
                     continue;
-
-                ok = false;
-                if (str > 0) remove = g;
-                break;
-            }
-            if (!ok)
-            {
-                if (remove != null)
-                    Goals.Remove(remove);
                 return true;
+                
             }
+            
             return false;
         }
 
         private bool FindCenterAndHungry(ref Vector2 weightedCenter)
         {
-            DesiredColonyGoals = (int) Empire.Universe.GameDifficulty + 3 +
+            DesiredColonyGoals = (int) (Empire.Universe.GameDifficulty + 1) * 2 +
                                  (OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0);
             int numColonyGoals = NumColonyGoals();
             if (numColonyGoals >= DesiredColonyGoals) return true;
@@ -266,8 +252,6 @@ namespace Ship_Game.AI {
             int numPlanets = 0;
             foreach (Planet p in OwnerEmpire.GetPlanets())
             {
-                //if (p.NeedsFood())
-                //    numColonyGoals++;
                 for (int i = 0; (float) i < p.Population / 1000f; i++)
                 {
                     weightedCenter = weightedCenter + p.Center;
@@ -287,7 +271,7 @@ namespace Ship_Game.AI {
             int numColonyGoals = 0;
             foreach (Goal g in Goals)
             {
-                if (g.type != GoalType.Colonize)
+                if (g.type != GoalType.Colonize || g.Held)
                     continue;
 
                 //added by Gremlin: Colony expansion changes

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -13,7 +14,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "MarkForColonization";
         public override string UID => ID;
-
+        private bool HasEscort;
         public MarkForColonization() : base(GoalType.Colonize)
         {
             Steps = new Func<GoalStep>[]
@@ -23,6 +24,7 @@ namespace Ship_Game.Commands.Goals
                 Step2,
                 FinalStep
             };
+
         }
         public MarkForColonization(Planet toColonize, Empire e) : this()
         {
@@ -55,8 +57,89 @@ namespace Ship_Game.Commands.Goals
             return candidates.FindMin(p => GetConstructionQueueTurnsRemaining(p));
         }
 
+        private bool IsValid()
+        {
+            if (markedPlanet.Owner == null) return true;
+            foreach (var relationship in empire.AllRelations)
+                empire.GetGSAI().CheckClaim(relationship, GetMarkedPlanet());
+            
+            using (empire.GetGSAI().TaskList.AcquireReadLock())
+            {
+                foreach (MilitaryTask task in empire.GetGSAI().TaskList)
+                {
+                    foreach (Guid held in task.HeldGoals)
+                    {
+                        if (held != guid)
+                            continue;
+
+                        empire.GetGSAI().TaskList.QueuePendingRemoval(task);
+                        break;
+                    }
+                }
+            }
+
+            if (colonyShip == null) return false;
+            var planet = empire.FindNearestRallyPoint(colonyShip.Center);
+            if (planet != null)
+                colonyShip.AI.OrderRebase(planet, true);
+            return false;
+        }
+
+        private bool NeedsEscort()
+        {
+            if (empire.isPlayer || empire.isFaction) return false;
+            
+            float str = empire.GetGSAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 100000f, empire);
+            if (str < 10)
+                return false;
+            using (empire.GetGSAI().TaskList.AcquireReadLock())
+            {
+                foreach (MilitaryTask escort in empire.GetGSAI().TaskList)
+                {
+                    foreach (Guid held in escort.HeldGoals)
+                    {
+                        if (held != guid)
+                            continue;
+                        HasEscort = escort.WhichFleet != -1;
+                        return false;
+                    }
+                }
+            }
+            
+            if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
+                empire.data.DiplomaticPersonality.Trustworthiness < 50)
+            {
+
+                var tohold = new Array<Goal> { this };
+                var task =
+                    new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
+                {
+                    empire.GetGSAI().TaskList.Add(task);
+                }
+            }
+
+            var militaryTask = new MilitaryTask
+            {
+                AO = markedPlanet.Center
+            };
+            militaryTask.SetEmpire(empire);
+            militaryTask.AORadius                 = 75000f;
+            militaryTask.SetTargetPlanet(markedPlanet);
+            militaryTask.TargetPlanetGuid         = markedPlanet.guid;
+            militaryTask.MinimumTaskForceStrength = str;
+            militaryTask.HeldGoals.Add(guid);
+            militaryTask.type                     = MilitaryTask.TaskType.DefendClaim;
+            {
+                empire.GetGSAI().TaskList.Add(militaryTask);
+            }
+            return true;
+        }
+
         private GoalStep OrderShipForColonization()
         {
+            if (!IsValid()) return GoalStep.GoalComplete;
+            NeedsEscort();
+
             colonyShip = FindIdleColonyShip();
             if (colonyShip != null)
             {
@@ -108,10 +191,10 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
-
-
         private GoalStep EnsureBuildingColonyShip()
         {
+            if (!IsValid()) return GoalStep.GoalComplete;
+            if (!HasEscort) NeedsEscort();
             if (!IsPlanetBuildingColonyShip())
             {
                 PlanetBuildingAt = null;
@@ -123,6 +206,9 @@ namespace Ship_Game.Commands.Goals
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
                 empire.GetGSAI().CheckClaim(them, markedPlanet);
             return GoalStep.GoalComplete;
+
+            this.PlanetBuildingAt = (Planet) null;
+            return GoalStep.RestartGoal;
         }
 
         private Ship FindIdleColonyShip()
@@ -139,6 +225,8 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep Step2()
         {
+            if (!IsValid()) return GoalStep.GoalComplete;
+            if (!HasEscort) NeedsEscort();
             if (markedPlanet.Owner != null) // Planet is owned by someone?
             {
                 foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
@@ -156,6 +244,10 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep FinalStep()
         {
+            if (!HasEscort && NeedsEscort())
+                return GoalStep.TryAgain;
+            if (!IsValid()) return GoalStep.GoalComplete;
+
             if (colonyShip == null) // @todo This is a workaround for a bug
                 return GoalStep.RestartGoal;
             if (colonyShip != null && colonyShip.Active && colonyShip.AI.State != AIState.Colonize)

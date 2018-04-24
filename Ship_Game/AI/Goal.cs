@@ -51,8 +51,8 @@ namespace Ship_Game.AI
         protected Ship passTran;
 
         protected bool MainGoalCompleted;
-
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
+        protected Func<bool> Holding;
 
         public abstract string UID { get; }
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
@@ -120,7 +120,8 @@ namespace Ship_Game.AI
 
         public void Evaluate()
         {
-            if (Held)
+            //CG hrmm i guess this should just be part of the goal enum. But that will require more cleanup of the goals. 
+            if (Holding?.Invoke() == true) 
                 return;
             
             if ((uint)Step >= Steps.Length)
