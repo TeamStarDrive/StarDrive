@@ -65,7 +65,11 @@ namespace Ship_Game.Commands.Goals
 
         private bool NeedsEscort()
         {
+            if (empire.isPlayer || empire.isFaction) return false;
+            
             float str = empire.GetGSAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 100000f, empire);
+            if (str < 10)
+                return false;
             using (empire.GetGSAI().TaskList.AcquireReadLock())
             {
                 foreach (MilitaryTask escort in empire.GetGSAI().TaskList)
@@ -80,8 +84,7 @@ namespace Ship_Game.Commands.Goals
                 }
             }
             
-            if (str < 10)            
-                return false;
+            
 
             if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
                 empire.data.DiplomaticPersonality.Trustworthiness < 50)
