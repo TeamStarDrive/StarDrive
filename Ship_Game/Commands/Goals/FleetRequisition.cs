@@ -30,16 +30,14 @@ namespace Ship_Game.Commands.Goals
             beingBuilt.RelativeFleetOffset = node.FleetOffset;
             SetFleet(ai.Owner.fleet);
             SetPlanetWhereBuilding(ai.OrbitTarget);
-   }
+        }
 
         public FleetRequisition(string shipName, Empire owner) : this()
         {
             empire = owner;
             ToBuildUID = shipName;
             beingBuilt = ResourceManager.GetShipTemplate(shipName);
-            
-         }
-
+        }
         private GoalStep FindPlanetForFleetRequisition()
         {
             Planet planet1 = null;
@@ -51,6 +49,7 @@ namespace Ship_Game.Commands.Goals
             }
             int num1 = 9999999;
             int x = 0;
+            if (list.IsEmpty) return GoalStep.TryAgain;
             //empire.RallyPoints.OrderBy(p => p.ConstructionQueue.Count);
             foreach (Planet planet2 in list.OrderBy(planet =>
             {
