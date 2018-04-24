@@ -645,7 +645,7 @@ namespace Ship_Game.AI.Tasks
 
         private void Dispose(bool disposing)
         {
-            TaskForce = null;  //Dispose(ref TaskForce);
+            TaskForce = null;  //Dispose(ref TaskForce);            
         }
 
         private int FindFleetNumber()

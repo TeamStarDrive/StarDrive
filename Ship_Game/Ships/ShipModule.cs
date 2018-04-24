@@ -1313,7 +1313,7 @@ namespace Ship_Game.Ships
                 //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
                 off *= w.OffPowerMod;
             }
-            if (hangarShipUID.NotEmpty() && !IsSupplyBay && !IsTroopBay)
+            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() && hangarShipUID != "NotApplicable" && !IsSupplyBay && !IsTroopBay)
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
                 {
