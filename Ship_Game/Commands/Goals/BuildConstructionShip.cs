@@ -16,8 +16,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                DummyStepTryAgain,
-                DummyStepGoalComplete,
+                WaitMainGoalCompletion,
             };
         }
         public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner) : this()
