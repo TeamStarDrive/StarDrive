@@ -36,7 +36,7 @@ namespace Ship_Game.AI
         public Guid guid = Guid.NewGuid();
         public Empire empire;
         public GoalType type;
-        public int Step;
+        public int Step { get; protected set; }
         protected Fleet fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
@@ -50,12 +50,14 @@ namespace Ship_Game.AI
         protected Ship freighter;
         protected Ship passTran;
 
-        protected Func<GoalStep>[] Steps;
+        protected bool MainGoalCompleted;
+
+        protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
 
         public abstract string UID { get; }
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
-        public static Goal CreateInstance(string uid)
+        private static Goal CreateInstance(string uid)
         {
             switch (uid)
             {
@@ -72,6 +74,17 @@ namespace Ship_Game.AI
             }
         }
 
+        public static Goal Deserialize(string uid, Empire e, SavedGame.GoalSave gsave)
+        {
+            Goal g = CreateInstance(uid);
+            g.empire        = e;
+            g.ToBuildUID    = gsave.ToBuildUID;
+            g.Step          = gsave.GoalStep;
+            g.guid          = gsave.GoalGuid;
+            g.BuildPosition = gsave.BuildPosition;
+            return g;
+        }
+
         protected Goal(GoalType type)
         {
             this.type = type;
@@ -79,6 +92,22 @@ namespace Ship_Game.AI
 
         protected GoalStep DummyStepTryAgain()     => GoalStep.TryAgain;
         protected GoalStep DummyStepGoalComplete() => GoalStep.GoalComplete;
+        protected GoalStep WaitMainGoalCompletion()
+        {
+            if (MainGoalCompleted)
+            {
+                MainGoalCompleted = false;
+                if (Step == Steps.Length-1)
+                    return GoalStep.GoalComplete;
+                return GoalStep.GoToNextStep;
+            }
+            return GoalStep.TryAgain;
+        }
+
+        public void NotifyMainGoalCompleted()
+        {
+            MainGoalCompleted = true;
+        }
 
         public void SetFleet(Fleet f)
         {
@@ -94,19 +123,19 @@ namespace Ship_Game.AI
             if (Held)
                 return;
             
-                if (Step >= (Steps?.Length ?? int.MinValue))
-                {
-                    throw new ArgumentOutOfRangeException(
-                        $"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps?.Length}");
-                }
-                switch (Steps[Step].Invoke())
-                {
-                    case GoalStep.GoToNextStep: ++Step; break;
-                    case GoalStep.TryAgain: break;
-                    case GoalStep.GoalComplete:
-                        empire?.GetGSAI().Goals.QueuePendingRemoval(this);
-                        break;
-                }            
+            if ((uint)Step >= Steps.Length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    $"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+            }
+            switch (Steps[Step].Invoke())
+            {
+                case GoalStep.GoToNextStep: ++Step; break;
+                case GoalStep.TryAgain: break;
+                case GoalStep.GoalComplete:
+                    empire?.GetGSAI().Goals.QueuePendingRemoval(this);
+                    break;
+            }            
         }
 
         public void AdvanceToNextStep()

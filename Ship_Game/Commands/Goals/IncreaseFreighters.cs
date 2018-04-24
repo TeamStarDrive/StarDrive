@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                DummyStepTryAgain,
+                WaitMainGoalCompletion,
                 ReportGoalCompleteToEmpire,
             };
         }
