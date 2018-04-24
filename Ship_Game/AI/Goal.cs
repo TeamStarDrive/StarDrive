@@ -93,7 +93,7 @@ namespace Ship_Game.AI
         public void Evaluate()
         {
             //CG hrmm i guess this should just be part of the goal enum. But that will require more cleanup of the goals. 
-            if (Held || Holding?.Invoke() == true) 
+            if (Holding?.Invoke() == true) 
                 return;
 
                 if (Step >= (Steps?.Length ?? int.MinValue))

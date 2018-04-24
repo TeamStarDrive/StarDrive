@@ -2555,9 +2555,9 @@ namespace Ship_Game.Ships
         private float CurrentStrength = -1;
         public float GetStrength(bool recalculate = false)
         {            
-            if (Health >= HealthMax * 0.75f && !LowHealth && BaseStrength > -1)
+            if (Health >= HealthMax * 0.75f && !LowHealth && CurrentStrength > -1)
                 return BaseStrength;
-            if (recalculate)
+            if (recalculate || CurrentStrength < 0)
                 CurrentStrength = CalculateShipStrength(false);
             return CurrentStrength;
         }
