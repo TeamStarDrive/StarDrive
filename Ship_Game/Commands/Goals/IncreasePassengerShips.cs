@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                DummyStepTryAgain,
+                WaitMainGoalCompletion,
                 OrderLastIdleTransportToTransportPassengers
             };
         }
@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals
                 foreach (Planet planet2 in list1)
                 {
                     int num2 = 0;
-                    foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
+                    foreach (QueueItem queueItem in planet2.ConstructionQueue)
                         num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
                     if (num2 < num1)
                     {
@@ -79,29 +79,33 @@ namespace Ship_Game.Commands.Goals
                 }
                 else
                 {
-                    Array<Ship> list2 = new Array<Ship>();
-                    foreach (string index in this.empire.ShipsWeCanBuild)
+                    var civilianFreighters = new Array<Ship>();
+                    foreach (string uid in empire.ShipsWeCanBuild)
                     {
-                        if (!ResourceManager.ShipsDict[index].isColonyShip && !ResourceManager.ShipsDict[index].isConstructor && (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.freighter || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
-                            list2.Add(ResourceManager.ShipsDict[index]);
+                        Ship ship = ResourceManager.ShipsDict[uid];
+                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian))
+                            civilianFreighters.Add(ship);
                     }
-                    IOrderedEnumerable<Ship> orderedEnumerable1 = ((IEnumerable<Ship>)list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.CargoSpaceMax));
-                    Array<Ship> list3 = new Array<Ship>();
-                    foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable1)
-                    {
-                        if (!ship.isColonyShip && (double)ship.CargoSpaceMax >= (double)((IEnumerable<Ship>)orderedEnumerable1).First<Ship>().CargoSpaceMax)
-                            list3.Add(ship);
-                    }
-                    IOrderedEnumerable<Ship> orderedEnumerable2 = (list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.WarpThrust / ship.Mass));
-                    if (!(orderedEnumerable2).Any())
+                    if (civilianFreighters.IsEmpty)
                         return GoalStep.TryAgain;
+
+                    Ship[] orderedByCargoSpace = civilianFreighters.OrderByDescending(ship => ship.CargoSpaceMax).ToArray();
+
+                    var bestCargoShips = new Array<Ship>();
+                    foreach (Ship ship in orderedByCargoSpace)
+                    {
+                        if (ship.CargoSpaceMax >= orderedByCargoSpace[0].CargoSpaceMax)
+                            bestCargoShips.Add(ship);
+                    }
+
+                    Ship fastestWarpSpeed = bestCargoShips.FindMax(ship => ship.WarpThrust / ship.Mass);
                     planet1.ConstructionQueue.Add(new QueueItem()
                     {
                         isShip = true,
                         QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = ResourceManager.ShipsDict[(orderedEnumerable2).First<Ship>().Name].GetShipData(),
+                        sData = fastestWarpSpeed.GetShipData(),
                         Goal = this,
-                        Cost = ResourceManager.ShipsDict[(orderedEnumerable2).First<Ship>().Name].GetCost(this.empire)
+                        Cost = fastestWarpSpeed.GetCost(empire)
                     });
                     return GoalStep.GoToNextStep;
                 }

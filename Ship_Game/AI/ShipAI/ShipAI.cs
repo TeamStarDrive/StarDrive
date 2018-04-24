@@ -54,12 +54,8 @@ namespace Ship_Game.AI
                 return;
             }
             if (TargetPlanet.Owner != null || !TargetPlanet.Habitable)
-            {                
-                if (ColonizeGoal != null)
-                {					
-                    ColonizeGoal.Step += 1;
-                    Owner.loyalty.GetGSAI().Goals.QueuePendingRemoval(ColonizeGoal);
-                }
+            {
+                ColonizeGoal?.NotifyMainGoalCompleted();
                 State = AIState.AwaitingOrders;
                 OrderQueue.Clear();
                 return;
