@@ -20,7 +20,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 OrderShipForColonization,
-                ThisStepIsWeird,
+                EnsureBuildingColonyShip,
                 Step2,
                 FinalStep
             };
@@ -33,7 +33,29 @@ namespace Ship_Game.Commands.Goals
             colonyShip = null;
         }
 
+        private static int GetConstructionQueueTurnsRemaining(Planet p)
+        {
+            int totalTurns = 0;
+            foreach (QueueItem queueItem in p.ConstructionQueue)
+            {
+                float remainingWork = queueItem.Cost - queueItem.productionTowards;
+                int turnsUntilItemComplete = (int)(remainingWork / p.NetProductionPerTurn);
+                totalTurns += turnsUntilItemComplete;
 
+            }
+            return totalTurns;
+        }
+
+        private static Planet FindPlanetForConstruction(Empire e)
+        {
+            var candidates = new Array<Planet>();
+            foreach (Planet p in e.GetPlanets())
+            {
+                if (p.HasShipyard && p.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
+                    candidates.Add(p);
+            }
+            return candidates.FindMin(p => GetConstructionQueueTurnsRemaining(p));
+        }
 
         private bool IsValid()
         {
@@ -84,21 +106,15 @@ namespace Ship_Game.Commands.Goals
                 }
             }
             
-            
-
             if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
                 empire.data.DiplomaticPersonality.Trustworthiness < 50)
             {
 
-                var tohold = new Array<Goal>
-                {
-                    this
-                };
+                var tohold = new Array<Goal> { this };
                 var task =
                     new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
                 {
                     empire.GetGSAI().TaskList.Add(task);
-
                 }
             }
 
@@ -117,121 +133,113 @@ namespace Ship_Game.Commands.Goals
                 empire.GetGSAI().TaskList.Add(militaryTask);
             }
             return true;
-
         }
 
         private GoalStep OrderShipForColonization()
         {
             if (!IsValid()) return GoalStep.GoalComplete;
             NeedsEscort();
-            bool flag1 = false;
-            foreach (Ship ship in empire.GetShips())
-            {
-                if (ship.isColonyShip && !ship.PlayerShip && (ship.AI != null && ship.AI.State != AIState.Colonize))
-                {
-                    this.colonyShip = ship;
-                    flag1 = true;
-                }
-            }
-            Planet planet1 = null;
-            if (!flag1)
-            {
-                Array<Planet> list = new Array<Planet>();
-                foreach (Planet planet2 in this.empire.GetPlanets())
-                {
-                    if (planet2.HasShipyard && planet2.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
-                        list.Add(planet2);
-                }
-                int num1 = 9999999;
-                foreach (Planet planet2 in list)
-                {
-                    int num2 = 0;
-                    foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
-                        num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.NetProductionPerTurn);
-                    if (num2 < num1)
-                    {
-                        num1 = num2;
-                        planet1 = planet2;
-                    }
-                }
-                if (planet1 == null)
-                    return GoalStep.TryAgain;
-                if (this.empire.isPlayer && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoColony))
-                {
-                    planet1.ConstructionQueue.Add(new QueueItem()
-                    {
-                        isShip = true,
-                        QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoColony].GetShipData(),
-                        Goal = this,
-                        Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoColony].GetCost(this.empire)
-                    });
-                    this.PlanetBuildingAt = planet1;
-                    return GoalStep.GoToNextStep;
-                }
-                else
-                {
-                    QueueItem queueItem = new QueueItem();
-                    queueItem.isShip = true;
-                    queueItem.QueueNumber = planet1.ConstructionQueue.Count;
-                    if (ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultColonyShip))
-                        queueItem.sData = ResourceManager.ShipsDict[this.empire.data.DefaultColonyShip].GetShipData();
-                    else
-                    {
-                        queueItem.sData = ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultColonyShip].GetShipData();
-                        this.empire.data.DefaultColonyShip = ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultColonyShip;
-                    }
-                    queueItem.Goal = this;
-                    queueItem.NotifyOnEmpty = false;
-                    queueItem.Cost = ResourceManager.ShipsDict[this.empire.data.DefaultColonyShip].GetCost(this.empire);
-                    planet1.ConstructionQueue.Add(queueItem);
-                    this.PlanetBuildingAt = planet1;
-                    return GoalStep.GoToNextStep;
-                }
-            }
-            else
+
+            colonyShip = FindIdleColonyShip();
+            if (colonyShip != null)
             {
                 Step = 2;
                 return Steps[Step]();
             }
+
+            Planet planet = FindPlanetForConstruction(empire);
+            if (planet == null)
+                return GoalStep.TryAgain;
+
+            if (empire.isPlayer && ResourceManager.ShipsDict.TryGetValue(empire.data.CurrentAutoColony, out Ship autoColony))
+            {
+                planet.ConstructionQueue.Add(new QueueItem
+                {
+                    isShip = true,
+                    QueueNumber = planet.ConstructionQueue.Count,
+                    sData = autoColony.GetShipData(),
+                    Goal = this,
+                    Cost = autoColony.GetCost(empire)
+                });
+                PlanetBuildingAt = planet;
+                return GoalStep.GoToNextStep;
+            }
+            else
+            {
+                Ship shipTypeToBuild = ResourceManager.ShipsDict[empire.data.DefaultColonyShip];
+                planet.ConstructionQueue.Add(new QueueItem
+                {
+                    isShip = true,
+                    QueueNumber = planet.ConstructionQueue.Count,
+                    sData = shipTypeToBuild.GetShipData(),
+                    Goal = this,
+                    Cost = shipTypeToBuild.GetCost(empire),
+                    NotifyOnEmpty = false, // @todo wtf is this???
+                });
+                PlanetBuildingAt = planet;
+                return GoalStep.GoToNextStep;
+            }
         }
 
-        private GoalStep ThisStepIsWeird() //Weird because build completion is handled externally. need to fix that.
+        private bool IsPlanetBuildingColonyShip()
+        {
+            if (PlanetBuildingAt == null)
+                return false;
+            foreach (QueueItem queueItem in PlanetBuildingAt.ConstructionQueue)
+                if (queueItem.isShip && ResourceManager.ShipsDict[queueItem.sData.Name].isColonyShip)
+                    return true;
+            return false;
+        }
+
+        private GoalStep EnsureBuildingColonyShip()
         {
             if (!IsValid()) return GoalStep.GoalComplete;
             if (!HasEscort) NeedsEscort();
-            if (this.PlanetBuildingAt != null)
-                foreach (QueueItem queueItem in PlanetBuildingAt.ConstructionQueue)
-                {
-                    if (queueItem.isShip && ResourceManager.ShipsDict[queueItem.sData.Name].isColonyShip)
-                        return GoalStep.TryAgain;
-                }
+            if (!IsPlanetBuildingColonyShip())
+            {
+                PlanetBuildingAt = null;
+                return GoalStep.RestartGoal;
+            }
+            if (markedPlanet.Owner == null)
+                return GoalStep.TryAgain;
+
+            foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
+                empire.GetGSAI().CheckClaim(them, markedPlanet);
+            return GoalStep.GoalComplete;
 
             this.PlanetBuildingAt = (Planet) null;
             return GoalStep.RestartGoal;
+        }
+
+        private Ship FindIdleColonyShip()
+        {
+            if (colonyShip != null)
+                return colonyShip;
+
+            foreach (Ship ship in empire.GetShips())
+                if (ship.isColonyShip && !ship.PlayerShip && (ship.AI != null && ship.AI.State != AIState.Colonize))
+                    return ship;
+
+            return null;
         }
 
         private GoalStep Step2()
         {
             if (!IsValid()) return GoalStep.GoalComplete;
             if (!HasEscort) NeedsEscort();
-            bool flag3;
-            if (colonyShip != null)
+            if (markedPlanet.Owner != null) // Planet is owned by someone?
             {
-                this.colonyShip.DoColonize(this.markedPlanet, this);
-                return GoalStep.GoToNextStep;
+                foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
+                    empire.GetGSAI().CheckClaim(them, markedPlanet);
+                return GoalStep.TryAgain;
             }
-            
-            foreach (Ship ship in empire.GetShips())
-            {
-                if (!ship.isColonyShip || ship.PlayerShip ||
-                    (ship.AI == null || ship.AI.State == AIState.Colonize)) continue;
-                colonyShip = ship;
-                colonyShip.DoColonize(markedPlanet, this);
-                return GoalStep.GoToNextStep;
-            }
-            return GoalStep.RestartGoal;
-         
+
+            colonyShip = FindIdleColonyShip();
+            if (colonyShip == null)
+                return GoalStep.RestartGoal;
+
+            colonyShip.DoColonize(markedPlanet, this);
+            return GoalStep.GoToNextStep;
         }
 
         private GoalStep FinalStep()
@@ -239,21 +247,20 @@ namespace Ship_Game.Commands.Goals
             if (!HasEscort && NeedsEscort())
                 return GoalStep.TryAgain;
             if (!IsValid()) return GoalStep.GoalComplete;
-            if (this.colonyShip == null)
-            {
+
+            if (colonyShip == null) // @todo This is a workaround for a bug
                 return GoalStep.RestartGoal;
-            }
-            if (this.colonyShip != null && this.colonyShip.Active && this.colonyShip.AI.State != AIState.Colonize)
-            {
+            if (colonyShip != null && colonyShip.Active && colonyShip.AI.State != AIState.Colonize)
                 return GoalStep.RestartGoal;
-            }
-            if (this.colonyShip != null && !this.colonyShip.Active && this.markedPlanet.Owner == null)
-            {
+            if (colonyShip != null && !colonyShip.Active && markedPlanet.Owner == null)
                 return GoalStep.RestartGoal;
-            }
-            
-            return GoalStep.TryAgain;
-            
+            if (markedPlanet.Owner == null)
+                return GoalStep.TryAgain;
+
+            foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
+                empire.GetGSAI().CheckClaim(them, markedPlanet);
+            colonyShip.AI.State = AIState.AwaitingOrders;
+            return GoalStep.GoalComplete;
         }
     }
 }
