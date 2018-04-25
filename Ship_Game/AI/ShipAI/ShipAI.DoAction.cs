@@ -113,7 +113,7 @@ namespace Ship_Game.AI {
         }
         private void DoAttackRun(float elapsedTime)
         {
-            float spacerdistance = Owner.Radius  + Target.Radius;
+            float spacerdistance = Owner.Radius + Target.Radius;
             float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
             if (spacerdistance > adjustedWeaponRange)
                 spacerdistance = adjustedWeaponRange;
@@ -166,9 +166,11 @@ namespace Ship_Game.AI {
             }
             if (distanceToTarget < Owner.maxWeaponsRange)
             {
-                var behind = Target.FindVectorBehindTarget(Owner.maxWeaponsRange);
-                AttackVector = behind.PointFromAngle(AttackRunAngle, spacerdistance);
-                var attackSetup = Owner.Center.DirectionToTarget(AttackVector);
+                //var behind     = Target.FindVectorBehindTarget(Owner.maxWeaponsRange);
+                //AttackVector   = behind.PointFromAngle(AttackRunAngle, spacerdistance);
+                var strafeVector = Target.FindStrafeVectorFromTarget(Owner.maxWeaponsRange, 180);
+                AttackVector     = strafeVector.PointFromAngle(AttackRunAngle, spacerdistance);
+                var attackSetup  = Owner.Center.DirectionToTarget(AttackVector);
                 MoveInDirection(attackSetup, elapsedTime);
                 DebugTargetCircle(AttackVector, spacerdistance);
                 //if (RunTimer < 3)
