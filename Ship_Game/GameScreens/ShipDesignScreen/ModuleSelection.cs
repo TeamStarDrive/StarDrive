@@ -569,7 +569,7 @@ namespace Ship_Game
             // FB: if the module has power draw at warp modifer, show this to the player and use the correct forumla
             // FB: This should be checked as a method, but right now ShipDesignScreenDraw.cs is not refactored and its hard to do it. 
             float actualWarpPowerDraw = -(mod.PowerDraw * EmpireManager.Player.data.FTLPowerDrainModifier + mod.PowerDrawAtWarp / (2 / EmpireManager.Player.data.FTLPowerDrainModifier));
-            DrawStat(ref modTitlePos, Localizer.Token(6011), (float)actualWarpPowerDraw, 178);
+            DrawStat(ref modTitlePos, Localizer.Token(6011), (float)(actualWarpPowerDraw), 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
             {
