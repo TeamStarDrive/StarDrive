@@ -17,8 +17,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                DummyStepTryAgain,
-                DummyStepGoalComplete,
+                WaitMainGoalCompletion,
             };
         }
         public BuildTroop(Troop toCopy, Empire owner, Planet p) : this()
@@ -26,23 +25,21 @@ namespace Ship_Game.Commands.Goals
             PlanetBuildingAt = p;
             ToBuildUID = toCopy.Name;
             empire = owner;
+            if (ToBuildUID.IsEmpty())
+                Log.Warning("Missing Troop {0}", ToBuildUID);
         }
 
         private GoalStep FindPlanetToBuildAt()
         {
-            if (ToBuildUID != null)
+            Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
+            PlanetBuildingAt.ConstructionQueue.Add(new QueueItem
             {
-                Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-                PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
-                {
-                    isTroop = true,
-                    QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
-                    troopType = ToBuildUID,
-                    Goal = this,
-                    Cost = troopTemplate.GetCost()
-                });
-            }
-            else Log.Info("Missing Troop {0}", ToBuildUID);
+                isTroop = true,
+                QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
+                troopType = ToBuildUID,
+                Goal = this,
+                Cost = troopTemplate.GetCost()
+            });
             return GoalStep.GoToNextStep;
         }
     }
