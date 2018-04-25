@@ -1370,14 +1370,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float GetActualWarpDraw()
-        {
-            /* FB: This calc is funky, im not sure why its calculated like that in total warp power draw of the ship if this property is actually set,
-             but this is the formula. Need to investigate this in the future. */
-            float actualWarpPowerDraw = -(PowerDraw * EmpireManager.Player.data.FTLPowerDrainModifier + PowerDrawAtWarp / (2 / EmpireManager.Player.data.FTLPowerDrainModifier));
-            return actualWarpPowerDraw;
-        }
-
         public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}  Ship={Parent?.Name}";
     }
 }
