@@ -88,6 +88,9 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep KeepBeggingForProductionOfOurShipItem()
         {
+            if (MainGoalCompleted) // @todo Refactor this messy logic
+                return GoalStep.GoToNextStep;
+
             if (PlanetBuildingAt == null || PlanetBuildingAt.ConstructionQueue.Count == 0)
                 return GoalStep.TryAgain;
             if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
