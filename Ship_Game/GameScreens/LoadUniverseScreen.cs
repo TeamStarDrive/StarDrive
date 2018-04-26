@@ -692,7 +692,7 @@ namespace Ship_Game
                     {
                         foreach (Planet p1 in s.PlanetList)
                         {
-                            if (p1.guid != rsave.Planet.guid) continue;
+                            if (p1.guid != rsave.Planet?.guid) continue;
                             p = p1;
                             break;
                         }

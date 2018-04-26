@@ -121,8 +121,7 @@ namespace Ship_Game.AI
             GameplayObject priorityTarget = null;           
             FriendliesNearby.Clear();
             PotentialTargets.Clear();
-            NearbyShips.Clear();
-            //this.TrackProjectiles.Clear();
+            NearByShips.Clear();
             
 
 
@@ -173,19 +172,18 @@ namespace Ship_Game.AI
             {
                 if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
                 {
-                    var sw = new ShipWeight
-                    {
-                        Ship = EscortTarget.AI.Target as Ship,
-                        Weight = 2f
-                    };
-                    NearbyShips.Add(sw);
+                    var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
+                    
+                    NearByShips.Add(sw);
                 }
                 GameplayObject[] nearbyShips = Owner.GetObjectsInSensors(GameObjectType.Ship);
-                foreach (var go in nearbyShips)
+                for (int x = 0; x < nearbyShips.Length; x++)
                 {
-                    var nearbyShip = (Ship)go;
+                    var go = nearbyShips[x];
+                    var nearbyShip = (Ship) go;
                     if (!nearbyShip.Active || nearbyShip.dying
-                        || Owner.Center.OutsideRadius(nearbyShip.Center, radius + (radius < 0.01f ? 10000 : 0)))
+                                           || Owner.Center.OutsideRadius(nearbyShip.Center,
+                                               radius + (radius < 0.01f ? 10000 : 0)))
                         continue;
 
                     Empire empire = nearbyShip.loyalty;
@@ -194,68 +192,38 @@ namespace Ship_Game.AI
                         FriendliesNearby.Add(nearbyShip);
                         continue;
                     }
+
                     bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
                     if (!isAttackable) continue;
-                    armorAvg  += nearbyShip.armor_max;
+                    armorAvg += nearbyShip.armor_max;
                     shieldAvg += nearbyShip.shield_max;
-                    dpsAvg    += nearbyShip.GetDPS();
-                    sizeAvg   += nearbyShip.Size;
-                    BadGuysNear       = true;
+                    dpsAvg += nearbyShip.GetDPS();
+                    sizeAvg += nearbyShip.Size;
+                    BadGuysNear = true;
                     if (radius < 1)
                         continue;
-                    var sw            = new ShipWeight
-                    {
-                        Ship = nearbyShip,
-                        Weight = 1f
-                    };
-                    NearbyShips.Add(sw);
+                    var sw = new ShipWeight(nearbyShip, 1);
+
 
                     if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
                         nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                     {
-                        sw.Weight = 3f;
+                        sw += 3f;
                     }
+
+                    NearByShips.Add(sw);
                 }
             }
-            armorAvg /= NearbyShips.Count + .01f;
-            shieldAvg /= NearbyShips.Count + .01f;
-            dpsAvg /= NearbyShips.Count + .01f;
+           
 
             SupplyShuttleLaunch();
             if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
                 OrderScrapShip(); //Destroy shuttle without mothership
 
-            
-          
-            for (int i = 0; i < NearbyShips.Count; i++)
-            {
-                ShipWeight nearbyShip = NearbyShips[i];
-                if (nearbyShip.Ship.loyalty != Owner.loyalty)
-                {
-                    nearbyShip.Weight += CombatAI.ApplyWeight(nearbyShip.Ship);
-                    if (Owner.fleet == null || FleetNode == null) continue;
+            SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
-                    if (!Intercepting && nearbyShip.Ship.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius) )
-                    {
-                        nearbyShip.Weight = -100;
-                        continue;
-                    }
-
-                    nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);                    
-                    nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.shield_power, shieldAvg, FleetNode.AttackShieldedWeight);
-                    nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
-                    nearbyShip.Weight += FleetNode.ApplyWeight(nearbyShip.Ship.Size, sizeAvg, FleetNode.SizeWeight);
-                    nearbyShip.Weight += FleetNode.ApplyFleetWeight(Owner.fleet, nearbyShip.Ship);
-                    
-                }
-                else
-                {
-                    NearbyShips.QueuePendingRemoval(nearbyShip);
-                }
-            }
-
-            NearbyShips.ApplyPendingRemovals();
-            ShipWeight[] sortedList2 = NearbyShips.FilterBy(weight=> weight.Weight > -100).OrderByDescending(weight => weight.Weight).ToArray();
+            ShipWeight[] sortedList2 = NearByShips.FilterBy(weight=> weight.Weight > -100)
+                .OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
             if (Owner.fleet != null)
@@ -266,14 +234,13 @@ namespace Ship_Game.AI
                     PotentialTargets.AddUniqueRef(ship);
             }
 
-            if (Target != null && !Target.Active)
+            if (Target?.Active != true)
             {
                 Target = null;
                 HasPriorityTarget = false;
             }
-            else if (Target != null && Target.Active && HasPriorityTarget)
-            {
-                var ship = Target as Ship;
+            else if (Target?.Active == true && HasPriorityTarget && Target is Ship ship)
+            {                
                 if (Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
                     BadGuysNear = true;
                 return Target;
@@ -286,119 +253,157 @@ namespace Ship_Game.AI
             return null;
         }
 
+        private void SetTargetWeights(float armorAvg, float shieldAvg, float dpsAvg, float sizeAvg)
+        {
+            armorAvg /= NearByShips.Count + .01f;
+            shieldAvg /= NearByShips.Count + .01f;
+            dpsAvg /= NearByShips.Count + .01f;
+
+            for (int i = NearByShips.Count - 1; i >= 0; i--)
+            {
+                ShipWeight copyWeight = NearByShips[i]; //Remember we have a copy.
+                //if (copyWeight.Ship.loyalty != Owner.loyalty)
+                //{
+                //    NearByShips.RemoveAtSwapLast(i);
+                //    continue;
+                //}
+
+                copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
+                if (Owner.fleet == null || FleetNode == null) continue;
+                if (FleetNode.OrdersRadius < 1f) FleetNode.OrdersRadius = Owner.SensorRange;
+                if (!Intercepting && copyWeight.Ship.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius))
+                {
+                    copyWeight.SetWeight(-100); //Hrmm. Dont know how to simply assign a value with operator
+                    NearByShips[i] = copyWeight;
+                    continue;
+                }
+
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
+                    FleetNode.AttackShieldedWeight);
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.Size, sizeAvg, FleetNode.SizeWeight);
+                copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
+                //ShipWiegth is a struct so we are working with a copy. Need to overwrite existing value. 
+                NearByShips[i] = copyWeight;
+            }
+        }
+
         private void SupplyShuttleLaunch()
         {
             //fbedard: for launch only
 
-            if (Owner.GetHangars().Find(hangar => hangar.IsSupplyBay) != null &&
-                Owner.engineState != Ship.MoveState.Warp) // && !this.Owner.isSpooling
+            if (Owner.engineState == Ship.MoveState.Warp ||!Owner.HasSupplyBays ) return;
+
+            Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship != Owner
+                                                                  && ship.engineState   != Ship.MoveState.Warp
+                                                                  && ship.AI.State      != AIState.Scrap
+                                                                  && ship.AI.State      != AIState.Resupply
+                                                                  && ship.AI.State      != AIState.Refit
+                                                                  && ship.Mothership    == null
+                                                                  && ship.OrdinanceMax > 0
+                                                                  && ship.Ordinance / ship.OrdinanceMax < 0.5f
+                                                                  && !ship.IsTethered()
+                                                                  && ship.shipData.Role != ShipData.RoleName.supply)
+                .OrderBy(ship => Math.Truncate(Vector2.Distance(Owner.Center, ship.Center) + 4999) / 5000)
+                .ThenByDescending(ship => ship.OrdinanceMax - ship.Ordinance).ToArray();
+
+            if (sortedList.Length <= 0) return;
+            if (!Owner.HasSupplyBays) return;
+
+            var skip = 0;
+            var inboundOrdinance = 0f;
+
+            foreach (ShipModule hangar in Owner.GetHangars().FilterBy(hangar => hangar.IsSupplyBay))
             {
-                Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship != Owner
-                                                                      && ship.engineState != Ship.MoveState.Warp
-                                                                      && ship.AI.State != AIState.Scrap
-                                                                      && ship.AI.State != AIState.Resupply
-                                                                      && ship.AI.State != AIState.Refit
-                                                                      && ship.Mothership == null
-                                                                      && ship.OrdinanceMax > 0
-                                                                      && ship.Ordinance / ship.OrdinanceMax < 0.5f
-                                                                      && !ship.IsTethered()
-                                                                      && ship.shipData.Role != ShipData.RoleName.supply)
-                    .OrderBy(ship => Math.Truncate(Vector2.Distance(Owner.Center, ship.Center) + 4999) / 5000)
-                    .ThenByDescending(ship => ship.OrdinanceMax - ship.Ordinance).ToArray();
-//                      .OrderBy(ship => ship.HasSupplyBays).ThenBy(ship => ship.OrdAddedPerSecond).ThenBy(ship => Math.Truncate((Vector2.Distance(this.Owner.Center, ship.Center) + 4999)) / 5000).ThenBy(ship => ship.OrdinanceMax - ship.Ordinance);
-
-                if (sortedList.Length > 0)
+                if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
                 {
-                    var skip = 0;
-                    var inboundOrdinance = 0f;
-                    if (Owner.HasSupplyBays)
-                        foreach (ShipModule hangar in Owner.GetHangars().Where(hangar => hangar.IsSupplyBay))
+                    if (hangar.GetHangarShip().AI.State != AIState.Ferrying &&
+                        hangar.GetHangarShip().AI.State != AIState.ReturnToHangar &&
+                        hangar.GetHangarShip().AI.State != AIState.Resupply &&
+                        hangar.GetHangarShip().AI.State != AIState.Scrap)
+                    {
+                        if (sortedList[skip] != null)
                         {
-                            if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
-                            {
-                                if (hangar.GetHangarShip().AI.State != AIState.Ferrying &&
-                                    hangar.GetHangarShip().AI.State != AIState.ReturnToHangar &&
-                                    hangar.GetHangarShip().AI.State != AIState.Resupply &&
-                                    hangar.GetHangarShip().AI.State != AIState.Scrap)
-                                {
-                                    if (sortedList[skip] != null)
-                                    {
-                                        var g1 = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-                                        hangar.GetHangarShip().AI.EscortTarget = sortedList[skip];
+                            var g1 = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
+                            hangar.GetHangarShip().AI.EscortTarget = sortedList[skip];
 
-                                        hangar.GetHangarShip().AI.IgnoreCombat = true;
-                                        hangar.GetHangarShip().AI.OrderQueue.Clear();
-                                        hangar.GetHangarShip().AI.OrderQueue.Enqueue(g1);
-                                        hangar.GetHangarShip().AI.State = AIState.Ferrying;
-                                        continue;
-                                    }
-                                    //hangar.GetHangarShip().QueueTotalRemoval();
-                                    hangar.GetHangarShip().AI.State =
-                                        AIState.ReturnToHangar; //shuttle with no target
-                                    continue;
-                                }
-                                if (sortedList[skip] != null &&
-                                    hangar.GetHangarShip().AI.EscortTarget == sortedList[skip] &&
-                                    hangar.GetHangarShip().AI.State == AIState.Ferrying)
-                                {
-                                    inboundOrdinance = inboundOrdinance + 100f;
-                                    if ((inboundOrdinance + sortedList[skip].Ordinance) /
-                                        sortedList[skip].OrdinanceMax > 0.5f)
-                                    {
-                                        if (skip >= sortedList.Length - 1)
-                                            return; ;
-                                        skip++;
-                                        inboundOrdinance = 0;
-                                    }
-                                }
-                                continue;
-                            }
-                            if (hangar.hangarShipUID.IsEmpty())
-                            {
-                                hangar.hangarShipUID = "Supply_Shuttle";
-
-                            }
-                            var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);                            
-                            if (!hangar.Active || hangar.hangarTimer > 0f ||
-                                Owner.Ordinance <= 100f || sortedList[skip] == null)
-                                continue;
-
-                            if (supplyShuttle.Mass / 5f >
-                                Owner.Ordinance) //fbedard: New spawning cost
-                                continue;
-                            Ship shuttle =
-                                Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
-                                                     
-                            
-                            //shuttle.GetAI().DefaultAIState = AIState.Flee;
-                            shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
-                            if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
-                                shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
-                            Owner.Ordinance -= shuttle.Mass / 5f;
-
-                            if (Owner.Ordinance >= 100f)
-                            {
-                                inboundOrdinance = inboundOrdinance + 100f;
-                                Owner.Ordinance = Owner.Ordinance - 100f;
-                                hangar.SetHangarShip(shuttle);
-                                var g = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-                                shuttle.AI.EscortTarget = sortedList[skip];
-                                shuttle.AI.IgnoreCombat = true;
-                                shuttle.AI.OrderQueue.Clear();
-                                shuttle.AI.OrderQueue.Enqueue(g);
-                                shuttle.AI.State = AIState.Ferrying;
-                            }
-                            else //fbedard: Go fetch ordinance when mothership is low on ordinance
-                            {
-                                shuttle.Ordinance = 0f;
-                                hangar.SetHangarShip(shuttle);
-                                shuttle.AI.IgnoreCombat = true;
-                                shuttle.AI.State = AIState.Resupply;
-                                shuttle.AI.OrderResupplyNearest(true);
-                            }
-                            break;
+                            hangar.GetHangarShip().AI.IgnoreCombat = true;
+                            hangar.GetHangarShip().AI.OrderQueue.Clear();
+                            hangar.GetHangarShip().AI.OrderQueue.Enqueue(g1);
+                            hangar.GetHangarShip().AI.State = AIState.Ferrying;
+                            continue;
                         }
+
+                        //hangar.GetHangarShip().QueueTotalRemoval();
+                        hangar.GetHangarShip().AI.State =
+                            AIState.ReturnToHangar; //shuttle with no target
+                        continue;
+                    }
+
+                    if (sortedList[skip] != null &&
+                        hangar.GetHangarShip().AI.EscortTarget == sortedList[skip] &&
+                        hangar.GetHangarShip().AI.State == AIState.Ferrying)
+                    {
+                        inboundOrdinance = inboundOrdinance + 100f;
+                        if ((inboundOrdinance + sortedList[skip].Ordinance) /
+                            sortedList[skip].OrdinanceMax > 0.5f)
+                        {
+                            if (skip >= sortedList.Length - 1)
+                                return;
+                            ;
+                            skip++;
+                            inboundOrdinance = 0;
+                        }
+                    }
+
+                    continue;
                 }
+
+                if (hangar.hangarShipUID.IsEmpty())                        
+                    hangar.hangarShipUID = "Supply_Shuttle";
+                        
+
+                var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
+                if (!hangar.Active || hangar.hangarTimer > 0f ||
+                    Owner.Ordinance <= 100f || sortedList[skip] == null)
+                    continue;
+
+                if (supplyShuttle.Mass / 5f >
+                    Owner.Ordinance) //fbedard: New spawning cost
+                    continue;
+                Ship shuttle =
+                    Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
+
+
+                //shuttle.GetAI().DefaultAIState = AIState.Flee;
+                shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
+                if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
+                    shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
+                Owner.Ordinance -= shuttle.Mass / 5f;
+
+                if (Owner.Ordinance >= 100f)
+                {
+                    inboundOrdinance        = inboundOrdinance + 100f;
+                    Owner.Ordinance         = Owner.Ordinance - 100f;
+                    hangar.SetHangarShip(shuttle);
+                    var g                   = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
+                    shuttle.AI.EscortTarget = sortedList[skip];
+                    shuttle.AI.IgnoreCombat = true;
+                    shuttle.AI.OrderQueue.Clear();
+                    shuttle.AI.OrderQueue.Enqueue(g);
+                    shuttle.AI.State        = AIState.Ferrying;
+                }
+                else //fbedard: Go fetch ordinance when mothership is low on ordinance
+                {
+                    shuttle.Ordinance       = 0f;
+                    hangar.SetHangarShip(shuttle);
+                    shuttle.AI.IgnoreCombat = true;
+                    shuttle.AI.State        = AIState.Resupply;
+                    shuttle.AI.OrderResupplyNearest(true);
+                }
+
+                break;
             }
         }
 
@@ -549,14 +554,29 @@ namespace Ship_Game.AI
         }
 
 
-        public class ShipWeight
+        public struct ShipWeight
         {
             public Ship Ship;
-
             public float Weight;
-            public bool DefendEscort;
 
-            public ShipWeight() {}
+            public ShipWeight(Ship ship, float weight = 0)
+            {
+                Ship = ship;
+                Weight = weight;                
+            }
+            public ShipWeight(GameplayObject gamePlayObject, float weight = 0) : this(gamePlayObject as Ship, weight) { }            
+            
+            //We can just say shipWieght += 2 to add 2 the shipweight
+            public static ShipWeight operator + (ShipWeight shipWeight, float weight) => new ShipWeight(shipWeight.Ship, shipWeight.Weight + weight);            
+            
+            //same this for a ship although... seems silly since im not "adding" a ship.
+            public static ShipWeight operator +(ShipWeight shipWeight, Ship ship) => new ShipWeight(ship, shipWeight.Weight);
+
+            //i dont know how overload the "=" operator and keep the ship. 
+            public void SetWeight(float weight) => Weight = weight;
+            
+
+
         }
     }
 }
