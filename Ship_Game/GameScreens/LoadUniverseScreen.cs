@@ -565,12 +565,7 @@ namespace Ship_Game
                         && !ResourceManager.ShipsDict.ContainsKey(gsave.ToBuildUID))
                         continue;
 
-                    Goal g = Goal.CreateInstance(gsave.GoalName);
-                    g.empire        = e;
-                    g.ToBuildUID    = gsave.ToBuildUID;
-                    g.Step          = gsave.GoalStep;
-                    g.guid          = gsave.GoalGuid;
-                    g.BuildPosition = gsave.BuildPosition;
+                    Goal g = Goal.Deserialize(gsave.GoalName, e, gsave);
                     if (gsave.fleetGuid != Guid.Empty)
                     {
                         foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
@@ -697,7 +692,7 @@ namespace Ship_Game
                     {
                         foreach (Planet p1 in s.PlanetList)
                         {
-                            if (p1.guid != rsave.Planet.guid) continue;
+                            if (p1.guid != rsave.Planet?.guid) continue;
                             p = p1;
                             break;
                         }

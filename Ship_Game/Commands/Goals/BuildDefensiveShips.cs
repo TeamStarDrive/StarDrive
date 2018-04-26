@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildDefensiveShipsAt,
-                DummyStepTryAgain,
+                WaitMainGoalCompletion,
                 OrderBuiltShipToDefend
             };
         }
@@ -72,9 +72,9 @@ namespace Ship_Game.Commands.Goals
             {
                 isShip = true,
                 QueueNumber = planet1.ConstructionQueue.Count,
-                sData = this.beingBuilt.GetShipData(),
+                sData = beingBuilt.GetShipData(),
                 Goal = this,
-                Cost = this.beingBuilt.GetCost(this.empire)
+                Cost = beingBuilt.GetCost(empire)
             });
             return GoalStep.GoToNextStep;
         }

@@ -292,6 +292,7 @@ namespace Ship_Game.Ships
 
         public void DrawRepairDrones(UniverseScreen screen)
         {
+            if (projectiles == null) return;
             try //very bad but the UI thread calls this and it is occasionally null. 
             {                
                 for (int i = projectiles.Count - 1; i >= 0; i--)
@@ -308,12 +309,13 @@ namespace Ship_Game.Ships
             catch
             {
                 string projectilesCount = projectiles?.Count.ToString() ?? "Null";
-                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering in ship {Name ?? "null"} ProjectileCount:  {projectilesCount}");
+                Log.Error($"Goes with Bug #1404 : Repair Drone died while rendering");
             }
         }
 
         public void DrawBeams(UniverseScreen screen)
         {
+            if (Beams == null) return;
             try
             {
                 for (int i = Beams.Count - 1; i >= 0; --i) // regular FOR to mitigate multi-threading issues
@@ -331,7 +333,7 @@ namespace Ship_Game.Ships
             }
             catch
             {
-                Log.Info($"Goes with Bug #1404 : Beam Killed while rendering {Name ?? "null"} beams in ship {Beams?.Count.ToString() ?? "Null"}");
+                Log.Info($"Goes with Bug #1404 : Beam Killed while rendering ");
             }
         }
 
