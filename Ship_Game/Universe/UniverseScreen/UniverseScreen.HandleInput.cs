@@ -347,7 +347,7 @@ namespace Ship_Game
             for (int index = SelectedShipList.Count - 1; index >= 0; --index)
             {
                 Ship ship = SelectedShipList[index];
-                if (!ship.Active)
+                if (ship?.Active != true)
                     SelectedShipList.RemoveSwapLast(ship);
             }
             // CG: previous target code. 

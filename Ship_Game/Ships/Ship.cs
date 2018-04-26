@@ -741,7 +741,7 @@ namespace Ship_Game.Ships
             AI.start = null;
             AI.end = null;
             AI.PotentialTargets.Clear();
-            AI.NearbyShips.Clear();
+            AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
 
             if (Mothership != null)
@@ -2786,7 +2786,7 @@ namespace Ship_Game.Ships
             AI.end                           = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
-            AI.NearbyShips.Clear();
+            AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
             Empire.Universe.MasterShipList.QueuePendingRemoval(this);
             AttackerTargetting.Clear();
