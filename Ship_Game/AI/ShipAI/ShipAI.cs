@@ -33,7 +33,7 @@ namespace Ship_Game.AI
         public SolarSystem ExplorationTarget;
         public AIState DefaultAIState                         = AIState.AwaitingOrders;        
         public SafeQueue<ShipGoal> OrderQueue                 = new SafeQueue<ShipGoal>();        
-        public BatchRemovalCollection<ShipWeight> NearbyShips = new BatchRemovalCollection<ShipWeight>();
+        public Array<ShipWeight> NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();        
         public object WayPointLocker;
 
@@ -54,12 +54,8 @@ namespace Ship_Game.AI
                 return;
             }
             if (TargetPlanet.Owner != null || !TargetPlanet.Habitable)
-            {                
-                if (ColonizeGoal != null)
-                {					
-                    ColonizeGoal.Step += 1;
-                    Owner.loyalty.GetGSAI().Goals.QueuePendingRemoval(ColonizeGoal);
-                }
+            {
+                ColonizeGoal?.NotifyMainGoalCompleted();
                 State = AIState.AwaitingOrders;
                 OrderQueue.Clear();
                 return;
@@ -346,16 +342,23 @@ namespace Ship_Game.AI
                     purge.ClearFireTarget();
 
                 if (Owner.GetHangars().Count > 0 && Owner.loyalty != UniverseScreen.player)
-                    foreach (ShipModule hangar in Owner.GetHangars())
+                {
+                    Array<ShipModule> array = Owner.GetHangars();
+                    for (int x = 0; x < array.Count; x++)
                     {
+                        ShipModule hangar = array[x];
                         if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
                             || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar)
                             continue;
                         hangar.GetHangarShip().AI.OrderReturnToHangar();
                     }
+                }
                 else if (Owner.GetHangars().Count > 0)
-                    foreach (ShipModule hangar in Owner.GetHangars())
+                {
+                    Array<ShipModule> array = Owner.GetHangars();
+                    for (int x = 0; x < array.Count; x++)
                     {
+                        ShipModule hangar = array[x];
                         if (hangar.IsTroopBay
                             || hangar.IsSupplyBay
                             || hangar.GetHangarShip() == null
@@ -366,6 +369,7 @@ namespace Ship_Game.AI
                             continue;
                         hangar.GetHangarShip().DoEscort(Owner);
                     }
+                }
             }
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear) //fbedard: civilian will evade
                 CombatState = CombatState.Evade;
@@ -373,15 +377,16 @@ namespace Ship_Game.AI
 
         private void AIStateRebase()
         {
-            if (State == AIState.Rebase)
-                foreach (ShipGoal goal in OrderQueue)
-                {
-                    if (goal.Plan != Plan.Rebase || goal.TargetPlanet == null || goal.TargetPlanet.Owner == Owner.loyalty)
-                        continue;
-                    OrderQueue.Clear();
-                    State = AIState.AwaitingOrders;
-                    break;
-                }
+            if (State != AIState.Rebase) return;
+            for (int x = 0; x < OrderQueue.Count; x++)
+            {
+                ShipGoal goal = OrderQueue[x];
+                if (goal.Plan != Plan.Rebase || goal.TargetPlanet == null || goal.TargetPlanet.Owner == Owner.loyalty)
+                    continue;
+                OrderQueue.Clear();
+                State = AIState.AwaitingOrders;
+                break;
+            }
         }
 
         private bool UpdateOrderQueueAI(float elapsedTime)
@@ -702,7 +707,9 @@ namespace Ship_Game.AI
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
                 if (Owner.hasTransporter)
-                    foreach (ShipModule module in Owner.Transporters)
+                    for (int x = 0; x < Owner.Transporters.Count; x++)
+                    {
+                        ShipModule module = Owner.Transporters[x];
                         if (module.TransporterTimer <= 0f && module.Active && module.Powered &&
                             module.TransporterPower < Owner.PowerCurrent)
                         {
@@ -711,31 +718,37 @@ namespace Ship_Game.AI
                             if (module.TransporterTroopAssault > 0 && Owner.TroopList.Any())
                                 DoAssaultTransporterLogic(module);
                         }
+                    }
+
                 //Do repair check if friendly ships around and no combat
-                if (!Owner.InCombat && FriendliesNearby.Count > 0)
+                if (Owner.InCombat || FriendliesNearby.Count <= 0) return;
+                //Added by McShooterz: logic for repair beams
+                if (Owner.hasRepairBeam)
+                    for (int x = 0; x < Owner.RepairBeams.Count; x++)
+                    {
+                        ShipModule module = Owner.RepairBeams[x];
+                        if (module.InstalledWeapon.CooldownTimer <= 0f &&
+                            module.InstalledWeapon.Module.Powered &&
+                            Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire &&
+                            Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
+                            DoRepairBeamLogic(module.InstalledWeapon);
+                    }
+
+                if (!Owner.HasRepairModule) return;
+                for (int x = 0; x < Owner.Weapons.Count; x++)
                 {
-                    //Added by McShooterz: logic for repair beams
-                    if (Owner.hasRepairBeam)
-                        foreach (ShipModule module in Owner.RepairBeams)
-                            if (module.InstalledWeapon.CooldownTimer <= 0f &&
-                                module.InstalledWeapon.Module.Powered &&
-                                Owner.Ordinance >= module.InstalledWeapon.OrdinanceRequiredToFire &&
-                                Owner.PowerCurrent >= module.InstalledWeapon.PowerRequiredToFire)
-                                DoRepairBeamLogic(module.InstalledWeapon);
-                    if (Owner.HasRepairModule)
-                        foreach (Weapon weapon in Owner.Weapons)
-                        {
-                            if (weapon.CooldownTimer > 0f || !weapon.Module.Powered ||
-                                Owner.Ordinance < weapon.OrdinanceRequiredToFire ||
-                                Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
-                            {
-                                //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
-                                if (weapon.CooldownTimer > 0f)
-                                    weapon.CooldownTimer = MathHelper.Max(weapon.CooldownTimer - 1, 0f);
-                                continue;
-                            }
-                            DoRepairDroneLogic(weapon);
-                        }
+                    Weapon weapon = Owner.Weapons[x];
+                    if (weapon.CooldownTimer > 0f || !weapon.Module.Powered ||
+                        Owner.Ordinance < weapon.OrdinanceRequiredToFire ||
+                        Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
+                    {
+                        //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
+                        if (weapon.CooldownTimer > 0f)
+                            weapon.CooldownTimer = MathHelper.Max(weapon.CooldownTimer - 1, 0f);
+                        continue;
+                    }
+
+                    DoRepairDroneLogic(weapon);
                 }
             }
         }
@@ -751,16 +764,20 @@ namespace Ship_Game.AI
 
         private void ResetStateFlee()
         {
-            if (State == AIState.Flee && !BadGuysNear && State != AIState.Resupply && !HasPriorityOrder)
-            {
-                if (OrderQueue.NotEmpty)
-                    OrderQueue.RemoveLast();
-                if (FoodOrProd == "Pass")
+            if (State != AIState.Flee || BadGuysNear || State == AIState.Resupply || HasPriorityOrder) return;
+            if (OrderQueue.NotEmpty)
+                OrderQueue.RemoveLast();
+            switch (FoodOrProd) {
+                case "Pass":
                     State = AIState.PassengerTransport;
-                else if (FoodOrProd == "Food" || FoodOrProd == "Prod")
+                    break;
+                case "Food":
+                case "Prod":
                     State = AIState.SystemTrader;
-                else
+                    break;
+                default:
                     State = DefaultAIState;
+                    break;
             }
         }
 
@@ -782,15 +799,15 @@ namespace Ship_Game.AI
         {
             if (!HasPriorityTarget)
                 TargetQueue.Clear();
-            var toRemove = new Array<Ship>();
-            foreach (Ship target in TargetQueue)
+            for (int x = TargetQueue.Count - 1; x >= 0; x--)
             {
+                Ship target = TargetQueue[x];
                 if (target.Active)
                     continue;
-                toRemove.Add(target);
+                TargetQueue.RemoveAtSwapLast(x);
+                
             }
-            foreach (Ship ship in toRemove)
-                TargetQueue.Remove(ship);
+
             
         }
 
@@ -885,7 +902,7 @@ namespace Ship_Game.AI
 
         private void Dispose(bool disposing)
         {
-            NearbyShips?.Dispose(ref NearbyShips);
+            NearByShips = null;
             FriendliesNearby?.Dispose(ref FriendliesNearby);
             OrderQueue?.Dispose(ref OrderQueue);
             PotentialTargets?.Dispose(ref PotentialTargets);

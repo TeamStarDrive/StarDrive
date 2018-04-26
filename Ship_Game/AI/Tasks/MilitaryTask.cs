@@ -51,25 +51,25 @@ namespace Ship_Game.AI.Tasks
             SetEmpire(ao.GetCoreFleet().Owner);
         }
 
-        public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner)
+        public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner, float str = 0) 
         {
             type = MilitaryTask.TaskType.ClearAreaOfEnemies;
             AO = location;
             AORadius = radius;
-
+            InitialEnemyStrength = str;
             foreach (Goal g in GoalsToHold)
             {
                 g.Held = true;
                 HeldGoals.Add(g.guid);
             }
 
-            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(location, radius, Owner);
-            if (InitialEnemyStrength == 0)
-                InitialEnemyStrength = EnemyStrength;
+            EnemyStrength = Owner.currentMilitaryStrength * .001f;
+            if (InitialEnemyStrength < 1)
+                InitialEnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(location, radius, Owner); ;
 
             MinimumTaskForceStrength = EnemyStrength *.75f;
             this.Owner = Owner;
-        }
+        }         
 
         public MilitaryTask(Planet target, Empire Owner)
         {
@@ -645,7 +645,7 @@ namespace Ship_Game.AI.Tasks
 
         private void Dispose(bool disposing)
         {
-            TaskForce = null;  //Dispose(ref TaskForce);
+            TaskForce = null;  //Dispose(ref TaskForce);            
         }
 
         private int FindFleetNumber()

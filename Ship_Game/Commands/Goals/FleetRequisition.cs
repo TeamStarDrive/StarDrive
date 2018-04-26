@@ -21,35 +21,27 @@ namespace Ship_Game.Commands.Goals
                 DoSomeStuffWithFleets
             };
         }
-        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : base(GoalType.FleetRequisition)
+        public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : this()
         {
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
             beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
-            Step = 1;
+            
             beingBuilt.fleet = ai.Owner.fleet;
             beingBuilt.RelativeFleetOffset = node.FleetOffset;
             SetFleet(ai.Owner.fleet);
             SetPlanetWhereBuilding(ai.OrbitTarget);
         }
 
-        public FleetRequisition(string shipName, Empire owner) : base(GoalType.FleetRequisition)
+        public FleetRequisition(string shipName, Empire owner) : this()
         {
             empire = owner;
             ToBuildUID = shipName;
             beingBuilt = ResourceManager.GetShipTemplate(shipName);
-            //Evaluate();
-            Steps = new Func<GoalStep>[]
-            {
-                FindPlanetForFleetRequisition,
-                DummyStepTryAgain,
-                DoSomeStuffWithFleets
-            };
         }
-
         private GoalStep FindPlanetForFleetRequisition()
         {
             Planet planet1 = null;
-            Array<Planet> list = new Array<Planet>();
+            var list = new Array<Planet>();
             foreach (Planet planet2 in empire.GetPlanets())
             {
                 if (planet2.HasShipyard)
@@ -57,6 +49,7 @@ namespace Ship_Game.Commands.Goals
             }
             int num1 = 9999999;
             int x = 0;
+            if (list.IsEmpty) return GoalStep.TryAgain;
             //empire.RallyPoints.OrderBy(p => p.ConstructionQueue.Count);
             foreach (Planet planet2 in list.OrderBy(planet =>
             {
@@ -84,7 +77,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     int num2 = 0;
                     x++;
-                    foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
+                    foreach (QueueItem queueItem in planet2.ConstructionQueue)
                         num2 += (int)(queueItem.Cost - queueItem.productionTowards);
 
 

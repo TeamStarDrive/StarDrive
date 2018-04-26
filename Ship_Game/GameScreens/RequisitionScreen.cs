@@ -73,7 +73,7 @@ namespace Ship_Game
             foreach (Ship ship in this.f.Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-            }
+            }                        
             this.f.Owner.GetFleetsDict()[this.fds.FleetToEdit] = this.f;
             this.fds.ChangeFleet(this.fds.FleetToEdit);
             this.UpdateRequisitionStatus();
@@ -264,19 +264,15 @@ namespace Ship_Game
             foreach (Ship ship in this.f.Owner.GetShips())
             {
                 if (ship.fleet != null)
-                {
                     continue;
-                }
                 this.AvailableShips.Add(ship);
             }
             foreach (Ship ship in this.AvailableShips)
             {
                 foreach (FleetDataNode node in this.f.DataNodes)
                 {
-                    if (!(node.ShipName == ship.Name) || node.Ship!= null)
-                    {
+                    if (node.ShipName != ship.Name || node.Ship != null)
                         continue;
-                    }
                     RequisitionScreen requisitionScreen = this;
                     requisitionScreen.numThatFit = requisitionScreen.numThatFit + 1;
                     break;
