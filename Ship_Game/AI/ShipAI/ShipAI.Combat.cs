@@ -255,21 +255,21 @@ namespace Ship_Game.AI
 
         private void SetTargetWeights(float armorAvg, float shieldAvg, float dpsAvg, float sizeAvg)
         {
-            armorAvg /= NearByShips.Count + .01f;
+            armorAvg  /= NearByShips.Count + .01f;
             shieldAvg /= NearByShips.Count + .01f;
-            dpsAvg /= NearByShips.Count + .01f;
+            dpsAvg    /= NearByShips.Count + .01f;
 
             for (int i = NearByShips.Count - 1; i >= 0; i--)
             {
+              
                 ShipWeight copyWeight = NearByShips[i]; //Remember we have a copy.
-                //if (copyWeight.Ship.loyalty != Owner.loyalty)
-                //{
-                //    NearByShips.RemoveAtSwapLast(i);
-                //    continue;
-                //}
-
                 copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
-                if (Owner.fleet == null || FleetNode == null) continue;
+
+                if (Owner.fleet == null || FleetNode == null)
+                {
+                    NearByShips[i] = copyWeight;//update stored weight from copy
+                    continue;
+                }
                 if (FleetNode.OrdersRadius < 1f) FleetNode.OrdersRadius = Owner.SensorRange;
                 if (!Intercepting && copyWeight.Ship.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius))
                 {
