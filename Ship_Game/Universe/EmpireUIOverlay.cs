@@ -536,51 +536,55 @@ namespace Ship_Game
 		{
 			this.currentMouse = Mouse.GetState();
 			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            if (input.KeysCurr.IsKeyDown(Keys.R) && !input.KeysPrev.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
-			}
-            if (input.KeysCurr.IsKeyDown(Keys.T) && !input.KeysPrev.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
-			}
-            if (input.KeysCurr.IsKeyDown(Keys.Y) && !input.KeysPrev.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
-			}
-            if (input.KeysCurr.IsKeyDown(Keys.U) && !input.KeysPrev.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
-			}
-            if (input.KeysCurr.IsKeyDown(Keys.I) && !input.KeysPrev.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-			}
-            if (input.KeysCurr.IsKeyDown(Keys.O) && !input.KeysPrev.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
-			}
-            if (input.KeysCurr.IsKeyDown(Keys.E) && !input.KeysPrev.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
+            if (!GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
+                if (input.WasKeyPressed(Keys.R))
+			    {
+				    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
+			    }
+                if (input.WasKeyPressed(Keys.T))
+			    {
+				    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
+			    }
+                if (input.WasKeyPressed(Keys.Y))
+			    {
+				    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
+			    }
+                if (input.WasKeyPressed(Keys.U))
+			    {
+				    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
+			    }
+                if (input.WasKeyPressed(Keys.I))
+			    {
+				    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
+			    }
+                if (input.WasKeyPressed(Keys.O))
+			    {
+				    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
+			    }
+                if (input.WasKeyPressed(Keys.E))
+                {
+                    GameAudio.PlaySfxAsync("echo_affirm");
+                    Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
+                }
+			    if (input.WasKeyPressed(Keys.P))
+			    {
+				    GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
+				    var wiki = new InGameWiki(Empire.Universe)
+				    {
+					    TitleText = Localizer.Token(2304),
+					    MiddleText = Localizer.Token(2303)
+				    };
+                    Empire.Universe.ScreenManager.AddScreen(wiki);
+			    }
             }
-			if (input.KeysCurr.IsKeyDown(Keys.P) && !input.KeysPrev.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
-			{
-				GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-				InGameWiki wiki = new InGameWiki(Empire.Universe)
-				{
-					TitleText = Localizer.Token(2304),
-					MiddleText = Localizer.Token(2303)
-				};
-                Empire.Universe.ScreenManager.AddScreen(wiki);
-			}
+
 			foreach (Button b in this.Buttons)
 			{
 				if (!b.Rect.HitTest(MousePos))

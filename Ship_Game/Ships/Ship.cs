@@ -741,7 +741,7 @@ namespace Ship_Game.Ships
             AI.start = null;
             AI.end = null;
             AI.PotentialTargets.Clear();
-            AI.NearbyShips.Clear();
+            AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
 
             if (Mothership != null)
@@ -2555,9 +2555,9 @@ namespace Ship_Game.Ships
         private float CurrentStrength = -1;
         public float GetStrength(bool recalculate = false)
         {            
-            if (Health >= HealthMax * 0.75f && !LowHealth && BaseStrength > -1)
+            if (Health >= HealthMax * 0.75f && !LowHealth && CurrentStrength > -1)
                 return BaseStrength;
-            if (recalculate)
+            if (recalculate || CurrentStrength < 0)
                 CurrentStrength = CalculateShipStrength(false);
             return CurrentStrength;
         }
@@ -2786,7 +2786,7 @@ namespace Ship_Game.Ships
             AI.end                           = null;
             AI.PotentialTargets.Clear();
             AI.TrackProjectiles.Clear();
-            AI.NearbyShips.Clear();
+            AI.NearByShips.Clear();
             AI.FriendliesNearby.Clear();
             Empire.Universe.MasterShipList.QueuePendingRemoval(this);
             AttackerTargetting.Clear();

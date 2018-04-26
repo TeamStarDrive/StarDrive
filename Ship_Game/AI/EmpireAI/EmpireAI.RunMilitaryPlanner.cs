@@ -140,260 +140,90 @@ namespace Ship_Game.AI
                 capacity = capacity - ResourceManager.ShipsDict[s].GetMaintCost(OwnerEmpire);                
                 numgoals = numgoals + 1f;
             }
+            ////CG i think this all needs to be unwound and moved into mark for colonization goal.
+            //foreach (Goal g in Goals)
+            //{
+            //    if (g.Held)
+            //        continue;
+            //    if (g.GetMarkedPlanet() == null) continue;
+            //    float str = ThreatMatrix.PingRadarStr(g.GetMarkedPlanet().Center, 100000f, OwnerEmpire);
+            //    if (str < 10)
+            //    {
+            //        continue;
+            //    }
 
-            foreach (Goal g in Goals)
-            {
-                if (g.type != GoalType.Colonize || g.Held)
-                {
-                    if (g.type != GoalType.Colonize || !g.Held || g.GetMarkedPlanet().Owner == null)                    
-                        continue;
-                    
-                    foreach (var relationship in OwnerEmpire.AllRelations)                    
-                        OwnerEmpire.GetGSAI().CheckClaim(relationship, g.GetMarkedPlanet());
-                    
-                    Goals.QueuePendingRemoval(g);
+            //    var tohold = new Array<Goal>
+            //    {
+            //        g
+            //    };
+            //    var task =
+            //        new MilitaryTask(g.GetMarkedPlanet().Center, 125000f, tohold, OwnerEmpire, str);
+            //    {
+            //        TaskList.Add(task);
+            //        break;
+            //    }
+            //}
 
-                    using (TaskList.AcquireReadLock())
-                    {
-                        foreach (Tasks.MilitaryTask task in TaskList)
-                        {
-                            foreach (Guid held in task.HeldGoals)
-                            {
-                                if (held != g.guid)                                
-                                    continue;
-                                
-                                TaskList.QueuePendingRemoval(task);
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (g.GetMarkedPlanet() == null) continue;
-                    foreach (var kv in ThreatMatrix.Pins
-                        .Where(pin => !(g.GetMarkedPlanet().Center.OutsideRadius(pin.Value.Position,75000f)
-                                        || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == OwnerEmpire ||
-                                        pin.Value.Strength <= 0f
-                                        || !OwnerEmpire
-                                            .GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName))
-                                            .AtWar)))
-                    {
-                        if (g.GetMarkedPlanet().Center.OutsideRadius(kv.Value.Position, 75000f)
-                            || EmpireManager.GetEmpireByName(kv.Value.EmpireName) == OwnerEmpire ||
-                            kv.Value.Strength <= 0f
-                            || !OwnerEmpire.GetRelations(EmpireManager.GetEmpireByName(kv.Value.EmpireName)).AtWar
-                            && !EmpireManager.GetEmpireByName(kv.Value.EmpireName).isFaction)
-                        {
-                            continue;
-                        }
-                        var tohold = new Array<Goal>
-                        {
-                            g
-                        };
-                        var task =
-                            new Tasks.MilitaryTask(g.GetMarkedPlanet().Center, 125000f, tohold, OwnerEmpire);
-                        {
-                            TaskList.Add(task);
-                            break;
-                        }
-                    }
-                }
-            }
-            if (OwnerEmpire.data.DiplomaticPersonality.Territorialism < 50 &&
-                OwnerEmpire.data.DiplomaticPersonality.Trustworthiness < 50
-            )
-            {
-                foreach (Goal g in Goals)
-                {
-                    if (g.type != GoalType.Colonize || g.Held)                    
-                        continue;
+            //if (OwnerEmpire.data.DiplomaticPersonality.Territorialism < 50 &&
+            //    OwnerEmpire.data.DiplomaticPersonality.Trustworthiness < 50
+            //)
+            //{
+            //    foreach (Goal g in Goals)
+            //    {
+            //        if (g.type != GoalType.Colonize || g.Held)                    
+            //            continue;
                     
-                    bool ok = true;
+            //        bool ok = true;
 
-                    using (TaskList.AcquireReadLock())
-                    {
-                        foreach (Tasks.MilitaryTask mt in TaskList)
-                        {
-                            if ((mt.type != Tasks.MilitaryTask.TaskType.DefendClaim
-                                 && mt.type != Tasks.MilitaryTask.TaskType.ClearAreaOfEnemies)
-                                || g.GetMarkedPlanet() != null
-                                && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))                            
-                                continue;
+            //        using (TaskList.AcquireReadLock())
+            //        {
+            //            foreach (MilitaryTask mt in TaskList)
+            //            {
+            //                if ((mt.type != MilitaryTask.TaskType.DefendClaim
+            //                     && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies)
+            //                    || g.GetMarkedPlanet() != null
+            //                    && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))                            
+            //                    continue;
                             
-                            ok = false;
-                            break;
-                        }
-                    }
-                    if (!ok)                    
-                        continue;
+            //                ok = false;
+            //                break;
+            //            }
+            //        }
+            //        if (!ok)                    
+            //            continue;
                     
-                    if (g.GetMarkedPlanet() == null)
-                        continue;
-                    var task = new Tasks.MilitaryTask
-                    {
-                        AO = g.GetMarkedPlanet().Center
-                    };
-                    task.SetEmpire(OwnerEmpire);
-                    task.AORadius = 75000f;
-                    task.SetTargetPlanet(g.GetMarkedPlanet());
-                    task.TargetPlanetGuid = g.GetMarkedPlanet().guid;
-                    task.MinimumTaskForceStrength = 100 + ThreatMatrix.PingRadarStrengthLargestCluster(task.AO, task.AORadius, OwnerEmpire);
-                    task.type = Tasks.MilitaryTask.TaskType.DefendClaim;
-                    {
-                        TaskList.Add(task);
-                    }
-                }
-            }
+            //        if (g.GetMarkedPlanet() == null)
+            //            continue;
+            //        var task = new MilitaryTask
+            //        {
+            //            AO = g.GetMarkedPlanet().Center
+            //        };
+            //        task.SetEmpire(OwnerEmpire);
+            //        task.AORadius = 75000f;
+            //        task.SetTargetPlanet(g.GetMarkedPlanet());
+            //        task.TargetPlanetGuid = g.GetMarkedPlanet().guid;
+            //        task.MinimumTaskForceStrength = ThreatMatrix.PingRadarStrengthLargestCluster(task.AO, task.AORadius, OwnerEmpire);
+            //        task.type = MilitaryTask.TaskType.DefendClaim;
+            //        {
+            //            TaskList.Add(task);
+            //        }
+            //    }
+            //}
             Goals.ApplyPendingRemovals();            
 
             //this where the global AI attack stuff happenes.
             using (TaskList.AcquireReadLock())
             {
-                //var toughNuts    = new Array<Tasks.MilitaryTask>();
-                //var inOurSystems = new Array<Tasks.MilitaryTask>();
-                //var inOurAOs     = new Array<Tasks.MilitaryTask>();
-                //var remainder    = new Array<Tasks.MilitaryTask>();
 
                 int toughNutCount = 0;
 
                 foreach (var task in TaskList)
-                {
-                    //if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                    //    continue;
+                {             
                     if (task.IsToughNut) toughNutCount++;
                     task.Evaluate(OwnerEmpire);
                 }
                 Toughnuts = toughNutCount;
 
-                //    foreach (var task in TaskList)
-                //{
-                //    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)                    
-                //        continue;
-
-
-                //    if (task.IsToughNut)                    
-                //        toughNuts.Add(task);
-
-                //    else if (!OwnerEmpire.GetOwnedSystems().Contains((SolarSystem)task.GetTargetPlanet().ParentSystem))
-                //    {
-                //        bool dobreak = false;
-                //        foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)
-                //        {
-                //            if (task.GetTargetPlanet() == entry.Value)
-                //            {
-                //                foreach (AO area in AreasOfOperations)
-                //                {
-                //                    if (entry.Value.Center.OutsideRadius(area.Center, area.Radius))
-                //                        continue;
-                //                    inOurAOs.Add(task);
-                //                    dobreak = true;
-                //                    break;
-                //                }
-                //            }
-                //            break;
-                //        }
-                //        if (dobreak)                        
-                //            continue;
-
-                //        remainder.Add(task);
-                //    }
-                //    else                    
-                //        inOurSystems.Add(task);
-
-                //}
-                //var tnInOurSystems = new Array<Tasks.MilitaryTask>();
-                //var tnInOurAOs     = new Array<Tasks.MilitaryTask>();
-                //var tnRemainder    = new Array<Tasks.MilitaryTask>();
-                //Toughnuts          = toughNuts.Count + remainder.Count + inOurSystems.Count + inOurAOs.Count;
-                //foreach (Tasks.MilitaryTask task in toughNuts)
-                //{
-                //    if (!OwnerEmpire.GetOwnedSystems().Contains(task.GetTargetPlanet().ParentSystem))
-                //    {
-                //        bool dobreak = false;
-                //        foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)
-                //        {
-                //            if (task.GetTargetPlanet() != entry.Value)                            
-                //                continue;
-
-                //            foreach (AO area in AreasOfOperations)
-                //            {
-                //                if (entry.Value.Center.OutsideRadius(area.Center, area.Radius))
-                //                    continue;
-                //                tnInOurAOs.Add(task);
-                //                dobreak = true;
-                //                break;
-                //            }
-                //            break;
-                //        }
-                //        if (dobreak)                        
-                //            continue;
-
-                //        tnRemainder.Add(task);
-                //    }
-                //    else                    
-                //        tnInOurSystems.Add(task);
-
-                //}
-
-                //foreach (Tasks.MilitaryTask task in tnInOurSystems)
-                //{
-                //    task.Priority = 1;
-                //    task.Evaluate(OwnerEmpire);
-                //}
-
-
-                //foreach (Tasks.MilitaryTask task in tnInOurAOs)
-                //{
-                //    if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == OwnerEmpire ||
-                //        OwnerEmpire.GetRelations(task.GetTargetPlanet().Owner).ActiveWar == null ||
-                //        OwnerEmpire.TotalScore <= task.GetTargetPlanet().Owner.TotalScore * 1.5f)                    
-                //        continue;
-                //    task.Priority = 2;
-                //    task.Evaluate(OwnerEmpire);
-                //}
-
-
-                //foreach (Tasks.MilitaryTask task in tnRemainder)
-                //{
-                //    if (task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner == OwnerEmpire ||
-                //        OwnerEmpire.GetRelations(task.GetTargetPlanet().Owner).ActiveWar == null ||
-                //        OwnerEmpire.TotalScore <= task.GetTargetPlanet().Owner.TotalScore * 1.5f)                    
-                //        continue;
-                //    task.Priority = 3;
-                //    task.Evaluate(OwnerEmpire);
-                //}
-
-                //foreach (Tasks.MilitaryTask task in inOurSystems)
-                //{
-                //    task.Priority = 1;
-                //    task.Evaluate(OwnerEmpire);
-                //}
-
-                //foreach (Tasks.MilitaryTask task in inOurAOs)
-                //{
-                //    task.Priority = 2;
-                //    task.Evaluate(OwnerEmpire);
-                //}                           
-
-                //foreach (Tasks.MilitaryTask task in remainder)
-                //{
-                //    task.Priority = 3;
-                //    task.Evaluate(OwnerEmpire);
-                //}
-
-                //foreach (Tasks.MilitaryTask task in TaskList)
-                //{
-                //    //if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet)
-                //    //    task.Evaluate(OwnerEmpire);
-
-                //    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet &&
-                //        task.type != Tasks.MilitaryTask.TaskType.GlassPlanet || task.GetTargetPlanet().Owner != null &&
-                //        task.GetTargetPlanet().Owner != OwnerEmpire)
-                //        continue;
-
-                //    task.EndTask();
-                //}
             }
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();

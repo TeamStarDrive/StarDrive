@@ -243,8 +243,7 @@ namespace Ship_Game.Universe.SolarBodies
                 {
                     if (ResourceManager.CreateTroop(queueItem.troopType, Owner).AssignTroopToTile(Ground))
                     {
-                        if (queueItem.Goal != null)
-                            ++queueItem.Goal.Step;
+                        queueItem.Goal?.NotifyMainGoalCompleted();
                         ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                 }

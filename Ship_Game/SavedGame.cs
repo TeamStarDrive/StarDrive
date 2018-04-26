@@ -688,7 +688,7 @@ namespace Ship_Game
             return usData;
         }
 
-        public struct EmpireSaveData
+        public class EmpireSaveData
         {
             [Serialize(0)] public string Name;
             [Serialize(1)] public Array<Relationship> Relations;
@@ -711,7 +711,7 @@ namespace Ship_Game
             [Serialize(18)] public string CurrentConstructor;
         }
 
-        public struct FleetSave
+        public class FleetSave
         {
             [Serialize(0)] public bool IsCoreFleet;
             [Serialize(1)] public string Name;
@@ -734,7 +734,7 @@ namespace Ship_Game
             public override string ToString() => $"FleetShipSave {shipGuid} {fleetOffset}";
         }
 
-        public struct GoalSave
+        public class GoalSave
         {
             [Serialize(0)] public GoalType type;
             [Serialize(1)] public int GoalStep;
@@ -758,7 +758,7 @@ namespace Ship_Game
             [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
         }
 
-        public struct PGSData
+        public class PGSData
         {
             [Serialize(0)] public int x;
             [Serialize(1)] public int y;
@@ -771,7 +771,7 @@ namespace Ship_Game
             [Serialize(8)] public int prodbonus;
         }
 
-        public struct PlanetSaveData
+        public class PlanetSaveData
         {
             [Serialize(0)] public Guid guid;
             [Serialize(1)] public string SpecialDescription;
@@ -817,7 +817,7 @@ namespace Ship_Game
             [Serialize(4)] public Vector2 Position;
         }
 
-        public struct QueueItemSave
+        public class QueueItemSave
         {
             [Serialize(0)] public string UID;
             [Serialize(1)] public Guid GoalGUID;
@@ -845,7 +845,7 @@ namespace Ship_Game
             [Serialize(1)] public Guid Guid_Platform;
         }
 
-        public struct ShipAISave
+        public class ShipAISave
         {
             [Serialize(0)] public AIState state;
             [Serialize(1)] public int numFood;
@@ -865,7 +865,7 @@ namespace Ship_Game
             [Serialize(15)] public Guid EscortTarget;
         }
 
-        public struct ShipGoalSave
+        public class ShipGoalSave
         {
             [Serialize(0)] public ShipAI.Plan Plan;
             [Serialize(1)] public Guid goalGuid;
@@ -878,7 +878,7 @@ namespace Ship_Game
             [Serialize(8)] public Guid TargetPlanetGuid;
         }
 
-        public struct ShipSaveData
+        public class ShipSaveData
         {
             [Serialize(0)] public Guid guid;
             [Serialize(1)] public bool AfterBurnerOn;
@@ -907,7 +907,7 @@ namespace Ship_Game
             [Serialize(24)] public Array<ProjectileSaveData> Projectiles;
         }
 
-        public struct SolarSystemSaveData
+        public class SolarSystemSaveData
         {
             [Serialize(0)] public Guid guid;
             [Serialize(1)] public string SunPath;

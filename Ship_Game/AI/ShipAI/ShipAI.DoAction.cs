@@ -422,7 +422,7 @@ namespace Ship_Game.AI {
         {
             var AverageDirection = new Vector2();
             var count = 0;
-            foreach (ShipWeight ship in NearbyShips)
+            foreach (ShipWeight ship in NearByShips)
             {
                 if (ship.Ship.loyalty == Owner.loyalty ||
                     !ship.Ship.loyalty.isFaction && !Owner.loyalty.GetRelations(ship.Ship.loyalty).AtWar)
@@ -939,35 +939,33 @@ namespace Ship_Game.AI {
 
         private void DoAssaultTransporterLogic(ShipModule module)
         {
-            var ship = NearbyShips.FindMinFiltered(
-                    filter:
+            ShipWeight ship = NearByShips.Where(
                     s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
-                         && Owner.Center.Distance(s.Ship.Center) <= module.TransporterRange + 500f,
-                    selector: Ship => Owner.Center.SqDist(Ship.Ship.Center));
-            if (ship != null)
+                         && Owner.Center.Distance(s.Ship.Center) <= module.TransporterRange + 500f)
+                .OrderBy(Ship => Owner.Center.SqDist(Ship.Ship.Center)).First();
+            if (ship.Ship == null) return;
+
+            byte TroopCount = 0;
+            var Transported = false;
+            for (byte i = 0; i < Owner.TroopList.Count(); i++)
             {
-                byte TroopCount = 0;
-                var Transported = false;
-                for (byte i = 0; i < Owner.TroopList.Count(); i++)
+                if (Owner.TroopList[i] == null)
+                    continue;
+                if (Owner.TroopList[i].GetOwner() == Owner.loyalty)
                 {
-                    if (Owner.TroopList[i] == null)
-                        continue;
-                    if (Owner.TroopList[i].GetOwner() == Owner.loyalty)
-                    {
-                        ship.Ship.TroopList.Add(Owner.TroopList[i]);
-                        Owner.TroopList.Remove(Owner.TroopList[i]);
-                        TroopCount++;
-                        Transported = true;
-                    }
-                    if (TroopCount == module.TransporterTroopAssault)
-                        break;
+                    ship.Ship.TroopList.Add(Owner.TroopList[i]);
+                    Owner.TroopList.Remove(Owner.TroopList[i]);
+                    TroopCount++;
+                    Transported = true;
                 }
-                if (Transported) //@todo audio should not be here
-                {
-                    module.TransporterTimer = module.TransporterTimerConstant;
-                    if (Owner.InFrustum)
-                        GameAudio.PlaySfxAsync("transporter");
-                }
+                if (TroopCount == module.TransporterTroopAssault)
+                    break;
+            }
+            if (Transported) //@todo audio should not be here
+            {
+                module.TransporterTimer = module.TransporterTimerConstant;
+                if (Owner.InFrustum)
+                    GameAudio.PlaySfxAsync("transporter");
             }
         }
 

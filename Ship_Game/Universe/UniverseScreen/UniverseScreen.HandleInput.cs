@@ -27,7 +27,7 @@ namespace Ship_Game
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
                 HandleScrolls(input);
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseDown)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
                     float num = MinimapDisplayRect.Width / (UniverseSize * 2);
@@ -347,7 +347,7 @@ namespace Ship_Game
             for (int index = SelectedShipList.Count - 1; index >= 0; --index)
             {
                 Ship ship = SelectedShipList[index];
-                if (!ship.Active)
+                if (ship?.Active != true)
                     SelectedShipList.RemoveSwapLast(ship);
             }
             // CG: previous target code. 

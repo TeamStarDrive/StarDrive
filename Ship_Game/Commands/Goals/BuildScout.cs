@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                DummyStepTryAgain,  
+                WaitMainGoalCompletion,  
                 ReportGoalCompleteToEmpire,
             };
         }
@@ -27,54 +27,62 @@ namespace Ship_Game.Commands.Goals
             this.empire = empire;
         }
 
-        private GoalStep FindPlanetToBuildAt()
+        private Planet FindScoutProductionPlanet()
         {
-        
-            Planet planet1 = null;
+            Planet bestPlanet = null;
             int num1 = 9999999;
             foreach (Planet planet2 in empire.BestShipYards)
             {
                 int num2 = 0;
-                foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
-                    num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                foreach (QueueItem queueItem in planet2.ConstructionQueue)
+                    num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.NetProductionPerTurn);
                 if (num2 < num1)
                 {
                     num1 = num2;
-                    planet1 = planet2;
+                    bestPlanet = planet2;
                 }
             }
-            if (planet1 == null)
+            return bestPlanet;
+        }
+
+        private GoalStep FindPlanetToBuildAt()
+        {
+            Planet planet = FindScoutProductionPlanet();
+            if (planet == null)
                 return GoalStep.TryAgain;
-            if (EmpireManager.Player == this.empire && ResourceManager.ShipsDict.ContainsKey(EmpireManager.Player.data.CurrentAutoScout))
+            if (EmpireManager.Player == empire
+                && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out Ship autoScout))
             {
-                planet1.ConstructionQueue.Add(new QueueItem()
+                planet.ConstructionQueue.Add(new QueueItem()
                 {
                     isShip = true,
-                    QueueNumber = planet1.ConstructionQueue.Count,
-                    sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentAutoScout].GetShipData(),
+                    QueueNumber = planet.ConstructionQueue.Count,
+                    sData = autoScout.GetShipData(),
                     Goal = this,
-                    Cost = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentAutoScout].GetCost(this.empire),
+                    Cost = autoScout.GetCost(empire),
                     NotifyOnEmpty = false
                 });
                 return GoalStep.GoToNextStep;
             }
 
-            Array<Ship> list2 = new Array<Ship>();
-            foreach (string index in this.empire.ShipsWeCanBuild)
+            var scoutShipsWeCanBuild = new Array<Ship>();
+            foreach (string shipUid in empire.ShipsWeCanBuild)
             {
-                if (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.scout)
-                    list2.Add(ResourceManager.ShipsDict[index]);
+                Ship ship = ResourceManager.ShipsDict[shipUid];
+                if (ship.shipData.Role == ShipData.RoleName.scout)
+                    scoutShipsWeCanBuild.Add(ship);
             }
-            IOrderedEnumerable<Ship> orderedEnumerable = (list2).OrderByDescending<Ship, float>((Func<Ship, float>)(ship => ship.PowerFlowMax - ship.ModulePowerDraw));
-            if (!orderedEnumerable.Any())
+            if (scoutShipsWeCanBuild.IsEmpty)
                 return GoalStep.TryAgain;
-            planet1.ConstructionQueue.Add(new QueueItem()
+
+            Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.ModulePowerDraw);
+            planet.ConstructionQueue.Add(new QueueItem()
             {
                 isShip = true,
-                QueueNumber = planet1.ConstructionQueue.Count,
-                sData = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetShipData(),
+                QueueNumber = planet.ConstructionQueue.Count,
+                sData = mostPowerEfficientScout.GetShipData(),
                 Goal = this,
-                Cost = ResourceManager.ShipsDict[((IEnumerable<Ship>)orderedEnumerable).First<Ship>().Name].GetCost(this.empire)
+                Cost = mostPowerEfficientScout.GetCost(empire)
             });
             return GoalStep.GoToNextStep;
         }
