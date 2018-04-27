@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
         public float FieldOfFire;
         public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
-        private Ship Parent;
+        public Ship Parent;
         public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         public short OrdinanceCapacity;
         private bool OnFire;
         private bool ReallyFuckedUp;
-        private Vector3 Center3D;
+        public Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
 
@@ -573,8 +573,8 @@ namespace Ship_Game.Ships
                 damageAmount  = CalcDamageThreshold(proj, damageAmount);
                 CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
-                CreateHitParticles(beam);
-                CreateHitParticles(proj, source, damageAmount);
+                beam?.CreateHitParticles(this, beam);
+                proj?.CreateHitParticles(this, proj, source, damageAmount);
                 DebugPerseveranceNoDamage();
                 Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
@@ -667,65 +667,6 @@ namespace Ship_Game.Ships
             BeamMassDamage(beam);
             BeamRepulsionDamage(beam);
         }
-
-        private void CreateHitParticles (Beam beam)
-        {
-            if (beam == null || !Parent.InFrustum) return;
-            if (HasParticleHitEffect(10f))
-                Empire.Universe.flash.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), Vector3.Zero);
-            Vector2 vel = Vector2.Normalize(beam.Source - Center);
-            for (int i = 0; i < 20; i++)
-                Empire.Universe.sparks.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-        }
-
-        private void CreateHitParticles(Projectile proj, GameplayObject source, float damageAmount)
-        {
-            if (proj == null || !Parent.InFrustum || proj.Explodes) return;
-
-            Vector2 vel = Vector2.Normalize(source.Center - Center);
-            AddKineticParticleHitEffects(proj.Weapon, damageAmount);
-            AddEnergyParticleHitEffects(proj.Weapon, damageAmount, vel);
-        }
-        
-        private void AddKineticParticleHitEffects(Weapon weapon, float damageAmount)
-        {
-            if (weapon?.Tag_Kinetic != true) return;
-
-            float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
-            if (HasParticleHitEffect(flashChance))
-            {
-                Empire.Universe.flash.AddParticleThreadB(new Vector3(Center, Center3D.Z - 100), Vector3.Zero);
-                return;
-            }
-            float beamFlashChance = GetHitProjectileBeamFlashEmitChance(weapon.ProjectileSpeed);
-            if (HasParticleHitEffect(beamFlashChance))
-                Empire.Universe.beamflashes.AddParticleThreadB(new Vector3(Center, Center3D.Z - 100), Vector3.Zero);
-        }
-
-        private void AddEnergyParticleHitEffects(Weapon weapon, float damageAmount, Vector2 vel)
-        {
-            if (weapon?.Tag_Energy != true) return;
-            float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
-            float sparksChance = GetHitProjectileSparksEmitChance(weapon.ProjectileSpeed);
-            if (HasParticleHitEffect(flashChance))
-            {
-                Empire.Universe.flash.AddParticleThreadB(new Vector3(Center, Center3D.Z - 100), Vector3.Zero);
-                return;
-            }
-            if (HasParticleHitEffect(2f))
-                Empire.Universe.smokePlumeParticles.AddParticleThreadB(new Vector3(Center, Center3D.Z - 100), Vector3.Zero);
-            if (!HasParticleHitEffect(sparksChance)) return;
-            for (int i = 0; i < 20; i++)
-                Empire.Universe.sparks.AddParticleThreadB(new Vector3(Center, Center3D.Z-100), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-        }
-
-        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
-
-        private static float GetHitProjectileFlashEmitChance(float damage) => damage >= 1000f ? 100f : damage / 10f;
-
-        private static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 150f;
-
-        private static float  GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 150f;
 
         private void BeamPowerDamage(Beam beam)
         {
