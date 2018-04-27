@@ -348,5 +348,17 @@ namespace Ship_Game
         }
 
         public override string ToString() => $"Beam[{WeaponType}] Wep={Weapon?.Name} Src={Source} Dst={Destination} Loy=[{Loyalty}]";
+
+        public void CreateHitParticles(ShipModule module, Beam beam)
+        {
+            if (beam == null || !module.Parent.InFrustum) return;
+            if (HasParticleHitEffect(10f))
+                Empire.Universe.flash.AddParticleThreadB(new Vector3(beam.ActualHitDestination, module.Center3D.Z), Vector3.Zero);
+            Vector2 vel = Vector2.Normalize(beam.Source - Center);
+            for (int i = 0; i < 20; i++)
+                Empire.Universe.sparks.AddParticleThreadB(new Vector3(beam.ActualHitDestination, module.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+        }
+
+        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
     }
 }
