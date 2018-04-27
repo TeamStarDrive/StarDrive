@@ -15,9 +15,12 @@ namespace Ship_Game.Ships
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
-        private ParticleEmitter trailEmitter;
-        private ParticleEmitter firetrailEmitter;
-        private ParticleEmitter flameEmitter;
+        private ParticleEmitter TrailEmitter;
+        private ParticleEmitter FireTrailEmitter;
+        private ParticleEmitter FlameEmitter;
+        private ParticleEmitter SmokeEmitter;
+        private ParticleEmitter SparksEmitter;
+        private ParticleEmitter LightningEmitter;
         public int XSIZE = 1;
         public int YSIZE = 1;
         public bool Powered;
@@ -574,9 +577,11 @@ namespace Ship_Game.Ships
                 CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
                 if (Parent.InFrustum)
+                {
                     beam?.CreateHitParticles(Center3D.Z);
-                if (proj?.Explodes == false && Parent.InFrustum)
-                    proj.CreateHitParticles(damageAmount,Center3D.Z,Center);
+                    if (proj?.Explodes == false)
+                        proj.CreateHitParticles(damageAmount, Center3D);
+                }
                 DebugPerseveranceNoDamage();
                 Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
@@ -721,20 +726,22 @@ namespace Ship_Game.Ships
 #endif
         }
 
-        private float ApplyModuleDamage(float damageamount, float health,float healthmax)
+        private float ApplyModuleDamage(float damageAmount, float health,float healthMax)
         {
-            if (damageamount > health) health = 0;
-            else health -= damageamount;
+            if (damageAmount > health)
+                health = 0;
+            else health -= damageAmount;
 
-            if (health >= healthmax)
+            if (health >= healthMax)
             {
-                health = healthmax;
+                health = healthMax;
                 Active = true;
                 this.OnFire = false;
+                RemoveAllDamageParticleEmmiters();
             }
-            if (health / healthmax < 0.5f)
+            if (health / healthMax < 0.5f)
                 this.OnFire = true;
-            if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthmax))
+            if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthMax))
                 this.ReallyFuckedUp = true;
             return health;
         }
@@ -1007,6 +1014,7 @@ namespace Ship_Game.Ships
             {
                 Health = HealthMax;
                 this.OnFire = false;
+                RemoveAllDamageParticleEmmiters();
             }
 
             BombTimer -= elapsedTime;
@@ -1039,28 +1047,52 @@ namespace Ship_Game.Ships
         {
             if (Parent.InFrustum && Active && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                if (this.ReallyFuckedUp)
+                if (ReallyFuckedUp)
                 {
-                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (flameEmitter == null) flameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
-                    trailEmitter.Update(elapsedTime, Center3D);
-                    flameEmitter.Update(elapsedTime, Center3D);
+                    if (TrailEmitter == null) TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
                 }
-                else if (this.OnFire)
+                else if (OnFire)
                 {
-                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (firetrailEmitter == null) firetrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
-                    trailEmitter.Update(elapsedTime, Center3D);
-                    firetrailEmitter.Update(elapsedTime, Center3D);
+                    if (TrailEmitter == null) TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (FireTrailEmitter == null) FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
+                    if (SmokeEmitter == null && ShouldEmitSmokeWhenDamaged()) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
+                    if (SparksEmitter == null && ShouldEmitSparksWhenDamaged())SparksEmitter = Empire.Universe.sparks.NewEmitter(50f, GetBackgroundPos(Center3D));
+                    if (LightningEmitter == null && ShouldEmitLightningWhenDamaged()) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, GetBackgroundPos(Center3D));
                 }
+                UpdateAllDamageParticleEmmiters(elapsedTime);
             }
-            else if (trailEmitter != null) // destroy immediately when out of vision range
-            {
-                trailEmitter = null; // tried Disposing these, but got a crash... so just null them
-                firetrailEmitter = null;
-                flameEmitter = null;
-            }
+            else if (TrailEmitter != null) // destroy immediately when out of vision range, tried Disposing these, but got a crash... so just null them
+                RemoveAllDamageParticleEmmiters();
         }
+
+        private void UpdateAllDamageParticleEmmiters(float elapsedTime)
+        {
+            FlameEmitter?.Update(elapsedTime, Center3D);
+            FireTrailEmitter?.Update(elapsedTime, Center3D);
+            TrailEmitter?.Update(elapsedTime, Center3D);
+            SmokeEmitter?.Update(elapsedTime, Center3D);
+            SparksEmitter?.Update(elapsedTime, Center3D);
+            LightningEmitter?.Update(elapsedTime, Center3D);
+        }
+
+        private void RemoveAllDamageParticleEmmiters()
+        {
+            TrailEmitter     = null;
+            FireTrailEmitter = null;
+            FlameEmitter     = null;
+            SmokeEmitter     = null;
+            SparksEmitter    = null;
+            LightningEmitter = null;
+        }
+
+        private bool ShouldEmitSmokeWhenDamaged() => Area >= 9;
+
+        private bool ShouldEmitSparksWhenDamaged() => ModuleType == ShipModuleType.Turret;
+
+        private bool ShouldEmitLightningWhenDamaged() => ModuleType == ShipModuleType.PowerPlant;
+
+        private static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z -50);
 
         public void UpdateWhileDying(float elapsedTime)
         {
