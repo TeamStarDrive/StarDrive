@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
         public float FieldOfFire;
         public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
-        public Ship Parent;
+        private Ship Parent;
         public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
         public short OrdinanceCapacity;
         private bool OnFire;
         private bool ReallyFuckedUp;
-        public Vector3 Center3D;
+        private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
 
@@ -573,8 +573,10 @@ namespace Ship_Game.Ships
                 damageAmount  = CalcDamageThreshold(proj, damageAmount);
                 CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
-                beam?.CreateHitParticles(this, beam);
-                proj?.CreateHitParticles(this, proj, source, damageAmount);
+                if (Parent.InFrustum)
+                    beam?.CreateHitParticles(Center3D.Z);
+                if (proj?.Explodes == false && Parent.InFrustum)
+                    proj.CreateHitParticles(damageAmount,Center3D.Z,Center);
                 DebugPerseveranceNoDamage();
                 Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");

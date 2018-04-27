@@ -699,37 +699,35 @@ namespace Ship_Game.Gameplay
 
         public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Center} Rad={Radius} Loy=[{Loyalty}]";
 
-        public void CreateHitParticles(ShipModule module, Projectile proj, GameplayObject source, float damageAmount)
+        public void CreateHitParticles(float damageAmount, float centerAxisZ, Vector2 center)
         {
-            if (proj == null || !module.Parent.InFrustum || proj.Explodes) return;
-
-            AddKineticParticleHitEffects(proj.Weapon, damageAmount, module.Center3D.Z);
-            AddEnergyParticleHitEffects(proj.Weapon, damageAmount, module.Center3D.Z);
+            AddKineticParticleHitEffects(Weapon, damageAmount, centerAxisZ, center);
+            AddEnergyParticleHitEffects(Weapon, damageAmount, centerAxisZ, center);
         }
 
-        private void AddKineticParticleHitEffects(Weapon weapon, float damageAmount,float axisZ)
+        private static void AddKineticParticleHitEffects(Weapon weapon, float damageAmount,float axisZ, Vector2 center)
         {
             if (weapon?.Tag_Kinetic != true) return;
 
             float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
             if (HasParticleHitEffect(flashChance))
             {
-                Empire.Universe.flash.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                Empire.Universe.flash.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                 return;
             }
             float beamFlashChance = GetHitProjectileBeamFlashEmitChance(weapon.ProjectileSpeed);
             if (HasParticleHitEffect(beamFlashChance))
-                Empire.Universe.beamflashes.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                Empire.Universe.beamflashes.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
         }
 
-        private void AddEnergyParticleHitEffects(Weapon weapon, float damageAmount, float axisZ)
+        private static void AddEnergyParticleHitEffects(Weapon weapon, float damageAmount, float axisZ, Vector2 center)
         {
             if (weapon?.Tag_Energy != true) return;
             float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
             float sparksChance = GetHitProjectileSparksEmitChance(weapon.ProjectileSpeed);
             if (HasParticleHitEffect(flashChance))
             {
-                Empire.Universe.flash.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                Empire.Universe.flash.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                 //return;
             }
             if (!HasParticleHitEffect(sparksChance)) return;
@@ -738,18 +736,18 @@ namespace Ship_Game.Gameplay
             {
                 case 0:
                     for (int i = 0; i < 20; i++)
-                        Empire.Universe.fireTrailParticles.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                        Empire.Universe.fireTrailParticles.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                     for (int i = 0; i < 10; i++)
-                        Empire.Universe.explosionSmokeParticles.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                        Empire.Universe.explosionSmokeParticles.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                     break;
                 case 1:
                     for (int i = 0; i < 50; i++)
-                        Empire.Universe.sparks.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                        Empire.Universe.sparks.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                     for (int i = 0; i < 5; i++)
-                        Empire.Universe.smokePlumeParticles.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                        Empire.Universe.smokePlumeParticles.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                     break;
                 case 2:
-                    Empire.Universe.beamflashes.AddParticleThreadB(new Vector3(Center, axisZ - 50), Vector3.Zero);
+                    Empire.Universe.beamflashes.AddParticleThreadB(new Vector3(center, axisZ - 50), Vector3.Zero);
                     break;
             }
         }
@@ -758,8 +756,8 @@ namespace Ship_Game.Gameplay
 
         private static float GetHitProjectileFlashEmitChance(float damage) => damage >= 1000f ? 100f : damage / 10f;
 
-        private static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 150f;
+        private static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
 
-        private static float GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 150f;
+        private static float GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
     }
 }
