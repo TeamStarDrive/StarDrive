@@ -307,7 +307,7 @@ namespace Ship_Game
 
         public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, int degrees)
         {
-            double rads = degrees * (PI / 180.0);
+            float rads = ToRadians(degrees);
             Vector2 strafeVector = new Vector2((float)Sin(ship.Rotation + rads), -(float)Cos(ship.Rotation + rads));
             strafeVector = Vector2.Normalize(strafeVector);
             return ship.Position + (strafeVector * distance);
