@@ -351,11 +351,15 @@ namespace Ship_Game
 
         public void CreateHitParticles(float centerAxisZ)
         {
-            if (HasParticleHitEffect(10f))
-                Empire.Universe.flash.AddParticleThreadB(new Vector3(ActualHitDestination, centerAxisZ), Vector3.Zero);
-            Vector2 vel = Vector2.Normalize(Source - Center);
+            if (!HasParticleHitEffect(10f)) return;
+            Vector2 impactNormal = (Source - Center).Normalized();
+            var pos              = ActualHitDestination.ToVec3(centerAxisZ);
+            var vel              = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
+            Empire.Universe.flash.AddParticleThreadB(pos, Vector3.Zero);
             for (int i = 0; i < 20; i++)
-                Empire.Universe.sparks.AddParticleThreadB(new Vector3(ActualHitDestination, centerAxisZ), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                Empire.Universe.sparks.AddParticleThreadB(pos, vel);
+            for (int i = 0; i < 5; i++)
+                Empire.Universe.explosionSmokeParticles.AddParticleThreadB(pos, vel);
         }
 
         private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
