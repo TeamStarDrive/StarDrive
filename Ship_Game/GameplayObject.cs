@@ -37,6 +37,8 @@ namespace Ship_Game
         [Serialize(0)] public Vector2 Position;
         [Serialize(1)] public Vector2 Center;
         [Serialize(2)] public Vector2 Velocity;
+
+        // rotation in RADIANS
         [Serialize(3)] public float Rotation;
 
         [Serialize(4)] public Vector2 Dimensions;
