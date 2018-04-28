@@ -1052,12 +1052,12 @@ namespace Ship_Game.Ships
                     TrailEmitter.Update(elapsedTime, Center3D);
                     FlameEmitter.Update(elapsedTime, Center3D);
                     // this block is added for more interesting damage effects, hopefully it wont effect performance too much
-                    if (XSIZE * YSIZE >= 9)
+                    if (XSIZE * YSIZE >= 4)
                     {
-                        if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
+                        if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(30f, Center3D);
                         SmokeEmitter.Update(elapsedTime, Center3D);
                     }
-                    if (XSIZE * YSIZE < 16) return;
+                    if (XSIZE * YSIZE < 9) return;
                     if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, Center3D);
                     LightningEmitter.Update(elapsedTime, Center3D);
                 }
@@ -1073,7 +1073,7 @@ namespace Ship_Game.Ships
                         if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
                         SmokeEmitter.Update(elapsedTime, Center3D);
                     }
-                    if (XSIZE * YSIZE < 16) return;
+                    if (XSIZE * YSIZE < 15) return;
                     if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
                     LightningEmitter.Update(elapsedTime, Center3D);
                 }
