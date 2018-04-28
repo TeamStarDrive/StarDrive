@@ -1058,7 +1058,7 @@ namespace Ship_Game.Ships
                         SmokeEmitter.Update(elapsedTime, Center3D);
                     }
                     if (XSIZE * YSIZE < 9) return;
-                    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, Center3D);
+                    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
                     LightningEmitter.Update(elapsedTime, Center3D);
                 }
                 else if (OnFire)
