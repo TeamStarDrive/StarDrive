@@ -135,21 +135,22 @@ namespace Particle3DSample
                 device.Vertices[0].SetSource(VertexBuffer, 0, 36);
                 device.VertexDeclaration = VertexDeclaration;
                 float activescale = Particles[FirstActiveParticle].Scale;
-                float freeScale = Particles[FirstFreeParticle].Scale;
+                
                 ParticleEffect.Begin();
                 foreach (EffectPass pass in ParticleEffect.CurrentTechnique.Passes)
-                {
-                    if (activescale != 1) //now these looks very bad to me. but i dont know how else to change the scale. 
-                    {
-                        ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * activescale);
-                        ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * activescale);
-                    }
+                {              
                     pass.Begin();
                     if (FirstActiveParticle >= FirstFreeParticle)
-                    {                                          
+                    {
+                        if (activescale != 1) //now these looks very bad to me. but i dont know how else to change the scale. 
+                        {
+                            ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * activescale);
+                            ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * activescale);
+                        }
                         device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, Particles.Length - FirstActiveParticle);
                         if (FirstFreeParticle > 0)
-                        {                            
+                        {
+                            float freeScale = Particles[FirstFreeParticle].Scale;
                             if (freeScale != 1)
                             {
                                 ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * freeScale);
@@ -159,7 +160,12 @@ namespace Particle3DSample
                         }
                     }
                     else
-                    { 
+                    {
+                        if (activescale != 1) //now these looks very bad to me. but i dont know how else to change the scale. 
+                        {
+                            ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * activescale);
+                            ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * activescale);
+                        }
                         device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, FirstFreeParticle - FirstActiveParticle);
                     }
                     pass.End();
