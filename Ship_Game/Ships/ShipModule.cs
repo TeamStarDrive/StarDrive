@@ -737,7 +737,6 @@ namespace Ship_Game.Ships
                 health = healthMax;
                 Active = true;
                 this.OnFire = false;
-                RemoveAllDamageParticleEmmiters();
             }
             if (health / healthMax < 0.5f)
                 this.OnFire = true;
@@ -1014,7 +1013,6 @@ namespace Ship_Game.Ships
             {
                 Health = HealthMax;
                 this.OnFire = false;
-                RemoveAllDamageParticleEmmiters();
             }
 
             BombTimer -= elapsedTime;
@@ -1051,48 +1049,35 @@ namespace Ship_Game.Ships
                 {
                     if (TrailEmitter == null) TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
                     if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
+                    TrailEmitter.Update(elapsedTime, Center3D);
+                    FlameEmitter.Update(elapsedTime, Center3D);
                 }
                 else if (OnFire)
                 {
-                    if (TrailEmitter == null) TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (TrailEmitter     == null) TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
                     if (FireTrailEmitter == null) FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
-                    if (SmokeEmitter == null && ShouldEmitSmokeWhenDamaged()) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
-                    if (SparksEmitter == null && ShouldEmitSparksWhenDamaged())SparksEmitter = Empire.Universe.sparks.NewEmitter(50f, GetBackgroundPos(Center3D));
-                    if (LightningEmitter == null && ShouldEmitLightningWhenDamaged()) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, GetBackgroundPos(Center3D));
+                    TrailEmitter.Update(elapsedTime, Center3D);
+                    FireTrailEmitter.Update(elapsedTime, Center3D);
+                    if (XSIZE * YSIZE >= 9)
+                    {
+                        if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
+                        SmokeEmitter.Update(elapsedTime, Center3D);
+                    }
+                    if (ModuleType != ShipModuleType.PowerPlant) return;
+                    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, Center3D);
+                    LightningEmitter.Update(elapsedTime, Center3D);
                 }
-                UpdateAllDamageParticleEmmiters(elapsedTime);
             }
             else if (TrailEmitter != null) // destroy immediately when out of vision range, tried Disposing these, but got a crash... so just null them
-                RemoveAllDamageParticleEmmiters();
+            {
+                TrailEmitter     = null;
+                FireTrailEmitter = null;
+                FlameEmitter     = null;
+                SmokeEmitter     = null;
+                SparksEmitter    = null;
+                LightningEmitter = null;
+            }
         }
-
-        private void UpdateAllDamageParticleEmmiters(float elapsedTime)
-        {
-            FlameEmitter?.Update(elapsedTime, Center3D);
-            FireTrailEmitter?.Update(elapsedTime, Center3D);
-            TrailEmitter?.Update(elapsedTime, Center3D);
-            SmokeEmitter?.Update(elapsedTime, Center3D);
-            SparksEmitter?.Update(elapsedTime, Center3D);
-            LightningEmitter?.Update(elapsedTime, Center3D);
-        }
-
-        private void RemoveAllDamageParticleEmmiters()
-        {
-            TrailEmitter     = null;
-            FireTrailEmitter = null;
-            FlameEmitter     = null;
-            SmokeEmitter     = null;
-            SparksEmitter    = null;
-            LightningEmitter = null;
-        }
-
-        private bool ShouldEmitSmokeWhenDamaged() => Area >= 9;
-
-        private bool ShouldEmitSparksWhenDamaged() => ModuleType == ShipModuleType.Turret;
-
-        private bool ShouldEmitLightningWhenDamaged() => ModuleType == ShipModuleType.PowerPlant;
-
-        private static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z -50);
 
         public void UpdateWhileDying(float elapsedTime)
         {
