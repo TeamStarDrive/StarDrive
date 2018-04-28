@@ -19,7 +19,6 @@ namespace Ship_Game.Ships
         private ParticleEmitter FireTrailEmitter;
         private ParticleEmitter FlameEmitter;
         private ParticleEmitter SmokeEmitter;
-        private ParticleEmitter SparksEmitter;
         private ParticleEmitter LightningEmitter;
         public int XSIZE = 1;
         public int YSIZE = 1;
@@ -1085,7 +1084,6 @@ namespace Ship_Game.Ships
                 FireTrailEmitter = null;
                 FlameEmitter     = null;
                 SmokeEmitter     = null;
-                SparksEmitter    = null;
                 LightningEmitter = null;
             }
         }
