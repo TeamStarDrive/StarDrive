@@ -54,7 +54,7 @@ namespace Ship_Game
         private void CreateSceneObject(Vector2 center)
         {
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            
+            //the last number int he newEmitter is the scale factor. These need to be adjust and likley need to be adjusted to junk size. 
             Duration = RandomMath2.RandomBetween(Duration, Duration*2);
             int random = RandomMath2.InRange(ResourceManager.NumJunkModels);
             switch (random)
@@ -64,15 +64,15 @@ namespace Ship_Game
                     break;
                 case 7:
                     RandomValues(center, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
-                    TrailEmitter = Empire.Universe.fireParticles.NewEmitter(200f, Position);
+                    TrailEmitter = Empire.Universe.fireParticles.NewEmitter(200f, Position, 4);
                     break;
                 case 8:
                     RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
-                    TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position);
+                    TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position, 10);
                     break;
                 case 11:
                     RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
-                    TrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(200f, Position);
+                    TrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(200f, Position, 4);
                     break;
                 case 12:
                     RandomValues(center, -3f, 3f, 0.01f, 0.5f, 0.3f, 0.8f);
@@ -82,7 +82,7 @@ namespace Ship_Game
                     break;
                 default:
                     RandomValues(center, -2f, 2f, 0.01f, 1.02f, 0.5f, 2f);
-                    TrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(200f, Position);
+                    TrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(200f, Position, 4);
                     break;
             }
 

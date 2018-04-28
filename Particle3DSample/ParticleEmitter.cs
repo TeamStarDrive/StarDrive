@@ -10,13 +10,15 @@ namespace Particle3DSample
         private readonly float TimeBetweenParticles;
         private Vector3 PreviousPosition;
         private float TimeLeftOver;
+        private float Scale = 1;
 
         // Use ParticleSystem NewEmitter() instead
-        internal ParticleEmitter(ParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
+        internal ParticleEmitter(ParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition, float scale =1)
         {
             ParticleSystem       = particleSystem;
             TimeBetweenParticles = 1f / particlesPerSecond;
             PreviousPosition     = initialPosition;
+            Scale                = scale;
         }
 
         public void Update(float elapsedTime, Vector3 newPosition)
@@ -32,7 +34,7 @@ namespace Particle3DSample
                     timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    ParticleSystem.AddParticleThreadA(position, velocity);
+                    ParticleSystem.AddParticleThreadA(position, velocity, Scale);
                 }
                 TimeLeftOver = timeToSpend;
             }
@@ -54,7 +56,7 @@ namespace Particle3DSample
                     timeToSpend = timeToSpend - TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    ParticleSystem.AddParticleThreadA(position, velocity);
+                    ParticleSystem.AddParticleThreadA(position, velocity, Scale);
                 }
                 TimeLeftOver = timeToSpend;
             }
