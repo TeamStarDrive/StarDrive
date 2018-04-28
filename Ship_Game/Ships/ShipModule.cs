@@ -1057,7 +1057,7 @@ namespace Ship_Game.Ships
                         if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
                         SmokeEmitter.Update(elapsedTime, Center3D);
                     }
-                    if (ModuleType != ShipModuleType.PowerPlant) return;
+                    if (XSIZE * YSIZE < 16) return;
                     if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, Center3D);
                     LightningEmitter.Update(elapsedTime, Center3D);
                 }
@@ -1073,7 +1073,7 @@ namespace Ship_Game.Ships
                         if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
                         SmokeEmitter.Update(elapsedTime, Center3D);
                     }
-                    if (ModuleType != ShipModuleType.PowerPlant) return;
+                    if (XSIZE * YSIZE < 16) return;
                     if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
                     LightningEmitter.Update(elapsedTime, Center3D);
                 }
