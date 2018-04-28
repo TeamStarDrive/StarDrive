@@ -1041,6 +1041,7 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
+        // This code is a 'hot spot'. avoid any method calls here and duplicate code if needed. Its recommended not to change anything at all here.
         private void HandleDamageFireTrail(float elapsedTime)
         {
             if (Parent.InFrustum && Active && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -1051,13 +1052,7 @@ namespace Ship_Game.Ships
                     if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
                     TrailEmitter.Update(elapsedTime, Center3D);
                     FlameEmitter.Update(elapsedTime, Center3D);
-                }
-                else if (OnFire)
-                {
-                    if (TrailEmitter     == null) TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (FireTrailEmitter == null) FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
-                    TrailEmitter.Update(elapsedTime, Center3D);
-                    FireTrailEmitter.Update(elapsedTime, Center3D);
+                    // this block is added for more interesting damage effects, hopefully it wont effect performance too much
                     if (XSIZE * YSIZE >= 9)
                     {
                         if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
@@ -1065,6 +1060,22 @@ namespace Ship_Game.Ships
                     }
                     if (ModuleType != ShipModuleType.PowerPlant) return;
                     if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(1f, Center3D);
+                    LightningEmitter.Update(elapsedTime, Center3D);
+                }
+                else if (OnFire)
+                {
+                    if (TrailEmitter     == null) TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (FireTrailEmitter == null) FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
+                    TrailEmitter.Update(elapsedTime, Center3D);
+                    FireTrailEmitter.Update(elapsedTime, Center3D);
+                    // this block is added for more interesting damage effects, hopefully it wont effect performance too much
+                    if (XSIZE * YSIZE >= 9)
+                    {
+                        if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
+                        SmokeEmitter.Update(elapsedTime, Center3D);
+                    }
+                    if (ModuleType != ShipModuleType.PowerPlant) return;
+                    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
                     LightningEmitter.Update(elapsedTime, Center3D);
                 }
             }
