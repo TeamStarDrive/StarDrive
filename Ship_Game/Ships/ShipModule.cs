@@ -15,9 +15,11 @@ namespace Ship_Game.Ships
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
-        private ParticleEmitter trailEmitter;
-        private ParticleEmitter firetrailEmitter;
-        private ParticleEmitter flameEmitter;
+        private ParticleEmitter TrailEmitter;
+        private ParticleEmitter FireTrailEmitter;
+        private ParticleEmitter FlameEmitter;
+        private ParticleEmitter SmokeEmitter;
+        private ParticleEmitter LightningEmitter;
         public int XSIZE = 1;
         public int YSIZE = 1;
         public bool Powered;
@@ -573,6 +575,12 @@ namespace Ship_Game.Ships
                 damageAmount  = CalcDamageThreshold(proj, damageAmount);
                 CalcEMPDamage(proj);
                 CalcBeamDamageTypes(beam);
+                if (Parent.InFrustum)
+                {
+                    beam?.CreateHitParticles(Center3D.Z);
+                    if (proj?.Explodes == false)
+                        proj.CreateHitParticles(damageAmount, Center3D);
+                }
                 DebugPerseveranceNoDamage();
                 Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
@@ -659,34 +667,19 @@ namespace Ship_Game.Ships
 
         private void CalcBeamDamageTypes(Beam beam)
         {
-            if (beam != null)
-            {
-                Vector2 vel = Vector2.Normalize(beam.Source - Center);
-                if (RandomMath.RandomBetween(0f, 100f) > 90f && Parent.InFrustum)
-                {
-                    Empire.Universe.flash.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), Vector3.Zero);
-                }
-                if (Parent.InFrustum)
-                {
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Empire.Universe.sparks.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                    }
-                }
-                BeamPowerDamage(beam);
-                BeamTroopDamage(beam);
-                BeamMassDamage(beam);
-                BeamRepulsionDamage(beam);
-            }
+            if (beam == null) return;
+            BeamPowerDamage(beam);
+            BeamTroopDamage(beam);
+            BeamMassDamage(beam);
+            BeamRepulsionDamage(beam);
         }
+
         private void BeamPowerDamage(Beam beam)
         {
-            if (beam.Weapon.PowerDamage > 0f)
-            {
-                Parent.PowerCurrent -= beam.Weapon.PowerDamage;
-                if (Parent.PowerCurrent < 0f)
-                    Parent.PowerCurrent = 0f;
-            }
+            if (!(beam.Weapon.PowerDamage > 0f)) return;
+            Parent.PowerCurrent -= beam.Weapon.PowerDamage;
+            if (Parent.PowerCurrent < 0f)
+                Parent.PowerCurrent = 0f;
         }
         private void BeamTroopDamage(Beam beam)
         {
@@ -708,49 +701,45 @@ namespace Ship_Game.Ships
 
         private void BeamMassDamage(Beam beam)
         {
-            if (beam.Weapon.MassDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
-            {
-                Parent.Mass += beam.Weapon.MassDamage;
-                Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-                Parent.Speed = Parent.velocityMaximum;
-                Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
-            }
+            if (!(beam.Weapon.MassDamage > 0f) || Parent.IsTethered() || Parent.EnginesKnockedOut) return;
+            Parent.Mass += beam.Weapon.MassDamage;
+            Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
+            Parent.Speed = Parent.velocityMaximum;
+            Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
         }
 
         private void BeamRepulsionDamage(Beam beam)
         {
             if ((beam?.Weapon?.RepulsionDamage ?? 0f) < 1) return;
-
-            if (!Parent.IsTethered() && !Parent.EnginesKnockedOut)
+            if (Parent.IsTethered() || Parent.EnginesKnockedOut) return;
+            if (beam?.Owner != null && beam.Weapon != null)
                 Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
         }
-
 
         private void DebugPerseveranceNoDamage()
         {
 #if DEBUG
-            if (Empire.Universe.Debug && Parent.VanityName == "Perseverance")
-            {
-                if (Health< 10) // never give up, never surrender! F_F
-                    Health = 10;
-            }
+            if (!Empire.Universe.Debug || Parent.VanityName != "Perseverance") return;
+            if (Health< 10) // never give up, never surrender! F_F
+                Health = 10;
 #endif
         }
 
-        private float ApplyModuleDamage(float damageamount, float health,float healthmax)
+        private float ApplyModuleDamage(float damageAmount, float health,float healthMax)
         {
-            if (damageamount > health) health = 0;
-            else health -= damageamount;
+            if (damageAmount > health)
+                health = 0;
+            else health -= damageAmount;
 
-            if (health >= healthmax)
+            if (health >= healthMax)
             {
-                health = healthmax;
+                health = healthMax;
                 Active = true;
                 this.OnFire = false;
             }
-            if (health / healthmax < 0.5f)
+            if (health / healthMax < 0.5f)
                 this.OnFire = true;
-            if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthmax))
+            if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthMax))
                 this.ReallyFuckedUp = true;
             return health;
         }
@@ -1051,30 +1040,51 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
+        // This code is a 'hot spot'. avoid any method calls here and duplicate code if needed. Its recommended not to change anything at all here.
         private void HandleDamageFireTrail(float elapsedTime)
         {
             if (Parent.InFrustum && Active && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                if (this.ReallyFuckedUp)
+                if (ReallyFuckedUp)
                 {
-                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (flameEmitter == null) flameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
-                    trailEmitter.Update(elapsedTime, Center3D);
-                    flameEmitter.Update(elapsedTime, Center3D);
+                    if (TrailEmitter == null) TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
+                    TrailEmitter.Update(elapsedTime, Center3D);
+                    FlameEmitter.Update(elapsedTime, Center3D);
+                    // this block is added for more interesting damage effects, hopefully it wont effect performance too much
+                    if (XSIZE * YSIZE >= 4)
+                    {
+                        if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(30f, Center3D);
+                        SmokeEmitter.Update(elapsedTime, Center3D);
+                    }
+                    if (XSIZE * YSIZE < 9) return;
+                    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
+                    LightningEmitter.Update(elapsedTime, Center3D);
                 }
-                else if (this.OnFire)
+                else if (OnFire)
                 {
-                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (firetrailEmitter == null) firetrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
-                    trailEmitter.Update(elapsedTime, Center3D);
-                    firetrailEmitter.Update(elapsedTime, Center3D);
+                    if (TrailEmitter     == null) TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
+                    if (FireTrailEmitter == null) FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
+                    TrailEmitter.Update(elapsedTime, Center3D);
+                    FireTrailEmitter.Update(elapsedTime, Center3D);
+                    // this block is added for more interesting damage effects, hopefully it wont effect performance too much
+                    if (XSIZE * YSIZE >= 9)
+                    {
+                        if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(40f, Center3D);
+                        SmokeEmitter.Update(elapsedTime, Center3D);
+                    }
+                    if (XSIZE * YSIZE < 15) return;
+                    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
+                    LightningEmitter.Update(elapsedTime, Center3D);
                 }
             }
-            else if (trailEmitter != null) // destroy immediately when out of vision range
+            else if (TrailEmitter != null) // destroy immediately when out of vision range, tried Disposing these, but got a crash... so just null them
             {
-                trailEmitter = null; // tried Disposing these, but got a crash... so just null them
-                firetrailEmitter = null;
-                flameEmitter = null;
+                TrailEmitter     = null;
+                FireTrailEmitter = null;
+                FlameEmitter     = null;
+                SmokeEmitter     = null;
+                LightningEmitter = null;
             }
         }
 
