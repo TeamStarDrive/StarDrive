@@ -123,7 +123,7 @@ namespace Ship_Game
             pointLight.Radius = Radius;
             pointLight.Intensity = 8f;
             pointLight.Enabled = true;
-
+            // this can use the beam class method.
             Vector2 vel = proj.Center - hitPoint.Center.Normalized();
             Empire.Universe.flash.AddParticleThreadB(new Vector3(proj.Center, hitPoint.GetCenter3D.Z), Vector3.Zero);
             for (int i = 0; i < 20; i++)
