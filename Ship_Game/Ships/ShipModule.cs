@@ -1049,7 +1049,6 @@ namespace Ship_Game.Ships
                 float particles = XSIZE * YSIZE;
 
                 if (Active) return; // Active modules are not in the damage game
-                //if (ModuleType   == ShipModuleType.Armor && XSIZE * YSIZE == 1) return; //  Small armor modules are not in the damage game
 
                 switch (ModuleType) // other special effects based on some module types.
                 {
