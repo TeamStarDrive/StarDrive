@@ -2754,7 +2754,7 @@ namespace Ship_Game.Ships
                     for (  int x = 0; x < 3; x++)
                     {
                         int explosionJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * .15f);// * 0.15f);
-                        SpaceJunk.SpawnJunk(explosionJunk, Center.GenerateRandomPointOnCircle(Radius /2 ), System, this, Radius / 4, junkScale);
+                        SpaceJunk.SpawnJunk(explosionJunk, Center.GenerateRandomPointOnCircle(Radius /2 ), System, this, Radius , junkScale, true);
                     }
                 }
             }

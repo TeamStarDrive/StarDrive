@@ -104,7 +104,7 @@ namespace Ship_Game
                 Vector2 vel = (beam.Source - hitPoint.Center).Normalized();
                 for (int i = 0; i < 20; i++)
                 {
-                    Empire.Universe.sparks.AddParticleThreadA(new Vector3(beam.ActualHitDestination, hitPoint.GetCenter3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)),6);
+                    Empire.Universe.sparks.AddParticleThreadA(new Vector3(beam.ActualHitDestination, hitPoint.GetCenter3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
                 }
             }
 
