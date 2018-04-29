@@ -114,7 +114,7 @@ namespace Ship_Game.Ships
                 for (int i = 5 - 1; i >= 0; --i)
                 {
                     Vector3 randPos = UniverseRandom.Vector32D(third);
-                    Empire.Universe.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero, 2);
+                    Empire.Universe.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
                 }
             }
 
@@ -292,12 +292,12 @@ namespace Ship_Game.Ships
             {
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
                 ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f, 0.2f);
-                Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero, 3);
+                Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
             }
             if (num1 >= 40)
             {
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero, 3);
+                Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
             }
             yRotation += xdie * elapsedTime;
             xRotation += ydie * elapsedTime;
