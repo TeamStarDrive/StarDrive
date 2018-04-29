@@ -23,7 +23,7 @@ namespace Ship_Game
         private ParticleEmitter TrailEmitter;
         private ParticleEmitter TrailEmitter2;
         private ParticleEmitter TrailEmitter3;
-        private bool AfterEffects = false;
+        private bool AfterEffects = false; //Leaving for now. I may wire this in later to turn off some effects. 
 
         public SpaceJunk()
         {
@@ -45,7 +45,6 @@ namespace Ship_Game
 
             Velocity.X += source.Velocity.X;
             Velocity.Y += source.Velocity.Y;
-            //Log.Info("SpaceJunk vx={0} vy={1} v={2}", Xvel, Yvel, new Vector2(Xvel,Yvel).Length());
 
         }
 
@@ -67,7 +66,7 @@ namespace Ship_Game
             Duration = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
             MaxDuration = Duration;
             int random = RandomMath2.InRange(ResourceManager.NumJunkModels);
-            //Empire.Universe.smokePlumeParticles.AddParticleThreadA(Position, Vector3.Zero);
+            //trailEmitter3 is a speical Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
             TrailEmitter3 = Empire.Universe.smokePlumeParticles.NewEmitter(60 * Scale, Position);
             switch (random)
             {
@@ -84,7 +83,6 @@ namespace Ship_Game
                     RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
                     TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(200f * Scale, Position);
                     TrailEmitter2 = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
-                    //TrailEmitter3 = Empire.Universe.flameParticles.NewEmitter(500, Position);
                     break;
                 case 11:
                     RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
@@ -100,8 +98,6 @@ namespace Ship_Game
                 default:
                     RandomValues(center, -2f, 2f, 0.01f, 1.02f, 0.5f, 2f);
                     TrailEmitter = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
-                    //TrailEmitter2 = Empire.Universe.explosionSmokeParticles.NewEmitter(200f, Position);
-                    //TrailEmitter = Empire.Universe.flameParticles.NewEmitter(500, Position);
                     break;
             }
 
