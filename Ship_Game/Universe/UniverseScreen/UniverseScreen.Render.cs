@@ -187,6 +187,7 @@ namespace Ship_Game
             renderState.DepthBufferWriteEnable = false;
             renderState.CullMode = CullMode.None;
             renderState.DepthBufferWriteEnable = true;
+            renderState.MultiSampleAntiAlias = true;            
             ScreenManager.SpriteBatch.End();
         }
 

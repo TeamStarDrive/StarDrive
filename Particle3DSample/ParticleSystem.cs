@@ -27,6 +27,7 @@ namespace Particle3DSample
         private int FirstRetiredParticle;
         private float CurrentTime;
         private int DrawCounter;
+        private float Scale = 1;
 
         private static readonly Random RandomA = new Random();
         private static readonly Random RandomB = new Random();
@@ -50,11 +51,12 @@ namespace Particle3DSample
             };
         }
 
-        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device)
+        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device, float scale = 1)
         {
             GraphicsDevice = device;
             Content        = content;
             SettingsName   = settingsName;
+            Scale          = scale;
             LoadContent();
         }
 
@@ -70,18 +72,21 @@ namespace Particle3DSample
 
         private void AddNewParticlesToVertexBuffer()
         {
-            const int stride = 32;
+            const int stride = 32;            
+       
             if (FirstNewParticle >= FirstFreeParticle)
             {
+                
                 VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
                     Particles.Length - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
                 if (FirstFreeParticle > 0)
-                {
+                {                    
                     VertexBuffer.SetData(0, Particles, 0, FirstFreeParticle, stride, SetDataOptions.NoOverwrite);
-                }
+                }                
             }
             else
             {
+       
                 VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
                     FirstFreeParticle - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
             }
@@ -106,7 +111,7 @@ namespace Particle3DSample
             Particles[FirstFreeParticle].Position = position;
             Particles[FirstFreeParticle].Velocity = velocity;
             Particles[FirstFreeParticle].Random   = new Color((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
-            Particles[FirstFreeParticle].Time     = CurrentTime;
+            Particles[FirstFreeParticle].Time     = CurrentTime;            
             FirstFreeParticle = nextFreeParticle;
         }
 
@@ -125,23 +130,23 @@ namespace Particle3DSample
                 AddNewParticlesToVertexBuffer();
             }
             if (FirstActiveParticle != FirstFreeParticle)
-            {
+            {                
                 SetParticleRenderStates(device.RenderState);
                 EffectViewportHeightParameter.SetValue(Game1.Instance.Viewport.Height);
                 EffectTimeParameter.SetValue(CurrentTime);
                 device.Vertices[0].SetSource(VertexBuffer, 0, 32);
-                device.VertexDeclaration = VertexDeclaration;
+                device.VertexDeclaration = VertexDeclaration;          
                 ParticleEffect.Begin();
                 foreach (EffectPass pass in ParticleEffect.CurrentTechnique.Passes)
-                {
+                {                  
                     pass.Begin();
                     if (FirstActiveParticle >= FirstFreeParticle)
                     {
                         device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, Particles.Length - FirstActiveParticle);
                         if (FirstFreeParticle > 0)
                         {
-                            device.DrawPrimitives(PrimitiveType.PointList, 0, FirstFreeParticle);
-                        }
+                            device.DrawPrimitives(PrimitiveType.PointList, 0, FirstFreeParticle);                         
+                        }                        
                     }
                     else
                     {
@@ -149,11 +154,14 @@ namespace Particle3DSample
                     }
                     pass.End();
                 }
+               
                 ParticleEffect.End();
+
                 device.RenderState.PointSpriteEnable = false;
                 device.RenderState.DepthBufferWriteEnable = true;
             }
             ++DrawCounter;
+      
         }
 
         private void FreeRetiredParticles()
@@ -169,7 +177,7 @@ namespace Particle3DSample
             }
         }
 
-        public void LoadContent()
+        private void LoadContent()
         {
             Settings = Content.Load<ParticleSettings>(SettingsName);
             if (SettingsName == "3DParticles/ProjectileTrailSettings") Settings.MaxParticles *= 10;
@@ -197,8 +205,8 @@ namespace Particle3DSample
             parameters["MinColor"].SetValue(Settings.MinColor.ToVector4());
             parameters["MaxColor"].SetValue(Settings.MaxColor.ToVector4());
             parameters["RotateSpeed"].SetValue(new Vector2(Settings.MinRotateSpeed, Settings.MaxRotateSpeed));
-            parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize));
-            parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize));
+            parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * Scale);
+            parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * Scale);
 
             var texture = Content.Load<Texture2D>("3DParticles/" + Settings.TextureName);
             parameters["Texture"].SetValue(texture);
@@ -250,6 +258,8 @@ namespace Particle3DSample
             renderState.ReferenceAlpha         = 0;
             renderState.DepthBufferEnable      = true;
             renderState.DepthBufferWriteEnable = false;
+
+            
         }
 
         public void UnloadContent()
@@ -267,6 +277,7 @@ namespace Particle3DSample
 
             if (FirstActiveParticle == FirstFreeParticle)    CurrentTime = 0f;
             if (FirstRetiredParticle == FirstActiveParticle) DrawCounter = 0;
+
         }
 
         public void Dispose()
