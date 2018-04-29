@@ -363,7 +363,7 @@ namespace Ship_Game
             for (int i = 0; i < 5; i++)
             {
                 var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                Empire.Universe.explosionSmokeParticles.AddParticleThreadB(pos, vel);
+                Empire.Universe.smokePlumeParticles.AddParticleThreadB(pos, vel);
             }
         }
 
