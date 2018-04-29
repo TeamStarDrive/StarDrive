@@ -27,21 +27,20 @@ namespace Particle3DSample
         private int FirstRetiredParticle;
         private float CurrentTime;
         private int DrawCounter;
+        private float Scale = 1;
 
         private static readonly Random RandomA = new Random();
         private static readonly Random RandomB = new Random();
         private readonly GraphicsDevice GraphicsDevice;
 
-        //I am worried about making this 36 bytes. doesnt seem like an effcient number. 
         private struct ParticleVertex
         {
-            public const int SizeInBytes = 36;
+            public const int SizeInBytes = 32;
 
             public Vector3 Position;
             public Vector3 Velocity;
             public Color Random;
             public float Time;
-            public float Scale;
 
             public static readonly VertexElement[] VertexElements =
             {
@@ -52,45 +51,49 @@ namespace Particle3DSample
             };
         }
 
-        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device)
+        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device, float scale = 1)
         {
             GraphicsDevice = device;
             Content        = content;
             SettingsName   = settingsName;
+            Scale          = scale;
             LoadContent();
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float scale = 1)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
         {
-            return new ParticleEmitter(this, particlesPerSecond, initialPosition, scale);
+            return new ParticleEmitter(this, particlesPerSecond, initialPosition);
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float initialZ = 0f, float scale =1)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float initialZ = 0f)
         {
-            return new ParticleEmitter(this, particlesPerSecond, new Vector3(initialCenter, initialZ), scale);
+            return new ParticleEmitter(this, particlesPerSecond, new Vector3(initialCenter, initialZ));
         }
 
         private void AddNewParticlesToVertexBuffer()
         {
-            const int stride = 36;
+            const int stride = 32;            
+       
             if (FirstNewParticle >= FirstFreeParticle)
             {
+                
                 VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
                     Particles.Length - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
                 if (FirstFreeParticle > 0)
-                {
+                {                    
                     VertexBuffer.SetData(0, Particles, 0, FirstFreeParticle, stride, SetDataOptions.NoOverwrite);
-                }
+                }                
             }
             else
             {
+       
                 VertexBuffer.SetData(FirstNewParticle * stride, Particles, FirstNewParticle, 
                     FirstFreeParticle - FirstNewParticle, stride, SetDataOptions.NoOverwrite);
             }
             FirstNewParticle = FirstFreeParticle;
         }
 
-        private void AddParticleThread(Random random, Vector3 position, Vector3 velocity, float scale)
+        private void AddParticleThread(Random random, Vector3 position, Vector3 velocity)
         {
             int nextFreeParticle = FirstFreeParticle + 1;
             if (nextFreeParticle >= Particles.Length)
@@ -108,13 +111,12 @@ namespace Particle3DSample
             Particles[FirstFreeParticle].Position = position;
             Particles[FirstFreeParticle].Velocity = velocity;
             Particles[FirstFreeParticle].Random   = new Color((byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255), (byte)random.Next(255));
-            Particles[FirstFreeParticle].Time     = CurrentTime;
-            Particles[FirstFreeParticle].Scale    = scale;
+            Particles[FirstFreeParticle].Time     = CurrentTime;            
             FirstFreeParticle = nextFreeParticle;
         }
 
-        public void AddParticleThreadA(Vector3 position, Vector3 velocity, float scale = 1) => AddParticleThread(RandomA, position, velocity,scale);
-        public void AddParticleThreadB(Vector3 position, Vector3 velocity, float scale = 1) => AddParticleThread(RandomB, position, velocity,scale);
+        public void AddParticleThreadA(Vector3 position, Vector3 velocity) => AddParticleThread(RandomA, position, velocity);
+        public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticleThread(RandomB, position, velocity);
 
         public void Draw(GameTime gameTime)
         {
@@ -128,55 +130,38 @@ namespace Particle3DSample
                 AddNewParticlesToVertexBuffer();
             }
             if (FirstActiveParticle != FirstFreeParticle)
-            {
+            {                
                 SetParticleRenderStates(device.RenderState);
                 EffectViewportHeightParameter.SetValue(Game1.Instance.Viewport.Height);
                 EffectTimeParameter.SetValue(CurrentTime);
-                device.Vertices[0].SetSource(VertexBuffer, 0, 36);
-                device.VertexDeclaration = VertexDeclaration;
-                float activescale = Particles[FirstActiveParticle].Scale;
-                
+                device.Vertices[0].SetSource(VertexBuffer, 0, 32);
+                device.VertexDeclaration = VertexDeclaration;          
                 ParticleEffect.Begin();
                 foreach (EffectPass pass in ParticleEffect.CurrentTechnique.Passes)
-                {              
+                {                  
                     pass.Begin();
                     if (FirstActiveParticle >= FirstFreeParticle)
                     {
-                        if (activescale != 1) //now these looks very bad to me. but i dont know how else to change the scale. 
-                        {
-                            ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * activescale);
-                            ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * activescale);
-                        }
                         device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, Particles.Length - FirstActiveParticle);
                         if (FirstFreeParticle > 0)
                         {
-                            float freeScale = Particles[FirstFreeParticle].Scale;
-                            if (freeScale != 1)
-                            {
-                                ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * freeScale);
-                                ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * freeScale);
-                            }
-                            device.DrawPrimitives(PrimitiveType.PointList, 0, FirstFreeParticle);
-                        }
+                            device.DrawPrimitives(PrimitiveType.PointList, 0, FirstFreeParticle);                         
+                        }                        
                     }
                     else
                     {
-                        if (activescale != 1) //now these looks very bad to me. but i dont know how else to change the scale. 
-                        {
-                            ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * activescale);
-                            ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * activescale);
-                        }
                         device.DrawPrimitives(PrimitiveType.PointList, FirstActiveParticle, FirstFreeParticle - FirstActiveParticle);
                     }
                     pass.End();
                 }
+               
                 ParticleEffect.End();
-                ParticleEffect.Parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize));
-                ParticleEffect.Parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize));
+
                 device.RenderState.PointSpriteEnable = false;
                 device.RenderState.DepthBufferWriteEnable = true;
             }
             ++DrawCounter;
+      
         }
 
         private void FreeRetiredParticles()
@@ -192,7 +177,7 @@ namespace Particle3DSample
             }
         }
 
-        public void LoadContent()
+        private void LoadContent()
         {
             Settings = Content.Load<ParticleSettings>(SettingsName);
             if (SettingsName == "3DParticles/ProjectileTrailSettings") Settings.MaxParticles *= 10;
@@ -200,7 +185,7 @@ namespace Particle3DSample
             Particles = new ParticleVertex[Settings.MaxParticles];
             LoadParticleEffect();
             VertexDeclaration = new VertexDeclaration(GraphicsDevice, ParticleVertex.VertexElements);
-            int size = 36 * Particles.Length;
+            int size = 32 * Particles.Length;
             VertexBuffer = new DynamicVertexBuffer(GraphicsDevice, size, BufferUsage.WriteOnly | BufferUsage.Points);
         }
 
@@ -220,8 +205,8 @@ namespace Particle3DSample
             parameters["MinColor"].SetValue(Settings.MinColor.ToVector4());
             parameters["MaxColor"].SetValue(Settings.MaxColor.ToVector4());
             parameters["RotateSpeed"].SetValue(new Vector2(Settings.MinRotateSpeed, Settings.MaxRotateSpeed));
-            parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize));
-            parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize));
+            parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * Scale);
+            parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * Scale);
 
             var texture = Content.Load<Texture2D>("3DParticles/" + Settings.TextureName);
             parameters["Texture"].SetValue(texture);
@@ -273,6 +258,8 @@ namespace Particle3DSample
             renderState.ReferenceAlpha         = 0;
             renderState.DepthBufferEnable      = true;
             renderState.DepthBufferWriteEnable = false;
+
+            
         }
 
         public void UnloadContent()
@@ -290,6 +277,7 @@ namespace Particle3DSample
 
             if (FirstActiveParticle == FirstFreeParticle)    CurrentTime = 0f;
             if (FirstRetiredParticle == FirstActiveParticle) DrawCounter = 0;
+
         }
 
         public void Dispose()
