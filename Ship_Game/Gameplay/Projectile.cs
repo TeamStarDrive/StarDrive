@@ -734,14 +734,13 @@ namespace Ship_Game.Gameplay
                 case 0:
                     for (int i = 0; i < 20; i++)
                         Empire.Universe.fireTrailParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 5; i++)
                         Empire.Universe.explosionSmokeParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
                     break;
                 case 1:
                     for (int i = 0; i < 50; i++)
                         Empire.Universe.sparks.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
-                    for (int i = 0; i < 5; i++)
-                        Empire.Universe.smokePlumeParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    Empire.Universe.smokePlumeParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
                     break;
                 case 2:
                     Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);

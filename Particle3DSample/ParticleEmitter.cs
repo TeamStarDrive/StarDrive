@@ -10,6 +10,7 @@ namespace Particle3DSample
         private readonly float TimeBetweenParticles;
         private Vector3 PreviousPosition;
         private float TimeLeftOver;
+        
 
         // Use ParticleSystem NewEmitter() instead
         internal ParticleEmitter(ParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
@@ -17,13 +18,17 @@ namespace Particle3DSample
             ParticleSystem       = particleSystem;
             TimeBetweenParticles = 1f / particlesPerSecond;
             PreviousPosition     = initialPosition;
+        
         }
 
-        public void Update(float elapsedTime, Vector3 newPosition)
+        public void Update(float elapsedTime, Vector3 newPosition, float zDirection = 0)
         {
             if (elapsedTime > 0f)
             {
-                Vector3 velocity  = (newPosition - PreviousPosition) / elapsedTime;
+
+                Vector3 velocity = newPosition - PreviousPosition;
+                velocity.Z += zDirection;
+                velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
                 float currentTime = -TimeLeftOver;
                 while (timeToSpend > TimeBetweenParticles)
@@ -38,6 +43,7 @@ namespace Particle3DSample
             }
             PreviousPosition = newPosition;
         }
+        public void Update(float elapsedTime) { Update(elapsedTime, PreviousPosition); }
 
         public void UpdateProjectileTrail(float elapsedTime, Vector3 newPosition, Vector2 pVel)
         {
