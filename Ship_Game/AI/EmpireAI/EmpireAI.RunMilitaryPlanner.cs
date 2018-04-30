@@ -140,75 +140,7 @@ namespace Ship_Game.AI
                 capacity = capacity - ResourceManager.ShipsDict[s].GetMaintCost(OwnerEmpire);                
                 numgoals = numgoals + 1f;
             }
-            ////CG i think this all needs to be unwound and moved into mark for colonization goal.
-            //foreach (Goal g in Goals)
-            //{
-            //    if (g.Held)
-            //        continue;
-            //    if (g.GetMarkedPlanet() == null) continue;
-            //    float str = ThreatMatrix.PingRadarStr(g.GetMarkedPlanet().Center, 100000f, OwnerEmpire);
-            //    if (str < 10)
-            //    {
-            //        continue;
-            //    }
-
-            //    var tohold = new Array<Goal>
-            //    {
-            //        g
-            //    };
-            //    var task =
-            //        new MilitaryTask(g.GetMarkedPlanet().Center, 125000f, tohold, OwnerEmpire, str);
-            //    {
-            //        TaskList.Add(task);
-            //        break;
-            //    }
-            //}
-
-            //if (OwnerEmpire.data.DiplomaticPersonality.Territorialism < 50 &&
-            //    OwnerEmpire.data.DiplomaticPersonality.Trustworthiness < 50
-            //)
-            //{
-            //    foreach (Goal g in Goals)
-            //    {
-            //        if (g.type != GoalType.Colonize || g.Held)                    
-            //            continue;
-                    
-            //        bool ok = true;
-
-            //        using (TaskList.AcquireReadLock())
-            //        {
-            //            foreach (MilitaryTask mt in TaskList)
-            //            {
-            //                if ((mt.type != MilitaryTask.TaskType.DefendClaim
-            //                     && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies)
-            //                    || g.GetMarkedPlanet() != null
-            //                    && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))                            
-            //                    continue;
-                            
-            //                ok = false;
-            //                break;
-            //            }
-            //        }
-            //        if (!ok)                    
-            //            continue;
-                    
-            //        if (g.GetMarkedPlanet() == null)
-            //            continue;
-            //        var task = new MilitaryTask
-            //        {
-            //            AO = g.GetMarkedPlanet().Center
-            //        };
-            //        task.SetEmpire(OwnerEmpire);
-            //        task.AORadius = 75000f;
-            //        task.SetTargetPlanet(g.GetMarkedPlanet());
-            //        task.TargetPlanetGuid = g.GetMarkedPlanet().guid;
-            //        task.MinimumTaskForceStrength = ThreatMatrix.PingRadarStrengthLargestCluster(task.AO, task.AORadius, OwnerEmpire);
-            //        task.type = MilitaryTask.TaskType.DefendClaim;
-            //        {
-            //            TaskList.Add(task);
-            //        }
-            //    }
-            //}
+            
             Goals.ApplyPendingRemovals();            
 
             //this where the global AI attack stuff happenes.
