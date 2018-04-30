@@ -20,17 +20,17 @@ namespace Ship_Game
         private ParticleEmitter FlameTrail;
         private ParticleEmitter ProjTrail;
         private ParticleEmitter StaticSmoke;
-        private readonly bool AfterEffects; // Leaving for now. I may wire this in later to turn off some effects. 
+        private readonly bool UseStaticSmoke; // Leaving for now. I may wire this in later to turn off some effects. 
 
         public SpaceJunk()
         {
         }
 
-        public SpaceJunk(Vector2 pos, GameplayObject source, float spawnRadius, float scaleMod, bool afterEffects)
+        public SpaceJunk(Vector2 pos, GameplayObject source, float spawnRadius, float scaleMod, bool useStaticSmoke)
         {
             float radius = spawnRadius + 25f;
             ScaleMod = scaleMod;                        
-            AfterEffects = afterEffects;
+            UseStaticSmoke = useStaticSmoke;
             Position.X = RandomMath2.RandomBetween(pos.X - radius, pos.X + radius);
             Position.Y = RandomMath2.RandomBetween(pos.Y - radius, pos.Y + radius);
             Position.Z = RandomMath2.RandomBetween(-radius*0.5f, radius*0.5f);
@@ -54,10 +54,9 @@ namespace Ship_Game
         private void CreateSceneObject(Vector2 center)
         {
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            
-            Duration = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
+            Duration    = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
             MaxDuration = Duration;
-            int random = RandomMath2.InRange(ResourceManager.NumJunkModels);
+            int random  = RandomMath2.InRange(ResourceManager.NumJunkModels);
             switch (random)
             {
                 case 6:
@@ -66,12 +65,12 @@ namespace Ship_Game
                 case 7:
                     RandomValues(center, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
                     FlameTrail = Empire.Universe.fireTrailParticles.NewEmitter(500f * Scale, Position);
-                    ProjTrail = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position);
+                    ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position);
                     break;
                 case 8:
                     RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
                     FlameTrail = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
-                    ProjTrail = Empire.Universe.projectileTrailParticles.NewEmitter(200f * Scale, Position);
+                    ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f * Scale, Position);
                     break;
                 case 11:
                     RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
@@ -89,9 +88,9 @@ namespace Ship_Game
                     break;
             }
 
-            if (AfterEffects)
+            if (UseStaticSmoke)
             {
-                //trailEmitter3 is a special Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
+                // special Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
                 StaticSmoke = Empire.Universe.smokePlumeParticles.NewEmitter(60 * Scale, Position);
             }
 
@@ -106,10 +105,10 @@ namespace Ship_Game
 
         /**
          * @param spawnRadius Spawned junk is spread around the given radius
-         * @param scaleMod 
+         * @param scaleMod Applies additional scale modifier on the spawned junk
          */
         public static void SpawnJunk(int howMuchJunk, Vector2 position, SolarSystem s, 
-                                     GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f, bool afterEffects = false)
+                                     GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f, bool staticSmoke = false)
         {
             if (UniverseScreen.JunkList.Count > 800 ||
                 Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView ||
@@ -119,7 +118,7 @@ namespace Ship_Game
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {
-                junk[i] = new SpaceJunk(position, source, spawnRadius, scaleMod, afterEffects);
+                junk[i] = new SpaceJunk(position, source, spawnRadius, scaleMod, staticSmoke);
             }
 
             // now lock and add to scene
@@ -147,7 +146,7 @@ namespace Ship_Game
             FlameTrail?.Update(elapsedTime, Position);
             ProjTrail?.Update(elapsedTime, Position);
 
-            if (AfterEffects && (Duration / MaxDuration) > 0.9f)
+            if (UseStaticSmoke && (Duration / MaxDuration) > 0.9f)
                 StaticSmoke.Update(elapsedTime);
 
         }
