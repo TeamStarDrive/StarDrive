@@ -12,8 +12,6 @@ namespace Ship_Game.Ships
         private readonly ParticleEmitter Smoke;
         private readonly ParticleEmitter Flame;
         private readonly float LightningVelZ;
-        private readonly float TrailVelZ;
-        private readonly float SmokeVelZ;
         private readonly float Area;
 
 
@@ -54,8 +52,6 @@ namespace Ship_Game.Ships
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
             Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area, center);
             Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center);
-            TrailVelZ = -0.1f;
-            SmokeVelZ = -2.0f;
 
             // armor and small modules don't produce flames
             if (type != ShipModuleType.Armor && Area > 2)
@@ -67,14 +63,14 @@ namespace Ship_Game.Ships
         // This is called when module is OnFire or completely dead
         public void Update(float elapsedTime, Vector3 center, bool isAlive)
         {
-            Lightning?.Update(elapsedTime, center, LightningVelZ);
+            Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
             Flame?.Update(elapsedTime, center, zVelocity: Area / -RandomMath.RandomBetween(2f, 6f));
 
             // only spawn smoke from dead modules
             if (!isAlive)
             {
-                Trail?.Update(elapsedTime, center, TrailVelZ);
-                Smoke?.Update(elapsedTime, center, SmokeVelZ);
+                Trail?.Update(elapsedTime, center, zVelocity: -0.1f);
+                Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
             }
         }
     }
