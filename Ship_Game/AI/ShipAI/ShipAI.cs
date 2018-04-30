@@ -678,6 +678,8 @@ namespace Ship_Game.AI
             return false;
         }
 
+
+
         private bool UpdateFreightAI()
         {
             if (State == AIState.SystemTrader && start != null && end != null &&
@@ -697,6 +699,24 @@ namespace Ship_Game.AI
                 return true;
             }
             return false;
+        }
+        public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
+        public bool ClearOrdersConditional(Plan plan)
+        {
+            bool clearOrders = false;
+            
+                foreach (var order in OrderQueue)
+                {
+                    if (order.Plan != plan)
+                        continue;
+                    clearOrders = true;
+                    break;
+
+
+                }
+            if (clearOrders)
+                OrderQueue.Clear();
+            return clearOrders;
         }
 
         private void UpdateUtilityModuleAI(float elapsedTime)
