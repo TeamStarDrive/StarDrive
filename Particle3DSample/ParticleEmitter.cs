@@ -21,13 +21,12 @@ namespace Particle3DSample
         
         }
 
-        public void Update(float elapsedTime, Vector3 newPosition, float zDirection = 0)
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity = 0)
         {
             if (elapsedTime > 0f)
             {
-
                 Vector3 velocity = newPosition - PreviousPosition;
-                velocity.Z += zDirection;
+                velocity.Z += zVelocity;
                 velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
                 float currentTime = -TimeLeftOver;
@@ -43,7 +42,11 @@ namespace Particle3DSample
             }
             PreviousPosition = newPosition;
         }
-        public void Update(float elapsedTime) { Update(elapsedTime, PreviousPosition); }
+
+        public void Update(float elapsedTime)
+        {
+            Update(elapsedTime, PreviousPosition);
+        }
 
         public void UpdateProjectileTrail(float elapsedTime, Vector3 newPosition, Vector2 pVel)
         {
@@ -52,7 +55,6 @@ namespace Particle3DSample
                 Vector3 velocity = pVel.ToVec3();
                 float timeToSpend = TimeLeftOver + elapsedTime;
                 float currentTime = - TimeLeftOver;
-
 
                 while (timeToSpend > TimeBetweenParticles)
                 {
