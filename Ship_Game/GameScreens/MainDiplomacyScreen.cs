@@ -917,7 +917,8 @@ namespace Ship_Game
             
             var shipTechs = new Array<string>();
             if (empire == null) return;
-            foreach (ThreatMatrix.Pin pin in pins)
+            var threatArray = pins.ToArray();
+            foreach (ThreatMatrix.Pin pin in threatArray)
             {
                 if (pin.Ship?.loyalty != empire) continue;
 
