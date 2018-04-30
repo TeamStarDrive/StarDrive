@@ -239,7 +239,7 @@ namespace Ship_Game
                 Vector3 screenSpacePosition = viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X
                     , SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity);
                 var screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * OperationalRadius.RelativeValue);
+                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, (SelectedNodeList[0].Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue);
                 viewport = Viewport;
                 Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                 Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -1009,31 +1009,7 @@ namespace Ship_Game
             {
                 SelectedNodeList.Clear();
             }
-            if (SelectedNodeList.Count == 1)
-            {
-                SelectedNodeList[0].AttackShieldedWeight = SliderShield.HandleInput(input);
-                SelectedNodeList[0].DPSWeight            = SliderDps.HandleInput(input);
-                SelectedNodeList[0].VultureWeight        = SliderVulture.HandleInput(input);
-                SelectedNodeList[0].ArmoredWeight        = SliderArmor.HandleInput(input);
-                SelectedNodeList[0].DefenderWeight       = SliderDefend.HandleInput(input);
-                SelectedNodeList[0].AssistWeight         = SliderAssist.HandleInput(input);
-                SelectedNodeList[0].SizeWeight           = SliderSize.HandleInput(input);
-                if (OperationsRect.HitTest(mousePos))
-                {
-                    return true;
-                }
-                if (PrioritiesRect.HitTest(mousePos))
-                {
-                    OperationalRadius.HandleInput(input);
-                    SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
-                    return true;
-                }
-                if (SelectedStuffRect.HitTest(mousePos)) 
-                {
-                    InputCombatStateButtons();                    
-                    return false;
-                }
-            }
+            if (HandleSingleNodeSelection(input, mousePos)) return false;
             if (SelectedNodeList.Count > 1)
             {
                 SliderDps.HandleInput(input);
@@ -1335,7 +1311,48 @@ namespace Ship_Game
                 return true;
             }
             return false;
-        }        
+        }
+
+        private void ApplySliderValuesToNode(InputState input, WeightSlider slider, ref float currentValue)
+        {            
+
+            if (!slider.rect.HitTest(input.CursorPosition))
+                slider.SetAmount(currentValue);
+            currentValue = slider.HandleInput(input);
+            
+        }
+
+        private bool HandleSingleNodeSelection(InputState input, Vector2 mousePos)
+        {            
+            if (SelectedNodeList.Count != 1) return false;
+            bool setReturn = false;
+            setReturn |= SliderShield.HandleInput(input, ref SelectedNodeList[0].AttackShieldedWeight);
+            setReturn |= SliderDps.HandleInput(input, ref SelectedNodeList[0].DPSWeight);
+            setReturn |= SliderVulture.HandleInput(input , ref SelectedNodeList[0].VultureWeight);
+            setReturn |= SliderArmor.HandleInput(input , ref SelectedNodeList[0].ArmoredWeight);
+            setReturn |= SliderDefend.HandleInput(input, ref SelectedNodeList[0].DefenderWeight);
+            setReturn |= SliderAssist.HandleInput(input, ref SelectedNodeList[0].AssistWeight);
+            setReturn |= SliderSize.HandleInput(input, ref SelectedNodeList[0].SizeWeight);
+            setReturn |= OperationalRadius.HandleInput(input, ref SelectedNodeList[0].OrdersRadius, SelectedNodeList[0].Ship?.SensorRange ?? 500000);
+            if (setReturn) return false;
+            if (OperationsRect.HitTest(mousePos))
+            {
+                return true;
+            }
+
+            if (PrioritiesRect.HitTest(mousePos))
+            {
+                //OperationalRadius.HandleInput(input);
+                //SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
+                return true;
+            }
+
+            if (!SelectedStuffRect.HitTest(mousePos)) return false;
+
+            InputCombatStateButtons();
+            return true;
+
+        }
 
         private void HandleSelectionBox(InputState input)
         {
@@ -1775,7 +1792,7 @@ namespace Ship_Game
             };
             PrioritiesRect = new Rectangle(SelectedStuffRect.X - OperationsRect.Width - 2, OperationsRect.Y, OperationsRect.Width, OperationsRect.Height);
             Rectangle oprect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
-            OperationalRadius = new FloatSlider(this, oprect, "Operational Radius")
+            OperationalRadius = new FloatSlider(this, oprect, "Operational Radius", max: 500000, value: 10000)
             {
                 RelativeValue = 0.2f,
                 TooltipId = 13
@@ -1840,13 +1857,15 @@ namespace Ship_Game
             {
                 Array<string> roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
-                {                    
-                    if (roles.Contains(ResourceManager.ShipsDict[shipname].shipData.GetRole()))
-                    {
+                {
+                    Ship ship = ResourceManager.GetShipTemplate(shipname);
+                    if (roles.Contains(ship.shipData.GetRole()))                    
                         continue;
-                    }
-                    roles.Add(ResourceManager.ShipsDict[shipname].shipData.GetRole());
-                    ModuleHeader mh = new ModuleHeader(ResourceManager.ShipsDict[shipname].shipData.GetRole(), 295f);
+                    if (!ship.ShipIsGoodForGoalsUI())
+                        continue;
+                    roles.Add(ship.shipData.GetRole());
+
+                    ModuleHeader mh = new ModuleHeader(ship.shipData.GetRole(), 295f);
                     ShipSL.AddItem(mh);
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
@@ -1854,7 +1873,8 @@ namespace Ship_Game
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
-                        if (!ship.ShipIsGoodForGoals()) continue;
+                        if (!ship.ShipIsGoodForGoalsUI())
+                            continue;
                         if (ship.shipData.GetRole() != (e.item as ModuleHeader)?.Text)
                         {
                             continue;

@@ -244,6 +244,7 @@ namespace Ship_Game.Ships
             }
         }
         public ShipData.RoleName DesignRole { get; private set; }
+        public string GetDesignRoleName() => ShipData.GetRole(DesignRole);
         public Texture2D GetTacticalIcon()
         {
             if (DesignRole == ShipData.RoleName.support)
@@ -2556,7 +2557,7 @@ namespace Ship_Game.Ships
         public float GetStrength(bool recalculate = false)
         {            
             if (Health >= HealthMax * 0.75f && !LowHealth && CurrentStrength > -1)
-                return BaseStrength;
+                return CurrentStrength;
             if (recalculate || CurrentStrength < 0)
                 CurrentStrength = CalculateShipStrength(false);
             return CurrentStrength;
@@ -3163,6 +3164,7 @@ namespace Ship_Game.Ships
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
+        public bool ShipIsGoodForGoalsUI(float baseStrengthNeeded = 0) => ShipIsGoodForGoals(baseStrengthNeeded, EmpireManager.Player);
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
             if (!Active) return false;
@@ -3180,7 +3182,7 @@ namespace Ship_Game.Ships
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
                 Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
-            if (DesignRole < ShipData.RoleName.fighter || BaseStrength >  baseStrengthNeeded )
+            if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;
             return false;
 
