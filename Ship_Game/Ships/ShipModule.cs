@@ -22,6 +22,7 @@ namespace Ship_Game.Ships
         private bool CanVisualizeDamage;
         private ShipModuleDamageVisualization DamageVisualizer;
         private bool OnFire;
+        private const float OnFireThreshold = 0.1f;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
@@ -518,11 +519,11 @@ namespace Ship_Game.Ships
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float health            = Health + ShieldPower;
-            float damageModifier    = Damage(source, damageAmount);
+            float health         = Health + ShieldPower;
+            float damageModifier = Damage(source, damageAmount);
 
             DebugDamageCircle();
-            if ( Health > 0)
+            if (Health > 0)
             {
                 damageRemainder = 0f;
                 return;
@@ -543,8 +544,10 @@ namespace Ship_Game.Ships
                 damageDone = health - Health - ShieldPower;
                 return;
             }
-            if (damageModifier >= 0.01 || damageModifier <= -0.01) damageDone = (health - Health - ShieldPower) / damageModifier; // add the dmg resisted
-            else damageDone = damageAmount; // everything was absorbed in this module
+            if (damageModifier >= 0.01 || damageModifier <= -0.01)
+                damageDone = (health - Health - ShieldPower) / damageModifier; // add the dmg resisted
+            else
+                damageDone = damageAmount; // everything was absorbed in this module
         }
 
         public override float Damage(GameplayObject source, float damageAmount, bool internalexplosion = false)
@@ -716,6 +719,7 @@ namespace Ship_Game.Ships
 #endif
         }
 
+
         private float ApplyModuleDamage(float damageAmount, float health,float healthMax)
         {
             if (damageAmount > health)
@@ -728,7 +732,7 @@ namespace Ship_Game.Ships
                 Active = true;
                 OnFire = false;
             }
-            else if ((health / healthMax) < 0.33f)
+            else if ((health / healthMax) < OnFireThreshold)
             {
                 OnFire = true;
             }
@@ -1002,7 +1006,7 @@ namespace Ship_Game.Ships
             if (Health >= HealthMax)
             {
                 Health = HealthMax;
-                //this.OnFire = false;
+                OnFire = false;
             }
 
             BombTimer -= elapsedTime;
@@ -1061,9 +1065,10 @@ namespace Ship_Game.Ships
         public void Repair(float repairAmount)
         {
             Health += repairAmount;
-            if (Health < HealthMax) return;
-
-            Health = HealthMax;
+            if (Health > HealthMax)
+                Health = HealthMax;
+            if ((Health / HealthMax) > OnFireThreshold)
+                OnFire = false;
         }
 
         public float GetShieldsMax()
