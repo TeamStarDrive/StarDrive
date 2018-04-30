@@ -1054,20 +1054,20 @@ namespace Ship_Game.Ships
                 switch (ModuleType) // other special effects based on some module types.
                 {
                     case ShipModuleType.Engine:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.sparks.NewEmitter(particles * 3, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -20);
-                        break;
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.photonExplosionParticles.NewEmitter(particles * 4, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -5);
+                        return;
                     case ShipModuleType.Shield:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(5f, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -4);
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(8f, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -8f);
                         break;
                     case ShipModuleType.PowerPlant:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(6f, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -4);
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -10f);
                         break;
                     case ShipModuleType.PowerConduit:  // power conduit get only sparks
                         if (LightningEmitter == null) LightningEmitter = Empire.Universe.sparks.NewEmitter(25, Center.ToVec3(-10));
-                        LightningEmitter.Update(elapsedTime, Center3D, -2);
+                        LightningEmitter.Update(elapsedTime, Center3D, -2f);
                         return;
                 }
 
@@ -1076,7 +1076,7 @@ namespace Ship_Game.Ships
                 TrailEmitter.Update(elapsedTime, Center3D, -0.1f);
                 SmokeEmitter.Update(elapsedTime, Center3D, -2f);
 
-                if (ModuleType   == ShipModuleType.Armor || XSIZE * YSIZE < 2) return; // Small modules wont get flames, only smoke
+                if (ModuleType   == ShipModuleType.Armor || XSIZE * YSIZE < 3) return; // Small modules wont get flames, only smoke
                 if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(particles, Center3D);
                 FlameEmitter.Update(elapsedTime, Center3D, - (particles / 2 + RandomMath.RandomBetween(0f, 4f)));
 
