@@ -21,6 +21,9 @@ namespace Ship_Game.Ships
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         private bool CanVisualizeDamage;
         private ShipModuleDamageVisualization DamageVisualizer;
+        private bool OnFire;
+        private Vector3 Center3D;
+        public Vector3 GetCenter3D => Center3D;
 
         private Ship Parent;
         public float HealthMax;
@@ -38,10 +41,6 @@ namespace Ship_Game.Ships
         public bool isWeapon;
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
-        //private bool OnFire;
-        //private bool ReallyFuckedUp;
-        private Vector3 Center3D;
-        public Vector3 GetCenter3D => Center3D;
 
 
         public float BombTimer;
@@ -403,9 +402,6 @@ namespace Ship_Game.Ships
             Center3D.Y           = cy;
             Center3D.Z           = tan * (256f - XMLPosition.X);
 
-            // this can only happen if onFire is already true
-            //this.ReallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
-
             UpdateDamageVisualization(elapsedTime);
             Rotation = Parent.Rotation;
         }
@@ -730,12 +726,12 @@ namespace Ship_Game.Ships
             {
                 health = healthMax;
                 Active = true;
-                //this.OnFire = false;
+                OnFire = false;
             }
-            //if (health / healthMax < 0.5f)
-            //    this.OnFire = true;
-            //if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthMax))
-            //    this.ReallyFuckedUp = true;
+            else if ((health / healthMax) < 0.33f)
+            {
+                OnFire = true;
+            }
             return health;
         }
 
@@ -804,7 +800,7 @@ namespace Ship_Game.Ships
                 Parent.NeedRecalculate = true;
             int debriCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
             if (debriCount == 0) return;
-            float debriScale = size * 0.1f;
+            float debriScale = size * 0.033f;
             SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
 
@@ -1042,15 +1038,15 @@ namespace Ship_Game.Ships
             if (!CanVisualizeDamage)
                 return; // bail out for modules that are never visualized
 
-            if (Active && Parent.InFrustum && 
+            if (OnFire && Parent.InFrustum && 
                 Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 if (DamageVisualizer == null)
                     DamageVisualizer = new ShipModuleDamageVisualization(this);
 
-                DamageVisualizer.Update(elapsedTime, Center3D);
+                DamageVisualizer.Update(elapsedTime, Center3D, Active);
             }
-            else // destroy immediately when out of vision range or if module died (!Active)
+            else // destroy immediately when out of vision range or if module is no longer OnFire 
             {
                 DamageVisualizer = null;
             }
