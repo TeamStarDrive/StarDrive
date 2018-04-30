@@ -1053,9 +1053,9 @@ namespace Ship_Game.Ships
 
                 switch (ModuleType) // other special effects based on some module types.
                 {
-                    case ShipModuleType.Engine:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.photonExplosionParticles.NewEmitter(particles * 4, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -5);
+                    case ShipModuleType.FuelCell:
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.photonExplosionParticles.NewEmitter(particles * 6, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -6);
                         return;
                     case ShipModuleType.Shield:
                         if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(8f, Center3D);
