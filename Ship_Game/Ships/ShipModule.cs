@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
         private ParticleEmitter TrailEmitter;
-        private ParticleEmitter FireTrailEmitter;
+        //private ParticleEmitter FireTrailEmitter;
         private ParticleEmitter FlameEmitter;
         private ParticleEmitter SmokeEmitter;
         private ParticleEmitter LightningEmitter;
@@ -42,8 +42,8 @@ namespace Ship_Game.Ships
         public bool isWeapon;
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
-        private bool OnFire;
-        private bool ReallyFuckedUp;
+        //private bool OnFire;
+        //private bool ReallyFuckedUp;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
@@ -409,7 +409,7 @@ namespace Ship_Game.Ships
             Center3D.Z           = tan * (256f - XMLPosition.X);
 
             // this can only happen if onFire is already true
-            this.ReallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
+            //this.ReallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
 
             HandleDamageFireTrail(elapsedTime);
             Rotation = Parent.Rotation;
@@ -735,12 +735,12 @@ namespace Ship_Game.Ships
             {
                 health = healthMax;
                 Active = true;
-                this.OnFire = false;
+                //this.OnFire = false;
             }
-            if (health / healthMax < 0.5f)
-                this.OnFire = true;
-            if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthMax))
-                this.ReallyFuckedUp = true;
+            //if (health / healthMax < 0.5f)
+            //    this.OnFire = true;
+            //if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthMax))
+            //    this.ReallyFuckedUp = true;
             return health;
         }
 
@@ -1011,7 +1011,7 @@ namespace Ship_Game.Ships
             if (Health >= HealthMax)
             {
                 Health = HealthMax;
-                this.OnFire = false;
+                //this.OnFire = false;
             }
 
             BombTimer -= elapsedTime;
@@ -1040,25 +1040,44 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
-        // This code is a 'hot spot'. avoid any method calls here and duplicate code if needed. Its recommended not to change anything at all here.
+        // FB: This code is a 'hot spot'. avoid any method calls here and duplicate code if needed.
+        //     It seems complex, but actually most of the times nothing is executed here.
         private void HandleDamageFireTrail(float elapsedTime)
         {
-             if (Parent.InFrustum  && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (Parent.InFrustum  && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                float z = -20f;
-                float pariticles = Parent.Size * .05f;
-        
-                if (!Active)
+                float particles = XSIZE * YSIZE;
+
+                if (Active) return; // Active modules are not in the damage game
+
+                switch (ModuleType) // other special effects based on some module types.
                 {
-                    if (TrailEmitter == null) TrailEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(pariticles, Center3D);
-                    if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(pariticles, Center3D);
-                    if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(5, Center3D);
-                    FlameEmitter.Update(elapsedTime, Center3D, z);
-                    SmokeEmitter.Update(elapsedTime, Center3D, -5);
-                    TrailEmitter.Update(elapsedTime, Center3D, -5);
-
-
+                    case ShipModuleType.Engine:
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.sparks.NewEmitter(particles * 3, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -20);
+                        break;
+                    case ShipModuleType.Shield:
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(5f, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -4);
+                        break;
+                    case ShipModuleType.PowerPlant:
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(6f, Center3D);
+                        LightningEmitter.Update(elapsedTime, Center3D, -4);
+                        break;
                 }
+                if (XSIZE * YSIZE == 1) return; // 1x1 modules are not in the damage game
+
+                if (TrailEmitter == null) TrailEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(particles, Center3D);
+                if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(particles * 3, Center3D);
+                SmokeEmitter.Update(elapsedTime, Center3D, -2);
+                TrailEmitter.Update(elapsedTime, Center3D, -2);
+
+                if (ModuleType == ShipModuleType.Armor) return; // Armor modules wont get flames, only smoke
+
+                if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(particles, Center3D);
+                FlameEmitter.Update(elapsedTime, Center3D, - (particles + RandomMath.RandomBetween(0f, 4f)));
+
+
                 //else if (ReallyFuckedUp)
                 //{
                 //    if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(pariticles, Center3D);
@@ -1099,13 +1118,11 @@ namespace Ship_Game.Ships
                 //    if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
                 //    LightningEmitter.Update(elapsedTime, Center3D, z);
                 //}
-
-
             }
             else if (TrailEmitter != null) // destroy immediately when out of vision range, tried Disposing these, but got a crash... so just null them
             {
                 TrailEmitter     = null;
-                FireTrailEmitter = null;
+                //FireTrailEmitter = null;
                 FlameEmitter     = null;
                 SmokeEmitter     = null;
                 LightningEmitter = null;

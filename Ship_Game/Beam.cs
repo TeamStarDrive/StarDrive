@@ -360,11 +360,6 @@ namespace Ship_Game
                 var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
                 Empire.Universe.sparks.AddParticleThreadB(pos, vel);
             }
-            for (int i = 0; i < 5; i++)
-            {
-                var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                Empire.Universe.smokePlumeParticles.AddParticleThreadB(pos, vel);
-            }
         }
 
         private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
