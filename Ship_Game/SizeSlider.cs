@@ -101,6 +101,18 @@ namespace Ship_Game
 			}
 		}
 
+        public bool HandleInput(InputState input, ref float  currentvalue)
+        {
+            if (!rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
+            {
+                SetAmount(currentvalue);
+                return false;
+            }
+            currentvalue = HandleInput(input);
+            return true;
+
+        }
+
 		public float HandleInput(InputState input)
 		{
 			if (!this.rect.HitTest(input.CursorPosition))
