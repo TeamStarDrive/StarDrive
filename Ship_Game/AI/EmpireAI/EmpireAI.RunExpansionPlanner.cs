@@ -74,7 +74,7 @@ namespace Ship_Game.AI {
         {
             var weightedCenter = new Vector2();
 
-            if (FindCenterAndHungry(ref weightedCenter)) return;
+            if (CannotColonize(ref weightedCenter)) return;
             var ranker = new Array<Goal.PlanetRanker>();
             var allPlanetsRanker = new Array<Goal.PlanetRanker>();
 
@@ -241,9 +241,9 @@ namespace Ship_Game.AI {
             return false;
         }
 
-        private bool FindCenterAndHungry(ref Vector2 weightedCenter)
+        private bool CannotColonize(ref Vector2 weightedCenter)
         {
-            DesiredColonyGoals = (int) (Empire.Universe.GameDifficulty + 1) * 2 +
+            DesiredColonyGoals = (int) (Empire.Universe.GameDifficulty + 1)  +
                                  (OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0);
             int numColonyGoals = NumColonyGoals();
             if (numColonyGoals >= DesiredColonyGoals) return true;
