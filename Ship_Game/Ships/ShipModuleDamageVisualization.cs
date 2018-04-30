@@ -64,13 +64,18 @@ namespace Ship_Game.Ships
             }
         }
 
-
-        public void Update(float elapsedTime, Vector3 center)
+        // This is called when module is OnFire or completely dead
+        public void Update(float elapsedTime, Vector3 center, bool isAlive)
         {
             Lightning?.Update(elapsedTime, center, LightningVelZ);
-            Trail?.Update(elapsedTime, center, TrailVelZ);
-            Smoke?.Update(elapsedTime, center, SmokeVelZ);
             Flame?.Update(elapsedTime, center, zVelocity: Area / -RandomMath.RandomBetween(2f, 6f));
+
+            // only spawn smoke from dead modules
+            if (!isAlive)
+            {
+                Trail?.Update(elapsedTime, center, TrailVelZ);
+                Smoke?.Update(elapsedTime, center, SmokeVelZ);
+            }
         }
     }
 }
