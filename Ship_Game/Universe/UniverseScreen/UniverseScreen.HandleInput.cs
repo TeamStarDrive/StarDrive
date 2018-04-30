@@ -725,30 +725,52 @@ namespace Ship_Game
         }
 
         private void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, Vector2 targetVector, ShipGroup fleet = null)
-        {
-            fleet = fleet ?? SelectedFleet;
+        {            
+            fleet = fleet ?? SelectedFleet;            
+            fleet?.FleetTargetList.Clear();
             GameAudio.AffirmativeClick();
             float targetFacingR = fleet.Position.RadiansToTarget(targetVector);
             Vector2 vectorToTarget =
                 Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(targetFacingR, 1f));
+            using (fleet.Ships.AcquireReadLock())
+                foreach (var ship in fleet.Ships)
+                {
+                    ship.AI.Target = null;
+                    ship.AI.SetPriorityOrder();
+                }
             PlayerEmpire.GetGSAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
-
+            
             if (shipClicked != null && shipClicked.loyalty != player)
             {
                 fleet.Position = shipClicked.Center;
                 fleet.AssignPositions(0.0f);
                 foreach (Ship fleetShip in fleet.Ships)
                     AttackSpecifcShip(fleetShip, shipClicked);
+                return;
             }
-            else if (planetClicked != null)
+            if (planetClicked != null)
             {
                 fleet.Position = planetClicked.Center; //fbedard: center fleet on planet
                 foreach (Ship ship2 in fleet.Ships)
                     RightClickOnPlanet(ship2, planetClicked, false);
+
+                return;
             }
-            else if (Input.QueueAction)
+            if (Input.QueueAction)
+            {
+                using (fleet.Ships.AcquireReadLock())                
+                    foreach(var ship in fleet.Ships)                    
+                        ship.AI.ClearOrderIfCombat();
+                                    
                 fleet.FormationWarpTo(movePosition, targetFacingR, vectorToTarget, true);
-            else if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
+                return;
+            }
+            using (fleet.Ships.AcquireReadLock())            
+                foreach (var ship in fleet.Ships)                
+                    ship.AI.OrderQueue.Clear();
+                
+            
+            if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                 fleet.MoveToDirectly(movePosition, targetFacingR, vectorToTarget);
             else
                 fleet.FormationWarpTo(movePosition, targetFacingR, vectorToTarget);
@@ -1306,6 +1328,7 @@ namespace Ship_Game
 
             }
             bool isFleet = fleet != null && fleet.CountShips == fleetShips;
+            if (!isFleet) fleet = null;
             purgeLoyalty = playerShips != 0 && playerShips != ships.Count && !isFleet;
             purgeType    = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
 
