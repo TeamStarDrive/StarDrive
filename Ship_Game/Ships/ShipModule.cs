@@ -1049,6 +1049,7 @@ namespace Ship_Game.Ships
                 float particles = XSIZE * YSIZE;
 
                 if (Active) return; // Active modules are not in the damage game
+                if (XSIZE * YSIZE == 1 && ModuleType == ShipModuleType.Armor) return; // Small armor modules are not in the damage game
 
                 switch (ModuleType) // other special effects based on some module types.
                 {
@@ -1064,18 +1065,20 @@ namespace Ship_Game.Ships
                         if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(6f, Center3D);
                         LightningEmitter.Update(elapsedTime, Center3D, -4);
                         break;
+                    case ShipModuleType.PowerConduit:  // power conduit get only sparks
+                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.sparks.NewEmitter(25, Center.ToVec3(-10));
+                        LightningEmitter.Update(elapsedTime, Center3D, -2);
+                        return;
                 }
-                if (XSIZE * YSIZE == 1) return; // 1x1 modules are not in the damage game
 
                 if (TrailEmitter == null) TrailEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(particles, Center3D);
                 if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(particles * 3, Center3D);
-                SmokeEmitter.Update(elapsedTime, Center3D, -2);
-                TrailEmitter.Update(elapsedTime, Center3D, -2);
+                TrailEmitter.Update(elapsedTime, Center3D, -0.1f);
+                SmokeEmitter.Update(elapsedTime, Center3D, -2f);
 
-                if (ModuleType == ShipModuleType.Armor) return; // Armor modules wont get flames, only smoke
-
+                if (ModuleType   == ShipModuleType.Armor || XSIZE * YSIZE < 2) return; // Small modules wont get flames, only smoke
                 if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(particles, Center3D);
-                FlameEmitter.Update(elapsedTime, Center3D, - (particles + RandomMath.RandomBetween(0f, 4f)));
+                FlameEmitter.Update(elapsedTime, Center3D, - (particles / 2 + RandomMath.RandomBetween(0f, 4f)));
 
 
                 //else if (ReallyFuckedUp)
