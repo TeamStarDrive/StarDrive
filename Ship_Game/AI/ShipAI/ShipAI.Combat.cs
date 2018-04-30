@@ -122,7 +122,7 @@ namespace Ship_Game.AI
             FriendliesNearby.Clear();
             PotentialTargets.Clear();
             NearByShips.Clear();
-            
+    
 
 
             if (HasPriorityTarget)
@@ -146,7 +146,7 @@ namespace Ship_Game.AI
                     Target = null;
                     HasPriorityTarget = false;
                 }
-                else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
+                else if (!Intercepting && target.engineState == Ship.MoveState.Warp )
                 {
                     Target = null;
                     if (!HasPriorityOrder && Owner.loyalty != UniverseScreen.player)
@@ -226,7 +226,7 @@ namespace Ship_Game.AI
                 .OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
-            if (Owner.fleet != null)
+            if (Owner.fleet != null && State != AIState.FormationWarp)
             {
                 foreach (Ship ship in PotentialTargets)
                     Owner.fleet?.FleetTargetList.AddUniqueRef(ship);
@@ -245,11 +245,12 @@ namespace Ship_Game.AI
                     BadGuysNear = true;
                 return Target;
             }
+            GameplayObject targetShip = null;
             if (sortedList2.Any())
-                Target = sortedList2.ElementAt(0).Ship;
+                targetShip = sortedList2.ElementAt(0).Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0)
-                return Target;
+                return targetShip;
             return null;
         }
 
@@ -413,7 +414,7 @@ namespace Ship_Game.AI
 
             if (Owner.fleet != null)
             {
-                if (!HasPriorityTarget)
+                if (!HasPriorityTarget )
                     Target = ScanForCombatTargets(senseCenter, radius);
                 else
                     ScanForCombatTargets(senseCenter, radius);
@@ -504,8 +505,8 @@ namespace Ship_Game.AI
                 }
                 else
                 {
-                    radius = Owner.SensorRange;
-                    if (Owner.inborders) radius += 10000;
+                    float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
+                    radius =  sensorRange; //FleetNode?.OrdersRadius ??
                 }
             else if (Owner.Mothership != null)
                 senseCenter = Owner.Mothership.Center;
