@@ -15,17 +15,17 @@ namespace Ship_Game.Ships
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
-        private ParticleEmitter TrailEmitter;
-        //private ParticleEmitter FireTrailEmitter;
-        private ParticleEmitter FlameEmitter;
-        private ParticleEmitter SmokeEmitter;
-        private ParticleEmitter LightningEmitter;
         public int XSIZE = 1;
         public int YSIZE = 1;
-        public bool Powered;
-        public float FieldOfFire;
         public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
+        private bool CanVisualizeDamage;
+        private ShipModuleDamageVisualization DamageVisualizer;
+        private bool OnFire;
+        private const float OnFireThreshold = 0.1f;
+        private Vector3 Center3D;
+        public Vector3 GetCenter3D => Center3D;
+
         private Ship Parent;
         public float HealthMax;
         public string WeaponType;
@@ -42,10 +42,6 @@ namespace Ship_Game.Ships
         public bool isWeapon;
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
-        //private bool OnFire;
-        //private bool ReallyFuckedUp;
-        private Vector3 Center3D;
-        public Vector3 GetCenter3D => Center3D;
 
 
         public float BombTimer;
@@ -54,20 +50,18 @@ namespace Ship_Game.Ships
 
         public string UID => Flyweight.UID;
 
-        public bool isExternal;
+        public float FieldOfFire;
         public int TargetValue;
-        public int quadrant = -1;
         public float TransporterTimer;
-
-        // This is used to calculate whether this module has power or not
-        private int ActivePowerSources;
-        public bool HasPower => ActivePowerSources > 0;
         public bool CheckedConduits;
+        public bool Powered;
+        public int quadrant = -1;
+        public bool isExternal;
+
 
         // Used to configure how good of a target this module is
-        public int ModuleTargettingValue         => TargetValue
-                                          //+ (isExternal ? -5 : 0)         // external modules are less critical
-                                          + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules        
+        public int ModuleTargettingValue => TargetValue + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules        
+        
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Flyweight.IsCommandModule" now.    -Gretman
@@ -193,9 +187,8 @@ namespace Ship_Game.Ships
         private float WeaponRotation = 0;
         public float WeaponRotationSpeed
         {
-            get { return
-                WeaponRotation == 0 ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation; }
-            set { WeaponRotation = value; }
+            get => WeaponRotation == 0f ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
+            set => WeaponRotation = value;
         }
         public float WeaponECM = 0;
         public float WeaponECCM = 0;
@@ -354,6 +347,7 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ModulesCreated;
 
             XMLPosition = pos;
+
             // center of the top left 1x1 slot of this module 
             //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
@@ -363,6 +357,7 @@ namespace Ship_Game.Ships
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
+            CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             UpdateModuleRadius();
             SetAttributesByType(addToShieldManager);
@@ -408,10 +403,7 @@ namespace Ship_Game.Ships
             Center3D.Y           = cy;
             Center3D.Z           = tan * (256f - XMLPosition.X);
 
-            // this can only happen if onFire is already true
-            //this.ReallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
-
-            HandleDamageFireTrail(elapsedTime);
+            UpdateDamageVisualization(elapsedTime);
             Rotation = Parent.Rotation;
         }
 
@@ -527,11 +519,11 @@ namespace Ship_Game.Ships
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float health            = Health + ShieldPower;
-            float damageModifier    = Damage(source, damageAmount);
+            float health         = Health + ShieldPower;
+            float damageModifier = Damage(source, damageAmount);
 
             DebugDamageCircle();
-            if ( Health > 0)
+            if (Health > 0)
             {
                 damageRemainder = 0f;
                 return;
@@ -552,8 +544,10 @@ namespace Ship_Game.Ships
                 damageDone = health - Health - ShieldPower;
                 return;
             }
-            if (damageModifier >= 0.01 || damageModifier <= -0.01) damageDone = (health - Health - ShieldPower) / damageModifier; // add the dmg resisted
-            else damageDone = damageAmount; // everything was absorbed in this module
+            if (damageModifier >= 0.01 || damageModifier <= -0.01)
+                damageDone = (health - Health - ShieldPower) / damageModifier; // add the dmg resisted
+            else
+                damageDone = damageAmount; // everything was absorbed in this module
         }
 
         public override float Damage(GameplayObject source, float damageAmount, bool internalexplosion = false)
@@ -725,6 +719,7 @@ namespace Ship_Game.Ships
 #endif
         }
 
+
         private float ApplyModuleDamage(float damageAmount, float health,float healthMax)
         {
             if (damageAmount > health)
@@ -735,12 +730,12 @@ namespace Ship_Game.Ships
             {
                 health = healthMax;
                 Active = true;
-                //this.OnFire = false;
+                OnFire = false;
             }
-            //if (health / healthMax < 0.5f)
-            //    this.OnFire = true;
-            //if ((Parent.Health / Parent.HealthMax) < 0.5 && health < 0.5 * (healthMax))
-            //    this.ReallyFuckedUp = true;
+            else if ((health / healthMax) < OnFireThreshold)
+            {
+                OnFire = true;
+            }
             return health;
         }
 
@@ -809,7 +804,7 @@ namespace Ship_Game.Ships
                 Parent.NeedRecalculate = true;
             int debriCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
             if (debriCount == 0) return;
-            float debriScale = size * 0.1f;
+            float debriScale = size * 0.033f;
             SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
 
@@ -1011,7 +1006,7 @@ namespace Ship_Game.Ships
             if (Health >= HealthMax)
             {
                 Health = HealthMax;
-                //this.OnFire = false;
+                OnFire = false;
             }
 
             BombTimer -= elapsedTime;
@@ -1040,72 +1035,40 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
-        // FB: This code is a 'hot spot'. avoid any method calls here and duplicate code if needed.
-        //     It seems complex, but actually most of the times nothing is executed here.
-        private void HandleDamageFireTrail(float elapsedTime)
+
+        // @note This is called every frame for every module for every ship in the universe
+        private void UpdateDamageVisualization(float elapsedTime)
         {
-            if (Parent.InFrustum  && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (!CanVisualizeDamage)
+                return; // bail out for modules that are never visualized
+
+            if (OnFire && Parent.InFrustum && 
+                Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                if (Active) return; // Active modules are not in the damage game
+                if (DamageVisualizer == null)
+                    DamageVisualizer = new ShipModuleDamageVisualization(this);
 
-                float area = XSIZE * YSIZE;
-
-                switch (ModuleType) // other special effects based on some module types.
-                {
-                    case ShipModuleType.Armor:
-                        if (area <= 1f)
-                            return; // Small armor modules are irrelevant for this
-                        break;
-                    case ShipModuleType.FuelCell:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.photonExplosionParticles.NewEmitter(area * 6f, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -6);
-                        return;
-                    case ShipModuleType.Shield:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(8f, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -8f);
-                        break;
-                    case ShipModuleType.PowerPlant:
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.lightning.NewEmitter(10f, Center3D);
-                        LightningEmitter.Update(elapsedTime, Center3D, -10f);
-                        break;
-                    case ShipModuleType.PowerConduit:  // power conduit get only sparks
-                        if (LightningEmitter == null) LightningEmitter = Empire.Universe.sparks.NewEmitter(25, Center.ToVec3(-10));
-                        LightningEmitter.Update(elapsedTime, Center3D, -2f);
-                        return;
-                }
-                // after all the special cases and removing irrelevant modules, we come to smoke emitters
-                if (TrailEmitter == null) TrailEmitter = Empire.Universe.smokePlumeParticles.NewEmitter(area, Center3D);
-                if (SmokeEmitter == null) SmokeEmitter = Empire.Universe.explosionSmokeParticles.NewEmitter(area * 3f, Center3D);
-                TrailEmitter.Update(elapsedTime, Center3D, -0.1f);
-                SmokeEmitter.Update(elapsedTime, Center3D, -2f);
-                // removing remaining armor modules so they wont produce flames.
-                if (ModuleType   == ShipModuleType.Armor || area < 3f) return; // Small modules wont get flames, only smoke
-
-                if (FlameEmitter == null) FlameEmitter = Empire.Universe.flameParticles.NewEmitter(area, Center3D);
-                FlameEmitter.Update(elapsedTime, Center3D, - (area / 2f + RandomMath.RandomBetween(0f, 4f)));
+                DamageVisualizer.Update(elapsedTime, Center3D, Active);
             }
-            else if (TrailEmitter != null) // destroy immediately when out of vision range, tried Disposing these, but got a crash... so just null them
+            else // destroy immediately when out of vision range or if module is no longer OnFire 
             {
-                TrailEmitter     = null;
-                //FireTrailEmitter = null;
-                FlameEmitter     = null;
-                SmokeEmitter     = null;
-                LightningEmitter = null;
+                DamageVisualizer = null;
             }
         }
 
         public void UpdateWhileDying(float elapsedTime)
         {
             Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-25f, 25f));
-            HandleDamageFireTrail(elapsedTime);
+            UpdateDamageVisualization(elapsedTime);
         }
 
         public void Repair(float repairAmount)
         {
             Health += repairAmount;
-            if (Health < HealthMax) return;
-
-            Health = HealthMax;
+            if (Health > HealthMax)
+                Health = HealthMax;
+            if ((Health / HealthMax) > OnFireThreshold)
+                OnFire = false;
         }
 
         public float GetShieldsMax()
