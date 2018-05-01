@@ -21,12 +21,13 @@ namespace Particle3DSample
         
         }
 
-        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity = 0)
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity = 0, float zAxisPos = 0)
         {
             if (elapsedTime > 0f)
             {
+                newPosition.Z += zAxisPos;
                 Vector3 velocity = newPosition - PreviousPosition;
-                velocity.Z += zVelocity;
+                velocity.Z += zVelocity;                
                 velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
                 float currentTime = -TimeLeftOver;
