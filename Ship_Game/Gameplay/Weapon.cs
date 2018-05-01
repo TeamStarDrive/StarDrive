@@ -662,7 +662,6 @@ namespace Ship_Game.Gameplay
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)
         {
-           
             if (!CanFireWeapon())
                 return;
             CooldownTimer = fireDelay;
