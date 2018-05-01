@@ -25,26 +25,26 @@ namespace Ship_Game.Ships
 
         public ShipModuleDamageVisualization(ShipModule module)
         {
-            Area = module.XSIZE * module.YSIZE;
-            Vector3 center = module.GetCenter3D;
+            Area                = module.XSIZE * module.YSIZE;
+            Vector3 center      = module.GetCenter3D;
             ShipModuleType type = module.ModuleType;
 
             switch (type) // other special effects based on some module types.
             {
                 case ShipModuleType.FuelCell:
-                    Lightning = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
+                    Lightning     = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
                     LightningVelZ = -6f;
                     return;
                 case ShipModuleType.Shield:
-                    Lightning = Empire.Universe.lightning.NewEmitter(8f, center);
+                    Lightning     = Empire.Universe.lightning.NewEmitter(8f, center);
                     LightningVelZ = -8f;
                     break;
                 case ShipModuleType.PowerPlant:
-                    Lightning = Empire.Universe.lightning.NewEmitter(10f, center);
+                    Lightning     = Empire.Universe.lightning.NewEmitter(10f, center);
                     LightningVelZ = -10f;
                     break;
                 case ShipModuleType.PowerConduit:  // power conduit get only sparks
-                    Lightning = Empire.Universe.sparks.NewEmitter(25, center.ToVec2(), -10f);
+                    Lightning     = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f);
                     LightningVelZ = -2f;
                     return;
             }
@@ -64,14 +64,12 @@ namespace Ship_Game.Ships
         public void Update(float elapsedTime, Vector3 center, bool isAlive)
         {
             Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -RandomMath.RandomBetween(2f, 6f));
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  + RandomMath.RandomBetween(2f, 6f));
 
             // only spawn smoke from dead modules
-            if (!isAlive)
-            {
-                Trail?.Update(elapsedTime, center, zVelocity: -0.1f);
-                Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
-            }
+            if (isAlive) return;
+            Trail?.Update(elapsedTime, center, zVelocity: -0.1f);
+            Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
         }
     }
 }
