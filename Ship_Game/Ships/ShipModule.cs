@@ -546,7 +546,7 @@ namespace Ship_Game.Ships
             var beam = source as Beam;
             var proj = source as Projectile; 
 
-            bool damagingShields = ShieldPower > 1f && proj?.IgnoresShields == false;
+            bool damagingShields = ShieldPower > 1f && proj?.IgnoresShields != true;
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
@@ -557,28 +557,34 @@ namespace Ship_Game.Ships
             if (damagingShields)
             {
                 ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
-                //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
-                if (beam != null)
-                    CauseSiphonDamage(beam);
+                if (proj != null)
+                {
+                    if (beam != null) CauseSiphonDamage(beam);
+
+                    if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                        shield.HitShield(this, proj);
+                }
 
                 Parent.UpdateShields();
 
-                if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
-                    shield.HitShield(this, proj);
+                //Log.Info($"{Parent.Name} shields '{UID}' dmg {modifiedDamage} shld {ShieldPower} by {proj?.WeaponType}");
             }
             else
             {
-                CauseEmpDamage(proj);
-                if (beam != null) CauseSpecialBeamDamage(beam);
-                if (Parent.InFrustum)
+                if (proj != null)
                 {
-                    beam?.CreateHitParticles(Center3D.Z);
-                    if (proj?.Explodes == false)
-                        proj.CreateHitParticles(modifiedDamage, Center3D);
+                    CauseEmpDamage(proj);
+                    if (beam != null) CauseSpecialBeamDamage(beam);
+
+                    if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                    {
+                        if (beam != null)                beam.CreateHitParticles(Center3D.Z);
+                        else if (proj.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
+                    }
                 }
                 DebugPerseveranceNoDamage();
                 Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
-                //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
+                //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
         }
 
