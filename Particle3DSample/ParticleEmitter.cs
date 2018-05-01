@@ -18,31 +18,35 @@ namespace Particle3DSample
         {
             ParticleSystem       = particleSystem;
             TimeBetweenParticles = 1f / particlesPerSecond;
-            PreviousPosition     = initialPosition;
-        
+            PreviousPosition     = initialPosition;        
         }
-
-        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity = 0, float zAxisPos = 0, float jitter =0)
+        public void Update(float elapsedTime, Vector3 newPosition) => Update(elapsedTime, newPosition, 0, 0, 0);
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity) => Update(elapsedTime, newPosition, zVelocity, 0, 0);
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float jitter) 
+            => Update(elapsedTime, newPosition, zVelocity, 0, jitter);
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float zAxisPos, float jitter)
         {
             if (elapsedTime > 0f)
-            {
-                newPosition.Z += zAxisPos;
+            {                
                 Vector3 velocity = newPosition - PreviousPosition;
                 velocity.Z += zVelocity;                
                 velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
                 float currentTime = -TimeLeftOver;
+                bool offSetOnce = false;
                 while (timeToSpend > TimeBetweenParticles)
                 {
                     currentTime += TimeBetweenParticles;
                     timeToSpend -= TimeBetweenParticles;
-                    float mu = currentTime / elapsedTime;
+                    float mu     = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    if (jitter > 0)
+                    position.Z      += zAxisPos;
+                    if (!offSetOnce && jitter > 0)
                     {
+                        offSetOnce = true;                        
                         position.X += RandomMath2.RandomBetween(-jitter, jitter);
                         position.Y += RandomMath2.RandomBetween(-jitter, jitter);
-                        position.Z += RandomMath2.RandomBetween(-jitter * .5f, jitter * .5f);
+                        position.Z += RandomMath2.RandomBetween(-jitter, jitter);
                     }
                     ParticleSystem.AddParticleThreadA(position, velocity);
                 }
