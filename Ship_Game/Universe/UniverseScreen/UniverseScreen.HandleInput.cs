@@ -995,7 +995,7 @@ namespace Ship_Game
                 }
                 else if (SelectedShipList.Count > 0)
                 {
-                    SelectedSomethingTimer = 3f;
+                     SelectedSomethingTimer = 3f;
                     foreach (Ship ship in SelectedShipList)
                     {
                         if (ship.loyalty != player || UnselectableShip(ship))
