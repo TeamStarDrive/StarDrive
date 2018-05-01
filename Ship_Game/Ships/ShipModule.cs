@@ -480,6 +480,17 @@ namespace Ship_Game.Ships
             return Math.Min(1.0f, (damageRadius - explodeDist) / (damageRadius + minFalloff));
         }
 
+        private float GetDamageRemainder(float healthBefore, float originalDamage, float damageModifier)
+        {
+            float absorbedDamage = (healthBefore - (Health + ShieldPower)) / damageModifier;
+            return (int)(originalDamage - absorbedDamage);
+        }
+
+        public void DebugDamageCircle()
+        {
+            Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
+        }
+
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool ApplyExplosiveDamage(GameplayObject source, Vector2 worldHitPos, float damageRadius,
                                          ref float damageInOut)
@@ -490,28 +501,24 @@ namespace Ship_Game.Ships
             float moduleRadius = ShieldPower > 0 ? ShieldHitRadius : Radius;
             float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, moduleRadius, 0f);
             if (damage <= 0.001f)
-                return damageInOut <= 0f;
+                return true;
 
             if (Empire.Universe.DebugWin != null)
                 Empire.Universe.DebugWin.DrawCircle(DebugModes.SpatialManager, Center, Radius);
 
             float healthBefore = Health + ShieldPower;
-            float damageModifier = Damage(source, damage, explosion: true);
-            float healthAfter = Health + ShieldPower;
+            float damageModifier = GetDamageModifier(source, explosion: true);
+            DamageModule(source, damage * damageModifier);
 
-            float absorbedDamage = (healthBefore - healthAfter) / damageModifier;
-            damageInOut -= absorbedDamage;
+            damageInOut = GetDamageRemainder(healthBefore, damage, damageModifier);
             return damageInOut <= 0f;
-        }
-        public void DebugDamageCircle()
-        {
-            Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
         }
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float health         = Health + ShieldPower;
-            float damageModifier = Damage(source, damageAmount);
+            float healthBefore   = Health + ShieldPower;
+            float damageModifier = GetDamageModifier(source);
+            DamageModule(source, damageAmount * damageModifier);
 
             DebugDamageCircle();
             if (Health > 0)
@@ -519,14 +526,16 @@ namespace Ship_Game.Ships
                 damageRemainder = 0f;
                 return;
             }
-            damageRemainder = damageAmount * damageModifier - (health - Health - ShieldPower);
-            if (damageModifier <= 1f)
-                return;
-            damageRemainder /= damageModifier;  // undo modifier from the damage remained since the next module might not have these vulnerabilites
-            damageRemainder = (int)Math.Round(damageRemainder, 0);
+            damageRemainder = GetDamageRemainder(healthBefore, damageAmount, damageModifier);
         }
 
-        public override float Damage(GameplayObject source, float damageAmount, bool explosion = false)
+        public override void Damage(GameplayObject source, float damageAmount)
+        {
+            float damageModifier = GetDamageModifier(source);
+            DamageModule(source, damageAmount * damageModifier);
+        }
+
+        private void DamageModule(GameplayObject source, float modifiedDamage)
         {
             if (source != null)
                 Parent.LastDamagedBy = source;
@@ -537,20 +546,17 @@ namespace Ship_Game.Ships
             var beam = source as Beam;
             var proj = source as Projectile; 
 
-            float damageModifier = GetDamageModifier(beam?.Weapon ?? proj?.Weapon, explosion);
-            damageAmount *= damageModifier;
-
             bool damagingShields = ShieldPower > 1f && proj?.IgnoresShields == false;
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
-                if (damageAmount <= damageThreshold)
-                    return 1f; // no damage could be done // @todo All damage should get absorbed!
+                if (modifiedDamage <= damageThreshold)
+                    return; // no damage could be done // @todo All damage should get absorbed!
             }
 
             if (damagingShields)
             {
-                ShieldPower = (ShieldPower - damageAmount).Clamp(0, ShieldPower);
+                ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
                 if (beam != null)
                     CauseSiphonDamage(beam);
@@ -563,22 +569,22 @@ namespace Ship_Game.Ships
             else
             {
                 CauseEmpDamage(proj);
-                if (beam != null) CauseBeamDamage(beam);
+                if (beam != null) CauseSpecialBeamDamage(beam);
                 if (Parent.InFrustum)
                 {
                     beam?.CreateHitParticles(Center3D.Z);
                     if (proj?.Explodes == false)
-                        proj.CreateHitParticles(damageAmount, Center3D);
+                        proj.CreateHitParticles(modifiedDamage, Center3D);
                 }
                 DebugPerseveranceNoDamage();
-                Health = ApplyModuleDamage(damageAmount, Health, HealthMax);
+                Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {ealth} by {proj?.WeaponType}");
             }
-            return damageModifier;
         }
 
-        private float GetDamageModifier(Weapon weapon, bool explosion = false)
+        private float GetDamageModifier(GameplayObject source, bool explosion = false)
         {
+            Weapon weapon = (source as Projectile)?.Weapon;
             float damageModifier = 1f;
 
             // check for the projectiles effects vs shields or armor
@@ -620,7 +626,7 @@ namespace Ship_Game.Ships
                 Parent.EMPDamage += proj.Weapon.EMPDamage;
         }
 
-        private void CauseBeamDamage(Beam beam)
+        private void CauseSpecialBeamDamage(Beam beam)
         {
             BeamPowerDamage(beam);
             BeamTroopDamage(beam);
