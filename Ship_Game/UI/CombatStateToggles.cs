@@ -8,7 +8,7 @@ namespace Ship_Game.UI
     public class CombatStateToggles
     {
         public CombatState CombatState;
-        Array<ToggleButton> CombatStatusButtons;
+        Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
         public CombatStateToggles(ShipAI ai)
         {
