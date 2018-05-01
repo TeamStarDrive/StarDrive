@@ -226,18 +226,11 @@ namespace Ship_Game.AI {
             
         }
 
-        private bool IsAlreadyMarked(Planet planetList,float str)
+        private bool IsAlreadyMarked(Planet planetList, float str)
         {
-            bool ok = true;
-            Goal remove = null;
             foreach (Goal g in Goals)
-            {
-                if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != planetList)
-                    continue;
-                return true;
-                
-            }
-            
+                if (g.type == GoalType.Colonize && g.GetMarkedPlanet() == planetList)
+                    return true;
             return false;
         }
 
