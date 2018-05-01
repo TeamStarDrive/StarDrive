@@ -419,7 +419,7 @@ namespace Ship_Game.Ships
                 {
                     ShipModule module = Shields[i];
                     if (module.HitTestShield(worldHitPos, hitRadius) &&
-                        module.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
+                        module.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
                 }
             }
@@ -443,7 +443,7 @@ namespace Ship_Game.Ships
             if (a == b)
             {
                 if ((m = grid[a.X + a.Y*width]) != null && m.Active 
-                    && m.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
+                    && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
                     return;
                 return;
             }
@@ -456,7 +456,7 @@ namespace Ship_Game.Ships
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
             if ((m = grid[minX + minY*width]) != null && m.Active)
-                  m.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                  m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
 
             // spread out the damage in 4 directions but apply a new set of full damage to external modules.
 
@@ -467,25 +467,25 @@ namespace Ship_Game.Ships
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active)
-                                m.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[maxX + y * width]) != null && m.Active)
-                            m.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (minY > firstY) { // test all top modules
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[x + minY * width]) != null && m.Active)
-                            m.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[x + maxY * width]) != null && m.Active)
-                            m.ApplyExplosiveDamage(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (!didExpand) return; // wellll, looks like we're done here!
             }

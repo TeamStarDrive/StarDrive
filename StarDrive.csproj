@@ -239,6 +239,8 @@
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
+    <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
+    <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\ShipModuleDamageVisualization.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />

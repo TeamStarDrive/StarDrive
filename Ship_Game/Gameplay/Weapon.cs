@@ -35,7 +35,7 @@ namespace Ship_Game.Gameplay
         Tractor   = (1 << 20),
     }
 
-    public sealed class Weapon : IDisposable
+    public sealed class Weapon : IDisposable, IDamageModifier
     {
         private WeaponTag TagBits;
         public bool this[WeaponTag tag]
@@ -814,9 +814,36 @@ namespace Ship_Game.Gameplay
             CachedModifiedRange = modifier * Range;
             return CachedModifiedRange;            
         }
+
+
+        public float GetShieldDamageMod(ShipModule module)
+        {
+            float damageModifier = EffectVSShields;
+            if      (Tag_Kinetic) damageModifier *= (1f - module.shield_kinetic_resist);
+            else if (Tag_Energy)  damageModifier *= (1f - module.shield_energy_resist);
+            else if (Tag_Beam)    damageModifier *= (1f - module.shield_beam_resist);
+            else if (Tag_Missile) damageModifier *= (1f - module.shield_missile_resist);
+            return damageModifier;
+        }
+
+        public float GetArmorDamageMod(ShipModule module)
+        {
+            float damageModifier = 1f;
+            ShipModuleType type = module.ModuleType;
+            if (type == ShipModuleType.Armor) damageModifier *= EffectVsArmor;
+            if (Tag_Explosive)                damageModifier *= (1f - module.ExplosiveResist);
+            if (Tag_Kinetic)                  damageModifier *= (1f - module.KineticResist);
+            else if (Tag_Beam)                damageModifier *= (1f - module.BeamResist);
+            else if (Tag_Energy)              damageModifier *= (1f - module.EnergyResist);
+            else if (Tag_Missile)             damageModifier *= (1f - module.MissileResist);
+            else if (Tag_Torpedo)             damageModifier *= (1f - module.TorpedoResist);
+            return damageModifier;
+        }
+
         //How much total resource required to use weapon. 
         public float PowerUseMax    => isBeam ? BeamPowerCostPerSecond * BeamDuration : PowerRequiredToFire;
         public float OrdnanceUseMax => OrdinanceRequiredToFire * SalvoCount;
+
 
         public bool TargetValid(ShipData.RoleName role)
         {
