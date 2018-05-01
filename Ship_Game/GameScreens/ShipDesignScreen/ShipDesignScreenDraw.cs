@@ -367,7 +367,6 @@ namespace Ship_Game
             float RepairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
-            float BeamLongestDuration = 0f;
             float OrdnanceUsed = 0f;
             float OrdnanceRecoverd = 0f;
             float WeaponPowerNeeded = 0f;
