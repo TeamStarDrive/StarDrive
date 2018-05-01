@@ -62,7 +62,7 @@ namespace Ship_Game.Ships
                 {
                     module.Active      = slotData.Health > 0.01f;
                     module.Health      = slotData.Health;
-                    module.ShieldPower = slotData.ShieldPower;
+                    module.ShieldPower = slotData.ShieldPower;;
                 }
                 for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
                 {
@@ -456,7 +456,6 @@ namespace Ship_Game.Ships
 
                 if (!fromSave && module.TroopsSupplied > 0)
                     SpawnTroopsForNewShip(module);
-
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f)

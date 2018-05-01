@@ -150,11 +150,11 @@ namespace Ship_Game
            
             if (!Rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
             {
-                Value = currentvalue;
+                AbsoluteValue = currentvalue;
                 return false;
             }
             HandleInput(input);
-            currentvalue = RelativeValue;
+            currentvalue = AbsoluteValue;
             return true;
 
         }
