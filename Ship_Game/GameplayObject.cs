@@ -73,7 +73,7 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
-        public virtual float Damage(GameplayObject source, float damageAmount, bool internalexplosion = false)
+        public virtual float Damage(GameplayObject source, float damageAmount, bool explosion = false)
         {
             return 1;
         }
@@ -86,7 +86,6 @@ namespace Ship_Game
         {            
             Active = false;            
             Empire.Universe.QueueGameplayObjectRemoval(this);
-
         }
 
         public virtual void RemoveFromUniverseUnsafe()
