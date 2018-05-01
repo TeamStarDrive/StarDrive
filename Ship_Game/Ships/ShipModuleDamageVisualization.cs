@@ -63,13 +63,13 @@ namespace Ship_Game.Ships
         // This is called when module is OnFire or completely dead
         public void Update(float elapsedTime, Vector3 center, bool isAlive)
         {
-            Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
+            Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ, jitter: Area);
             //added zaxis offeset contructor. bury flame into model a bit. 
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: 50  );
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 4);
 
             // only spawn smoke from dead modules
             if (isAlive) return;
-            Trail?.Update(elapsedTime, center, zVelocity: -0.5f);
+            Trail?.Update(elapsedTime, center, zVelocity: -0.2f);
             Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
         }
     }
