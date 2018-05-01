@@ -57,7 +57,7 @@ namespace Ship_Game.GameScreens.MainMenu
             base.LoadContent();            
             BBVersionCheck.LoadContent(URL);
             ModVersionCheck.LoadContent(ModURL);
-            if (BBVersionCheck.filesAndLinks == null)
+            if (BBVersionCheck.FilesAndLinks == null)
             {
                 ExitScreen();
                 return;
@@ -76,7 +76,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (BBVersionCheck.filesAndLinks == null)
+            if (BBVersionCheck.FilesAndLinks == null)
             {
                 ExitScreen();
                 return;
