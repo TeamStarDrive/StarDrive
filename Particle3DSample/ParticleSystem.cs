@@ -64,6 +64,11 @@ namespace Particle3DSample
         {
             return new ParticleEmitter(this, particlesPerSecond, initialPosition);
         }
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float zAxisMod)
+        {
+            initialPosition.Z += zAxisMod;
+            return new ParticleEmitter(this, particlesPerSecond, initialPosition);
+        }
 
         public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float initialZ = 0f)
         {

@@ -271,7 +271,8 @@ namespace Ship_Game.AI
                     NearByShips[i] = copyWeight;//update stored weight from copy
                     continue;
                 }
-                if (FleetNode.OrdersRadius < 1f) FleetNode.OrdersRadius = Owner.SensorRange;
+                if (FleetNode.OrdersRadius < 1f)
+                    FleetNode.OrdersRadius = Owner.SensorRange;
                 if (!Intercepting && copyWeight.Ship.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius))
                 {
                     copyWeight.SetWeight(-100); //Hrmm. Dont know how to simply assign a value with operator
