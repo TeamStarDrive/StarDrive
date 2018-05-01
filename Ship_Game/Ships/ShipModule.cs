@@ -297,33 +297,6 @@ namespace Ship_Game.Ships
             return module;
         }
 
-        // Fat Bastard - Shield Resistance  is now working
-        private float GetShieldResistanceTo(Weapon weapon)
-        {
-            float damageModifier = 1f;
-            if      (weapon.Tag_Kinetic) damageModifier *= (1f - shield_kinetic_resist);
-            else if (weapon.Tag_Energy)  damageModifier *= (1f - shield_energy_resist);
-            else if (weapon.Tag_Beam)    damageModifier *= (1f - shield_beam_resist);
-            else if (weapon.Tag_Missile) damageModifier *= (1f - shield_missile_resist);
-            return damageModifier;
-        }
-
-        private float ApplyResistances(Weapon weapon)
-        {
-            /* Using else if since every weapon should be tagged with one of the top types of projectiles (Kinetic, Beam, Energy, Missile or Torpedo.
-               all the rest simply doesnt matter and wastes time being called every time there is a hit. there is no need to make more methods of this since its rather a simple one.
-               Modules will have one or more of the types of resist below.
-             */
-            float damageModifier = 1f;
-            if (weapon.Tag_Explosive)           damageModifier *= (1f - ExplosiveResist);
-            if (weapon.Tag_Kinetic)             damageModifier *= (1f - KineticResist);
-            else if (weapon.Tag_Beam)           damageModifier *= (1f - BeamResist);
-            else if (weapon.Tag_Energy)         damageModifier *= (1f - EnergyResist);
-            else if (weapon.Tag_Missile)        damageModifier *= (1f - MissileResist);
-            else if (weapon.Tag_Torpedo)        damageModifier *= (1f - TorpedoResist);
-            return damageModifier;
-        }
-
         private void Initialize(Vector2 pos, bool addToShieldManager = true)
         {
             ++DebugInfoScreen.ModulesCreated;
@@ -454,24 +427,6 @@ namespace Ship_Game.Ships
             return dist > 0f;
         }
 
-        public float SqDistanceToShields(Vector2 worldPos)
-        {
-            ++GlobalStats.DistanceCheckTotal;
-            float r2 = ShieldHitRadius;
-            float dx = Center.X - worldPos.X;
-            float dy = Center.Y - worldPos.Y;
-            return dx * dx + dy * dy - r2 * r2;
-        }
-
-        public float SqDistanceTo(Vector2 worldPos)
-        {
-            ++GlobalStats.DistanceCheckTotal;
-            float r2 = Radius;
-            float dx = Center.X - worldPos.X;
-            float dy = Center.Y - worldPos.Y;
-            return dx * dx + dy * dy - r2 * r2;
-        }
-
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
             float explodeDist = explosionCenter.Distance(affectedPoint) - moduleRadius;
@@ -492,8 +447,7 @@ namespace Ship_Game.Ships
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool ApplyExplosiveDamage(GameplayObject source, Vector2 worldHitPos, float damageRadius,
-                                         ref float damageInOut)
+        public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
             if (damageInOut <= 0f)
                 return true;
@@ -506,7 +460,7 @@ namespace Ship_Game.Ships
             Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius);
 
             float healthBefore = Health + ShieldPower;
-            float damageModifier = GetDamageModifier(source);
+            float damageModifier = GetDamageModifier(source.DamageMod);
             DamageModule(source, damage * damageModifier);
 
             damageInOut = GetDamageRemainder(healthBefore, damage, damageModifier);
@@ -516,7 +470,7 @@ namespace Ship_Game.Ships
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
             float healthBefore   = Health + ShieldPower;
-            float damageModifier = GetDamageModifier(source);
+            float damageModifier = GetDamageModifier(source.DamageMod);
             DamageModule(source, damageAmount * damageModifier);
 
             DebugDamageCircle();
@@ -530,7 +484,7 @@ namespace Ship_Game.Ships
 
         public override void Damage(GameplayObject source, float damageAmount)
         {
-            float damageModifier = GetDamageModifier(source);
+            float damageModifier = GetDamageModifier(source.DamageMod);
             DamageModule(source, damageAmount * damageModifier);
         }
 
@@ -587,42 +541,14 @@ namespace Ship_Game.Ships
             }
         }
 
-        private float GetDamageModifier(GameplayObject source)
+        private float GetDamageModifier(IDamageModifier mod)
         {
-            Weapon weapon = (source as Projectile)?.Weapon;
-            float damageModifier = 1f;
-
-            // check for the projectiles effects vs shields or armor
             if (ShieldPower >= 1f)
-            {
-                if (weapon != null)
-                {
-                    damageModifier *= weapon.EffectVSShields;
-                    damageModifier *= GetShieldResistanceTo(weapon);
-                }
-            }
-            else
-            {
-                damageModifier *= GetArmourBonus();
-                if (weapon != null)
-                {
-                    damageModifier *= GetEffectVsArmor(weapon);
-                    damageModifier *= ApplyResistances(weapon);
-                }
-                else // if there's no weapon, it's just some explosion; apply resist:
-                {
-                    damageModifier *= (1 - ExplosiveResist);
-                }
-            }
-            return damageModifier;
+                return mod.GetShieldDamageMod(this);
+            return GetGlobalArmourBonus() * mod.GetArmorDamageMod(this);
         }
 
-        private float GetEffectVsArmor(Weapon weapon)
-        {
-            return ModuleType == ShipModuleType.Armor ? weapon.EffectVsArmor : 1f;
-        }
-
-        private float GetArmourBonus()
+        private float GetGlobalArmourBonus()
         {
             if (GlobalStats.ActiveModInfo?.useHullBonuses == true &&
                 ResourceManager.HullBonuses.TryGetValue(Parent.shipData.Hull, out HullBonus mod))
