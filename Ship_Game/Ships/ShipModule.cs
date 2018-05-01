@@ -503,11 +503,10 @@ namespace Ship_Game.Ships
             if (damage <= 0.001f)
                 return true;
 
-            if (Empire.Universe.DebugWin != null)
-                Empire.Universe.DebugWin.DrawCircle(DebugModes.SpatialManager, Center, Radius);
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius);
 
             float healthBefore = Health + ShieldPower;
-            float damageModifier = GetDamageModifier(source, explosion: true);
+            float damageModifier = GetDamageModifier(source);
             DamageModule(source, damage * damageModifier);
 
             damageInOut = GetDamageRemainder(healthBefore, damage, damageModifier);
@@ -588,7 +587,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private float GetDamageModifier(GameplayObject source, bool explosion = false)
+        private float GetDamageModifier(GameplayObject source)
         {
             Weapon weapon = (source as Projectile)?.Weapon;
             float damageModifier = 1f;
@@ -605,10 +604,15 @@ namespace Ship_Game.Ships
             else
             {
                 damageModifier *= GetArmourBonus();
-                if (weapon != null) damageModifier *= GetEffectVsArmor(weapon);
-
-                if      (explosion)      damageModifier *= (1 - ExplosiveResist);
-                else if (weapon != null) damageModifier *= ApplyResistances(weapon);
+                if (weapon != null)
+                {
+                    damageModifier *= GetEffectVsArmor(weapon);
+                    damageModifier *= ApplyResistances(weapon);
+                }
+                else // if there's no weapon, it's just some explosion; apply resist:
+                {
+                    damageModifier *= (1 - ExplosiveResist);
+                }
             }
             return damageModifier;
         }
