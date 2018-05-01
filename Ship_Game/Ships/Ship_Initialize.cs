@@ -456,7 +456,8 @@ namespace Ship_Game.Ships
 
                 if (!fromSave && module.TroopsSupplied > 0)
                     SpawnTroopsForNewShip(module);
-
+                if (!module.Active)
+                    module.SetOnFire(true);
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f)
