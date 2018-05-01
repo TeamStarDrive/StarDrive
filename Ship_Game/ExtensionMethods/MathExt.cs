@@ -896,25 +896,6 @@ namespace Ship_Game
             return worldPos;
         }
 
-        public static float MaxValueIn(this float[] numbers)
-        {
-            float max = float.MinValue;
-            for (int x = 0; x < numbers.Length; x++)
-            {
-                var number = numbers[x];
-                max = Math.Max(max, number);
-            }
-            return max;
-        }
-        public static float Sum(this float[] numbers)
-        {
-            float sum = 0;
-            for (int x = 0; x < numbers.Length; x++)
-            {
-                var number = numbers[x];
-                sum += number;
-            }
-            return sum;
-        }
+        public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
     }
 }

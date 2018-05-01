@@ -438,8 +438,6 @@ namespace Ship_Game.AI {
                 if (warWeight < 0)
                     return;
             }
-            Array<SolarSystem> s;
-            SystemCommander scom;
             switch (r.Value.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
