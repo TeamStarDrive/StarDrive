@@ -122,6 +122,7 @@ namespace Particle3DSample
 
         public void AddParticleThreadA(Vector3 position, Vector3 velocity) => AddParticleThread(RandomA, position, velocity);
         public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticleThread(RandomB, position, velocity);
+        public void AddParticleThread(bool randomA, Vector3 position, Vector3 velocity) => AddParticleThread(randomA ? RandomA : RandomB, position, velocity);
 
         public void Draw(GameTime gameTime)
         {

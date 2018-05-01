@@ -235,35 +235,15 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
+                    Empire.Universe.Frustum.Contains(SolarSystemBody.Center, SolarSystemBody.OrbitalRadius * 2))
                 {
-                    PlayPlanetSfx("sd_impact_shield_01", Shield.Center);
+                    Shield.HitShield(SolarSystemBody, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
                 }
-                Shield.Rotation = Center.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
-                Shield.displacement = 0f;
-                Shield.texscale = 2.8f;
-                Shield.Radius = SO.WorldBoundingSphere.Radius + 100f;
-                Shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                Shield.texscale = 2.8f;
-                Shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                Shield.Center = new Vector3(Center.X, Center.Y, 2500f);
-                Shield.pointLight.World = bomb.World;
-                Shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                Shield.pointLight.Radius = 50f;
-                Shield.pointLight.Intensity = 8f;
-                Shield.pointLight.Enabled = true;
-                Vector3 vel = Vector3.Normalize(bomb.Position - Shield.Center);
-                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-                {
-                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
-                    for (int i = 0; i < 200; i++)
-                    {
-                        Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vel * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
-                    }
-                }
-                SolarSystemBody.ShieldStrengthCurrent = SolarSystemBody.ShieldStrengthCurrent - ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
-                if (!(ShieldStrengthCurrent < 0f)) return;
-                SolarSystemBody.ShieldStrengthCurrent = 0f;
+
+                SolarSystemBody.ShieldStrengthCurrent -= ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
+                if (SolarSystemBody.ShieldStrengthCurrent < 0f)
+                    SolarSystemBody.ShieldStrengthCurrent = 0f;
                 
             }
         }
