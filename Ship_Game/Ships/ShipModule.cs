@@ -179,9 +179,7 @@ namespace Ship_Game.Ships
         public int Area => XSIZE * YSIZE;
 
         // the actual hit radius is a bit bigger for some legacy reason
-        public float ShieldHitRadius => Flyweight.shield_radius + 10f;
-
-        public void SetOnFire(bool onFire) => OnFire = onFire;
+        public float ShieldHitRadius => Flyweight.shield_radius + 10f;        
 
         public float AccuracyPercent = -1;
         //private float SwivelSpeed;
@@ -292,6 +290,12 @@ namespace Ship_Game.Ships
             module.TargetValue += module.isWeapon ? 1 : 0;
             return module;
         }
+
+        //Module Health
+        private void HealthClamp()             => Health = Math.Min(HealthMax, Health);
+        private bool IsMaxHealth               => Health >= HealthMax;
+        private void ChangeHealth(float value) => (Health + value).Clamp(0, HealthMax);
+      
 
 
         // Fat Bastard - Shield Resistance  is now working
@@ -720,6 +724,7 @@ namespace Ship_Game.Ships
 #endif
         }
 
+        private void SetOnFire() => OnFire = Health / HealthMax < OnFireThreshold;
 
         private float ApplyModuleDamage(float damageAmount, float health,float healthMax)
         {
@@ -731,11 +736,6 @@ namespace Ship_Game.Ships
             {
                 health = healthMax;
                 Active = true;
-                OnFire = false;
-            }
-            else if ((health / healthMax) < OnFireThreshold)
-            {
-                OnFire = true;
             }
             return health;
         }
@@ -1004,11 +1004,8 @@ namespace Ship_Game.Ships
                 Die(LastDamagedBy, false);
                 Parent.shipStatusChanged = true;
             }
-            if (Health >= HealthMax)
-            {
-                Health = HealthMax;
-                OnFire = false;
-            }
+            HealthClamp();
+            SetOnFire();
 
             BombTimer -= elapsedTime;
             UpdateModuleRadius();
@@ -1065,11 +1062,8 @@ namespace Ship_Game.Ships
 
         public void Repair(float repairAmount)
         {
-            Health += repairAmount;
-            if (Health > HealthMax)
-                Health = HealthMax;
-            if ((Health / HealthMax) > OnFireThreshold)
-                OnFire = false;
+            ChangeHealth(repairAmount);
+            SetOnFire();            
         }
 
         public float GetShieldsMax()
