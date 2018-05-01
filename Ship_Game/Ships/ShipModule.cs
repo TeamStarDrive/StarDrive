@@ -196,7 +196,6 @@ namespace Ship_Game.Ships
         private void SetHealth(float newHealth)
         {
             Health = newHealth.Clamp(0, HealthMax);
-            if (Health > 0f) Active = true;
             OnFire = (Health / HealthMax) < OnFireThreshold;
         }
 
@@ -435,12 +434,6 @@ namespace Ship_Game.Ships
             return Math.Min(1.0f, (damageRadius - explodeDist) / (damageRadius + minFalloff));
         }
 
-        private float GetDamageRemainder(float healthBefore, float originalDamage, float damageModifier)
-        {
-            float absorbedDamage = (healthBefore - (Health + ShieldPower)) / damageModifier;
-            return (int)(originalDamage - absorbedDamage);
-        }
-
         public void DebugDamageCircle()
         {
             Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
@@ -449,44 +442,33 @@ namespace Ship_Game.Ships
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
-            if (damageInOut <= 0f)
-                return true;
-
             float moduleRadius = ShieldPower > 0 ? ShieldHitRadius : Radius;
-            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, moduleRadius, 0f);
+            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, moduleRadius);
             if (damage <= 0.001f)
                 return true;
 
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius);
+            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius);
 
-            float healthBefore = Health + ShieldPower;
-            float damageModifier = GetDamageModifier(source.DamageMod);
-            DamageModule(source, damage * damageModifier);
-
-            damageInOut = GetDamageRemainder(healthBefore, damage, damageModifier);
+            Damage(source, damage, out damageInOut);
             return damageInOut <= 0f;
         }
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
+            float damageModifier = ShieldPower >= 1f 
+                                 ? source.DamageMod.GetShieldDamageMod(this)
+                                 : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+
             float healthBefore   = Health + ShieldPower;
-            float damageModifier = GetDamageModifier(source.DamageMod);
             DamageModule(source, damageAmount * damageModifier);
+
+            float absorbedDamage = (healthBefore - (Health + ShieldPower)) / damageModifier;
+            damageRemainder = (int)(damageAmount - absorbedDamage);
 
             DebugDamageCircle();
-            if (Health > 0)
-            {
-                damageRemainder = 0f;
-                return;
-            }
-            damageRemainder = GetDamageRemainder(healthBefore, damageAmount, damageModifier);
         }
 
-        public override void Damage(GameplayObject source, float damageAmount)
-        {
-            float damageModifier = GetDamageModifier(source.DamageMod);
-            DamageModule(source, damageAmount * damageModifier);
-        }
+        public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
 
         private void DamageModule(GameplayObject source, float modifiedDamage)
         {
@@ -539,13 +521,6 @@ namespace Ship_Game.Ships
                 Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
-        }
-
-        private float GetDamageModifier(IDamageModifier mod)
-        {
-            if (ShieldPower >= 1f)
-                return mod.GetShieldDamageMod(this);
-            return GetGlobalArmourBonus() * mod.GetArmorDamageMod(this);
         }
 
         private float GetGlobalArmourBonus()
