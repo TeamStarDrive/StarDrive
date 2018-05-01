@@ -26,14 +26,14 @@ namespace Ship_Game.Ships
         public ShipModuleDamageVisualization(ShipModule module)
         {
             Area                = module.XSIZE * module.YSIZE;
-            Vector3 center      = module.GetCenter3D;
+            Vector3 center      = module.GetCenter3D;            
             ShipModuleType type = module.ModuleType;
 
             switch (type) // other special effects based on some module types.
             {
-                case ShipModuleType.FuelCell:
+                case ShipModuleType.FuelCell: //this one doesnt work well.
                     Lightning     = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
-                    LightningVelZ = -6f;
+                    LightningVelZ = -6;
                     return;
                 case ShipModuleType.Shield:
                     Lightning     = Empire.Universe.lightning.NewEmitter(8f, center);
@@ -53,8 +53,8 @@ namespace Ship_Game.Ships
             Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area, center);
             Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center);
 
-            // armor and small modules don't produce flames
-            if (type != ShipModuleType.Armor && Area > 2)
+            // armor doesnt produce flames. 
+            if (type != ShipModuleType.Armor)
             {
                 Flame = Empire.Universe.flameParticles.NewEmitter(Area, center);
             }
@@ -64,11 +64,12 @@ namespace Ship_Game.Ships
         public void Update(float elapsedTime, Vector3 center, bool isAlive)
         {
             Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  + RandomMath.RandomBetween(2f, 6f));
+            //added zaxis offeset contructor. bury flame into model a bit. 
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: 50  );
 
             // only spawn smoke from dead modules
             if (isAlive) return;
-            Trail?.Update(elapsedTime, center, zVelocity: -0.1f);
+            Trail?.Update(elapsedTime, center, zVelocity: -0.5f);
             Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
         }
     }

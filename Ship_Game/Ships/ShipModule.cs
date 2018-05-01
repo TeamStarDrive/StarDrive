@@ -181,6 +181,7 @@ namespace Ship_Game.Ships
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;
 
+        public void SetOnFire(bool onFire) => OnFire = onFire;
 
         public float AccuracyPercent = -1;
         //private float SwivelSpeed;
