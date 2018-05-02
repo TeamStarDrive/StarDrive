@@ -466,8 +466,8 @@ namespace Ship_Game.Ships
             }
 
             DebugDamageCircle();
-            float absorbedDamage = damageModifier <= 1 ?
-                                   (healthBefore - (Health + ShieldPower)) / damageModifier : // the module absobed more damage because of good resistance
+            float absorbedDamage = damageModifier <= 1 ? // below 1, resistance. above 1, vulnerability.
+                                   (healthBefore - (Health + ShieldPower)) / damageModifier : // the module absorbed more damage because of good resistance
                                     healthBefore - (Health + ShieldPower); // extra damage was already calcualted
             damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
