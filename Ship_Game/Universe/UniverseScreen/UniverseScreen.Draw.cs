@@ -296,7 +296,7 @@ namespace Ship_Game
             var uiNode = ResourceManager.Texture("UI/node");
             foreach (Ship ship in player.GetShips())
             {
-                if (ScreenRectangle.HitTest(ship.ScreenPosition))
+                if (ScreenRectangle.HitTest(ship?.ScreenPosition))
                 {
                     Rectangle destinationRectangle = new Rectangle(
                         (int) (ship.Position.X * num),
