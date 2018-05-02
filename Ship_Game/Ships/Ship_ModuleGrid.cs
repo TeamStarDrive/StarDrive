@@ -408,19 +408,21 @@ namespace Ship_Game.Ships
         // Code gods, I pray for thy forgiveness for this copy-paste -T_T-
         // This was done solely for performance reasons. This method gets called
         // every time an exploding projectile hits a ship. So it gets called for every missile impact
-        public unsafe void DamageModulesInRange(GameplayObject damageSource, float damageAmount, 
-                                         Vector2 worldHitPos, float hitRadius, bool ignoreShields, 
-                                         bool InternalExplosion = false, bool ablation = true)
+        // @note THIS IS ALWAYS AN EXPLOSION
+        public void DamageModulesExplosive(GameplayObject damageSource, float damageAmount, 
+                                           Vector2 worldHitPos, float hitRadius, bool ignoresShields)
         {
-            float damageTracker = damageAmount ;
-            if (!ignoreShields && !InternalExplosion)
+            float damageTracker = damageAmount;
+            if (!ignoresShields)
             {
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
-                    if (module.HitTestShield(worldHitPos, hitRadius) &&
-                        module.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker))
+                    if (module.ShieldPower > 1f && module.HitTestShield(worldHitPos, hitRadius))
+                    {
+                        if (module.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
+                    }
                 }
             }
 
@@ -443,11 +445,10 @@ namespace Ship_Game.Ships
             if (a == b)
             {
                 if ((m = grid[a.X + a.Y*width]) != null && m.Active 
-                    && m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation, InternalExplosion))
+                    && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
                     return;
                 return;
             }
-            float damageBurstExternal = damageAmount;
             int firstX = Math.Min(a.X, b.X); // this is the max bounding box range of the scan
             int firstY = Math.Min(a.Y, b.Y);
             int lastX  = Math.Max(a.X, b.X);
@@ -456,12 +457,10 @@ namespace Ship_Game.Ships
             Point cx = WorldToGridLocalPointClipped(worldHitPos); // clip the start, because it's often near an edge
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
-            if ((m = grid[minX + minY*width]) != null && m.Active )
-                  m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius, ref damageTracker, ablation, InternalExplosion);
+            if ((m = grid[minX + minY*width]) != null && m.Active)
+                  m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
 
             // spread out the damage in 4 directions but apply a new set of full damage to external modules.
-
-            
 
             for (;;)
             {
@@ -470,49 +469,25 @@ namespace Ship_Game.Ships
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active)
-
-                            if (m.isExternal && !InternalExplosion)
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageBurstExternal, ablation);
-                            else
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageTracker, ablation, InternalExplosion);
-
-
+                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[maxX + y * width]) != null && m.Active)
-                            if (m.isExternal && !InternalExplosion)
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageBurstExternal, ablation);
-                            else
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                                , ref damageTracker, ablation, InternalExplosion);
-                             
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (minY > firstY) { // test all top modules
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY * width]) != null && m.Active )
-                            if (m.isExternal && !InternalExplosion)
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageBurstExternal, ablation);
-                            else
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageTracker, ablation, InternalExplosion);
+                        if ((m = grid[x + minY * width]) != null && m.Active)
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY * width]) != null && m.Active )
-                            if (m.isExternal && !InternalExplosion)
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageBurstExternal, ablation);
-                            else
-                                m.ApplyRadialDamage(damageSource, worldHitPos, hitRadius
-                                    , ref damageTracker, ablation, InternalExplosion);
+                        if ((m = grid[x + maxY * width]) != null && m.Active)
+                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
                 }
                 if (!didExpand) return; // wellll, looks like we're done here!
             }
