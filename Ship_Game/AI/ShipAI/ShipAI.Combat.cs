@@ -118,11 +118,10 @@ namespace Ship_Game.AI
         public GameplayObject ScanForCombatTargets(Vector2 position, float radius)
         {
             BadGuysNear = false;
-            GameplayObject priorityTarget = null;           
+            GameplayObject priorityTarget = null;
             FriendliesNearby.Clear();
             PotentialTargets.Clear();
             NearByShips.Clear();
-    
 
 
             if (HasPriorityTarget)
@@ -139,6 +138,7 @@ namespace Ship_Game.AI
                 else
                     priorityTarget = Target;
             }
+
             if (Target is Ship target)
             {
                 if (target.loyalty == Owner.loyalty)
@@ -146,7 +146,7 @@ namespace Ship_Game.AI
                     Target = null;
                     HasPriorityTarget = false;
                 }
-                else if (!Intercepting && target.engineState == Ship.MoveState.Warp )
+                else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
                 {
                     Target = null;
                     if (!HasPriorityOrder && Owner.loyalty != UniverseScreen.player)
@@ -167,54 +167,61 @@ namespace Ship_Game.AI
                 {
                     Planet p = thisSystem.PlanetList[i];
                     BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) &&
-                                  Owner.Center.InRadius(p.Center, radius);             
+                                  Owner.Center.InRadius(p.Center, radius);
                 }
+
+            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
             {
-                if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
+                var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
+
+                NearByShips.Add(sw);
+            }
+
+            GameplayObject[] nearbyShips = Owner.GetObjectsInSensors(GameObjectType.Ship, radius);
+            for (int x = 0; x < nearbyShips.Length; x++)
+            {
+                var go = nearbyShips[x];
+                var nearbyShip = (Ship) go;
+                if (!nearbyShip.Active || nearbyShip.dying
+                                       || Owner.Center.OutsideRadius(nearbyShip.Center,
+                                           radius + (radius < 0.01f ? 10000 : 0)))
+                    continue;
+
+                Empire empire = nearbyShip.loyalty;
+                if (empire == Owner.loyalty)
                 {
-                    var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
-                    
-                    NearByShips.Add(sw);
+                    FriendliesNearby.Add(nearbyShip);
+                    continue;
                 }
-                GameplayObject[] nearbyShips = Owner.GetObjectsInSensors(GameObjectType.Ship);
-                for (int x = 0; x < nearbyShips.Length; x++)
+
+                bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
+                if (!isAttackable) continue;
+                armorAvg += nearbyShip.armor_max;
+                shieldAvg += nearbyShip.shield_max;
+                dpsAvg += nearbyShip.GetDPS();
+                sizeAvg += nearbyShip.Size;
+                BadGuysNear = true;
+                if (radius < 1)
+                    continue;
+                var sw = new ShipWeight(nearbyShip, 1);
+
+
+                if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
+                    nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                 {
-                    var go = nearbyShips[x];
-                    var nearbyShip = (Ship) go;
-                    if (!nearbyShip.Active || nearbyShip.dying
-                                           || Owner.Center.OutsideRadius(nearbyShip.Center,
-                                               radius + (radius < 0.01f ? 10000 : 0)))
-                        continue;
+                    sw += 3f;
+                }
 
-                    Empire empire = nearbyShip.loyalty;
-                    if (empire == Owner.loyalty)
-                    {
-                        FriendliesNearby.Add(nearbyShip);
-                        continue;
-                    }
-
-                    bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
-                    if (!isAttackable) continue;
-                    armorAvg += nearbyShip.armor_max;
-                    shieldAvg += nearbyShip.shield_max;
-                    dpsAvg += nearbyShip.GetDPS();
-                    sizeAvg += nearbyShip.Size;
-                    BadGuysNear = true;
-                    if (radius < 1)
-                        continue;
-                    var sw = new ShipWeight(nearbyShip, 1);
-
-
-                    if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
-                        nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
-                    {
-                        sw += 3f;
-                    }
-
-                    NearByShips.Add(sw);
+                NearByShips.Add(sw);
+            }
+            if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
+            {
+                foreach (Ship ship in Owner.fleet?.FleetTargetList)
+                {
+                    var sw = new ShipWeight(ship, 1);
+                    NearByShips.AddUnique(sw);
                 }
             }
-           
 
             SupplyShuttleLaunch();
             if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
@@ -222,16 +229,14 @@ namespace Ship_Game.AI
 
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
-            ShipWeight[] sortedList2 = NearByShips.FilterBy(weight=> weight.Weight > -100)
+            ShipWeight[] sortedList2 = NearByShips.FilterBy(weight => weight.Weight > -100)
                 .OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
             if (Owner.fleet != null && State != AIState.FormationWarp)
             {
                 foreach (Ship ship in PotentialTargets)
-                    Owner.fleet?.FleetTargetList.AddUniqueRef(ship);
-                foreach (Ship ship in Owner.fleet?.FleetTargetList)
-                    PotentialTargets.AddUniqueRef(ship);
+                    Owner.fleet?.FleetTargetList.AddUniqueRef(ship);                
             }
 
             if (Target?.Active != true)
@@ -240,11 +245,12 @@ namespace Ship_Game.AI
                 HasPriorityTarget = false;
             }
             else if (Target?.Active == true && HasPriorityTarget && Target is Ship ship)
-            {                
+            {
                 if (Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
                     BadGuysNear = true;
                 return Target;
             }
+
             GameplayObject targetShip = null;
             if (sortedList2.Any())
                 targetShip = sortedList2.ElementAt(0).Ship;
@@ -411,7 +417,7 @@ namespace Ship_Game.AI
 
         private void SetCombatStatus(float elapsedTime)
         {
-            float radius = SetSensorRadius(out Vector2 senseCenter);
+            float radius = GetSensorRadius(out Vector2 senseCenter);
 
             if (Owner.fleet != null)
             {
@@ -492,26 +498,29 @@ namespace Ship_Game.AI
             }
         }
 
-        private float SetSensorRadius(out Vector2 senseCenter)
-        {
-            var radius = 30000f;
+        public float GetSensorRadius(out Vector2 senseCenter)
+        {                        
+            if (!UseSensorsForTargets) //this is obsolete and not needed anymore. 
+            {
+                var radius = 30000f;
+                senseCenter = Owner.Mothership?.Center ?? Owner.Center;
+                return radius;
+            }
+
+
+            if (Owner.Mothership != null)
+            {
+                //get the motherships sensor status. 
+                float motherRange = Owner.Mothership.AI.GetSensorRadius(out senseCenter);
+
+                //in radius of the motherships sensors then use that.
+                if (Owner.Center.InRadius(senseCenter, motherRange - Owner.SensorRange))
+                    return motherRange;               
+            }
             senseCenter = Owner.Center;
-            if (UseSensorsForTargets)
-                if (Owner.Mothership != null)
-                {
-                    if (!(Vector2.Distance(Owner.Center, Owner.Mothership.Center) <=
-                          Owner.Mothership.SensorRange - Owner.SensorRange)) return radius;
-                    senseCenter = Owner.Mothership.Center;
-                    radius = Owner.Mothership.SensorRange;
-                }
-                else
-                {
-                    float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
-                    radius =  sensorRange; //FleetNode?.OrdersRadius ??
-                }
-            else if (Owner.Mothership != null)
-                senseCenter = Owner.Mothership.Center;
-            return radius;
+            float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
+            return  Math.Min(FleetNode?.OrdersRadius ?? float.MaxValue, sensorRange);
+            
         }
 
         private bool DoNotEnterCombat

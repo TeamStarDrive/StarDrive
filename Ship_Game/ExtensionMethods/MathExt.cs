@@ -173,6 +173,9 @@ namespace Ship_Game
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
         // True if pos is inside the rectangle
+        //Saftey catch. allow a null to be sent to hit test. 
+        public static bool HitTest(this Rectangle r, object o) => false;
+
         public static bool HitTest(this Rectangle r, Vector2 pos)
         {
             return pos.X > r.X && pos.Y > r.Y && pos.X < r.X + r.Width && pos.Y < r.Y + r.Height;

@@ -64,6 +64,7 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
+        private bool InFrustrum = false;
    
 
         public Ship Owner { get; protected set; }
@@ -272,7 +273,9 @@ namespace Ship_Game.Gameplay
         public void DrawProjectile(UniverseScreen screen)
         {
             // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
-            if (UsesVisibleMesh || !(Owner?.InFrustum ?? true) || !screen.Frustum.Contains(Center,  Radius)) return;
+            InFrustrum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
+                         && ((Owner?.InFrustum ?? true) || screen.Frustum.Contains(Center, Radius)) ;
+            if (UsesVisibleMesh || !InFrustrum) return;
 
             var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
             var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
@@ -522,9 +525,9 @@ namespace Ship_Game.Gameplay
                 Die(this, false);
                 return;
             }
-
+            
             Position += Velocity * elapsedTime;
-            if (Weapon.Animated == 1)
+            if (Weapon.Animated == 1 && InFrustrum)
             {
                 FrameTimer += elapsedTime;
                 if (Weapon.LoopAnimation == 0 && FrameTimer > SwitchFrames)
@@ -568,7 +571,7 @@ namespace Ship_Game.Gameplay
             else
                 Center = Position;
             Emitter.Position = new Vector3(Center, 0.0f);
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && (InDeepSpace || System != null && System.isVisible))
+            if (InFrustrum)
             {
                 if (ZStart < -25.0)
                     ZStart += VelocityMax * elapsedTime;
@@ -593,7 +596,7 @@ namespace Ship_Game.Gameplay
             }
             var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
 
-            if (FiretrailEmitter != null)
+            if (FiretrailEmitter != null && InFrustrum)
             {
                 //float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
@@ -603,7 +606,7 @@ namespace Ship_Game.Gameplay
                 //FiretrailEmitter.Update(elapsedTime, newPosition);
 
             }
-            if (TrailEmitter != null)
+            if (TrailEmitter != null && InFrustrum )
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
@@ -611,8 +614,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (System != null && System.isVisible && Light == null && Weapon.Light != null && 
-                (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !LightWasAddedToSceneGraph))
+            if (InFrustrum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
             {
                 LightWasAddedToSceneGraph = true;
                 var pos = new Vector3(Center.X, Center.Y, -25f);
@@ -643,8 +645,7 @@ namespace Ship_Game.Gameplay
             }
             if (Module != null)
             {
-                if (System != null && System.isVisible && MuzzleFlash == null && 
-                    Module.InstalledWeapon.MuzzleFlash != null && Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !MuzzleFlashAdded)
+                if (MuzzleFlash == null && Module.InstalledWeapon.MuzzleFlash != null && InFrustrum && !MuzzleFlashAdded)
                 {
                     MuzzleFlashAdded = true;
                     var pos = new Vector3(Module.Center.X, Module.Center.Y, -45f);

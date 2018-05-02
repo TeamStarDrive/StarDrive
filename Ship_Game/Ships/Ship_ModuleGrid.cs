@@ -418,9 +418,11 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Shields.Length; ++i)
                 {
                     ShipModule module = Shields[i];
-                    if (module.HitTestShield(worldHitPos, hitRadius) &&
-                        module.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
+                    if (module.ShieldPower > 1f && module.HitTestShield(worldHitPos, hitRadius))
+                    {
+                        if (module.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
                             return; // no more damage to dish, exit early
+                    }
                 }
             }
 
