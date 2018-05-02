@@ -490,7 +490,7 @@ namespace Ship_Game.Ships
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
                 if (modifiedDamage <= damageThreshold)
-                    return false; // no damage could be done // @todo All damage should get absorbed!
+                    return false; // no damage could be done, the projectile was deflected.
             }
 
             if (damagingShields)
