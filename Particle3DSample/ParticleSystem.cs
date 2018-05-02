@@ -28,6 +28,7 @@ namespace Particle3DSample
         private float CurrentTime;
         private int DrawCounter;
         private float Scale = 1;
+        private int ParticleCount;
 
         private static readonly Random RandomA = new Random();
         private static readonly Random RandomB = new Random();
@@ -50,13 +51,17 @@ namespace Particle3DSample
                 new VertexElement(0, 28, VertexElementFormat.Single,  VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0)
             };
         }
-
-        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device, float scale = 1)
+        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device) 
+            : this(content, settingsName, device, 1, -1){}
+        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device, float scale) 
+            : this(content, settingsName, device, scale, -1) { }
+        public ParticleSystem(GameContentManager content, string settingsName, GraphicsDevice device, float scale, int particleCount)
         {
             GraphicsDevice = device;
             Content        = content;
             SettingsName   = settingsName;
             Scale          = scale;
+            ParticleCount = particleCount;
             LoadContent();
         }
 
@@ -186,7 +191,8 @@ namespace Particle3DSample
         private void LoadContent()
         {
             Settings = Content.Load<ParticleSettings>(SettingsName);
-            if (SettingsName == "3DParticles/ProjectileTrailSettings") Settings.MaxParticles *= 10;
+            // if (SettingsName == "3DParticles/ProjectileTrailSettings") Settings.MaxParticles *= 10;
+            Settings.MaxParticles = ParticleCount >0 ? ParticleCount : Settings.MaxParticles; 
             Log.Info("Max Particles for :{0} is {1}", SettingsName, Settings.MaxParticles);
             Particles = new ParticleVertex[Settings.MaxParticles];
             LoadParticleEffect();

@@ -116,6 +116,7 @@ namespace Ship_Game
         public ParticleSystem fireParticles;
         public ParticleSystem engineTrailParticles;
         public ParticleSystem flameParticles;
+        public ParticleSystem SmallflameParticles;
         public ParticleSystem sparks;
         public ParticleSystem lightning;
         public ParticleSystem flash;
@@ -557,8 +558,8 @@ namespace Ship_Game
 
         private void DoParticleLoad()
         {
-            var content = TransientContent;
-            var device = ScreenManager.GraphicsDevice;
+            var content              = TransientContent;
+            var device               = ScreenManager.GraphicsDevice;
             beamflashes              = new ParticleSystem(content, "3DParticles/BeamFlash", device);
             explosionParticles       = new ParticleSystem(content, "3DParticles/ExplosionSettings", device);
             photonExplosionParticles = new ParticleSystem(content, "3DParticles/PhotonExplosionSettings", device);
@@ -569,8 +570,9 @@ namespace Ship_Game
             fireParticles            = new ParticleSystem(content, "3DParticles/FireSettings", device, 1);
             engineTrailParticles     = new ParticleSystem(content, "3DParticles/EngineTrailSettings", device);
             flameParticles           = new ParticleSystem(content, "3DParticles/FlameSettings", device);
+            SmallflameParticles      = new ParticleSystem(content, "3DParticles/FlameSettings", device, .25f, 4000);
             sparks                   = new ParticleSystem(content, "3DParticles/sparks", device, 1);
-            lightning                = new ParticleSystem(content, "3DParticles/lightning", device, 2);
+            lightning                = new ParticleSystem(content, "3DParticles/lightning", device, 1);
             flash                    = new ParticleSystem(content, "3DParticles/FlashSettings", device);
             star_particles           = new ParticleSystem(content, "3DParticles/star_particles", device);
             neb_particles            = new ParticleSystem(content, "3DParticles/GalaxyParticle", device);
@@ -832,6 +834,7 @@ namespace Ship_Game
             fireParticles.UnloadContent();
             engineTrailParticles.UnloadContent();
             flameParticles.UnloadContent();
+            SmallflameParticles.UnloadContent();
             sparks.UnloadContent();
             lightning.UnloadContent();
             flash.UnloadContent();
@@ -1012,8 +1015,9 @@ namespace Ship_Game
             explosionParticles      ?.Dispose(ref explosionParticles);
             explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
             fireTrailParticles      ?.Dispose(ref fireTrailParticles);
-            fireParticles           ?.Dispose(ref fireParticles);
+            fireParticles           ?.Dispose(ref fireParticles);            
             flameParticles          ?.Dispose(ref flameParticles);
+            SmallflameParticles     ?.Dispose(ref SmallflameParticles);
             beamflashes             ?.Dispose(ref beamflashes);
             dsbw                    ?.Dispose(ref dsbw);
             SelectedShipList        ?.Dispose(ref SelectedShipList);

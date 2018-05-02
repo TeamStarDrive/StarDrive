@@ -13,21 +13,22 @@ namespace Ship_Game
     {
         private void RenderParticles()
         {
-            this.beamflashes.SetCamera(this.view, this.projection);
-            this.explosionParticles.SetCamera(this.view, this.projection);
-            this.photonExplosionParticles.SetCamera(this.view, this.projection);
-            this.explosionSmokeParticles.SetCamera(this.view, this.projection);
-            this.projectileTrailParticles.SetCamera(this.view, this.projection);
-            this.fireTrailParticles.SetCamera(this.view, this.projection);
-            this.smokePlumeParticles.SetCamera(this.view, this.projection);
-            this.fireParticles.SetCamera(this.view, this.projection);
-            this.engineTrailParticles.SetCamera(this.view, this.projection);
-            this.flameParticles.SetCamera(this.view, this.projection);
-            this.sparks.SetCamera(this.view, this.projection);
-            this.lightning.SetCamera(this.view, this.projection);
-            this.flash.SetCamera(this.view, this.projection);
-            this.star_particles.SetCamera(this.view, this.projection);
-            this.neb_particles.SetCamera(this.view, this.projection);
+            beamflashes             .SetCamera(view, projection);
+            explosionParticles      .SetCamera(view, projection);
+            photonExplosionParticles.SetCamera(view, projection);
+            explosionSmokeParticles .SetCamera(view, projection);
+            projectileTrailParticles.SetCamera(view, projection);
+            fireTrailParticles      .SetCamera(view, projection);
+            smokePlumeParticles     .SetCamera(view, projection);
+            fireParticles           .SetCamera(view, projection);
+            engineTrailParticles    .SetCamera(view, projection);
+            flameParticles          .SetCamera(view, projection);
+            SmallflameParticles     .SetCamera(view, projection);
+            sparks                  .SetCamera(view, projection);
+            lightning               .SetCamera(view, projection);
+            flash                   .SetCamera(view, projection);
+            star_particles          .SetCamera(view, projection);
+            neb_particles           .SetCamera(view, projection);
         }
 
         private void RenderBackdrop()
@@ -597,6 +598,7 @@ namespace Ship_Game
                 star_particles.Draw(gameTime);
                 neb_particles.Draw(gameTime);
                 flameParticles.Draw(gameTime);
+                SmallflameParticles.Draw(gameTime);
                 sparks.Draw(gameTime);
                 lightning.Draw(gameTime);
                 flash.Draw(gameTime);
@@ -615,6 +617,7 @@ namespace Ship_Game
                 star_particles.Update(gameTime);
                 neb_particles.Update(gameTime);
                 flameParticles.Update(gameTime);
+                SmallflameParticles.Update(gameTime);
                 sparks.Update(gameTime);
                 lightning.Update(gameTime);
                 flash.Update(gameTime);
