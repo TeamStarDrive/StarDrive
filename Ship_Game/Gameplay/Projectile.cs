@@ -223,7 +223,7 @@ namespace Ship_Game.Gameplay
             {
                 case "RocketTrail":
                     TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
-                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "Plasma":
                     FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(100f, Center);
