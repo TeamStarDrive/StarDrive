@@ -403,20 +403,19 @@ namespace Ship_Game.Ships
             return worldPos.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
-        public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
-        {
-            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
-            return HitTestNoShields(point, rayRadius);
-        }
-
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
-            if (ShieldPower < 1f) return false;
             ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
             return dx * dx + dy * dy <= r2 * r2;
+        }
+        
+        public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
+        {
+            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
+            return HitTestNoShields(point, rayRadius);
         }
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float dist)
