@@ -5,7 +5,6 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -69,6 +68,8 @@ namespace Ship_Game.Gameplay
 
         public Ship Owner { get; protected set; }
         public Planet Planet { get; private set; }
+
+        public override IDamageModifier DamageMod => Weapon;
 
         public Projectile() : base(GameObjectType.Proj)
         {
