@@ -31,17 +31,16 @@ namespace Ship_Game.Ships
 
             switch (type) // other special effects based on some module types.
             {
-                case ShipModuleType.FuelCell: 
-                    Lightning     = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 5f, center);
-                    LightningVelZ = -5;
+                case ShipModuleType.Shield: 
+                    Lightning     = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
+                    LightningVelZ = -3;
                     return;
-                case ShipModuleType.Shield:
-                    Lightning     = Empire.Universe.lightning.NewEmitter(2f, center);
-                    LightningVelZ = -8f;
-                    break;
                 case ShipModuleType.PowerPlant:
-                    Lightning     = Empire.Universe.lightning.NewEmitter(8f, center);
-                    LightningVelZ = -10f;
+                    if (Area >= 4)
+                    {
+                        Lightning = Empire.Universe.lightning.NewEmitter(8f, center);
+                        LightningVelZ = -6f;
+                    }
                     break;
                 case ShipModuleType.PowerConduit:  // power conduit get only sparks
                     Lightning     = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f);
@@ -51,12 +50,12 @@ namespace Ship_Game.Ships
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
             Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area, center);
-            Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center, -30f);
+            Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center, -80f);
 
             // armor doesnt produce flames. 
             if (type != ShipModuleType.Armor &&  Area > 2f)
             {
-                Flame = Empire.Universe.flameParticles.NewEmitter(Area * 2, center);
+                Flame = Empire.Universe.flameParticles.NewEmitter(Area, center);
             }
         }
 
