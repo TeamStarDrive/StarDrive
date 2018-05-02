@@ -463,7 +463,7 @@ namespace Ship_Game.Ships
 
             DebugDamageCircle();
 
-            if ((int)damageModifier == 0) // the module has a full resistance. so no damage is remained to transfer
+            if (Math.Abs(damageModifier) <= 0.001) // the module has a full resistance. so no damage is remained to transfer
             { 
                 damageRemainder = 0;
                 return;

@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public ShipModuleDamageVisualization(ShipModule module)
+         public ShipModuleDamageVisualization(ShipModule module)
         {
             Area                = module.XSIZE * module.YSIZE;
             Vector3 center      = module.GetCenter3D;            
@@ -49,14 +49,16 @@ namespace Ship_Game.Ships
             }
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
-            Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area, center);
+            Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area * 0.7f , center);
             Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center, -80f);
 
             // armor doesnt produce flames. 
-            if (type != ShipModuleType.Armor &&  Area > 2f)
-            {
-                Flame = Empire.Universe.flameParticles.NewEmitter(Area, center);
-            }
+            if (type == ShipModuleType.Armor)
+                return;
+            if (Area > 8f)
+                Flame = Empire.Universe.flameParticles.NewEmitter(Area * 2 , center);
+            else if (Area > 2f)
+                Flame = Empire.Universe.SmallflameParticles.NewEmitter(Area * 2.5f , center, -5f);
         }
 
         // This is called when module is OnFire or completely dead
@@ -64,12 +66,12 @@ namespace Ship_Game.Ships
         {
             Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
             //added zaxis offeset contructor. bury flame into model a bit. 
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -2 - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 2);
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 2);
 
             // only spawn smoke from dead modules
             if (isAlive) return;
-            Trail?.Update(elapsedTime, center, zVelocity: -0.2f);
-            Smoke?.Update(elapsedTime, center, zVelocity: -1.0f);
+            Trail?.Update(elapsedTime, center, zVelocity: -0.1f);
+            Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
         }
     }
 }
