@@ -455,22 +455,34 @@ namespace Ship_Game.Ships
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float damageModifier = ShieldPower >= 1f 
+            float damageModifier = ShieldPower >= 1f
                                  ? source.DamageMod.GetShieldDamageMod(this)
                                  : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
 
-            float healthBefore   = Health + ShieldPower;
-            DamageModule(source, damageAmount * damageModifier);
-
-            float absorbedDamage = (healthBefore - (Health + ShieldPower)) / damageModifier;
-            damageRemainder = (int)(damageAmount - absorbedDamage);
+            float healthBefore = Health + ShieldPower;
+            DamageModule(source, damageAmount * damageModifier, ref damageModifier);
 
             DebugDamageCircle();
+
+            if ((int)damageModifier == 0) // the module has a full resistance. so no damage is remained to transfer
+            { 
+                damageRemainder = 0;
+                return;
+            }
+
+            float absorbedDamage;
+
+            if (damageModifier <= 1) // the module absorbed more damage than was initially inflicted because it has resistanse
+                absorbedDamage = (healthBefore - (Health + ShieldPower)) / damageModifier;
+            else                     // The module has a vulnerability which was already calculated into the damage
+                absorbedDamage = healthBefore - (Health + ShieldPower); 
+
+            damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
 
-        private void DamageModule(GameplayObject source, float modifiedDamage)
+        private void DamageModule(GameplayObject source, float modifiedDamage, ref float damageModifier)
         {
             if (source != null)
                 Parent.LastDamagedBy = source;
@@ -486,7 +498,10 @@ namespace Ship_Game.Ships
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
                 if (modifiedDamage <= damageThreshold)
+                {
+                    damageModifier = 0;
                     return; // no damage could be done // @todo All damage should get absorbed!
+                }
             }
 
             if (damagingShields)
