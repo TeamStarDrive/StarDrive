@@ -294,7 +294,7 @@ namespace Ship_Game.Ships
         //Module Health
         private void HealthClamp()             => Health = Math.Min(HealthMax, Health);
         private bool IsMaxHealth               => Health >= HealthMax;
-        private void ChangeHealth(float value) => (Health + value).Clamp(0, HealthMax);
+        private void ChangeHealth(float value) => Health = (Health + value).Clamp(0, HealthMax);
       
 
 
