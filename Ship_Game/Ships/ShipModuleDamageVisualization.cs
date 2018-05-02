@@ -31,21 +31,18 @@ namespace Ship_Game.Ships
 
             switch (type) // other special effects based on some module types.
             {
-                case ShipModuleType.Shield: 
-                    Lightning     = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
-                    LightningVelZ = -3;
+                case ShipModuleType.Shield:
+                    Lightning = Empire.Universe.sparks.NewEmitter(40f, center.ToVec2(), -10f);
+                    LightningVelZ = -6f;
+                    break;
+                case ShipModuleType.PowerConduit:
+                    Lightning = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f);
+                    LightningVelZ = -3f;
                     return;
                 case ShipModuleType.PowerPlant:
-                    if (Area >= 4)
-                    {
-                        Lightning = Empire.Universe.lightning.NewEmitter(8f, center);
-                        LightningVelZ = -6f;
-                    }
+                    Lightning = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
+                    LightningVelZ = -4;
                     break;
-                case ShipModuleType.PowerConduit:  // power conduit get only sparks
-                    Lightning     = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f);
-                    LightningVelZ = -2f;
-                    return;
             }
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
