@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-         public ShipModuleDamageVisualization(ShipModule module)
+        public ShipModuleDamageVisualization(ShipModule module)
         {
             Area                = module.XSIZE * module.YSIZE;
             Vector3 center      = module.GetCenter3D;            
