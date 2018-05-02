@@ -55,10 +55,8 @@ namespace Ship_Game.Ships
             // armor doesnt produce flames. 
             if (type == ShipModuleType.Armor)
                 return;
-            if (Area > 8f)
-                Flame = Empire.Universe.flameParticles.NewEmitter(Area * 2 , center);
-            else if (Area > 2f)
-                Flame = Empire.Universe.SmallflameParticles.NewEmitter(Area * 2.5f , center, -5f);
+            Flame = Area > 15f ? Empire.Universe.flameParticles.NewEmitter(Area * 2 , center) : 
+                                 Empire.Universe.SmallflameParticles.NewEmitter(Area * 3f , center, -7f);
         }
 
         // This is called when module is OnFire or completely dead
