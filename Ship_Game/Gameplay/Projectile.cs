@@ -222,25 +222,25 @@ namespace Ship_Game.Gameplay
             switch (Weapon.WeaponEffectType)
             {
                 case "RocketTrail":
-                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
                     FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
                     break;
                 case "Plasma":
-                    FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(500f, Center);
+                    FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(100f, Center);
                     break;
                 case "SmokeTrail":
-                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "MuzzleSmoke":
-                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
+                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center);
                     break;
                 case "MuzzleSmokeFire":
-                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
-                    TrailEmitter     = Empire.Universe.fireTrailParticles.NewEmitter(750f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center);
+                    TrailEmitter     = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "FullSmokeMuzzleFire":
-                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
-                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
             }
         }
