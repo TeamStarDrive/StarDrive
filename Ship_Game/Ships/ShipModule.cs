@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
         private bool CanVisualizeDamage;
         private ShipModuleDamageVisualization DamageVisualizer;
         private bool OnFire;
-        private const float OnFireThreshold = 0.1f;
+        private const float OnFireThreshold = 0.15f;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
