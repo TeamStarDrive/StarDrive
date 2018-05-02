@@ -411,7 +411,7 @@ namespace Ship_Game.AI
 
         private void SetCombatStatus(float elapsedTime)
         {
-            float radius = SetSensorRadius(out Vector2 senseCenter);
+            float radius = GetSensorRadius(out Vector2 senseCenter);
 
             if (Owner.fleet != null)
             {
@@ -492,26 +492,29 @@ namespace Ship_Game.AI
             }
         }
 
-        private float SetSensorRadius(out Vector2 senseCenter)
-        {
-            var radius = 30000f;
+        public float GetSensorRadius(out Vector2 senseCenter)
+        {                        
+            if (!UseSensorsForTargets) //this is obsolete and not needed anymore. 
+            {
+                var radius = 30000f;
+                senseCenter = Owner.Mothership?.Center ?? Owner.Center;
+                return radius;
+            }
+
+
+            if (Owner.Mothership != null)
+            {
+                //get the motherships sensor status. 
+                float motherRange = Owner.Mothership.AI.GetSensorRadius(out senseCenter);
+
+                //in radius of the motherships sensors then use that.
+                if (Owner.Center.InRadius(senseCenter, motherRange - Owner.SensorRange))
+                    return motherRange;               
+            }
             senseCenter = Owner.Center;
-            if (UseSensorsForTargets)
-                if (Owner.Mothership != null)
-                {
-                    if (!(Vector2.Distance(Owner.Center, Owner.Mothership.Center) <=
-                          Owner.Mothership.SensorRange - Owner.SensorRange)) return radius;
-                    senseCenter = Owner.Mothership.Center;
-                    radius = Owner.Mothership.SensorRange;
-                }
-                else
-                {
-                    float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
-                    radius =  sensorRange; //FleetNode?.OrdersRadius ??
-                }
-            else if (Owner.Mothership != null)
-                senseCenter = Owner.Mothership.Center;
-            return radius;
+            float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
+            return  Math.Min(FleetNode?.OrdersRadius ?? float.MaxValue, sensorRange);
+            
         }
 
         private bool DoNotEnterCombat
