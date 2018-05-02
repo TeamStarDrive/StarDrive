@@ -201,8 +201,11 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None)
-            => UniverseScreen.SpaceManager.FindNearby(this, SensorRange, filter);
+        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MinValue)
+        {
+            radius = Math.Max(radius, SensorRange);
+            return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
+        }
         public bool IsInNeutralSpace
         {
             get
