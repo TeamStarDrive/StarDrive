@@ -73,7 +73,7 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
-        public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
+        [XmlIgnore] [JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
         public virtual void Damage(GameplayObject source, float damageAmount)
         {

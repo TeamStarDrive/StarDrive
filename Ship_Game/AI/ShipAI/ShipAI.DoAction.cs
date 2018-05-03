@@ -224,6 +224,10 @@ namespace Ship_Game.AI {
                     return;
                 }
             }
+            
+            
+            
+            
             AwaitClosest = null;
             State = AIState.Combat;
             Owner.InCombat = true;
@@ -332,7 +336,8 @@ namespace Ship_Game.AI {
                         }
                     }
                 }
-
+            if (Owner.fleet != null && FleetNode != null)
+                if (Target.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius)) return;
 
             switch (CombatState)
             {
