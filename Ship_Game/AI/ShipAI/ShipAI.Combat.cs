@@ -115,7 +115,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public GameplayObject ScanForCombatTargets(Vector2 position, float radius)
+        public GameplayObject ScanForCombatTargets(Ship sensorShip, float radius)
         {
             BadGuysNear = false;
             GameplayObject priorityTarget = null;
@@ -177,7 +177,7 @@ namespace Ship_Game.AI
                 NearByShips.Add(sw);
             }
 
-            GameplayObject[] nearbyShips = Owner.GetObjectsInSensors(GameObjectType.Ship, radius);
+            GameplayObject[] nearbyShips = sensorShip.GetObjectsInSensors(GameObjectType.Ship, radius);
             for (int x = 0; x < nearbyShips.Length; x++)
             {
                 var go = nearbyShips[x];
@@ -417,14 +417,14 @@ namespace Ship_Game.AI
 
         private void SetCombatStatus(float elapsedTime)
         {
-            float radius = GetSensorRadius(out Vector2 senseCenter);
-
+            float radius = GetSensorRadius(out Ship sensorShip);
+            //Vector2 senseCenter = sensorShip.Center;
             if (Owner.fleet != null)
             {
                 if (!HasPriorityTarget )
-                    Target = ScanForCombatTargets(senseCenter, radius);
+                    Target = ScanForCombatTargets(sensorShip, radius);
                 else
-                    ScanForCombatTargets(senseCenter, radius);
+                    ScanForCombatTargets(sensorShip, radius);
             }
             else if (!HasPriorityTarget)
             {
@@ -434,22 +434,22 @@ namespace Ship_Game.AI
                 //#endif
                 if (Owner.Mothership != null)
                 {
-                    Target = ScanForCombatTargets(senseCenter, radius);
+                    Target = ScanForCombatTargets(sensorShip, radius);
 
                     if (Target == null)
                         Target = Owner.Mothership.AI.Target;
                 }
                 else
                 {
-                    Target = ScanForCombatTargets(senseCenter, radius);
+                    Target = ScanForCombatTargets(sensorShip, radius);
                 }
             }
             else
             {
                 if (Owner.Mothership != null)
-                    Target = ScanForCombatTargets(senseCenter, radius) ?? Owner.Mothership.AI.Target;
+                    Target = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
                 else
-                    ScanForCombatTargets(senseCenter, radius);
+                    ScanForCombatTargets(sensorShip, radius);
             }
             if (State == AIState.Resupply)
                 return;
@@ -498,12 +498,12 @@ namespace Ship_Game.AI
             }
         }
 
-        public float GetSensorRadius(out Vector2 senseCenter)
-        {                        
+        public float GetSensorRadius(out Ship sensorShip)
+        {
             if (!UseSensorsForTargets) //this is obsolete and not needed anymore. 
             {
                 var radius = 30000f;
-                senseCenter = Owner.Mothership?.Center ?? Owner.Center;
+                sensorShip = Owner.Mothership ?? Owner;
                 return radius;
             }
 
@@ -511,15 +511,16 @@ namespace Ship_Game.AI
             if (Owner.Mothership != null)
             {
                 //get the motherships sensor status. 
-                float motherRange = Owner.Mothership.AI.GetSensorRadius(out senseCenter);
+                float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);
 
                 //in radius of the motherships sensors then use that.
-                if (Owner.Center.InRadius(senseCenter, motherRange - Owner.SensorRange))
+                if (Owner.Center.InRadius(sensorShip.Center, motherRange - Owner.SensorRange))
                     return motherRange;               
             }
-            senseCenter = Owner.Center;
+            sensorShip = Owner;
             float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
-            return  Math.Min(FleetNode?.OrdersRadius ?? float.MaxValue, sensorRange);
+            return sensorRange;
+            
             
         }
 
