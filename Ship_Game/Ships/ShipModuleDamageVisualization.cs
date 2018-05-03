@@ -31,33 +31,29 @@ namespace Ship_Game.Ships
 
             switch (type) // other special effects based on some module types.
             {
-                case ShipModuleType.FuelCell: 
-                    Lightning     = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 5f, center);
-                    LightningVelZ = -5;
-                    return;
                 case ShipModuleType.Shield:
-                    Lightning     = Empire.Universe.lightning.NewEmitter(2f, center);
-                    LightningVelZ = -8f;
+                    Lightning = Empire.Universe.sparks.NewEmitter(40f, center.ToVec2(), -10f);
+                    LightningVelZ = -6f;
                     break;
-                case ShipModuleType.PowerPlant:
-                    Lightning     = Empire.Universe.lightning.NewEmitter(8f, center);
-                    LightningVelZ = -10f;
-                    break;
-                case ShipModuleType.PowerConduit:  // power conduit get only sparks
-                    Lightning     = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f);
-                    LightningVelZ = -2f;
+                case ShipModuleType.PowerConduit:
+                    Lightning = Empire.Universe.sparks.NewEmitter(25f, center.ToVec2(), -10f);
+                    LightningVelZ = -3f;
                     return;
+                case ShipModuleType.PowerPlant:
+                    Lightning = Empire.Universe.photonExplosionParticles.NewEmitter(Area * 6f, center);
+                    LightningVelZ = -4;
+                    break;
             }
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
-            Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area, center);
-            Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center, -30f);
+            Trail = Empire.Universe.smokePlumeParticles.NewEmitter(Area * 0.7f , center);
+            Smoke = Empire.Universe.explosionSmokeParticles.NewEmitter(Area * 3f, center, -80f);
 
             // armor doesnt produce flames. 
-            if (type != ShipModuleType.Armor &&  Area > 2f)
-            {
-                Flame = Empire.Universe.flameParticles.NewEmitter(Area * 2, center);
-            }
+            if (type == ShipModuleType.Armor)
+                return;
+            Flame = Area >= 15f ? Empire.Universe.flameParticles.NewEmitter(Area * 2 , center) : 
+                                 Empire.Universe.SmallflameParticles.NewEmitter(Area * 3f , center, -7f);
         }
 
         // This is called when module is OnFire or completely dead
@@ -65,12 +61,12 @@ namespace Ship_Game.Ships
         {
             Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
             //added zaxis offeset contructor. bury flame into model a bit. 
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -2 - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 2);
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 2);
 
             // only spawn smoke from dead modules
             if (isAlive) return;
-            Trail?.Update(elapsedTime, center, zVelocity: -0.2f);
-            Smoke?.Update(elapsedTime, center, zVelocity: -1.0f);
+            Trail?.Update(elapsedTime, center, zVelocity: -0.1f);
+            Smoke?.Update(elapsedTime, center, zVelocity: -2.0f);
         }
     }
 }
