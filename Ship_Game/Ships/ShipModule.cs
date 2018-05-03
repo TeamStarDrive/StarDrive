@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
         private bool CanVisualizeDamage;
         private ShipModuleDamageVisualization DamageVisualizer;
         private bool OnFire;
-        private const float OnFireThreshold = 0.1f;
+        private const float OnFireThreshold = 0.15f;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
 
@@ -454,22 +454,27 @@ namespace Ship_Game.Ships
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            float damageModifier = ShieldPower >= 1f 
+            float damageModifier = ShieldPower >= 1f
                                  ? source.DamageMod.GetShieldDamageMod(this)
                                  : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
 
-            float healthBefore   = Health + ShieldPower;
-            DamageModule(source, damageAmount * damageModifier);
-
-            float absorbedDamage = (healthBefore - (Health + ShieldPower)) / damageModifier;
-            damageRemainder = (int)(damageAmount - absorbedDamage);
+            float healthBefore = Health + ShieldPower;
+            if (!DamageModuleAndReturnTrueIfSuccessful(source, damageAmount * damageModifier)) 
+            {
+                damageRemainder = 0;
+                return; // damage was deflected
+            }
 
             DebugDamageCircle();
+            float absorbedDamage = damageModifier <= 1 ? // below 1, resistance. above 1, vulnerability.
+                                   (healthBefore - (Health + ShieldPower)) / damageModifier : // the module absorbed more damage because of good resistance
+                                    healthBefore - (Health + ShieldPower); // extra damage was already calcualted
+            damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
 
-        private void DamageModule(GameplayObject source, float modifiedDamage)
+        private bool DamageModuleAndReturnTrueIfSuccessful(GameplayObject source, float modifiedDamage)
         {
             if (source != null)
                 Parent.LastDamagedBy = source;
@@ -485,7 +490,7 @@ namespace Ship_Game.Ships
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
                 if (modifiedDamage <= damageThreshold)
-                    return; // no damage could be done // @todo All damage should get absorbed!
+                    return false; // no damage could be done, the projectile was deflected.
             }
 
             if (damagingShields)
@@ -520,6 +525,7 @@ namespace Ship_Game.Ships
                 Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
+            return true;
         }
 
         private float GetGlobalArmourBonus()
