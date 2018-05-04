@@ -3151,16 +3151,19 @@ namespace Ship_Game.Ships
             }
         }
 
-        // @todo Isn't this a bit OP?
         public void RepairShipModulesByDrone(float repairAmount)
         {
-            foreach (ShipModule module in ModuleSlotList)
+            var damagedModules = ModuleSlotList
+                .FilterBy(slot => slot.Health < slot.HealthMax)
+                .OrderBy(slot => slot.ModulePriority);
+            foreach (ShipModule module in damagedModules)
             {
                 if (module.Health >= module.HealthMax) continue;
                 module.Health += repairAmount;
 
                 if (module.Health >= module.HealthMax)
                     module.Health = module.HealthMax;
+                break; //FB concentrate on one module and dont repair the all damaged modules at once like before
             }
         }
 
