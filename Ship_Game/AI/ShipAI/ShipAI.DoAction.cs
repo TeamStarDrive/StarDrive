@@ -266,25 +266,7 @@ namespace Ship_Game.AI {
                     OrderResupplyNearest(false);
                     return;
                 }
-            if (Target.Center.Distance(Owner.Center) < 10000f)
-            {
-                if (Owner.engineState != Ship.MoveState.Warp && Owner.GetHangars().Count > 0 &&
-                    !Owner.ManualHangarOverride)
-                    if (!Owner.FightersOut) Owner.FightersOut = true;
-                if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();
-            }
-            else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
-            {
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
-                return;
-            }
-            if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(Target.Center,Owner.maxWeaponsRange))
-            {
-                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
-                return;
-            }
+            
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && Owner.GetHangars().Count == 0)
                 CombatState = CombatState.Evade;
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.TroopsOut == false &&
@@ -336,9 +318,40 @@ namespace Ship_Game.AI {
                         }
                     }
                 }
-            if (Owner.fleet != null && FleetNode != null)
-                if (Target.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius)) return;
 
+            if (Target?.Center.InRadius(Owner.Center, 10000) ?? false)
+            {
+                if (Owner.engineState != Ship.MoveState.Warp && Owner.GetHangars().Count > 0 &&
+                    !Owner.ManualHangarOverride)
+                    if (!Owner.FightersOut) Owner.FightersOut = true;
+                if (Owner.engineState == Ship.MoveState.Warp)
+                    Owner.HyperspaceReturn();
+            }
+            else if (FleetNode != null && Owner.fleet != null)
+            {
+                var fleetPositon = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
+                if (Target.Center.OutsideRadius(fleetPositon, FleetNode.OrdersRadius))
+                {
+                    if (Owner.Center.OutsideRadius(fleetPositon,1000))
+                    {
+                        ThrustTowardsPosition(fleetPositon, elapsedTime, Owner.Speed);
+                        return;
+                    }
+                    DoHoldPositionCombat(elapsedTime);
+                    return;
+                }
+            }
+            else if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
+            {
+                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                return;
+            }
+            if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
+                && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange))
+            {
+                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.Speed);
+                return;
+            }
             switch (CombatState)
             {
                 case CombatState.Artillery:

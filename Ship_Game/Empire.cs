@@ -2444,7 +2444,8 @@ namespace Ship_Game
                     //added by gremlin Do not include 0 strength ships in defensive force pool
                     s.AI.OrderQueue.Clear();
                     s.AI.State = AIState.AwaitingOrders;
-                    ForcePoolAdd(s);
+                    //ShipsToAdd.Add(s);
+                    
                 }
                 if (this.data.Traits.Cybernetic != 0)
                 {
