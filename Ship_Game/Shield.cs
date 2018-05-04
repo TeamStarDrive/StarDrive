@@ -43,7 +43,7 @@ namespace Ship_Game
         {
             if (Owner != null)
             {
-                World = Matrix.CreateScale(Radius / 100f + 50f) 
+                World = Matrix.CreateScale(Radius /2) 
                       * Matrix.CreateRotationZ(Rotation)
                       * Matrix.CreateTranslation(Owner.Center.X, Owner.Center.Y, 0f);
             }

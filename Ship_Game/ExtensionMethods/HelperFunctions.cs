@@ -97,7 +97,7 @@ namespace Ship_Game
                     if (s == null) continue;
                     s.RelativeFleetOffset = node.FleetOffset;
                     node.Ship = s;
-                    node.OrdersRadius = s.SensorRange * node.OrdersRadius;
+                    node.OrdersRadius = node.OrdersRadius >1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
                     fleet.AddShip(s);
                 }
             return fleet;
