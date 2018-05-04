@@ -3540,6 +3540,7 @@
     <Content Include="Content\Weapons\PDLaser.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Weapons\RepairBeam.xml" />
     <Content Include="Deploy\7-Zip\7-zip.dll" />
     <Content Include="Deploy\7-Zip\7z.dll" />
     <Content Include="Deploy\7-Zip\7z.exe" />
