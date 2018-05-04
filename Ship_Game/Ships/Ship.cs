@@ -3163,7 +3163,7 @@ namespace Ship_Game.Ships
 
                 if (module.Health >= module.HealthMax)
                     module.Health = module.HealthMax;
-                break; //FB concentrate on one module and dont repair the all damaged modules at once like before
+                break; //FB: concentrate on one module and dont repair the all damaged modules at once like before
             }
         }
 
