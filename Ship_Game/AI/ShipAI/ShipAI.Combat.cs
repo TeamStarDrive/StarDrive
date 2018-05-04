@@ -170,12 +170,7 @@ namespace Ship_Game.AI
                                   Owner.Center.InRadius(p.Center, radius);
                 }
 
-            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
-            {
-                var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
-
-                NearByShips.Add(sw);
-            }
+      
 
             GameplayObject[] nearbyShips = sensorShip.GetObjectsInSensors(GameObjectType.Ship, radius);
             for (int x = 0; x < nearbyShips.Length; x++)
@@ -214,13 +209,21 @@ namespace Ship_Game.AI
 
                 NearByShips.Add(sw);
             }
-            if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
+            if (Target is Ship shipTarget)
             {
-                foreach (Ship ship in Owner.fleet?.FleetTargetList)
+
+                if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
                 {
-                    var sw = new ShipWeight(ship, 1);
+                    var sw = new ShipWeight(shipTarget, 1);
                     NearByShips.AddUnique(sw);
                 }
+
+            }
+            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
+            {
+                var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
+
+                NearByShips.AddUnique(sw);
             }
 
             SupplyShuttleLaunch();
@@ -268,7 +271,7 @@ namespace Ship_Game.AI
 
             for (int i = NearByShips.Count - 1; i >= 0; i--)
             {
-              
+
                 ShipWeight copyWeight = NearByShips[i]; //Remember we have a copy.
                 copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
 
@@ -277,14 +280,19 @@ namespace Ship_Game.AI
                     NearByShips[i] = copyWeight;//update stored weight from copy
                     continue;
                 }
-                if (FleetNode.OrdersRadius < 1f)
-                    FleetNode.OrdersRadius = Owner.SensorRange;
-                if (!Intercepting && copyWeight.Ship.Center.OutsideRadius(Owner.Center, FleetNode.OrdersRadius))
-                {
-                    copyWeight.SetWeight(-100); //Hrmm. Dont know how to simply assign a value with operator
-                    NearByShips[i] = copyWeight;
-                    continue;
-                }
+                //if (!Intercepting && copyWeight.Ship.Center.OutsideRadius(Owner.Center, GetSensorRadius()))
+                //{
+                //    copyWeight.SetWeight(-100); //Hrmm. Dont know how to simply assign a value with operator
+                //    NearByShips[i] = copyWeight;
+                //    continue;
+                //}
+
+                var fleetPosition = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
+                var distanceToFleet = fleetPosition.Distance(copyWeight.Ship.Center);
+                copyWeight += FleetNode.OrdersRadius <= distanceToFleet ? 0 : -distanceToFleet / FleetNode.OrdersRadius;
+
+
+
 
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
@@ -497,6 +505,8 @@ namespace Ship_Game.AI
                 OrderQueue.PushToFront(combat);
             }
         }
+
+        public float GetSensorRadius() => GetSensorRadius(out Ship sensorShip);
 
         public float GetSensorRadius(out Ship sensorShip)
         {

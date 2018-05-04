@@ -217,6 +217,7 @@ namespace Ship_Game.AI
             fleetDataNode.ShipName = ship.Name;
             fleetDataNode.FleetOffset = ship.RelativeFleetOffset;
             fleetDataNode.OrdersOffset = ship.RelativeFleetOffset;
+            fleetDataNode.OrdersRadius = fleetDataNode.OrdersRadius <2 ? ship.AI.GetSensorRadius() : fleetDataNode.OrdersRadius;
             DataNodes.Add(fleetDataNode);
             ship.AI.FleetNode = fleetDataNode;
         }

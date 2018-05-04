@@ -476,8 +476,8 @@ namespace Ship_Game.AI
                 }
                 else
                 {
-                    float DistanceToFleetOffset = Vector2.Distance(Owner.Center, Owner.fleet.Position + Owner.FleetOffset);
-                    if (DistanceToFleetOffset <= 75f)
+                    bool nearFleetOffSet = Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75);
+                    if (nearFleetOffSet)
                     {
                         Owner.Velocity = Vector2.Zero;
                         Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
@@ -490,16 +490,16 @@ namespace Ship_Game.AI
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
                             RotateToFacing(elapsedTime, angleDiff, facing);
-                        if (DistanceToFleetOffset <= 75f) //fbedard: dont override high priority resupply
-                        {
-                            State = AIState.AwaitingOrders;
-                            HasPriorityOrder = false;
-                        }
+                        //if (nearFleetOffSet <= 75f) //fbedard: dont override high priority resupply
+                        //{
+                        //    State = AIState.AwaitingOrders;
+                        //    HasPriorityOrder = false;
+                        //}
                         //add fun idle fleet ship stuff here
                     }
-                    else if (State != AIState.HoldPosition && DistanceToFleetOffset > 75f)
+                    else if (!HasPriorityOrder && !HadPO && State != AIState.FormationWarp && State != AIState.HoldPosition )
                     {
-                        ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.fleet.Speed);
+                        ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         lock (WayPointLocker)
                         {
                             ActiveWayPoints.Clear();
