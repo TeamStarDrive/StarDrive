@@ -483,14 +483,14 @@ namespace Ship_Game.Ships
             Parent.ShieldRechargeTimer  = 0f;
 
             var beam = source as Beam;
-            var proj = source as Projectile; 
+            var proj = source as Projectile;
 
             bool damagingShields = ShieldPower > 1f && proj?.IgnoresShields != true;
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
                 if (modifiedDamage <= damageThreshold)
-                    return false; // no damage could be done, the projectile was deflected.
+                    modifiedDamage = 0; // no damage could be done, the projectile was deflected.
             }
 
             if (damagingShields)
@@ -514,18 +514,18 @@ namespace Ship_Game.Ships
                 {
                     CauseEmpDamage(proj);
                     if (beam != null) CauseSpecialBeamDamage(beam);
-
-                    if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
-                    {
-                        if (beam != null)                beam.CreateHitParticles(Center3D.Z);
-                        else if (proj.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
-                    }
                 }
                 DebugPerseveranceNoDamage();
-                Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
+                if (Math.Abs(modifiedDamage) >= 1)
+                    Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
-            return true;
+            if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            {
+                if (beam != null) beam.CreateHitParticles(Center3D.Z);
+                else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
+            }
+            return Math.Abs(modifiedDamage) >= 1;
         }
 
         private float GetGlobalArmourBonus()
