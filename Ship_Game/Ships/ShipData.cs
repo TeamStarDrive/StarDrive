@@ -62,6 +62,10 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
         [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
         [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(HullData?.IconPath ?? IconPath);
+        [XmlIgnore]
+        [JsonIgnore]
+        public float ModelZ { get; private set; }
+
 
         public void SetHullData(ShipData shipData = null)
         {            
@@ -72,6 +76,7 @@ namespace Ship_Game.Ships
 
         public ShipData()
         {
+            ModelZ = 0;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -269,6 +274,8 @@ namespace Ship_Game.Ships
             var contentManager = Empire.Universe?.TransientContent ?? ResourceManager.ContentManager;
             shipSO = ResourceManager.GetSceneMesh(contentManager, HullModel, Animated, justLoad);
             shipMeshAnim = null;
+            if (ModelZ == 0)
+                ModelZ = shipSO.GetMeshBoundingBox().Max.Z;
 
             if (!Animated) return;
 
