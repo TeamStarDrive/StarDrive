@@ -329,11 +329,11 @@ namespace Ship_Game
             Thickness = thickness;
             Source    = srcCenter;
             ActualHitDestination = dstCenter;
-
+            float repairSkill =  1 - ((Owner?.Level ?? 0) *.1f).Clamp(0, .95f);
             // apply drone repair effect
-            if (DamageAmount < 0f && Source.Distance(Destination) <= (Range + 10f) && Target is Ship targetShip)
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
-                targetShip.RepairShipModulesByDrone(-DamageAmount);
+                targetShip.RepairShipModulesByDrone(-DamageAmount, repairSkill);
             }
 
             UpdateBeamMesh();
