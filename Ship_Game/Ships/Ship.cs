@@ -3172,6 +3172,7 @@ namespace Ship_Game.Ships
 
         public void RepairShipModulesByDrone(float repairAmount)
         {
+            if (!Active) return;
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
                 float damagePriority =  module.Health < module.HealthMax ? 1f : 0.1f ; // damaged modules get priority 1.0
