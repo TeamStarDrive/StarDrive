@@ -32,8 +32,7 @@ namespace Particle3DSample
                 velocity.Z += zVelocity;                
                 velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
-                float currentTime = -TimeLeftOver;
-                bool offSetOnce = false;
+                float currentTime = -TimeLeftOver;                
                 while (timeToSpend > TimeBetweenParticles)
                 {
                     currentTime += TimeBetweenParticles;
@@ -41,12 +40,12 @@ namespace Particle3DSample
                     float mu     = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
                     position.Z      += zAxisPos;
-                    if (!offSetOnce && jitter > 0)
-                    {
-                        offSetOnce = true;                        
+                    if ( jitter > 0)
+                    {                       
                         position.X += RandomMath2.RandomBetween(-jitter, jitter);
                         position.Y += RandomMath2.RandomBetween(-jitter, jitter);
                         position.Z += RandomMath2.RandomBetween(-jitter, jitter);
+                        jitter *=.75f;
                     }
                     ParticleSystem.AddParticleThreadA(position, velocity);
                 }

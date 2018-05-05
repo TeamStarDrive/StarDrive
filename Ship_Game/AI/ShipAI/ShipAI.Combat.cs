@@ -226,7 +226,7 @@ namespace Ship_Game.AI
                 NearByShips.AddUnique(sw);
             }
 
-            SupplyShuttleLaunch();
+            SupplyShuttleLaunch(radius);
             if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
                 OrderScrapShip(); //Destroy shuttle without mothership
 
@@ -305,27 +305,23 @@ namespace Ship_Game.AI
             }
         }
 
-        private void SupplyShuttleLaunch()
+        private void SupplyShuttleLaunch(float radius)
         {
             //fbedard: for launch only
-
+            //CG Omergawd. yes i tried getting rid of the orderby and cleaning this up
+            //but im not willing to test that change here. I think i did some of this a long while back.  
             if (Owner.engineState == Ship.MoveState.Warp ||!Owner.HasSupplyBays ) return;
 
-            Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship != Owner
-                                                                  && ship.engineState   != Ship.MoveState.Warp
-                                                                  && ship.AI.State      != AIState.Scrap
-                                                                  && ship.AI.State      != AIState.Resupply
-                                                                  && ship.AI.State      != AIState.Refit
-                                                                  && ship.Mothership    == null
-                                                                  && ship.OrdinanceMax > 0
-                                                                  && ship.Ordinance / ship.OrdinanceMax < 0.5f
-                                                                  && !ship.IsTethered()
-                                                                  && ship.shipData.Role != ShipData.RoleName.supply)
-                .OrderBy(ship => Math.Truncate(Vector2.Distance(Owner.Center, ship.Center) + 4999) / 5000)
-                .ThenByDescending(ship => ship.OrdinanceMax - ship.Ordinance).ToArray();
+            Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
+                                                                  && ship.OrdnanceStatus < ShipStatus.Good)       
+                .OrderBy(ship =>
+                {
+                    var distance = Owner.Center.Distance(ship.Center);
+                    distance = (int)distance * 5 / radius;
+                    return (int)ship.OrdnanceStatus + distance;
+                }).ToArray();
 
-            if (sortedList.Length <= 0) return;
-            if (!Owner.HasSupplyBays) return;
+            if (sortedList.Length <= 0) return;            
 
             var skip = 0;
             var inboundOrdinance = 0f;
@@ -400,7 +396,7 @@ namespace Ship_Game.AI
 
                 if (Owner.Ordinance >= 100f)
                 {
-                    inboundOrdinance        = inboundOrdinance + 100f;
+                    //inboundOrdinance        = inboundOrdinance + 100f;
                     Owner.Ordinance         = Owner.Ordinance - 100f;
                     hangar.SetHangarShip(shuttle);
                     var g                   = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
