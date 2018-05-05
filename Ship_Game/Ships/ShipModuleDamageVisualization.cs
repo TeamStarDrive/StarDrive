@@ -29,8 +29,8 @@ namespace Ship_Game.Ships
             Vector3 center      = module.GetCenter3D;            
             ShipModuleType type = module.ModuleType;
             
-            float modelZ = module.GetParent().GetShipData().HullData.ModelZ.Clamp(-80,80);
-            
+            float modelZ = module.GetParent().GetShipData().HullData.ModelZ;
+            modelZ = modelZ.Clamp(0, 200) * -1;
             switch (type) // other special effects based on some module types.
             {
                 case ShipModuleType.Shield:
@@ -54,8 +54,8 @@ namespace Ship_Game.Ships
             // armor doesnt produce flames. 
             if (type == ShipModuleType.Armor)
                 return;
-            Flame = Area >= 15f ? Empire.Universe.flameParticles.NewEmitter(Area * 2 , center, modelZ) : 
-                                 Empire.Universe.SmallflameParticles.NewEmitter(Area * 3f , center, modelZ);
+            Flame = Area >= 15f ? Empire.Universe.flameParticles.NewEmitter(Area * 2 * GlobalStats.DamageIntensity , center, modelZ) : 
+                                 Empire.Universe.SmallflameParticles.NewEmitter(Area * 3f * GlobalStats.DamageIntensity, center, modelZ);
         }
 
         // This is called when module is OnFire or completely dead
@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
         {
             Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
             //added zaxis offeset contructor. bury flame into model a bit. 
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 2);
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 4);
 
             // only spawn smoke from dead modules
             if (isAlive) return;

@@ -261,6 +261,10 @@ namespace Ship_Game.Ships
             return RoleArray[roleNum];
         }
 
+        private void SetModelZ(float zOffSet)
+        {
+            HullData.ModelZ = zOffSet;
+        }
 
         public string GetCategory()
         {
@@ -274,9 +278,9 @@ namespace Ship_Game.Ships
             var contentManager = Empire.Universe?.TransientContent ?? ResourceManager.ContentManager;
             shipSO = ResourceManager.GetSceneMesh(contentManager, HullModel, Animated, justLoad);
             shipMeshAnim = null;
-            if (ModelZ == 0)
-                ModelZ = shipSO.GetMeshBoundingBox().Max.Z;
-
+            if (HullData.ModelZ == 0 && HullRole >= RoleName.fighter)
+                HullData.SetModelZ(shipSO.GetMeshBoundingBox().Max.Z);
+            
             if (!Animated) return;
 
             SkinnedModel skinned = ResourceManager.GetSkinnedModel(contentManager, ModelPath);
