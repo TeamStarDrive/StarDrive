@@ -57,6 +57,7 @@ namespace Ship_Game.Ships
         public bool Powered;
         public int quadrant = -1;
         public bool isExternal;
+        public const int MaxPriority =6;
 
 
         // Used to configure how good of a target this module is

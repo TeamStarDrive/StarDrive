@@ -2157,6 +2157,7 @@ namespace Ship_Game.Ships
                     {
                         //Added by McShooterz: Priority repair
                         float repairTracker = InCombat ? RepairRate * 0.1f : RepairRate;
+                        // we should use find max here as well
                         var damagedModules = ModuleSlotList
                             .FilterBy(slot => slot.Health < slot.HealthMax)
                             .OrderBy(slot => slot.ModulePriority);
@@ -3151,18 +3152,20 @@ namespace Ship_Game.Ships
             }
         }
 
-        // @todo Isn't this a bit OP?
         public void RepairShipModulesByDrone(float repairAmount)
         {
-            foreach (ShipModule module in ModuleSlotList)
+            ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
-                if (module.Health >= module.HealthMax) continue;
-                module.Health += repairAmount;
-
-                if (module.Health >= module.HealthMax)
-                    module.Health = module.HealthMax;
+                float damagePriority =  module.Health < module.HealthMax ? 1f : 0.1f ; // damaged modules get priority 1.0
+                float moduleImportance = 1f - (float)module.ModulePriority / ShipModule.MaxPriority; // best modules get priority 1.0
+                return damagePriority * moduleImportance;
+            });
+            if (moduleToRepair.Health < moduleToRepair.HealthMax)
+            {
+                moduleToRepair.Repair(repairAmount);
             }
         }
+
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
