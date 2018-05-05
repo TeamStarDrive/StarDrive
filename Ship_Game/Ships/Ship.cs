@@ -3170,12 +3170,12 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void RepairShipModulesByDrone(float repairAmount)
+        public void RepairShipModulesByDrone(float repairAmount, float repairSkill)
         {
             if (!Active) return;
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
-                float damagePriority =  module.Health < module.HealthMax ? 1f : 0.1f ; // damaged modules get priority 1.0
+                float damagePriority =  module.Health < module.HealthMax * repairSkill ? 1f : 0.1f ; // damaged modules get priority 1.0
                 float moduleImportance = 1f - (float)module.ModulePriority / ShipModule.MaxPriority; // best modules get priority 1.0
                 return damagePriority * moduleImportance;
             });
