@@ -226,7 +226,7 @@ namespace Ship_Game.AI
                 NearByShips.AddUnique(sw);
             }
 
-            SupplyShuttleLaunch();
+            SupplyShuttleLaunch(radius);
             if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
                 OrderScrapShip(); //Destroy shuttle without mothership
 
