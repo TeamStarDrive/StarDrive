@@ -349,16 +349,34 @@ namespace Ship_Game.Ships
             projectiles.Add(projectile);
         }
 
-        public bool needResupplyOrdnance
+        public bool NeedResupplyOrdnance
         {
             get
             {
-                bool lowAmmo =  !AI.HasPriorityOrder && OrdinanceMax > 0f && Ordinance / OrdinanceMax < 0.05f;
-                if (!lowAmmo) return false;
-                foreach (var weapon in Weapons)
-                    if (weapon.OrdinanceRequiredToFire < .01 && AI.State != AIState.AwaitingOrders)
-                        return false;                
+                if (OrdnanceStatus >= ShipStatus.Poor)
+                    return false;
+                if (AI.State != AIState.AwaitingOrders)
+                    foreach (var weapon in Weapons)
+                        if (weapon.OrdinanceRequiredToFire < .01)
+                            return false;                      
                 return !AI.FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100);
+            }
+
+        } 
+        public ShipStatus OrdnanceStatus
+        {
+            get
+            {
+                if ( engineState        == MoveState.Warp
+                    || AI.State         == AIState.Scrap
+                    || AI.State         == AIState.Resupply
+                    || AI.State         == AIState.Refit || Mothership != null
+                    || shipData.Role    == ShipData.RoleName.supply || shipData.HullRole < ShipData.RoleName.fighter
+                    || OrdinanceMax < 1
+                    || IsTethered())                
+                    return ShipStatus.NotApplicable;
+                
+                return ToShipStatus(Ordinance, OrdinanceMax);
             }
 
         }
@@ -3202,6 +3220,29 @@ namespace Ship_Game.Ships
             return ShipIsGoodForGoals(float.MinValue, empire);
 
         }
+
+        public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
+        {
+            if (maxValue <= 0 || valueToCheck > maxValue) return ShipStatus.NotApplicable;
+            var ratio = .5f + 5 * valueToCheck / maxValue;
+            ratio = ratio.Clamp(1, maxValue);
+            return (ShipStatus)(int)ratio;
+
+
+        }
+    }
+
+   
+
+    public enum ShipStatus
+    {        
+        Critical =1,
+        Poor,
+        Average,        
+        Good,
+        Excellent,
+        NotApplicable
+
     }
 }
 

@@ -305,7 +305,7 @@ namespace Ship_Game.AI
                     OrderResupplyNearest(false);
             if (State == AIState.AwaitingOrders && Owner.NeedResupplyTroops)
                 OrderResupplyNearest(false);
-            if (Owner.needResupplyOrdnance)
+            if (Owner.NeedResupplyOrdnance)
                 OrderResupplyNearest(false);
             if (State == AIState.Resupply && !HasPriorityOrder)
                 HasPriorityOrder = true;
