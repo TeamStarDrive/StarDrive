@@ -135,87 +135,86 @@ namespace Ship_Game.Ships
                 if (!EMPdisabled && Active) AI.Update(elapsedTime);
             }
 
-            if (Active)
-            { 
-                InCombatTimer -= elapsedTime;
-                if (InCombatTimer > 0.0)
-                {
+            if (!Active) return;
+
+            InCombatTimer -= elapsedTime;
+            if (InCombatTimer > 0.0)
+            {
                     
-                    InCombat = true;
-                }
-                else
-                {
-                    if (InCombat)
-                        InCombat = false;
-                    if (AI.State == AIState.Combat && loyalty != EmpireManager.Player)
-                    {
-                        AI.State = AIState.AwaitingOrders;
-                        AI.OrderQueue.Clear();
-                    }
-                }
-
-                Position += Velocity * elapsedTime;
-                Center   += Velocity * elapsedTime;
-                UpdateShipStatus(elapsedTime); //Mer
-
-                if (InFrustum)
-                {
-                    if (ShipSO == null)
-                        return;
-                    UpdateWorldTransform();
-
-                    if (shipData.Animated && ShipMeshAnim != null)
-                    {
-                        ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
-                        ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
-                    }
-                    UpdateThrusters();
-                }
-
-                if (isSpooling)
-                    fightersOut = false;
-                if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500)
-                {
-                    JumpTimer -= elapsedTime;
-                    //task gremlin move fighter recall here.
-
-                    if (JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
-                    {
-                        if (Empire.Universe.CamHeight < 250000 && Empire.Universe.CamPos.InRadius(Center, 100000f)
-                            && JumpSfx.IsStopped)
-                        {
-                            JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
-                        }
-                    }
-                    if (JumpTimer <= 0.1)
-                    {
-                        if (engineState == MoveState.Sublight)
-                        {
-                            FTLManager.AddFTL(Center);
-                            engineState = MoveState.Warp;
-                        }
-                        else engineState = MoveState.Sublight;
-                        isSpooling = false;
-                        ResetJumpTimer();
-                    }
-                }
-                if (PlayerShip)
-                {
-                    if ((!isSpooling || !Active) && Afterburner.IsPlaying)
-                    {
-                        Afterburner.Stop();
-                    }
-                    if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.IsStopped)
-                    {
-                        DroneSfx.PlaySfxAsync("starcruiser_drone01", SoundEmitter);
-                    }
-                    else if ((!isThrusting || !Active) && DroneSfx.IsPlaying)
-                    {
-                        DroneSfx.Stop();
-                    }
-                }
-                SoundEmitter.Position = new Vector3(Center, 0);
+                InCombat = true;
             }
+            else
+            {
+                if (InCombat)
+                    InCombat = false;
+                if (AI.State == AIState.Combat && loyalty != EmpireManager.Player)
+                {
+                    AI.State = AIState.AwaitingOrders;
+                    AI.OrderQueue.Clear();
+                }
+            }
+
+            Position += Velocity * elapsedTime;
+            Center   += Velocity * elapsedTime;
+            UpdateShipStatus(elapsedTime); //Mer
+
+            if (InFrustum)
+            {
+                if (ShipSO == null)
+                    return;
+                UpdateWorldTransform();
+
+                if (shipData.Animated && ShipMeshAnim != null)
+                {
+                    ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
+                    ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                }
+                UpdateThrusters();
+            }
+
+            if (isSpooling)
+                fightersOut = false;
+            if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500)
+            {
+                JumpTimer -= elapsedTime;
+                //task gremlin move fighter recall here.
+
+                if (JumpTimer <= 4.0) // let's see if we can sync audio to behaviour with new timers
+                {
+                    if (Empire.Universe.CamHeight < 250000 && Empire.Universe.CamPos.InRadius(Center, 100000f)
+                                                           && JumpSfx.IsStopped)
+                    {
+                        JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
+                    }
+                }
+                if (JumpTimer <= 0.1)
+                {
+                    if (engineState == MoveState.Sublight)
+                    {
+                        FTLManager.AddFTL(Center);
+                        engineState = MoveState.Warp;
+                    }
+                    else engineState = MoveState.Sublight;
+                    isSpooling = false;
+                    ResetJumpTimer();
+                }
+            }
+            if (PlayerShip)
+            {
+                if ((!isSpooling || !Active) && Afterburner.IsPlaying)
+                {
+                    Afterburner.Stop();
+                }
+                if (isThrusting && AI.State == AIState.ManualControl && DroneSfx.IsStopped)
+                {
+                    DroneSfx.PlaySfxAsync("starcruiser_drone01", SoundEmitter);
+                }
+                else if ((!isThrusting || !Active) && DroneSfx.IsPlaying)
+                {
+                    DroneSfx.Stop();
+                }
+            }
+            SoundEmitter.Position = new Vector3(Center, 0);
         }
 
         private void UpdateThrusters()
