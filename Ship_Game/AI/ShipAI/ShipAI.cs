@@ -489,16 +489,14 @@ namespace Ship_Game.AI
                         var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
-                            RotateToFacing(elapsedTime, angleDiff, facing);
-                        //if (nearFleetOffSet <= 75f) //fbedard: dont override high priority resupply
-                        //{
-                        //    State = AIState.AwaitingOrders;
-                        //    HasPriorityOrder = false;
-                        //}
-                        //add fun idle fleet ship stuff here
+                            RotateToFacing(elapsedTime, angleDiff, facing);                        
                     }
                     else if (!HasPriorityOrder && !HadPO && State != AIState.FormationWarp && State != AIState.HoldPosition )
                     {
+                        if (Owner.fleet.Position.OutsideRadius(Owner.Center, 7500))
+                            PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
+                            //ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                        else
                         ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         lock (WayPointLocker)
                         {
