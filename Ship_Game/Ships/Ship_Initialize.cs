@@ -284,9 +284,9 @@ namespace Ship_Game.Ships
         {
             shipData.LoadModel(out ShipSO, out ShipMeshAnim);
 
-            Radius = ShipSO.WorldBoundingSphere.Radius;                       
+            Radius            = ShipSO.WorldBoundingSphere.Radius;                       
             ShipSO.Visibility = ObjectVisibility.Rendered;
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            ShipSO.World      = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
 
             // Universe will be null during loading, so we need to grab the Global ScreenManager instance from somewhere else
@@ -323,11 +323,15 @@ namespace Ship_Game.Ships
             }
             else FromSave = true;
 
+            //begin: ShipSubClass Initialization. Put all ship sub class intializations here
             if (AI == null)
             {
                 InitializeAI();
                 AI.CombatState = shipData.CombatState;
             }
+
+
+            //end: ship subclass initializations. 
 
             InitializeStatus(loadingFromSavegame);
 
