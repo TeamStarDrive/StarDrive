@@ -24,14 +24,22 @@ namespace Ship_Game.Universe.SolarBodies
         private bool HasShipyard => SolarSystemBody.HasShipyard;
         private int DevelopmentLevel => SolarSystemBody.DevelopmentLevel;
         private Map<System.Guid,Ship> Shipyards => SolarSystemBody.Shipyards;
-        private float RepairPerTurn => SolarSystemBody.RepairPerTurn;
+        private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
         
         public GeodeticManager (Planet planet)
         {
             SolarSystemBody = planet;
-            
         }
-
+        private int CountShipYards()
+        {
+            int shipYardCount =0;
+            foreach (var shipYard in Shipyards)
+            {
+                if (!shipYard.Value.GetShipData().IsShipyard) continue;
+                shipYardCount++;
+            }
+            return shipYardCount;
+        }
         public void Update(float elaspedTime)
         {
             
@@ -295,8 +303,9 @@ namespace Ship_Game.Universe.SolarBodies
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                     if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
                     {
-                        //bool repairing = false;
-                        ship.RepairShipModules(ref repairPool);
+                        float repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
+                        repairLevel = 1 + (repairLevel * .1f).Clamp(0, .95f);
+                        ship.ApplyAllRepair(repairPool, repairLevel, repairShields:true);
                     }
                     else if (ship.AI.State == AIState.Resupply)
                     {

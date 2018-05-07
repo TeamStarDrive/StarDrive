@@ -736,6 +736,7 @@ namespace Ship_Game.AI {
             OrderMoveTowardsPosition(toOrbit.Center, 0f, Vector2.One, ClearOrders, toOrbit);
             State = AIState.Resupply;
             HasPriorityOrder = true;
+
         }
 
         public void OrderResupplyNearest(bool ClearOrders)
@@ -747,30 +748,20 @@ namespace Ship_Game.AI {
             {
                 OrderReturnToHangar();
                 return;
-            }
-            var shipyards = new Array<Planet>();
+            }            
             if (Owner.loyalty.isFaction)
                 return;
-            foreach (Planet planet in Owner.loyalty.GetPlanets())
-            {
-                if (!planet.HasShipyard || Owner.InCombat && Vector2.Distance(Owner.Center, planet.Center) < 15000f)
-                    continue;
-                shipyards.Add(planet);
-            }
+ 
             IOrderedEnumerable<Planet> sortedList = null;
             if (Owner.NeedResupplyTroops)
-                sortedList =
-                    from p in shipyards
-                    orderby p.TroopsHere.Count > Owner.TroopCapacity,
-                    Vector2.Distance(Owner.Center, p.Center)
-                    select p;
-            else
-                sortedList =
-                    from p in shipyards
-                    orderby Vector2.Distance(Owner.Center, p.Center)
-                    select p;
-            if (sortedList.Count<Planet>() > 0)
-                OrderResupply(sortedList.First<Planet>(), ClearOrders);
+            {
+                var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
+                OrderResupply(troopRallyPoints, ClearOrders);                
+            }
+            Planet nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+
+            if (nearestRallyPoint != null)
+                OrderResupply(nearestRallyPoint, ClearOrders);
             else
                 OrderFlee(true);
         }

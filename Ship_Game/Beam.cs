@@ -333,7 +333,7 @@ namespace Ship_Game
             // apply drone repair effect
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
-                targetShip.RepairShipModulesByDrone(-DamageAmount, repairSkill);
+                targetShip.ApplyRepairOnce(-DamageAmount * elapsedTime, repairSkill);
             }
 
             UpdateBeamMesh();
