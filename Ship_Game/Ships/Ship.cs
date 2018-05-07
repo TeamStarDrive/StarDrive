@@ -1998,7 +1998,8 @@ namespace Ship_Game.Ships
 
         public void UpdateShipStatus(float deltaTime)
         {
-            if (!Empire.Universe.Paused && velocityMaximum <= 0f && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)                                           
+            if (!Empire.Universe.Paused && velocityMaximum <= 0f 
+                && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)                                           
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(.0001f,.0005f);
             
 
@@ -2022,9 +2023,9 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (updateTimer <= 0.0) //|| shipStatusChanged)
+            if (updateTimer <= 0) //|| shipStatusChanged)
             {
-                TroopBoardingDefense = 0.0f;
+                TroopBoardingDefense = 0f;
                 for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I mived it here so it would be every second, instead.   -Gretman
                 {
                     TroopList[i].SetShip(this);
@@ -2114,7 +2115,9 @@ namespace Ship_Game.Ships
                 }
 
                 inSensorRange = false;
-                if (Empire.Universe.Debug || loyalty == EmpireManager.Player || loyalty != EmpireManager.Player && EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance)
+                if (Empire.Universe.Debug == true || loyalty == EmpireManager.Player 
+                                                   || loyalty != EmpireManager.Player 
+                                                   && EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance)
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
@@ -2435,17 +2438,17 @@ namespace Ship_Game.Ships
         }
         private void SetHealthStatus()
         {
-            {                
-                if (engineState == MoveState.Warp
-                    || AI.State == AIState.Refit
-                    || AI.State == AIState.Resupply)
-                {
-                    HealthStatus = ShipStatus.NotApplicable;
-                    return;
-                }
-                Health = Health.Clamp(0, HealthMax);
-                HealthStatus = ToShipStatus(Health, HealthMax);                
+            if (engineState == MoveState.Warp
+                || AI.State == AIState.Refit
+                || AI.State == AIState.Resupply)
+            {
+                HealthStatus = ShipStatus.NotApplicable;
+                return;
             }
+            if (HealthMax < 1)
+                Log.Error("Ship has no Health?");
+            Health = Health.Clamp(0, HealthMax);
+            HealthStatus = ToShipStatus(Health, HealthMax);
         }
 
         public void AddShipHealth(float addHealth)
@@ -2930,7 +2933,7 @@ namespace Ship_Game.Ships
             {
                 bool isFullyHealed = slot.Health >= slot.HealthMax;
                 slot.HealthMax     = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
-                slot.HealthMax     = slot.HealthMax + slot.HealthMax * loyalty.data.Traits.ModHpModifier;
+                slot.HealthMax     = slot.HealthMax + slot.HealthMax * (loyalty?.data.Traits.ModHpModifier ?? 1);
                 if (isFullyHealed)
                 {
                     // Basically, set maxhealth to what it would be with no modifier, then

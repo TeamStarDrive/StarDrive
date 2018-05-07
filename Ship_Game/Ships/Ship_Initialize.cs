@@ -430,8 +430,8 @@ namespace Ship_Game.Ships
 
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
-
-            HealthMax                = Health;
+            RecalculateMaxHP();
+            //HealthMax                = Health;
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
@@ -530,9 +530,9 @@ namespace Ship_Game.Ships
                 if (!fromSave)
                 {
                     Ordinance     += module.OrdinanceCapacity;
-                    Health += module.Health;
                 }
             }
+            shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
             //these base values are kinda f'd up. BaseCanWarp isnt being set for the shipdata and so gets passed around alot but isnt ever properly set.
