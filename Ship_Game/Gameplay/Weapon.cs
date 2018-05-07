@@ -610,6 +610,7 @@ namespace Ship_Game.Gameplay
         {
             drowner = droneAI.Drone;
             var beam = new Beam(this, drowner.Center, target.Center, target);
+           
             droneAI.Beams.Add(beam);
         }
 

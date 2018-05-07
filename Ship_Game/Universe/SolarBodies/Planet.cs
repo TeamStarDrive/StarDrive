@@ -89,9 +89,21 @@ namespace Ship_Game
             }
             return 0;
         }
+        public float GetMaxGoodProd(string good)
+        {
+            switch (good)
+            {
+                case "Food":
+                    return NetFoodPerTurn;
+                case "Production":
+                    return MaxProductionPerTurn;
+            }
+            return 0;
+        }
         public float FoodPercentAdded;
         public float FlatFoodAdded;
         public float NetProductionPerTurn;
+        private float MaxProductionPerTurn;
         public float GrossProductionPerTurn;
         public float PlusFlatProductionPerTurn;
         public float NetResearchPerTurn;
@@ -2615,8 +2627,6 @@ namespace Ship_Game
             return true;
         }
 
-        public int EstimatedTurnsTillComplete(QueueItem qItem) => SbProduction.EstimatedTurnsTillComplete(qItem);
- 
         public float GetMaxProductionPotential()
         {
             float num1 = 0.0f;
@@ -2795,6 +2805,7 @@ namespace Ship_Game
             //Production
             NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
+            MaxProductionPerTurn = GetMaxProductionPotential();
             if (Owner.data.Traits.Cybernetic > 0)
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else
