@@ -900,9 +900,9 @@ namespace Ship_Game.AI
             if (Owner.loyalty.isFaction)
                 return;
 
-            if (Owner.OrdinanceMax < 1 || Owner.Ordinance / Owner.OrdinanceMax >= 0.2f)
+            if (Owner.OrdnanceStatus > ShipStatus.Average)
                 return;
-            if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
+            if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
             var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
             if (resupplyPlanet == null)

@@ -83,7 +83,7 @@ namespace Ship_Game
         {
             foreach (FleetDataNode node in this.f.DataNodes)
             {
-                if (node.Ship!= null)
+                if (node.Ship!= null || node.GoalGUID != Guid.Empty)
                 {
                     continue;
                 }
