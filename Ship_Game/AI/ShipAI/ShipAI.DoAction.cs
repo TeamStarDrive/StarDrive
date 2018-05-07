@@ -336,7 +336,7 @@ namespace Ship_Game.AI {
                     {
                         ThrustTowardsPosition(fleetPositon, elapsedTime, Owner.Speed);
                         return;
-                    }
+                    }                    
                     DoHoldPositionCombat(elapsedTime);
                     return;
                 }
@@ -589,26 +589,22 @@ namespace Ship_Game.AI {
                 Stop(elapsedTime);
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
-                var angleDiff = Owner.AngleDiffTo(Target.Center.Normalized(), out Vector2 right, out Vector2 forward);
-                var facing = Owner.Velocity.Facing(right);                
-                if (angleDiff <= 0.2f)
-                {
-                    
+                float angleDiff = Owner.AngleDiffTo(Target.Center.Normalized(), out Vector2 right, out Vector2 forward);
+                float facing = Owner.Velocity.Facing(right);
+                if (angleDiff <= 0.2f)                
                     return;
-                }
+                
                 RotateToFacing(elapsedTime, angleDiff, facing);
-                return;
+
             }
             else
             {
-                Vector2 VectorToTarget = Owner.Center.DirectionToTarget(Target.Center);
-                var angleDiff = Owner.AngleDiffTo(VectorToTarget, out Vector2 right, out Vector2 forward);
-                if (angleDiff <= 0.02f)
-                {
-                    DeRotate();
+                Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Target.Center);
+                float angleDiff = Owner.AngleDiffTo(vectorToTarget.Normalized(), out Vector2 right, out Vector2 forward);
+                if (angleDiff <= 0.02f)                
                     return;
-                }
-                RotateToFacing(elapsedTime, angleDiff, VectorToTarget.Facing(right));
+                
+                RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
             }
         }
 
