@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -10,26 +11,26 @@ namespace Ship_Game.Universe.SolarBodies
     {
         private readonly Planet Ground;
 
-        private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private Empire Owner => Ground.Owner;        
-        private Array<Building> BuildingList => Ground.BuildingList;        
-        private SolarSystem ParentSystem => Ground.ParentSystem;        
-        //public IReadOnlyList<QueueItem> ConstructionQ => ConstructionQueue;
+        private Array<PlanetGridSquare> TilesList                  => Ground.TilesList;
+        private Empire Owner                                       => Ground.Owner;        
+        private Array<Building> BuildingList                       => Ground.BuildingList;        
+        private SolarSystem ParentSystem                           => Ground.ParentSystem;        
+        //public IReadOnlyList<QueueItem> ConstructionQ            => ConstructionQueue;
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
-        private int CrippledTurns => Ground.CrippledTurns;
-        private bool RecentCombat => Ground.RecentCombat;
-        private float MineralRichness => Ground.MineralRichness;
-        private float Population => Ground.Population;
-        private float Consumption => Ground.Consumption;
-        private float ShipBuildingModifier => Ground.ShipBuildingModifier;
-        private float Fertility => Ground.Fertility;
-        private SpaceStation Station => Ground.Station;        
-        private Planet.GoodState PS => Ground.PS;
-        //private Planet.GoodState FS => Ground.FS;
-        private bool PSexport => Ground.PSexport;
-        private Planet.ColonyType colonyType => Ground.colonyType;
-        private float NetProductionPerTurn => Ground.NetProductionPerTurn;
-        private bool GovernorOn => Ground.GovernorOn;
+        private int CrippledTurns                                  => Ground.CrippledTurns;
+        private bool RecentCombat                                  => Ground.RecentCombat;
+        private float MineralRichness                              => Ground.MineralRichness;
+        private float Population                                   => Ground.Population;
+        private float Consumption                                  => Ground.Consumption;
+        private float ShipBuildingModifier                         => Ground.ShipBuildingModifier;
+        private float Fertility                                    => Ground.Fertility;
+        private SpaceStation Station                               => Ground.Station;        
+        private Planet.GoodState PS                                => Ground.PS;
+        //private Planet.GoodState FS                              => Ground.FS;
+        private bool PSexport                                      => Ground.PSexport;
+        private Planet.ColonyType colonyType                       => Ground.colonyType;
+        private float NetProductionPerTurn                         => Ground.NetProductionPerTurn;
+        private bool GovernorOn                                    => Ground.GovernorOn;
 
         private float ProductionHere
         {
@@ -357,14 +358,30 @@ namespace Ship_Game.Universe.SolarBodies
                 Ground.TryBiosphereBuild(ResourceManager.CreateBuilding("Biospheres"), qi);
             }
         }
-        public int EstimatedTurnsTillComplete(QueueItem qItem)
+        public int EstimatedTurnsTillComplete(QueueItem qItem, float industry = float.MinValue)
         {
-            int num = (int)Math.Ceiling((double)(int)((qItem.Cost - qItem.productionTowards) / NetProductionPerTurn));
-            if (NetProductionPerTurn > 0.0)
-                return num;
-            else
-                return 999;
+            float production = qItem.Cost;
+            industry = industry < 0 ? NetProductionPerTurn : industry;
+            if (qItem.isShip)
+                production *= ShipBuildingModifier;
+            production -= -qItem.productionTowards;
+            production /= industry;
+            int turns = (int)Math.Ceiling(production);
+            return industry > 0.0 ? turns : 999;
         }
+        //public int TotalTurnsInProductionQueue() => ConstructionQueue.Sum(q => EstimatedTurnsTillComplete(q, NetProductionPerTurn));
+        public int TotalTurnsInProductionQueue(float industry) => ConstructionQueue.Sum(q=> EstimatedTurnsTillComplete(q,industry));
+
+        public int EstimateMinTurnsToBuildShip(float shipCost)
+        {
+            shipCost *= ShipBuildingModifier;
+            var prodPow = GetMaxProductionPotential();
+            int turns = TotalTurnsInProductionQueue(prodPow); //Ground.GetMaxGoodProd("Production")
+            turns += (int)Math.Ceiling(shipCost / prodPow);
+            return Math.Max(999, turns);
+
+        }
+
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
         {
