@@ -42,7 +42,7 @@ namespace Ship_Game.AI
             if (BadGuysNear) // Determine if there is something to shoot at
             {
                 RefreshTarget();
-                UpdateTrackedProjectiles();
+                
 
                 for (int i = 0; i < Owner.Weapons.Count; i++)
                 {
@@ -60,17 +60,15 @@ namespace Ship_Game.AI
             TrackProjectiles.Clear();
             if (Owner.Mothership != null)
                 TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
-            if (Owner.TrackingPower > 0 && hasPointDefense) // update projectile list                         
+            if (Owner.TrackingPower <= 0 || !hasPointDefense) return;
+            // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
+            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.maxWeaponsRange * 2))
             {
-                // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-                foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj))
-                {
-                    var missile = (Projectile) go;
-                    if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
-                        TrackProjectiles.Add(missile);
-                }
-                TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
+                var missile = (Projectile) go;
+                if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
+                    TrackProjectiles.Add(missile);
             }
+            TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
         }
 
         private bool OwnerHasPointDefense()
@@ -138,7 +136,7 @@ namespace Ship_Game.AI
                 else
                     priorityTarget = Target;
             }
-
+            UpdateTrackedProjectiles();
             if (Target is Ship target)
             {
                 if (target.loyalty == Owner.loyalty)
@@ -228,7 +226,7 @@ namespace Ship_Game.AI
 
             SupplyShuttleLaunch(radius);
             if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
-                OrderScrapShip(); //Destroy shuttle without mothership
+                Owner.Die(null, true); //Destroy shuttle without mothership
 
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
@@ -313,19 +311,21 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp ||!Owner.HasSupplyBays ) return;
 
             Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
-                                                                  && ship.OrdnanceStatus < ShipStatus.Good)       
+                                                                  && ship.OrdnanceStatus < ShipStatus.Good
+                                                                  && ship!= Owner 
+                                                                  && (!ship.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
                 .OrderBy(ship =>
                 {
                     var distance = Owner.Center.Distance(ship.Center);
-                    distance = (int)distance * 5 / radius;
-                    return (int)ship.OrdnanceStatus + distance;
+                    distance = (int)distance * 10 / radius;
+                    return (int)ship.OrdnanceStatus * distance + (ship.fleet == Owner.fleet ? 0 : 10 );
                 }).ToArray();
 
-            if (sortedList.Length <= 0) return;            
+            if (sortedList.Length <= 0 ) return;            
 
             var skip = 0;
             var inboundOrdinance = 0f;
-
+            //oh crap this is really messed up. 
             foreach (ShipModule hangar in Owner.GetHangars().FilterBy(hangar => hangar.IsSupplyBay))
             {
                 if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
@@ -347,7 +347,6 @@ namespace Ship_Game.AI
                             continue;
                         }
 
-                        //hangar.GetHangarShip().QueueTotalRemoval();
                         hangar.GetHangarShip().AI.State =
                             AIState.ReturnToHangar; //shuttle with no target
                         continue;
@@ -394,7 +393,7 @@ namespace Ship_Game.AI
                     shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
                 Owner.Ordinance -= shuttle.Mass / 5f;
 
-                if (Owner.Ordinance >= 100f)
+                if (Owner.Ordinance >= 100f && Owner.OrdnanceStatus > ShipStatus.Critical)
                 {
                     //inboundOrdinance        = inboundOrdinance + 100f;
                     Owner.Ordinance         = Owner.Ordinance - 100f;

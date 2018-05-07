@@ -196,8 +196,11 @@ namespace Ship_Game.Ships
 
         private void SetHealth(float newHealth)
         {
-            Health = newHealth.Clamp(0, HealthMax);
+            newHealth = newHealth.Clamp(0, HealthMax);
+            float healthChange = newHealth - Health;
+            Health = newHealth;
             OnFire = (Health / HealthMax) < OnFireThreshold;
+            GetParent().AddShipHealth(healthChange);
         }
 
         private ShipModule() : base(GameObjectType.ShipModule)
@@ -931,9 +934,12 @@ namespace Ship_Game.Ships
             UpdateDamageVisualization(elapsedTime);
         }
 
-        public void Repair(float repairAmount)
+        public float Repair(float repairAmount)
         {
-            SetHealth(Health + repairAmount);
+            if (Health >= HealthMax) return repairAmount;                
+            float repairLeft = (repairAmount - (HealthMax - Health)).Clamp(0,repairAmount);
+            SetHealth(Health + repairAmount );
+            return repairLeft;
         }
 
         public float GetShieldsMax()

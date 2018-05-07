@@ -133,16 +133,20 @@ namespace Ship_Game
             return RallyPoints?.FindMin(p => p.Center.SqDist(location)) ?? OwnedPlanets?.FindMin(p => p.Center.SqDist(location));
         }
 
-        public Planet[] ShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
+        public Planet[] RallyShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
 
-        public Planet[] BestShipYards => RallyPoints.FilterBy(planet =>
+        public Planet[] BestRallyShipYards => RallyPoints.FilterBy(planet =>
         planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
         && planet.DevelopmentLevel > 2
         && planet.colonyType != Planet.ColonyType.Research
         && (planet.colonyType != Planet.ColonyType.Industrial || planet.DevelopmentLevel > 3)
         );
 
-
+        public Planet PlanetToBuildAt (float productionNeeded)
+        {
+            Planet planet = OwnedPlanets.FindMin(p => p.SbProduction.EstimateMinTurnsToBuildShip(productionNeeded));
+            return planet;
+        }
         public string Name => data.Traits.Name;
 
         // Empire unique ID. If this is 0, then this empire is invalid!
