@@ -489,16 +489,14 @@ namespace Ship_Game.AI
                         var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
-                            RotateToFacing(elapsedTime, angleDiff, facing);
-                        //if (nearFleetOffSet <= 75f) //fbedard: dont override high priority resupply
-                        //{
-                        //    State = AIState.AwaitingOrders;
-                        //    HasPriorityOrder = false;
-                        //}
-                        //add fun idle fleet ship stuff here
+                            RotateToFacing(elapsedTime, angleDiff, facing);                        
                     }
                     else if (!HasPriorityOrder && !HadPO && State != AIState.FormationWarp && State != AIState.HoldPosition )
                     {
+                        if (Owner.fleet.Position.OutsideRadius(Owner.Center, 7500))
+                            PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
+                            //ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                        else
                         ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         lock (WayPointLocker)
                         {
@@ -902,9 +900,9 @@ namespace Ship_Game.AI
             if (Owner.loyalty.isFaction)
                 return;
 
-            if (Owner.OrdinanceMax < 1 || Owner.Ordinance / Owner.OrdinanceMax >= 0.2f)
+            if (Owner.OrdnanceStatus > ShipStatus.Average)
                 return;
-            if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
+            if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
             var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
             if (resupplyPlanet == null)

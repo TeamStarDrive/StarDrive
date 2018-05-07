@@ -570,7 +570,7 @@ namespace Ship_Game
             fireParticles            = new ParticleSystem(content, "3DParticles/FireSettings", device, 1);
             engineTrailParticles     = new ParticleSystem(content, "3DParticles/EngineTrailSettings", device);
             flameParticles           = new ParticleSystem(content, "3DParticles/FlameSettings", device);
-            SmallflameParticles      = new ParticleSystem(content, "3DParticles/FlameSettings", device, .25f, 4000);
+            SmallflameParticles      = new ParticleSystem(content, "3DParticles/FlameSettings", device, .25f, (int)(4000 * GlobalStats.DamageIntensity));
             sparks                   = new ParticleSystem(content, "3DParticles/sparks", device, 1);
             lightning                = new ParticleSystem(content, "3DParticles/lightning", device, 1);
             flash                    = new ParticleSystem(content, "3DParticles/FlashSettings", device);

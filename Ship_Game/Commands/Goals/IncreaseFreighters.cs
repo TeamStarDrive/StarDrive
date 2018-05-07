@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
             Planet planet1 = null;
             int num1 = 9999999;
 
-            foreach (Planet planet2 in empire.BestShipYards)
+            foreach (Planet planet2 in empire.BestRallyShipYards)
             {
                 int num2 = 0;
                 int finCon = 0;
