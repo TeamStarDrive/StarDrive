@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -27,7 +26,6 @@ namespace Ship_Game.Ships
         public Vector3 GetCenter3D => Center3D;
 
         private Ship Parent;
-        public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
@@ -59,10 +57,6 @@ namespace Ship_Game.Ships
         public bool isExternal;
         public const int MaxPriority =6;
 
-
-        // Used to configure how good of a target this module is
-        public int ModuleTargettingValue => TargetValue + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules        
-        
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Flyweight.IsCommandModule" now.    -Gretman
@@ -168,8 +162,8 @@ namespace Ship_Game.Ships
         public int FixedTracking                 => Flyweight.FixedTracking;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
-        public bool IsRotatable                  => (bool)Flyweight.IsRotable;
-        public bool IsWeapon                     => ModuleType == ShipModuleType.Spacebomb
+        public bool IsRotatable                  => Flyweight.IsRotable;
+        public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
                                 || ModuleType == ShipModuleType.MissileLauncher
@@ -183,25 +177,60 @@ namespace Ship_Game.Ships
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;        
 
         public float AccuracyPercent = -1;
-        //private float SwivelSpeed;
-        private float WeaponRotation = 0;
+
+        private float WeaponRotation;
         public float WeaponRotationSpeed
         {
             get => WeaponRotation == 0f ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
             set => WeaponRotation = value;
         }
         public float WeaponECM = 0;
+        
         public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
         public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
 
+        // this is the design spec of the module
+        private float TemplateMaxHealth;
+
+        // this is the actual max health after faction-wide traits have been applied
+        public float ActualMaxHealth { get; private set; }
+
+        // shipyard code is a bloody mess, so we need this as a workaround
+        public float ShipDesignerMaxHealth => GetModifiedHealthForEmpire(EmpireManager.Player, TemplateMaxHealth);
+
+        // called during creation or when a new tech is unlocked
+        public float UpdateActualMaxHealth()
+        {
+            if (Parent?.loyalty != null) // only non-template ships have loyalty data; shipyard modules are also all templates
+                ActualMaxHealth = GetModifiedHealthForEmpire(Parent.loyalty, TemplateMaxHealth);
+            return ActualMaxHealth;
+        }
+
+        private static float GetModifiedHealthForEmpire(Empire empire, float maxHealth)
+        {
+            return maxHealth * (1.0f + empire.data.Traits.ModHpModifier);
+        }
+
+        public float HealthPercent => Health / ActualMaxHealth;
+
+        // Used to configure how good of a target this module is
+        public int ModuleTargettingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules        
+
+
         private void SetHealth(float newHealth)
         {
-            newHealth = newHealth.Clamp(0, HealthMax);
+            float maxHealth = ActualMaxHealth;
+            newHealth = newHealth.Clamp(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
-            OnFire = (Health / HealthMax) < OnFireThreshold;
-            GetParent().AddShipHealth(healthChange);
+            OnFire = (newHealth / maxHealth) < OnFireThreshold;
+            Parent.AddShipHealth(healthChange);
         }
+        
+        public Ship GetHangarShip() => hangarShip;
+        public Ship GetParent()     => Parent;
+
+
 
         private ShipModule() : base(GameObjectType.ShipModule)
         {
@@ -209,49 +238,37 @@ namespace Ship_Game.Ships
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        private ShipModule(ShipModule_Deserialize s) : base(GameObjectType.ShipModule)
+        private ShipModule(ShipModule_Deserialize template) : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
-            Flyweight               = new ShipModuleFlyweight(s);
-            XSIZE                   = s.XSIZE;
-            YSIZE                   = s.YSIZE;
-            Mass                    = s.Mass;
-            Powered                 = s.Powered;
-            FieldOfFire             = s.FieldOfFire;
-            Facing                  = s.facing;
-            XMLPosition             = s.XMLPosition;
-            HealthMax               = s.HealthMax;
-            WeaponType              = s.WeaponType;
-            NameIndex               = s.NameIndex;
-            DescriptionIndex        = s.DescriptionIndex;
-            Restrictions            = s.Restrictions;
-            ShieldPower             = s.shield_power;
-            hangarShipUID           = s.hangarShipUID;
-            hangarTimer             = s.hangarTimer;
-            isWeapon                = s.isWeapon;
-            OrdinanceCapacity       = s.OrdinanceCapacity;
-            BombTimer               = s.BombTimer;
-            ModuleType              = s.ModuleType;
-            IconTexturePath         = s.IconTexturePath;
-            //isExternal            = s.isExternal; // I think it's safer to let ship externals init handle this...
-            TargetValue             = s.TargetValue;
+            Flyweight               = new ShipModuleFlyweight(template);
+            XSIZE                   = template.XSIZE;
+            YSIZE                   = template.YSIZE;
+            Mass                    = template.Mass;
+            Powered                 = template.Powered;
+            FieldOfFire             = template.FieldOfFire;
+            Facing                  = template.facing;
+            XMLPosition             = template.XMLPosition;
+            WeaponType              = template.WeaponType;
+            NameIndex               = template.NameIndex;
+            DescriptionIndex        = template.DescriptionIndex;
+            Restrictions            = template.Restrictions;
+            ShieldPower             = template.shield_power;
+            hangarShipUID           = template.hangarShipUID;
+            hangarTimer             = template.hangarTimer;
+            isWeapon                = template.isWeapon;
+            OrdinanceCapacity       = template.OrdinanceCapacity;
+            BombTimer               = template.BombTimer;
+            ModuleType              = template.ModuleType;
+            IconTexturePath         = template.IconTexturePath;
+            TargetValue             = template.TargetValue;
+            TemplateMaxHealth       = template.HealthMax;
+            ActualMaxHealth         = template.HealthMax;
         }
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
             return new ShipModule(template);
-        }
-
-        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, bool addToShieldManager = true
-            , ShipDesignScreen.ActiveModuleState orientation = ShipDesignScreen.ActiveModuleState.Normal)
-        {
-            ShipModule module = CreateNoParent(uid);
-            module.SetParent(parent);
-            module.Facing = facing;
-            module.ApplyModuleOrientation(orientation);
-            module.Initialize(xmlPos, addToShieldManager);
-            module.HealthMax = module.HealthMax * (parent?.loyalty?.data.Traits.ModHpModifier ?? 1);
-            return module;
         }
 
         public static ShipModule CreateNoParent(string uid)
@@ -265,8 +282,9 @@ namespace Ship_Game.Ships
                 FieldOfFire       = template.FieldOfFire,
                 hangarShipUID     = template.hangarShipUID,
                 hangarTimer       = template.hangarTimer,
-                Health            = template.HealthMax,
-                HealthMax         = template.HealthMax,
+                Health            = template.TemplateMaxHealth,
+                TemplateMaxHealth = template.TemplateMaxHealth,
+                ActualMaxHealth   = template.TemplateMaxHealth,
                 isWeapon          = template.isWeapon,
                 Mass              = template.Mass,
                 ModuleType        = template.ModuleType,
@@ -278,31 +296,50 @@ namespace Ship_Game.Ships
                 IconTexturePath   = template.IconTexturePath,
                 Restrictions      = template.Restrictions
             };
+
             // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Bomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Command ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Drone ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Engine ? 2 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Hangar ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MainGun ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Command         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure  ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Drone           ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Engine          ? 2 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell        ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Hangar          ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MainGun         ? 1 : 0;
             module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Sensors ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Shield ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance        ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant      ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Sensors         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Shield          ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb       ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Special         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Turret          ? 1 : 0;
             module.TargetValue += module.explodes ? 2 : 0;
             module.TargetValue += module.isWeapon ? 1 : 0;
             return module;
         }
 
-        private void Initialize(Vector2 pos, bool addToShieldManager = true)
+        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, 
+                                        bool isTemplate, ShipDesignScreen.ActiveModuleState orientation)
         {
+            ShipModule module = CreateNoParent(uid);
+            module.Parent = parent;
+            module.Facing = facing;
+
+            if (!isTemplate)
+                module.UpdateActualMaxHealth();
+
+            module.ApplyModuleOrientation(orientation);
+            module.Initialize(xmlPos, isTemplate);
+            return module;
+        }
+
+        private void Initialize(Vector2 pos, bool isTemplate)
+        {
+            if (Parent == null)
+                Log.Error("module parent cannot be null!");
+
             ++DebugInfoScreen.ModulesCreated;
 
             XMLPosition = pos;
@@ -319,16 +356,14 @@ namespace Ship_Game.Ships
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             UpdateModuleRadius();
-            SetAttributesByType(addToShieldManager);
-
-            if (Parent?.loyalty != null)
+            SetAttributesByType();
+            
+            if (!isTemplate)
             {
-                float max = ResourceManager.GetModuleTemplate(UID).HealthMax;
-                HealthMax = max + max * Parent.loyalty.data.Traits.ModHpModifier;
-                Health = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
+                if (shield_power_max > 0.0f)
+                    shield = ShieldManager.AddShield(this, Rotation, Center);
             }
 
-            base.Initialize();
             if (ModuleType == ShipModuleType.Hangar && !IsSupplyBay)
             {
                 if (OrdinanceCapacity == 0)
@@ -338,8 +373,6 @@ namespace Ship_Game.Ships
                         OrdinanceCapacity = 50;
                 }
             }
-            if (Parent == null)
-                Log.Error("module parent is null");
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
@@ -349,18 +382,18 @@ namespace Ship_Game.Ships
             ++GlobalStats.ModulesMoved;
 
             Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X            += XSIZE * 8f - 264f;
-            offset.Y            += YSIZE * 8f - 264f;
-            Vector2 parentCenter = Parent.Center;
-            float cx             = offset.X * cos - offset.Y * sin;
-            float cy             = offset.X * sin + offset.Y * cos;
-            cx                  += parentCenter.X;
-            cy                  += parentCenter.Y;
-            Center.X             = cx;
-            Center.Y             = cy;
-            Center3D.X           = cx;
-            Center3D.Y           = cy;
-            Center3D.Z           = tan * (256f - XMLPosition.X);
+            offset.X       += XSIZE * 8f - 264f;
+            offset.Y       += YSIZE * 8f - 264f;
+            Vector2 pcenter = Parent.Center;
+            float cx        = offset.X * cos - offset.Y * sin;
+            float cy        = offset.X * sin + offset.Y * cos;
+            cx             += pcenter.X;
+            cy             += pcenter.Y;
+            Center.X        = cx;
+            Center.Y        = cy;
+            Center3D.X      = cx;
+            Center3D.Y      = cy;
+            Center3D.Z      = tan * (256f - XMLPosition.X);
 
             UpdateDamageVisualization(elapsedTime);
             Rotation = Parent.Rotation;
@@ -464,22 +497,25 @@ namespace Ship_Game.Ships
                                  : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
 
             float healthBefore = Health + ShieldPower;
-            if (!DamageModuleAndReturnTrueIfSuccessful(source, damageAmount * damageModifier)) 
+            if (!TryDamageModule(source, damageAmount * damageModifier)) 
             {
                 damageRemainder = 0;
                 return; // damage was deflected
             }
 
             DebugDamageCircle();
-            float absorbedDamage = damageModifier <= 1 ? // below 1, resistance. above 1, vulnerability.
-                                   (healthBefore - (Health + ShieldPower)) / damageModifier : // the module absorbed more damage because of good resistance
-                                    healthBefore - (Health + ShieldPower); // extra damage was already calcualted
+
+            float absorbedDamage = healthBefore - (Health + ShieldPower);
+            if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
+                absorbedDamage /= damageModifier; // module absorbed more dam because of good resistance
+            // else: extra dam already calculated
+
             damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
 
-        private bool DamageModuleAndReturnTrueIfSuccessful(GameplayObject source, float modifiedDamage)
+        private bool TryDamageModule(GameplayObject source, float modifiedDamage)
         {
             if (source != null)
                 Parent.LastDamagedBy = source;
@@ -495,7 +531,7 @@ namespace Ship_Game.Ships
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
                 if (modifiedDamage <= damageThreshold)
-                    modifiedDamage = 0; // no damage could be done, the projectile was deflected.
+                    return false; // no damage could be done, the projectile was deflected.
             }
 
             if (damagingShields)
@@ -520,9 +556,9 @@ namespace Ship_Game.Ships
                     CauseEmpDamage(proj);
                     if (beam != null) CauseSpecialBeamDamage(beam);
                 }
+                SetHealth(Health - modifiedDamage);
                 DebugPerseveranceNoDamage();
-                if (Math.Abs(modifiedDamage) >= 1)
-                    Health = ApplyModuleDamage(modifiedDamage, Health, HealthMax);
+
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
             if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -530,7 +566,7 @@ namespace Ship_Game.Ships
                 if (beam != null) beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
             }
-            return Math.Abs(modifiedDamage) >= 1;
+            return true;
         }
 
         private float GetGlobalArmourBonus()
@@ -608,20 +644,6 @@ namespace Ship_Game.Ships
         #endif
         }
 
-        private float ApplyModuleDamage(float damageAmount, float health,float healthMax)
-        {
-            if (damageAmount > health)
-                health = 0;
-            else health -= damageAmount;
-
-            if (health >= healthMax)
-            {
-                health = healthMax;
-                Active = true;
-            }
-            return health;
-        }
-
         private void CauseSiphonDamage(Beam beam)
         {
             float shieldPower = ShieldPower;
@@ -683,10 +705,6 @@ namespace Ship_Game.Ships
             float debriScale = size * 0.033f;
             SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
-
-        public Ship GetHangarShip() => hangarShip;
-        public Ship GetParent()     => Parent;
-
 
         //added by gremlin boarding parties
         public void LaunchBoardingParty(Troop troop)
@@ -781,7 +799,7 @@ namespace Ship_Game.Ships
             Parent.Ordinance -= hangarShip.Mass / 5f;
         }
 
-        public void SetAttributesByType(bool addToShieldManager = true)
+        private void SetAttributesByType()
         {
             switch (ModuleType)
             {
@@ -809,9 +827,6 @@ namespace Ship_Game.Ships
                     ConfigWeapon(true);
                     break;
             }
-            Health = HealthMax;
-            if (shield_power_max > 0.0 && addToShieldManager)
-                shield = ShieldManager.AddShield(this, Rotation, Center);
             if (IsSupplyBay)
                 Parent.IsSupplyShip = true;
         }
@@ -838,7 +853,7 @@ namespace Ship_Game.Ships
                     ConfigWeapon(false);
                     break;
             }
-            Health = HealthMax;
+            Health = ActualMaxHealth;
         }
 
         private void ConfigWeapon(bool addToParent)
@@ -858,11 +873,6 @@ namespace Ship_Game.Ships
             hangarShip = ship;
             if (ship != null)
                 HangarShipGuid = ship.guid;  //fbedard: save mothership
-        }
-
-        public void SetParent(Ship p)
-        {
-            Parent = p;
         }
 
         public override void Update(float elapsedTime)
@@ -937,8 +947,10 @@ namespace Ship_Game.Ships
 
         public float Repair(float repairAmount)
         {
-            if (Health >= HealthMax) return repairAmount;                
-            float repairLeft = (repairAmount - (HealthMax - Health)).Clamp(0,repairAmount);
+            if (Health >= ActualMaxHealth)
+                return repairAmount;          
+            
+            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;
         }
@@ -978,7 +990,7 @@ namespace Ship_Game.Ships
 
         public Color GetHealthStatusColor()
         {
-            float healthPercent = Health / HealthMax;
+            float healthPercent = HealthPercent;
 
             if (Empire.Universe.Debug && isExternal)
             {
@@ -998,7 +1010,7 @@ namespace Ship_Game.Ships
         // @todo Find a way to get rid of this duplication ?
         public Color GetHealthStatusColorWhite()
         {
-            float healthPercent = Health / HealthMax;
+            float healthPercent = HealthPercent;
 
             if (healthPercent >= 0.90f) return Color.White;
             if (healthPercent >= 0.65f) return Color.GreenYellow;
@@ -1020,7 +1032,7 @@ namespace Ship_Game.Ships
 
             float def = 0f;
 
-            def += HealthMax * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
+            def += ActualMaxHealth * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
 
             // FB: Added Shield related calcs
             if (shield_power_max > 0)
@@ -1182,32 +1194,18 @@ namespace Ship_Game.Ships
 
         private void ApplyModuleOrientation(ShipDesignScreen.ActiveModuleState state)
         {
-            ShipModule activeModule = this;
-
-            int x = activeModule.XSIZE;
-            int y = activeModule.YSIZE;
             switch (state)
             {
-
                 case ShipDesignScreen.ActiveModuleState.Right:
-                    activeModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    activeModule.YSIZE = x;
-                    return;
                 case ShipDesignScreen.ActiveModuleState.Left:
-                    {
-                        activeModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                        activeModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa                                            
-                        return;
-                    }
-
-                case ShipDesignScreen.ActiveModuleState.Normal:
-                    break;
-                case ShipDesignScreen.ActiveModuleState.Rear:
-                    break;
-                default:
-                    {
-                        return;
-                    }
+                    int x = XSIZE;
+                    int y = YSIZE;
+                    XSIZE = y; // @todo Why are these swapped? Please comment.
+                    YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa                                            
+                    return;
+                case ShipDesignScreen.ActiveModuleState.Normal: break;
+                case ShipDesignScreen.ActiveModuleState.Rear:   break;
+                default: return;
             }
         }
         public override Vector2 JitterPosition() => Parent?.JitterPosition() ?? base.JitterPosition();

@@ -1201,16 +1201,13 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-
-#if PLAYERONLY
-            if(!this.isPlayer && !this.isFaction)
-            foreach (Ship ship in this.GetShips())
-                ship.GetAI().OrderScrapShip();
-            if (this.GetShips().Count == 0)
-                return;
-
-#endif
-
+            #if PLAYERONLY
+                if(!this.isPlayer && !this.isFaction)
+                foreach (Ship ship in this.GetShips())
+                    ship.GetAI().OrderScrapShip();
+                if (this.GetShips().Count == 0)
+                    return;
+            #endif
             
             UpdateTimer -= elapsedTime;
             this.currentMilitaryStrength = 0;
@@ -1263,9 +1260,9 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (!this.InitialziedHostilesDict)
+                    if (!InitialziedHostilesDict)
                     {
-                        this.InitialziedHostilesDict = true;
+                        InitialziedHostilesDict = true;
                         foreach (SolarSystem system in UniverseScreen.SolarSystemList)
                         {
                             bool flag = false;
@@ -1274,11 +1271,11 @@ namespace Ship_Game
                                 if (ship.loyalty != this && (ship.loyalty.isFaction || this.Relationships[ship.loyalty].AtWar))
                                     flag = true;
                             }
-                            this.HostilesPresent.Add(system, flag);
+                            HostilesPresent.Add(system, flag);
                         }
                     }
                     else
-                        this.AssessHostilePresence();
+                        AssessHostilePresence();
                 }
                 //added by gremlin. empire ship reserve.
                 int numWars = 0;
@@ -1293,20 +1290,22 @@ namespace Ship_Game
                 float defStr = EmpireAI.DefensiveCoordinator.GetForcePoolStrength();
                 this.EmpireShipCountReserve = 0;
 
-                if (!this.isPlayer)
-                    foreach (Planet planet in this.GetPlanets())
+                if (!isPlayer)
+                {
+                    foreach (Planet planet in GetPlanets())
                     {
 
-                        if (planet == this.Capital)
-                            this.EmpireShipCountReserve = +5;
+                        if (planet == Capital)
+                            EmpireShipCountReserve = +5;
                         else
-                            this.EmpireShipCountReserve += planet.DevelopmentLevel;
-                        if (this.EmpireShipCountReserve > 50)
+                            EmpireShipCountReserve += planet.DevelopmentLevel;
+                        if (EmpireShipCountReserve > 50)
                         {
-                            this.EmpireShipCountReserve = 50;
+                            EmpireShipCountReserve = 50;
                             break;
                         }
                     }
+                }
 
                 //fbedard: Number of planets where you have combat
                 empirePlanetCombat = 0;
@@ -1336,7 +1335,7 @@ namespace Ship_Game
                 foreach (Ship ship in this.OwnedShips)
                 {
                     if (this.RecalculateMaxHP)            //This applies any new ModHPModifier that may have been gained -Gretman
-                        ship.RecalculateMaxHP();
+                        ship.RecalculateMaxHealth();
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null)  //fbedard: total ships in combat
                         this.empireShipCombat++;                    
                     if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
@@ -2897,7 +2896,7 @@ namespace Ship_Game
             if (art.ModuleHPMod > 0f)
             {
                 this.data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
-                this.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                this.RecalculateMaxHP = true; // So existing ships will benefit from changes to ModHpModifier -Gretman
             }
             if (art.PlusFlatMoney > 0f)
             {
