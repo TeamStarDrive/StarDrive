@@ -202,6 +202,15 @@ namespace Ship_Game {
             ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
         }
 
+        public bool IsMouseOverModule(InputState input, SlotStruct slot)
+        {
+            Vector2 moduleScreenPos = Camera.GetScreenSpaceFromWorldSpace(slot.Position);
+            var moduleRect = new Rectangle((int)moduleScreenPos.X,     (int)moduleScreenPos.Y,
+                                           (int)(16.0f * Camera.Zoom), (int)(16.0f * Camera.Zoom));
+
+            return moduleRect.HitTest(input.CursorPosition);
+        }
+
         public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
@@ -333,42 +342,38 @@ namespace Ship_Game {
             {
                 foreach (SlotStruct slotStruct in Slots)
                 {
-                    Vector2 spaceFromWorldSpace =
-                        Camera.GetScreenSpaceFromWorldSpace(slotStruct.Position);
-                    if (new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y,
-                            (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom))
-                        .HitTest(mousePos))
+                    if (!IsMouseOverModule(input, slotStruct))
+                        continue;
+
+                    if (!input.LeftMouseHeld())
                     {
-                        if (!input.LeftMouseHeld())
-                        {
-                            if (slotStruct.Module != null)
+                        if (slotStruct.Module != null)
                             HoveredModule = slotStruct.Module;
                         else if (slotStruct.Parent != null)
                             HoveredModule = slotStruct.Parent.Module;
-                        }
-                        else if (HighlightedModule != null)
+                    }
+                    else if (HighlightedModule != null)
+                    {
+                        HoveredModule = HighlightedModule;
+                    }
+                    if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
+                    {
+                        GameAudio.PlaySfxAsync("simple_beep");
+                        if (Debug)
                         {
-                            HoveredModule = HighlightedModule;
-                        }
-                        if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
-                        {
-                            GameAudio.PlaySfxAsync("simple_beep");
-                            if (Debug)
-                            {
-                                DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
-                                return true;
-                            }
-                            SlotStruct slot = slotStruct.Parent ?? slotStruct;
-                            if (ActiveModule != null || slot.Module == null) continue;
-                            SetActiveModule(ShipModule.CreateNoParent(slot.Module.UID));
-                            ChangeModuleState(slot.State);
-                            ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                            DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
                             return true;
                         }
-                        else if (ActiveModule == null && !input.LeftMouseHeld())
-                        {
-                            HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
-                        }
+                        SlotStruct slot = slotStruct.Parent ?? slotStruct;
+                        if (ActiveModule != null || slot.Module == null) continue;
+                        SetActiveModule(ShipModule.CreateNoParent(slot.Module.UID));
+                        ChangeModuleState(slot.State);
+                        ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                        return true;
+                    }
+                    else if (ActiveModule == null && !input.LeftMouseHeld())
+                    {
+                        HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
                     }
                 }
             }
@@ -383,14 +388,13 @@ namespace Ship_Game {
 
         private void HandleInputMoveArcs(InputState input)
         {
-            Vector2 mousePos = input.CursorPosition;
             foreach (SlotStruct slotStruct in Slots)
             {
                 if (slotStruct.ModuleUID == null || HighlightedModule == null ||
                     (slotStruct.Module != HighlightedModule || !(slotStruct.Module.FieldOfFire > 0f)) ||
-                    slotStruct.Module.ModuleType != ShipModuleType.Turret) continue;
-                Vector2 spaceFromWorldSpace =
-                    Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center());
+                    slotStruct.Module.ModuleType != ShipModuleType.Turret)
+                    continue;
+
                 //I am not sure what the below was trying to do. It wasnt doing anything...
                 //Ok i remember what this does. it restricts the arc change 
                 //float fieldOfFire = slotStruct.Module.FieldOfFire / 2f;
@@ -408,9 +412,10 @@ namespace Ship_Game {
 
                 if (input.ShipYardArcMove())
                 {
-                    float arc = spaceFromWorldSpace.AngleToTarget(mousePos);
+                    Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center());
+                    float arc = spaceFromWorldSpace.AngleToTarget(input.CursorPosition);
                     
-                    if(Input.IsShiftKeyDown)
+                    if (Input.IsShiftKeyDown)
                     {
                         HighlightedModule.Facing = (float)Math.Round(arc);
                         return;
@@ -447,18 +452,19 @@ namespace Ship_Game {
 
         private void HandleInputPlaceModule(InputState input)
         {
-            Vector2 mousePos = input.CursorPosition;
-            if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null) return;
+            if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
+                return;
+
             foreach (SlotStruct slot in Slots)
             {
-                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slot.Position);
-                if (!new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                        , (int) (16f * Camera.Zoom), (int) (16f * Camera.Zoom))
-                    .HitTest(mousePos)) continue;
+                if (!IsMouseOverModule(input, slot))
+                    continue;
+
                 GameAudio.PlaySfxAsync("sub_bass_mouseover");
 
                 if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
                     ActiveModule.UID == LastActiveUID) continue;
+
                 //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
                 InstallModule(slot); 
 
@@ -470,17 +476,17 @@ namespace Ship_Game {
 
         private void HandleIntputClearModule(InputState input)
         {
-            Vector2 mousePos = input.CursorPosition;
-            if (!input.RightMouseClick) return;
+            if (!input.RightMouseClick)
+                return;
+
             //this should actually clear slots
             ActiveModule = null;
             foreach (SlotStruct slot in Slots)
             {
                 slot.SetValidity();
-                Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slot.Position);
-                var rect = new Rectangle((int) spaceFromWorldSpace.X, (int) spaceFromWorldSpace.Y
-                    , (int) (16.0 * Camera.Zoom), (int) (16.0 * Camera.Zoom));
-                if (!rect.HitTest(mousePos)) continue;
+                if (!IsMouseOverModule(input, slot))
+                    continue;
+
                 bool slotModuleExists = slot.Module != null;
                 if (!slotModuleExists && slot.Parent == null) continue;
                 
@@ -602,7 +608,7 @@ namespace Ship_Game {
             LastActiveUID = "";
             ShipModule shipModule = ActiveModule;
             DesignAction designAction = DesignStack.Pop();
-            SlotStruct slot1 = new SlotStruct();
+            var slot1 = new SlotStruct();
             foreach (SlotStruct slot2 in Slots)
             {
                 if (slot2.PQ == designAction.clickedSS.PQ)
@@ -613,7 +619,8 @@ namespace Ship_Game {
                 }
                 foreach (SlotStruct slotStruct in designAction.AlteredSlots)
                 {
-                    if (slot2.PQ != slotStruct.PQ) continue;
+                    if (slot2.PQ != slotStruct.PQ)
+                        continue;
                     slot2.State = slotStruct.State;
                     ClearSlotNoStack(slot2);                    
                     break;
@@ -631,7 +638,9 @@ namespace Ship_Game {
             {
                 foreach (SlotStruct slot2 in Slots)
                 {
-                    if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null) continue;
+                    if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null)
+                        continue;
+
                     ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
                     ActiveModState = slotStruct.State;                    
                     slot2.Facing = slotStruct.Facing;

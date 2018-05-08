@@ -1364,10 +1364,12 @@ namespace Ship_Game
                 {
                     data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
                 }
-                data.IsRotable = data.IsRotable != null ? data.IsRotable 
-                    : (data.WeaponType.NotEmpty() && data.ModuleType != ShipModuleType.Turret) ||
-                                 data.XSIZE != data.YSIZE;
-           
+
+                if (data.IsRotable == null)
+                {
+                    data.IsRotable = data.XSIZE != data.YSIZE
+                        || (data.WeaponType.NotEmpty() && data.ModuleType != ShipModuleType.Turret);
+                }
 
                 ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
                 
@@ -1413,11 +1415,12 @@ namespace Ship_Game
                                         $"\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
+                        Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, isTemplate: true);
                         if (shipTemplate == null) // happens if module creation failed                                                    
                             continue;
-                        
+                        shipData.SetHullData();
                         shipTemplate.InitializeStatus(fromSave: false);
+                        shipTemplate.RecalculateMaxHealth();
                         shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
                         shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
 
@@ -1428,7 +1431,7 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, $"LoadShip '{info.Name}' failed");
+                        Log.Error(e, $"Load.Ship '{info.Name}' failed");
                     }
                 }
             }
