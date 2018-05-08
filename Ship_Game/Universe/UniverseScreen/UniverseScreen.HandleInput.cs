@@ -98,10 +98,7 @@ namespace Ship_Game
 
                     if (input.KillThis)
                     {
-                        if (input.EmpireToggle)
-                            SelectedShip.TestShipModuleDamage();
-                        else
-                            SelectedShip.Die(null, false);
+                        SelectedShip.Die(null, false);
                     }
                 }
                 else if (SelectedPlanet != null && Debug && (input.KillThis))
