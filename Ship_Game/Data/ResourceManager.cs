@@ -1416,8 +1416,9 @@ namespace Ship_Game
                         Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
                         if (shipTemplate == null) // happens if module creation failed                                                    
                             continue;
-                        
+                        shipData.SetHullData();
                         shipTemplate.InitializeStatus(fromSave: false);
+                        shipTemplate.RecalculateMaxHP();
                         shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
                         shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
 
@@ -1428,7 +1429,7 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, $"LoadShip '{info.Name}' failed");
+                        Log.Error(e, $"Load.Ship '{info.Name}' failed");
                     }
                 }
             }

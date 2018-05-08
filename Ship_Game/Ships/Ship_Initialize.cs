@@ -38,6 +38,12 @@ namespace Ship_Game.Ships
                 }
                 ++count;
             }
+
+            if (count == 0)
+            {
+                Log.Warning($"Failed to load ship '{Name}' due all dummy modules!");
+                return false;
+            }
             ModuleSlotList = new ShipModule[count];
 
             count = 0;
@@ -61,7 +67,7 @@ namespace Ship_Game.Ships
                 if (fromSave)
                 {
                     module.Active      = slotData.Health > 0.01f;
-                    module.Health      = slotData.Health;
+                    module.Health      = slotData.Health;                    
                     module.ShieldPower = slotData.ShieldPower;;
                 }
                 for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
