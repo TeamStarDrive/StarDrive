@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
         {
             Lightning?.Update(elapsedTime, center, zVelocity: LightningVelZ);
             //added zaxis offeset contructor. bury flame into model a bit. 
-            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 4);
+            Flame?.Update(elapsedTime, center, zVelocity: Area / -2  - RandomMath.RandomBetween(2f, 6f), zAxisPos: Area, jitter: Area * 2);
 
             // only spawn smoke from dead modules
             if (isAlive) return;

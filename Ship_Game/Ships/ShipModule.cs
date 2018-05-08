@@ -250,6 +250,7 @@ namespace Ship_Game.Ships
             module.Facing = facing;
             module.ApplyModuleOrientation(orientation);
             module.Initialize(xmlPos, addToShieldManager);
+            module.HealthMax = module.HealthMax * (parent?.loyalty?.data.Traits.ModHpModifier ?? 1);
             return module;
         }
 
@@ -941,6 +942,7 @@ namespace Ship_Game.Ships
             SetHealth(Health + repairAmount );
             return repairLeft;
         }
+
 
         public float GetShieldsMax()
         {

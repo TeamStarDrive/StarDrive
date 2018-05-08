@@ -2445,14 +2445,19 @@ namespace Ship_Game.Ships
                 HealthStatus = ShipStatus.NotApplicable;
                 return;
             }
-            if (HealthMax < 1)
-                Log.Error("Ship has no Health?");
+           
             Health = Health.Clamp(0, HealthMax);
             HealthStatus = ToShipStatus(Health, HealthMax);
         }
 
         public void AddShipHealth(float addHealth)
         {
+            if (HealthMax < 1)
+            {
+                Log.Warning($"Ship {Name} has no Health?");
+                RecalculateMaxHP();
+            }
+            
             Health += addHealth.Clamp(0, HealthMax);
             SetHealthStatus();            
         }
@@ -2492,13 +2497,15 @@ namespace Ship_Game.Ships
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
 
+            float healthMax = 0;
             float health =0;
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //Get total internal slots
                 if (slot.Restrictions == Restrictions.I && slot.Active)
                     ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
-                AddShipHealth(slot.Health);                
+                health += slot.Health;
+                
                 RepairRate += slot.BonusRepairRate;
                 if (slot.Mass < 0.0 && slot.Powered)
                     Mass += slot.Mass;
@@ -2553,6 +2560,8 @@ namespace Ship_Game.Ships
                     slot.AddModuleTypeToList(slot.ModuleType, isTrue: slot.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
+            
+               
             AddShipHealth(health);
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
@@ -2928,7 +2937,7 @@ namespace Ship_Game.Ships
             if (VanityName == "MerCraft")
                 Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
 
-            HealthMax = 0;
+            float healthMax = 0;
             foreach (ShipModule slot in ModuleSlotList)
             {
                 bool isFullyHealed = slot.Health >= slot.HealthMax;
@@ -2942,9 +2951,10 @@ namespace Ship_Game.Ships
                     slot.Health = slot.HealthMax;
                 }
                 //the ships MaxHP so it will display properly.        -Gretman
-                HealthMax += slot.HealthMax;
+                healthMax += slot.HealthMax;
             }
-            if (Health >= HealthMax) Health = HealthMax;
+            if (Health >= healthMax) Health = healthMax;
+            HealthMax = Math.Max(HealthMax,healthMax);
             if (VanityName == "MerCraft")
                 Log.Info($"Health is  {Health} / {HealthMax}");
         }
