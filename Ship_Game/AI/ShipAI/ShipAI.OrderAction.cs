@@ -752,7 +752,6 @@ namespace Ship_Game.AI {
             if (Owner.loyalty.isFaction)
                 return;
  
-            IOrderedEnumerable<Planet> sortedList = null;
             if (Owner.NeedResupplyTroops)
             {
                 var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
