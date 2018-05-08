@@ -2150,7 +2150,8 @@ namespace Ship_Game.Ships
                     PowerDraw = ModulePowerDraw;
 
                 //This is what updates all of the modules of a ship
-                if (loyalty.RecalculateMaxHP) HealthMax = 0;
+                if (loyalty.RecalculateMaxHP)
+                    HealthMax = 0;
                 
 
                 //Check Current Shields
@@ -2187,7 +2188,7 @@ namespace Ship_Game.Ships
                     {
                         //Added by McShooterz: Priority repair
                         float repair = InCombat ? RepairRate * 0.1f : RepairRate;
-                        ApplyAllRepair(repair, 1 - (Level * .1f).Clamp(0, .95f));
+                        ApplyAllRepair(repair, Level);
                     }                  
                 }
            
@@ -2455,7 +2456,7 @@ namespace Ship_Game.Ships
             if (HealthMax < 1)
             {
                 Log.Warning($"Ship {Name} has no Health?");
-                RecalculateMaxHP();
+                RecalculateMaxHealth();
             }
             
             Health += addHealth.Clamp(0, HealthMax);
@@ -2497,8 +2498,7 @@ namespace Ship_Game.Ships
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
 
-            float healthMax = 0;
-            float health =0;
+            float health = 0;
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //Get total internal slots
@@ -2932,31 +2932,24 @@ namespace Ship_Game.Ships
             Warp,
         }
 
-        public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
+        // Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
+        public void RecalculateMaxHealth()
         {
-            if (VanityName == "MerCraft")
-                Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
+            #if DEBUG
+            bool maxHealthDebug = VanityName == "MerCraft";
+            if (maxHealthDebug) Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
+            #endif
 
             float healthMax = 0;
-            foreach (ShipModule slot in ModuleSlotList)
-            {
-                bool isFullyHealed = slot.Health >= slot.HealthMax;
-                slot.HealthMax     = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
-                slot.HealthMax     = slot.HealthMax + slot.HealthMax * (loyalty?.data.Traits.ModHpModifier ?? 1);
-                if (isFullyHealed)
-                {
-                    // Basically, set maxhealth to what it would be with no modifier, then
-                    // apply the total benefit to it. Next, if the module is fully healed,
-                    // adjust its HP so it is still fully healed. Also calculate and adjust
-                    slot.Health = slot.HealthMax;
-                }
-                //the ships MaxHP so it will display properly.        -Gretman
-                healthMax += slot.HealthMax;
-            }
-            if (Health >= healthMax) Health = healthMax;
-            HealthMax = Math.Max(HealthMax,healthMax);
-            if (VanityName == "MerCraft")
-                Log.Info($"Health is  {Health} / {HealthMax}");
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                healthMax += ModuleSlotList[i].UpdateActualMaxHealth();
+
+            Health    = Health.Clamp(0, healthMax);
+            HealthMax = healthMax;
+
+            #if DEBUG
+            if (maxHealthDebug) Log.Info($"Health is  {Health} / {HealthMax}");
+            #endif
         }
 
         private float PercentageOfShipByModules(ShipModule[] modules)
@@ -3066,18 +3059,6 @@ namespace Ship_Game.Ships
             return hullRole;
         }
 
-        public void TestShipModuleDamage()
-        {
-            foreach (ShipModule mod in ModuleSlotList)
-            {
-                mod.Health = 1;
-            } //Added by Gretman so I can hurt ships when the disobey me... I mean for testing... Yea, thats it...
-            Health = ModuleSlotList.Length;
-            shipStatusChanged = true;
-        }
-        
-        
-
         public void CreateColonizationBuildingFor(Planet colonizeTarget)
         {
             // @TODO create building placement methods in planet.cs that take into account the below logic.
@@ -3161,40 +3142,47 @@ namespace Ship_Game.Ships
             if (shield_max - shield_power > shieldrepair)
                 shield_power += shieldrepair;
             else
-            {
-                
                 shield_power = shield_max;
-            }
 
         }
-        public void ApplyAllRepair(float repairAmount, float repairSkill, bool repairShields = false)
+        public void ApplyAllRepair(float repairAmount, int repairLevel, bool repairShields = false)
         {
-            float currentRepair = repairAmount;
+            float currentRepair;
             do
             {
                 currentRepair = repairAmount;
-                repairAmount = ApplyRepairOnce(repairAmount, repairSkill);
+                repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
-            while (repairAmount > 0 && repairAmount < currentRepair -.05f);
+            while (0.0f < repairAmount && repairAmount < currentRepair - 0.05f);
             ApplyRepairToShields(repairAmount);
         }
 
-        public float ApplyRepairOnce(float repairAmount, float repairSkill)
+        /**
+         * @param repairLevel Level of the crew or repair level of orbital shipyard
+         */
+        public float ApplyRepairOnce(float repairAmount, int repairLevel)
         {
-            if (!Active) return repairAmount;
+            if (!Active)
+                return repairAmount;
 
-            //RepairSkill Reduces the priority of mostly healed moduleds. 
-            //It allows a ship to become fully functional faster.
+            // RepairSkill Reduces the priority of mostly healed modules. 
+            // It allows a ship to become fully functional faster.
+            float repairSkill = 1.0f - (repairLevel * 0.1f).Clamp(0.0f, 0.95f);
+
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
-                float damagePriority =  module.Health < module.HealthMax * repairSkill ? 1f : 1 - module.Health / module.HealthMax; // damaged modules get priority 1.0
-                float moduleImportance = 1.1f - (float)module.ModulePriority / ShipModule.MaxPriority; // best modules get priority 1.0
+                // fully damaged modules get priority 1.0
+                float damagePriority =  module.Health < (module.ActualMaxHealth * repairSkill)
+                                    ? 1.0f
+                                    : 1.0f - module.HealthPercent;
+
+                // best modules get priority 1.0
+                float moduleImportance = 1.1f - (float)module.ModulePriority / ShipModule.MaxPriority;
                 return damagePriority * moduleImportance;
             });
 
             return moduleToRepair.Repair(repairAmount);
-            
-        }        
+        }
         
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
