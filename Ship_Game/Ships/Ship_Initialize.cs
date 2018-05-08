@@ -18,7 +18,7 @@ namespace Ship_Game.Ships
         {
         }
 
-        public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool addToShieldManager = true)
+        public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
         {
             var internalPosistions = new Array<Vector2>();
             int count = 0;
@@ -38,6 +38,12 @@ namespace Ship_Game.Ships
                 }
                 ++count;
             }
+
+            if (count == 0)
+            {
+                Log.Warning($"Failed to load ship '{Name}' due all dummy modules!");
+                return false;
+            }
             ModuleSlotList = new ShipModule[count];
 
             count = 0;
@@ -53,11 +59,11 @@ namespace Ship_Game.Ships
                 if (slotData.Orientation.NotEmpty()
                     && slotData.Orientation != ShipDesignScreen.ActiveModuleState.Normal.ToString())
                 {
-                    orientation =
+                    orientation = 
                         (ShipDesignScreen.ActiveModuleState)Enum.Parse(typeof(ShipDesignScreen.ActiveModuleState), slotData.Orientation);
                 }
 
-                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager, orientation);
+                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, isTemplate, orientation);
                 if (fromSave)
                 {
                     module.Active      = slotData.Health > 0.01f;
@@ -86,7 +92,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public static Ship CreateShipFromShipData(ShipData data, bool fromSave, bool addToShieldManager = true)
+        public static Ship CreateShipFromShipData(ShipData data, bool fromSave, bool isTemplate = false)
         {
             var ship = new Ship
             {
@@ -97,7 +103,7 @@ namespace Ship_Game.Ships
                 shipData   = data
             };
 
-            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, addToShieldManager))
+            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
                 return null;
 
             foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
@@ -343,7 +349,7 @@ namespace Ship_Game.Ships
             RecalculatePower();        
             ShipStatusChange();
             InitializeThrusters();
-            RecalculateMaxHP();
+            RecalculateMaxHealth();
             SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
             if (worldInit)
@@ -430,7 +436,7 @@ namespace Ship_Game.Ships
 
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
-            RecalculateMaxHP();
+            RecalculateMaxHealth();
             //HealthMax                = Health;
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
@@ -518,7 +524,7 @@ namespace Ship_Game.Ships
                 PowerFlowMax         += module.PowerFlowMax     * (1 + (loyalty?.data.PowerFlowMod   ?? 0));
                 shield_max           += module.shield_power_max * (1 + (loyalty?.data.ShieldPowerMod ?? 0));
                 if (module.ModuleType == ShipModuleType.Armor)
-                    armor_max        += module.HealthMax;
+                    armor_max += module.ActualMaxHealth;
 
                 CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax  += module.OrdinanceCapacity;
