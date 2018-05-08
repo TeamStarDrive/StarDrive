@@ -303,8 +303,7 @@ namespace Ship_Game.Universe.SolarBodies
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                     if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
                     {
-                        float repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
-                        repairLevel = 1 + (repairLevel * .1f).Clamp(0, .95f);
+                        int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
                         ship.ApplyAllRepair(repairPool, repairLevel, repairShields:true);
                     }
                     else if (ship.AI.State == AIState.Resupply)
