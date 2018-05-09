@@ -37,6 +37,8 @@ namespace Ship_Game
         [Serialize(0)] public Vector2 Position;
         [Serialize(1)] public Vector2 Center;
         [Serialize(2)] public Vector2 Velocity;
+
+        // rotation in RADIANS
         [Serialize(3)] public float Rotation;
 
         [Serialize(4)] public Vector2 Dimensions;
@@ -59,7 +61,10 @@ namespace Ship_Game
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
-        
+
+        public bool IsProjectile => (Type & GameObjectType.Proj) != 0;
+        public bool IsShip => (Type & GameObjectType.Ship) != 0;
+
         protected GameplayObject(GameObjectType typeFlags)
         {
             Type = typeFlags;
@@ -68,9 +73,10 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
-        public virtual bool Damage(GameplayObject source, float damageAmount)
+        [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
+
+        public virtual void Damage(GameplayObject source, float damageAmount)
         {
-            return false;
         }
 
         public virtual void Initialize()
@@ -81,7 +87,6 @@ namespace Ship_Game
         {            
             Active = false;            
             Empire.Universe.QueueGameplayObjectRemoval(this);
-
         }
 
         public virtual void RemoveFromUniverseUnsafe()
@@ -116,7 +121,22 @@ namespace Ship_Game
             if (InSpatial)
                 UniverseScreen.SpaceManager.Remove(this);
             if ((Type & GameObjectType.Proj) != 0) ((Projectile)this).Loyalty = changeTo;
-            if ((Type & GameObjectType.Ship) != 0) ((Ship)this).loyalty = changeTo;
+            if ((Type & GameObjectType.Ship) != 0)
+            {
+                Ship ship = this as Ship;
+                Empire oldLoyalty = ship.loyalty;
+
+                oldLoyalty.GetShips().QueuePendingRemoval(ship);
+                oldLoyalty.RemoveShip(ship);
+                                                         
+                oldLoyalty.GetGSAI().ThreatMatrix.RemovePin(ship);
+                changeTo.AddShipNextFrame(ship);
+                ship.shipStatusChanged = true;
+                ((Ship)this).loyalty = changeTo;
+                SetSystem(null);
+
+
+            }
             if (!DisableSpatialCollision && Active && NotInSpatial)
                 UniverseScreen.SpaceManager.Add(this);
         }

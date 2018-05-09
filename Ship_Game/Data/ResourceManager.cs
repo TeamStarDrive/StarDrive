@@ -92,6 +92,13 @@ namespace Ship_Game
             return technology;
         }
 
+        public static ExplorationEvent Event(string eventName, string defaultEvent = "default")
+        {
+            if (EventsDict.TryGetValue(eventName, out ExplorationEvent events)) return events;
+            Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
+            return EventsDict["default"];
+        }
+
         public static void MarkShipDesignsUnlockable()
         {
             var shipTechs = new Map<Technology, Array<string>>();
@@ -259,24 +266,67 @@ namespace Ship_Game
             if (!GlobalStats.TestLoad) return;
 
             Log.ShowConsoleWindow(2000);
-            Log.TestMessage("TEST - LOADING ALL HULL MODELS\n");
-            foreach (var hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role=> role.Role))
-            {                
+            TestHullLoad();
+            //TestCompressedTextures();
+            //TestTechTextures();
+
+            Log.HideConsoleWindow();
+            ContentManager.EnableLoadInfoLog = false;
+        }
+
+        private static void TestHullLoad()
+        {
+            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true)) return;
+            ContentManager.EnableLoadInfoLog = true;
+            foreach (var hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
+            {
                 try
                 {
-                    Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n",Log.Importance.Regular);
+                    Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n", Log.Importance.Regular);
                     hull.LoadModel();
                 }
                 catch (Exception e)
                 {
-                    Log.TestMessage($"Failure loading model {hull.ModelPath} for hull {hull.Name}\n{e}",Log.Importance.Critical);
+                    Log.TestMessage($"Failure loading model {hull.ModelPath} for hull {hull.Name}\n{e}", Log.Importance.Critical);
                 }
+
+            }
+            HelperFunctions.CollectMemory();
+            Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
+            ContentManager.EnableLoadInfoLog = false;
+        }
+        private static void TestCompressedTextures()
+        {
+            if(!Log.TestMessage("Test - Checking For Uncompressed Texture \n",waitForYes:true)) return;
+            foreach (var textDic in TextureDict)
+            {
+                Texture2D tex  = textDic.Value;
+                var texUsage   = tex.TextureUsage;
+                var texFormat  = tex.Format;
+                if (texFormat != SurfaceFormat.Color) continue;
+                Log.TestMessage($"Uncompressed Texture {textDic.Key}", Log.Importance.Important);
+                Log.TestMessage($"{tex.ResourceType} Dimensions:{tex.Size()} \n");
                 
             }
-            Log.TestMessage("Hull Model Load Finished",waitForEnter:true);
-            Log.HideConsoleWindow();
+            
+            Log.TestMessage("Test - Checking For Uncompressed Texture Finished", waitForEnter: true);
         }
+        private static void TestTechTextures()
+        {
+            if (!Log.TestMessage("Test - Checking For Tech Texture Existence \n", waitForYes: true)) return;
+            foreach (var testItem in TechTree)
+            {
+                var item = testItem.Value;
+                var texPath = $"TechIcons/{item.IconPath}";
+                Log.TestMessage($"Tech:{testItem.Key} Path:{texPath}");
 
+                if (TextureDict.ContainsKey(texPath)) continue;
+                
+                Log.TestMessage($"Missing Texture: {texPath}", Log.Importance.Critical);
+            }
+
+            Log.TestMessage("Test - Checking For Tech Texture Existence Finished", waitForEnter: true);
+        }
         public static bool PreLoadModels(Empire empire)
         {
             if (!GlobalStats.PreLoad) return true;
@@ -296,6 +346,7 @@ namespace Ship_Game
                 return false;
                 
             }
+            HelperFunctions.CollectMemory();
             return true;
 
             
@@ -449,7 +500,12 @@ namespace Ship_Game
         }
 
         public static float GetTroopCost(string troopType) => TroopsDict[troopType].GetCost();
-        public static Troop GetTroopTemplate(string troopType) =>TroopsDict[troopType];
+        public static Troop GetTroopTemplate(string troopType)
+        {
+            if (TroopsDict.TryGetValue(troopType, out Troop troopO)) return troopO;
+            Log.WarningWithCallStack($"Troop {troopType} Template Not found");
+            return TroopsDict.First().Value;
+        }
         public static Array<Troop> GetTroopTemplates() => new Array<Troop>(TroopsDict.Values);
 
         public static Troop CopyTroop(Troop t)
@@ -588,9 +644,7 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////////////////////////
         
 
-        private static readonly Map<string, Model> Models        = new Map<string, Model>();
-        private static readonly Map<string, StaticMesh> Meshes        = new Map<string, StaticMesh>();
-        private static readonly Map<string, SkinnedModel> SkinnedModels = new Map<string, SkinnedModel>();
+        
 
         private static int SubmeshCount(int maxSubmeshes, int meshSubmeshCount)
         {
@@ -608,13 +662,13 @@ namespace Ship_Game
 
         }
 
-        private static SceneObject SceneObjectFromStaticMesh(string modelName, int maxSubmeshes = 0)
+        private static SceneObject SceneObjectFromStaticMesh(GameContentManager contentManager, string modelName, int maxSubmeshes = 0)
         {
-            if (!Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
+            if (!contentManager.Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
             {
                 Log.Info($"Loading model for {modelName}");
-                staticMesh = ContentManager.Load<StaticMesh>(modelName);
-                Meshes[modelName] = staticMesh;                
+                staticMesh = contentManager.Load<StaticMesh>(modelName);
+                contentManager.Meshes[modelName] = staticMesh;                
             }
             
                 
@@ -646,9 +700,9 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromModel(string modelName, int maxSubmeshes = 0, bool justLoad = false)
+        private static SceneObject SceneObjectFromModel(GameContentManager contentManager, string modelName, int maxSubmeshes = 0, bool justLoad = false)
         {
-            if (!Models.TryGetValue(modelName, out Model model))
+            if (!contentManager.Models.TryGetValue(modelName, out Model model))
             {
                 // special backwards compatibility with mods...
                 // basically, all old mods put their models into "Mod Models/" folder because
@@ -656,10 +710,10 @@ namespace Ship_Game
                 if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
                 {
                     string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
-                    if (File.Exists(modModelPath)) model = ContentManager.Load<Model>(modModelPath);
+                    if (File.Exists(modModelPath)) model = contentManager.Load<Model>(modModelPath);
                 }
-                if (model == null) model = ContentManager.Load<Model>(modelName);
-                Models[modelName] = model;  
+                if (model == null) model = contentManager.Load<Model>(modelName);
+                contentManager.Models[modelName] = model;  
             }
             if (model == null || justLoad)
             {                
@@ -675,12 +729,12 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromSkinnedModel(string modelName, bool justLoad = false)
+        private static SceneObject SceneObjectFromSkinnedModel(GameContentManager contentManager, string modelName, bool justLoad = false)
         {
-            if (!SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
+            if (!contentManager.SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
             {
-                skinned = ContentManager.Load<SkinnedModel>(modelName);
-                SkinnedModels[modelName] = skinned;                
+                skinned = contentManager.Load<SkinnedModel>(modelName);
+                contentManager.SkinnedModels[modelName] = skinned;                
             }            
             if (skinned == null || justLoad)
                 return null;
@@ -693,26 +747,27 @@ namespace Ship_Game
             return so;
         }
 
-        public static SceneObject GetSceneMesh(string modelName, bool animated = false, bool justLoad = false)
+        public static SceneObject GetSceneMesh(GameContentManager contentManager, string modelName, bool animated = false, bool justLoad = false)
         {
+            contentManager = contentManager ?? ContentManager;
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(modelName);            
-            return animated ? SceneObjectFromSkinnedModel(modelName, justLoad) : SceneObjectFromModel(modelName, justLoad: justLoad);
+                return SceneObjectFromStaticMesh(contentManager, modelName);            
+            return animated ? SceneObjectFromSkinnedModel(contentManager, modelName, justLoad) : SceneObjectFromModel(contentManager, modelName, justLoad: justLoad);
         }
 
-        public static SceneObject GetPlanetarySceneMesh(string modelName)
+        public static SceneObject GetPlanetarySceneMesh(GameContentManager contentManager, string modelName)
         {            
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(modelName, 1);
-            return SceneObjectFromModel(modelName, 1);
+                return SceneObjectFromStaticMesh(contentManager, modelName, 1);
+            return SceneObjectFromModel(contentManager, modelName, 1);
         }
 
         
-        public static SkinnedModel GetSkinnedModel(string path, bool justLoad = false)
+        public static SkinnedModel GetSkinnedModel(GameContentManager contentManager, string path, bool justLoad = false)
         {
-            if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
+            if (contentManager.SkinnedModels.TryGetValue(path, out SkinnedModel model))
                 return model;
-            return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
+            return contentManager.SkinnedModels[path] = contentManager.Load<SkinnedModel>(path);
         }
 
         public static FileInfo[] GetAllXnbModelFiles(string folder)
@@ -784,7 +839,7 @@ namespace Ship_Game
             if (LastFailedTexture != texturePath)
             {
                 LastFailedTexture = texturePath;
-                Log.Warning($"texture path not found: {texturePath} replaces with NewUI / x_red");
+                Log.WarningWithCallStack($"texture path not found: {texturePath} replaces with NewUI / x_red");
             }            
             return TextureDict[defaultTex];
         }
@@ -1068,8 +1123,9 @@ namespace Ship_Game
                     {
                         string dirName     = info.Directory?.Name ?? "";
                         ShipData shipData  = ShipData.Parse(info);
-                        shipData.Hull      = String.Intern(dirName + "/" + shipData.Hull);
-                        shipData.ShipStyle = String.Intern(dirName);
+                        shipData.Hull      = dirName + "/" + shipData.Hull;
+                        shipData.ShipStyle = dirName;
+                        shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
                         shipData.SetHullData(shipData);
                         lock (retList)
                         {
@@ -1308,9 +1364,12 @@ namespace Ship_Game
                 {
                     data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
                 }
-                data.IsRotable = data.IsRotable != null ? data.IsRotable : (data.isWeapon && data.ModuleType != ShipModuleType.Turret) ||
-                                 data.XSIZE != data.YSIZE;
 
+                if (data.IsRotable == null)
+                {
+                    data.IsRotable = data.XSIZE != data.YSIZE
+                        || (data.WeaponType.NotEmpty() && data.ModuleType != ShipModuleType.Turret);
+                }
 
                 ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
                 
@@ -1356,11 +1415,12 @@ namespace Ship_Game
                                         $"\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, addToShieldManager: false);
+                        Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, isTemplate: true);
                         if (shipTemplate == null) // happens if module creation failed                                                    
                             continue;
-                        
+                        shipData.SetHullData();
                         shipTemplate.InitializeStatus(fromSave: false);
+                        shipTemplate.RecalculateMaxHealth();
                         shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
                         shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
 
@@ -1371,7 +1431,7 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, $"LoadShip '{info.Name}' failed");
+                        Log.Error(e, $"Load.Ship '{info.Name}' failed");
                     }
                 }
             }

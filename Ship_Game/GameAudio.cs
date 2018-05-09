@@ -230,7 +230,8 @@ namespace Ship_Game
 
         public static void MiniMapButton()    => PlaySfxAsync("sd_ui_accept_alt3");
         public static void MiniMapMouseOver() => PlaySfxAsync("sd_ui_mouseover");
-        public static void Affirmative()      => PlaySfxAsync("echo_affirm");
+        public static void EchoAffirmative()      => PlaySfxAsync("echo_affirm");
+        public static void BlipClick()        => PlaySfxAsync("blip_click");
 
         //subbasewoosh
         public static void OpenSolarSystemPopUp() => PlaySfxAsync("sub_bass_whoosh");

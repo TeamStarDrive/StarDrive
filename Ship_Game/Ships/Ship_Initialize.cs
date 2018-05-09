@@ -18,7 +18,7 @@ namespace Ship_Game.Ships
         {
         }
 
-        public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool addToShieldManager = true)
+        public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
         {
             var internalPosistions = new Array<Vector2>();
             int count = 0;
@@ -38,6 +38,12 @@ namespace Ship_Game.Ships
                 }
                 ++count;
             }
+
+            if (count == 0)
+            {
+                Log.Warning($"Failed to load ship '{Name}' due all dummy modules!");
+                return false;
+            }
             ModuleSlotList = new ShipModule[count];
 
             count = 0;
@@ -53,16 +59,16 @@ namespace Ship_Game.Ships
                 if (slotData.Orientation.NotEmpty()
                     && slotData.Orientation != ShipDesignScreen.ActiveModuleState.Normal.ToString())
                 {
-                    orientation =
+                    orientation = 
                         (ShipDesignScreen.ActiveModuleState)Enum.Parse(typeof(ShipDesignScreen.ActiveModuleState), slotData.Orientation);
                 }
 
-                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, addToShieldManager, orientation);
+                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, isTemplate, orientation);
                 if (fromSave)
                 {
                     module.Active      = slotData.Health > 0.01f;
                     module.Health      = slotData.Health;
-                    module.ShieldPower = slotData.ShieldPower;
+                    module.ShieldPower = slotData.ShieldPower;;
                 }
                 for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
                 {
@@ -86,7 +92,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public static Ship CreateShipFromShipData(ShipData data, bool fromSave, bool addToShieldManager = true)
+        public static Ship CreateShipFromShipData(ShipData data, bool fromSave, bool isTemplate = false)
         {
             var ship = new Ship
             {
@@ -97,7 +103,7 @@ namespace Ship_Game.Ships
                 shipData   = data
             };
 
-            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, addToShieldManager))
+            if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
                 return null;
 
             foreach (ShipToolScreen.ThrusterZone t in data.ThrusterList)
@@ -284,9 +290,9 @@ namespace Ship_Game.Ships
         {
             shipData.LoadModel(out ShipSO, out ShipMeshAnim);
 
-            Radius = ShipSO.WorldBoundingSphere.Radius;                       
+            Radius            = ShipSO.WorldBoundingSphere.Radius;                       
             ShipSO.Visibility = ObjectVisibility.Rendered;
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            ShipSO.World      = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
 
             // Universe will be null during loading, so we need to grab the Global ScreenManager instance from somewhere else
@@ -304,11 +310,12 @@ namespace Ship_Game.Ships
         {
             bool worldInit = loadingFromSavegame || Empire.Universe == null;
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
+            SetShipData(GetShipData());
             if (worldInit)
                 CreateSceneObject();
             else
                 Empire.Universe.QueueShipToWorldScene(this);
-            SetShipData(GetShipData());
+            
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
@@ -322,11 +329,15 @@ namespace Ship_Game.Ships
             }
             else FromSave = true;
 
+            //begin: ShipSubClass Initialization. Put all ship sub class intializations here
             if (AI == null)
             {
                 InitializeAI();
                 AI.CombatState = shipData.CombatState;
             }
+
+
+            //end: ship subclass initializations. 
 
             InitializeStatus(loadingFromSavegame);
 
@@ -338,7 +349,7 @@ namespace Ship_Game.Ships
             RecalculatePower();        
             ShipStatusChange();
             InitializeThrusters();
-            RecalculateMaxHP();
+            RecalculateMaxHealth();
             SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
             if (worldInit)
@@ -425,8 +436,8 @@ namespace Ship_Game.Ships
 
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
-
-            HealthMax                = Health;
+            RecalculateMaxHealth();
+            //HealthMax                = Health;
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
@@ -455,7 +466,6 @@ namespace Ship_Game.Ships
 
                 if (!fromSave && module.TroopsSupplied > 0)
                     SpawnTroopsForNewShip(module);
-
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f)
@@ -514,7 +524,7 @@ namespace Ship_Game.Ships
                 PowerFlowMax         += module.PowerFlowMax     * (1 + (loyalty?.data.PowerFlowMod   ?? 0));
                 shield_max           += module.shield_power_max * (1 + (loyalty?.data.ShieldPowerMod ?? 0));
                 if (module.ModuleType == ShipModuleType.Armor)
-                    armor_max        += module.HealthMax;
+                    armor_max += module.ActualMaxHealth;
 
                 CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax  += module.OrdinanceCapacity;
@@ -526,9 +536,9 @@ namespace Ship_Game.Ships
                 if (!fromSave)
                 {
                     Ordinance     += module.OrdinanceCapacity;
-                    Health += module.Health;
                 }
             }
+            shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
             //these base values are kinda f'd up. BaseCanWarp isnt being set for the shipdata and so gets passed around alot but isnt ever properly set.
@@ -536,7 +546,7 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
             shipData.BaseCanWarp = WarpThrust > 0;
             BaseCanWarp = WarpThrust > 0;
-            BaseStrength = GetStrength();
+            BaseStrength = GetStrength(true);
             
         }
     }

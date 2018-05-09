@@ -329,11 +329,10 @@ namespace Ship_Game
             Thickness = thickness;
             Source    = srcCenter;
             ActualHitDestination = dstCenter;
-
             // apply drone repair effect
-            if (DamageAmount < 0f && Source.Distance(Destination) <= (Range + 10f) && Target is Ship targetShip)
+            if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
-                targetShip.RepairShipModulesByDrone(-DamageAmount);
+                targetShip.ApplyRepairOnce(-DamageAmount * elapsedTime, Owner?.Level ?? 0);
             }
 
             UpdateBeamMesh();
@@ -348,5 +347,20 @@ namespace Ship_Game
         }
 
         public override string ToString() => $"Beam[{WeaponType}] Wep={Weapon?.Name} Src={Source} Dst={Destination} Loy=[{Loyalty}]";
+
+        public void CreateHitParticles(float centerAxisZ)
+        {
+            if (!HasParticleHitEffect(10f)) return;
+            Vector2 impactNormal = (Source - Center).Normalized();
+            var pos = ActualHitDestination.ToVec3(centerAxisZ);
+            Empire.Universe.flash.AddParticleThreadB(pos, Vector3.Zero);
+            for (int i = 0; i < 20; i++)
+            {
+                var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
+                Empire.Universe.sparks.AddParticleThreadB(pos, vel);
+            }
+        }
+
+        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
     }
 }

@@ -69,7 +69,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         
         private void DeleteAccepted(object sender, EventArgs e)
         {            
-            GameAudio.Affirmative();
+            GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[this.ShipToDelete].Deleted = true;
             this.Buttons.Clear();
             this.ShipsToLoad.Clear();
@@ -80,7 +80,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private void DeleteDataAccepted(object sender, EventArgs e)
         {
-            GameAudio.Affirmative();
+            GameAudio.EchoAffirmative();
             this.Buttons.Clear();
             this.ShipsToLoad.Clear();
             this.ShipDesigns.Reset();
@@ -344,7 +344,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
                         if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) || ShipRoles.Contains(Localizer.GetRole(
                                 Ship.Value.DesignRole
-                                , EmpireManager.Player)) || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                                , EmpireManager.Player)) || Empire.Universe?.Debug != true && ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             Log.Info($"Ship Design exluded by filter {Ship.Key}");
                             continue;
@@ -374,8 +374,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name))
                     {
                         if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) ||
-                            !(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) == (e.item as ModuleHeader).Text)
-                            || Ship.Value.Name == "Subspace Projector" || Ship.Value.Name == "Shipyard" || Ship.Value.Deleted
+                            !(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Deleted
+                            || Empire.Universe?.Debug != true && Ship.Value.Name == "Subspace Projector" || Ship.Value.shipData.IsShipyard
                             || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             continue;

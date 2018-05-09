@@ -28,7 +28,7 @@ namespace Ship_Game
         [Serialize(11)] public Orders Order;
         [Serialize(12)] public CombatState CombatState;
         [Serialize(13)] public Vector2 OrdersOffset;
-        [Serialize(14)] public float OrdersRadius = 0.5f;
+        [Serialize(14)] public float OrdersRadius = 500000;//0.5f;
         public float ApplyWeight(float shipStat, float statAvg, float fleetWeight)
         {
             if (fleetWeight > .49f && fleetWeight < .51f) return 0;

@@ -35,7 +35,7 @@ namespace Ship_Game.Gameplay
         Tractor   = (1 << 20),
     }
 
-    public sealed class Weapon : IDisposable
+    public sealed class Weapon : IDisposable, IDamageModifier
     {
         private WeaponTag TagBits;
         public bool this[WeaponTag tag]
@@ -610,6 +610,7 @@ namespace Ship_Game.Gameplay
         {
             drowner = droneAI.Drone;
             var beam = new Beam(this, drowner.Center, target.Center, target);
+           
             droneAI.Beams.Add(beam);
         }
 
@@ -662,7 +663,6 @@ namespace Ship_Game.Gameplay
 
         private void FireAtAssignedTargetNonVisible(Ship targetShip)
         {
-           
             if (!CanFireWeapon())
                 return;
             CooldownTimer = fireDelay;
@@ -709,53 +709,53 @@ namespace Ship_Game.Gameplay
             if (Owner.loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.DamageModifier;
 
-            if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
-                return;
-            if (Tag_Missile)   AddModifiers("Missile", projectile);
-            if (Tag_Energy)    AddModifiers("Energy", projectile);
-            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile);
-            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile);
-            if (Tag_Hybrid)    AddModifiers("Hybrid", projectile);
-            if (Tag_Railgun)   AddModifiers("Railgun", projectile);
-            if (Tag_Explosive) AddModifiers("Explosive", projectile);
-            if (Tag_Guided)    AddModifiers("Guided", projectile);
-            if (Tag_Intercept) AddModifiers("Intercept", projectile);
-            if (Tag_PD)        AddModifiers("PD", projectile);
-            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile);
-            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile);
-            if (Tag_Drone)     AddModifiers("Drone", projectile);
-            if (Tag_Subspace)  AddModifiers("Subspace", projectile);
-            if (Tag_Warp)      AddModifiers("Warp", projectile);
-            if (Tag_Cannon)    AddModifiers("Cannon", projectile);
-            if (Tag_Beam)      AddModifiers("Beam", projectile);
-            if (Tag_Bomb)      AddModifiers("Bomb", projectile);
-            if (Tag_Array)     AddModifiers("Array", projectile);
-            if (Tag_Flak)      AddModifiers("Flak", projectile);
-            if (Tag_Tractor)   AddModifiers("Tractor", projectile);
+            //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
+            //    return;
+
+            float actualshieldpenchance = 0;
+
+            if (Tag_Missile)   AddModifiers("Missile", projectile, ref actualshieldpenchance);
+            if (Tag_Energy)    AddModifiers("Energy", projectile, ref actualshieldpenchance);
+            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile, ref actualshieldpenchance);
+            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile, ref actualshieldpenchance);
+            if (Tag_Hybrid)    AddModifiers("Hybrid", projectile, ref actualshieldpenchance);
+            if (Tag_Railgun)   AddModifiers("Railgun", projectile, ref actualshieldpenchance);
+            if (Tag_Explosive) AddModifiers("Explosive", projectile, ref actualshieldpenchance);
+            if (Tag_Guided)    AddModifiers("Guided", projectile, ref actualshieldpenchance);
+            if (Tag_Intercept) AddModifiers("Intercept", projectile, ref actualshieldpenchance);
+            if (Tag_PD)        AddModifiers("PD", projectile, ref actualshieldpenchance);
+            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile, ref actualshieldpenchance);
+            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile, ref actualshieldpenchance);
+            if (Tag_Drone)     AddModifiers("Drone", projectile, ref actualshieldpenchance);
+            if (Tag_Subspace)  AddModifiers("Subspace", projectile, ref actualshieldpenchance);
+            if (Tag_Warp)      AddModifiers("Warp", projectile, ref actualshieldpenchance);
+            if (Tag_Cannon)    AddModifiers("Cannon", projectile, ref actualshieldpenchance);
+            if (Tag_Beam)      AddModifiers("Beam", projectile, ref actualshieldpenchance);
+            if (Tag_Bomb)      AddModifiers("Bomb", projectile, ref actualshieldpenchance);
+            if (Tag_Array)     AddModifiers("Array", projectile, ref actualshieldpenchance);
+            if (Tag_Flak)      AddModifiers("Flak", projectile, ref actualshieldpenchance);
+            if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualshieldpenchance);
+
+            projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance;
         }
-        
-        private void AddModifiers(string tag, Projectile projectile)
+
+        private void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
         {
             SerializableDictionary<string, WeaponTagModifier> wepTags = Owner.loyalty.data.WeaponTags;
             projectile.DamageAmount      += wepTags[tag].Damage * projectile.DamageAmount;
             projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
             projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
             // Shield Penetration
-            float actualShieldPenChance   = Module.GetParent().loyalty.data.ShieldPenBonusChance;
-            actualShieldPenChance        += wepTags[tag].ShieldPenetration;
-            actualShieldPenChance        += ShieldPenChance;
-            if (actualShieldPenChance > 0f && RandomMath2.InRange(100) < actualShieldPenChance)
-            {
-                projectile.IgnoresShields = true;
-            }
-            if (!isBeam)
-            {
-                projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
-                projectile.Health                += HitPoints * wepTags[tag].HitPoints;
-                projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
-                projectile.Speed                 += wepTags[tag].Speed * ProjectileSpeed;
-                projectile.DamageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
-            }
+            float currenshieldpenchance   = Module.GetParent().loyalty.data.ShieldPenBonusChance; // check the old calcs first
+            currenshieldpenchance        += wepTags[tag].ShieldPenetration * 100; // new calcs
+            currenshieldpenchance        += ShieldPenChance;
+            actualShieldPenChance = Math.Max(currenshieldpenchance, actualShieldPenChance);
+            if (isBeam) return;
+            projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
+            projectile.Health                += HitPoints * wepTags[tag].HitPoints;
+            projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
+            projectile.Speed                 += wepTags[tag].Speed * ProjectileSpeed;
+            projectile.DamageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
         }
 
         public void ResetToggleSound()
@@ -815,9 +815,36 @@ namespace Ship_Game.Gameplay
             CachedModifiedRange = modifier * Range;
             return CachedModifiedRange;            
         }
+
+
+        public float GetShieldDamageMod(ShipModule module)
+        {
+            float damageModifier = EffectVSShields;
+            if      (Tag_Kinetic) damageModifier *= (1f - module.shield_kinetic_resist);
+            else if (Tag_Energy)  damageModifier *= (1f - module.shield_energy_resist);
+            else if (Tag_Beam)    damageModifier *= (1f - module.shield_beam_resist);
+            else if (Tag_Missile) damageModifier *= (1f - module.shield_missile_resist);
+            return damageModifier;
+        }
+
+        public float GetArmorDamageMod(ShipModule module)
+        {
+            float damageModifier = 1f;
+            ShipModuleType type = module.ModuleType;
+            if (type == ShipModuleType.Armor) damageModifier *= EffectVsArmor;
+            if (Tag_Explosive)                damageModifier *= (1f - module.ExplosiveResist);
+            if (Tag_Kinetic)                  damageModifier *= (1f - module.KineticResist);
+            else if (Tag_Beam)                damageModifier *= (1f - module.BeamResist);
+            else if (Tag_Energy)              damageModifier *= (1f - module.EnergyResist);
+            else if (Tag_Missile)             damageModifier *= (1f - module.MissileResist);
+            else if (Tag_Torpedo)             damageModifier *= (1f - module.TorpedoResist);
+            return damageModifier;
+        }
+
         //How much total resource required to use weapon. 
         public float PowerUseMax    => isBeam ? BeamPowerCostPerSecond * BeamDuration : PowerRequiredToFire;
         public float OrdnanceUseMax => OrdinanceRequiredToFire * SalvoCount;
+
 
         public bool TargetValid(ShipData.RoleName role)
         {

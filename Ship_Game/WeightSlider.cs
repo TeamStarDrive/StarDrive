@@ -89,7 +89,19 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, single.ToString(this.fmt), textPos, new Color(255, 239, 208));
 		}
 
-		public float HandleInput(InputState input)
+	    public bool HandleInput(InputState input, ref float currentvalue)
+	    {
+	        if (!rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
+	        {
+	            SetAmount(currentvalue);
+	            return false;
+	        }
+	        currentvalue = HandleInput(input);
+	        return true;
+
+	    }
+
+        public float HandleInput(InputState input)
 		{
 			if (!this.rect.HitTest(input.CursorPosition))
 			{

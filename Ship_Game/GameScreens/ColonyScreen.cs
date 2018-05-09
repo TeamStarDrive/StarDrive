@@ -524,7 +524,8 @@ namespace Ship_Game
                             .ThenBy(player => !player.Value.IsPlayerDesign)
                             .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
                             .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle)
-                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name))
+                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name)
+                            .ThenBy(name=> name.Key))
                         {
                             if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key)) continue;
 
@@ -557,7 +558,7 @@ namespace Ship_Game
                                     (entry.item as ModuleHeader).Draw(this.ScreenManager, vector2_1);
                                 else if (entry.clickRectHover == 0)
                                 {
-                                    var iconPath = ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath;
+                                    var iconPath = (entry.item as Ship).GetShipData().HullData.IconPath; 
                                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(iconPath), new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
@@ -600,7 +601,7 @@ namespace Ship_Game
                                 else
                                 {
                                     vector2_1.Y = (float)entry.clickRect.Y;
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[(entry.item as Ship).GetShipData().HullData.IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -898,7 +899,7 @@ namespace Ship_Game
                     }
                     else if (qi.isShip)
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[qi.sData.Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(qi.sData.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName != null ? qi.DisplayName : qi.sData.Name, position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
@@ -2368,15 +2369,19 @@ namespace Ship_Game
                     {
                         this.detailInfo = pgs;
                         Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                        if (pgs.building != null && pgs.building.Scrappable && bRect.HitTest(input.CursorPosition) && input.RightMouseClick)
+                        if (pgs.building != null  && bRect.HitTest(input.CursorPosition) &&  Input.RightMouseClick)
                         {
-                            this.toScrap = pgs.building;
-                            string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
-                            MessageBoxScreen messageBox = new MessageBoxScreen(Empire.Universe, message);
-                            messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
-                            this.ScreenManager.AddScreen(messageBox);
-                            this.ClickedTroop = true;
+                            if (pgs.building.Scrappable)
+                            {
+                                this.toScrap = pgs.building;
+                                string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
+                                MessageBoxScreen messageBox = new MessageBoxScreen(Empire.Universe, message);
+                                messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
+                                this.ScreenManager.AddScreen(messageBox);                                
+                                
+                            }
                             rmouse = true;
+                            ClickedTroop = true;
                             return true;
                         }
                     }
@@ -2522,14 +2527,14 @@ namespace Ship_Game
                         {
                             (e.item as QueueItem).pgs.QItem = null;
                         }
-                        if(item.Goal !=null)
+                        if (item.Goal !=null)
                         {
-                            if(item.Goal.GoalName=="BuildConstructionShip")
+                            if (item.Goal is Commands.Goals.BuildConstructionShip)
                             {
                                 p.Owner.GetGSAI().Goals.Remove(item.Goal);
                                 
                             }
-                            if(item.Goal.GetFleet() !=null)
+                            if (item.Goal.GetFleet() !=null)
                                 p.Owner.GetGSAI().Goals.Remove(item.Goal);
 
                         }
@@ -2553,7 +2558,7 @@ namespace Ship_Game
                     if (pgs.Habitable && pgs.building == null && pgs.QItem == null && (this.ActiveBuildingEntry.item as Building).Name != "Biospheres")
                     {
                         QueueItem qi = new QueueItem();
-                        //{
+                        //p.SbProduction.AddBuildingToCQ(this.ActiveBuildingEntry.item as Building, PlayerAdded: true);
                         qi.isBuilding = true;
                         qi.Building = this.ActiveBuildingEntry.item as Building;       //ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
                         qi.IsPlayerAdded = true;

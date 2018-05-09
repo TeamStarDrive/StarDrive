@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
@@ -15,17 +14,18 @@ namespace Ship_Game.Ships
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
-        private ParticleEmitter trailEmitter;
-        private ParticleEmitter firetrailEmitter;
-        private ParticleEmitter flameEmitter;
         public int XSIZE = 1;
         public int YSIZE = 1;
-        public bool Powered;
-        public float FieldOfFire;
         public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
+        private bool CanVisualizeDamage;
+        private ShipModuleDamageVisualization DamageVisualizer;
+        private bool OnFire;
+        private const float OnFireThreshold = 0.15f;
+        private Vector3 Center3D;
+        public Vector3 GetCenter3D => Center3D;
+
         private Ship Parent;
-        public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
@@ -40,10 +40,6 @@ namespace Ship_Game.Ships
         public bool isWeapon;
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
-        private bool onFire;
-        private bool reallyFuckedUp;
-        private Vector3 Center3D;
-        public Vector3 GetCenter3D => Center3D;
 
 
         public float BombTimer;
@@ -52,20 +48,15 @@ namespace Ship_Game.Ships
 
         public string UID => Flyweight.UID;
 
-        public bool isExternal;
+        public float FieldOfFire;
         public int TargetValue;
-        public int quadrant = -1;
         public float TransporterTimer;
-
-        // This is used to calculate whether this module has power or not
-        private int ActivePowerSources;
-        public bool HasPower => ActivePowerSources > 0;
         public bool CheckedConduits;
+        public bool Powered;
+        public int quadrant = -1;
+        public bool isExternal;
+        public const int MaxPriority =6;
 
-        // Used to configure how good of a target this module is
-        public int ModuleTargettingValue         => TargetValue
-                                          //+ (isExternal ? -5 : 0)         // external modules are less critical
-                                          + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules        
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Flyweight.IsCommandModule" now.    -Gretman
@@ -169,35 +160,77 @@ namespace Ship_Game.Ships
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int FixedTracking                 => Flyweight.FixedTracking;
+        public int ExplosionDamage               => Flyweight.ExplosionDamage;
+        public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public bool IsRotatable                  => Flyweight.IsRotable;
-        public bool IsWeapon                     => ModuleType == ShipModuleType.Spacebomb
+        public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
                                 || ModuleType == ShipModuleType.MissileLauncher
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
 
-
         public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
 
         // the actual hit radius is a bit bigger for some legacy reason
-        public float ShieldHitRadius => Flyweight.shield_radius + 10f;
-
+        public float ShieldHitRadius => Flyweight.shield_radius + 10f;        
 
         public float AccuracyPercent = -1;
-        //private float SwivelSpeed;
-        private float WeaponRotation = 0;
+
+        private float WeaponRotation;
         public float WeaponRotationSpeed
         {
-            get { return
-                WeaponRotation == 0 ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation; }
-            set { WeaponRotation = value; }
+            get => WeaponRotation == 0f ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
+            set => WeaponRotation = value;
         }
         public float WeaponECM = 0;
-        public float WeaponECCM = 0;
+        
         public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
         public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
+
+        // this is the design spec of the module
+        private float TemplateMaxHealth;
+
+        // this is the actual max health after faction-wide traits have been applied
+        public float ActualMaxHealth { get; private set; }
+
+        // shipyard code is a bloody mess, so we need this as a workaround
+        public float ShipDesignerMaxHealth => GetModifiedHealthForEmpire(EmpireManager.Player, TemplateMaxHealth);
+
+        // called during creation or when a new tech is unlocked
+        public float UpdateActualMaxHealth()
+        {
+            if (Parent?.loyalty != null) // only non-template ships have loyalty data; shipyard modules are also all templates
+                ActualMaxHealth = GetModifiedHealthForEmpire(Parent.loyalty, TemplateMaxHealth);
+            return ActualMaxHealth;
+        }
+
+        private static float GetModifiedHealthForEmpire(Empire empire, float maxHealth)
+        {
+            return maxHealth * (1.0f + empire.data.Traits.ModHpModifier);
+        }
+
+        public float HealthPercent => Health / ActualMaxHealth;
+
+        // Used to configure how good of a target this module is
+        public int ModuleTargettingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules        
+
+
+        private void SetHealth(float newHealth)
+        {
+            float maxHealth = ActualMaxHealth;
+            newHealth = newHealth.Clamp(0, maxHealth);
+            float healthChange = newHealth - Health;
+            Health = newHealth;
+            OnFire = (newHealth / maxHealth) < OnFireThreshold;
+            Parent.AddShipHealth(healthChange);
+        }
+        
+        public Ship GetHangarShip() => hangarShip;
+        public Ship GetParent()     => Parent;
+
+
 
         private ShipModule() : base(GameObjectType.ShipModule)
         {
@@ -205,48 +238,37 @@ namespace Ship_Game.Ships
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        private ShipModule(ShipModule_Deserialize s) : base(GameObjectType.ShipModule)
+        private ShipModule(ShipModule_Deserialize template) : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
-            Flyweight               = new ShipModuleFlyweight(s);
-            XSIZE                   = s.XSIZE;
-            YSIZE                   = s.YSIZE;
-            Mass                    = s.Mass;
-            Powered                 = s.Powered;
-            FieldOfFire             = s.FieldOfFire;
-            Facing                  = s.facing;
-            XMLPosition             = s.XMLPosition;
-            HealthMax               = s.HealthMax;
-            WeaponType              = s.WeaponType;
-            NameIndex               = s.NameIndex;
-            DescriptionIndex        = s.DescriptionIndex;
-            Restrictions            = s.Restrictions;
-            ShieldPower             = s.shield_power;
-            hangarShipUID           = s.hangarShipUID;
-            hangarTimer             = s.hangarTimer;
-            isWeapon                = s.isWeapon;
-            OrdinanceCapacity       = s.OrdinanceCapacity;
-            BombTimer               = s.BombTimer;
-            ModuleType              = s.ModuleType;
-            IconTexturePath         = s.IconTexturePath;
-            //isExternal            = s.isExternal; // I think it's safer to let ship externals init handle this...
-            TargetValue             = s.TargetValue;
+            Flyweight               = new ShipModuleFlyweight(template);
+            XSIZE                   = template.XSIZE;
+            YSIZE                   = template.YSIZE;
+            Mass                    = template.Mass;
+            Powered                 = template.Powered;
+            FieldOfFire             = template.FieldOfFire;
+            Facing                  = template.facing;
+            XMLPosition             = template.XMLPosition;
+            WeaponType              = template.WeaponType;
+            NameIndex               = template.NameIndex;
+            DescriptionIndex        = template.DescriptionIndex;
+            Restrictions            = template.Restrictions;
+            ShieldPower             = template.shield_power;
+            hangarShipUID           = template.hangarShipUID;
+            hangarTimer             = template.hangarTimer;
+            isWeapon                = template.isWeapon;
+            OrdinanceCapacity       = template.OrdinanceCapacity;
+            BombTimer               = template.BombTimer;
+            ModuleType              = template.ModuleType;
+            IconTexturePath         = template.IconTexturePath;
+            TargetValue             = template.TargetValue;
+            TemplateMaxHealth       = template.HealthMax;
+            ActualMaxHealth         = template.HealthMax;
         }
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
             return new ShipModule(template);
-        }
-
-        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, bool addToShieldManager = true
-            , ShipDesignScreen.ActiveModuleState orientation = ShipDesignScreen.ActiveModuleState.Normal)
-        {
-            ShipModule module = CreateNoParent(uid);
-            module.SetParent(parent);
-            module.Facing = facing;
-            module.ApplyModuleOrientation(orientation);
-            module.Initialize(xmlPos, addToShieldManager);
-            return module;
         }
 
         public static ShipModule CreateNoParent(string uid)
@@ -260,8 +282,9 @@ namespace Ship_Game.Ships
                 FieldOfFire       = template.FieldOfFire,
                 hangarShipUID     = template.hangarShipUID,
                 hangarTimer       = template.hangarTimer,
-                Health            = template.HealthMax,
-                HealthMax         = template.HealthMax,
+                Health            = template.TemplateMaxHealth,
+                TemplateMaxHealth = template.TemplateMaxHealth,
+                ActualMaxHealth   = template.TemplateMaxHealth,
                 isWeapon          = template.isWeapon,
                 Mass              = template.Mass,
                 ModuleType        = template.ModuleType,
@@ -273,75 +296,54 @@ namespace Ship_Game.Ships
                 IconTexturePath   = template.IconTexturePath,
                 Restrictions      = template.Restrictions
             };
+
             // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Bomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Command ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Drone ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Engine ? 2 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Hangar ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MainGun ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Command         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure  ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Drone           ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Engine          ? 2 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell        ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Hangar          ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.MainGun         ? 1 : 0;
             module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Sensors ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Shield ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance        ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant      ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Sensors         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Shield          ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb       ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Special         ? 1 : 0;
+            module.TargetValue += module.ModuleType == ShipModuleType.Turret          ? 1 : 0;
             module.TargetValue += module.explodes ? 2 : 0;
             module.TargetValue += module.isWeapon ? 1 : 0;
             return module;
         }
 
-        // @todo Why isn't this used? A bug?
-        // Nah, this was added by The Doctor a few centries ago, and to my knowledge was never completed.
-        private float ApplyShieldResistances(Weapon weapon, float damage)
+        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, 
+                                        bool isTemplate, ShipDesignScreen.ActiveModuleState orientation)
         {
-            if (weapon.Tag_Kinetic) damage   -= damage * shield_kinetic_resist;
-            if (weapon.Tag_Energy) damage    -= damage * shield_energy_resist;
-            if (weapon.Tag_Explosive) damage -= damage * shield_explosive_resist;
-            if (weapon.Tag_Missile) damage   -= damage * shield_missile_resist;
-            if (weapon.Tag_Flak) damage      -= damage * shield_flak_resist;
-            if (weapon.Tag_Hybrid) damage    -= damage * shield_hybrid_resist;
-            if (weapon.Tag_Railgun) damage   -= damage * shield_railgun_resist;
-            if (weapon.Tag_Subspace) damage  -= damage * shield_subspace_resist;
-            if (weapon.Tag_Warp) damage      -= damage * shield_warp_resist;
-            if (weapon.Tag_Beam) damage      -= damage * shield_beam_resist;
-            return damage;
+            ShipModule module = CreateNoParent(uid);
+            module.Parent = parent;
+            module.Facing = facing;
+
+            if (!isTemplate)
+                module.UpdateActualMaxHealth();
+
+            module.ApplyModuleOrientation(orientation);
+            module.Initialize(xmlPos, isTemplate);
+            return module;
         }
 
-        private float ApplyResistances(Weapon weapon, float damage)
+        private void Initialize(Vector2 pos, bool isTemplate)
         {
-            if (weapon.Tag_Beam) damage      -= damage * BeamResist;
-            if (weapon.Tag_Kinetic) damage   -= damage * KineticResist;
-            if (weapon.Tag_Energy) damage    -= damage * EnergyResist;
-            if (weapon.Tag_Guided) damage    -= damage * GuidedResist;
-            if (weapon.Tag_Missile) damage   -= damage * MissileResist;
-            if (weapon.Tag_Hybrid) damage    -= damage * HybridResist;
-            if (weapon.Tag_Intercept) damage -= damage * InterceptResist;
-            if (weapon.Tag_Explosive) damage -= damage * ExplosiveResist;
-            if (weapon.Tag_Railgun) damage   -= damage * RailgunResist;
-            if (weapon.Tag_SpaceBomb) damage -= damage * SpaceBombResist;
-            if (weapon.Tag_Bomb) damage      -= damage * BombResist;
-            if (weapon.Tag_BioWeapon) damage -= damage * BioWeaponResist;
-            if (weapon.Tag_Drone) damage     -= damage * DroneResist;
-            if (weapon.Tag_Warp) damage      -= damage * WarpResist;
-            if (weapon.Tag_Torpedo) damage   -= damage * TorpedoResist;
-            if (weapon.Tag_Cannon) damage    -= damage * CannonResist;
-            if (weapon.Tag_Subspace) damage  -= damage * SubspaceResist;
-            if (weapon.Tag_PD) damage        -= damage * PDResist;
-            if (weapon.Tag_Flak) damage      -= damage * FlakResist;
-            return damage;
-        }
+            if (Parent == null)
+                Log.Error("module parent cannot be null!");
 
-        private void Initialize(Vector2 pos, bool addToShieldManager = true)
-        {
             ++DebugInfoScreen.ModulesCreated;
 
             XMLPosition = pos;
+
             // center of the top left 1x1 slot of this module 
             //Vector2 topLeftCenter = pos - new Vector2(256f, 256f);
 
@@ -351,18 +353,17 @@ namespace Ship_Game.Ships
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
+            CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             UpdateModuleRadius();
-            SetAttributesByType(addToShieldManager);
-
-            if (Parent?.loyalty != null)
+            SetAttributesByType();
+            
+            if (!isTemplate)
             {
-                float max = ResourceManager.GetModuleTemplate(UID).HealthMax;
-                HealthMax = max + max * Parent.loyalty.data.Traits.ModHpModifier;
-                Health = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
+                if (shield_power_max > 0.0f)
+                    shield = ShieldManager.AddShield(this, Rotation, Center);
             }
 
-            base.Initialize();
             if (ModuleType == ShipModuleType.Hangar && !IsSupplyBay)
             {
                 if (OrdinanceCapacity == 0)
@@ -372,8 +373,6 @@ namespace Ship_Game.Ships
                         OrdinanceCapacity = 50;
                 }
             }
-            if (Parent == null)
-                Log.Error("module parent is null");
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
@@ -383,23 +382,20 @@ namespace Ship_Game.Ships
             ++GlobalStats.ModulesMoved;
 
             Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X            += XSIZE * 8f - 264f;
-            offset.Y            += YSIZE * 8f - 264f;
-            Vector2 parentCenter = Parent.Center;
-            float cx             = offset.X * cos - offset.Y * sin;
-            float cy             = offset.X * sin + offset.Y * cos;
-            cx                  += parentCenter.X;
-            cy                  += parentCenter.Y;
-            Center.X             = cx;
-            Center.Y             = cy;
-            Center3D.X           = cx;
-            Center3D.Y           = cy;
-            Center3D.Z           = tan * (256f - XMLPosition.X);
+            offset.X       += XSIZE * 8f - 264f;
+            offset.Y       += YSIZE * 8f - 264f;
+            Vector2 pcenter = Parent.Center;
+            float cx        = offset.X * cos - offset.Y * sin;
+            float cy        = offset.X * sin + offset.Y * cos;
+            cx             += pcenter.X;
+            cy             += pcenter.Y;
+            Center.X        = cx;
+            Center.Y        = cy;
+            Center3D.X      = cx;
+            Center3D.Y      = cy;
+            Center3D.Z      = tan * (256f - XMLPosition.X);
 
-            // this can only happen if onFire is already true
-            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
-
-            HandleDamageFireTrail(elapsedTime);
+            UpdateDamageVisualization(elapsedTime);
             Rotation = Parent.Rotation;
         }
 
@@ -409,6 +405,7 @@ namespace Ship_Game.Ships
             //Replaced [8f * 1.125f] with 9f. This is calculated for every module on every call of update() so this might add up -Gretman
             Radius = 9f * (XSIZE > YSIZE ? XSIZE : YSIZE);
         }
+
         // Collision test with this ShipModule. Returns TRUE if point is inside this module's
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
         // are not accurately checked.
@@ -444,20 +441,19 @@ namespace Ship_Game.Ships
             return worldPos.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
-        public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
-        {
-            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
-            return HitTestNoShields(point, rayRadius);
-        }
-
         public bool HitTestShield(Vector2 worldPos, float radius)
         {
-            if (ShieldPower < 1f) return false;
             ++GlobalStats.DistanceCheckTotal;
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
             return dx * dx + dy * dy <= r2 * r2;
+        }
+        
+        public bool RayHitTestNoShield(Vector2 startPos, Vector2 endPos, float rayRadius)
+        {
+            Vector2 point = Center.FindClosestPointOnLine(startPos, endPos);
+            return HitTestNoShields(point, rayRadius);
         }
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float dist)
@@ -467,269 +463,207 @@ namespace Ship_Game.Ships
             return dist > 0f;
         }
 
-        public float SqDistanceToShields(Vector2 worldPos)
-        {
-            ++GlobalStats.DistanceCheckTotal;
-            float r2 = ShieldHitRadius;
-            float dx = Center.X - worldPos.X;
-            float dy = Center.Y - worldPos.Y;
-            return dx * dx + dy * dy - r2 * r2;
-        }
-
-        public float SqDistanceTo(Vector2 worldPos)
-        {
-            ++GlobalStats.DistanceCheckTotal;
-            float r2 = Radius;
-            float dx = Center.X - worldPos.X;
-            float dy = Center.Y - worldPos.Y;
-            return dx * dx + dy * dy - r2 * r2;
-        }
-
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
-            float splodeDis = explosionCenter.Distance(affectedPoint) - moduleRadius;
-            if (splodeDis < moduleRadius) splodeDis = 0;
+            float explodeDist = explosionCenter.Distance(affectedPoint) - moduleRadius;
+            if (explodeDist < moduleRadius) explodeDist = 0;
 
-            return Math.Min(1.0f, (damageRadius - splodeDis) / (damageRadius + minFalloff));
+            return Math.Min(1.0f, (damageRadius - explodeDist) / (damageRadius + minFalloff));
+        }
+
+        public void DebugDamageCircle()
+        {
+            Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool ApplyRadialDamage(GameplayObject damageSource, Vector2 worldHitPos, float damageRadius
-            , ref float damageInOut, bool damageReduction = true)
+        public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
-            if (damageInOut <= 0f) return true;
-            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, ShieldPower > 0 ? ShieldHitRadius : Radius, 0f);
+            float moduleRadius = ShieldPower > 0 ? ShieldHitRadius : Radius;
+            float damage = damageInOut * DamageFalloff(worldHitPos, Center, damageRadius, moduleRadius);
             if (damage <= 0.001f)
-                return damageInOut <= 0f;
-            if (Empire.Universe.DebugWin != null)
-                Empire.Universe.DebugWin.DrawCircle(DebugModes.SpatialManager, Center, Radius);
-            DamageWithDamageDone(damageSource, damage, out float damageDone);
-            if (damageReduction)
-                damageInOut -= damageDone;
+                return true;
+
+            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius);
+
+            Damage(source, damage, out damageInOut);
             return damageInOut <= 0f;
         }
-        public void DebugDamageCircle()
+
+        public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Parent);
-        }
-        
-        public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
-        {
-            float health    = Health + ShieldPower;
-            bool result     = Damage(source, damageAmount);
-            damageRemainder = damageAmount - (health - Health - ShieldPower);
+            float damageModifier = ShieldPower >= 1f
+                                 ? source.DamageMod.GetShieldDamageMod(this)
+                                 : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+
+            float healthBefore = Health + ShieldPower;
+            if (!TryDamageModule(source, damageAmount * damageModifier)) 
+            {
+                damageRemainder = 0;
+                return; // damage was deflected
+            }
+
             DebugDamageCircle();
-            return result;
+
+            float absorbedDamage = healthBefore - (Health + ShieldPower);
+            if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
+                absorbedDamage /= damageModifier; // module absorbed more dam because of good resistance
+            // else: extra dam already calculated
+
+            damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
-        public bool DamageWithDamageDone(GameplayObject source, float damageAmount, out float damageDone)
-        {
-            float health = Health + ShieldPower;
-            bool result  = Damage(source, damageAmount);
-            damageDone   = health - Health - ShieldPower;
-            return result;
-        }
-        int HitTimer = 0;
-        public override bool Damage(GameplayObject source, float damageAmount)
+        public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
+
+        private bool TryDamageModule(GameplayObject source, float modifiedDamage)
         {
             if (source != null)
                 Parent.LastDamagedBy = source;
 
-            Parent.InCombatTimer = 15f;
-            Parent.ShieldRechargeTimer = 0f;
-            //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
+            Parent.InCombatTimer        = 15f;
+            Parent.ShieldRechargeTimer  = 0f;
 
-            var proj = source as Projectile;
             var beam = source as Beam;
+            var proj = source as Projectile;
 
-            //if (proj != null)
-            //{
-            //    if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-            //    {
-            //        damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-            //    }
-            //}
-            //should not need this with targetting changes.
-            //if (source is Ship ship && ship.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-            //    damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-
-            // Vulnerabilities and resistances for modules, XML-defined.
-            if (proj != null)
-                damageAmount = ApplyResistances(proj.Weapon, damageAmount);
-
-            if (ShieldPower < 1f || proj?.IgnoresShields == true)
+            bool damagingShields = ShieldPower > 1f && proj?.IgnoresShields != true;
+            if (beam == null) // only for projectiles
             {
-                //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
-                if (damageAmount <= DamageThreshold)
-                    damageAmount = 0f;
+                float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
+                if (modifiedDamage <= damageThreshold)
+                    return false; // no damage could be done, the projectile was deflected.
+            }
 
-                //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+            if (damagingShields)
+            {
+                ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
+                if (proj != null)
                 {
-                    if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
-                        damageAmount *= (1f - mod.ArmoredBonus);
-                }
-                if (proj?.Weapon.EMPDamage > 0f)
-                {
-                    Parent.EMPDamage = Parent.EMPDamage + proj.Weapon.EMPDamage;
-                }
-                if (beam != null)
-                {
-                    Vector2 vel = Vector2.Normalize(beam.Source - Center);
-                    if (RandomMath.RandomBetween(0f, 100f) > 90f && Parent.InFrustum)
-                    {
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), Vector3.Zero);
-                    }
-                    if (Parent.InFrustum)
-                    {
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Empire.Universe.sparks.AddParticleThreadB(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                        }
-                    }
-                    if (beam.Weapon.PowerDamage > 0f)
-                    {
-                        Parent.PowerCurrent -= beam.Weapon.PowerDamage;
-                        if (Parent.PowerCurrent < 0f)
-                        {
-                            Parent.PowerCurrent = 0f;
-                        }
-                    }
-                    if (beam.Weapon.TroopDamageChance > 0f)
-                    {
-                        if (Parent.TroopList.Count > 0)
-                        {
-                            if (UniverseRandom.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
-                            {
-                                Parent.TroopList[0].Strength = Parent.TroopList[0].Strength - 1;
-                                if (Parent.TroopList[0].Strength <= 0)
-                                    Parent.TroopList.RemoveAt(0);
-                            }
-                        }
-                        else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
-                        {
-                            Parent.MechanicalBoardingDefense -= 1f;
-                        }
-                    }
-                    if (beam.Weapon.MassDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
-                    {
-                        Parent.Mass += beam.Weapon.MassDamage;
-                        Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-                        Parent.Speed = Parent.velocityMaximum;
-                        Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
-                    }
-                    if (beam.Weapon.RepulsionDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
-                    {
-                        Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
-                    }
-                }
-                if (shield_power_max > 0f && ShieldPower >= 1f) // && (!isExternal || quadrant <= 0))
-                {
-                    return false;
+                    if (beam != null) CauseSiphonDamage(beam);
+
+                    if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                        shield.HitShield(this, proj);
                 }
 
-                if (ModuleType == ShipModuleType.Armor)
-                {
-                    if (beam != null) damageAmount *= beam.Weapon.EffectVsArmor;
-                    else if (proj != null) damageAmount *= proj.Weapon.EffectVsArmor;
-                }
+                Parent.UpdateShields();
 
-                if (damageAmount > Health) Health = 0;
-                else Health -= damageAmount;
-
-#if DEBUG
-                if (Empire.Universe.Debug && Parent.VanityName == "Perseverance")
-                {
-                    if (Health < 10) // never give up, never surrender! F_F
-                        Health = 10;
-                }
-#endif
-
-                if (Health >= HealthMax)
-                {
-                    Health = HealthMax;
-                    Active = true;
-                    onFire = false;
-                }
-
-                //Log.Info($"{Parent.Name} module '{UID}' dmg {damageAmount} hp {Health} by {proj?.WeaponType}");
-
-                if (Health / HealthMax < 0.5f)
-                {
-                    onFire = true;
-                }
-                if ((Parent.Health / Parent.HealthMax) < 0.5 && Health < 0.5 * (HealthMax))
-                {
-                    reallyFuckedUp = true;
-                }
+                //Log.Info($"{Parent.Name} shields '{UID}' dmg {modifiedDamage} shld {ShieldPower} by {proj?.WeaponType}");
             }
             else
             {
                 if (proj != null)
-                    damageAmount *= proj.Weapon.EffectVSShields;
-
-                if (damageAmount <= shield_threshold)
-                    damageAmount = 0f;
-
-                if (damageAmount > ShieldPower)
                 {
-                    ShieldPower = 0;
-                    Parent.UpdateShields();
+                    CauseEmpDamage(proj);
+                    if (beam != null) CauseSpecialBeamDamage(beam);
                 }
-                else
-                {
-                    ShieldPower -= damageAmount;
-                    Parent.UpdateShields();
-                }
+                SetHealth(Health - modifiedDamage);
+                DebugPerseveranceNoDamage();
 
-                //Log.Info($"{Parent.Name} shields '{UID}' dmg {damageAmount} pwr {ShieldPower} by {proj?.WeaponType}");
-
-                if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.ShipView || !Parent.InFrustum)
-                    return true;
-                if (source != null)
-
-
-
-                    if (beam != null)
-                    {
-                        if (beam.Weapon.SiphonDamage > 0f)
-                        {
-                            ShieldPower -= beam.Weapon.SiphonDamage;
-                            if (ShieldPower < 1f)
-                            {
-                                ShieldPower = 0f;
-                            }
-                            beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
-                            if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
-                            {
-                                beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
-                            }
-                        }
-                        shield.HitShield(this, beam);
-
-
-                        if (beam.Weapon.SiphonDamage > 0f)
-                        {
-                            ShieldPower -= beam.Weapon.SiphonDamage;
-                            if (ShieldPower < 0f)
-                                ShieldPower = 0f;
-                        }
-                    }
-                    else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
-                    {
-                        shield.HitShield(this, proj);
-
-                    }
+                //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
+            }
+            if (Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            {
+                if (beam != null) beam.CreateHitParticles(Center3D.Z);
+                else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
             }
             return true;
+        }
+
+        private float GetGlobalArmourBonus()
+        {
+            if (GlobalStats.ActiveModInfo?.useHullBonuses == true &&
+                ResourceManager.HullBonuses.TryGetValue(Parent.shipData.Hull, out HullBonus mod))
+                return (1f - mod.ArmoredBonus);
+            return 1f;
+        }
+
+        private void CauseEmpDamage(Projectile proj)
+        {
+            if (proj.Weapon.EMPDamage > 0f)
+                Parent.EMPDamage += proj.Weapon.EMPDamage;
+        }
+
+        private void CauseSpecialBeamDamage(Beam beam)
+        {
+            BeamPowerDamage(beam);
+            BeamTroopDamage(beam);
+            BeamMassDamage(beam);
+            BeamRepulsionDamage(beam);
+        }
+
+        private void BeamPowerDamage(Beam beam)
+        {
+            Parent.PowerCurrent -= beam.Weapon.PowerDamage;
+            if (Parent.PowerCurrent < 0f)
+                Parent.PowerCurrent = 0f;
+        }
+        private void BeamTroopDamage(Beam beam)
+        {
+            if (beam.Weapon.TroopDamageChance > 0f)
+            {
+                if (Parent.TroopList.Count > 0)
+                {
+                    if (UniverseRandom.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
+                    {
+                        Parent.TroopList[0].Strength = Parent.TroopList[0].Strength - 1;
+                        if (Parent.TroopList[0].Strength <= 0)
+                            Parent.TroopList.RemoveAt(0);
+                    }
+                }
+                else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
+                    Parent.MechanicalBoardingDefense -= 1f;
+            }
+        }
+
+        private void BeamMassDamage(Beam beam)
+        {
+            if (beam.Weapon.MassDamage <= 0f || Parent.IsTethered() || Parent.EnginesKnockedOut)
+                return;
+            Parent.Mass += beam.Weapon.MassDamage;
+            Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
+            Parent.Speed = Parent.velocityMaximum;
+            Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
+        }
+
+        private void BeamRepulsionDamage(Beam beam)
+        {
+            if (beam.Weapon.RepulsionDamage < 1)
+                return;
+            if (Parent.IsTethered() || Parent.EnginesKnockedOut) return;
+            if (beam.Owner != null && beam.Weapon != null)
+                Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
+        }
+
+        private void DebugPerseveranceNoDamage()
+        {
+        #if DEBUG
+            if (!Empire.Universe.Debug || Parent.VanityName != "Perseverance")
+                return;
+            if (Health < 10) // never give up, never surrender! F_F
+                SetHealth(10);
+        #endif
+        }
+
+        private void CauseSiphonDamage(Beam beam)
+        {
+            float shieldPower = ShieldPower;
+            if (beam.Weapon.SiphonDamage > 0f)
+            {
+                shieldPower -= beam.Weapon.SiphonDamage;
+                if (shieldPower < 1f)
+                    shieldPower = 0f;
+
+                beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
+                if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
+                    beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
+            }
+
+            ShieldPower = shieldPower;
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             ++DebugInfoScreen.ModulesDied;
-            if (shield_power_max > 0f)
-                Health = 0f;
-
 
             Health = 0f;
             var center = new Vector3(Center.X, Center.Y, -100f);
@@ -744,9 +678,11 @@ namespace Ship_Game.Ships
                     Empire.Universe.explosionParticles.AddParticleThreadA(pos, Vector3.Zero);
                 }
             }
-            base.Die(source, cleanupOnly);
+
+            //base.Die(source, cleanupOnly); // @note This is probably not needed
+            Active = false;
             Parent.UpdateExternalSlots(this, becameActive: false);
-            int size = XSIZE * YSIZE;
+            int size = Area;
             if (!cleanupOnly)
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -759,20 +695,16 @@ namespace Ship_Game.Ships
                     if (damageCauser == null)
                         Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
                     UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                        ignoreShields: true, damageAmount: size * 2500, damageRadius: size * 64);
+                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }            
             }
             if (PowerFlowMax > 0 || PowerRadius > 0)
                 Parent.NeedRecalculate = true;
             int debriCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
             if (debriCount == 0) return;
-            float debriScale = size * 0.1f;
+            float debriScale = size * 0.033f;
             SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
         }
-
-        public Ship GetHangarShip() => hangarShip;
-        public Ship GetParent()     => Parent;
-
 
         //added by gremlin boarding parties
         public void LaunchBoardingParty(Troop troop)
@@ -867,7 +799,7 @@ namespace Ship_Game.Ships
             Parent.Ordinance -= hangarShip.Mass / 5f;
         }
 
-        public void SetAttributesByType(bool addToShieldManager = true)
+        private void SetAttributesByType()
         {
             switch (ModuleType)
             {
@@ -895,9 +827,6 @@ namespace Ship_Game.Ships
                     ConfigWeapon(true);
                     break;
             }
-            Health = HealthMax;
-            if (shield_power_max > 0.0 && addToShieldManager)
-                shield = ShieldManager.AddShield(this, Rotation, Center);
             if (IsSupplyBay)
                 Parent.IsSupplyShip = true;
         }
@@ -924,7 +853,7 @@ namespace Ship_Game.Ships
                     ConfigWeapon(false);
                     break;
             }
-            Health = HealthMax;
+            Health = ActualMaxHealth;
         }
 
         private void ConfigWeapon(bool addToParent)
@@ -934,6 +863,7 @@ namespace Ship_Game.Ships
             InstalledWeapon.Owner = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;
+            
             if (addToParent)
                 Parent.Weapons.Add(InstalledWeapon);
         }
@@ -943,11 +873,6 @@ namespace Ship_Game.Ships
             hangarShip = ship;
             if (ship != null)
                 HangarShipGuid = ship.guid;  //fbedard: save mothership
-        }
-
-        public void SetParent(Ship p)
-        {
-            Parent = p;
         }
 
         public override void Update(float elapsedTime)
@@ -964,11 +889,8 @@ namespace Ship_Game.Ships
                 Die(LastDamagedBy, false);
                 Parent.shipStatusChanged = true;
             }
-            if (Health >= HealthMax)
-            {
-                Health = HealthMax;
-                onFire = false;
-            }
+
+            SetHealth(Health); // Update and validate Health
 
             BombTimer -= elapsedTime;
             UpdateModuleRadius();
@@ -996,46 +918,43 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
-        private void HandleDamageFireTrail(float elapsedTime)
+
+        // @note This is called every frame for every module for every ship in the universe
+        private void UpdateDamageVisualization(float elapsedTime)
         {
-            if (Parent.InFrustum && Active && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (!CanVisualizeDamage)
+                return; // bail out for modules that are never visualized
+
+            if (OnFire && Parent.InFrustum && 
+                Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                if (reallyFuckedUp)
-                {
-                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (flameEmitter == null) flameEmitter = Empire.Universe.flameParticles.NewEmitter(80f, Center3D);
-                    trailEmitter.Update(elapsedTime, Center3D);
-                    flameEmitter.Update(elapsedTime, Center3D);
-                }
-                else if (onFire)
-                {
-                    if (trailEmitter == null) trailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(50f, Center3D);
-                    if (firetrailEmitter == null) firetrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(60f, Center3D);
-                    trailEmitter.Update(elapsedTime, Center3D);
-                    firetrailEmitter.Update(elapsedTime, Center3D);
-                }
+                if (DamageVisualizer == null)
+                    DamageVisualizer = new ShipModuleDamageVisualization(this);
+
+                DamageVisualizer.Update(elapsedTime, Center3D, Active);
             }
-            else if (trailEmitter != null) // destroy immediately when out of vision range
+            else // destroy immediately when out of vision range or if module is no longer OnFire 
             {
-                trailEmitter = null; // tried Disposing these, but got a crash... so just null them
-                firetrailEmitter = null;
-                flameEmitter = null;
+                DamageVisualizer = null;
             }
         }
 
         public void UpdateWhileDying(float elapsedTime)
         {
             Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-25f, 25f));
-            HandleDamageFireTrail(elapsedTime);
+            UpdateDamageVisualization(elapsedTime);
         }
 
-        public void Repair(float repairAmount)
+        public float Repair(float repairAmount)
         {
-            Health += repairAmount;
-            if (Health < HealthMax) return;
-
-            Health = HealthMax;
+            if (Health >= ActualMaxHealth)
+                return repairAmount;          
+            
+            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
+            SetHealth(Health + repairAmount );
+            return repairLeft;
         }
+
 
         public float GetShieldsMax()
         {
@@ -1058,25 +977,25 @@ namespace Ship_Game.Ships
             {
                 switch (ModuleType)
                 {
-                    case ShipModuleType.Command: return 0;
-                    case ShipModuleType.PowerPlant: return 1;
+                    case ShipModuleType.Command:      return 0;
+                    case ShipModuleType.PowerPlant:   return 1;
                     case ShipModuleType.PowerConduit: return 2;
-                    case ShipModuleType.Engine: return 3;
-                    case ShipModuleType.Shield: return 4;
-                    case ShipModuleType.Armor: return 6;
-                    default: return 5;
+                    case ShipModuleType.Engine:       return 3;
+                    case ShipModuleType.Shield:       return 4;
+                    default:                          return 5;
+                    case ShipModuleType.Armor:        return 6;
                 }
             }
         }
 
         public Color GetHealthStatusColor()
         {
-            float healthPercent = Health / HealthMax;
+            float healthPercent = HealthPercent;
 
             if (Empire.Universe.Debug && isExternal)
             {
                 if (healthPercent >= 0.5f) return Color.Blue;
-                if (healthPercent > 0.0f) return Color.DarkSlateBlue;
+                if (healthPercent >  0.0f) return Color.DarkSlateBlue;
                 return Color.DarkSlateGray;
             }
 
@@ -1084,20 +1003,20 @@ namespace Ship_Game.Ships
             if (healthPercent >= 0.65f) return Color.GreenYellow;
             if (healthPercent >= 0.45f) return Color.Yellow;
             if (healthPercent >= 0.15f) return Color.OrangeRed;
-            if (healthPercent > 0.00f) return Color.Red;
+            if (healthPercent >  0.00f) return Color.Red;
             return Color.Black;
         }
 
         // @todo Find a way to get rid of this duplication ?
         public Color GetHealthStatusColorWhite()
         {
-            float healthPercent = Health / HealthMax;
+            float healthPercent = HealthPercent;
 
             if (healthPercent >= 0.90f) return Color.White;
             if (healthPercent >= 0.65f) return Color.GreenYellow;
             if (healthPercent >= 0.45f) return Color.Yellow;
             if (healthPercent >= 0.15f) return Color.OrangeRed;
-            if (healthPercent > 0.00f) return Color.Red;
+            if (healthPercent >  0.00f) return Color.Red;
             return Color.Black;
         }
 
@@ -1112,31 +1031,76 @@ namespace Ship_Game.Ships
                 return 0f;
 
             float def = 0f;
-            def += shield_power_max * ((shield_radius * .05f) / slotCount);
-            //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
-            def += HealthMax * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
-            def *= 1 + BeamResist;
-            def *= 1 + KineticResist;
-            def *= 1 + EnergyResist;
-            def *= 1 + GuidedResist;
-            def *= 1 + MissileResist;
-            def *= 1 + HybridResist;
-            def *= 1 + InterceptResist;
-            def *= 1 + ExplosiveResist;
-            def *= 1 + RailgunResist;
-            def *= 1 + SpaceBombResist;
-            def *= 1 + BombResist;
-            def *= 1 + BioWeaponResist;
-            def *= 1 + DroneResist;
-            def *= 1 + WarpResist;
-            def *= 1 + TorpedoResist;
-            def *= 1 + CannonResist;
-            def *= 1 + SubspaceResist;
-            def *= 1 + PDResist;
-            def *= 1 + FlakResist;
-            def *= 1 + DamageThreshold / Health;
+
+            def += ActualMaxHealth * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
+
+            // FB: Added Shield related calcs
+            if (shield_power_max > 0)
+            {
+                def                 += shield_power_max / 100; 
+                float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
+                shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
+                // normalizing for small ships
+                if (slotCount < 10)
+                    shieldcoverage = shieldcoverage * 0.03125f;
+                else if (slotCount < 32)
+                    shieldcoverage = shieldcoverage * 0.0625f;
+                else if (slotCount < 60)
+                    shieldcoverage = shieldcoverage * 0.25f;
+                else if (slotCount < 200)
+                    shieldcoverage = shieldcoverage * 0.5f;
+
+                def *= shieldcoverage > 0 ? 1 + shieldcoverage : 1f; 
+                def *= 1 + shield_kinetic_resist / 5;
+                def *= 1 + shield_energy_resist / 5;
+                def *= 1 + shield_beam_resist / 5;
+                def *= 1 + shield_missile_resist / 5;
+                def *= 1 + shield_explosive_resist / 5;
+
+                def *= shield_recharge_rate > 0 ? shield_recharge_rate / (shield_power_max / 100) : 1f;
+                def *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
+                def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shield_power_max / 25) : 1f;
+
+                def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it applys to the shield bubble.
+            }
+
+            // FB: all resists are divided by 5 since there are 5-6 weapon types
+            def *= 1 + BeamResist / 5;
+            def *= 1 + KineticResist / 5 ;
+            def *= 1 + EnergyResist / 5;
+            def *= 1 + GuidedResist / 5;
+            def *= 1 + MissileResist / 5;
+            def *= 1 + HybridResist / 5;
+            def *= 1 + InterceptResist / 5;
+            def *= 1 + ExplosiveResist / 5;
+            def *= 1 + RailgunResist / 5;
+            def *= 1 + SpaceBombResist / 5;
+            def *= 1 + BombResist / 5;
+            def *= 1 + BioWeaponResist / 5;
+            def *= 1 + DroneResist / 5;
+            def *= 1 + WarpResist / 5;
+            def *= 1 + TorpedoResist / 5;
+            def *= 1 + CannonResist / 5;
+            def *= 1 + SubspaceResist / 5;
+            def *= 1 + PDResist / 5;
+            def *= 1 + FlakResist / 5;
+
+            def *= 1 + DamageThreshold / 100f;
+            def *= ModuleType == ShipModuleType.Armor ? 1 + APResist / 2 : 1f;
+
             def += ECM;
             def *= 1 + EMP_Protection / slotCount;
+
+            // Engines
+            def += (TurnThrust + WarpThrust + thrust) / 15000f;
+
+            // FB: Reactors should also have some value
+            def += PowerFlowMax / 100;
+
+            // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
+            def  = Area > 1 ? def / (Area / 2f) : def;
+            def *= 0.5f; // So defense will have more chance to be lower than offense, otherwise defense is not calculated in the total offense of the ship
+
             return def;
         }
 
@@ -1145,69 +1109,59 @@ namespace Ship_Game.Ships
             float off = 0f;
             if (InstalledWeapon != null)
             {
-                //weapons = true;
                 Weapon w = InstalledWeapon;
 
-                //Doctor: The 25% penalty to explosive weapons was presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
-                //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
-
-                off += w.Tag_Guided ? w.DamageAmount * w.SalvoCount * (1f / w.fireDelay) : !w.isBeam ? w.DamageAmount * w.SalvoCount * (1f / w.fireDelay) / (1 + w.FireCone * .25f) : w.DamageAmount * 18f;
-                off += w.EMPDamage * (1f / w.fireDelay) * .2f;
-                off += w.MassDamage * (1f / w.fireDelay) * .5f;
-                off += w.PowerDamage * (1f / w.fireDelay);
-                off += w.RepulsionDamage * (1f / w.fireDelay);
-                off += w.SiphonDamage * (1f / w.fireDelay);
-                off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
-
+                if (w.isBeam)
+                {
+                    off += w.DamageAmount * 90f * w.BeamDuration * (1f / w.fireDelay);
+                    off += w.MassDamage * (1f / w.fireDelay) * .5f;
+                    off += w.PowerDamage * (1f / w.fireDelay);
+                    off += w.RepulsionDamage * (1f / w.fireDelay);
+                    off += w.SiphonDamage * (1f / w.fireDelay);
+                    off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
+                }
+                else
+                {
+                    off += w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay);
+                    off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .5f;
+                }
 
                 //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
-                if (w.Tag_Guided)
-                    off *= 1.25f;
+                off *= w.Tag_Guided ? 1.25f : 1f;
 
-                //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
-                off *= w.Range / 4000;// (1 + (w.Range / 1000) *.1f);
+                //FB: Kinetics which does also require more than minimal power to shoot is less effective
+                off *= w.Tag_Kinetic && w.PowerRequiredToFire > 10 * Area ? 0.5f : 1f;
 
-                //Doctor: Here follows multipliers which modify the perceived offensive value of weapons based on any modifiers they may have against armour and shields
-                //Previously if e.g. a rapid-fire cannon only did 20% damage to armour, it could have amuch higher off rating than a railgun that had less technical DPS but did double armour damage.
-                if (w.EffectVsArmor < 1)
-                {
-                    if (w.EffectVsArmor > 0.75f) off *= 0.9f;
-                    else if (w.EffectVsArmor > 0.5f) off *= 0.85f;
-                    else if (w.EffectVsArmor > 0.25f) off *= 0.8f;
-                    else off *= 0.75f;
-                }
-                if (w.EffectVsArmor > 1)
-                {
-                    if (w.EffectVsArmor > 2.0f) off *= 1.5f;
-                    else if (w.EffectVsArmor > 1.5f) off *= 1.3f;
-                    else off *= 1.1f;
-                }
-                if (w.EffectVSShields < 1)
-                {
-                    if (w.EffectVSShields > 0.75f) off *= 0.9f;
-                    else if (w.EffectVSShields > 0.5f) off *= 0.85f;
-                    else if (w.EffectVSShields > 0.25f) off *= 0.8f;
-                    else off *= 0.75f;
-                }
-                if (w.EffectVSShields > 1)
-                {
-                    if (w.EffectVSShields > 2f) off *= 1.5f;
-                    else if (w.EffectVSShields > 1.5f) off *= 1.3f;
-                    else off *= 1.1f;
-                }
+                //FB: Kinetics which does also require more than minimal power to maintain is less effective
+                off *= w.Tag_Kinetic && PowerDraw > 2 * Area ? 0.5f : 1f;
 
-                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-                off *= w.OffPowerMod;
-                if (w.TruePD)
-                    off *= .2f;
-                if (w.Tag_Intercept && w.Tag_Missile)
-                    off *= .8f;
-                if (w.ProjectileSpeed > 1)
-                    off *= w.ProjectileSpeed / 4000;
-                if (w.DamageRadius > 1)
-                    off *= w.DamageRadius / 16f;
+                //FB: Range margins are less steep for missiles
+                off *= !w.Tag_Missile && !w.Tag_Torpedo ?  (w.Range / 4000) * (w.Range / 4000) : (w.Range / 4000);
 
+                // FB: simpler calcs for these. 
+                off *= w.EffectVsArmor > 1  ? 1f + (w.EffectVsArmor - 1f) / 2f : 1f;
+                off *= w.EffectVsArmor < 1 ? 1f - (1f - w.EffectVsArmor) / 2f : 1f;
+                off *= w.EffectVSShields > 1 ? 1f + (w.EffectVSShields - 1f) / 2f : 1f;
+                off *= w.EffectVSShields < 1 ? 1f - (1f - w.EffectVSShields) / 2f : 1f;
 
+                off *= w.TruePD ? .2f : 1f;
+                off *= w.Tag_Intercept && w.Tag_Missile ? .8f : 1f;
+                off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
+
+                // FB: offense calcs for damage radius
+                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : 1f;
+
+                // FB: Added shield pen chance
+                off *= 1 + w.ShieldPenChance / 100;
+
+                // FB: Turrets get some off
+                off *= ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
+
+                // FB: Field of Fire is also important
+                off *= FieldOfFire > 60 ? FieldOfFire / 60f : 1f;
+
+                // FB: A weapon which can be installed on Internal slots is quite valuable.
+                off *= Restrictions.ToString().Contains("I") ? 2f : 1f;
 
                 int allRoles = 0;
                 int restrictedRoles = 0;
@@ -1219,8 +1173,11 @@ namespace Ship_Game.Ships
                 }
                 float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
                 off *= restrictions;
+
+                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+                off *= w.OffPowerMod;
             }
-            if (hangarShipUID.NotEmpty() && !IsSupplyBay && !IsTroopBay)
+            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() && hangarShipUID != "NotApplicable" && !IsSupplyBay && !IsTroopBay)
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
                 {
@@ -1228,37 +1185,27 @@ namespace Ship_Game.Ships
                 }
                 else off += 100f;
             }
+
+            // FB: Normalize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
+            off = Area > 1 ? off / (Area / 2f) : off;
+
             return off;
         }
 
         private void ApplyModuleOrientation(ShipDesignScreen.ActiveModuleState state)
         {
-            ShipModule activeModule = this;
-
-            int x = activeModule.XSIZE;
-            int y = activeModule.YSIZE;
             switch (state)
             {
-
                 case ShipDesignScreen.ActiveModuleState.Right:
-                    activeModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    activeModule.YSIZE = x;
-                    return;
                 case ShipDesignScreen.ActiveModuleState.Left:
-                    {
-                        activeModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                        activeModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa                                            
-                        return;
-                    }
-
-                case ShipDesignScreen.ActiveModuleState.Normal:
-                    break;
-                case ShipDesignScreen.ActiveModuleState.Rear:
-                    break;
-                default:
-                    {
-                        return;
-                    }
+                    int x = XSIZE;
+                    int y = YSIZE;
+                    XSIZE = y; // @todo Why are these swapped? Please comment.
+                    YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa                                            
+                    return;
+                case ShipDesignScreen.ActiveModuleState.Normal: break;
+                case ShipDesignScreen.ActiveModuleState.Rear:   break;
+                default: return;
             }
         }
         public override Vector2 JitterPosition() => Parent?.JitterPosition() ?? base.JitterPosition();

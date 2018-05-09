@@ -7,14 +7,14 @@ namespace Ship_Game.AI
 {
     public sealed class CombatAI
     {
-        public float VultureWeight = 1;
-        public float SelfDefenseWeight = 1f;
-        public float SmallAttackWeight = 1f;
-        public float MediumAttackWeight = 1f;
-        public float LargeAttackWeight = 3f;
+        public float VultureWeight               = 1;
+        public float SelfDefenseWeight           = 1f;
+        public float SmallAttackWeight           = 1f;
+        public float MediumAttackWeight          = 1f;
+        public float LargeAttackWeight           = 3f;
         public float PreferredEngagementDistance = 1500f;
-        public float PirateWeight;          
-
+        public float PirateWeight;
+        private float AssistWeight;
         public Ship Owner;
 
         public CombatAI()
@@ -33,16 +33,7 @@ namespace Ship_Game.AI
         public void UpdateCombatAI(Ship ship)
         {
             if (ship.Size <= 0) return;
-            FleetDataNode node = Owner?.AI.FleetNode;
-            if (Owner?.fleet != null && node != null)
-            {                
-                VultureWeight               = node.VultureWeight;
-                PreferredEngagementDistance = node.OrdersRadius;
-                SelfDefenseWeight           = node.DefenderWeight;
 
-            }
-            else
-                PreferredEngagementDistance = ship.maxWeaponsRange * 0.75f;
 
             byte pd        = 0;
             byte mains     = 0;
@@ -65,8 +56,30 @@ namespace Ship_Game.AI
                 VultureWeight  = 2;
             if (ship.loyalty.isFaction)
                 PirateWeight   = 3;
+            AssistWeight = 0;
+           // SetFleetWeights();
         }
-        
+
+        //public void SetFleetWeights()
+        //{
+        //    var ship = Owner;
+        //    FleetDataNode node = Owner?.AI.FleetNode;
+        //    if (Owner?.fleet == null || node == null)
+        //    {
+        //        PreferredEngagementDistance = ship.maxWeaponsRange * 0.75f;
+        //        return;
+        //    }
+
+        //    VultureWeight               = node.VultureWeight;
+        //    PreferredEngagementDistance = node.OrdersRadius;
+        //    SelfDefenseWeight           = node.DefenderWeight;
+        //    LargeAttackWeight          += LargeAttackWeight * node.SizeWeight;
+        //    SmallAttackWeight          += SmallAttackWeight * (1 - node.SizeWeight);
+        //    MediumAttackWeight         += MediumAttackWeight * -Math.Abs(node.SizeWeight);
+        //    PirateWeight               -= node.DPSWeight;
+        //    AssistWeight               += node.AssistWeight;
+        //}
+
         public float ApplyWeight(Ship nearbyShip)
         {
             if (Owner == null) return 0;
@@ -152,7 +165,10 @@ namespace Ship_Game.AI
                 weight -= 3;
             if (nearbyShip.AI.Target == Owner)
                 weight += SelfDefenseWeight;
-
+            if (nearbyShip.AI.Target?.GetLoyalty() == Owner.loyalty)
+            {
+                weight += AssistWeight;
+            }
             return weight;
         }
     }

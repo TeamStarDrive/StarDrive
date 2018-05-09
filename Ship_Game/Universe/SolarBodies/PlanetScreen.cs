@@ -10,7 +10,7 @@ namespace Ship_Game
         public Texture2D SliderBar;
         public Array<ToolTip> tips = new Array<ToolTip>();
 
-        public PlanetScreen(GameScreen parent) : base(parent)
+        public PlanetScreen(GameScreen parent) : base(parent, pause: false)
         {
         }
 

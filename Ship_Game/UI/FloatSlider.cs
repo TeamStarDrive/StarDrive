@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -24,7 +25,7 @@ namespace Ship_Game
         private bool Hover;
         private bool Dragging;
         private readonly float Min;
-        private readonly float Max;
+        private float Max;
         private float Value;
         public SliderStyle Style = SliderStyle.Decimal;
 
@@ -143,7 +144,20 @@ namespace Ship_Game
             if (Hover && Tooltip.NotEmpty())
                 ToolTip.CreateTooltip(Tooltip);
         }
+        public bool HandleInput(InputState input, ref float currentvalue, float dynamicMaxValue)
+        {
+            Max = (float)Math.Min(500000, dynamicMaxValue);
+           
+            if (!Rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
+            {
+                AbsoluteValue = currentvalue;
+                return false;
+            }
+            HandleInput(input);
+            currentvalue = AbsoluteValue;
+            return true;
 
+        }
         public override bool HandleInput(InputState input)
         {
             Hover = Rect.HitTest(input.CursorPosition);

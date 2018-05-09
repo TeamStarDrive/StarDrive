@@ -5,7 +5,6 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -65,10 +64,13 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
+        private bool InFrustrum = false;
    
 
         public Ship Owner { get; protected set; }
         public Planet Planet { get; private set; }
+
+        public override IDamageModifier DamageMod => Weapon;
 
         public Projectile() : base(GameObjectType.Proj)
         {
@@ -157,7 +159,7 @@ namespace Ship_Game.Gameplay
             ParticleDelay  += Weapon.particleDelay;
 
             if (Owner?.loyalty.data.ArmorPiercingBonus > 0
-                && (Weapon.WeaponType == "Missile" || Weapon.WeaponType == "Ballistic Cannon"))
+                && (Weapon.Tag_Kinetic  || Weapon.Tag_Missile || Weapon.Tag_Torpedo))
             {
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
             }
@@ -220,25 +222,25 @@ namespace Ship_Game.Gameplay
             switch (Weapon.WeaponEffectType)
             {
                 case "RocketTrail":
-                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
-                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "Plasma":
-                    FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(500f, Center);
+                    FiretrailEmitter = Empire.Universe.flameParticles.NewEmitter(100f, Center);
                     break;
                 case "SmokeTrail":
-                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "MuzzleSmoke":
-                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
+                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center);
                     break;
                 case "MuzzleSmokeFire":
-                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(1000f, Center);
-                    TrailEmitter     = Empire.Universe.fireTrailParticles.NewEmitter(750f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center);
+                    TrailEmitter     = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
                 case "FullSmokeMuzzleFire":
-                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Center, -ZStart);
-                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Center, -ZStart);
+                    TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(100f, Center, -ZStart);
+                    FiretrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(100f, Center, -ZStart);
                     break;
             }
         }
@@ -271,7 +273,9 @@ namespace Ship_Game.Gameplay
         public void DrawProjectile(UniverseScreen screen)
         {
             // if not using visible mesh (rockets, etc), we draw a transparent mesh manually
-            if (UsesVisibleMesh || !(Owner?.InFrustum ?? true) || !screen.Frustum.Contains(Center,  Radius)) return;
+            InFrustrum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
+                         && ((Owner?.InFrustum ?? true) || screen.Frustum.Contains(Center, Radius)) ;
+            if (UsesVisibleMesh || !InFrustrum) return;
 
             var projMesh = ResourceManager.ProjectileModelDict[ModelPath];
             var tex = Weapon.Animated != 0 ? ResourceManager.Texture(TexturePath) : ResourceManager.ProjTexture(TexturePath);
@@ -498,7 +502,7 @@ namespace Ship_Game.Gameplay
                     continue;
                 if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
                 {
-                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                    ArmorPiercing -= impactModule.XSIZE; // armor is always squared anyway.
                     impactModule.DebugDamageCircle();
                     if (ArmorPiercing >= 0)
                     {
@@ -521,9 +525,9 @@ namespace Ship_Game.Gameplay
                 Die(this, false);
                 return;
             }
-
+            
             Position += Velocity * elapsedTime;
-            if (Weapon.Animated == 1)
+            if (Weapon.Animated == 1 && InFrustrum)
             {
                 FrameTimer += elapsedTime;
                 if (Weapon.LoopAnimation == 0 && FrameTimer > SwitchFrames)
@@ -567,7 +571,7 @@ namespace Ship_Game.Gameplay
             else
                 Center = Position;
             Emitter.Position = new Vector3(Center, 0.0f);
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && (InDeepSpace || System != null && System.isVisible))
+            if (InFrustrum)
             {
                 if (ZStart < -25.0)
                     ZStart += VelocityMax * elapsedTime;
@@ -592,7 +596,7 @@ namespace Ship_Game.Gameplay
             }
             var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
 
-            if (FiretrailEmitter != null)
+            if (FiretrailEmitter != null && InFrustrum)
             {
                 //float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
@@ -602,7 +606,7 @@ namespace Ship_Game.Gameplay
                 //FiretrailEmitter.Update(elapsedTime, newPosition);
 
             }
-            if (TrailEmitter != null)
+            if (TrailEmitter != null && InFrustrum )
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
@@ -610,8 +614,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (System != null && System.isVisible && Light == null && Weapon.Light != null && 
-                (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !LightWasAddedToSceneGraph))
+            if (InFrustrum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
             {
                 LightWasAddedToSceneGraph = true;
                 var pos = new Vector3(Center.X, Center.Y, -25f);
@@ -642,8 +645,7 @@ namespace Ship_Game.Gameplay
             }
             if (Module != null)
             {
-                if (System != null && System.isVisible && MuzzleFlash == null && 
-                    Module.InstalledWeapon.MuzzleFlash != null && Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView && !MuzzleFlashAdded)
+                if (MuzzleFlash == null && Module.InstalledWeapon.MuzzleFlash != null && InFrustrum && !MuzzleFlashAdded)
                 {
                     MuzzleFlashAdded = true;
                     var pos = new Vector3(Module.Center.X, Module.Center.Y, -45f);
@@ -698,5 +700,64 @@ namespace Ship_Game.Gameplay
         }
 
         public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Center} Rad={Radius} Loy=[{Loyalty}]";
+
+        public void CreateHitParticles(float damageAmount, Vector3 center)
+        {
+            AddKineticParticleHitEffects(damageAmount, center);
+            AddEnergyParticleHitEffects(damageAmount, center);
+        }
+
+        private void AddKineticParticleHitEffects(float damageAmount, Vector3 center)
+        {
+            if (Weapon?.Tag_Kinetic != true) return;
+
+            float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
+            if (HasParticleHitEffect(flashChance))
+            {
+                Empire.Universe.flash.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                return;
+            }
+            float beamFlashChance = GetHitProjectileBeamFlashEmitChance(Weapon.ProjectileSpeed);
+            if (HasParticleHitEffect(beamFlashChance))
+                Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+        }
+
+        private void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
+        {
+            if (Weapon?.Tag_Energy != true) return;
+            float flashChance  = GetHitProjectileFlashEmitChance(damageAmount);
+            float sparksChance = GetHitProjectileSparksEmitChance(Weapon.ProjectileSpeed);
+            if (HasParticleHitEffect(flashChance))
+                Empire.Universe.flash.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+            if (!HasParticleHitEffect(sparksChance)) return;
+            int randomEffect = RandomMath2.IntBetween(0, 2);
+            switch (randomEffect)
+            {
+                case 0:
+                    for (int i = 0; i < 20; i++)
+                        Empire.Universe.fireTrailParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    for (int i = 0; i < 5; i++)
+                        Empire.Universe.explosionSmokeParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    break;
+                case 1:
+                    for (int i = 0; i < 50; i++)
+                        Empire.Universe.sparks.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    Empire.Universe.smokePlumeParticles.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    break;
+                case 2:
+                    Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
+                    break;
+            }
+        }
+
+        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
+
+        private static float GetHitProjectileFlashEmitChance(float damage) => damage >= 1000f ? 100f : damage / 10f;
+
+        private static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
+
+        private static float GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
+
+        private static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z - 50f);
     }
 }

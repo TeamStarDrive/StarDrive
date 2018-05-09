@@ -47,14 +47,8 @@ namespace Ship_Game
             e.isPlayer = isPlayer;
             //TempEmpireData  Tdata = new TempEmpireData();
 
-            if (sdata.IsFaction)
-            {
-                e.isFaction = true;
-            }
-            if (sdata.isMinorRace)
-            {
-                e.MinorRace = true;
-            }
+            e.isFaction = sdata.IsFaction;
+            e.MinorRace = sdata.isMinorRace;
             if (sdata.empireData == null)
             {
                 e.data.Traits = sdata.Traits;
@@ -189,6 +183,8 @@ namespace Ship_Game
                 {
                     continue;
                 }
+                var building = ResourceManager.GetBuildingTemplate(pgs.building.Name);
+                pgs.building.Scrappable = building.Scrappable;
                 p.BuildingList.Add(pgs.building);
                 if (!pgs.building.isWeapon)
                 {
@@ -406,9 +402,8 @@ namespace Ship_Game
             data.EnemyFTLSpeedModifier = savedData.EnemyFTLModifier;
             data.GravityWells          = savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
-            //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
-            if (data.Size.X > 5500000)  //3500000f) 
-            Empire.ProjectorRadius = data.Size.X / 70f;
+            //Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(data.Size.X);            
+
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
@@ -566,20 +561,11 @@ namespace Ship_Game
                 }
                 foreach (SavedGame.GoalSave gsave in d.GSAIData.Goals)
                 {
-                    var g = new Goal
-                    {
-                        empire = e,
-                        type = gsave.type
-                    };
-                    if (g.type == GoalType.BuildShips && gsave.ToBuildUID != null && !ResourceManager.ShipsDict.ContainsKey(gsave.ToBuildUID))
-                    {
+                    if (gsave.type == GoalType.BuildShips && gsave.ToBuildUID != null 
+                        && !ResourceManager.ShipsDict.ContainsKey(gsave.ToBuildUID))
                         continue;
-                    }
-                    g.ToBuildUID    = gsave.ToBuildUID;
-                    g.Step          = gsave.GoalStep;
-                    g.guid          = gsave.GoalGuid;
-                    g.GoalName      = gsave.GoalName;
-                    g.BuildPosition = gsave.BuildPosition;
+
+                    Goal g = Goal.Deserialize(gsave.GoalName, e, gsave);
                     if (gsave.fleetGuid != Guid.Empty)
                     {
                         foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
@@ -706,7 +692,7 @@ namespace Ship_Game
                     {
                         foreach (Planet p1 in s.PlanetList)
                         {
-                            if (p1.guid != rsave.Planet.guid) continue;
+                            if (p1.guid != rsave.Planet?.guid) continue;
                             p = p1;
                             break;
                         }
@@ -783,6 +769,7 @@ namespace Ship_Game
 
         private void AddShipFromSaveData(SavedGame.ShipSaveData shipData, Empire e)
         {
+            shipData.data.Hull = shipData.Hull;
             Ship ship = Ship.CreateShipFromShipData(shipData.data, fromSave: true);
             if (ship == null) // happens if module creation failed
                 return;
@@ -927,7 +914,7 @@ namespace Ship_Game
             if (systemToMake == data.SolarSystemsList.Count)
             {
                 foreach (Ship ship in data.MasterShipList)
-                {
+                {                    
                     ship.InitializeShip(loadingFromSavegame: true);
                     if (ship.GetHangars().Count > 0)
                     {
