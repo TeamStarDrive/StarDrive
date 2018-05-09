@@ -100,12 +100,10 @@ namespace Ship_Game
                         else
                         {
                             string graphic = GetConduitGraphic(slot);
-                            var conduitTex = ResourceManager.Texture("Conduits/" + graphic);
-                            slot.Draw(spriteBatch, conduitTex, Color.White);
+                            slot.Draw(spriteBatch, ResourceManager.Texture(graphic), Color.White);
                             if (slot.Module.Powered)
                             {
-                                var poweredTex = ResourceManager.Texture("Conduits/" + graphic + "_power");
-                                slot.Draw(spriteBatch, poweredTex, Color.White);
+                                slot.Draw(spriteBatch, ResourceManager.Texture(graphic + "_power"), Color.White);
                             }
                         }
                     }
