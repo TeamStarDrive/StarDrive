@@ -99,7 +99,7 @@ namespace Ship_Game
             renderState.SourceBlend                                     = Blend.SourceAlpha;
             renderState.DestinationBlend                                = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable                          = false;
-            ModelMesh modelMesh                                         = ((ReadOnlyCollection<ModelMesh>) model.Meshes)[0];
+            ModelMesh modelMesh                                         = model.Meshes[0];
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
                 basicEffect.World                           = Matrix.CreateScale(4.05f) * world;
@@ -113,15 +113,13 @@ namespace Ship_Game
                 basicEffect.SpecularPower                   = 4;
                 if (UseRealLights)
                 {
-                    var sunToPlanet = findVectorToTarget(p.Center, p.ParentSystem.Position);
-                    var normalized = Vector3.Normalize(sunToPlanet.ToVec3(0));
-                    basicEffect.DirectionalLight0.Direction = normalized;
+                    Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
+                    basicEffect.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
                 }
                 else
                 {
-                    Vector3 vector3 = new Vector3(p.Center - new Vector2(0, 0), 0.0f);
-                    vector3 = Vector3.Normalize(vector3);
-                    basicEffect.DirectionalLight0.Direction = vector3;
+                    Vector2 universeCenterToPlanet = p.Center - new Vector2(0, 0);
+                    basicEffect.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
                 }
                 basicEffect.DirectionalLight0.Enabled = true;
             }
@@ -295,10 +293,10 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             this.ScreenManager.SpriteBatch.Draw(this.FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             float num = 512f / UniverseSize;
-            var uiNode = ResourceManager.TextureDict["UI/node"];
+            var uiNode = ResourceManager.Texture("UI/node");
             foreach (Ship ship in player.GetShips())
             {
-                if (ScreenRectangle.HitTest(ship.ScreenPosition))
+                if (ScreenRectangle.HitTest(ship?.ScreenPosition))
                 {
                     Rectangle destinationRectangle = new Rectangle(
                         (int) (ship.Position.X * num),
@@ -1024,13 +1022,13 @@ namespace Ship_Game
 
         private void DrawShipProjectilesInRange(Ship ship)
         {
-            if (viewState > UnivScreenState.SystemView || !ship.InFrustum)
+            if (viewState > UnivScreenState.SystemView || !ship.InFrustum || ship.Projectiles == null)
                 return;
             
             for (int i = 0; i < ship.Projectiles.Count; i++)
             {
                 Projectile projectile = ship.Projectiles[i];
-                projectile.DrawProjectile(this);
+                projectile?.DrawProjectile(this);
             }
         }
 
@@ -1116,14 +1114,22 @@ namespace Ship_Game
             }
             if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
             {
-                int spots = ship.AI.OrbitTarget.GetGroundLandingSpots();
+                var planet = ship.AI.OrbitTarget;
+                int spots = planet.GetGroundLandingSpots();
                 if (spots > 4)
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha), 2500f);
+                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha));
                 else if (spots > 0)
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Warning(alpha), 2500f);
+                {
+                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.Warning(alpha));
+                    ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Warning!", spots);
+                }
                 else
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha), 2500f);
+                {
+                    DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.Error(alpha));
+                    ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Critical!", spots);
+                }
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
+                
                 return;
             }
 

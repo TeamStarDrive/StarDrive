@@ -172,6 +172,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.FactionUpdate.cs" />
@@ -197,6 +198,14 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\IncreaseFreighters.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\IncreasePassengerShips.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\MarkForColonization.cs" />
     <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
@@ -219,6 +228,7 @@
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
+    <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\FighterScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\LoadDesigns.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ModuleSelection.cs" />
@@ -229,6 +239,9 @@
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
+    <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
+    <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />
+    <Compile Include="Ship_Game\Ships\ShipModuleDamageVisualization.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
@@ -293,6 +306,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Render.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.UpdateGame.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawPrimitives.cs" />
+    <Compile Include="Ship_Game\Utils\ReadRestAPI.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1001,10 +1015,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\War.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\AI\GoalType.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1941,6 +1951,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Buildings\Tracking Station.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\HelpTopics\English\HelpTopics_English.xml">
@@ -3507,6 +3520,7 @@
     </Content>
     <Content Include="Content\Tooltips\Tooltips.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\StarterShips\Type V Prototype.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -3526,6 +3540,7 @@
     <Content Include="Content\Weapons\PDLaser.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Weapons\RepairBeam.xml" />
     <Content Include="Deploy\7-Zip\7-zip.dll" />
     <Content Include="Deploy\7-Zip\7z.dll" />
     <Content Include="Deploy\7-Zip\7z.exe" />

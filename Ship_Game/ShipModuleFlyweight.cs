@@ -119,6 +119,8 @@ namespace Ship_Game.Gameplay
         public readonly int TargetTracking;
         public readonly int FixedTracking;
         public readonly bool IsRotable;
+        public readonly int ExplosionDamage;
+        public readonly int ExplosionRadius;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
@@ -227,12 +229,14 @@ namespace Ship_Game.Gameplay
             FlakResist                  = s.FlakResist;
             DamageThreshold             = s.DamageThreshold;
             APResist                    = s.APResist;
+            ExplosionDamage             = s.ExplosionDamage > 0 ? s.ExplosionDamage : s.XSIZE * s.YSIZE * 2500;
+            ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius: s.XSIZE * s.YSIZE * 64;
             IndirectPower               = s.IndirectPower;
             isPowerArmour               = s.isPowerArmour;
             isBulkhead                  = s.isBulkhead;
             TargetTracking              = s.TargetTracking;
             FixedTracking               = s.FixedTracking;
-            IsRotable                   = (bool)s.IsRotable;
+            IsRotable                   = s.IsRotable == true;
             UID                         = s.UID;    
         }
     }
@@ -297,16 +301,16 @@ namespace Ship_Game.Gameplay
         public float shield_recharge_combat_rate;
         public float shield_recharge_delay;
         public float shield_threshold;
-        public int shield_kinetic_resist;
-        public int shield_energy_resist;
-        public int shield_explosive_resist;
-        public int shield_missile_resist;
-        public int shield_flak_resist;
-        public int shield_hybrid_resist;
-        public int shield_railgun_resist;
-        public int shield_subspace_resist;
-        public int shield_warp_resist;
-        public int shield_beam_resist;
+        public float shield_kinetic_resist;
+        public float shield_energy_resist;
+        public float shield_explosive_resist;
+        public float shield_missile_resist;
+        public float shield_flak_resist;
+        public float shield_hybrid_resist;
+        public float shield_railgun_resist;
+        public float shield_subspace_resist;
+        public float shield_warp_resist;
+        public float shield_beam_resist;
         public float numberOfColonists;
         public float numberOfEquipment;
         public float numberOfFood;
@@ -380,5 +384,7 @@ namespace Ship_Game.Gameplay
         public int TargetTracking;
         public int FixedTracking;
         public bool? IsRotable = null;
+        public int ExplosionRadius;
+        public int ExplosionDamage;
     }
 }

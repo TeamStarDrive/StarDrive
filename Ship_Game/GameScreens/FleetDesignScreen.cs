@@ -226,7 +226,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch spriteBatch)
         {
             Viewport viewport;
-            Texture2D nodeTexture = ResourceManager.TextureDict["UI/node"];
+            Texture2D nodeTexture = ResourceManager.Texture("UI/node");
             ScreenManager.BeginFrameRendering(Game1.Instance.GameTime, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
@@ -239,7 +239,7 @@ namespace Ship_Game
                 Vector3 screenSpacePosition = viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X
                     , SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity);
                 var screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, 10000f * OperationalRadius.RelativeValue);
+                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, (SelectedNodeList[0].Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue);
                 viewport = Viewport;
                 Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                 Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -426,7 +426,7 @@ namespace Ship_Game
                     }
                 }
                 Selector sel = new Selector(r, Color.TransparentBlack);
-                spriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_square"], r,
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
                 sel.Draw(spriteBatch);
                 Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
@@ -606,9 +606,10 @@ namespace Ship_Game
                 float scale;
                 Vector2 iconOrigin;
                 Texture2D item;
-                using (Ship ship = ActiveShipDesign) {
-                    scale = ship.Size / (float) (30 + ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width);
-                    iconOrigin = new Vector2(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2f, ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2f);
+                Ship ship = ActiveShipDesign;
+                {
+                    scale = ship.Size / (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
+                    iconOrigin = new Vector2(ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f, ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f);
                     scale = scale * 4000f / CamPos.Z;
                     if (scale > 1f)
                         scale = 1f;
@@ -949,7 +950,7 @@ namespace Ship_Game
             }
             if (Input.FleetExitScreen && !GlobalStats.TakingInput)
             {
-                GameAudio.PlaySfxAsync("echo_affirm");
+                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }
@@ -975,7 +976,7 @@ namespace Ship_Game
             else
             {
                 GlobalStats.TakingInput = true;
-                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name);
+                FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name, input);
             }
             InputSelectFleet(1, Input.Fleet1);
             InputSelectFleet(2, Input.Fleet2);
@@ -1008,31 +1009,7 @@ namespace Ship_Game
             {
                 SelectedNodeList.Clear();
             }
-            if (SelectedNodeList.Count == 1)
-            {
-                SelectedNodeList[0].AttackShieldedWeight = SliderShield.HandleInput(input);
-                SelectedNodeList[0].DPSWeight            = SliderDps.HandleInput(input);
-                SelectedNodeList[0].VultureWeight        = SliderVulture.HandleInput(input);
-                SelectedNodeList[0].ArmoredWeight        = SliderArmor.HandleInput(input);
-                SelectedNodeList[0].DefenderWeight       = SliderDefend.HandleInput(input);
-                SelectedNodeList[0].AssistWeight         = SliderAssist.HandleInput(input);
-                SelectedNodeList[0].SizeWeight           = SliderSize.HandleInput(input);
-                if (OperationsRect.HitTest(mousePos))
-                {
-                    return true;
-                }
-                if (PrioritiesRect.HitTest(mousePos))
-                {
-                    OperationalRadius.HandleInput(input);
-                    SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
-                    return true;
-                }
-                if (SelectedStuffRect.HitTest(mousePos)) 
-                {
-                    InputCombatStateButtons();                    
-                    return false;
-                }
-            }
+            if (HandleSingleNodeSelection(input, mousePos)) return false;
             if (SelectedNodeList.Count > 1)
             {
                 SliderDps.HandleInput(input);
@@ -1148,7 +1125,7 @@ namespace Ship_Game
             }
             if (ActiveShipDesign != null)
             {
-                if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                if (input.LeftMouseClick)
                 {
                     Viewport viewport = Viewport;
                     Vector3 nearPoint = viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 0f), Projection, View, Matrix.Identity);
@@ -1164,7 +1141,7 @@ namespace Ship_Game
                         FleetOffset = new Vector2(pickedPosition.X, pickedPosition.Y),
                         ShipName = ActiveShipDesign.Name
                     };
-                    SelectedFleet.DataNodes.Add(node);
+                    SelectedFleet.DataNodes.Add(node);                    
                     if (AvailableShips.Contains(ActiveShipDesign))
                     {
                         if (SelectedFleet.Ships.Count == 0)
@@ -1174,9 +1151,9 @@ namespace Ship_Game
                         node.Ship = ActiveShipDesign;
                         node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.FleetOffset, 0f));
                         node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        AvailableShips.Remove(ActiveShipDesign);
-                        node.Ship.fleet = SelectedFleet;
-                        SelectedFleet.AddShip(node.Ship);
+                        AvailableShips.Remove(ActiveShipDesign);                        
+                        SelectedFleet.AddShip(node.Ship);                
+                        
                         if (SubShips.Tabs[1].Selected)
                         {
                             ScrollList.Entry toremove = null;
@@ -1202,7 +1179,7 @@ namespace Ship_Game
                         }
                         ActiveShipDesign = null;
                     }
-                    if (!input.KeysCurr.IsKeyDown(Keys.LeftShift))
+                    if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) )
                     {
                         ActiveShipDesign = null;
                     }
@@ -1218,7 +1195,8 @@ namespace Ship_Game
                 {
                     if (!(e.item is ModuleHeader))
                     {
-                        if (!e.clickRect.HitTest(mousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
+                        if (!e.clickRect.HitTest(mousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed 
+                                                           || input.MousePrev.LeftButton != ButtonState.Released)
                         {
                             continue;
                         }
@@ -1333,7 +1311,48 @@ namespace Ship_Game
                 return true;
             }
             return false;
-        }        
+        }
+
+        private void ApplySliderValuesToNode(InputState input, WeightSlider slider, ref float currentValue)
+        {            
+
+            if (!slider.rect.HitTest(input.CursorPosition))
+                slider.SetAmount(currentValue);
+            currentValue = slider.HandleInput(input);
+            
+        }
+
+        private bool HandleSingleNodeSelection(InputState input, Vector2 mousePos)
+        {            
+            if (SelectedNodeList.Count != 1) return false;
+            bool setReturn = false;
+            setReturn |= SliderShield.HandleInput(input, ref SelectedNodeList[0].AttackShieldedWeight);
+            setReturn |= SliderDps.HandleInput(input, ref SelectedNodeList[0].DPSWeight);
+            setReturn |= SliderVulture.HandleInput(input , ref SelectedNodeList[0].VultureWeight);
+            setReturn |= SliderArmor.HandleInput(input , ref SelectedNodeList[0].ArmoredWeight);
+            setReturn |= SliderDefend.HandleInput(input, ref SelectedNodeList[0].DefenderWeight);
+            setReturn |= SliderAssist.HandleInput(input, ref SelectedNodeList[0].AssistWeight);
+            setReturn |= SliderSize.HandleInput(input, ref SelectedNodeList[0].SizeWeight);
+            setReturn |= OperationalRadius.HandleInput(input, ref SelectedNodeList[0].OrdersRadius, SelectedNodeList[0].Ship?.SensorRange ?? 500000);
+            if (setReturn) return false;
+            if (OperationsRect.HitTest(mousePos))
+            {
+                return true;
+            }
+
+            if (PrioritiesRect.HitTest(mousePos))
+            {
+                //OperationalRadius.HandleInput(input);
+                //SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
+                return true;
+            }
+
+            if (!SelectedStuffRect.HitTest(mousePos)) return false;
+
+            InputCombatStateButtons();
+            return true;
+
+        }
 
         private void HandleSelectionBox(InputState input)
         {
@@ -1773,7 +1792,7 @@ namespace Ship_Game
             };
             PrioritiesRect = new Rectangle(SelectedStuffRect.X - OperationsRect.Width - 2, OperationsRect.Y, OperationsRect.Width, OperationsRect.Height);
             Rectangle oprect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
-            OperationalRadius = new FloatSlider(this, oprect, "Operational Radius")
+            OperationalRadius = new FloatSlider(this, oprect, "Operational Radius", max: 500000, value: 10000)
             {
                 RelativeValue = 0.2f,
                 TooltipId = 13
@@ -1799,11 +1818,13 @@ namespace Ship_Game
 
         public void LoadData(FleetDesign data)
         {
-            foreach (Ship ship in EmpireManager.Player.GetFleetsDict()[FleetToEdit].Ships)
+            var fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+
+            for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
+                Ship ship = fleet.Ships[i];
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                ship.fleet?.RemoveShip(ship);
-                EmpireManager.Player.GetFleetsDict()[FleetToEdit].RemoveShip(ship);
+                ship?.fleet?.RemoveShip(ship);         
             }
             SelectedFleet.DataNodes.Clear();
             SelectedFleet.Ships.Clear();
@@ -1837,12 +1858,14 @@ namespace Ship_Game
                 Array<string> roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
-                    if (roles.Contains(ResourceManager.ShipsDict[shipname].shipData.GetRole()))
-                    {
+                    Ship ship = ResourceManager.GetShipTemplate(shipname);
+                    if (roles.Contains(ship.shipData.GetRole()))                    
                         continue;
-                    }
-                    roles.Add(ResourceManager.ShipsDict[shipname].shipData.GetRole());
-                    ModuleHeader mh = new ModuleHeader(ResourceManager.ShipsDict[shipname].shipData.GetRole(), 295f);
+                    if (!ship.ShipIsGoodForGoalsUI())
+                        continue;
+                    roles.Add(ship.shipData.GetRole());
+
+                    ModuleHeader mh = new ModuleHeader(ship.shipData.GetRole(), 295f);
                     ShipSL.AddItem(mh);
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
@@ -1850,6 +1873,8 @@ namespace Ship_Game
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
+                        if (!ship.ShipIsGoodForGoalsUI())
+                            continue;
                         if (ship.shipData.GetRole() != (e.item as ModuleHeader)?.Text)
                         {
                             continue;

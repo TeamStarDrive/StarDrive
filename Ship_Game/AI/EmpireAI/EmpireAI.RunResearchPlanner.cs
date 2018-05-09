@@ -382,7 +382,8 @@ namespace Ship_Game.AI {
 
             if (BestCombatShip != null)
             {
-                if (OwnerEmpire.ShipsWeCanBuild.Contains(GetBestCombatShip.Name))
+                if (OwnerEmpire.ShipsWeCanBuild.Contains(GetBestCombatShip.Name) 
+                || OwnerEmpire.structuresWeCanBuild.Contains(GetBestCombatShip.Name)) 
                     BestCombatShip = null;
                 else
                 if (!BestCombatShip.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Any())
@@ -490,6 +491,17 @@ namespace Ship_Game.AI {
                  techtype != TechnologyType.Economic) return true;                
                 if (econ.Tech.HullsUnlocked.Count == 0) return true;
                 if (moneyNeeded < 1f) return true;
+                if (availableTechs.Count == 1) return true;
+                foreach(var hull in econ.Tech.HullsUnlocked)
+                {
+                    if(!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                    switch (hullData.HullRole) {
+                        case ShipData.RoleName.station:
+                            return true;
+                        case ShipData.RoleName.platform:
+                            return true;
+                    }
+                }
                 return false;
             });
             
@@ -537,7 +549,7 @@ namespace Ship_Game.AI {
             var repeatingTechs = new Array<TechEntry>();
             foreach (var kv in OwnerEmpire.GetTDict())
             {
-                if (kv.Value.MaxLevel > 0)
+                if (kv.Value.MaxLevel > 1)
                     repeatingTechs.Add(kv.Value);
             }
             foreach (string shiptech in shipTechs)
@@ -547,7 +559,7 @@ namespace Ship_Game.AI {
                 {
                     bool skiprepeater = false;
                     //repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
-                    if (test.MaxLevel > 0)
+                    if (test.MaxLevel > 1)
                     {
                         foreach (TechEntry repeater in repeatingTechs)
                         {
@@ -572,11 +584,9 @@ namespace Ship_Game.AI {
         private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
             
-            float str = 0;
             HashSet<string> shipTechs = new HashSet<string>();
             HashSet<string> nonShipTechs = new HashSet<string>();
             HashSet<string> wantedShipTechs = new HashSet<string>();
-            float maxTechCost = 0;
 
             foreach (TechEntry bestshiptech in availableTechs)
             {
@@ -646,29 +656,25 @@ namespace Ship_Game.AI {
         {
 
             var techSorter = new SortedList<int, Array<Ship>>();
-            int maxKey = 0;
             foreach (Ship shortTermBest in researchableShips)
             {                                
                 //forget the cost of tech that provide these ships. These are defined in techentry class.
-                int mod = 0;
-
                 if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
                     continue;
 
-                //try to line focus to main goal but if we cant, line focus as best as possible by what we already have. 
+                /*try to line focus to main goal but if we cant, line focus as best as possible. 
+                 * To do this use a sorted list with a key set to the count of techs needed minus techs we already have.
+                 * since i dont know which key the ship will be added to this seems the easiest without a bunch of extra steps.
+                 * Now this list can be used to not just get the one with fewest techs but add a random to get a little variance. 
+                 */
                 Array<string> currentTechs =
                     new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs));
 
-                //int maxTech = 0;
-                //foreach (string techName in currentTechs)
-                //{
-                //    int techs = OwnerEmpire.GetTechEntry(techName).CountTechsToOneInList(currentTechs, OwnerEmpire);
-                //    maxTech = Math.Max(techs, maxTech);
-
-                //}
-
                 int key = currentTechs.Count;
                 
+                /* this is kind of funky but the idea is to add a key and list if it doesnt already exist.
+                 Because i dont know how many will be in it.                  
+                 */
                 if (techSorter.TryGetValue(key, out Array<Ship> test))
                     test.Add(shortTermBest);
                 else
@@ -679,11 +685,15 @@ namespace Ship_Game.AI {
             }
 
             var hullSorter = new SortedList<int, Array<Ship>>();
-            int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter,h=> (int)h.shipData.HullRole);
+            
+            //This is part that chooses the bestShip hull
+            /* takes the first entry from the least techs needed list. then sorts it the hull role needed
+             */
+            int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter ,h=> (int)h.shipData.HullRole );
             //sort roles
             var roleSorter = new SortedList<int, Array<Ship>>();
             keyChosen = ChooseRole(hullSorter[keyChosen], roleSorter,
-                s=> s.DesignRole < ShipData.RoleName.fighter ? (int)ShipData.RoleName.fighter -1 : (int) s.DesignRole);
+                s => (int)s.DesignRole); // s.DesignRole < ShipData.RoleName.fighter ? (int)ShipData.RoleName.fighter -1 : (int) s.DesignRole);
 
             //choose Ship
 
@@ -703,9 +713,12 @@ namespace Ship_Game.AI {
             
         }
 
-        private static int ChooseRole(Array<Ship> ships, SortedList<int, Array<Ship>> roleSorter, Func<Ship,int> func)
+        private int ChooseRole(Array<Ship> ships, SortedList<int, Array<Ship>> roleSorter, Func<Ship,int> func)
         {
             //SortRoles
+            /*
+             * take each ship in ships and make a sorted list based on the hull role index. 
+             */
             foreach (Ship ship in ships)
             {
                 int key = func(ship); // ship.DesignRole;
@@ -718,14 +731,23 @@ namespace Ship_Game.AI {
                 }
             }
             //choose role
-            
+            /*
+             * here set the default return to the first array in rolesorter.
+             * then iterater through the keys with an every increasing chance to choose a key. 
+             */
             int keyChosen = roleSorter.Keys.First();
+            
+
             int x = 0;
             foreach (var role in roleSorter)
             {
                 float chance = (float)++x / roleSorter.Count;
                 
-                float rand = RandomMath2.RandomBetween(.01f, 1f);
+                float rand = RandomMath.AvgRandomBetween(.01f, 1f);
+                var hullRole = role.Value[0].shipData.HullRole;
+                var hullUnlocked = OwnerEmpire.IsHullUnlocked(role.Value[0].shipData.Hull);
+                //if (hullRole == ShipData.RoleName.platform || hullRole == ShipData.RoleName.station || hullUnlocked)
+                //    chance /= 1.5f;
                 if (rand > chance) continue;
                 return role.Key;
             }
@@ -740,8 +762,10 @@ namespace Ship_Game.AI {
                 try
                 {
                     //restrict to racial ships or otherwise unlocked ships. 
-                    if (shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType &&
-                        !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
+                    if (shortTermBest.shipData.ShipStyle==null  ||
+                        shortTermBest.shipData.ShipStyle !="Platforms" && shortTermBest.shipData.ShipStyle != "Misc"
+                         && shortTermBest.shipData.ShipStyle != OwnerEmpire.data.Traits.ShipType)
+                        //|| !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
                         continue;
                     
                     if (shortTermBest.shipData.techsNeeded.Count == 0)

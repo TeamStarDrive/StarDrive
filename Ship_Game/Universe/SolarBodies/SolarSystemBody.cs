@@ -994,8 +994,8 @@ namespace Ship_Game
         {
             if (SO != null)
                 screen?.RemoveObject(SO);
-
-            SO = ResourceManager.GetPlanetarySceneMesh("Model/SpaceObjects/planet_" + PlanetType);
+            var contentManager =  ResourceManager.ContentManager;
+            SO = ResourceManager.GetPlanetarySceneMesh(contentManager, "Model/SpaceObjects/planet_" + PlanetType);
             SO.World = Matrix.CreateScale(Scale * 3)
                        * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
@@ -1458,9 +1458,7 @@ namespace Ship_Game
             {
                 if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.GetOwner() != newOwner))
                     continue;
-                kv.Value.loyalty = newOwner;
-                Owner.RemoveShip(kv.Value);      //Transfer to new owner's ship list. Fixes platforms changing loyalty after game load bug      -Gretman
-                newOwner.AddShip(kv.Value);
+                kv.Value.ChangeLoyalty(newOwner);             
                 Log.Info("Owner of platform tethered to {0} changed from {1} to {2}", Name, Owner.PortraitName, newOwner.PortraitName);
             }
             Owner = newOwner;

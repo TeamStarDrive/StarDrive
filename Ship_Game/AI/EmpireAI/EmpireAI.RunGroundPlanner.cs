@@ -1,7 +1,9 @@
 using System.Linq;
+using Ship_Game.Commands.Goals;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         private void RunGroundPlanner()
@@ -48,7 +50,7 @@ namespace Ship_Game.AI {
                 return;
 
 
-            var g = new Goal(troop, OwnerEmpire, targetBuild);
+            var g = new Commands.Goals.BuildTroop(troop, OwnerEmpire, targetBuild);
             Goals.Add(g);
         }
     }

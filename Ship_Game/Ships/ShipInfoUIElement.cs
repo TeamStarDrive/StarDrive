@@ -247,7 +247,7 @@ namespace Ship_Game.Ships
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
                 if (toggleButton.HandleInput(input))
-                {
+                {                    
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     switch (toggleButton.Action)
                     {
@@ -282,7 +282,9 @@ namespace Ship_Game.Ships
                     }
                     if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
                         Ship.AI.State = AIState.AwaitingOrders;
-                }
+                    Ship.shipStatusChanged = true;
+                }            
+
                 switch (toggleButton.Action)
                 {
                     case "attack":
@@ -380,6 +382,10 @@ namespace Ship_Game.Ships
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
                     button.Draw(ScreenManager);
+                    if (button.Hover)
+                    {
+                        Ship.DrawWeaponRangeCircles(Screen);
+                    }
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI
@@ -596,20 +602,14 @@ namespace Ship_Game.Ships
                     return true;
                 if (State == UIElement.ElementState.Open)
                 {                    
-                    bool flag = false;
                     foreach (OrdersButton ordersButton in Orders)
                     {
                         if (ordersButton.HandleInput(input, ScreenManager))
-                        {
-                            flag = true;
                             return true;
-                        }
                     }
                     if (SlidingElement.ButtonHousing.HitTest(input.CursorPosition))
                         return true;
                 }
-                
-                    
                 return false;
             }
         }

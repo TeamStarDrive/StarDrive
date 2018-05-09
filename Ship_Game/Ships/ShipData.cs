@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using SgMotion;
 using SgMotion.Controllers;
@@ -32,6 +33,7 @@ namespace Ship_Game.Ships
         public string IconPath;
         public CombatState CombatState = CombatState.AttackRuns;
         public float MechanicalBoardingDefense;
+
         public string Hull;
         public RoleName Role = RoleName.fighter;
         public Array<ShipToolScreen.ThrusterZone> ThrusterList;
@@ -44,15 +46,14 @@ namespace Ship_Game.Ships
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
-        public float BaseStrength;
-        public bool BaseCanWarp;
+        [XmlIgnore] [JsonIgnore] public float BaseStrength;
+        [XmlIgnore] [JsonIgnore] public bool BaseCanWarp;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
-        public bool hullUnlockable;
-        public bool allModulesUnlocakable = true;
-        public bool unLockable;
-        //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
+        [XmlIgnore] [JsonIgnore] public bool hullUnlockable;
+        [XmlIgnore] [JsonIgnore] public bool allModulesUnlocakable = true;
+        [XmlIgnore] [JsonIgnore] public bool unLockable;        
         public HashSet<string> techsNeeded = new HashSet<string>();
-        public int TechScore;
+        [XmlIgnore] [JsonIgnore] public int TechScore;
 
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
@@ -60,15 +61,22 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public RoleName HullRole => HullData?.Role ?? Role;
         [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
         [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
-        public void SetHullData(ShipData shipData)
+        [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(HullData?.IconPath ?? IconPath);
+        [XmlIgnore]
+        [JsonIgnore]
+        public float ModelZ { get; private set; }
+
+
+        public void SetHullData(ShipData shipData = null)
         {            
-            shipData.HullData = ResourceManager.HullsDict.TryGetValue(shipData.Hull, out ShipData hull) ? hull : shipData;
+            HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
         }
 
         public override string ToString() { return Name; }
 
         public ShipData()
         {
+            ModelZ = 0;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -245,7 +253,7 @@ namespace Ship_Game.Ships
         public string GetRole()
         {
             return RoleArray[(int)Role -1];
-        }
+        }        
 
         public static string GetRole(RoleName role)
         {
@@ -253,6 +261,10 @@ namespace Ship_Game.Ships
             return RoleArray[roleNum];
         }
 
+        private void SetModelZ(float zOffSet)
+        {
+            HullData.ModelZ = zOffSet;
+        }
 
         public string GetCategory()
         {
@@ -262,13 +274,16 @@ namespace Ship_Game.Ships
         public void LoadModel() => LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, true);
 
         public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, bool justLoad = false)
-        {            
-            shipSO = ResourceManager.GetSceneMesh(HullModel, Animated, justLoad);
+        {
+            var contentManager = Empire.Universe?.TransientContent ?? ResourceManager.ContentManager;
+            shipSO = ResourceManager.GetSceneMesh(contentManager, HullModel, Animated, justLoad);
             shipMeshAnim = null;
-
+            if (HullData.ModelZ == 0 && HullRole >= RoleName.fighter)
+                HullData.SetModelZ(shipSO.GetMeshBoundingBox().Max.Z);
+            
             if (!Animated) return;
 
-            SkinnedModel skinned = ResourceManager.GetSkinnedModel(ModelPath);
+            SkinnedModel skinned = ResourceManager.GetSkinnedModel(contentManager, ModelPath);
             if (justLoad) return;
 
             shipMeshAnim = new AnimationController(skinned.SkeletonBones);
@@ -284,6 +299,90 @@ namespace Ship_Game.Ships
             Bomber,
             Fighter,            
             Kamikaze
+        }
+        public static void CreateDesignRoleToolTip(RoleName role, SpriteFont roleFont, Rectangle designRoleRect, bool AlwaysShow = false)
+        {
+            var text = $"Autoassigned Role Change\n{RoleDesignString(role)}";
+            var spacing = roleFont.MeasureString(text);
+            var pos = new Vector2(designRoleRect.Left,
+                designRoleRect.Y - spacing.Y - designRoleRect.Height - roleFont.LineSpacing);
+            ToolTip.CreateTooltip(text, pos, AlwaysShow);
+        }
+        public static string RoleDesignString(RoleName role)
+        {
+            string roleInfo = "";
+            switch (role)
+            {
+                case RoleName.disabled:
+                    break;
+                case RoleName.platform:
+                    roleInfo = "Has Platform hull";
+                    break;
+                case RoleName.station:
+                    roleInfo = "Has Station hull";
+                    break;
+                case RoleName.construction:
+                    roleInfo = "Has construction role";
+                    break;
+                case RoleName.colony:
+                    roleInfo = "Has Colony Module";
+                    break;
+                case RoleName.supply:
+                    roleInfo = "Has supply role";
+                    break;
+                case RoleName.freighter:
+                    roleInfo = "Has freighter hull";
+                    break;
+                case RoleName.troop:
+                    break;
+                case RoleName.troopShip:
+                    roleInfo = "10% of the ship space taken by troop launch bays";
+                    break;
+                case RoleName.support:
+                    roleInfo = "10% of ship space taken by support modules";
+                    break;
+                case RoleName.bomber:
+                    roleInfo = "10% of ship space taken by bomb modules";
+                    break;
+                case RoleName.carrier:
+                    roleInfo = "10% of ship space taken by hangar modules";
+                    break;
+                case RoleName.fighter:
+                    roleInfo = "Has fighter hull";
+                    break;
+                case RoleName.scout:
+                    roleInfo = "Fighter hull with no weapons";
+                    break;
+                case RoleName.gunboat:
+                    roleInfo = "Not assigned";
+                    break;
+                case RoleName.drone:
+                    roleInfo = "Has Drone hull";
+                    break;
+                case RoleName.corvette:
+                    roleInfo = "Has corvette hull";
+                    break;
+                case RoleName.frigate:
+                    roleInfo = "Has Frigate hull";
+                    break;
+                case RoleName.destroyer:
+                    roleInfo = "Has destroyer role";
+                    break;
+                case RoleName.cruiser:
+                    roleInfo = "Has cruiser role";
+                    break;
+                case RoleName.capital:
+                    roleInfo = "Has Capital hull";
+                    break;
+                case RoleName.prototype:
+                    roleInfo = "Has Colony Module";
+                    break;
+                default:
+                    {
+                        break;
+                    }
+            }
+            return roleInfo;
         }
 
         public enum RoleName

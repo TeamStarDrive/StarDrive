@@ -35,6 +35,8 @@ namespace Ship_Game
         public UILabel MiddleLabel;
         public CloseButton Close;
 
+        public Vector2 BodyTextStart;
+
         private static Rectangle CenterScreen(int width, int height)
         {
             return new Rectangle(Game1.Instance.ScreenWidth  / 2 - width  / 2, 
@@ -74,13 +76,14 @@ namespace Ship_Game
             base.Draw(spriteBatch);
 
             spriteBatch.End();
-        }
+        }        
 
         public Vector2 DrawString(SpriteFont font, string theirText, Vector2 theirTextPos, Color color)
         {
             theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
             ScreenManager.SpriteBatch.DrawString(font, theirText, theirTextPos, color);
-            theirTextPos.Y = theirTextPos.Y + font.LineSpacing + 2;
+            theirTextPos.Y += font.MeasureString(theirText).Y;
+            theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
             return theirTextPos;
         }
 
@@ -147,6 +150,7 @@ namespace Ship_Game
                                       MidContainer.Y + MidContainer.Height / 2 - textSize.Y / 2f);
                 MiddleLabel = Label(pos, MiddleText, Fonts.Arial12Bold);
             }
+            BodyTextStart = new Vector2(BottomBigFill.Left +12, BottomBigFill.Top + 12);
 
             base.LoadContent();
         }

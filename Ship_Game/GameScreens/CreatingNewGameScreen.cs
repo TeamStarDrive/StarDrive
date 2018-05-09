@@ -18,24 +18,13 @@ namespace Ship_Game
 {
     public sealed class CreatingNewGameScreen : GameScreen
     {
-        //private Matrix worldMatrix = Matrix.Identity;
         private float Scale = 1f;
-        //private Background bg = new Background();
         private int NumSystems = 50;
-        //private Array<Texture2D> TextureList = new Array<Texture2D>();
-        //private Vector2 ShipPosition = new Vector2(340f, 450f);
         private bool firstRun = true;
-        //private Array<string> UsedOpponents = new Array<string>();
         private AutoResetEvent WorkerBeginEvent = new AutoResetEvent(false);
         private ManualResetEvent WorkerCompletedEvent = new ManualResetEvent(true);
         private Array<Vector2> stars = new Array<Vector2>();
         private Array<Vector2> ClaimedSpots = new Array<Vector2>();
-        //private Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 800f);
-        //private const float starsParallaxAmplitude = 2048f;
-        //private Matrix view;
-        //private Matrix projection;
-        //private Model model;
-        //private SceneObject shipSO;
         private RaceDesignScreen.GameMode Mode;
         private Vector2 GalacticCenter;
         private UniverseData Data;
@@ -49,17 +38,15 @@ namespace Ship_Game
         private SolarSystem PlayerSystem;
         private string text;
         private Effect ThrusterEffect;
-        //private BloomComponent bloomComponent;
-        //private Starfield starfield;
         private int counter;
         private Ship playerShip;
-        //private bool loading;
         private Thread WorkerThread;
         private UniverseScreen us;
         private bool AllSystemsGenerated;
         private float PercentLoaded;
         private int systemToMake;
-        //private float Zrotate;
+        public static float SetProjectorSize(float dataSizeX) => dataSizeX * .04f;
+        
 
         public CreatingNewGameScreen(Empire empire, string universeSize, 
                 float starNumModifier, string empireToRemoveName, 
@@ -113,8 +100,8 @@ namespace Ship_Game
             }
 
             NumSystems = (int)(size * starNumModifier);
-            if (size > 45)
-                Empire.ProjectorRadius = Data.Size.X / 70; // reduce projector radius??
+
+            Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(Data.Size.X);
             Log.Info("Empire.ProjectorRadius = {0}", Empire.ProjectorRadius);
 
             UniverseData.UniverseWidth = Data.Size.X * 2;

@@ -116,7 +116,8 @@ namespace Ship_Game
         public static bool CornersGame = false;     //Also added by Gretman
         public static int ExtraRemnantGS;
 
-        public static int CameraPanSpeed = 2;
+        public static int CameraPanSpeed    = 2;
+        public static float DamageIntensity = 1;
 
         ////////////////////////////////
         // From old Config
@@ -195,6 +196,7 @@ namespace Ship_Game
             GetSetting("VerboseLogging",         ref VerboseLogging);
             GetSetting("TestLoad",               ref TestLoad);
             GetSetting("PreLoad",                ref PreLoad);
+            GetSetting("DamageIntensity",        ref DamageIntensity);
             Statreset();
 
 #if DEBUG
@@ -232,7 +234,8 @@ namespace Ship_Game
             if (info.Exists)
             {
                 ModPath = "Mods/" + ModName + "/";
-                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(info);
+                var modInfo = new FileInfo($"{ModPath}/{modName}.xml");
+                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(modInfo.Exists ? modInfo : info);
                 ActiveMod     = new ModEntry(ActiveModInfo);
             }
             else
