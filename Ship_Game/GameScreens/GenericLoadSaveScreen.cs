@@ -255,31 +255,31 @@ namespace Ship_Game
                     }
                 }
             }
-            if (SLMode.Save == this.mode)       // Only check name field change when saving
+            if (SLMode.Save == mode)       // Only check name field change when saving
             {
-                if (!this.EnterNameArea.ClickableArea.HitTest(MousePos))
+                if (!EnterNameArea.ClickableArea.HitTest(MousePos))
                 {
-                    this.EnterNameArea.Hover = false;
+                    EnterNameArea.Hover = false;
                 }
                 else
                 {
-                    this.EnterNameArea.Hover = true;
-                    if (this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    EnterNameArea.Hover = true;
+                    if (currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
                     {
-                        this.EnterNameArea.HandlingInput = true;
-                        this.EnterNameArea.Text = "";
+                        EnterNameArea.HandlingInput = true;
+                        EnterNameArea.Text = "";
                     }
                 }
-                if (this.EnterNameArea.HandlingInput)
+                if (EnterNameArea.HandlingInput)
                 {
-                    this.EnterNameArea.HandleTextInput(ref this.EnterNameArea.Text);
-                    if (input.KeysCurr.IsKeyDown(Keys.Enter))
+                    EnterNameArea.HandleTextInput(ref EnterNameArea.Text, input);
+                    if (input.IsKeyDown(Keys.Enter))
                     {
-                        this.EnterNameArea.HandlingInput = false;
+                        EnterNameArea.HandlingInput = false;
                     }
                 }
             }
-            this.previousMouse = input.MousePrev;
+            previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
 

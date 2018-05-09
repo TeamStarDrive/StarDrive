@@ -184,14 +184,8 @@ namespace Ship_Game
             return (elem = FindMinFiltered(list, filter, selector)) != null;
         }
 
-        public static bool Any<T>(this Array<T> list, Predicate<T> match)
-        {
-            int count = list.Count;
-            T[] items = list.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-                if (match(items[i])) return true;
-            return false;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Any<T>(this Array<T> list, Predicate<T> match) => list.Find(match) != null;
 
         public static int Count<T>(this Array<T> list, Predicate<T> match)
         {

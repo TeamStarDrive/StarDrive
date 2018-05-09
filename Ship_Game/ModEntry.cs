@@ -10,7 +10,7 @@ namespace Ship_Game
 		public Rectangle Portrait;
 		public ModInformation mi;
 		public string MainMenuMusic;
-        public string Version;
+        public string Version;        
         private Texture2D PortraitTex;
         private Texture2D MainMenuTex;
 

@@ -543,14 +543,14 @@ namespace Ship_Game
                 RemoveObject(shipSO);
             try
             {
-                shipSO = ResourceManager.GetSceneMesh(modelPath);
+                shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath);
                 shipSO.World = worldMatrix;
                 ModelPath = modelPath;
                 AddObject(shipSO);
             }
             catch (Exception)
             {
-                shipSO = ResourceManager.GetSceneMesh(modelPath, animated:true);
+                shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath, animated:true);
                 shipSO.World = worldMatrix;
                 ModelPath = modelPath;
                 AddObject(shipSO);

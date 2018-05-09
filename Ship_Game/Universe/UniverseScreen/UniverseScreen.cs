@@ -116,6 +116,7 @@ namespace Ship_Game
         public ParticleSystem fireParticles;
         public ParticleSystem engineTrailParticles;
         public ParticleSystem flameParticles;
+        public ParticleSystem SmallflameParticles;
         public ParticleSystem sparks;
         public ParticleSystem lightning;
         public ParticleSystem flash;
@@ -299,17 +300,19 @@ namespace Ship_Game
             ScreenManager.RemoveAllLights();
             
             //Global fill light. 
-            AddLight(new Vector2(0, 0), .3f, UniverseSize * 2 + MaxCamHeight, Color.White, -MaxCamHeight, fillLight: false, shadowQuality: 0f);
+            AddLight(new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+            //Global Back
+            AddLight(new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
 
             foreach (SolarSystem system in SolarSystemList)
             {
                 Color color = Color.White;
-                float intensity = .8f;
-                float radius = 200000f;
+                float intensity = 1.5f;
+                float radius = 150000f;
                 switch (system.SunPath)
                 {
                     case "star_red":
-                        intensity -= .2f;
+                        intensity -= .1f;
                         radius -= 50000f;
                         color = Color.LightSalmon;
                         break;
@@ -331,13 +334,14 @@ namespace Ship_Game
                         break; 
                 }
                 
-                //Key              
-                AddLight(system.Position, intensity, radius, Color.White , zpos: -1500, fillLight: false, fallOff:1);
-                AddLight(system.Position, intensity, radius, Color.White, zpos:   2500, fillLight: false, fallOff: 1);
+                //Key                              
+                AddLight(system.Position, intensity, radius, color, zpos:   -5500, fillLight: false, fallOff: 1);
                 //OverSaturationKey
                 AddLight(system.Position, intensity *5, radius * .05f, color, zpos: -1500, fillLight: false, fallOff: 1);
-                //back
-                AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
+                //localfill
+                AddLight(system.Position, intensity * .55f, radius, Color.White, zpos: 0, fillLight: false, fallOff: 1);
+                ////back
+                //AddLight(system.Position, intensity *.5f , radius, color, zpos: 2500, fillLight: true, fallOff: 0);
 
             }
         }
@@ -554,20 +558,21 @@ namespace Ship_Game
 
         private void DoParticleLoad()
         {
-            var content = TransientContent;
-            var device = ScreenManager.GraphicsDevice;
+            var content              = TransientContent;
+            var device               = ScreenManager.GraphicsDevice;
             beamflashes              = new ParticleSystem(content, "3DParticles/BeamFlash", device);
             explosionParticles       = new ParticleSystem(content, "3DParticles/ExplosionSettings", device);
             photonExplosionParticles = new ParticleSystem(content, "3DParticles/PhotonExplosionSettings", device);
             explosionSmokeParticles  = new ParticleSystem(content, "3DParticles/ExplosionSmokeSettings", device);
-            projectileTrailParticles = new ParticleSystem(content, "3DParticles/ProjectileTrailSettings", device);
-            fireTrailParticles       = new ParticleSystem(content, "3DParticles/FireTrailSettings", device);
-            smokePlumeParticles      = new ParticleSystem(content, "3DParticles/SmokePlumeSettings", device);
-            fireParticles            = new ParticleSystem(content, "3DParticles/FireSettings", device);
+            projectileTrailParticles = new ParticleSystem(content, "3DParticles/ProjectileTrailSettings", device, 1f);
+            fireTrailParticles       = new ParticleSystem(content, "3DParticles/FireTrailSettings", device,1);
+            smokePlumeParticles      = new ParticleSystem(content, "3DParticles/SmokePlumeSettings", device , 1);
+            fireParticles            = new ParticleSystem(content, "3DParticles/FireSettings", device, 1);
             engineTrailParticles     = new ParticleSystem(content, "3DParticles/EngineTrailSettings", device);
             flameParticles           = new ParticleSystem(content, "3DParticles/FlameSettings", device);
-            sparks                   = new ParticleSystem(content, "3DParticles/sparks", device);
-            lightning                = new ParticleSystem(content, "3DParticles/lightning", device);
+            SmallflameParticles      = new ParticleSystem(content, "3DParticles/FlameSettings", device, .25f, (int)(4000 * GlobalStats.DamageIntensity));
+            sparks                   = new ParticleSystem(content, "3DParticles/sparks", device, 1);
+            lightning                = new ParticleSystem(content, "3DParticles/lightning", device, 1);
             flash                    = new ParticleSystem(content, "3DParticles/FlashSettings", device);
             star_particles           = new ParticleSystem(content, "3DParticles/star_particles", device);
             neb_particles            = new ParticleSystem(content, "3DParticles/GalaxyParticle", device);
@@ -829,6 +834,7 @@ namespace Ship_Game
             fireParticles.UnloadContent();
             engineTrailParticles.UnloadContent();
             flameParticles.UnloadContent();
+            SmallflameParticles.UnloadContent();
             sparks.UnloadContent();
             lightning.UnloadContent();
             flash.UnloadContent();
@@ -848,8 +854,9 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
             HelperFunctions.CollectMemory();
-            Dispose();
             base.ExitScreen();
+            Dispose();
+            
         }
 
         private void ClearParticles()
@@ -898,15 +905,6 @@ namespace Ship_Game
             }
             //this.computeCircle = false;
             return multiShipData;
-        }
-
-        private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-        {
-            return new Vector2(0.0f, 0.0f)
-            {
-                X = (float)-((double)OwnerPos.X - (double)TargetPos.X),
-                Y = OwnerPos.Y - TargetPos.Y
-            };
         }
 
         // Refactored by RedFox
@@ -1017,8 +1015,9 @@ namespace Ship_Game
             explosionParticles      ?.Dispose(ref explosionParticles);
             explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
             fireTrailParticles      ?.Dispose(ref fireTrailParticles);
-            fireParticles           ?.Dispose(ref fireParticles);
+            fireParticles           ?.Dispose(ref fireParticles);            
             flameParticles          ?.Dispose(ref flameParticles);
+            SmallflameParticles     ?.Dispose(ref SmallflameParticles);
             beamflashes             ?.Dispose(ref beamflashes);
             dsbw                    ?.Dispose(ref dsbw);
             SelectedShipList        ?.Dispose(ref SelectedShipList);

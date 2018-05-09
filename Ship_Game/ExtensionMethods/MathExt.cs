@@ -113,6 +113,12 @@ namespace Ship_Game
             return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
         }
 
+        public static Vector3 Normalized(this Vector3 v)
+        {
+            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z);
+            return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : new Vector3();
+        }
+
         // True if this given position is within the radius of Circle [center,radius]
         public static bool InRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) <= radius*radius;
@@ -167,6 +173,9 @@ namespace Ship_Game
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
         // True if pos is inside the rectangle
+        //Saftey catch. allow a null to be sent to hit test. 
+        public static bool HitTest(this Rectangle r, object o) => false;
+
         public static bool HitTest(this Rectangle r, Vector2 pos)
         {
             return pos.X > r.X && pos.Y > r.Y && pos.X < r.X + r.Width && pos.Y < r.Y + r.Height;
@@ -298,6 +307,15 @@ namespace Ship_Game
             forward = Vector2.Normalize(forward);
             return ship.Position - (forward * distance);
         }
+
+        public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, int degrees)
+        {
+            float rads = ToRadians(degrees);
+            Vector2 strafeVector = new Vector2((float)Sin(ship.Rotation + rads), -(float)Cos(ship.Rotation + rads));
+            strafeVector = Vector2.Normalize(strafeVector);
+            return ship.Position + (strafeVector * distance);
+        }
+
 
         public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
         {
@@ -881,25 +899,6 @@ namespace Ship_Game
             return worldPos;
         }
 
-        public static float MultiMax(this float[] numbers)
-        {
-            float max = float.MinValue;
-            for (int x = 0; x < numbers.Length; x++)
-            {
-                var number = numbers[x];
-                max = Math.Max(max, number);
-            }
-            return max;
-        }
-        public static float Sum(this float[] numbers)
-        {
-            float sum = 0;
-            for (int x = 0; x < numbers.Length; x++)
-            {
-                var number = numbers[x];
-                sum += number;
-            }
-            return sum;
-        }
+        public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
     }
 }

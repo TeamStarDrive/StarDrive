@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using static Ship_Game.AI.ShipAI;
 
@@ -171,42 +172,46 @@ namespace Ship_Game.Debug
 
         public void Draw(GameTime gameTime)
         {
-            TextFont = Fonts.Arial20Bold;
-            SetTextCursor(50f, 50f, Color.Red);
-
-            DrawString(Color.Yellow, Mode.ToString());
-            DrawString("Ships Died:   " + ShipsDied);
-            DrawString("Proj Died:    " + ProjDied);
-            DrawString("Proj Created: " + ProjCreated);
-            DrawString("Mods Created: " + ModulesCreated);
-            DrawString("Mods Died:    " + ModulesDied);
-
-            TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
-            TextCursor.X += Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X;
-            DrawString("LastMTaskCanceled: "+ CanceledMTaskName);
-
-            DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
-            DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
-            DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
-            DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
-
-            DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
-            DrawGPObjects();
-            DrawCircles();
-            TextFont = Fonts.Arial12Bold;
-            switch (Mode)
+            try
             {
-                case DebugModes.Normal:       EmpireInfo();       break;
-                case DebugModes.DefenseCo:    DefcoInfo();        break;
-                case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
-                case DebugModes.Pathing:      PathingInfo();      break;
-                case DebugModes.Trade:        TradeInfo();        break;
-                case DebugModes.Targeting:    Targeting();        break;
-                case DebugModes.SpatialManager: SpatialManagement(); break;
-                case DebugModes.input:          InputDebug();        break;
-                case DebugModes.Tech:           Tech();              break;
+                TextFont = Fonts.Arial20Bold;
+                SetTextCursor(50f, 50f, Color.Red);
+
+                DrawString(Color.Yellow, Mode.ToString());
+                DrawString("Ships Died:   " + ShipsDied);
+                DrawString("Proj Died:    " + ProjDied);
+                DrawString("Proj Created: " + ProjCreated);
+                DrawString("Mods Created: " + ModulesCreated);
+                DrawString("Mods Died:    " + ModulesDied);
+
+                TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
+                TextCursor.X += Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X;
+                DrawString("LastMTaskCanceled: " + CanceledMTaskName);
+
+                DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
+                DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
+                DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
+                DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
+
+                DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
+                DrawGPObjects();
+                DrawCircles();
+                TextFont = Fonts.Arial12Bold;
+                switch (Mode)
+                {
+                    case DebugModes.Normal: EmpireInfo(); break;
+                    case DebugModes.DefenseCo: DefcoInfo(); break;
+                    case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
+                    case DebugModes.Pathing: PathingInfo(); break;
+                    case DebugModes.Trade: TradeInfo(); break;
+                    case DebugModes.Targeting: Targeting(); break;
+                    case DebugModes.SpatialManager: SpatialManagement(); break;
+                    case DebugModes.input: InputDebug(); break;
+                    case DebugModes.Tech: Tech(); break;
+                }
+                ShipInfo();
             }
-            ShipInfo();
+            catch { }
         }
         private void Tech()
         {
@@ -214,7 +219,7 @@ namespace Ship_Game.Debug
             int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isFaction || e.MinorRace)
+                if (e.isFaction || e.MinorRace || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
@@ -409,11 +414,11 @@ namespace Ship_Game.Debug
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
                 DrawString($"Ship Count:    {e.GetShips().Count}" +
-                           $" :{e.GetShips().Count(warship=> warship.DesignRole ==  ShipData.RoleName.fighter)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.frigate)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole == ShipData.RoleName.cruiser)}" +
-                           $" :{e.GetShips().Count(warship => warship.DesignRole > ShipData.RoleName.cruiser)}"
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
+                           $" :{e.GetShips().Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser || warship?.DesignRole == ShipData.RoleName.frigate)}" +                           
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
+                           $" :{e.GetShips().Count(warship => warship?.DesignRole >= ShipData.RoleName.bomber && warship?.DesignRole <= ShipData.RoleName.carrier)}"
                            );
                 DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
@@ -433,13 +438,13 @@ namespace Ship_Game.Debug
                 for (int x = 0; x < e.GetGSAI().Goals.Count; x++)
                 {
                     Goal g = e.GetGSAI().Goals[x];
-                    if (g.GoalName != "MarkForColonization")
+                    if (!(g is MarkForColonization))
                         continue;
 
                     NewLine();
                     string held = g.Held ? "(Held" : "";
-                    DrawString($"{held}{g.GoalName} {g.GetMarkedPlanet().Name}");
-                    DrawString(15f, "Step: " + g.Step);
+                    DrawString($"{held}{g} {g.GetMarkedPlanet().Name}");
+                    DrawString(15f, $"Step: {g.Step}");
                     if (g.GetColonyShip() != null && g.GetColonyShip().Active)
                         DrawString(15f, "Has ship");
                 }
@@ -522,7 +527,7 @@ namespace Ship_Game.Debug
               
                 foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values.ToArray())
                 {
-                    if (pin.Position == Vector2.Zero) continue;
+                    if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;
                     Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);
 
                     if (!pin.InBorders) continue;

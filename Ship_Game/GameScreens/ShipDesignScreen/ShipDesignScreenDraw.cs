@@ -120,13 +120,8 @@ namespace Ship_Game
                     if (slot.Module != HoveredModule )
                     {
                         if(!Input.LeftMouseHeld() ||!Input.IsAltKeyDown || slot.Module.ModuleType != ShipModuleType.Turret
-                                || slot.Module.Facing != HighlightedModule.Facing)
-
-                        {
+                                ||   (HighlightedModule?.Facing.AlmostEqual(slot.Module.Facing) ?? false))                        
                             continue;
-                            
-                        }
-                        
                     }
                     spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
                 }
@@ -372,7 +367,6 @@ namespace Ship_Game
             float RepairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
-            float BeamLongestDuration = 0f;
             float OrdnanceUsed = 0f;
             float OrdnanceRecoverd = 0f;
             float WeaponPowerNeeded = 0f;
@@ -962,19 +956,12 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ActiveHull.Name, Cursor, Color.White);
             }
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
+            DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);
             ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
 
             {
-                Array<ShipModule> modules = new Array<ShipModule>();
-                for (int x = 0; x < Slots.Count; x++)
-                {
-                    var slot = Slots[x];
-                    if (slot?.Module == null) continue;
-                    modules.Add(slot.Module);
-                }
-                var role = Ship.GetDesignRole(modules.ToArray(), this.ActiveHull.Role, this.ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
                 Vector2 Cursor = new Vector2(r.X + 3,r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(role, EmpireManager.Player), Cursor, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(this.Role, EmpireManager.Player), Cursor, Color.White);
             }
             r = this.SaveButton.Rect;
             if (ScreenState == ScreenState.TransitionOn ||

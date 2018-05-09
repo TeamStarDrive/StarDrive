@@ -1,9 +1,7 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Lights;
 
-using System;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -11,128 +9,165 @@ namespace Ship_Game
 {
     public sealed class Shield
     {
-        public static GameContentManager content;
-
-        public float texscale;
-
-        public float displacement;
-
+        public float TexScale;
+        public float Displacement;
         public Matrix World;
-
-        public float Radius;
-
-        //public Matrix View;          //Not referenced in code, removing to save memory
-
-        //public Matrix Projection;          //Not referenced in code, removing to save memory
-
-        public float Rotation;
-
-        public GameplayObject Owner;
-
-        public Vector3 Center;
-
-        public Model shieldModel;
-
-        public Texture2D shieldTexture;
-
-        public Texture2D gradientTexture;
-
-        public Effect ShieldEffect;
-
-        public PointLight pointLight = new PointLight();
-
-        public bool LightAdded = false;
+        private float Radius;
+        private float Rotation;
+        public GameplayObject Owner; // is null for PlanetaryShields
+        private Vector2 PlanetCenter; // only valid for PlanetaryShields
+        private PointLight Light;
 
         public Shield()
         {
         }
 
+        // shield attached to a ShipModule
+        public Shield(GameplayObject owner, float rotation, Vector2 center)
+        {
+            Owner         = owner;
+            TexScale      = 2.8f;
+            Rotation      = rotation;
+            UpdateWorldTransform();
+        }
+
+        // stationary planet shields
+        public Shield(Vector2 position)
+        {
+            PlanetCenter = position;
+            TexScale = 2.8f;
+            UpdateWorldTransform();
+        }
+
+        public void UpdateWorldTransform()
+        {
+            if (Owner != null)
+            {
+                World = Matrix.CreateScale(Radius /2) 
+                      * Matrix.CreateRotationZ(Rotation)
+                      * Matrix.CreateTranslation(Owner.Center.X, Owner.Center.Y, 0f);
+            }
+            else
+            {
+                World = Matrix.CreateScale(2f + 50f)
+                      * Matrix.CreateRotationZ(0.0f)
+                      * Matrix.CreateTranslation(PlanetCenter.X, PlanetCenter.Y, 2500f);
+            }
+        }
+
+        public bool InFrustum()
+        {
+            Vector2 center = Owner?.Center ?? PlanetCenter;
+            return Empire.Universe.Frustum.Contains(center, Radius);
+        }
+
         public void AddLight()
         {
-            if (LightAdded)                           
+            if (Light != null)                           
                 return;
             
-            LightAdded = true;
-            Empire.Universe.AddLight(pointLight);
+            Light = new PointLight();
+            Empire.Universe.AddLight(Light);
         }
 
         public void RemoveLight()
         {
-            LightAdded = false;
-            Empire.Universe.RemoveLight(pointLight);
+            if (Light == null)
+                return;
+
+            Empire.Universe.RemoveLight(Light);
+            Light = null;
         }
 
-        public void LoadContent()
+        public void UpdateLightIntensity(float intensityReduction = 0.0f)
         {
-            this.shieldModel = Shield.content.Load<Model>("Model/Projectiles/shield");
-            this.shieldTexture = Shield.content.Load<Texture2D>("Model/Projectiles/shield_d");
-            this.gradientTexture = Shield.content.Load<Texture2D>("Model/Projectiles/shieldgradient");
-            this.ShieldEffect = Shield.content.Load<Effect>("Effects/scale");
-            
+            if (Light == null)
+                return;
+
+            Light.Intensity -= intensityReduction;
+            if (Light.Intensity <= 0f)
+                Light.Enabled = false;
         }
 
-        public void HitShield(GameplayObject source)
+        public void HitShield(Planet planet, Bomb bomb, Vector2 planetCenter, float shieldRadius)
         {
+            PlanetCenter = planetCenter;
+            Vector3 center3D = PlanetCenter.ToVec3(2500f);
+            planet.PlayPlanetSfx("sd_impact_shield_01", center3D);
+
+            Rotation     = planetCenter.RadiansToTarget(bomb.Position.ToVec2());
+            Radius       = shieldRadius;
+            Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
+            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+
             AddLight();
-            Rotation = source.Rotation - 3.14159274f;
-            displacement = 0f;
-            texscale = 2.8f;
-            
+            Light.World        = bomb.World;
+            Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+            Light.Radius       = 50f;
+            Light.Intensity    = 8f;
+            Light.Enabled      = true;
+
+            Vector3 vel = (bomb.Position - center3D).Normalized();
+
+            Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+            for (int i = 0; i < 200; ++i)
+            {
+                Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vel * RandomMath.Vector3D(25f));
+            }
         }
 
-        public void HitShield(ShipModule hitPoint, Beam beam)
+        private static void CreateShieldHitParticles(Vector3 victim, Vector2 impact, bool beamFlash)
         {
-            float intensity = (10f).Clamp(1, beam.DamageAmount / hitPoint.ShieldPower);
-            AddLight();
-            Rotation                = hitPoint.Center.RadiansToTarget(beam.Source);
-            pointLight.World        = Matrix.CreateTranslation(new Vector3(beam.ActualHitDestination, 0f));
-            pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            pointLight.Radius       = hitPoint.shield_radius * 2f;
-            pointLight.Intensity    = RandomMath.RandomBetween(intensity *.5f, 10f);
-            displacement            = 0f;
-            Radius                  = hitPoint.ShieldHitRadius;
-            displacement            = 0.085f * RandomMath.RandomBetween(intensity, 10f);
-            texscale                = 2.8f;
-            texscale                = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
-            pointLight.Enabled      = true;
-            if (RandomMath.RandomBetween(0f, 100f) > 90f && hitPoint.GetParent().InFrustum)
-            {
-                Empire.Universe.flash.AddParticleThreadA(new Vector3(beam.ActualHitDestination, hitPoint.GetCenter3D.Z), Vector3.Zero);
-            }
-            if (hitPoint.GetParent().InFrustum)
-            {
-                Vector2 vel = (beam.Source - hitPoint.Center).Normalized();
-                for (int i = 0; i < 20; i++)
-                {
-                    Empire.Universe.sparks.AddParticleThreadA(new Vector3(beam.ActualHitDestination, hitPoint.GetCenter3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                }
-            }
+            Vector2 vel = (impact - victim.ToVec2()).Normalized();
+            Vector3 pos = impact.ToVec3(victim.Z);
 
+            if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 90f)
+                Empire.Universe.flash.AddParticleThread(!beamFlash, pos, Vector3.Zero);
+
+            for (int i = 0; i < 20; ++i)
+            {
+                var randVel = new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
+                Empire.Universe.sparks.AddParticleThread(!beamFlash, pos, randVel);
+            }
         }
-        public void HitShield(ShipModule hitPoint, Projectile proj)
+
+        public void HitShield(ShipModule module, Beam beam)
         {
+            float intensity = 10f.Clamp(1, beam.DamageAmount / module.ShieldPower);
+
+            Rotation     = module.Center.RadiansToTarget(beam.ActualHitDestination);
+            Radius       = module.ShieldHitRadius;
+            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
+            Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
+
             AddLight();
-            float intensity = (10f).Clamp(1, proj.DamageAmount / hitPoint.ShieldPower);
-            GameAudio.PlaySfxAsync("sd_impact_shield_01", hitPoint.GetParent().SoundEmitter);
-            Radius = hitPoint.ShieldHitRadius;
-            displacement = 0.085f * RandomMath.RandomBetween(intensity *.5f, 10f);
-            texscale = 2.8f;
-            texscale = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
-            pointLight.World = proj.WorldMatrix;
-            pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            pointLight.Radius = Radius;
-            pointLight.Intensity = 8f;
-            pointLight.Enabled = true;
+            Light.World        = Matrix.CreateTranslation(beam.ActualHitDestination.ToVec3());
+            Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+            Light.Radius       = module.ShieldHitRadius;
+            Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
+            Light.Enabled      = true;
 
-            Vector2 vel = proj.Center - hitPoint.Center.Normalized();
-            Empire.Universe.flash.AddParticleThreadB(new Vector3(proj.Center, hitPoint.GetCenter3D.Z), Vector3.Zero);
-            for (int i = 0; i < 20; i++)
-            {
-                Empire.Universe.sparks.AddParticleThreadB(new Vector3(proj.Center, hitPoint.GetCenter3D.Z)
-                    , new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-            }
+            CreateShieldHitParticles(module.GetCenter3D, beam.Center, beamFlash: true);
+        }
+        public void HitShield(ShipModule module, Projectile proj)
+        {
+            GameAudio.PlaySfxAsync("sd_impact_shield_01", module.GetParent().SoundEmitter);
 
+            float intensity = 10f.Clamp(1, proj.DamageAmount / module.ShieldPower);
 
+            Rotation     = module.Center.RadiansToTarget(proj.Center);
+            Radius       = module.ShieldHitRadius;
+            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
+            Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
+
+            AddLight();
+            Light.World        = proj.WorldMatrix;
+            Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
+            Light.Radius       = module.ShieldHitRadius;
+            Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
+            Light.Enabled      = true;
+
+            CreateShieldHitParticles(module.GetCenter3D, proj.Center, beamFlash: false);
         }
     }
 }

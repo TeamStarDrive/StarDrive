@@ -89,9 +89,21 @@ namespace Ship_Game
             }
             return 0;
         }
+        public float GetMaxGoodProd(string good)
+        {
+            switch (good)
+            {
+                case "Food":
+                    return NetFoodPerTurn;
+                case "Production":
+                    return MaxProductionPerTurn;
+            }
+            return 0;
+        }
         public float FoodPercentAdded;
         public float FlatFoodAdded;
         public float NetProductionPerTurn;
+        private float MaxProductionPerTurn;
         public float GrossProductionPerTurn;
         public float PlusFlatProductionPerTurn;
         public float NetResearchPerTurn;
@@ -357,10 +369,8 @@ namespace Ship_Game
             Array<Guid> list = new Array<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
             {
-                if (!keyValuePair.Value.Active 
-                    || keyValuePair.Value.Size == 0
-                    //|| keyValuePair.Value.loyalty != this.Owner
-                    )
+                if (!keyValuePair.Value?.Active ?? true //Remove this null check later. 
+                    || keyValuePair.Value.Size == 0)
                     list.Add(keyValuePair.Key);
             }
             foreach (Guid key in list)
@@ -2462,7 +2472,7 @@ namespace Ship_Game
                         {
                             if (!queueItem.isShip)
                                 continue;
-                            if (queueItem.sData.Role == ShipData.RoleName.platform)
+                            if (queueItem.sData.HullRole == ShipData.RoleName.platform)
                             {
                                 if (defBudget - platformUpkeep < -platformUpkeep * .5
                                 ) 
@@ -2473,7 +2483,7 @@ namespace Ship_Game
                                 defBudget -= platformUpkeep;
                                 PlatformCount++;
                             }
-                            if (queueItem.sData.Role == ShipData.RoleName.station)
+                            if (queueItem.sData.HullRole == ShipData.RoleName.station)
                             {
                                 if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
@@ -2487,11 +2497,10 @@ namespace Ship_Game
 
                         foreach (Ship platform in Shipyards.Values)
                         {
-                            if (platform.BaseStrength <= 0)
-                                continue;
+                            
                             if (platform.AI.State == AIState.Scrap)
                                 continue;
-                            if (platform.shipData.Role == ShipData.RoleName.station)
+                            if (platform.shipData.HullRole == ShipData.RoleName.station )
                             {
                                 stationUpkeep = platform.GetMaintCost();
                                 if (defBudget - stationUpkeep < -stationUpkeep)
@@ -2502,7 +2511,7 @@ namespace Ship_Game
                                 defBudget -= stationUpkeep;
                                 stationCount++;
                             }
-                            if (platform.shipData.Role == ShipData.RoleName.platform
+                            if (platform.shipData.HullRole == ShipData.RoleName.platform
                             ) 
                             {
                                 platformUpkeep = platform.GetMaintCost();
@@ -2618,8 +2627,6 @@ namespace Ship_Game
             return true;
         }
 
-        public int EstimatedTurnsTillComplete(QueueItem qItem) => SbProduction.EstimatedTurnsTillComplete(qItem);
- 
         public float GetMaxProductionPotential()
         {
             float num1 = 0.0f;
@@ -2798,6 +2805,7 @@ namespace Ship_Game
             //Production
             NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
+            MaxProductionPerTurn = GetMaxProductionPotential();
             if (Owner.data.Traits.Cybernetic > 0)
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else

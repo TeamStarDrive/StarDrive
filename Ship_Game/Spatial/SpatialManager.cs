@@ -158,13 +158,13 @@ namespace Ship_Game.Gameplay
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
                     modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
 
-                ship.DamageModulesInRange(source, damageAmount, source.Center, modifiedRadius, source.IgnoresShields);
+                ship.DamageModulesExplosive(source, damageAmount, source.Center, modifiedRadius, source.IgnoresShields);
             }
         }
 
         // Refactored by RedFox
         public void ExplodeAtModule(GameplayObject damageSource, ShipModule hitModule, 
-                                    bool ignoreShields, float damageAmount, float damageRadius)
+                                    bool ignoresShields, float damageAmount, float damageRadius)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
@@ -172,7 +172,7 @@ namespace Ship_Game.Gameplay
             if (shipToDamage.dying || !shipToDamage.Active)
                 return;
 
-            shipToDamage.DamageModulesInRange(damageSource, damageAmount, hitModule.Center, damageRadius, ignoreShields, InternalExplosion:true);
+            shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Center, damageRadius, ignoresShields);
         }
 
         // @note This is called quite rarely, so optimization is not a priority

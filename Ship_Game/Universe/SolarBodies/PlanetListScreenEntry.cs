@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -66,7 +67,6 @@ namespace Ship_Game
                 width = width + 1f;
             }
 
-            Goal goal = new Goal();
             foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
             {
                 if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
@@ -261,12 +261,19 @@ namespace Ship_Game
                 this.Colonize.Draw(ScreenManager.SpriteBatch);
             }
 
-            //if (i > 0 && this.planet.Owner == null)
             if (this.planet.Owner ==null && this.planet.Habitable)  //fbedard: can send troop anywhere
             {
-                int troopsInvading = this.screen.EmpireUI.empire.GetShips()
-                 .Where(troop => troop.TroopList.Count > 0)
-                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
+                int troopsInvading = 0;
+                BatchRemovalCollection<Ship> ships = screen.EmpireUI.empire.GetShips();
+                for (int z = 0; z < ships.Count; z++)
+                {
+                    var ship = ships[z];
+                    var ai = ship?.AI;                    
+                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.Count == 0 || ai.OrderQueue.Count == 0) continue;
+                    if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet))
+                        troopsInvading = ship.TroopList.Count;
+                }
+
                 if (troopsInvading > 0)
                 {
                     SendTroops.Text = "Invading: " + troopsInvading;
@@ -359,8 +366,8 @@ namespace Ship_Game
                     if (!this.marked)
                     {
                         GameAudio.PlaySfxAsync("echo_affirm");
-                        Goal g = new Goal(this.planet, Empire.Universe.player);
-                        Empire.Universe.player.GetGSAI().Goals.Add(g);
+                        Empire.Universe.player.GetGSAI().Goals.Add(
+                            new MarkForColonization(planet, Empire.Universe.player));
                         Colonize.Text = "Cancel Colonize";
                         Colonize.Style = ButtonStyle.Default;
                         marked = true;

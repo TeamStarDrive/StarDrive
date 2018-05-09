@@ -77,7 +77,7 @@ namespace Ship_Game
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {            
-            this.p = p;
+            this.p = p;            
             int screenWidth = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             this.GridRect = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
@@ -370,7 +370,8 @@ namespace Ship_Game
                     continue;
                 }
                 Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64")], bRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64"))
+                    , bRect, Color.White);
             }
             foreach (PlanetGridSquare pgs in this.ReversedList)
             {

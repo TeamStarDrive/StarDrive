@@ -625,7 +625,6 @@ namespace Ship_Game
                 InCombatTimer = 10f;
             if (TroopsHere.Count <= 0 || Owner == null)
                 return;
-            bool flag = false;
             int num1 = 0;
             int num2 = 0;
             Empire index = null;
@@ -639,8 +638,6 @@ namespace Ship_Game
                         {
                             ++num2;
                             index = troop.GetOwner();
-                            if (index.isFaction)
-                                flag = true;
                         }
                         else
                             ++num1;
@@ -793,9 +790,9 @@ namespace Ship_Game
         }
 
         public int GetGroundLandingSpots()
-        {
-            int spotCount = TilesList.Where(spots => spots.building == null).Sum(spots => spots.number_allowed_troops);
-            int troops = TroopsHere.Where(owner => owner.GetOwner() == Owner).Count();
+        {            
+            int spotCount = TilesList.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1).Sum(spots => spots.number_allowed_troops); 
+            int troops = TroopsHere.FilterBy(owner => owner.GetOwner() == Owner).Length;
             return spotCount - troops;
 
 

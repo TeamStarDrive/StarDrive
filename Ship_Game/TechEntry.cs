@@ -259,16 +259,16 @@ namespace Ship_Game
             }
         }
 
-        public bool SetDiscovered(Empire empire)
+        public bool SetDiscovered(Empire empire, bool discoverForward = true)
         {
             if (IsRestricted(empire)) return false;
             
             Discovered = true;
             GetPreReq(empire);
-            var rootTech = FindRootNode(empire);
-            if (rootTech != null)            
-                rootTech.Unlocked = rootTech.Discovered = true;
-            
+            var rootTech = DiscoverToRoot(empire);
+            //if (rootTech != null)            
+            //    rootTech.Unlocked = rootTech.Discovered = true;
+            if (discoverForward)
             foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
             {
                 //added by McShooterz: Prevent Racial tech from being discovered by unintentional means  
@@ -279,7 +279,7 @@ namespace Ship_Game
             return true;
         }
 
-        public TechEntry FindRootNode(Empire empire)
+        public TechEntry DiscoverToRoot(Empire empire)
         {            
             TechEntry tech = this;
             while (tech.Tech.RootNode != 1)
@@ -287,10 +287,10 @@ namespace Ship_Game
                 var rootTech = tech.GetPreReq(empire);
                 if (rootTech == null)                
                     break;
-                
-                if ((tech = rootTech).Tech.RootNode != 1)
+                rootTech.SetDiscovered(empire, false);
+                if ((tech = rootTech).Tech.RootNode != 1 || !tech.Discovered)
                     continue;
-                
+                rootTech.Unlocked = true; ;
                 return rootTech;
             }
             
@@ -301,16 +301,30 @@ namespace Ship_Game
         {
             foreach (var keyValuePair in empire.TechnologyDict)
             {
-                Technology technology = ResourceManager.GetTreeTech(keyValuePair.Key);
+                Technology technology = keyValuePair.Value.Tech;                                                
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
-                    if (leadsToTech.UID == UID)
+                    if (leadsToTech.UID != UID) continue;
+                    if (keyValuePair.Value.Tech.RootNode ==1 || !keyValuePair.Value.IsRestricted(empire))
                         return keyValuePair.Value;
+
+                    return keyValuePair.Value.GetPreReq(empire);                    
                 }
             }
             return null;
         }
 
+        public TechEntry FindNextDiscoveredTech(Empire empire)
+        {
+            Technology technology = Tech;
+            if (Discovered) return this;
+            foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
+            {
+                var tech = empire.GetTechEntry(leadsToTech.UID);
+                return tech.FindNextDiscoveredTech(empire);
+            }
+            return null;
+        }
 
         public void UnlockBonus(Empire empire)
         {
@@ -328,110 +342,117 @@ namespace Ship_Game
                 if (type != null && type != data.Traits.ShipType && type != AcquiredFrom)
                     continue;
        
-                if (unlockedBonus.Tags.Count > 0)
+                if (unlockedBonus.Tags.Count <= 0)
                 {
-                    foreach (string index in unlockedBonus.Tags)
+                    UnlockOtherBonuses(empire, unlockedBonus);
+                    return;
+                }
+                foreach (string index in unlockedBonus.Tags)
+                {
+                    var tagmod = data.WeaponTags[index];
+                    switch (unlockedBonus.BonusType)
                     {
-                        var tagmod = data.WeaponTags[index];
-                        switch (unlockedBonus.BonusType)
-                        {
-                            case "Weapon_Speed": tagmod.Speed += unlockedBonus.Bonus; continue;
-                            case "Weapon_Damage": tagmod.Damage += unlockedBonus.Bonus; continue;
-                            case "Weapon_ExplosionRadius": tagmod.ExplosionRadius += unlockedBonus.Bonus; continue;
-                            case "Weapon_TurnSpeed": tagmod.Turn += unlockedBonus.Bonus; continue;
-                            case "Weapon_Rate": tagmod.Rate += unlockedBonus.Bonus; continue;
-                            case "Weapon_Range": tagmod.Range += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldDamage": tagmod.ShieldDamage += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmorDamage": tagmod.ArmorDamage += unlockedBonus.Bonus; continue;
-                            case "Weapon_HP": tagmod.HitPoints += unlockedBonus.Bonus; continue;
-                            case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
-                            case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
-                            default: continue;
-                        }
-                    }                    
-                }
+                        case "Weapon_Speed"            : tagmod.Speed             += unlockedBonus.Bonus; continue;
+                        case "Weapon_Damage"           : tagmod.Damage            += unlockedBonus.Bonus; continue;
+                        case "Weapon_ExplosionRadius"  : tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
+                        case "Weapon_TurnSpeed"        : tagmod.Turn              += unlockedBonus.Bonus; continue;
+                        case "Weapon_Rate"             : tagmod.Rate              += unlockedBonus.Bonus; continue;
+                        case "Weapon_Range"            : tagmod.Range             += unlockedBonus.Bonus; continue;
+                        case "Weapon_ShieldDamage"     : tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
+                        case "Weapon_ArmorDamage"      : tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
+                        case "Weapon_HP"               : tagmod.HitPoints         += unlockedBonus.Bonus; continue;
+                        case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
+                        case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
+                        default                        : continue;
+                    }
+                }                    
+            }
+        }
 
-                switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
-                {
-                    case "Xeno Compilers"               :
-                    case "Research Bonus"               : data.Traits.ResearchMod += unlockedBonus.Bonus; break;
-                    case "FTL Spool Bonus"              :
-                        if (unlockedBonus.Bonus < 1) data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
-                        else if (unlockedBonus.Bonus >= 1) data.SpoolTimeModifier = 0f; // insta-warp by modifier
-                        break;
-                    case "Top Guns"                     :
-                    case "Bonus Fighter Levels"         :
-                        data.BonusFighterLevels += (int)unlockedBonus.Bonus;
-                        empire.IncreaseEmpireShipRoleLevel(ShipData.RoleName.fighter, (int)unlockedBonus.Bonus);                        
-                        break;
-                    case "Mass Reduction"               :
-                    case "Percent Mass Adjustment"      : data.MassModifier += unlockedBonus.Bonus; break;
-                    case "ArmourMass"                   : data.ArmourMassModifier += unlockedBonus.Bonus; break;
-                    case "Resistance is Futile"         :
-                    case "Allow Assimilation"           : data.Traits.Assimilators = true; break;
-                    case "Cryogenic Suspension"         :
-                    case "Passenger Modifier"           : data.Traits.PassengerModifier += unlockedBonus.Bonus; break;
-                    case "ECM Bonus"                    :
-                    case "Missile Dodge Change Bonus"   : data.MissileDodgeChance += unlockedBonus.Bonus; break;
-                    case "Set FTL Drain Modifier"       : data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
-                    case "Super Soldiers"               :
-                    case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
-                    case "Fuel Cell Upgrade"            :
-                    case "Fuel Cell Bonus"              : data.FuelCellModifier += unlockedBonus.Bonus; break;
-                    case "Trade Tariff"                 :
-                    case "Bonus Money Per Trade"        : data.Traits.Mercantile += unlockedBonus.Bonus; break;
-                    case "Missile Armor"                :
-                    case "Missile HP Bonus"             : data.MissileHPModifier += unlockedBonus.Bonus; break;
-                    case "Hull Strengthening"           :
-                    case "Module HP Bonus"              :
-                        data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                        empire.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
-                        break;
-                    case "Reaction Drive Upgrade"       :
-                    case "STL Speed Bonus"              : data.SubLightModifier += unlockedBonus.Bonus; break;
-                    case "Reactive Armor"               :
-                    case "Armor Explosion Reduction"    : data.ExplosiveRadiusReduction += unlockedBonus.Bonus; break;
-                    case "Slipstreams"                  :
-                    case "In Borders FTL Bonus"         : data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
-                    case "StarDrive Enhancement"        :
-                    case "FTL Speed Bonus"              : data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;
-                    case "FTL Efficiency"               :
-                    case "FTL Efficiency Bonus"         : data.FTLPowerDrainModifier -= unlockedBonus.Bonus * data.FTLPowerDrainModifier; break;
-                    case "Spy Offense"                  :
-                    case "Spy Offense Roll Bonus"       : data.OffensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Spy Defense"                  :
-                    case "Spy Defense Roll Bonus"       : data.DefensiveSpyBonus += unlockedBonus.Bonus; break;
-                    case "Increased Lifespans"          :
-                    case "Population Growth Bonus"      : data.Traits.ReproductionMod += unlockedBonus.Bonus; break;
-                    case "Set Population Growth Min"    : data.Traits.PopGrowthMin = unlockedBonus.Bonus; break;
-                    case "Set Population Growth Max"    : data.Traits.PopGrowthMax = unlockedBonus.Bonus; break;
-                    case "Xenolinguistic Nuance"        :
-                    case "Diplomacy Bonus"              : data.Traits.DiplomacyMod += unlockedBonus.Bonus; break;
-                    case "Ordnance Effectiveness"       :
-                    case "Ordnance Effectiveness Bonus" : data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
-                    case "Tachyons"                     :
-                    case "Sensor Range Bonus"           : data.SensorModifier += unlockedBonus.Bonus; break;
-                    case "Privatization"                : data.Privatization = true; break;
-                    // Doctor                           : Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
-                    case "Civilian Maintenance"         : data.CivMaintMod -= unlockedBonus.Bonus; break;
-                    case "Armor Piercing"               :
-                    case "Armor Phasing"                : data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
-                    case "Kulrathi Might"               :
-                        data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                        empire.RecalculateMaxHP = true; //So existing ships will benefit from changes to ModHpModifier -Gretman
-                        break;
-                    case "Subspace Inhibition"          : data.Inhibitors = true; break;
-                    // Added by McShooterz              : New Bonuses
-                    case "Production Bonus"             : data.Traits.ProductionMod += unlockedBonus.Bonus; break;
-                    case "Construction Bonus"           : data.Traits.ShipCostMod -= unlockedBonus.Bonus; break;
-                    case "Consumption Bonus"            : data.Traits.ConsumptionModifier -= unlockedBonus.Bonus; break;
-                    case "Tax Bonus"                    : data.Traits.TaxMod += unlockedBonus.Bonus; break;
-                    case "Repair Bonus"                 : data.Traits.RepairMod += unlockedBonus.Bonus; break;
-                    case "Maintenance Bonus"            : data.Traits.MaintMod -= unlockedBonus.Bonus; break;
-                    case "Power Flow Bonus"             : data.PowerFlowMod += unlockedBonus.Bonus; break;
-                    case "Shield Power Bonus"           : data.ShieldPowerMod += unlockedBonus.Bonus; break;
-                    case "Ship Experience Bonus"        : data.ExperienceMod += unlockedBonus.Bonus; break;
-                }
+        private void UnlockOtherBonuses(Empire empire, Technology.UnlockedBonus unlockedBonus)
+        {
+            var data = empire.data;
+            switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
+            {
+                case "Xeno Compilers":
+                case "Research Bonus": data.Traits.ResearchMod += unlockedBonus.Bonus; break;
+                case "FTL Spool Bonus":
+                    if (unlockedBonus.Bonus < 1) data.SpoolTimeModifier *= 1.0f - unlockedBonus.Bonus; // i.e. if there is a 0.2 (20%) bonus unlocked, the spool modifier is 1-0.2 = 0.8* existing spool modifier...
+                    else if (unlockedBonus.Bonus >= 1) data.SpoolTimeModifier = 0f; // insta-warp by modifier
+                    break;
+                case "Top Guns":
+                case "Bonus Fighter Levels":
+                    data.BonusFighterLevels += (int)unlockedBonus.Bonus;
+                    empire.IncreaseEmpireShipRoleLevel(ShipData.RoleName.fighter, (int)unlockedBonus.Bonus);
+                    break;
+                case "Mass Reduction":
+                case "Percent Mass Adjustment": data.MassModifier += unlockedBonus.Bonus; break;
+                case "ArmourMass": data.ArmourMassModifier += unlockedBonus.Bonus; break;
+                case "Resistance is Futile":
+                case "Allow Assimilation": data.Traits.Assimilators = true; break;
+                case "Cryogenic Suspension":
+                case "Passenger Modifier": data.Traits.PassengerModifier += unlockedBonus.Bonus; break;
+                case "ECM Bonus":
+                case "Missile Dodge Change Bonus": data.MissileDodgeChance += unlockedBonus.Bonus; break;
+                case "Set FTL Drain Modifier": data.FTLPowerDrainModifier = unlockedBonus.Bonus; break;
+                case "Super Soldiers":
+                case "Troop Strength Modifier Bonus": data.Traits.GroundCombatModifier += unlockedBonus.Bonus; break;
+                case "Fuel Cell Upgrade":
+                case "Fuel Cell Bonus": data.FuelCellModifier += unlockedBonus.Bonus; break;
+                case "Trade Tariff":
+                case "Bonus Money Per Trade": data.Traits.Mercantile += unlockedBonus.Bonus; break;
+                case "Missile Armor":
+                case "Missile HP Bonus": data.MissileHPModifier += unlockedBonus.Bonus; break;
+                case "Hull Strengthening":
+                case "Module HP Bonus":
+                    data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                    empire.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    break;
+                case "Reaction Drive Upgrade":
+                case "STL Speed Bonus": data.SubLightModifier += unlockedBonus.Bonus; break;
+                case "Reactive Armor":
+                case "Armor Explosion Reduction": data.ExplosiveRadiusReduction += unlockedBonus.Bonus; break;
+                case "Slipstreams":
+                case "In Borders FTL Bonus": data.Traits.InBordersSpeedBonus += unlockedBonus.Bonus; break;
+                case "StarDrive Enhancement":
+                case "FTL Speed Bonus": data.FTLModifier += unlockedBonus.Bonus * data.FTLModifier; break;
+                case "FTL Efficiency":
+                case "FTL Efficiency Bonus": data.FTLPowerDrainModifier -= unlockedBonus.Bonus * data.FTLPowerDrainModifier; break;
+                case "Spy Offense":
+                case "Spy Offense Roll Bonus": data.OffensiveSpyBonus += unlockedBonus.Bonus; break;
+                case "Spy Defense":
+                case "Spy Defense Roll Bonus": data.DefensiveSpyBonus += unlockedBonus.Bonus; break;
+                case "Increased Lifespans":
+                case "Population Growth Bonus": data.Traits.ReproductionMod += unlockedBonus.Bonus; break;
+                case "Set Population Growth Min": data.Traits.PopGrowthMin = unlockedBonus.Bonus; break;
+                case "Set Population Growth Max": data.Traits.PopGrowthMax = unlockedBonus.Bonus; break;
+                case "Xenolinguistic Nuance":
+                case "Diplomacy Bonus": data.Traits.DiplomacyMod += unlockedBonus.Bonus; break;
+                case "Ordnance Effectiveness":
+                case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
+                case "Tachyons":
+                case "Sensor Range Bonus": data.SensorModifier += unlockedBonus.Bonus; break;
+                case "Privatization": data.Privatization = true; break;
+                // Doctor                           : Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
+                case "Civilian Maintenance": data.CivMaintMod -= unlockedBonus.Bonus; break;
+                case "Armor Piercing":
+                case "Armor Phasing": data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
+                case "Kulrathi Might":
+                    data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                    empire.RecalculateMaxHP = true; //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    break;
+                case "Subspace Inhibition": data.Inhibitors = true; break;
+                // Added by McShooterz              : New Bonuses
+                case "Production Bonus": data.Traits.ProductionMod += unlockedBonus.Bonus; break;
+                case "Construction Bonus": data.Traits.ShipCostMod -= unlockedBonus.Bonus; break;
+                case "Consumption Bonus": data.Traits.ConsumptionModifier -= unlockedBonus.Bonus; break;
+                case "Tax Bonus": data.Traits.TaxMod += unlockedBonus.Bonus; break;
+                case "Repair Bonus": data.Traits.RepairMod += unlockedBonus.Bonus; break;
+                case "Maintenance Bonus": data.Traits.MaintMod -= unlockedBonus.Bonus; break;
+                case "Power Flow Bonus": data.PowerFlowMod += unlockedBonus.Bonus; break;
+                case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
+                case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
+                case "Kinetic Shield Penetration Chance Bonus": data.ShieldPenBonusChance += unlockedBonus.Bonus; break;
             }
         }
     }

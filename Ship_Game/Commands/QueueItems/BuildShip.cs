@@ -8,7 +8,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.Commands
 {
-    class BuildShip:QueueItem
+    class BuildShip : QueueItem
     {
         public BuildShip(ShipAI.ShipGoal goal )
         {

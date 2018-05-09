@@ -13,10 +13,33 @@
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Ordnance Effectiveness</Name>
-      <BonusType>Ordnance Effectiveness Bonus</BonusType>
+      <BonusType>Weapon_Damage</BonusType>
+      <Tags>
+        <string>Kinetic</string>
+      </Tags>
+      <Tags>
+        <string>Missile</string>
+      </Tags>
+      <Tags>
+        <string>Torpedo</string>
+      </Tags>
       <Bonus>.25</Bonus>
-      <Description></Description>
       <BonusIndex>2003</BonusIndex>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Ordnance Effectiveness</Name>
+      <BonusType>Weapon_ExplosionRadius</BonusType>
+      <Tags>
+        <string>Kinetic</string>
+      </Tags>
+      <Tags>
+        <string>Missile</string>
+      </Tags>
+      <Tags>
+        <string>Torpedo</string>
+      </Tags>
+      <Bonus>.25</Bonus>
+      <BonusIndex>1999</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
   <TroopsUnlocked />

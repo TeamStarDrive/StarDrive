@@ -62,6 +62,7 @@ namespace Ship_Game
         //mouse position
         private Vector2 MouseRightClickPos = Vector2.Zero;
         private Vector2 MouseLeftClickPos = Vector2.Zero;
+        public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
         private bool MouseLeftDrag = false;
         private bool MouseRightDrag = false;
         private void SetMouseDrag()
@@ -177,7 +178,7 @@ namespace Ship_Game
 
         //FleetDesignScreen
         public bool FleetRemoveSquad => KeyPressed(Keys.Back) || KeyPressed(Keys.Delete);
-        public bool FleetExitScreen => KeyPressed(Keys.J);
+        public bool FleetExitScreen => KeyPressed(Keys.J) || KeyPressed(Keys.Escape);
 
         //debug
         public bool DebugMode            => LeftCtrlShift && (KeyPressed(Keys.OemTilde) || KeyPressed(Keys.Tab));
@@ -197,7 +198,10 @@ namespace Ship_Game
         public bool IsAltKeyDown    => IsKeyDown(Keys.LeftAlt)     || IsKeyDown(Keys.RightAlt);
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
         public bool IsShiftKeyDown  => IsKeyDown(Keys.LeftShift)   || IsKeyDown(Keys.RightShift);
+        public bool IsEnterOrEscape => IsKeyDown(Keys.Enter)       || IsKeyDown(Keys.Escape);
 
+        //researchScreen
+        public bool ResearchExitScreen => KeyPressed(Keys.R);
 
         public bool ShipDesignExit => KeyPressed(Keys.Y);
         public bool ShipYardArcMove()
@@ -209,7 +213,7 @@ namespace Ship_Game
             return LeftMouseHeld();
         }
 
-        public Vector2 CursorPosition { get; private set; }
+        public Vector2 CursorPosition { get ; private set; }
 
         public bool Undo              => KeyPressed(Keys.Z) && IsKeyDown(Keys.LeftControl);
         public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
@@ -303,11 +307,7 @@ namespace Ship_Game
         public void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (ExitScreenTimer >=0)
-            {
-                ExitScreenTimer -= elapsedTime;
-                return;
-            }
+
             KeysPrev        = KeysCurr;
             GamepadPrev     = GamepadCurr;
             MousePrev       = MouseCurr;
@@ -315,7 +315,11 @@ namespace Ship_Game
             MouseCurr       = Mouse.GetState();
             CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
             KeysCurr        = Keyboard.GetState();
-
+            if (ExitScreenTimer >= 0)
+            {
+                ExitScreenTimer -= elapsedTime;
+                return;
+            }
             SetMouseDrag();
 
             RightMouseDoubleClick = RightDblClickTimer > 0 && RightMouseClick;

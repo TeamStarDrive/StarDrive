@@ -1,5 +1,6 @@
 using System;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
@@ -55,7 +56,7 @@ namespace Ship_Game
 
         private void MarkForColonization(object sender)
         {
-            player.GetGSAI().Goals.Add(new Goal(SelectedPlanet, player));
+            player.GetGSAI().Goals.Add(new MarkForColonization(SelectedPlanet, player));
         }
     }
 }

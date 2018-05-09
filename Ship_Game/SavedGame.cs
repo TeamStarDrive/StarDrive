@@ -8,6 +8,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using System.Globalization;
 using System.Configuration;
+using System.Linq;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
@@ -35,6 +36,23 @@ namespace Ship_Game
         public int Version;
 
         [XmlIgnore][JsonIgnore]public FileInfo FI;
+    }
+
+    // XNA.Rectangle cannot be serialized, so we need a proxy object
+    public struct RectangleData
+    {
+        public int X, Y, Width, Height;
+        public RectangleData(Rectangle r)
+        {
+            X = r.X;
+            Y = r.Y;
+            Width = r.Width;
+            Height = r.Height;
+        }
+        public static implicit operator Rectangle(RectangleData r)
+        {
+            return new Rectangle(r.X, r.Y, r.Width, r.Height);
+        }
     }
 
     public sealed class SavedGame
@@ -348,11 +366,11 @@ namespace Ship_Game
                     var gdata = new GoalSave
                     {
                         BuildPosition = g.BuildPosition,
-                        GoalStep = g.Step,
-                        ToBuildUID = g.ToBuildUID,
-                        type = g.type,
-                        GoalGuid = g.guid,
-                        GoalName = g.GoalName
+                        GoalStep      = g.Step,
+                        ToBuildUID    = g.ToBuildUID,
+                        type          = g.type,
+                        GoalGuid      = g.guid,
+                        GoalName      = g.UID,
                     };
                     if (g.GetColonyShip() != null)
                     {
@@ -416,7 +434,8 @@ namespace Ship_Game
                     sdata.PopCount  = ship.GetColonists();
                     sdata.TroopList = ship.TroopList;
 
-                    sdata.AreaOfOperation = ship.AreaOfOperation;
+                    sdata.AreaOfOperation = ship.AreaOfOperation
+                        .Select(r => new RectangleData(r)).ToArrayList();
                
                     sdata.AISave = new ShipAISave()
                     {
@@ -669,7 +688,7 @@ namespace Ship_Game
             return usData;
         }
 
-        public struct EmpireSaveData
+        public class EmpireSaveData
         {
             [Serialize(0)] public string Name;
             [Serialize(1)] public Array<Relationship> Relations;
@@ -692,7 +711,7 @@ namespace Ship_Game
             [Serialize(18)] public string CurrentConstructor;
         }
 
-        public struct FleetSave
+        public class FleetSave
         {
             [Serialize(0)] public bool IsCoreFleet;
             [Serialize(1)] public string Name;
@@ -715,7 +734,7 @@ namespace Ship_Game
             public override string ToString() => $"FleetShipSave {shipGuid} {fleetOffset}";
         }
 
-        public struct GoalSave
+        public class GoalSave
         {
             [Serialize(0)] public GoalType type;
             [Serialize(1)] public int GoalStep;
@@ -739,7 +758,7 @@ namespace Ship_Game
             [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
         }
 
-        public struct PGSData
+        public class PGSData
         {
             [Serialize(0)] public int x;
             [Serialize(1)] public int y;
@@ -752,7 +771,7 @@ namespace Ship_Game
             [Serialize(8)] public int prodbonus;
         }
 
-        public struct PlanetSaveData
+        public class PlanetSaveData
         {
             [Serialize(0)] public Guid guid;
             [Serialize(1)] public string SpecialDescription;
@@ -798,7 +817,7 @@ namespace Ship_Game
             [Serialize(4)] public Vector2 Position;
         }
 
-        public struct QueueItemSave
+        public class QueueItemSave
         {
             [Serialize(0)] public string UID;
             [Serialize(1)] public Guid GoalGUID;
@@ -826,7 +845,7 @@ namespace Ship_Game
             [Serialize(1)] public Guid Guid_Platform;
         }
 
-        public struct ShipAISave
+        public class ShipAISave
         {
             [Serialize(0)] public AIState state;
             [Serialize(1)] public int numFood;
@@ -846,7 +865,7 @@ namespace Ship_Game
             [Serialize(15)] public Guid EscortTarget;
         }
 
-        public struct ShipGoalSave
+        public class ShipGoalSave
         {
             [Serialize(0)] public ShipAI.Plan Plan;
             [Serialize(1)] public Guid goalGuid;
@@ -859,7 +878,7 @@ namespace Ship_Game
             [Serialize(8)] public Guid TargetPlanetGuid;
         }
 
-        public struct ShipSaveData
+        public class ShipSaveData
         {
             [Serialize(0)] public Guid guid;
             [Serialize(1)] public bool AfterBurnerOn;
@@ -879,7 +898,7 @@ namespace Ship_Game
             [Serialize(15)] public float experience;
             [Serialize(16)] public int kills;
             [Serialize(17)] public Array<Troop> TroopList;
-            [Serialize(18)] public Array<Rectangle> AreaOfOperation;
+            [Serialize(18)] public Array<RectangleData> AreaOfOperation;
             [Serialize(19)] public float FoodCount;
             [Serialize(20)] public float ProdCount;
             [Serialize(21)] public float PopCount;
@@ -888,7 +907,7 @@ namespace Ship_Game
             [Serialize(24)] public Array<ProjectileSaveData> Projectiles;
         }
 
-        public struct SolarSystemSaveData
+        public class SolarSystemSaveData
         {
             [Serialize(0)] public Guid guid;
             [Serialize(1)] public string SunPath;

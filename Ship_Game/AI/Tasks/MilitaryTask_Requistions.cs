@@ -21,7 +21,7 @@ namespace Ship_Game.AI.Tasks {
                 {
                     if (planet.Owner != Owner) continue;
                     if (planet.RecentCombat) continue;                    
-                    int extra = planet.TroopsHere.Count - rank;
+                    int extra = IsToughNut ? 0 : planet.TroopsHere.Count - rank;
                     extra = Math.Max(needed, extra);                    
                     potentialTroops.AddRange(planet.GetEmpireTroops(Owner, extra));
                 }
@@ -138,15 +138,21 @@ namespace Ship_Game.AI.Tasks {
                 ForceStrength += ship.PlanetAssaultStrength;
             }
 
-            foreach (Troop t in potentialTroops)
+            foreach (Troop t in potentialTroops.Where(planet=> planet.GetPlanet() != null).OrderBy(troop => troop.GetPlanet().RecentCombat ? 1 :0)
+                .ThenBy(troop => troop.GetPlanet().ParentSystem.CombatInSystem ? 1 : 0)
+                .ThenBy(troop => troop.GetPlanet().Center.SqDist(AO))
+            )
             {
                 if (ForceStrength > EnemyTroopStrength * 1.5f)
                     break;
-
-                if (t.GetPlanet() == null || !(t.GetPlanet().ParentSystem.combatTimer <= 0) ||
-                    t.GetPlanet().RecentCombat) continue;
                 if (t.GetOwner() == null) continue;
-                newFleet.AddShip(t.Launch());
+                Ship launched = t.Launch();
+                if (launched == null)
+                {
+                    Log.Error($"CreateFleet: Troop launched from planet became null");
+                    continue;
+                }
+                newFleet.AddShip(launched);
                 ForceStrength += t.Strength;
             }
 
@@ -190,7 +196,7 @@ namespace Ship_Game.AI.Tasks {
                 if ((ship.shipData.Role == ShipData.RoleName.station ||
                      ship.shipData.Role == ShipData.RoleName.platform)
                     || !ship.ShipIsGoodForGoals()
-                    //|| ship.InCombat
+                    || ship.InCombat
                     || ship.fleet != null
                     || ship.Mothership != null
                     || ship.AI.State == AIState.Scrap
@@ -210,7 +216,7 @@ namespace Ship_Game.AI.Tasks {
                 {
                     troopShips.Add(ship);
                 }
-                else if (combat != null && ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole < ShipData.RoleName.prototype
+                else if (combat != null && ship.DesignRole >= ShipData.RoleName.carrier && ship.DesignRole < ShipData.RoleName.prototype
                     && ship.DesignRole != ShipData.RoleName.scout)
                 {
                     combat.Add(ship);
@@ -438,11 +444,11 @@ namespace Ship_Game.AI.Tasks {
                 EndTask();
                 return;
             }
-            if (IsToughNut)
-            {
-                DoToughNutRequisition();
-                return;
-            }
+            //if (IsToughNut)
+            //{
+            //    //DoToughNutRequisition();
+            //    //return;
+            //}
             int landingSpots = TargetPlanet.GetGroundLandingSpots();
             //MinimumTaskForceStrength = minimumEscortStrength;
             MinimumTaskForceStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
@@ -451,7 +457,10 @@ namespace Ship_Game.AI.Tasks {
             
 
             if (closestAO == null || closestAO.GetOffensiveForcePool().Count == 0)
+            {
+                EndTask();
                 return;
+            } 
 
             if (Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
             {
@@ -482,7 +491,7 @@ namespace Ship_Game.AI.Tasks {
 
             foreach (Troop t in potentialTroops)
                 ourAvailableStrength = ourAvailableStrength + t.Strength;
-            if (troopCount == 0 || ourAvailableStrength < enemyTroopStrength && potentialBombers.Count == 0)
+            if (potentialBombers.Count == 0 && (troopCount == 0 || ourAvailableStrength < enemyTroopStrength))
                 return;            
 
             // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
@@ -494,67 +503,73 @@ namespace Ship_Game.AI.Tasks {
             
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             float tfstrength = 0f;
-            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, MinimumTaskForceStrength, tfstrength,
+            
+            float maximumTaskStr = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, 150000, Owner);
+            maximumTaskStr *= IsToughNut ? 2f : 1f;
+            maximumTaskStr = MinimumTaskForceStrength + maximumTaskStr;
+            elTaskForce.AddRange(AddShipsLimited(potentialCombatShips, maximumTaskStr, tfstrength,
                 out float tempStrength));
             tfstrength += tempStrength;
 
-            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, MinimumTaskForceStrength * 1.5f, tfstrength,
+            elTaskForce.AddRange(AddShipsLimited(potentialUtilityShips, maximumTaskStr , tfstrength,
                 out  float utilityStrength));
             tfstrength += utilityStrength;
-
-            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, MinimumTaskForceStrength));
+            if (IsToughNut)
+            elTaskForce.AddRange(GetShipsFromDefense(tfstrength, maximumTaskStr));
             if (tfstrength >= MinimumTaskForceStrength)
             {
                 if (ourAvailableStrength >= enemyTroopStrength && landingSpots > 8 )
-                {
-                    DeclareWar();
+                {                    
                     CreateFleet(elTaskForce, potentialAssaultShips, potentialTroops, enemyTroopStrength, closestAO);
+                    if (Step > 0)
+                        DeclareWar();
                     return;
                 }
-                if (potentialBombers.Count > 10 - landingSpots) //landingSpots <  && 
-                {
-                    DeclareWar();
+                if (potentialBombers.Count > 0) // 10 - landingSpots) //landingSpots <  && 
+                {                    
                     CreateFleet(elTaskForce, potentialAssaultShips, potentialTroops, enemyTroopStrength, closestAO,
                         potentialBombers);
+                    if (Step > 0)
+                        DeclareWar();
                     return;
                 }
-                if (landingSpots > 0)
-                {
-                    DeclareWar();
+                if (landingSpots > 9)
+                {                 
                     CreateFleet(elTaskForce, potentialAssaultShips, potentialTroops, enemyTroopStrength * 2, closestAO);
+                    if (Step > 0)
+                        DeclareWar();
                     return;
                 }
             }
-            else if (tfstrength <= MinimumTaskForceStrength)
+
+            if (TargetPlanet.Owner == null || TargetPlanet.Owner != null &&
+                !Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel2))
             {
-                if (TargetPlanet.Owner == null || TargetPlanet.Owner != null &&
-                    !Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel2))
-                {
-                    EndTask();
-                    return;
-                }
-
-                Fleet closestCoreFleet = FindClosestCoreFleet(MinimumTaskForceStrength);
-                if (closestCoreFleet == null || closestCoreFleet.FleetTask != null) return;
-                var clearArea = new MilitaryTask(closestCoreFleet.Owner)
-                {
-                    AO = TargetPlanet.Center,
-                    AORadius = 75000f,
-                    type = TaskType.ClearAreaOfEnemies
-                };
-
-                closestCoreFleet.Owner.GetGSAI().TasksToAdd.Add(clearArea);
-                clearArea.WhichFleet = closestAO.WhichFleet;
-                closestCoreFleet.FleetTask = clearArea;
-                clearArea.IsCoreFleetTask = true;
-                closestCoreFleet.TaskStep = 1;
-                clearArea.Step = 1;
-
-                if (Owner.GetRelations(TargetPlanet.Owner).PreparingForWar)
-                    Owner.GetGSAI().DeclareWarOn(TargetPlanet.Owner,
-                        Owner.GetRelations(TargetPlanet.Owner).PreparingForWarType);
+                EndTask();
                 return;
             }
+
+            Fleet closestCoreFleet = FindClosestCoreFleet(MinimumTaskForceStrength);
+            if (closestCoreFleet == null || closestCoreFleet.FleetTask != null) return;
+            var clearArea = new MilitaryTask(closestCoreFleet.Owner)
+            {
+                AO = TargetPlanet.Center,
+                AORadius = 75000f,
+                type = TaskType.ClearAreaOfEnemies
+            };
+
+            closestCoreFleet.Owner.GetGSAI().TasksToAdd.Add(clearArea);
+            clearArea.WhichFleet       = closestAO.WhichFleet;
+            closestCoreFleet.FleetTask = clearArea;
+            clearArea.IsCoreFleetTask  = true;
+            closestCoreFleet.TaskStep  = 1;
+            clearArea.Step             = 1;
+
+            if (Owner.GetRelations(TargetPlanet.Owner).PreparingForWar)
+                Owner.GetGSAI().DeclareWarOn(TargetPlanet.Owner,
+                    Owner.GetRelations(TargetPlanet.Owner).PreparingForWarType);
+            
+
             if (landingSpots < 10) IsToughNut = true;
 
             NeededTroopStrength = (int) (enemyTroopStrength - ourAvailableStrength);
@@ -609,7 +624,7 @@ namespace Ship_Game.AI.Tasks {
         private bool RequisitionClaimForce()
         {
             AO closestAO = null;
-            if ((closestAO = FindClosestAO()) == null) return false; 
+            if ((closestAO = FindClosestAO(MinimumTaskForceStrength)) == null) return false; 
             float tfstrength = 0f;
             Array<Ship> elTaskForce = new Array<Ship>();
             int shipCount = 0;
@@ -620,8 +635,9 @@ namespace Ship_Game.AI.Tasks {
 
             foreach (Ship ship in closestAO.GetOffensiveForcePool().OrderBy(str => str.GetStrength()))
             {
-                if (shipCount >= 3 && (strengthNeeded < Owner.currentMilitaryStrength * .02f &&
-                                       strengthNeeded < tfstrength))
+                if (shipCount >= 3 && tfstrength > strengthNeeded * 2)
+                    //(strengthNeeded < Owner.currentMilitaryStrength * .02f &&
+                    //                   strengthNeeded < tfstrength))
                     break;
 
                 if (ship.GetStrength() <= 0f || ship.InCombat || ship.fleet != null)
@@ -634,7 +650,7 @@ namespace Ship_Game.AI.Tasks {
                 tfstrength += ship.GetStrength();
             }
 
-            if (shipCount < 3 && tfstrength == 0 || tfstrength < strengthNeeded)
+            if (shipCount < 3 && tfstrength == 0 || tfstrength < strengthNeeded * .25f)
                 return false;
 
             TaskForce = elTaskForce;
@@ -784,12 +800,12 @@ namespace Ship_Game.AI.Tasks {
                 return;
 
             AO closestAO = sorted[0];
-            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(AO, AORadius, Owner,100000);
+            EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner,factionOnly:false);
 
             MinimumTaskForceStrength = EnemyStrength;
             if (MinimumTaskForceStrength < 1f)
             {
-                EndTask();
+                //EndTask();
                 return;
             }
 
