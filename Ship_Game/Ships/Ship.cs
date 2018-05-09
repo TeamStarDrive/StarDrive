@@ -2149,10 +2149,10 @@ namespace Ship_Game.Ships
                 else
                     PowerDraw = ModulePowerDraw;
 
-                //This is what updates all of the modules of a ship
-                if (loyalty.RecalculateMaxHP)
-                    HealthMax = 0;
-                
+                //if module health max has been changed update the ships max health. 
+                //if (loyalty.RecalculateMaxHP)
+                //    RecalculateMaxHealth();                    
+
 
                 //Check Current Shields
                 if (engineState == MoveState.Warp || !ShieldsUp)
@@ -2465,8 +2465,7 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged = false;
-            Health = 0f;
+            shipStatusChanged = false;            
             float sensorBonus = 0f;
             Hangars.Clear();
             Transporters.Clear();
@@ -2497,14 +2496,12 @@ namespace Ship_Game.Ships
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
-
-            float health = 0;
+         
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //Get total internal slots
                 if (slot.Restrictions == Restrictions.I && slot.Active)
                     ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
-                health += slot.Health;
                 
                 RepairRate += slot.BonusRepairRate;
                 if (slot.Mass < 0.0 && slot.Powered)
@@ -2561,8 +2558,7 @@ namespace Ship_Game.Ships
                 }
             }
             
-               
-            AddShipHealth(health);
+                           
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
