@@ -2484,7 +2484,7 @@ namespace Ship_Game.Ships
                     ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
                 health += slot.Health;
                 
-                RepairRate += slot.BonusRepairRate;
+                RepairRate += slot.ActualBonusRepairRate;
                 if (slot.Mass < 0.0 && slot.Powered)
                     Mass += slot.Mass;
                 else if (slot.Mass > 0.0)
@@ -2517,7 +2517,7 @@ namespace Ship_Game.Ships
                     sensorBonus            = Math.Max(sensorBonus, slot.SensorBonus);                    
                     if (slot.shield_power_max > 0f)
                     {
-                        shield_max += slot.GetShieldsMax();
+                        shield_max += slot.ActualShieldPowerMax;
                         ShieldPowerDraw += slot.PowerDraw;
                     }
                     else
@@ -2529,8 +2529,8 @@ namespace Ship_Game.Ships
                     OrdAddedPerSecond   += slot.OrdnanceAddedPerSecond;
                     HealPerTurn         += slot.HealPerTurn;
                     ECMValue             = 1f.Clamp(0f, Math.Max(ECMValue, slot.ECM)); // 0-1 using greatest value.                    
-                    PowerStoreMax       += Math.Max(0, slot.PowerStoreMax);
-                    PowerFlowMax        += Math.Max(0, slot.PowerFlowMax);                                        
+                    PowerStoreMax       += slot.ActualPowerStoreMax;
+                    PowerFlowMax        += slot.ActualPowerFlowMax;      
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, slot.FTLSpoolTime);
                     if (slot.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars))
                         HasTroopBay |= slot.IsTroopBay;
@@ -2553,9 +2553,9 @@ namespace Ship_Game.Ships
                 if (loyalty != null)
                 {
                     Mass          *= loyalty.data.MassModifier;
-                    RepairRate    += (float)(RepairRate * Level * 0.05) + RepairRate * loyalty.data.Traits.RepairMod;
-                    PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
-                    PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
+                    RepairRate    += (float)(RepairRate * Level * 0.05);
+                    //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
+                    //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
                     SensorRange   *= loyalty.data.SensorModifier;
                 }
                 if (FTLSpoolTime <= 0)

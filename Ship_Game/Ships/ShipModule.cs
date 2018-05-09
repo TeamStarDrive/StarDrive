@@ -189,6 +189,13 @@ namespace Ship_Game.Ships
         public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
         public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
 
+        public float ActualPowerStoreMax   => ModuleBonuses.GetPowerStoreMax(this, Parent?.loyalty ?? EmpireManager.Player);
+        public float ActualPowerFlowMax    => ModuleBonuses.GetPowerFlowMax(this,  Parent?.loyalty ?? EmpireManager.Player);
+        public float ActualBonusRepairRate => ModuleBonuses.GetBonusRepairRate(this, Parent?.loyalty ?? EmpireManager.Player, Parent?.shipData);
+        public float ActualShieldPowerMax  => ModuleBonuses.GetShieldPowerMax(this,  Parent?.loyalty ?? EmpireManager.Player, Parent?.shipData);
+
+
+
         // this is the design spec of the module
         private float TemplateMaxHealth;
 
@@ -698,7 +705,7 @@ namespace Ship_Game.Ships
                         ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }            
             }
-            if (PowerFlowMax > 0 || PowerRadius > 0)
+            if (ActualPowerFlowMax > 0 || PowerRadius > 0)
                 Parent.NeedRecalculate = true;
             int debriCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
             if (debriCount == 0) return;
@@ -898,7 +905,7 @@ namespace Ship_Game.Ships
             if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
             //Shield Recharge
-            float shieldMax = GetShieldsMax();
+            float shieldMax = ActualShieldPowerMax;
             if (Active && Powered && ShieldPower < shieldMax)
             {
                 if (Parent.ShieldRechargeTimer > shield_recharge_delay)
@@ -953,21 +960,6 @@ namespace Ship_Game.Ships
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;
-        }
-
-
-        public float GetShieldsMax()
-        {
-            if (GlobalStats.ActiveModInfo == null)
-                return shield_power_max;
-
-            float value = shield_power_max + shield_power_max * Parent.loyalty?.data.ShieldPowerMod ?? 0;
-            if (!GlobalStats.ActiveModInfo.useHullBonuses)
-                return value;
-
-            if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
-                value += shield_power_max * mod.ShieldBonus;
-            return value;
         }
 
         // Used for picking best repair candidate
@@ -1035,9 +1027,10 @@ namespace Ship_Game.Ships
             def += ActualMaxHealth * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
 
             // FB: Added Shield related calcs
-            if (shield_power_max > 0)
+            float shieldsMax = ActualShieldPowerMax;
+            if (shieldsMax > 0)
             {
-                def                 += shield_power_max / 100; 
+                def                 += shieldsMax / 100; 
                 float shieldcoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
                 shieldcoverage       = shieldcoverage > 1 ? 1f : shieldcoverage;
                 // normalizing for small ships
@@ -1057,9 +1050,9 @@ namespace Ship_Game.Ships
                 def *= 1 + shield_missile_resist / 5;
                 def *= 1 + shield_explosive_resist / 5;
 
-                def *= shield_recharge_rate > 0 ? shield_recharge_rate / (shield_power_max / 100) : 1f;
+                def *= shield_recharge_rate > 0 ? shield_recharge_rate / (shieldsMax / 100) : 1f;
                 def *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
-                def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shield_power_max / 25) : 1f;
+                def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
 
                 def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it applys to the shield bubble.
             }
@@ -1095,7 +1088,7 @@ namespace Ship_Game.Ships
             def += (TurnThrust + WarpThrust + thrust) / 15000f;
 
             // FB: Reactors should also have some value
-            def += PowerFlowMax / 100;
+            def += ActualPowerFlowMax / 100;
 
             // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
             def  = Area > 1 ? def / (Area / 2f) : def;
