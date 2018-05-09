@@ -1807,81 +1807,59 @@ namespace Ship_Game.Ships
             return slots;
         }
 
-        public float CalculateRange()
-        {
-            return 200000f;
-        }
 
         private string GetConduitGraphic(ShipModule forModule)
         {
-            bool right = false;
-            bool left  = false;
-            bool down  = false;
-            bool up    = false;
-            int sides  = 0;
+            var conduit = new ConduitGraphic();
             foreach (ShipModule module in ModuleSlotList)
+                if (module.ModuleType == ShipModuleType.PowerConduit)
+                    conduit.Add((int)(module.XMLPosition.X - forModule.XMLPosition.X), 
+                                (int)(module.XMLPosition.Y - forModule.XMLPosition.Y));
+            return conduit.GetGraphic();
+        }
+
+        public struct ConduitGraphic
+        {
+            public bool Right;
+            public bool Left;
+            public bool Down;
+            public bool Up;
+            public void Add(int dx, int dy)
             {
-                if (module != forModule && module.ModuleType == ShipModuleType.PowerConduit)
-                {
-                    int dx = (int)Math.Abs(module.XMLPosition.X - forModule.XMLPosition.X) / 16;
-                    int dy = (int)Math.Abs(module.XMLPosition.Y - forModule.XMLPosition.Y) / 16;
-                    if (dx == 1 && dy == 0)
-                    {
-                        if (module.XMLPosition.X > forModule.XMLPosition.X)
-                            right = true;
-                        else
-                            left = true;
-                    }
-                    if (dy == 1 && dx == 0)
-                    {
-                        if (module.XMLPosition.Y > forModule.XMLPosition.Y)
-                            up = true;
-                        else
-                            down = true;
-                    }
-                }
+                dx /= 16;
+                dy /= 16;
+                Left  |= dx == -1 && dy == 0;
+                Right |= dx == +1 && dy == 0;
+                Down  |= dx ==  0 && dy == -1;
+                Up    |= dx ==  0 && dy == +1;
             }
-            if (left)   ++sides;
-            if (right)  ++sides;
-            if (down)   ++sides;
-            if (up) ++sides;
-            if (sides <= 1)
+            public int Sides => (Left?1:0) + (Right?1:0) + (Down?1:0) + (Up?1:0);
+            public string GetGraphic()
             {
-                if (down) return "Conduits/conduit_powerpoint_down";
-                if (up) return "Conduits/conduit_powerpoint_up";
-                if (left) return "Conduits/conduit_powerpoint_right";
-                return right ? "Conduits/conduit_powerpoint_left" : "Conduits/conduit_intersection";
-            }
-            else
-            {
-                if (sides == 3)
+                switch (Sides)
                 {
-                    if (down && up && left) return "Conduits/conduit_tsection_left";
-                    if (down && up && right) return "Conduits/conduit_tsection_right";
-                    if (left && right && up) return "Conduits/conduit_tsection_down";
-                    if (left && right && down) return "Conduits/conduit_tsection_up";
+                    case 1:
+                        if (Down)  return "Conduits/conduit_powerpoint_down";
+                        if (Up)    return "Conduits/conduit_powerpoint_up";
+                        if (Left)  return "Conduits/conduit_powerpoint_right";
+                        if (Right) return "Conduits/conduit_powerpoint_left";
+                        break;
+                    case 2:
+                        if (Left && Down)  return "Conduits/conduit_corner_BR";
+                        if (Left && Up)    return "Conduits/conduit_corner_TR";
+                        if (Right && Down) return "Conduits/conduit_corner_BL";
+                        if (Right && Up)   return "Conduits/conduit_corner_TL";
+                        if (Down && Up)    return "Conduits/conduit_straight_vertical";
+                        if (Left && Right) return "Conduits/conduit_straight_horizontal";
+                        break;
+                    case 3:
+                        if (!Right)  return "Conduits/conduit_tsection_left";
+                        if (!Left)   return "Conduits/conduit_tsection_right";
+                        if (!Down)   return "Conduits/conduit_tsection_down";
+                        if (!Up)     return "Conduits/conduit_tsection_up";
+                        break;
                 }
-                else
-                {
-                    if (sides == 4)
-                        return "Conduits/conduit_intersection";
-                    if (sides == 2)
-                    {
-                        if (left && down)
-                            return "Conduits/conduit_corner_BR";
-                        if (left && up)
-                            return "Conduits/conduit_corner_TR";
-                        if (right && down)
-                            return "Conduits/conduit_corner_BL";
-                        if (right && up)
-                            return "Conduits/conduit_corner_TL";
-                        if (down && up)
-                            return "Conduits/conduit_straight_vertical";
-                        if (left && right)
-                            return "Conduits/conduit_straight_horizontal";
-                    }
-                }
-                return "";
+                return "Conduits/conduit_intersection";
             }
         }
 
