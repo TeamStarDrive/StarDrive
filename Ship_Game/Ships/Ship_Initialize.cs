@@ -420,7 +420,7 @@ namespace Ship_Game.Ships
             OrdinanceMax              = 0f;
             OrdAddedPerSecond         = 0f;
             rotationRadiansPerSecond  = 0f;
-            Health                    = 0f;
+            Health                    = int.MaxValue;
             TroopCapacity             = 0;
             ECMValue                  = 0f;
             FTLSpoolTime              = 0f;
