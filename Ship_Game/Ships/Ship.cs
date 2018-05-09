@@ -2114,24 +2114,7 @@ namespace Ship_Game.Ships
                     }
                 }
 
-                inSensorRange = false;
-                if (Empire.Universe.Debug == true || loyalty == EmpireManager.Player 
-                                                   || loyalty != EmpireManager.Player 
-                                                   && EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance)
-                    inSensorRange = true;
-                else if (!inSensorRange)
-                {
-                    GameplayObject[] nearby = GetObjectsInSensors(GameObjectType.Ship);
-                    foreach (GameplayObject go in nearby)
-                    {
-                        var ship = (Ship) go;
-                        if (ship.loyalty == EmpireManager.Player && Center.InRadius(ship.Position, ship.SensorRange))
-                        {
-                            inSensorRange = true;
-                            break;
-                        }
-                    }
-                }
+                SetShipsVisibleByPlayer();
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
                 if (shipStatusChanged) //|| InCombat
@@ -2148,10 +2131,7 @@ namespace Ship_Game.Ships
                     PowerDraw = ModulePowerDraw + ShieldPowerDraw;
                 else
                     PowerDraw = ModulePowerDraw;
-
-                //if module health max has been changed update the ships max health. 
-                //if (loyalty.RecalculateMaxHP)
-                //    RecalculateMaxHealth();                    
+             
 
 
                 //Check Current Shields
@@ -2281,7 +2261,58 @@ namespace Ship_Game.Ships
             Acceleration = oldVelocity.Acceleration(Velocity, deltaTime);
         }
 
+        private void SetShipsVisibleByPlayer()
+        {
+            /* Changed this so that the other ships will only check if they are not in sensors if they have been marked
+             insensors. Player ships will check for to see that ships near them are in sensor range. 
+             this seems redundent. there are several places where ships are checked for being in sensors. 
+             scanforshipsinsensors, 
+                 */
+
+            if (Empire.Universe.Debug)
+            {
+                inSensorRange = true;
+                return;
+            }
+
+            if (loyalty.isPlayer || EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance)            
+                inSensorRange = true;
+            
+            if (inSensorRange)
+            {
+                SetOtherShipsInsensorRange();
+            }
+        }
         
+        private void SetOtherShipsInsensorRange()
+        {
+            GameplayObject[] nearby = GetObjectsInSensors(GameObjectType.Ship);
+            bool checkFromThis = loyalty.isPlayer || EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance;
+            foreach (GameplayObject go in nearby)
+            {
+                Ship ship;
+                if (checkFromThis)
+                {
+                    ship = (Ship)go;
+                    if (go.GetLoyalty().isPlayer || ship.inSensorRange || !Center.InRadius(go.Position, SensorRange))
+                        continue;                    
+                    ship.inSensorRange = true;
+                    break;
+                }
+                
+                if (go.GetLoyalty().isPlayer)
+                {
+                    ship = (Ship)go;
+                    if (Center.OutsideRadius(ship.Position, ship.SensorRange))
+                        continue;
+                    inSensorRange = true;
+                    break;
+                }
+                inSensorRange = false;
+                
+            }
+        }
+
 
         private void UpdateTroops()
         {
