@@ -231,6 +231,7 @@ namespace Ship_Game
             LoadTextures();
             LoadToolTips();
             LoadTroops();
+            LoadHullBonuses();
             LoadHullData();
             LoadWeapons();
             LoadShipModules();
@@ -1108,7 +1109,17 @@ namespace Ship_Game
             return HullsDict.TryGetValue(shipHull, out hullData);
         }        
 
-        public static Array<ShipData> LoadHullData() // Refactored by RedFox
+        private static void LoadHullBonuses()
+        {
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
+            {
+                foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
+                    HullBonuses[hullBonus.Hull] = hullBonus;
+                GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
+            }
+        }
+
+        private static void LoadHullData() // Refactored by RedFox
         {
             var retList = new Array<ShipData>();
 
@@ -1140,10 +1151,8 @@ namespace Ship_Game
                     }
                 }
             }
-            //Running into issues.. trying to see if serial load works better. 
             Parallel.For(hullFiles.Length, LoadHulls);
             //LoadHulls(0, hullFiles.Length);
-            return retList;
         }
 
         public static Model GetJunkModel(int idx)
@@ -1827,13 +1836,6 @@ namespace Ship_Game
         // Added by RedFox
         private static void LoadBlackboxSpecific()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
-            {
-                foreach (var hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
-                    HullBonuses[hullBonus.Hull] = hullBonus;
-                GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
-            }
-
             TryDeserialize("HostileFleets/HostileFleets.xml",    ref HostileFleets);
             TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
             TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
