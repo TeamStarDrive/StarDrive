@@ -519,7 +519,7 @@ namespace Ship_Game.AI
                 {
                     if (efficiency)
                         return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                    return ships.GetShipData().techsNeeded.Count >= nearmax;
+                    return ships.shipData.techsNeeded.Count >= nearmax;
                 });
                 int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length - 1);
 
@@ -530,7 +530,7 @@ namespace Ship_Game.AI
                 ship = sortedList[newRand];
                 name = ship.Name;
                 if (Empire.Universe?.showdebugwindow ?? false)
-                    Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.GetShipData().Hull}  " +
+                    Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
                              $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
             }
 

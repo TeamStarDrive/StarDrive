@@ -122,7 +122,7 @@ namespace Ship_Game
                     case UnlockType.HULL:
                     {
                         Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, 96, 96);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[unlockItem.privateName].IconPath], destinationRectangle, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.HullsDict[unlockItem.privateName].Icon, destinationRectangle, Color.White);
                         string Text = unlockItem.HullUnlocked;
                         float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(unlockItem.Description).Y;
                         Vector2 Pos = new Vector2((float)(entry.clickRect.X + 100), (float)(entry.clickRect.Y + entry.clickRect.Height / 2) - num / 2f);

@@ -62,7 +62,7 @@ namespace Ship_Game.Commands.Goals
             queueItem.isShip = true;
             queueItem.DisplayName = "Construction Ship";
             queueItem.QueueNumber = PlanetBuildingAt.ConstructionQueue.Count;
-            queueItem.sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentConstructor].GetShipData();
+            queueItem.sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentConstructor].shipData;
             queueItem.Goal = this;
             queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
             queueItem.NotifyOnEmpty = false;

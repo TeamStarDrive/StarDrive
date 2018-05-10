@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.UI;
 
@@ -522,15 +520,17 @@ namespace Ship_Game
                         foreach (var kv in ResourceManager.ShipsDict
                             .OrderBy(x => true)
                             .ThenBy(player => !player.Value.IsPlayerDesign)
-                            .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                            .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle)
-                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name)
-                            .ThenBy(name=> name.Key))
+                            .ThenBy(empire => empire.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                            .ThenBy(empire => empire.Value.BaseHull.ShipStyle)
+                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] _))
+                            .ThenBy(name => name.Value.Name)
+                            .ThenBy(name => name.Key))
                         {
-                            if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key)) continue;
+                            if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key))
+                                continue;
 
                             if (Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player) != header
-                                 || kv.Value.Deleted
+                                || kv.Value.Deleted
                                 || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
                             {
                                 continue;
@@ -558,57 +558,59 @@ namespace Ship_Game
                                     (entry.item as ModuleHeader).Draw(this.ScreenManager, vector2_1);
                                 else if (entry.clickRectHover == 0)
                                 {
-                                    var iconPath = (entry.item as Ship).GetShipData().HullData.IconPath; 
-                                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(iconPath), new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
-                                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                     var ship = (entry.item as Ship);
-                                    var role = ship.shipData.HullData.Name;
+                                    ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, 
+                                                                    new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                                    var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
+                                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
+                                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                                    
+                                    var role = ship.BaseHull.Name;
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
                                     position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                                     ship.GetTechScore(out int[] scores);
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"" +
-                                                                                           $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
 
 
                                     //Forgive my hacks this code of nightmare must GO!
-                                    position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
+                                    position.X = (entry.clickRect.X + entry.clickRect.Width - 120);
                                     var iconProd = ResourceManager.Texture("NewUI/icon_production");
                                     Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
                                     ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
-                                    position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                                    position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                                     // Use correct upkeep method depending on mod settings
                                     string upkeep = "Doctor rocks";
                                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                                     {
-                                        upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
+                                        upkeep = ship.GetMaintCostRealism(this.p.Owner).ToString("F2");
                                     }
                                     else
                                     {
-                                        upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString("F2");
+                                        upkeep = ship.GetMaintCost(this.p.Owner).ToString("F2");
                                     }
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
                                     // ~~~
 
                                     position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)((entry.item as Ship).GetCost(this.p.Owner)*this.p.ShipBuildingModifier)).ToString(), position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(ship.GetCost(this.p.Owner)*this.p.ShipBuildingModifier)).ToString(), position, Color.White);
                                 }
                                 else
                                 {
+                                    var ship = (entry.item as Ship);
+
                                     vector2_1.Y = (float)entry.clickRect.Y;
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[(entry.item as Ship).GetShipData().HullData.IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                                    this.ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
+                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
 
-                                    var ship = (entry.item as Ship);
                                     //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                                    var role = ship.shipData.HullData.Name;
+                                    var role = ship.BaseHull.Name;
                                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
                                     position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                                     ship.GetTechScore(out int[] scores);
@@ -2648,17 +2650,16 @@ namespace Ship_Game
                         }
                         else
                         {
-                            Rectangle rectangle = e.addRect;
                             if (!e.addRect.HitTest(input.CursorPosition))
                             {
-                                QueueItem qi = new QueueItem();
-                                if (e.item is Ship)
+                                var qi = new QueueItem();
+                                if (e.item is Ship ship)
                                 {
                                     qi.isShip = true;
-                                    qi.sData = (e.item as Ship).GetShipData();
-                                    qi.Cost = (e.item as Ship).GetCost(this.p.Owner);
+                                    qi.sData = ship.shipData;
+                                    qi.Cost = ship.GetCost(this.p.Owner);
                                     qi.productionTowards = 0f;
-                                    this.p.ConstructionQueue.Add(qi);
+                                    p.ConstructionQueue.Add(qi);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.item is Troop troop)
@@ -2667,21 +2668,20 @@ namespace Ship_Game
                                     qi.troopType = troop.Name;
                                     qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                     qi.productionTowards = 0f;
-                                    this.p.ConstructionQueue.Add(qi);
+                                    p.ConstructionQueue.Add(qi);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
-                                else if (e.item is Building)
+                                else if (e.item is Building building)
                                 {
                                     //Building waitaddstuff = ResourceManager.GetBuilding((e.item as Building).Name);
                                     //waitaddstuff.IsPlayerAdded=true;
-                                    this.p.AddBuildingToCQ(e.item as Building,true);
+                                    p.AddBuildingToCQ(building, true);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                             }
                         }
                     }
                 }
-                Rectangle rectangle1 = e.addRect;
                 if (!e.addRect.HitTest(MousePos))
                 {
                     e.PlusHover = 0;
@@ -2690,22 +2690,22 @@ namespace Ship_Game
                 {
                     e.PlusHover = 1;
                     ToolTip.CreateTooltip(51);
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
                     {
-                        QueueItem qi = new QueueItem();
-                        if (e.item is Building)
+                        var qi = new QueueItem();
+                        if (e.item is Building building)
                         {
                             //Building b = ResourceManager.GetBuilding((e.item as Building).Name);
                             //b.IsPlayerAdded =true;
-                            this.p.AddBuildingToCQ(e.item as Building,true);
+                            p.AddBuildingToCQ(building, true);
                         }
-                        else if (e.item is Ship)
+                        else if (e.item is Ship ship)
                         {
                             qi.isShip = true;
-                            qi.sData = (e.item as Ship).GetShipData();
-                            qi.Cost = (e.item as Ship).GetCost(this.p.Owner);
+                            qi.sData = ship.shipData;
+                            qi.Cost = ship.GetCost(p.Owner);
                             qi.productionTowards = 0f;
-                            this.p.ConstructionQueue.Add(qi);
+                            p.ConstructionQueue.Add(qi);
                         }
                         else if (e.item is Troop troop)
                         {
@@ -2713,7 +2713,7 @@ namespace Ship_Game
                             qi.troopType = troop.Name;
                             qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                             qi.productionTowards = 0f;
-                            this.p.ConstructionQueue.Add(qi);
+                            p.ConstructionQueue.Add(qi);
                         }
                     }
                 }
@@ -2730,7 +2730,7 @@ namespace Ship_Game
                     {
                         ShipDesignScreen sdScreen = new ShipDesignScreen(Empire.Universe, this.eui);
                         this.ScreenManager.AddScreen(sdScreen);
-                        sdScreen.ChangeHull((e.item as Ship).GetShipData());
+                        sdScreen.ChangeHull((e.item as Ship).shipData);
                     }
                 }
             }

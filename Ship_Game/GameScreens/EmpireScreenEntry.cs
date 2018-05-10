@@ -322,7 +322,7 @@ namespace Ship_Game
 				}
 				if (qi.isShip)
 				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[qi.sData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+					ScreenManager.SpriteBatch.Draw(ResourceManager.HullsDict[qi.sData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
                     if (qi.DisplayName != null)
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName, tCursor, Color.White);

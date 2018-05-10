@@ -149,9 +149,9 @@ namespace Ship_Game
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
 
-                if (shipData.HullData?.unLockable ?? false)
+                if (shipData.BaseHull.unLockable)
                 {
-                    foreach (string str in shipData.HullData.techsNeeded)
+                    foreach (string str in shipData.BaseHull.techsNeeded)
                         shipData.techsNeeded.Add(str);
                     shipData.hullUnlockable = true;
                 }
@@ -1108,7 +1108,7 @@ namespace Ship_Game
                         shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
                         shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
-                        shipData.UpdateHullData();
+                        shipData.UpdateBaseHull();
                         lock (retList)
                         {
                             HullsDict[shipData.Hull] = shipData;
@@ -1446,7 +1446,7 @@ namespace Ship_Game
 
         public static string GetShipHull(string shipName)
         {
-            return ShipsDict[shipName].GetShipData().Hull;
+            return ShipsDict[shipName].shipData.Hull;
         }       
 
         public static bool IsPlayerDesign(string shipName)

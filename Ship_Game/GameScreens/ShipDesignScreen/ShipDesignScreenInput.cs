@@ -14,14 +14,15 @@ using Ship_Game.Ships;
 using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game {
+namespace Ship_Game
+{
     public sealed partial class ShipDesignScreen
     {
         public void ChangeHull(ShipData hull)
         {
-#if SHIPYARD
+        #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
-#endif
+        #endif
             if (hull == null) return;
             ModSel.ResetLists();
             DesignStack.Clear();
@@ -34,7 +35,7 @@ namespace Ship_Game {
                 Animated     = hull.Animated,
                 CombatState  = hull.CombatState,
                 Hull         = hull.Hull,
-                IconPath     = hull.IconPath,
+                IconPath     = hull.ActualIconPath,
                 ModelPath    = hull.HullModel,
                 Name         = hull.Name,
                 Role         = hull.Role,
@@ -42,12 +43,12 @@ namespace Ship_Game {
                 ThrusterList = hull.ThrusterList,
                 ShipCategory = hull.ShipCategory,
                 CarrierShip  = hull.CarrierShip,
-                HullData     = hull.HullData
+                BaseHull     = hull.BaseHull
             };
-            ActiveHull.UpdateHullData();
+            ActiveHull.UpdateBaseHull();
 
             Techs.Clear();
-            AddToTechList(ActiveHull.HullData.techsNeeded);
+            AddToTechList(ActiveHull.BaseHull.techsNeeded);
             CarrierOnly = hull.CarrierShip;
             LoadCategory = hull.ShipCategory;
             Fml = true;
@@ -57,25 +58,25 @@ namespace Ship_Game {
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
             {
                 ModuleSlotData hullSlot = hull.ModuleSlots[i];
-                ModuleSlotData data = new ModuleSlotData
+                var data = new ModuleSlotData
                 {
-                    Position = hullSlot.Position,
-                    Restrictions = hullSlot.Restrictions,
-                    Facing = hullSlot.Facing,
+                    Position           = hullSlot.Position,
+                    Restrictions       = hullSlot.Restrictions,
+                    Facing             = hullSlot.Facing,
                     InstalledModuleUID = hullSlot.InstalledModuleUID,
-                    Orientation = hullSlot.Orientation,
-                    SlotOptions = hullSlot.SlotOptions
+                    Orientation        = hullSlot.Orientation,
+                    SlotOptions        = hullSlot.SlotOptions
                 };
                 ActiveHull.ModuleSlots[i] = data;
-#if SHIPYARD
-                if (data.Restrictions == Restrictions.I) TotalI++;
-                if (data.Restrictions == Restrictions.O) TotalO++;
-                if (data.Restrictions == Restrictions.E) TotalE++;
-                if (data.Restrictions == Restrictions.IO) TotalIO++;
-                if (data.Restrictions == Restrictions.IE) TotalIE++;
-                if (data.Restrictions == Restrictions.OE) TotalOE++;
+            #if SHIPYARD
+                if (data.Restrictions == Restrictions.I)   TotalI++;
+                if (data.Restrictions == Restrictions.O)   TotalO++;
+                if (data.Restrictions == Restrictions.E)   TotalE++;
+                if (data.Restrictions == Restrictions.IO)  TotalIO++;
+                if (data.Restrictions == Restrictions.IE)  TotalIE++;
+                if (data.Restrictions == Restrictions.OE)  TotalOE++;
                 if (data.Restrictions == Restrictions.IOE) TotalIOE++;
-#endif
+            #endif
             }
             CombatState = hull.CombatState;
 
@@ -86,33 +87,15 @@ namespace Ship_Game {
                 switch (button.Action)
                 {
                     default: continue;
-                    case "attack":
-                        button.Active = CombatState == CombatState.AttackRuns;
-                        break;
-                    case "arty":
-                        button.Active = CombatState == CombatState.Artillery;
-                        break;
-                    case "hold":
-                        button.Active = CombatState == CombatState.HoldPosition;
-                        break;
-                    case "orbit_left":
-                        button.Active = CombatState == CombatState.OrbitLeft;
-                        break;
-                    case "broadside_left":
-                        button.Active = CombatState == CombatState.BroadsideLeft;
-                        break;
-                    case "broadside_right":
-                        button.Active = CombatState == CombatState.BroadsideRight;
-                        break;
-                    case "short":
-                        button.Active = CombatState == CombatState.ShortRange;
-                        break;
-                    case "evade":
-                        button.Active = CombatState == CombatState.Evade;
-                        break;
-                    case "orbit_right":
-                        button.Active = CombatState == CombatState.OrbitRight;
-                        break;
+                    case "attack":          button.Active = CombatState == CombatState.AttackRuns;     break;
+                    case "arty":            button.Active = CombatState == CombatState.Artillery;      break;
+                    case "hold":            button.Active = CombatState == CombatState.HoldPosition;   break;
+                    case "orbit_left":      button.Active = CombatState == CombatState.OrbitLeft;      break;
+                    case "broadside_left":  button.Active = CombatState == CombatState.BroadsideLeft;  break;
+                    case "broadside_right": button.Active = CombatState == CombatState.BroadsideRight; break;
+                    case "short":           button.Active = CombatState == CombatState.ShortRange;     break;
+                    case "evade":           button.Active = CombatState == CombatState.Evade;          break;
+                    case "orbit_right":     button.Active = CombatState == CombatState.OrbitRight;     break;
                 }
             }
             SetupSlots();
@@ -1114,8 +1097,8 @@ namespace Ship_Game {
             Ship newTemplate = ResourceManager.AddShipTemplate(ActiveHull, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
 
-            ActiveHull = newTemplate.GetShipData();
-            ActiveHull.UpdateHullData();
+            ActiveHull = newTemplate.shipData;
+            ActiveHull.UpdateBaseHull();
 
             ActiveHull.CombatState = CombatState;
             ChangeHull(ActiveHull);
@@ -1128,14 +1111,14 @@ namespace Ship_Game {
                 Animated     = ActiveHull.Animated,
                 CombatState  = ActiveHull.CombatState,
                 Hull         = ActiveHull.Hull,
-                IconPath     = ActiveHull.IconPath,
+                IconPath     = ActiveHull.ActualIconPath,
                 ModelPath    = ActiveHull.ModelPath,
                 Name         = ActiveHull.Name,
                 Role         = ActiveHull.Role,
                 ShipStyle    = ActiveHull.ShipStyle,
                 ThrusterList = ActiveHull.ThrusterList,
                 ModuleSlots  = new ModuleSlotData[Slots.Count],
-                HullData     = ActiveHull.HullData
+                BaseHull     = ActiveHull.BaseHull
             };
             for (int i = 0; i < Slots.Count; ++i)
             {

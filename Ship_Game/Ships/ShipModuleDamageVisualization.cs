@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
             Vector3 center      = module.GetCenter3D;            
             ShipModuleType type = module.ModuleType;
             
-            float modelZ = module.GetParent().GetShipData().HullData.ModelZ;
+            float modelZ = module.GetParent().BaseHull.ModelZ;
             modelZ = modelZ.Clamp(0, 200) * -1;
             switch (type) // other special effects based on some module types.
             {
