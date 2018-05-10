@@ -62,14 +62,17 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
         [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
         [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(HullData?.IconPath ?? IconPath);
-        [XmlIgnore]
-        [JsonIgnore]
-        public float ModelZ { get; private set; }
+        [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
+        [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
 
-        public void SetHullData(ShipData shipData = null)
-        {            
-            HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
+        public void UpdateHullData()
+        {
+            if (HullData == null)
+                HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
+            
+            if (Bonuses == null)
+                Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
         public override string ToString() { return Name; }
@@ -230,7 +233,7 @@ namespace Ship_Game.Ships
                 ship.techsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.techsNeeded.Add(s->Techs[i].AsInterned);
-                ship.SetHullData(ship);                
+                ship.UpdateHullData();                
                 
                 return ship;
             }           

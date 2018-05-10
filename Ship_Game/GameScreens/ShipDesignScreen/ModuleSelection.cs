@@ -489,7 +489,7 @@ namespace Ship_Game
             {
                 DrawStat(ref modTitlePos, Localizer.Token(123), massMod * mod.Mass, 79);
             }
-            DrawStat(ref modTitlePos, Localizer.Token(124), mod.ShipDesignerMaxHealth, 80);
+            DrawStat(ref modTitlePos, Localizer.Token(124), mod.ActualMaxHealth, 80);
             float powerDraw;
             if (mod.ModuleType != ShipModuleType.PowerPlant)
             {
@@ -497,20 +497,11 @@ namespace Ship_Game
             }
             else
             {
-                powerDraw = (mod.PowerDraw > 0f
-                    ? -mod.PowerDraw
-                    : mod.PowerFlowMax + mod.PowerFlowMax * EmpireManager.Player.data.PowerFlowMod);
+                powerDraw = (mod.PowerDraw > 0f ? -mod.PowerDraw : mod.ActualPowerFlowMax);
             }
             DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
-            
             DrawStat(ref modTitlePos, Localizer.Token(2231), mod.MechanicalBoardingDefense, 143);
-
-            DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"),
-                    (mod.BonusRepairRate + mod.BonusRepairRate * EmpireManager.Player.data.Traits.RepairMod) *
-                    (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
-                     ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
-                        ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].RepairBonus
-                        : 1), 97);
+            DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), mod.ActualBonusRepairRate, 97);
 
             float maxDepth = modTitlePos.Y;
             modTitlePos.X = modTitlePos.X + 152f;
@@ -519,13 +510,9 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(131), mod.thrust, 91);
             DrawStat(ref modTitlePos, Localizer.Token(2064), mod.WarpThrust, 92);
             DrawStat(ref modTitlePos, Localizer.Token(2260), mod.TurnThrust, 148);
-     
-            DrawStat(ref modTitlePos, Localizer.Token(132),
-                mod.shield_power_max *
-                (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses &&
-                 ResourceManager.HullBonuses.ContainsKey(ParentScreen.ActiveHull.Hull)
-                    ? 1f + ResourceManager.HullBonuses[ParentScreen.ActiveHull.Hull].ShieldBonus
-                    : 1f) + EmpireManager.Player.data.ShieldPowerMod * mod.shield_power_max, 93);
+            
+            float shieldMax = mod.ActualShieldPowerMax;
+            DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
             
             DrawStat(ref modTitlePos, Localizer.Token(133), mod.shield_radius, 94);
             DrawStat(ref modTitlePos, Localizer.Token(134), mod.shield_recharge_rate, 95);
@@ -544,23 +531,22 @@ namespace Ship_Game
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6171), mod.shield_beam_resist, 218);
             DrawStatShieldResist(ref modTitlePos, Localizer.Token(6176), mod.shield_threshold, 222, isPercent: false);
 
-            DrawStat(ref modTitlePos, Localizer.Token(126), mod.SensorRange, 96);
+            DrawStat(ref modTitlePos, Localizer.Token(126),  mod.SensorRange, 96);
             DrawStat(ref modTitlePos, Localizer.Token(6121), mod.SensorBonus, 167);
             DrawStat(ref modTitlePos, Localizer.Token(6131), mod.HealPerTurn, 174);
-            DrawStat(ref modTitlePos, Localizer.Token(126), mod.TransporterRange, 168);
+            DrawStat(ref modTitlePos, Localizer.Token(126),  mod.TransporterRange, 168);
             DrawStat(ref modTitlePos, Localizer.Token(6123), mod.TransporterPower, 169);
             DrawStat(ref modTitlePos, Localizer.Token(6122), mod.TransporterTimerConstant, 170);
             DrawStat(ref modTitlePos, Localizer.Token(6124), mod.TransporterOrdnance, 171);
             DrawStat(ref modTitlePos, Localizer.Token(6135), mod.TransporterTroopAssault, 187);
             DrawStat(ref modTitlePos, Localizer.Token(6128), mod.TransporterTroopLanding, 172);
             DrawStat(ref modTitlePos, Localizer.Token(2129), mod.OrdinanceCapacity, 124);
-            DrawStat(ref modTitlePos, Localizer.Token(119), mod.Cargo_Capacity, 109);
+            DrawStat(ref modTitlePos, Localizer.Token(119),  mod.Cargo_Capacity, 109);
             DrawStat(ref modTitlePos, Localizer.Token(6120), mod.OrdnanceAddedPerSecond, 162);
             DrawStat(ref modTitlePos, Localizer.Token(2233), mod.InhibitionRadius, 144);
-            DrawStat(ref modTitlePos, Localizer.Token(336), mod.TroopCapacity, 173);
-            DrawStat(ref modTitlePos, Localizer.Token(2235),
-                (mod.PowerStoreMax + mod.PowerStoreMax * EmpireManager.Player.data.FuelCellModifier),
-                145);
+            DrawStat(ref modTitlePos, Localizer.Token(336),  mod.TroopCapacity, 173);
+            DrawStat(ref modTitlePos, Localizer.Token(2235), mod.ActualPowerStoreMax, 145);
+
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB: if the module has power draw at warp modifer, show this to the player and use the correct forumla
             // FB: This should be checked as a method, but right now ShipDesignScreenDraw.cs is not refactored and its hard to do it. 
@@ -646,7 +632,7 @@ namespace Ship_Game
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
             DrawStat(ref cursor, Localizer.Token(123), mass, 79);
-            DrawStat(ref cursor, Localizer.Token(124), m.ShipDesignerMaxHealth, 80);
+            DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
 
