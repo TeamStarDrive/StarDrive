@@ -378,7 +378,7 @@ namespace Ship_Game.Universe.SolarBodies
             var prodPow = GetMaxProductionPotential();
             int turns = TotalTurnsInProductionQueue(prodPow); //Ground.GetMaxGoodProd("Production")
             turns += (int)Math.Ceiling(shipCost / prodPow);
-            return Math.Max(999, turns);
+            return Math.Min(999, turns);
 
         }
 
