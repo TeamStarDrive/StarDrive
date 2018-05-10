@@ -104,7 +104,7 @@ namespace Ship_Game
         [Serialize(40)] public bool IsRebelFaction;
         [Serialize(41)] public RacialTrait Traits;
         [Serialize(42)] public byte Faction;
-        [Serialize(43)] public bool MinorRace;
+        [Serialize(43)] public bool MinorRace; // @todo This is depracated
         [Serialize(44)] public short TurnsBelowZero;
         [Serialize(45)] public bool Privatization;
         [Serialize(46)] public float CivMaintMod = 1f;

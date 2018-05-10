@@ -47,7 +47,6 @@ namespace Ship_Game
             //TempEmpireData  Tdata = new TempEmpireData();
 
             e.isFaction = sdata.IsFaction;
-            e.MinorRace = sdata.isMinorRace;
             if (sdata.empireData == null)
             {
                 e.data.Traits = sdata.Traits;

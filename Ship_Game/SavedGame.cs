@@ -255,9 +255,8 @@ namespace Ship_Game
             {
                 var empireToSave = new EmpireSaveData
                 {
-                    IsFaction   = e.isFaction,
-                    isMinorRace = e.MinorRace,
-                    Relations   = new Array<Relationship>()
+                    IsFaction = e.isFaction,
+                    Relations = new Array<Relationship>()
                 };
                 foreach (KeyValuePair<Empire, Relationship> relation in e.AllRelations)
                 {
@@ -694,7 +693,7 @@ namespace Ship_Game
             [Serialize(1)] public Array<Relationship> Relations;
             [Serialize(2)] public Array<SpaceRoadSave> SpaceRoadData;
             [Serialize(3)] public bool IsFaction;
-            [Serialize(4)] public bool isMinorRace;
+            [Serialize(4)] public bool isMinorRace; // @todo This field is deprecated
             [Serialize(5)] public RacialTrait Traits;
             [Serialize(6)] public EmpireData empireData;
             [Serialize(7)] public Array<ShipSaveData> OwnedShips;

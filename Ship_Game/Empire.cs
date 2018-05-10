@@ -51,8 +51,11 @@ namespace Ship_Game
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
-        public bool isFaction; // this means it's not an actual Empire like Humans or Kulrathi
-        public bool MinorRace; // not sure what this is...
+
+        // faction means it's not an actual Empire like Humans or Kulrathi
+        // it doesnt normally colonize or make war plans.
+        // it gets special instructions, usually event based, for example Corsairs
+        public bool isFaction;
         public float Research;
         public Color EmpireColor;
         public static UniverseScreen Universe;
@@ -1169,7 +1172,7 @@ namespace Ship_Game
                 return;
             try
             {
-                if (Universe.PlayerEmpire == this && !e.isFaction && !e.MinorRace)
+                if (Universe.PlayerEmpire == this && !e.isFaction)
                 {
                     Universe.ScreenManager.AddScreen(new DiplomacyScreen(Universe, e, Universe.PlayerEmpire, "First Contact"));
                 }
@@ -2118,7 +2121,7 @@ namespace Ship_Game
                 bool allEmpiresDead = true;
                 foreach (Empire empire in EmpireManager.Empires)
                 {
-                    if (empire.GetPlanets().Count > 0 && !empire.isFaction && !empire.MinorRace && empire != this)
+                    if (empire.GetPlanets().Count > 0 && !empire.isFaction && empire != this)
                     {
                         allEmpiresDead = false;
                         break;
@@ -2284,7 +2287,7 @@ namespace Ship_Game
                 }
             }
 
-            if (this.isFaction || this.MinorRace)
+            if (this.isFaction)
                 return;
             if (!this.isPlayer)
             {
@@ -2997,6 +3000,6 @@ namespace Ship_Game
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
         }
 
-        public override string ToString() => $"Id={Id} Name={Name} Player={isPlayer} Faction={isFaction} Minor={MinorRace}";
+        public override string ToString() => $"Id={Id} Name={Name} Player={isPlayer} Faction={isFaction}";
     }
 }
