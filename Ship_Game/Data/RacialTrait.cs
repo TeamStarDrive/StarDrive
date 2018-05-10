@@ -125,13 +125,13 @@ namespace Ship_Game
         public bool TechTypeRestrictions(TechnologyType techType)
         {
             if (Cybernetic > 0 && techType ==
-                (TechnologyType)Enum.Parse(typeof(TechnologyType),
-                    "Colonization"))
+                (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization"))
             {
                 return true;
             }
             return false;
         }
+
         public void TechUnlocks(TechEntry techEntry, Empire empire)
         {
             if (!techEntry.Discovered) return;
@@ -156,7 +156,6 @@ namespace Ship_Game
                 if (techEntry.UID == "Biospheres")
                     techEntry.Unlock(empire);
             }
-
         }
 
 

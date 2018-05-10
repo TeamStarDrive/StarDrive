@@ -51,8 +51,8 @@ namespace Ship_Game
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
-        public bool isFaction;
-        public bool MinorRace;
+        public bool isFaction; // this means it's not an actual Empire like Humans or Kulrathi
+        public bool MinorRace; // not sure what this is...
         public float Research;
         public Color EmpireColor;
         public static UniverseScreen Universe;
@@ -113,11 +113,11 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
-        [XmlIgnore][JsonIgnore] public Array<string> BomberTech;
-        [XmlIgnore] [JsonIgnore] public Array<string> TroopShipTech;
-        [XmlIgnore] [JsonIgnore] public Array<string> CarrierTech;
-        [XmlIgnore] [JsonIgnore] public Array<string> SupportShipTech;
-        [XmlIgnore] [JsonIgnore] public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
+        [XmlIgnore][JsonIgnore] public Array<string> BomberTech      = new Array<string>();
+        [XmlIgnore][JsonIgnore] public Array<string> TroopShipTech   = new Array<string>();
+        [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
+        [XmlIgnore][JsonIgnore] public Array<string> SupportShipTech = new Array<string>();
+        [XmlIgnore][JsonIgnore] public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
@@ -155,24 +155,13 @@ namespace Ship_Game
 
         public Empire()
         {
-            if(!isFaction)
-            {
-                BomberTech = new Array<string>();
-                TroopShipTech = new Array<string>();
-                CarrierTech = new Array<string>();
-                SupportShipTech = new Array<string>();
-                
-                UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
-                
-            }            
-
+            // @note @todo This is very flaky and weird!
+            UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
         }
 
         public Empire(Empire parentEmpire)
         {
-
             TechnologyDict = parentEmpire.TechnologyDict;
-
         }
 
         public class PatchCacheEntry

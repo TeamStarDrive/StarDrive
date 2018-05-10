@@ -404,7 +404,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private void LoadShipToScreen()
         {
             Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text, false);
-            loadedShip?.shipData.SetHullData(loadedShip.shipData);
+            loadedShip?.shipData.UpdateHullData();
             if (Screen is Ship_Game.ShipDesignScreen shipDesignScreen)                            
                 shipDesignScreen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             

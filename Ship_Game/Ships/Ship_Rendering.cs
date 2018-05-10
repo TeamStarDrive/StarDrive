@@ -402,8 +402,7 @@ namespace Ship_Game.Ships
                     screen.ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
 
-                    float shieldRate = .001f + slot.ShieldPower / (slot.shield_power_max +
-                                                           (loyalty?.data.ShieldPowerMod * slot.shield_power_max ?? 0));                    
+                    float shieldRate = .001f + slot.ShieldPower / slot.ActualShieldPowerMax;                    
                     screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen,
                         new Color(0f, 1f, 0f, shieldRate * 0.8f));
                 }
