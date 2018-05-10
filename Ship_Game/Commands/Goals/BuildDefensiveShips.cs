@@ -72,7 +72,7 @@ namespace Ship_Game.Commands.Goals
             {
                 isShip = true,
                 QueueNumber = planet1.ConstructionQueue.Count,
-                sData = beingBuilt.GetShipData(),
+                sData = beingBuilt.shipData,
                 Goal = this,
                 Cost = beingBuilt.GetCost(empire)
             });

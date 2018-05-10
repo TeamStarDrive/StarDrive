@@ -247,8 +247,8 @@ namespace Ship_Game.Debug
                     if (bestShip != null)
                     {
                         DrawString($"Ship : {bestShip.Name}");
-                        DrawString($"Hull : {bestShip.shipData.HullData.Role.ToString()}");                        
-                        DrawString($"Role : {bestShip.DesignRole.ToString()}");
+                        DrawString($"Hull : {bestShip.BaseHull.Role}");                        
+                        DrawString($"Role : {bestShip.DesignRole}");
                         DrawString($"Str : {(int)bestShip.BaseStrength} - Tech : {bestShip.shipData.TechScore}");
                     }
                 }

@@ -213,7 +213,7 @@ namespace Ship_Game
                 else if (queueItem.isShip)
                 {
                     Vector2 bCursor = MousePos + this.DraggedOffset;
-                    spriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[queueItem.sData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    spriteBatch.Draw(ResourceManager.HullsDict[queueItem.sData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
                     spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;

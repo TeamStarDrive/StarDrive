@@ -922,7 +922,7 @@ namespace Ship_Game
             {
                 if (pin.Ship?.loyalty != empire) continue;
 
-                shipTechs.AddRange(pin.Ship.GetShipData().techsNeeded);
+                shipTechs.AddRange(pin.Ship.shipData.techsNeeded);
             }
             foreach (string tech in shipTechs)
                 techs.Add(tech);

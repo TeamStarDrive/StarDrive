@@ -894,15 +894,13 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public ShipData GetShipData()
-        {
-            return ResourceManager.ShipsDict.TryGetValue(Name, out Ship sd) ? sd.shipData : null;
-        }
+
+        public ShipData BaseHull => shipData.BaseHull;
 
         public void SetShipData(ShipData data)
         {
             shipData = data;
-            shipData.UpdateHullData();
+            shipData.UpdateBaseHull();
         }
 
         public void Explore()
@@ -1761,15 +1759,15 @@ namespace Ship_Game.Ships
             data.Level                     = (byte)Level;
             data.experience                = (byte)experience;
             data.Role                      = shipData.Role;
-            data.IsShipyard                = GetShipData().IsShipyard;
-            data.IsOrbitalDefense          = GetShipData().IsOrbitalDefense;
-            data.Animated                  = GetShipData().Animated;
+            data.IsShipyard                = shipData.IsShipyard;
+            data.IsOrbitalDefense          = shipData.IsOrbitalDefense;
+            data.Animated                  = shipData.Animated;
             data.CombatState               = AI.CombatState;
-            data.ModelPath                 = GetShipData().ModelPath;
+            data.ModelPath                 = shipData.ModelPath;
             data.ModuleSlots               = GetModuleSlotDataArray();
             data.ThrusterList              = new Array<ShipToolScreen.ThrusterZone>();
             data.MechanicalBoardingDefense = MechanicalBoardingDefense;
-            data.HullData                  = shipData.HullData;
+            data.BaseHull                  = shipData.BaseHull;
             foreach (Thruster thruster in ThrusterList)
                 data.ThrusterList.Add(new ShipToolScreen.ThrusterZone
                 {
@@ -2811,10 +2809,9 @@ namespace Ship_Game.Ships
                     }
                 }
             }
-            var hullData = shipData.HullData;
-            if (hullData?.EventOnDeath != null)
+            if (BaseHull.EventOnDeath != null)
             {
-                var evt = ResourceManager.EventsDict[hullData.EventOnDeath];
+                var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
                 Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
             QueueTotalRemoval();

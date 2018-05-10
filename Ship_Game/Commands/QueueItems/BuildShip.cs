@@ -14,7 +14,7 @@ namespace Ship_Game.Commands
         {
             isShip = true;
             productionTowards = 0f;
-            sData = ResourceManager.ShipsDict[goal.VariableString].GetShipData();
+            sData = ResourceManager.ShipsDict[goal.VariableString].shipData;
         }
     }
 }
