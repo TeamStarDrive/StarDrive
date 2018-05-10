@@ -388,7 +388,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                HitPoints = slot.Module.ShipDesignerMaxHealth;
+                HitPoints = slot.Module.ActualMaxHealth;
                 if (slot.Module.Mass < 0f && slot.Powered)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)

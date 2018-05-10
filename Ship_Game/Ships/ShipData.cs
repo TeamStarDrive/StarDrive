@@ -66,10 +66,13 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
 
-        public void SetHullData(ShipData shipData = null)
-        {            
-            HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
-            Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
+        public void UpdateHullData()
+        {
+            if (HullData == null)
+                HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
+            
+            if (Bonuses == null)
+                Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
         public override string ToString() { return Name; }
@@ -230,7 +233,7 @@ namespace Ship_Game.Ships
                 ship.techsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.techsNeeded.Add(s->Techs[i].AsInterned);
-                ship.SetHullData(ship);                
+                ship.UpdateHullData();                
                 
                 return ship;
             }           

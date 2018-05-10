@@ -111,15 +111,15 @@ namespace Ship_Game
         [Serialize(47)] public float FuelCellModifier;
         [Serialize(48)] public float FlatMoneyBonus;
         [Serialize(49)] public float EmpireWideProductionPercentageModifier = 1f;
-        [Serialize(50)] public float FTLModifier = 35f;
-        [Serialize(51)] public float MassModifier = 1f;
+        [Serialize(50)] public float FTLModifier        = 35f;
+        [Serialize(51)] public float MassModifier       = 1f;
         [Serialize(52)] public float ArmourMassModifier = 1f;
-        [Serialize(53)] public float SubLightModifier = 1f;
+        [Serialize(53)] public float SubLightModifier   = 1f;
         [Serialize(54)] public float EmpireFertilityBonus;
-        [Serialize(55)] public float SensorModifier = 1f;
+        [Serialize(55)] public float SensorModifier     = 1f;
         [Serialize(56)] public float OrdnanceEffectivenessBonus;
         [Serialize(57)] public int ArmorPiercingBonus;
-        [Serialize(58)] public float SpoolTimeModifier = 1.0f;
+        [Serialize(58)] public float SpoolTimeModifier        = 1.0f;
         [Serialize(59)] public float ExplosiveRadiusReduction = 0f;
         [Serialize(60)] public float ShieldPenBonusChance;
         [Serialize(61)] public float SpyModifier;
@@ -134,15 +134,15 @@ namespace Ship_Game
         [Serialize(70)] public float BaseReproductiveRate = 0.01f;
 
         //Added by McShooterz: power bonus
-        [Serialize(71)] public float PowerFlowMod = 0f;
+        [Serialize(71)] public float PowerFlowMod   = 0f;
         [Serialize(72)] public float ShieldPowerMod = 0f;
-        [Serialize(73)] public float ExperienceMod = 0f;
+        [Serialize(73)] public float ExperienceMod  = 0f;
 
         //economy
-        [Serialize(74)] public float SSPBudget = 0;
-        [Serialize(75)] public float SpyBudget = 0;
-        [Serialize(76)] public float ShipBudget = 0;
-        [Serialize(77)] public float ColonyBudget = 0;
+        [Serialize(74)] public float SSPBudget     = 0;
+        [Serialize(75)] public float SpyBudget     = 0;
+        [Serialize(76)] public float ShipBudget    = 0;
+        [Serialize(77)] public float ColonyBudget  = 0;
         [Serialize(78)] public float DefenseBudget = 0;
 
         //unlock at start
@@ -156,43 +156,41 @@ namespace Ship_Game
         [Serialize(83)] public SortButton SLSort = new SortButton();
 
         //techTimers
-        [Serialize(84)] public short TechDelayTime   =4;
-        [Serialize(85)] public bool SpyMute          = false;
-        [Serialize(86)] public bool SpyMissionRepeat = false;
-        [Serialize(87)] public float treasuryGoal    = .20f;
-        [Serialize(88)] public bool AutoTaxes        = false;
-        [Serialize(89)] public float BorderTolerance = 40f;
-        [Serialize(90)] public int BaseShipLevel = 0;
-        [Serialize(91)] public float PlayerTaxGoal = .2f;
+        [Serialize(84)] public short TechDelayTime    = 4;
+        [Serialize(85)] public bool  SpyMute          = false;
+        [Serialize(86)] public bool  SpyMissionRepeat = false;
+        [Serialize(87)] public float treasuryGoal     = 0.20f;
+        [Serialize(88)] public bool  AutoTaxes        = false;
+        [Serialize(89)] public float BorderTolerance  = 40f;
+        [Serialize(90)] public int   BaseShipLevel    = 0;
+        [Serialize(91)] public float PlayerTaxGoal    = .2f;
 
         public EmpireData()
         {
             // @todo Mapping these by string is a bad idea. Consider using an Enum
-            WeaponTags.Add("Kinetic", new WeaponTagModifier());
-            WeaponTags.Add("Energy", new WeaponTagModifier());
-            WeaponTags.Add("Beam", new WeaponTagModifier());
-            WeaponTags.Add("Hybrid", new WeaponTagModifier());
-            WeaponTags.Add("Railgun", new WeaponTagModifier());
-            WeaponTags.Add("Missile", new WeaponTagModifier());
+            WeaponTags.Add("Kinetic",   new WeaponTagModifier());
+            WeaponTags.Add("Energy",    new WeaponTagModifier());
+            WeaponTags.Add("Beam",      new WeaponTagModifier());
+            WeaponTags.Add("Hybrid",    new WeaponTagModifier());
+            WeaponTags.Add("Railgun",   new WeaponTagModifier());
+            WeaponTags.Add("Missile",   new WeaponTagModifier());
             WeaponTags.Add("Explosive", new WeaponTagModifier());
-            WeaponTags.Add("Guided", new WeaponTagModifier());
+            WeaponTags.Add("Guided",    new WeaponTagModifier());
             WeaponTags.Add("Intercept", new WeaponTagModifier());
-            WeaponTags.Add("PD", new WeaponTagModifier());
+            WeaponTags.Add("PD",        new WeaponTagModifier());
             WeaponTags.Add("Spacebomb", new WeaponTagModifier());
             WeaponTags.Add("BioWeapon", new WeaponTagModifier());
-            WeaponTags.Add("Drone", new WeaponTagModifier());
-            WeaponTags.Add("Torpedo", new WeaponTagModifier());
-            WeaponTags.Add("Subspace", new WeaponTagModifier());
-            WeaponTags.Add("Warp", new WeaponTagModifier());
+            WeaponTags.Add("Drone",     new WeaponTagModifier());
+            WeaponTags.Add("Torpedo",   new WeaponTagModifier());
+            WeaponTags.Add("Subspace",  new WeaponTagModifier());
+            WeaponTags.Add("Warp",      new WeaponTagModifier());
             //added by McShooterz: added missing tags
-            WeaponTags.Add("Cannon", new WeaponTagModifier());
-            WeaponTags.Add("Bomb", new WeaponTagModifier());
+            WeaponTags.Add("Cannon",    new WeaponTagModifier());
+            WeaponTags.Add("Bomb",      new WeaponTagModifier());
             //added by The Doctor: New tags
-            WeaponTags.Add("Array", new WeaponTagModifier());
-            WeaponTags.Add("Flak", new WeaponTagModifier());
-            WeaponTags.Add("Tractor", new WeaponTagModifier());
-            
-
+            WeaponTags.Add("Array",     new WeaponTagModifier());
+            WeaponTags.Add("Flak",      new WeaponTagModifier());
+            WeaponTags.Add("Tractor",   new WeaponTagModifier());
         }
 
         public EmpireData GetClone()

@@ -16,6 +16,7 @@ namespace Ship_Game
         private static Empire RemnantsFaction;
         private static Empire UnknownFaction;
         private static Empire CorsairsFaction;
+        private static Empire DummyEmpire;
 
         public static IReadOnlyList<Empire> Empires => EmpireList;
         public static int NumEmpires => EmpireList.Count;
@@ -28,6 +29,10 @@ namespace Ship_Game
         public static Empire Remnants => RemnantsFaction ?? (RemnantsFaction = GetEmpireByName("The Remnant"));
         public static Empire Unknown  => UnknownFaction  ?? (UnknownFaction  = GetEmpireByName("Unknown"));
         public static Empire Corsairs => CorsairsFaction ?? (CorsairsFaction = GetEmpireByName("Corsairs"));
+
+        // @note This is used as a placeholder empire for entities that have no logical allegiance
+        //       withing the known universe. They belong to the mythical `Void` -- pure Chaos of nothingness
+        public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateDummyEmpire());
 
         public static Empire FindDuplicateEmpire(Empire empire)
         {
@@ -77,6 +82,7 @@ namespace Ship_Game
             }
             return null;
         }
+
         private static Empire FindPlayerEmpire()
         {
             foreach (Empire empire in EmpireList)
@@ -84,6 +90,7 @@ namespace Ship_Game
                     return empire;
             return null;
         }
+
         public static Array<Empire> GetAllies(Empire e)
         {
             var allies = new Array<Empire>();
@@ -95,6 +102,7 @@ namespace Ship_Game
                     allies.Add(empire);
             return allies;
         }
+
         public static Array<Empire> GetTradePartners(Empire e)
         {
             var allies = new Array<Empire>();
@@ -107,13 +115,24 @@ namespace Ship_Game
             return allies;
         }
 
+        private static Empire CreateDummyEmpire()
+        {
+            var empire = new Empire
+            {
+                data = new EmpireData(),
+                Id = -1,
+            };
+            empire.data.Traits = new RacialTrait {Name = "Void"};
+            return empire;
+        }
+
         public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
         {
             var rebelEmpire = GetEmpireByName(data.RebelName);
             if (rebelEmpire != null) return rebelEmpire;
 
 
-            Empire empire = new Empire(parent)
+            var empire = new Empire(parent)
             {
                 isFaction = true,
                 data = CreatingNewGameScreen.CopyEmpireData(data)
@@ -150,6 +169,7 @@ namespace Ship_Game
          
             return empire;
         }
+
         public static Troop CreateRebelTroop(Empire rebelEmpire)
         {
             foreach (string troopType in ResourceManager.TroopTypes)

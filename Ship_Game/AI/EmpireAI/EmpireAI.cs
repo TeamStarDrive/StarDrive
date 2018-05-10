@@ -234,7 +234,7 @@ namespace Ship_Game.AI
 
         public string GetStarBase()
         {
-            Array<Ship> potentialSatellites = new Array<Ship>();
+            var potentialSatellites = new Array<Ship>();
             foreach (string platform in OwnerEmpire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.GetShipTemplate(platform);
@@ -247,7 +247,7 @@ namespace Ship_Game.AI
                 return "";
             int index = RandomMath.InRange((int)(potentialSatellites.Count*.5f));
             return potentialSatellites.OrderByDescending(tech=> tech.shipData.TechScore)
-                .ThenByDescending(stre=>stre.shipData.BaseStrength).Skip(index).FirstOrDefault()?.Name;
+                .ThenByDescending(stre => stre.shipData.BaseStrength).Skip(index).FirstOrDefault()?.Name;
         }
         
         public float GetDistanceFromOurAO(Planet p)
