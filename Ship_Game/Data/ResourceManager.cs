@@ -197,16 +197,15 @@ namespace Ship_Game
                 {
                     shipData.unLockable = true;
                     if (shipData.BaseStrength <= 0f)
-                        kv.Value.CalculateShipStrength();
+                        shipData.BaseStrength = kv.Value.CalculateShipStrength();
+
                     shipData.TechScore = 0;
                     foreach (string techname in shipData.techsNeeded)
                     {
                         var tech = TechTree[techname];
                         shipData.TechScore += tech.RootNode ==0 ? (int)tech.Cost : 0;
                         x++;
-                        
                     }
-                    
                 }
                 else
                 {
@@ -538,34 +537,6 @@ namespace Ship_Game
             var nameFile = GetModOrVanillaFile(relativePath);
             if (nameFile == null) return null;
             return new MarkovNameGenerator(nameFile.OpenText().ReadToEnd(), order, minLength);
-        }
-
-        public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
-        {                       
-            if (throwIfError)
-                return ShipsDict[shipName];
-            ShipsDict.TryGetValue(shipName, out Ship ship);
-            return ship;
-        }
-
-        public static bool ShipTemplateExists(string shipName)
-        {
-            return ShipsDict.ContainsKey(shipName);
-        }
-
-        public static bool GetShipTemplate(string shipName, out Ship template)
-        {
-            return ShipsDict.TryGetValue(shipName, out template);
-        }
-
-        public static string GetShipHull(string shipName)
-        {
-            return ShipsDict[shipName].GetShipData().Hull;
-        }       
-
-        public static bool IsPlayerDesign(string shipName)
-        {
-            return ShipsDict.TryGetValue(shipName, out Ship template) && template.IsPlayerDesign;
         }
 
         // Added by RedFox
@@ -1137,7 +1108,7 @@ namespace Ship_Game
                         shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
                         shipData.Role = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
-                        shipData.SetHullData(shipData);
+                        shipData.UpdateHullData();
                         lock (retList)
                         {
                             HullsDict[shipData.Hull] = shipData;
@@ -1398,6 +1369,22 @@ namespace Ship_Game
             public bool IsReadonlyDesign;
         }
 
+        public static Ship AddShipTemplate(ShipData shipData, bool fromSave, bool playerDesign = false, bool readOnly = false)
+        {
+            Ship shipTemplate = Ship.CreateShipFromShipData(EmpireManager.Void, shipData, fromSave: fromSave, isTemplate: true);
+            if (shipTemplate == null) // happens if module creation failed                                                    
+                return null;
+            
+            shipTemplate.IsPlayerDesign   = playerDesign;
+            shipTemplate.IsReadonlyDesign = readOnly;
+
+            lock (ShipsDict)
+            {                            
+                ShipsDict[shipData.Name] = shipTemplate;
+            }
+            return shipTemplate;
+        }
+
         private static void LoadShipTemplates(ShipDesignInfo[] shipDescriptors)
         {
             void LoadShips(int start, int end)
@@ -1424,19 +1411,9 @@ namespace Ship_Game
                                         $"\n This can prevent loading of ships that have this filename in the XML :" +
                                         $"\n path '{info.PathNoExt()}'");
 
-                        Ship shipTemplate = Ship.CreateShipFromShipData(shipData, fromSave: false, isTemplate: true);
-                        if (shipTemplate == null) // happens if module creation failed                                                    
-                            continue;
-                        shipData.SetHullData();
-                        shipTemplate.InitializeStatus(fromSave: false);
-                        shipTemplate.RecalculateMaxHealth();
-                        shipTemplate.IsPlayerDesign   = shipDescriptors[i].IsPlayerDesign;
-                        shipTemplate.IsReadonlyDesign = shipDescriptors[i].IsReadonlyDesign;
-
-                        lock (ShipsDict)
-                        {                            
-                            ShipsDict[shipData.Name] = shipTemplate;
-                        }
+                        AddShipTemplate(shipData, fromSave: false,
+                                              playerDesign: shipDescriptors[i].IsPlayerDesign,
+                                                  readOnly: shipDescriptors[i].IsReadonlyDesign);
                     }
                     catch (Exception e)
                     {
@@ -1448,6 +1425,40 @@ namespace Ship_Game
             Parallel.For(shipDescriptors.Length, LoadShips);
             //loadShips(0, shipDescriptors.Length); // test without parallel for
         }
+
+        public static Ship GetShipTemplate(string shipName, bool throwIfError = true)
+        {                       
+            if (throwIfError)
+                return ShipsDict[shipName];
+            ShipsDict.TryGetValue(shipName, out Ship ship);
+            return ship;
+        }
+
+        public static bool ShipTemplateExists(string shipName)
+        {
+            return ShipsDict.ContainsKey(shipName);
+        }
+
+        public static bool GetShipTemplate(string shipName, out Ship template)
+        {
+            return ShipsDict.TryGetValue(shipName, out template);
+        }
+
+        public static string GetShipHull(string shipName)
+        {
+            return ShipsDict[shipName].GetShipData().Hull;
+        }       
+
+        public static bool IsPlayerDesign(string shipName)
+        {
+            return ShipsDict.TryGetValue(shipName, out Ship template) && template.IsPlayerDesign;
+        }
+
+        public static bool IsShipFromSave(string shipName)
+        {
+            return ShipsDict.TryGetValue(shipName, out Ship template) && template.FromSave;
+        }
+
 
         private static void CombineOverwrite(Map<string, ShipDesignInfo> designs, FileInfo[] filesToAdd, bool readOnly, bool playerDesign)
         {
@@ -1481,11 +1492,6 @@ namespace Ship_Game
             CombineOverwrite(designs, GatherFilesUnified("ShipDesigns", "xml"), readOnly: true, playerDesign: false);            
             CombineOverwrite(designs, Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml"), readOnly: false, playerDesign: true);
             LoadShipTemplates(designs.Values.ToArray());
-
-            foreach (var entry in ShipsDict) // Added by gremlin : Base strength Calculator
-            {
-                entry.Value.BaseStrength = entry.Value.CalculateShipStrength();
-            }
         }
 
 

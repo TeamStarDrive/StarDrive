@@ -44,6 +44,8 @@ namespace Ship_Game {
                 CarrierShip  = hull.CarrierShip,
                 HullData     = hull.HullData
             };
+            ActiveHull.UpdateHullData();
+
             Techs.Clear();
             AddToTechList(ActiveHull.HullData.techsNeeded);
             CarrierOnly = hull.CarrierShip;
@@ -366,7 +368,7 @@ namespace Ship_Game {
                         }
                         SlotStruct slot = slotStruct.Parent ?? slotStruct;
                         if (ActiveModule != null || slot.Module == null) continue;
-                        SetActiveModule(ShipModule.CreateNoParent(slot.Module.UID));
+                        SetActiveModule(CreateDesignModule(slot.Module.UID));
                         ChangeModuleState(slot.State);
                         ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
                         return true;
@@ -628,7 +630,7 @@ namespace Ship_Game {
             }
             if (designAction.clickedSS.ModuleUID != null)
             {
-                ActiveModule = ShipModule.CreateNoParent(designAction.clickedSS.ModuleUID);
+                ActiveModule = CreateDesignModule(designAction.clickedSS.ModuleUID);
                 ActiveModule.Facing = slot1.Facing;
                 ActiveModState = slot1.State;
                 ChangeModuleState(slot1.State);
@@ -641,7 +643,7 @@ namespace Ship_Game {
                     if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null)
                         continue;
 
-                    ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
+                    ActiveModule = CreateDesignModule(slotStruct.ModuleUID);
                     ActiveModState = slotStruct.State;                    
                     slot2.Facing = slotStruct.Facing;
                     slot2.ModuleUID = slotStruct.ModuleUID;
@@ -1109,16 +1111,12 @@ namespace Ship_Game {
                 serializer.Serialize(ws, toSave);
             ShipSaved = true;
 
-            Ship newShip = Ship.CreateShipFromShipData(toSave, fromSave: false);
-            if (newShip == null) // happens if module creation failed
-                return;
-            newShip.InitializeStatus(fromSave: false);
-            newShip.IsPlayerDesign = true;
-            ResourceManager.ShipsDict[name] = newShip;
-            newShip.BaseStrength = -1;
-            newShip.BaseStrength = newShip.GetStrength(true);
+            Ship newTemplate = ResourceManager.AddShipTemplate(ActiveHull, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-            ActiveHull = newShip.GetShipData();
+
+            ActiveHull = newTemplate.GetShipData();
+            ActiveHull.UpdateHullData();
+
             ActiveHull.CombatState = CombatState;
             ChangeHull(ActiveHull);
         }
@@ -1199,7 +1197,7 @@ namespace Ship_Game {
                 {
                     continue;
                 }
-                ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
+                ActiveModule = CreateDesignModule(slot.ModuleUID);
                 ChangeModuleState(slot.State);
                 if (ActiveModule.XSIZE * ActiveModule.YSIZE > 1)
                     ClearDestinationSlotsNoStack(slot);                

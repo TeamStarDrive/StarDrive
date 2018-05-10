@@ -512,6 +512,11 @@ namespace Ship_Game
             }
             return numFreeSlots == (activeModule.XSIZE * activeModule.YSIZE);
         }
+
+        public ShipModule CreateDesignModule(string uid)
+        {
+            return ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
+        }
         
         private void InstallModule(SlotStruct slot)
         {
@@ -540,7 +545,7 @@ namespace Ship_Game
             ClearDestinationSlots(slot);
             ChangeModuleState(ActiveModState);
             slot.ModuleUID            = ActiveModule.UID;
-            slot.Module               = ShipModule.CreateNoParent(ActiveModule.UID);
+            slot.Module               = CreateDesignModule(ActiveModule.UID);
             slot.Module.XSIZE         = ActiveModule.XSIZE;
             slot.Module.YSIZE         = ActiveModule.YSIZE;
             slot.Module.XMLPosition   = ActiveModule.XMLPosition;
@@ -552,7 +557,7 @@ namespace Ship_Game
 
             RecalculatePower();
             ShipSaved = false;
-            ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
+            ActiveModule = CreateDesignModule(ActiveModule.UID);
             ChangeModuleState(ActiveModState);
         }
 
@@ -596,7 +601,7 @@ namespace Ship_Game
             ShipSaved = false;
             if (ActiveModule.ModuleType != ShipModuleType.Hangar)
             {
-                ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
+                ActiveModule = CreateDesignModule(ActiveModule.UID);
             }
 
             //grabs a fresh copy of the same module type to cursor 
