@@ -60,8 +60,11 @@ namespace Ship_Game
                 {
                     SelectionBox = new Selector(e.clickRect);
                     e.clickRectHover = 1;
-                    if (!Screen.Input.InGameSelect) continue;
-                    Screen.SetActiveModule(ShipModule.CreateNoParent(((ShipModule)e.item).UID));
+                    if (!Screen.Input.InGameSelect)
+                        continue;
+
+                    var module = (ShipModule)e.item;
+                    Screen.SetActiveModule(Screen.CreateDesignModule(module.UID));
                     Screen.ResetModuleState();
                     return true;
                 }
@@ -95,7 +98,7 @@ namespace Ship_Game
                     if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
                         continue;
 
-                    ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                    ShipModule tmp = Screen.CreateDesignModule(module.Key);
                     tmp.SetAttributesNoParent();                    
        
                     if (RestrictedModCheck(Screen.ActiveHull.Role, tmp))
@@ -246,8 +249,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        module.Value.ModuleType.ToString();
-                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                        ShipModule tmp = Screen.CreateDesignModule(module.Key);
                         tmp.SetAttributesNoParent();
 
                         if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
@@ -334,8 +336,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        module.Value.ModuleType.ToString();
-                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                        ShipModule tmp = Screen.CreateDesignModule(module.Key);
                         tmp.SetAttributesNoParent();
                         if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
                         
@@ -381,8 +382,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        module.Value.ModuleType.ToString();
-                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
+                        ShipModule tmp = Screen.CreateDesignModule(module.Key);
                         tmp.SetAttributesNoParent();
                         if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;                        
                         if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||

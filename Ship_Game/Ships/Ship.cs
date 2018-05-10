@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -901,7 +902,7 @@ namespace Ship_Game.Ships
         public void SetShipData(ShipData data)
         {
             shipData = data;
-            if (shipData.HullData == null) shipData.SetHullData();
+            shipData.UpdateHullData();
         }
 
         public void Explore()
@@ -1807,81 +1808,59 @@ namespace Ship_Game.Ships
             return slots;
         }
 
-        public float CalculateRange()
-        {
-            return 200000f;
-        }
 
         private string GetConduitGraphic(ShipModule forModule)
         {
-            bool right = false;
-            bool left  = false;
-            bool down  = false;
-            bool up    = false;
-            int sides  = 0;
+            var conduit = new ConduitGraphic();
             foreach (ShipModule module in ModuleSlotList)
+                if (module.ModuleType == ShipModuleType.PowerConduit)
+                    conduit.Add((int)(module.XMLPosition.X - forModule.XMLPosition.X), 
+                                (int)(module.XMLPosition.Y - forModule.XMLPosition.Y));
+            return conduit.GetGraphic();
+        }
+
+        public struct ConduitGraphic
+        {
+            public bool Right;
+            public bool Left;
+            public bool Down;
+            public bool Up;
+            public void Add(int dx, int dy)
             {
-                if (module != forModule && module.ModuleType == ShipModuleType.PowerConduit)
-                {
-                    int dx = (int)Math.Abs(module.XMLPosition.X - forModule.XMLPosition.X) / 16;
-                    int dy = (int)Math.Abs(module.XMLPosition.Y - forModule.XMLPosition.Y) / 16;
-                    if (dx == 1 && dy == 0)
-                    {
-                        if (module.XMLPosition.X > forModule.XMLPosition.X)
-                            right = true;
-                        else
-                            left = true;
-                    }
-                    if (dy == 1 && dx == 0)
-                    {
-                        if (module.XMLPosition.Y > forModule.XMLPosition.Y)
-                            up = true;
-                        else
-                            down = true;
-                    }
-                }
+                dx /= 16;
+                dy /= 16;
+                Left  |= dx == -1 && dy == 0;
+                Right |= dx == +1 && dy == 0;
+                Down  |= dx ==  0 && dy == -1;
+                Up    |= dx ==  0 && dy == +1;
             }
-            if (left)   ++sides;
-            if (right)  ++sides;
-            if (down)   ++sides;
-            if (up) ++sides;
-            if (sides <= 1)
+            public int Sides => (Left?1:0) + (Right?1:0) + (Down?1:0) + (Up?1:0);
+            public string GetGraphic()
             {
-                if (down) return "Conduits/conduit_powerpoint_down";
-                if (up) return "Conduits/conduit_powerpoint_up";
-                if (left) return "Conduits/conduit_powerpoint_right";
-                return right ? "Conduits/conduit_powerpoint_left" : "Conduits/conduit_intersection";
-            }
-            else
-            {
-                if (sides == 3)
+                switch (Sides)
                 {
-                    if (down && up && left) return "Conduits/conduit_tsection_left";
-                    if (down && up && right) return "Conduits/conduit_tsection_right";
-                    if (left && right && up) return "Conduits/conduit_tsection_down";
-                    if (left && right && down) return "Conduits/conduit_tsection_up";
+                    case 1:
+                        if (Down)  return "Conduits/conduit_powerpoint_down";
+                        if (Up)    return "Conduits/conduit_powerpoint_up";
+                        if (Left)  return "Conduits/conduit_powerpoint_right";
+                        if (Right) return "Conduits/conduit_powerpoint_left";
+                        break;
+                    case 2:
+                        if (Left && Down)  return "Conduits/conduit_corner_BR";
+                        if (Left && Up)    return "Conduits/conduit_corner_TR";
+                        if (Right && Down) return "Conduits/conduit_corner_BL";
+                        if (Right && Up)   return "Conduits/conduit_corner_TL";
+                        if (Down && Up)    return "Conduits/conduit_straight_vertical";
+                        if (Left && Right) return "Conduits/conduit_straight_horizontal";
+                        break;
+                    case 3:
+                        if (!Right)  return "Conduits/conduit_tsection_left";
+                        if (!Left)   return "Conduits/conduit_tsection_right";
+                        if (!Down)   return "Conduits/conduit_tsection_down";
+                        if (!Up)     return "Conduits/conduit_tsection_up";
+                        break;
                 }
-                else
-                {
-                    if (sides == 4)
-                        return "Conduits/conduit_intersection";
-                    if (sides == 2)
-                    {
-                        if (left && down)
-                            return "Conduits/conduit_corner_BR";
-                        if (left && up)
-                            return "Conduits/conduit_corner_TR";
-                        if (right && down)
-                            return "Conduits/conduit_corner_BL";
-                        if (right && up)
-                            return "Conduits/conduit_corner_TL";
-                        if (down && up)
-                            return "Conduits/conduit_straight_vertical";
-                        if (left && right)
-                            return "Conduits/conduit_straight_horizontal";
-                    }
-                }
-                return "";
+                return "Conduits/conduit_intersection";
             }
         }
 
@@ -2117,11 +2096,12 @@ namespace Ship_Game.Ships
                 SetShipsVisibleByPlayer();
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
+
                 if (shipStatusChanged) //|| InCombat
                 {
                     ShipStatusChange();
-                    
                 }
+
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                 {
@@ -2534,7 +2514,7 @@ namespace Ship_Game.Ships
                 if (slot.Restrictions == Restrictions.I && slot.Active)
                     ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
                 
-                RepairRate += slot.BonusRepairRate;
+                RepairRate += slot.ActualBonusRepairRate;
                 if (slot.Mass < 0.0 && slot.Powered)
                     Mass += slot.Mass;
                 else if (slot.Mass > 0.0)
@@ -2567,7 +2547,7 @@ namespace Ship_Game.Ships
                     sensorBonus            = Math.Max(sensorBonus, slot.SensorBonus);                    
                     if (slot.shield_power_max > 0f)
                     {
-                        shield_max += slot.GetShieldsMax();
+                        shield_max += slot.ActualShieldPowerMax;
                         ShieldPowerDraw += slot.PowerDraw;
                     }
                     else
@@ -2579,8 +2559,8 @@ namespace Ship_Game.Ships
                     OrdAddedPerSecond   += slot.OrdnanceAddedPerSecond;
                     HealPerTurn         += slot.HealPerTurn;
                     ECMValue             = 1f.Clamp(0f, Math.Max(ECMValue, slot.ECM)); // 0-1 using greatest value.                    
-                    PowerStoreMax       += Math.Max(0, slot.PowerStoreMax);
-                    PowerFlowMax        += Math.Max(0, slot.PowerFlowMax);                                        
+                    PowerStoreMax       += slot.ActualPowerStoreMax;
+                    PowerFlowMax        += slot.ActualPowerFlowMax;      
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, slot.FTLSpoolTime);
                     if (slot.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars))
                         HasTroopBay |= slot.IsTroopBay;
@@ -2602,9 +2582,9 @@ namespace Ship_Game.Ships
                 if (loyalty != null)
                 {
                     Mass          *= loyalty.data.MassModifier;
-                    RepairRate    += (float)(RepairRate * Level * 0.05) + RepairRate * loyalty.data.Traits.RepairMod;
-                    PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
-                    PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
+                    RepairRate    += (float)(RepairRate * Level * 0.05);
+                    //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
+                    //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
                     SensorRange   *= loyalty.data.SensorModifier;
                 }
                 if (FTLSpoolTime <= 0)
@@ -2612,14 +2592,13 @@ namespace Ship_Game.Ships
                 if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses && 
                     ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
                 {
-                    RepairRate     += RepairRate * mod.RepairBonus;
-                    CargoSpaceMax += CargoSpaceMax * mod.CargoBonus;
+                    CargoSpaceMax  += CargoSpaceMax * mod.CargoBonus;
                     SensorRange    += SensorRange * mod.SensorBonus;
                     WarpThrust     += WarpThrust * mod.SpeedBonus;
                     Thrust         += Thrust * mod.SpeedBonus;
                 }
             }
-            CalculateShipStrength(setBaseStrength: false);
+            CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculatMaxWeaponsRange();
             
         }
@@ -2630,12 +2609,10 @@ namespace Ship_Game.Ships
 
         //added by Gremlin : active ship strength calculator
         private float CurrentStrength = -1;
-        public float GetStrength(bool recalculate = false)
-        {            
-            if (Health >= HealthMax * 0.75f && !LowHealth && CurrentStrength > -1)
-                return CurrentStrength;
-            if (recalculate || CurrentStrength < 0)
-                CurrentStrength = CalculateShipStrength(false);
+        public float GetStrength()
+        {
+            if (CurrentStrength == -1)
+                Debugger.Break();
             return CurrentStrength;
         }
 
@@ -2969,7 +2946,7 @@ namespace Ship_Game.Ships
 
             float healthMax = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
-                healthMax += ModuleSlotList[i].UpdateActualMaxHealth();
+                healthMax += ModuleSlotList[i].ActualMaxHealth;
 
             Health    = Health.Clamp(0, healthMax);
             HealthMax = healthMax;
@@ -3131,9 +3108,8 @@ namespace Ship_Game.Ships
         }
 
         // @todo autocalculate during ship instance init
-        private int DPS =0;
-        private int Defense = 0;
-        public float CalculateShipStrength(bool setBaseStrength = true)
+        private int DPS;
+        public float CalculateShipStrength()
         {
             float offense = 0f;
             float defense = 0f;
@@ -3149,17 +3125,12 @@ namespace Ship_Game.Ships
                 offense += slot.CalculateModuleOffense();
                 defense += slot.CalculateModuleDefense(Size);
 
-                ShipModule template = ResourceManager.GetModuleTemplate(slot.UID);
-                if (template.WarpThrust > 0)
-                    BaseCanWarp = true;
+                BaseCanWarp |= slot.WarpThrust > 0;
             }
             DPS = (int)offense;
-            Defense = (int)defense;
 
             if (!fighters && !weapons) offense = 0f;
             if (defense > offense) defense = offense;
-            if (setBaseStrength)
-                shipData.BaseStrength = offense + defense;
             return offense + defense;
         }
 

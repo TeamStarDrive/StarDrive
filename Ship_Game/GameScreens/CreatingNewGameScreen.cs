@@ -298,7 +298,7 @@ namespace Ship_Game
             foreach (Ship ship in wipSystem.ShipList)
             {
                 ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
-                ship.InitializeShip(loadingFromSavegame: false);
+                ship.InitializeShip();
             }
         }
 
@@ -802,6 +802,8 @@ namespace Ship_Game
                 GameDifficulty = Difficulty,
                 GameScale      = Scale
             };
+
+            EmpireShipBonuses.RefreshBonuses();
 
             UniverseScreen.GameScaleStatic = Scale;
             WorkerThread.Abort();

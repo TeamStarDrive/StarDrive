@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -29,7 +30,7 @@ namespace Ship_Game
         {
             if (inModifier <= 0f)
                 return false;
-             outModifier += inModifier + inModifier * traits.Spiritual;
+            outModifier += inModifier + inModifier * traits.Spiritual;
             if (popup != null)
             {
                 var drawpackage = new EventPopup.DrawPackage(text, Fonts.Arial12Bold, outModifier, Color.White, "%");
@@ -103,6 +104,9 @@ namespace Ship_Game
                 TrySetArtifactEffect(ref triggerer.data.ShieldPenBonusChance,
                     ShieldPenBonus,
                     triggerer.data.Traits, "Empire-wide Bonus Shield Penetration Chance: ", popup);
+
+                // refresh all bonuses so modules would know their health etc. increased
+                EmpireShipBonuses.RefreshBonuses(triggerer);
             }
         }
     }

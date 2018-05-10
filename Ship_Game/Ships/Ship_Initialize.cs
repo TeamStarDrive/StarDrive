@@ -31,7 +31,7 @@ namespace Ship_Game.Ships
                 if (uid == "Dummy" || uid == null) // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
 
                     continue;
-                if (!ResourceManager.ShipModules.ContainsKey(uid))
+                if (!ResourceManager.ModuleExists(uid))
                 {
                     Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{uid}'!");
                     return false;
@@ -92,7 +92,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public static Ship CreateShipFromShipData(ShipData data, bool fromSave, bool isTemplate = false)
+        public static Ship CreateShipFromShipData(Empire empire, ShipData data, bool fromSave, bool isTemplate = false)
         {
             var ship = new Ship
             {
@@ -100,8 +100,11 @@ namespace Ship_Game.Ships
                 Name       = data.Name,
                 Level      = data.Level,
                 experience = data.experience,
-                shipData   = data
+                shipData   = data,
+                loyalty    = empire
             };
+
+            ship.SetShipData(data);
 
             if (!ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave, isTemplate))
                 return null;
@@ -116,7 +119,7 @@ namespace Ship_Game.Ships
                 });
             }
 
-            ship.SetShipData(data);
+            ship.InitializeStatus(fromSave);
             ship.InitializeThrusters();
             return ship;
         }
@@ -135,12 +138,12 @@ namespace Ship_Game.Ships
 
             var ship = new Ship
             {
-                shipData = template.shipData,
-                Name = template.Name,
+                shipData     = template.shipData,
+                Name         = template.Name,
                 BaseStrength = template.BaseStrength,
-                BaseCanWarp = template.BaseCanWarp,
-                loyalty = owner,
-                Position = position
+                BaseCanWarp  = template.BaseCanWarp,
+                loyalty      = owner,
+                Position     = position
             };
 
             if (!ship.CreateModuleSlotsFromData(template.shipData.ModuleSlots, fromSave: false))
@@ -306,11 +309,11 @@ namespace Ship_Game.Ships
             ShipInitialized = true;
         }
 
-        public void InitializeShip(bool loadingFromSavegame)
+        public void InitializeShip(bool loadingFromSavegame = false)
         {
-            bool worldInit = loadingFromSavegame || Empire.Universe == null;
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
-            SetShipData(GetShipData());
+
+            bool worldInit = loadingFromSavegame || Empire.Universe == null;
             if (worldInit)
                 CreateSceneObject();
             else
@@ -335,12 +338,9 @@ namespace Ship_Game.Ships
                 InitializeAI();
                 AI.CombatState = shipData.CombatState;
             }
-
-
             //end: ship subclass initializations. 
 
             InitializeStatus(loadingFromSavegame);
-
             
             SetSystem(System);
             InitExternalSlots();
@@ -437,7 +437,6 @@ namespace Ship_Game.Ships
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             RecalculateMaxHealth();
-            //HealthMax                = Health;
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
@@ -519,10 +518,10 @@ namespace Ship_Game.Ships
                 WarpThrust += module.WarpThrust;
 
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
-                PowerStoreMax        += module.PowerStoreMax    * (1 + (loyalty?.data.FuelCellModifier ?? 0));
-                PowerCurrent         += module.PowerStoreMax;
-                PowerFlowMax         += module.PowerFlowMax     * (1 + (loyalty?.data.PowerFlowMod   ?? 0));
-                shield_max           += module.shield_power_max * (1 + (loyalty?.data.ShieldPowerMod ?? 0));
+                PowerStoreMax        += module.ActualPowerStoreMax;
+                PowerCurrent         += module.ActualPowerStoreMax;
+                PowerFlowMax         += module.ActualPowerFlowMax;
+                shield_max           += module.ActualShieldPowerMax;
                 if (module.ModuleType == ShipModuleType.Armor)
                     armor_max += module.ActualMaxHealth;
 
@@ -546,8 +545,12 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
             shipData.BaseCanWarp = WarpThrust > 0;
             BaseCanWarp = WarpThrust > 0;
-            BaseStrength = GetStrength(true);
-            
+            BaseStrength = CalculateShipStrength();
+            CurrentStrength = BaseStrength;
+
+            // @todo Do we need to recalculate this every time? This whole thing looks fishy
+            if (shipData.BaseStrength <= 0f)
+                shipData.BaseStrength = BaseStrength;
         }
     }
 }
