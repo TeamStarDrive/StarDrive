@@ -94,7 +94,7 @@ namespace Ship_Game
         public static Array<Empire> GetAllies(Empire e)
         {
             var allies = new Array<Empire>();
-            if (e.isFaction || e.MinorRace)
+            if (e.isFaction)
                 return allies;
 
             foreach (Empire empire in EmpireList)
@@ -106,7 +106,7 @@ namespace Ship_Game
         public static Array<Empire> GetTradePartners(Empire e)
         {
             var allies = new Array<Empire>();
-            if (e.isFaction || e.MinorRace)
+            if (e.isFaction)
                 return allies;
 
             foreach (Empire empire in EmpireList)
