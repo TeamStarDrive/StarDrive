@@ -65,7 +65,7 @@ namespace Ship_Game
             foreach(Empire empire in EmpireManager.Empires)
             {
                 bool flag =false;
-                if(empire.isPlayer || empire.isFaction || empire.MinorRace)
+                if(empire.isPlayer || empire.isFaction)
                 {
                     continue;
                 }
@@ -172,7 +172,7 @@ namespace Ship_Game
             Color color = new Color(118, 102, 67, 50);
             foreach (RaceEntry race in Races)
             {
-                if (race.e.isFaction || race.e.MinorRace)
+                if (race.e.isFaction)
                 {
                     continue;
                 }
@@ -244,7 +244,7 @@ namespace Ship_Game
                 Array<Empire> Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
-                    if (e.isFaction || e.data.Defeated || e.MinorRace)
+                    if (e.isFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire != e)
                         {
@@ -434,7 +434,7 @@ namespace Ship_Game
                 Array<Empire> Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
-                    if (e.isFaction || e.data.Defeated || e.MinorRace)
+                    if (e.isFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire != e)
                         {
@@ -1090,22 +1090,11 @@ namespace Ship_Game
             {
                 if (e != EmpireManager.Player)
                 {
-                    if (e.isFaction || e.MinorRace)
-                    {
+                    if (e.isFaction)
                         continue;
-                    }
-                    RaceEntry re = new RaceEntry()
-                    {
-                        e = e
-                    };
-                    Races.Add(re);
                 }
                 else
                 {
-                    RaceEntry re = new RaceEntry()
-                    {
-                        e = e
-                    };
                     SelectedEmpire = e;
                     ArtifactsSL.Entries.Clear();
                     ArtifactsSL.indexAtTop = 0;
@@ -1129,8 +1118,8 @@ namespace Ship_Game
                             entry = new ArtifactEntry();
                         }
                     }
-                    Races.Add(re);
                 }
+                Races.Add(new RaceEntry { e = e });
             }
             Vector2 Cursor = new Vector2(screenWidth / 2f - (float)(148 * Races.Count / 2), (float)(leftRect.Y + 10));
             int j = 0;
