@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -901,7 +902,7 @@ namespace Ship_Game.Ships
         public void SetShipData(ShipData data)
         {
             shipData = data;
-            if (shipData.HullData == null) shipData.SetHullData();
+            shipData.UpdateHullData();
         }
 
         public void Explore()
@@ -2095,11 +2096,12 @@ namespace Ship_Game.Ships
                 SetShipsVisibleByPlayer();
                 foreach (ShipModule slot in ModuleSlotList)
                       slot.Update(1);
+
                 if (shipStatusChanged) //|| InCombat
                 {
                     ShipStatusChange();
-                    
                 }
+
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                 {
@@ -2590,14 +2592,13 @@ namespace Ship_Game.Ships
                 if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses && 
                     ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
                 {
-                    RepairRate     += RepairRate * mod.RepairBonus;
-                    CargoSpaceMax += CargoSpaceMax * mod.CargoBonus;
+                    CargoSpaceMax  += CargoSpaceMax * mod.CargoBonus;
                     SensorRange    += SensorRange * mod.SensorBonus;
                     WarpThrust     += WarpThrust * mod.SpeedBonus;
                     Thrust         += Thrust * mod.SpeedBonus;
                 }
             }
-            CalculateShipStrength(setBaseStrength: false);
+            CurrentStrength = CalculateShipStrength();
             maxWeaponsRange = CalculatMaxWeaponsRange();
             
         }
@@ -2608,12 +2609,10 @@ namespace Ship_Game.Ships
 
         //added by Gremlin : active ship strength calculator
         private float CurrentStrength = -1;
-        public float GetStrength(bool recalculate = false)
-        {            
-            if (Health >= HealthMax * 0.75f && !LowHealth && CurrentStrength > -1)
-                return CurrentStrength;
-            if (recalculate || CurrentStrength < 0)
-                CurrentStrength = CalculateShipStrength(false);
+        public float GetStrength()
+        {
+            if (CurrentStrength == -1)
+                Debugger.Break();
             return CurrentStrength;
         }
 
@@ -2947,7 +2946,7 @@ namespace Ship_Game.Ships
 
             float healthMax = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
-                healthMax += ModuleSlotList[i].UpdateActualMaxHealth();
+                healthMax += ModuleSlotList[i].ActualMaxHealth;
 
             Health    = Health.Clamp(0, healthMax);
             HealthMax = healthMax;
@@ -3109,9 +3108,8 @@ namespace Ship_Game.Ships
         }
 
         // @todo autocalculate during ship instance init
-        private int DPS =0;
-        private int Defense = 0;
-        public float CalculateShipStrength(bool setBaseStrength = true)
+        private int DPS;
+        public float CalculateShipStrength()
         {
             float offense = 0f;
             float defense = 0f;
@@ -3127,17 +3125,12 @@ namespace Ship_Game.Ships
                 offense += slot.CalculateModuleOffense();
                 defense += slot.CalculateModuleDefense(Size);
 
-                ShipModule template = ResourceManager.GetModuleTemplate(slot.UID);
-                if (template.WarpThrust > 0)
-                    BaseCanWarp = true;
+                BaseCanWarp |= slot.WarpThrust > 0;
             }
             DPS = (int)offense;
-            Defense = (int)defense;
 
             if (!fighters && !weapons) offense = 0f;
             if (defense > offense) defense = offense;
-            if (setBaseStrength)
-                shipData.BaseStrength = offense + defense;
             return offense + defense;
         }
 

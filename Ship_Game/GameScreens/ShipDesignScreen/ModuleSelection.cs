@@ -489,7 +489,7 @@ namespace Ship_Game
             {
                 DrawStat(ref modTitlePos, Localizer.Token(123), massMod * mod.Mass, 79);
             }
-            DrawStat(ref modTitlePos, Localizer.Token(124), mod.ShipDesignerMaxHealth, 80);
+            DrawStat(ref modTitlePos, Localizer.Token(124), mod.ActualMaxHealth, 80);
             float powerDraw;
             if (mod.ModuleType != ShipModuleType.PowerPlant)
             {
@@ -500,11 +500,7 @@ namespace Ship_Game
                 powerDraw = (mod.PowerDraw > 0f ? -mod.PowerDraw : mod.ActualPowerFlowMax);
             }
             DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
-            
             DrawStat(ref modTitlePos, Localizer.Token(2231), mod.MechanicalBoardingDefense, 143);
-
-            // @todo Unhack this
-            mod.GetParent().shipData = ParentScreen.ActiveHull;
             DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), mod.ActualBonusRepairRate, 97);
 
             float maxDepth = modTitlePos.Y;
@@ -515,7 +511,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(2064), mod.WarpThrust, 92);
             DrawStat(ref modTitlePos, Localizer.Token(2260), mod.TurnThrust, 148);
             
-            float shieldMax = ModuleBonuses.GetShieldPowerMax(mod, EmpireManager.Player, ParentScreen.ActiveHull);
+            float shieldMax = mod.ActualShieldPowerMax;
             DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
             
             DrawStat(ref modTitlePos, Localizer.Token(133), mod.shield_radius, 94);
@@ -636,7 +632,7 @@ namespace Ship_Game
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
             DrawStat(ref cursor, Localizer.Token(123), mass, 79);
-            DrawStat(ref cursor, Localizer.Token(124), m.ShipDesignerMaxHealth, 80);
+            DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
 

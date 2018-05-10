@@ -20,6 +20,7 @@ namespace Ship_Game.Ships
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         private bool CanVisualizeDamage;
         private ShipModuleDamageVisualization DamageVisualizer;
+        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
         private bool OnFire;
         private const float OnFireThreshold = 0.15f;
         private Vector3 Center3D;
@@ -189,34 +190,16 @@ namespace Ship_Game.Ships
         public Texture2D ModuleTexture => ResourceManager.Texture(IconTexturePath);
         public bool HasColonyBuilding => ModuleType == ShipModuleType.Colony || DeployBuildingOnColonize.NotEmpty();
 
-        public float ActualPowerStoreMax   => ModuleBonuses.GetPowerStoreMax(this, Parent?.loyalty ?? EmpireManager.Player);
-        public float ActualPowerFlowMax    => ModuleBonuses.GetPowerFlowMax(this,  Parent?.loyalty ?? EmpireManager.Player);
-        public float ActualBonusRepairRate => ModuleBonuses.GetBonusRepairRate(this, Parent?.loyalty ?? EmpireManager.Player, Parent?.shipData);
-        public float ActualShieldPowerMax  => ModuleBonuses.GetShieldPowerMax(this,  Parent?.loyalty ?? EmpireManager.Player, Parent?.shipData);
-
+        public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;
+        public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
+        public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
+        public float ActualShieldPowerMax  => shield_power_max * Bonuses.ShieldMod;
+        public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
 
         // this is the design spec of the module
         private float TemplateMaxHealth;
 
-        // this is the actual max health after faction-wide traits have been applied
-        public float ActualMaxHealth { get; private set; }
-
-        // shipyard code is a bloody mess, so we need this as a workaround
-        public float ShipDesignerMaxHealth => GetModifiedHealthForEmpire(EmpireManager.Player, TemplateMaxHealth);
-
-        // called during creation or when a new tech is unlocked
-        public float UpdateActualMaxHealth()
-        {
-            if (Parent?.loyalty != null) // only non-template ships have loyalty data; shipyard modules are also all templates
-                ActualMaxHealth = GetModifiedHealthForEmpire(Parent.loyalty, TemplateMaxHealth);
-            return ActualMaxHealth;
-        }
-
-        private static float GetModifiedHealthForEmpire(Empire empire, float maxHealth)
-        {
-            return maxHealth * (1.0f + empire.data.Traits.ModHpModifier);
-        }
 
         public float HealthPercent => Health / ActualMaxHealth;
 
@@ -236,6 +219,7 @@ namespace Ship_Game.Ships
         
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
+        public ShipData GetHull()   => Parent?.shipData;
 
 
 
@@ -270,7 +254,6 @@ namespace Ship_Game.Ships
             IconTexturePath         = template.IconTexturePath;
             TargetValue             = template.TargetValue;
             TemplateMaxHealth       = template.HealthMax;
-            ActualMaxHealth         = template.HealthMax;
         }
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
@@ -278,7 +261,9 @@ namespace Ship_Game.Ships
             return new ShipModule(template);
         }
 
-        public static ShipModule CreateNoParent(string uid)
+        // Called by Create() and ShipDesignScreen.CreateDesignModule
+        // LOYALTY can be null
+        public static ShipModule CreateNoParent(string uid, Empire loyalty, ShipData hull)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
             var module = new ShipModule
@@ -291,7 +276,6 @@ namespace Ship_Game.Ships
                 hangarTimer       = template.hangarTimer,
                 Health            = template.TemplateMaxHealth,
                 TemplateMaxHealth = template.TemplateMaxHealth,
-                ActualMaxHealth   = template.TemplateMaxHealth,
                 isWeapon          = template.isWeapon,
                 Mass              = template.Mass,
                 ModuleType        = template.ModuleType,
@@ -303,6 +287,9 @@ namespace Ship_Game.Ships
                 IconTexturePath   = template.IconTexturePath,
                 Restrictions      = template.Restrictions
             };
+
+            // @note loyalty can be null, in which case it uses hull bonus only
+            module.Bonuses = EmpireShipBonuses.Get(loyalty, hull);
 
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
@@ -327,15 +314,13 @@ namespace Ship_Game.Ships
             return module;
         }
 
+        // this is used during Ship creation, Ship template creation or Ship loading from save
         public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, 
                                         bool isTemplate, ShipDesignScreen.ActiveModuleState orientation)
         {
-            ShipModule module = CreateNoParent(uid);
+            ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
             module.Facing = facing;
-
-            if (!isTemplate)
-                module.UpdateActualMaxHealth();
 
             module.ApplyModuleOrientation(orientation);
             module.Initialize(xmlPos, isTemplate);
