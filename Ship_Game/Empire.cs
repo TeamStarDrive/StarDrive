@@ -1338,7 +1338,9 @@ namespace Ship_Game
                         ship.RecalculateMaxHealth();
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null)  //fbedard: total ships in combat
                         this.empireShipCombat++;                    
-                    if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                    if (ship.Mothership != null || ship.DesignRole == ShipData.RoleName.troop 
+                                                || ship.DesignRole == ShipData.RoleName.freighter 
+                                                || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     this.empireShipTotal++;
                 }
