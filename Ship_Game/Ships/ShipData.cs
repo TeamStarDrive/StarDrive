@@ -42,8 +42,6 @@ namespace Ship_Game.Ships
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
 
-        // @todo This lookup is expensive and never changes once initialized, find a way to initialize this properly        
-
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
@@ -58,29 +56,34 @@ namespace Ship_Game.Ships
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
-        [XmlIgnore] [JsonIgnore] public RoleName HullRole => HullData?.Role ?? Role;
-        [XmlIgnore] [JsonIgnore] public ShipData HullData { get; internal set; }
-        [XmlIgnore] [JsonIgnore] public string HullModel => HullData?.ModelPath ?? ModelPath;
-        [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(HullData?.IconPath ?? IconPath);
+        [XmlIgnore] [JsonIgnore] public RoleName HullRole => BaseHull.Role;
+
+        [XmlIgnore] [JsonIgnore] public ShipRole ShipRole => ResourceManager.ShipRoles[Role];
+
+        // BaseHull is the template layout of the ship hull design
+        [XmlIgnore] [JsonIgnore] public ShipData BaseHull { get; internal set; }
+
+        // Model path of the template hull layout
+        [XmlIgnore] [JsonIgnore] public string HullModel => BaseHull.ModelPath;
+
+        // You should always use this `Icon` property, because of bugs with `IconPath` initialization
+        // when a ShipData is copied. @todo Fix ShipData copying
+        [XmlIgnore] [JsonIgnore] public Texture2D Icon => ResourceManager.Texture(ActualIconPath);
+        [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
 
-        public void UpdateHullData()
+        public void UpdateBaseHull()
         {
-            if (HullData == null)
-                HullData = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
+            if (BaseHull == null)
+                BaseHull = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
             
             if (Bonuses == null)
                 Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
 
         public override string ToString() { return Name; }
-
-        public ShipData()
-        {
-            ModelZ = 0;
-        }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private struct CThrusterZone
@@ -233,8 +236,8 @@ namespace Ship_Game.Ships
                 ship.techsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.techsNeeded.Add(s->Techs[i].AsInterned);
-                ship.UpdateHullData();                
-                
+
+                ship.UpdateBaseHull();                
                 return ship;
             }           
             catch (Exception e)
@@ -264,11 +267,6 @@ namespace Ship_Game.Ships
             return RoleArray[roleNum];
         }
 
-        private void SetModelZ(float zOffSet)
-        {
-            HullData.ModelZ = zOffSet;
-        }
-
         public string GetCategory()
         {
             return CategoryArray[(int)ShipCategory];
@@ -281,13 +279,15 @@ namespace Ship_Game.Ships
             var contentManager = Empire.Universe?.TransientContent ?? ResourceManager.ContentManager;
             shipSO = ResourceManager.GetSceneMesh(contentManager, HullModel, Animated, justLoad);
             shipMeshAnim = null;
-            if (HullData.ModelZ == 0 && HullRole >= RoleName.fighter)
-                HullData.SetModelZ(shipSO.GetMeshBoundingBox().Max.Z);
+            if (BaseHull.ModelZ == 0 && HullRole >= RoleName.fighter)
+                BaseHull.ModelZ = shipSO.GetMeshBoundingBox().Max.Z;
             
-            if (!Animated) return;
+            if (!Animated)
+                return;
 
             SkinnedModel skinned = ResourceManager.GetSkinnedModel(contentManager, ModelPath);
-            if (justLoad) return;
+            if (justLoad)
+                return;
 
             shipMeshAnim = new AnimationController(skinned.SkeletonBones);
             shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);

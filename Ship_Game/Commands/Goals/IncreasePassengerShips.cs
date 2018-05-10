@@ -70,7 +70,7 @@ namespace Ship_Game.Commands.Goals
                     {
                         isShip = true,
                         QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetShipData(),
+                        sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].shipData,
                         Goal = this,
                         Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
                         NotifyOnEmpty = false
@@ -103,7 +103,7 @@ namespace Ship_Game.Commands.Goals
                     {
                         isShip = true,
                         QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = fastestWarpSpeed.GetShipData(),
+                        sData = fastestWarpSpeed.shipData,
                         Goal = this,
                         Cost = fastestWarpSpeed.GetCost(empire)
                     });

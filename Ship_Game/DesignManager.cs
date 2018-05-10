@@ -56,12 +56,13 @@ namespace Ship_Game
             for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Entries.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
             {
                 ScrollList.Entry e = this.ShipDesigns.Entries[i];
+                var ship = (Ship)e.item;
                 bCursor.Y = (float)e.clickRect.Y;                
-                ScreenManager.SpriteBatch.Draw((e.item as Ship).GetShipData().Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
+                ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                 if (e.Plus != 0)
                 {
                     if (e.PlusHover != 0)
@@ -124,7 +125,7 @@ namespace Ship_Game
                     e.clickRectHover = 1;
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        this.EnterNameArea.Text = (e.item as Ship).Name;
+                        this.EnterNameArea.Text = ((Ship)e.item).Name;
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
                 }
@@ -234,7 +235,7 @@ namespace Ship_Game
                     {
                         if (!qi.isShip || qi.sData.Name != EnterNameArea.Text)
                             continue;
-                        qi.sData = ship.GetShipData();
+                        qi.sData = ship.shipData;
                         qi.Cost = ship.GetCost(emp);
                     }
                 }

@@ -155,11 +155,11 @@ namespace Ship_Game.Commands.Goals
             {
                 planet.ConstructionQueue.Add(new QueueItem
                 {
-                    isShip = true,
+                    isShip      = true,
                     QueueNumber = planet.ConstructionQueue.Count,
-                    sData = autoColony.GetShipData(),
-                    Goal = this,
-                    Cost = autoColony.GetCost(empire)
+                    sData       = autoColony.shipData,
+                    Goal        = this,
+                    Cost        = autoColony.GetCost(empire)
                 });
                 PlanetBuildingAt = planet;
                 return GoalStep.GoToNextStep;
@@ -169,11 +169,11 @@ namespace Ship_Game.Commands.Goals
                 Ship shipTypeToBuild = ResourceManager.ShipsDict[empire.data.DefaultColonyShip];
                 planet.ConstructionQueue.Add(new QueueItem
                 {
-                    isShip = true,
-                    QueueNumber = planet.ConstructionQueue.Count,
-                    sData = shipTypeToBuild.GetShipData(),
-                    Goal = this,
-                    Cost = shipTypeToBuild.GetCost(empire),
+                    isShip        = true,
+                    QueueNumber   = planet.ConstructionQueue.Count,
+                    sData         = shipTypeToBuild.shipData,
+                    Goal          = this,
+                    Cost          = shipTypeToBuild.GetCost(empire),
                     NotifyOnEmpty = false, // @todo wtf is this???
                 });
                 PlanetBuildingAt = planet;

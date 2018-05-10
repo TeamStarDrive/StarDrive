@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     isShip = true,
                     QueueNumber = planet.ConstructionQueue.Count,
-                    sData = autoScout.GetShipData(),
+                    sData = autoScout.shipData,
                     Goal = this,
                     Cost = autoScout.GetCost(empire),
                     NotifyOnEmpty = false
@@ -80,7 +80,7 @@ namespace Ship_Game.Commands.Goals
             {
                 isShip = true,
                 QueueNumber = planet.ConstructionQueue.Count,
-                sData = mostPowerEfficientScout.GetShipData(),
+                sData = mostPowerEfficientScout.shipData,
                 Goal = this,
                 Cost = mostPowerEfficientScout.GetCost(empire)
             });
