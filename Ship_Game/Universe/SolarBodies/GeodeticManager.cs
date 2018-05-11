@@ -258,11 +258,13 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void AffectNearbyShips()
         {
-            float repairPool = DevelopmentLevel * RepairPerTurn * 20;
+            float repairPool = DevelopmentLevel * RepairPerTurn * 10 * (2 - SolarSystemBody.ShipBuildingModifier);
             if (HasShipyard)
             {
                 foreach (Ship ship in Shipyards.Values)
-                    repairPool += ship.RepairRate;
+                {      
+                        repairPool += ship.RepairRate;                   
+                }
             }
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
@@ -295,48 +297,48 @@ namespace Ship_Game.Universe.SolarBodies
                         }
                     }
                 }
-                if (ship != null && ship.loyalty == Owner && HasShipyard && ship.Position.InRadius(Center, 5000f))
-                {
-                    ship.PowerCurrent = ship.PowerStoreMax;
-                    ship.Ordinance = ship.OrdinanceMax;
+
+                if (ship == null || ship.loyalty != Owner || !HasShipyard ||
+                    !ship.Position.InRadius(Center, 5000f)) continue;
+                ship.PowerCurrent = ship.PowerStoreMax;
+                ship.Ordinance = ship.OrdinanceMax;
                     
-                    //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                    if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
+                //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
+                if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
+                {
+                    int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
+                    ship.ApplyAllRepair(repairPool, repairLevel, repairShields:true);
+                }
+                else if (ship.AI.State == AIState.Resupply)
+                {
+
+                    ship.AI.OrderQueue.Clear();
+
+                    ship.AI.Target = null;
+                    ship.AI.PotentialTargets.Clear();
+                    ship.AI.HasPriorityOrder = false;
+                    ship.AI.State = AIState.AwaitingOrders;
+
+                }
+                //auto load troop
+                using (TroopsHere.AcquireWriteLock())
+                {
+                    if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
+                        TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                        continue;
+                    foreach (var pgs in TilesList)
                     {
-                        int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
-                        ship.ApplyAllRepair(repairPool, repairLevel, repairShields:true);
-                    }
-                    else if (ship.AI.State == AIState.Resupply)
-                    {
+                        if (ship.TroopCapacity == 0 || ship.TroopList.Count >= ship.TroopCapacity)
+                            break;
 
-                        ship.AI.OrderQueue.Clear();
-
-                        ship.AI.Target = null;
-                        ship.AI.PotentialTargets.Clear();
-                        ship.AI.HasPriorityOrder = false;
-                        ship.AI.State = AIState.AwaitingOrders;
-
-                    }
-                    //auto load troop
-                    using (TroopsHere.AcquireWriteLock())
-                    {
-                        if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
-                            TroopsHere.Any(troop => troop.GetOwner() != Owner))
-                            continue;
-                        foreach (var pgs in TilesList)
-                        {
-                            if (ship.TroopCapacity == 0 || ship.TroopList.Count >= ship.TroopCapacity)
-                                break;
-
-                            using (pgs.TroopsHere.AcquireWriteLock())
-                                if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
-                                {
-                                    Troop troop = pgs.TroopsHere[0];
-                                    ship.TroopList.Add(troop);
-                                    pgs.TroopsHere.Clear();
-                                    TroopsHere.Remove(troop);
-                                }
-                        }
+                        using (pgs.TroopsHere.AcquireWriteLock())
+                            if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
+                            {
+                                Troop troop = pgs.TroopsHere[0];
+                                ship.TroopList.Add(troop);
+                                pgs.TroopsHere.Clear();
+                                TroopsHere.Remove(troop);
+                            }
                     }
                 }
             }
