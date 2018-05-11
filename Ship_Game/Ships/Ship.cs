@@ -245,6 +245,13 @@ namespace Ship_Game.Ships
                 return false;
             }
         }
+        public void TestForceDamge(float percent)
+        {
+            percent = percent.Clamp(0, 1);
+            foreach (var module in ModuleSlotList)            
+                module.TestDamage(percent);
+            
+        }
         public ShipData.RoleName DesignRole { get; private set; }
         public string GetDesignRoleName() => ShipData.GetRole(DesignRole);
         public Texture2D GetTacticalIcon()
@@ -2221,7 +2228,7 @@ namespace Ship_Game.Ships
             }
             PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
             
-            shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
+            shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
             
             
             switch (engineState)
@@ -2490,7 +2497,7 @@ namespace Ship_Game.Ships
                 RecalculateMaxHealth();
             }
             
-            Health += addHealth.Clamp(0, HealthMax);
+            Health = (Health + addHealth).Clamp(0, HealthMax);
             SetHealthStatus();            
         }
 
@@ -2962,11 +2969,11 @@ namespace Ship_Game.Ships
         // Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
         public void RecalculateMaxHealth()
         {
+            if (!Active) return;
             #if DEBUG
             bool maxHealthDebug = VanityName == "MerCraft";
             if (maxHealthDebug) Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
-            #endif
-
+#endif            
             float healthMax = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 healthMax += ModuleSlotList[i].UpdateActualMaxHealth();

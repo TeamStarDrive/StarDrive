@@ -90,15 +90,14 @@ namespace Ship_Game
                 
 
                 if (SelectedShip != null)
-                {
-                    //#if DEBUG
-                    //    if (SelectedShip.Center.InRadius(mouseWorldPos, SelectedShip.Radius*2) && input.RightMouseClick)
-                    //        SelectedShip.ShowGridLocalDebugPoint(mouseWorldPos);
-                    //#endif
+                {                    
 
                     if (input.KillThis)
                     {
-                        SelectedShip.Die(null, false);
+                        if (input.IsShiftKeyDown)
+                            SelectedShip.TestForceDamge(.9f);
+                        else
+                            SelectedShip.Die(null, false);
                     }
                 }
                 else if (SelectedPlanet != null && Debug && (input.KillThis))
