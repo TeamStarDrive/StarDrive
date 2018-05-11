@@ -4699,6 +4699,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
 
     <!-- Data added in Texas Alpha1 -->
     <Token>
+      <Index>1991</Index>
+      <Text>Tech Level represents how advanced this module is. High tech level modules take more time to repair due to their complexity</Text>
+    </Token>
+    <Token>
+      <Index>1992</Index>
+      <Text>Tech Level</Text>
+    </Token>
+    <Token>
       <Index>1993</Index>
       <Text>This shield can recharge even during combat.</Text>
     </Token>
