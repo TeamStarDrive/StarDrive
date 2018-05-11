@@ -162,6 +162,7 @@ namespace Ship_Game.Ships
         public int FixedTracking                 => Flyweight.FixedTracking;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
+        public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public bool IsRotatable                  => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -956,8 +957,9 @@ namespace Ship_Game.Ships
         public float Repair(float repairAmount)
         {
             if (Health >= ActualMaxHealth)
-                return repairAmount;          
-            
+                return repairAmount;
+
+            repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;
