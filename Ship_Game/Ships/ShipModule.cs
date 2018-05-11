@@ -513,6 +513,14 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
+        public void TestDamage(float percent)
+        {
+            percent = percent.Clamp(0, 1);
+            float damage = (Health *percent ).Clamp(0, Health-1 );
+            var source = GetParent();
+            Damage(source, damage);            
+        }
+
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
 
         private bool TryDamageModule(GameplayObject source, float modifiedDamage)
@@ -890,7 +898,7 @@ namespace Ship_Game.Ships
                 Parent.shipStatusChanged = true;
             }
 
-            SetHealth(Health); // Update and validate Health
+            //SetHealth(Health); // Update and validate Health
 
             BombTimer -= elapsedTime;
             UpdateModuleRadius();
