@@ -956,8 +956,9 @@ namespace Ship_Game.Ships
         public float Repair(float repairAmount)
         {
             if (Health >= ActualMaxHealth)
-                return repairAmount;          
-            
+                return repairAmount;
+
+            repairAmount = TechLevel == 0 ? repairAmount : repairAmount / TechLevel; // Advanced modules are difficult to repair
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;

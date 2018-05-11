@@ -1210,5 +1210,10 @@
       <Title>Shield Combat Recharge</Title>
       <Data>1993</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>241</TIP_ID>
+      <Title>Tech Level</Title>
+      <Data>1991</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
