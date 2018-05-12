@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System.Linq;
@@ -25,6 +26,13 @@ namespace Ship_Game
         public bool ShowValid = true;
 
         public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
+
+        public bool IsNeighbourTo(SlotStruct slot)
+        {
+            int absDx = Math.Abs(slot.PQ.X - PQ.X) / 16;
+            int absDy = Math.Abs(slot.PQ.Y - PQ.Y) / 16;
+            return (absDx + absDy) == 1;
+        }
 
         private bool CanSlotSupportModule(ShipModule module)
         {
