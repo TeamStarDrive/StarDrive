@@ -78,7 +78,7 @@ namespace Ship_Game
 						iconRect.X = gi.rect.X + 16 - iconRect.Width / 2;
 						iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
 					}
-					spriteBatch.Draw(ResourceManager.TextureDict[unlock.module.IconTexturePath], iconRect, Color.White);
+					spriteBatch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
 				}
 				if (unlock.Type == UnlockType.TROOP)
 				{

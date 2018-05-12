@@ -1056,13 +1056,12 @@ namespace Ship_Game
         {
             ActiveHull.Name    = name;
             ShipData toSave    = ActiveHull.GetClone();
-            toSave.ModuleSlots = Empty<ModuleSlotData>.Array;
 
             toSave.ModuleSlots = new ModuleSlotData[Slots.Count];
             for (int i = 0; i < Slots.Count; ++i)
             {
                 SlotStruct slot = Slots[i];
-                ModuleSlotData savedSlot = new ModuleSlotData
+                var savedSlot = new ModuleSlotData
                 {
                     InstalledModuleUID = slot.ModuleUID ?? "Dummy",
                     Position           = slot.SlotReference.Position,
@@ -1193,6 +1192,7 @@ namespace Ship_Game
                 }
                 slot.Module.hangarShipUID = slot.SlotOptions;
             }
+            //RecalculatePower();
             ActiveModule = null;
             ActiveModState = ActiveModuleState.Normal;
         }
