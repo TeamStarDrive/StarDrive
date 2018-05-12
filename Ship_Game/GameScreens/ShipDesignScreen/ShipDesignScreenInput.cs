@@ -1107,20 +1107,7 @@ namespace Ship_Game
             Slots.Clear();
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
-                var pos = slot.Position;
-                var pq = new PrimitiveQuad(pos.X + Offset.X - 8f, pos.Y + Offset.Y - 8f, 16f, 16f);
-                Enum.TryParse(slot.Orientation, out ActiveModuleState slotState);
-                var ss = new SlotStruct
-                {
-                    PQ            = pq,
-                    Restrictions  = slot.Restrictions,
-                    Facing        = slot.Facing,
-                    ModuleUID     = slot.InstalledModuleUID,
-                    SlotReference = slot,
-                    State         = slotState,
-                    SlotOptions   = slot.SlotOptions
-                };
-                Slots.Add(ss);
+                Slots.Add(new SlotStruct(slot, Offset));
             }
             foreach (SlotStruct slot in Slots)
             {
@@ -1131,8 +1118,8 @@ namespace Ship_Game
                 }
                 ActiveModule = CreateDesignModule(slot.ModuleUID);
                 ChangeModuleState(slot.State);
-                if (ActiveModule.XSIZE * ActiveModule.YSIZE > 1)
-                    ClearDestinationSlotsNoStack(slot);                
+                if (ActiveModule.Area > 1)
+                    ClearDestinationSlots(slot);                
                 InstallModuleFromLoad(slot);
                 //if (slot.Module.XSIZE * slot.Module.YSIZE > 1)
                 //    ClearDestinationSlotsNoStack(slot);
