@@ -93,7 +93,7 @@ namespace Ship_Game
 				if (unlock.Type == UnlockType.HULL)
 				{
 					Rectangle iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					spriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[unlock.privateName].IconPath], iconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.HullsDict[unlock.privateName].Icon, iconRect, Color.White);
 				}
 				if (unlock.Type != UnlockType.ADVANCE)
 				{

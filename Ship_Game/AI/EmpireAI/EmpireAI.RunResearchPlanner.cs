@@ -619,7 +619,7 @@ namespace Ship_Game.AI {
 
             if (BestCombatShip != null && command == "RANDOM")
             {
-                foreach (var bTech in BestCombatShip.GetShipData().techsNeeded)
+                foreach (var bTech in BestCombatShip.shipData.techsNeeded)
                     nonShipTechs.Add(bTech);
                 DebugLog(
                     $"Best Ship : {GetBestCombatShip.shipData.HullRole} : {GetBestCombatShip.GetStrength()}");

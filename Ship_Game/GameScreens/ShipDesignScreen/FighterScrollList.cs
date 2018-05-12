@@ -129,7 +129,7 @@ namespace Ship_Game
                 if (ship == null) continue;
 
                 bCursor.Y = e.clickRect.Y;
-                spriteBatch.Draw(ResourceManager.Texture(ResourceManager.HullsDict[ship.GetShipData().Hull].IconPath), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
                 tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;

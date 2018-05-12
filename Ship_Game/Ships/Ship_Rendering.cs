@@ -329,11 +329,10 @@ namespace Ship_Game.Ships
                         beam.Die(null, true);
                     }
                 }
-
             }
             catch
             {
-                Log.Info($"Goes with Bug #1404 : Beam Killed while rendering ");
+                Log.Warning("Goes with Bug #1404 : Beam Killed while rendering ");
             }
         }
 
@@ -341,8 +340,7 @@ namespace Ship_Game.Ships
         {
             //if (!ResourceManager.TryGetHull(shipData.Hull, out ShipData hullData))
               //  return; //try load hull data, cancel if failed
-            if (this.GetShipData().HullData == null) return;
-            ShipData hullData = shipData.HullData;
+            ShipData hullData = shipData.BaseHull;
             if (hullData.SelectionGraphic.NotEmpty() && !showModules)// draw ship icon plus shields
             {
                 Rectangle destinationRectangle = drawRect;
