@@ -75,7 +75,7 @@ namespace Ship_Game.Debug
 
             foreach (Empire empire in EmpireManager.Empires)
             {
-                if (empire == Empire.Universe.player || empire.isFaction || empire.MinorRace)
+                if (empire == Empire.Universe.player || empire.isFaction)
                     continue;
                 bool flag = false;
                 foreach (Ship ship in empire.GetShips())
@@ -219,7 +219,7 @@ namespace Ship_Game.Debug
             int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isFaction || e.MinorRace || e.data.Defeated)
+                if (e.isFaction || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
@@ -398,7 +398,7 @@ namespace Ship_Game.Debug
             int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isFaction || e.MinorRace || e.data.Defeated)
+                if (e.isFaction || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);

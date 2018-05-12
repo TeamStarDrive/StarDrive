@@ -70,7 +70,7 @@ namespace Ship_Game.AI
                     ao.Update();
                 
             }
-            if (!OwnerEmpire.isFaction && !OwnerEmpire.MinorRace)
+            if (!OwnerEmpire.isFaction)
             {
                 if (!OwnerEmpire.isPlayer || OwnerEmpire.AutoColonize)
                     RunExpansionPlanner();
@@ -82,17 +82,10 @@ namespace Ship_Game.AI
             {
                 RunEconomicPlanner();
                 RunDiplomaticPlanner();
-                if (OwnerEmpire.isFaction)
-                {
-
-                }
-                if (!OwnerEmpire.MinorRace)
-                {
-                    RunMilitaryPlanner();
-                    RunResearchPlanner();
-                    RunAgentManager();
-                    RunWarPlanner();
-                }
+                RunMilitaryPlanner();
+                RunResearchPlanner();
+                RunAgentManager();
+                RunWarPlanner();
             }
             else
             {
