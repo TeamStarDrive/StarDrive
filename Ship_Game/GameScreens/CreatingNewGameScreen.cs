@@ -137,7 +137,7 @@ namespace Ship_Game
         {
             foreach (Empire empire in Data.EmpireList)
             {
-                if (empire.isFaction || empire.MinorRace)
+                if (empire.isFaction)
                     continue;
 
                 foreach (Planet planet in empire.GetPlanets())
@@ -385,7 +385,7 @@ namespace Ship_Game
 
             foreach (Empire empire in Data.EmpireList)
             {
-                if (empire.isFaction || empire.MinorRace)
+                if (empire.isFaction)
                     continue;
                 SolarSystem solarSystem;
                 SolarSystemData systemData = ResourceManager.LoadSolarSystemData(empire.data.Traits.HomeSystemName);
@@ -733,12 +733,10 @@ namespace Ship_Game
 
         private Empire CreateEmpireFromEmpireData(EmpireData data)
         {
-            Empire empire = new Empire();
+            var empire = new Empire();
             Log.Info($"Creating Empire {data.PortraitName}");
             if (data.Faction == 1)
                 empire.isFaction = true;
-            if (data.MinorRace)
-                empire.MinorRace = true;
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.DiplomaticTraitsList.Count);
             data.DiplomaticPersonality = this.DTraits.DiplomaticTraitsList[index1];
             while (!CheckPersonality(data))
