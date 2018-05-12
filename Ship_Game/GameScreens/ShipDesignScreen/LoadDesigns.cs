@@ -122,8 +122,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     bCursor.X = bCursor.X + 15f;
                     try
                     {
-                        Texture2D hullIcon = ResourceManager.TextureDict[ResourceManager.HullsDict[ship.GetShipData().Hull].IconPath];
-                        base.ScreenManager.SpriteBatch.Draw(hullIcon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     catch(KeyNotFoundException error)
                     {
@@ -155,7 +154,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 else if(e.item is ShipData shipData)
                 {
                     bCursor.X = bCursor.X + 15f;                    
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[shipData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.HullsDict[shipData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -369,13 +368,16 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
                         .OrderBy(x => true)
                         .ThenBy(player => !player.Value.IsPlayerDesign)
-                        .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                        .ThenBy(empire => empire.Value.shipData.HullData?.ShipStyle)
-                        .ThenByDescending(tech => tech.Value.GetTechScore(out int[] scores)).ThenBy(name => name.Value.Name))
+                        .ThenBy(empire => empire.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                        .ThenBy(empire => empire.Value.BaseHull.ShipStyle)
+                        .ThenByDescending(tech => tech.Value.GetTechScore(out int[] _))
+                        .ThenBy(name => name.Value.Name))
                     {
-                        if (!EmpireManager.Player.WeCanBuildThis(Ship.Key) ||
-                            !(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) == (e.item as ModuleHeader).Text) || Ship.Value.Deleted
-                            || Empire.Universe?.Debug != true && Ship.Value.Name == "Subspace Projector" || Ship.Value.shipData.IsShipyard
+                        if (Ship.Value.Deleted 
+                            || Ship.Value.shipData.IsShipyard
+                            || !EmpireManager.Player.WeCanBuildThis(Ship.Key)
+                            || Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) != (e.item as ModuleHeader).Text
+                            || (Empire.Universe?.Debug != true && Ship.Value.Name == "Subspace Projector")
                             || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
                         {
                             continue;
@@ -404,7 +406,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private void LoadShipToScreen()
         {
             Ship loadedShip = ResourceManager.GetShipTemplate(EnterNameArea.Text, false);
-            loadedShip?.shipData.UpdateHullData();
+            loadedShip?.shipData.UpdateBaseHull();
             if (Screen is Ship_Game.ShipDesignScreen shipDesignScreen)                            
                 shipDesignScreen.ChangeHull(loadedShip?.shipData ?? selectedWIP);                
             

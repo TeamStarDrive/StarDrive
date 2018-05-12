@@ -60,9 +60,9 @@ namespace Ship_Game.Commands.Goals
                 {
                     isShip = true,
                     QueueNumber = planet1.ConstructionQueue.Count,
-                    sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetShipData(),
+                    sData = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].shipData,
                     Goal = this,
-                    Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
+                    Cost = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].GetCost(empire),
                     NotifyOnEmpty = false
                 });
                 return GoalStep.GoToNextStep;
@@ -92,7 +92,7 @@ namespace Ship_Game.Commands.Goals
                 isShip = true,
                 QueueNumber = planet1.ConstructionQueue.Count,
                 //sData = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetShipData(),
-                sData = toBuild.GetShipData(),
+                sData = toBuild.shipData,
                 Goal = this,
                 //Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetCost(this.empire)
                 Cost = toBuild.GetCost(this.empire)

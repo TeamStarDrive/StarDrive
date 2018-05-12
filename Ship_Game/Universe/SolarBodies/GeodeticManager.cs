@@ -35,7 +35,7 @@ namespace Ship_Game.Universe.SolarBodies
             int shipYardCount =0;
             foreach (var shipYard in Shipyards)
             {
-                if (!shipYard.Value.GetShipData().IsShipyard) continue;
+                if (!shipYard.Value.shipData.IsShipyard) continue;
                 shipYardCount++;
             }
             return shipYardCount;

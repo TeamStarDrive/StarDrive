@@ -118,8 +118,7 @@ namespace Ship_Game
                 Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
-            Rectangle rectangle = new Rectangle(this.ShipNameRect.X + 5, this.ShipNameRect.Y + 25, this.ShipNameRect.Height - 50, this.ShipNameRect.Height - 50);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[this.ship.GetShipData().Hull].IconPath], this.ShipIconRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
             Vector2 rpos = new Vector2()
             {
                 X = (float)this.ShipNameEntry.ClickableArea.X,
