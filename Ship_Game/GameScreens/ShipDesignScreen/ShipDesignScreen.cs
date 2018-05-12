@@ -10,9 +10,8 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
-    public sealed partial class ShipDesignScreen : GameScreen
+    public sealed partial class ShipDesignScreen
     {
-        private readonly Matrix WorldMatrix = Matrix.Identity;
         private Matrix View;
         private Matrix Projection;
         public Camera2D Camera;
@@ -118,37 +117,33 @@ namespace Ship_Game
             {
                 case ActiveModuleState.Normal:
                 {
-                    this.ActiveModule.XSIZE = moduleTemplate.XSIZE;
-                    this.ActiveModule.YSIZE = moduleTemplate.YSIZE;
-                    this.ActiveModState = ActiveModuleState.Normal;
+                    ActiveModule.XSIZE = moduleTemplate.XSIZE;
+                    ActiveModule.YSIZE = moduleTemplate.YSIZE;
+                    ActiveModState = ActiveModuleState.Normal;
                     return;
                 }
                 case ActiveModuleState.Left:
                 {
-                    this.ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    this.ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
-                    this.ActiveModState = ActiveModuleState.Left;
-                    this.ActiveModule.Facing = 270f;
+                    ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
+                    ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
+                    ActiveModState = ActiveModuleState.Left;
+                    ActiveModule.Facing = 270f;
                     return;
                 }
                 case ActiveModuleState.Right:
                 {
-                    this.ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    this.ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
-                    this.ActiveModState = ActiveModuleState.Right;
-                    this.ActiveModule.Facing = 90f;
+                    ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
+                    ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
+                    ActiveModState = ActiveModuleState.Right;
+                    ActiveModule.Facing = 90f;
                     return;
                 }
                 case ActiveModuleState.Rear:
                 {
-                    this.ActiveModule.XSIZE = moduleTemplate.XSIZE;
-                    this.ActiveModule.YSIZE = moduleTemplate.YSIZE;
-                    this.ActiveModState = ActiveModuleState.Rear;
-                    this.ActiveModule.Facing = 180f;
-                    return;
-                }
-                default:
-                {
+                    ActiveModule.XSIZE = moduleTemplate.XSIZE;
+                    ActiveModule.YSIZE = moduleTemplate.YSIZE;
+                    ActiveModState = ActiveModuleState.Rear;
+                    ActiveModule.Facing = 180f;
                     return;
                 }
             }
@@ -191,7 +186,7 @@ namespace Ship_Game
         }
 
         // @todo This is all broken. Redo everything.
-        private void ClearDestinationSlots(SlotStruct slot, bool addToAlteredSlots = true)
+        private void ClearDestinationSlots(SlotStruct slot)
         {
             for (int y = 0; y < ActiveModule.YSIZE; y++)
             {
@@ -213,25 +208,13 @@ namespace Ship_Game
             }
         }
 
-        private void ClearDestinationSlotsNoStack(SlotStruct slot) => ClearDestinationSlots(slot, false);
-
         // @todo This is all broken. Redo everything.
         private void ClearParentSlot(SlotStruct parent, bool addToAlteredSlots = true)
         {
             //actually supposed to clear ALL slots of a module, not just the parent
             if (addToAlteredSlots && DesignStack.Count > 0)
             {
-                SlotStruct slot1 = new SlotStruct()
-                {
-                    PQ            = parent.PQ,
-                    Restrictions  = parent.Restrictions,
-                    Facing        = parent.Facing,
-                    ModuleUID     = parent.ModuleUID,
-                    Module        = parent.Module,
-                    State         = parent.State,
-                    SlotReference = parent.SlotReference
-                };
-                DesignStack.Peek().AlteredSlots.Add(slot1);
+                DesignStack.Peek().AlteredSlots.Add(new SlotStruct(parent));
             }
             if (parent.Module != null)
             {
@@ -241,40 +224,28 @@ namespace Ship_Game
                     {
                         if (!FindStructFromOffset(parent, x, y, out SlotStruct slot2))
                             continue;
-                        slot2.ModuleUID = null;
-                        slot2.Tex       = null;
-                        slot2.Module    = null;
-                        slot2.Parent    = null;
-                        slot2.State     = ActiveModuleState.Normal;
+                        slot2.Clear();
                     }
                 }
             }
-            //clear parent slot
-            parent.ModuleUID = null;
-            parent.Tex       = null;
-            parent.Module    = null;
-            parent.Parent    = null;
-            parent.State     = ActiveModuleState.Normal;
+            parent.Clear();
         }
-        private void ClearParentSlotNoStack(SlotStruct parent) => ClearParentSlot(parent, false);   //Unused
 
         private void ClearSlot(SlotStruct slot, bool addToAlteredSlots = true)
-        {   //this is the clearslot function actually used atm
+        {   
+            //this is the clearslot function actually used atm
             //only called from installmodule atm, not from manual module removal
             if (slot.Module != null || slot.Parent != null)
             {
                 ClearParentSlot(slot.Parent ?? slot, addToAlteredSlots);
             }
             else
-            {   //this requires not being a child slot and not containing a module
+            {
+                //this requires not being a child slot and not containing a module
                 //only empty parent slots can trigger this
                 //why would we want to clear an empty slot?
                 //might be used on initial load instead of a proper slot constructor
-                slot.ModuleUID = null;
-                slot.Tex       = null;
-                slot.Parent    = null;
-                slot.Module    = null;
-                slot.State     = ActiveModuleState.Normal;
+                slot.Clear();
             }
         }
         private void ClearSlotNoStack(SlotStruct slot) => ClearSlot(slot, false);
@@ -288,9 +259,9 @@ namespace Ship_Game
             return null;
         }
 
-        private void DebugAlterSlot(Vector2 SlotPos, SlotModOperation op)
+        private void DebugAlterSlot(Vector2 slotPos, SlotModOperation op)
         {
-            ModuleSlotData toRemove = FindModuleSlotAtPos(SlotPos);
+            ModuleSlotData toRemove = FindModuleSlotAtPos(slotPos);
             if (toRemove == null)
                 return;
 
@@ -571,7 +542,7 @@ namespace Ship_Game
             {
                 ActiveModuleState activeModuleState = slot.State;
                 ClearSlot(slot);
-                ClearDestinationSlotsNoStack(slot);
+                ClearDestinationSlots(slot);
                 slot.ModuleUID     = ActiveModule.UID;
                 slot.Module        = ActiveModule; 
                 slot.State         = activeModuleState;
@@ -592,7 +563,7 @@ namespace Ship_Game
             }
 
             ClearSlotNoStack(slot);
-            ClearDestinationSlotsNoStack(slot);
+            ClearDestinationSlots(slot);
             slot.ModuleUID            = ActiveModule.UID;
             slot.Module               = ActiveModule;
             slot.State                = ActiveModState;
@@ -636,7 +607,7 @@ namespace Ship_Game
                         if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
                             CheckAndPowerConduit(slot);
                     }
-                }                
+                }
                 else if (slotStruct.Parent != null)               
                 {
                     //System.Diagnostics.Debug.Assert(slotStruct.parent.module != null, "parent is fine, module is null");

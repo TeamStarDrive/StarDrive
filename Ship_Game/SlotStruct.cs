@@ -25,6 +25,34 @@ namespace Ship_Game
         public Texture2D Tex;
         public bool ShowValid = true;
 
+        public SlotStruct()
+        {
+        }
+
+        public SlotStruct(ModuleSlotData slot, Vector2 offset)
+        {
+            Enum.TryParse(slot.Orientation, out ShipDesignScreen.ActiveModuleState slotState);
+            Vector2 pos = slot.Position;
+            PQ            = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
+            Restrictions  = slot.Restrictions;
+            Facing        = slot.Facing;
+            ModuleUID     = slot.InstalledModuleUID;
+            SlotReference = slot;
+            State         = slotState;
+            SlotOptions   = slot.SlotOptions;
+        }
+
+        public SlotStruct(SlotStruct parent)
+        {
+            PQ            = parent.PQ;
+            Restrictions  = parent.Restrictions;
+            Facing        = parent.Facing;
+            ModuleUID     = parent.ModuleUID;
+            Module        = parent.Module;
+            State         = parent.State;
+            SlotReference = parent.SlotReference;
+        }
+
         public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
 
         public bool IsNeighbourTo(SlotStruct slot)
@@ -38,22 +66,20 @@ namespace Ship_Game
         {
             if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
                 return true;
-            string moduleFitsToSlots = module.Restrictions.ToString();
 
             if (module.Restrictions <= Restrictions.IOE )
-                return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
-            switch (module.Restrictions)
             {
-                case Restrictions.xI:
-                    return Restrictions == Restrictions.I;
-                case Restrictions.xIO:
-                    return Restrictions == Restrictions.IO;
-                case Restrictions.xO:
-                    return Restrictions == Restrictions.O;
-                default:
-                    return false;
+                string moduleFitsToSlots = module.Restrictions.ToString();
+                return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
             }
 
+            switch (module.Restrictions)
+            {
+                case Restrictions.xI:  return Restrictions == Restrictions.I;
+                case Restrictions.xIO: return Restrictions == Restrictions.IO;
+                case Restrictions.xO:  return Restrictions == Restrictions.O;
+                default:               return false;
+            }
         }
 
         public void Draw(SpriteBatch sb, Texture2D texture, Color tint)
@@ -79,6 +105,15 @@ namespace Ship_Game
         public void SetValidity(ShipModule module = null)
         {
             ShowValid = CanSlotSupportModule(module);
+        }
+
+        public void Clear()
+        {
+            ModuleUID = null;
+            Tex       = null;
+            Module    = null;
+            Parent    = null;
+            State     = ShipDesignScreen.ActiveModuleState.Normal;
         }
     }
 }
