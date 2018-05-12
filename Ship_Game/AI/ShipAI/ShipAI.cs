@@ -483,30 +483,31 @@ namespace Ship_Game.AI
                         Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
                         Vector2 fvec = Vector2.Zero.DirectionToTarget(vector2);
                         Vector2 wantedForward = Vector2.Normalize(fvec);
-                        var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                            -(float) Math.Cos((double) Owner.Rotation));
+                        var forward = new Vector2((float)Math.Sin((double)Owner.Rotation),
+                            -(float)Math.Cos((double)Owner.Rotation));
                         var right = new Vector2(-forward.Y, forward.X);
-                        var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
+                        var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
-                            RotateToFacing(elapsedTime, angleDiff, facing);                        
+                            RotateToFacing(elapsedTime, angleDiff, facing);
                     }
-                    else if (!HasPriorityOrder && !HadPO && State != AIState.FormationWarp && State != AIState.HoldPosition )
+                    else if (State == AIState.Orbit || State == AIState.AwaitingOrders
+                             || !HasPriorityOrder && !HadPO
+                             && State != AIState.HoldPosition)
                     {
-                        if (Owner.fleet.Position.OutsideRadius(Owner.Center, 7500))
+                        if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                             //PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         else
-                        ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
-                        lock (WayPointLocker)
-                        {
-                            ActiveWayPoints.Clear();
-                            ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
-                             //fbedard: set new order for ship returning to fleet
+                            lock (WayPointLocker)
+                            {
+                                ActiveWayPoints.Clear();
+                                ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+                                //fbedard: set new order for ship returning to fleet
                                 State = AIState.AwaitingOrders;
-                            if (Owner.fleet?.GetStack().Count > 0)
-                                ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
-                        }
+                                if (Owner.fleet?.GetStack().Count > 0)
+                                    ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                            }
                     }
                 }
             }
