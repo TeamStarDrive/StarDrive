@@ -24,6 +24,8 @@ namespace Ship_Game
         public Texture2D Tex;
         public bool ShowValid = true;
 
+        public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
+
         private bool CanSlotSupportModule(ShipModule module)
         {
             if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
