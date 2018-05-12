@@ -830,7 +830,7 @@ namespace Ship_Game
                             pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
                             p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                             (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                            if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
+                            if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction)
                             {
                                 ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, Empire.Universe);
                             }
