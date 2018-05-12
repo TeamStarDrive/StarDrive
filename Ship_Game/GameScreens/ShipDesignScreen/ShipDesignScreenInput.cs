@@ -103,20 +103,14 @@ namespace Ship_Game
 
         private bool CheckDesign()
         {
-            bool emptySlots = true;
             bool hasBridge = false;
             foreach (SlotStruct slot in Slots)
             {
                 if (slot.ModuleUID == null && slot.Parent == null)
-                {
-                    emptySlots = false;
-                    break;
-                }
-                hasBridge = hasBridge || (slot.Module?.IsCommandModule ?? false);                
+                    return false; // empty slots not allowed!
+                hasBridge |= slot.Module?.IsCommandModule == true;                
             }
-            return (hasBridge || ActiveHull.Role == ShipData.RoleName.platform 
-                || ActiveHull.Role == ShipData.RoleName.station) 
-                && emptySlots;
+            return (hasBridge || ActiveHull.Role == ShipData.RoleName.platform || ActiveHull.Role == ShipData.RoleName.station);
         }
 
        
@@ -411,7 +405,6 @@ namespace Ship_Game
                         HighlightedModule.Facing = (float)Math.Round(arc / 15f) * 15;
                         return;
                     }
-                    HashSet<float> arcs = new HashSet<float>();
                     float minCompare = float.MinValue;
                     float maxCompare = float.MaxValue;
                     foreach(SlotStruct slot in Slots)
@@ -422,11 +415,9 @@ namespace Ship_Game
                         {                            
                             minCompare = slot.Module.Facing;
                         }
-
-                        if(facing < maxCompare && facing > arc)
+                        if (facing < maxCompare && facing > arc)
                         {
                             maxCompare = slot.Module.Facing;
-                         
                         }
                     }
 
@@ -492,7 +483,7 @@ namespace Ship_Game
                 {
                     PQ            = slot.PQ,
                     Restrictions  = slot.Restrictions,
-                    Facing        = slot.Module != null ? slot.Module.Facing : 0.0f,
+                    Facing        = slot.Module?.Facing ?? 0.0f,
                     ModuleUID     = slot.ModuleUID,
                     Module        = slot.Module,
                     SlotReference = slot.SlotReference
@@ -546,13 +537,14 @@ namespace Ship_Game
         private void HandleInputDebug(InputState input)
         {
             if (!Debug) return;
-            if (input.KeysCurr.IsKeyDown(Keys.Enter) && input.KeysPrev.IsKeyUp(Keys.Enter))
+            if (input.WasKeyPressed(Keys.Enter))
             {
                 foreach (ModuleSlotData moduleSlotData in ActiveHull.ModuleSlots)
                     moduleSlotData.InstalledModuleUID = null;
-                new XmlSerializer(typeof(ShipData)).Serialize(
-                    new StreamWriter("Content/Hulls/" + ActiveHull.ShipStyle + "/" + ActiveHull.Name + ".xml"),
-                    ActiveHull);
+
+                var serializer = new XmlSerializer(typeof(ShipData));
+                using (var outStream = new StreamWriter($"Content/Hulls/{ActiveHull.ShipStyle}/{ActiveHull.Name}.xml"))
+                    serializer.Serialize(outStream, ActiveHull);
             }
             if (input.Right)
                 ++Operation;
@@ -562,8 +554,7 @@ namespace Ship_Game
 
         private void HandleInputZoom(InputState input)
         {
-            if (!ModSel.HitTest(input)
-                && !HullSelectionRect.HitTest(input.CursorPosition))
+            if (!ModSel.HitTest(input) && !HullSelectionRect.HitTest(input.CursorPosition))
                 //&& !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
             {
                 if (input.ScrollOut)
@@ -651,67 +642,29 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     switch (toggleButton.Action)
                     {
-                        case "attack":
-                            CombatState = CombatState.AttackRuns;
-                            break;
-                        case "arty":
-                            CombatState = CombatState.Artillery;
-                            break;
-                        case "hold":
-                            CombatState = CombatState.HoldPosition;
-                            break;
-                        case "orbit_left":
-                            CombatState = CombatState.OrbitLeft;
-                            break;
-                        case "broadside_left":
-                            CombatState = CombatState.BroadsideLeft;
-                            break;
-                        case "orbit_right":
-                            CombatState = CombatState.OrbitRight;
-                            break;
-                        case "broadside_right":
-                            CombatState = CombatState.BroadsideRight;
-                            break;
-                        case "evade":
-                            CombatState = CombatState.Evade;
-                            break;
-                        case "short":
-                            CombatState = CombatState.ShortRange;
-                            break;
+                        case "attack":          CombatState = CombatState.AttackRuns;     break;
+                        case "arty":            CombatState = CombatState.Artillery;      break;
+                        case "hold":            CombatState = CombatState.HoldPosition;   break;
+                        case "orbit_left":      CombatState = CombatState.OrbitLeft;      break;
+                        case "broadside_left":  CombatState = CombatState.BroadsideLeft;  break;
+                        case "orbit_right":     CombatState = CombatState.OrbitRight;     break;
+                        case "broadside_right": CombatState = CombatState.BroadsideRight; break;
+                        case "evade":           CombatState = CombatState.Evade;          break;
+                        case "short":           CombatState = CombatState.ShortRange;     break;
                     }
                 }
                 
                 switch (toggleButton.Action)
                 {
-                    case "attack":
-                        toggleButton.Active = CombatState == CombatState.AttackRuns;
-                        continue;
-                    case "arty":
-                        toggleButton.Active = CombatState == CombatState.Artillery;
-                        continue;
-                    case "hold":
-                        toggleButton.Active = CombatState == CombatState.HoldPosition;
-                        continue;
-                    case "orbit_left":
-                        toggleButton.Active = CombatState == CombatState.OrbitLeft;
-                        continue;
-                    case "broadside_left":
-                        toggleButton.Active = CombatState == CombatState.BroadsideLeft;
-                        continue;
-                    case "orbit_right":
-                        toggleButton.Active = CombatState == CombatState.OrbitRight;
-                        continue;
-                    case "broadside_right":
-                        toggleButton.Active = CombatState == CombatState.BroadsideRight;
-                        continue;
-                    case "evade":
-                        toggleButton.Active = CombatState == CombatState.Evade;
-                        continue;
-                    case "short":
-                        toggleButton.Active = CombatState == CombatState.ShortRange;
-                        continue;
-                    default:
-                        continue;
+                    case "attack":          toggleButton.Active = CombatState == CombatState.AttackRuns;     break;
+                    case "arty":            toggleButton.Active = CombatState == CombatState.Artillery;      break;
+                    case "hold":            toggleButton.Active = CombatState == CombatState.HoldPosition;   break;
+                    case "orbit_left":      toggleButton.Active = CombatState == CombatState.OrbitLeft;      break;
+                    case "broadside_left":  toggleButton.Active = CombatState == CombatState.BroadsideLeft;  break;
+                    case "orbit_right":     toggleButton.Active = CombatState == CombatState.OrbitRight;     break;
+                    case "broadside_right": toggleButton.Active = CombatState == CombatState.BroadsideRight; break;
+                    case "evade":           toggleButton.Active = CombatState == CombatState.Evade;          break;
+                    case "short":           toggleButton.Active = CombatState == CombatState.ShortRange;     break;
                 }
             }
         }
@@ -1009,11 +962,10 @@ namespace Ship_Game
 
         private void CombatStatusButton(Vector2 ordersBarPos, string action, string iconPath, int toolTipIndex)
         {
-            ToggleButton toggleButton =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", iconPath
-                    );
+            var toggleButton = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
+                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
+                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", iconPath
+            );
             CombatStatusButtons.Add(toggleButton);
             toggleButton.Action       = action;
             toggleButton.HasToolTip   = true;
@@ -1054,8 +1006,8 @@ namespace Ship_Game
 
         public void SaveShipDesign(string name)
         {
-            ActiveHull.Name    = name;
-            ShipData toSave    = ActiveHull.GetClone();
+            ActiveHull.Name = name;
+            ShipData toSave = ActiveHull.GetClone();
 
             toSave.ModuleSlots = new ModuleSlotData[Slots.Count];
             for (int i = 0; i < Slots.Count; ++i)
@@ -1138,10 +1090,8 @@ namespace Ship_Game
             savedShip.CombatState      = CombatState;
             savedShip.Name             = $"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}";
             var serializer             = new XmlSerializer(typeof(ShipData));
-            TextWriter writeFileStream =
-                new StreamWriter(string.Concat(path, "/StarDrive/WIP/", savedShip.Name, ".xml"));
-            serializer.Serialize(writeFileStream, savedShip);
-            writeFileStream.Close();
+            using (var writeFileStream = new StreamWriter($"{path}/StarDrive/WIP/{savedShip.Name}.xml"))
+                serializer.Serialize(writeFileStream, savedShip);
             savedShip.CombatState = defaultstate;
             ShipSaved = true;
         }
