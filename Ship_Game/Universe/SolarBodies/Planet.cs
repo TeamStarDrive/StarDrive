@@ -403,7 +403,7 @@ namespace Ship_Game
                                     if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact) )
                                         continue;
                                     currentD = Vector2.Distance(Center, ship.Center);                                   
-                                    if (ship.GetShipData().Role == ShipData.RoleName.troop && currentD  < previousT)
+                                    if (ship.shipData.Role == ShipData.RoleName.troop && currentD  < previousT)
                                     {
                                         previousT = currentD;
                                         troop = ship;
@@ -1520,7 +1520,7 @@ namespace Ship_Game
                     SetExportState(colonyType);
 
                     if (Owner != Empire.Universe.PlayerEmpire
-                        && !Shipyards.Any(ship => ship.Value.GetShipData().IsShipyard)
+                        && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
                         && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard)
                         )
                     {
@@ -1537,7 +1537,7 @@ namespace Ship_Game
                             ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
-                                sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetShipData(),
+                                sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
                                 Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
                                        UniverseScreen.GamePaceStatic
                             });
@@ -2269,7 +2269,7 @@ namespace Ship_Game
                             AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                     }
                     if (Owner != EmpireManager.Player
-                        && !Shipyards.Any(ship => ship.Value.GetShipData().IsShipyard)
+                        && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
                         && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard) && GrossMoneyPT > 3.0)
                     {
                         bool hasShipyard = false;
@@ -2285,7 +2285,7 @@ namespace Ship_Game
                             ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
-                                sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetShipData(),
+                                sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
                                 Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner)
                             });
                     }
@@ -2537,7 +2537,7 @@ namespace Ship_Game
                                     ConstructionQueue.Add(new QueueItem()
                                     {
                                         isShip = true,
-                                        sData = ship.GetShipData(),
+                                        sData = ship.shipData,
                                         Cost = ship.GetCost(Owner)
                                     });
                             }
@@ -2555,7 +2555,7 @@ namespace Ship_Game
                                 ConstructionQueue.Add(new QueueItem()
                                 {
                                     isShip = true,
-                                    sData = ship.GetShipData(),
+                                    sData = ship.shipData,
                                     Cost = ship.GetCost(Owner)
                                 });
                             }
@@ -2711,7 +2711,7 @@ namespace Ship_Game
                 if (keyValuePair.Value == null)
                     list.Add(keyValuePair.Key);
                     
-                else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
+                else if (keyValuePair.Value.Active && keyValuePair.Value.shipData.IsShipyard)
                 {
 
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)

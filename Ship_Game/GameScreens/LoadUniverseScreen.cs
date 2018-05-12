@@ -730,7 +730,7 @@ namespace Ship_Game
                                 continue;
 
                             Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
-                            qi.sData = shipTemplate.GetShipData();
+                            qi.sData = shipTemplate.shipData;
                             qi.DisplayName = qisave.DisplayName;
                             qi.Cost = shipTemplate.GetCost(p.Owner);
 
@@ -929,7 +929,7 @@ namespace Ship_Game
                             ship.AI.State = AIState.SystemDefender;
                         }
                     }
-                    if (ship.GetShipData().IsShipyard && !ship.IsTethered())
+                    if (ship.shipData.IsShipyard && !ship.IsTethered())
                         ship.Active = false;
                     Guid escortTargetGuid = ship.AI.EscortTargetGuid;
                     foreach (Ship s in data.MasterShipList)

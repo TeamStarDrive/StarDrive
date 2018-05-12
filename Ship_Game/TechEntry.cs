@@ -216,17 +216,17 @@ namespace Ship_Game
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
         {
-            if (!Discovered) return;
-                foreach (var hullName in Tech.HullsUnlocked)
+            if (!Discovered)
+                return;
+
+            foreach (var hullName in Tech.HullsUnlocked)
             {
                 
                 if (!ResourceManager.GetHull(hullName.Name, out ShipData shipData)) continue;
                 if (shipData?.ShipStyle != empire.data.Traits.ShipType) continue;
                 //if (shipData.Role < ShipData.RoleName.cruiser) continue;
                 shipData?.LoadModel();
-                
             }
-
         }
 
         private static bool IsInRequiredRaceArray(Empire empire, IEnumerable<Technology.RequiredRace> requiredRace)
@@ -261,7 +261,8 @@ namespace Ship_Game
 
         public bool SetDiscovered(Empire empire, bool discoverForward = true)
         {
-            if (IsRestricted(empire)) return false;
+            if (IsRestricted(empire))
+                return false;
             
             Discovered = true;
             GetPreReq(empire);
@@ -290,10 +291,9 @@ namespace Ship_Game
                 rootTech.SetDiscovered(empire, false);
                 if ((tech = rootTech).Tech.RootNode != 1 || !tech.Discovered)
                     continue;
-                rootTech.Unlocked = true; ;
+                rootTech.Unlocked = true;
                 return rootTech;
             }
-            
             return tech;
         }
 

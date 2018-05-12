@@ -422,7 +422,7 @@ namespace Ship_Game
                     {
                         sdata.IsPlayerShip = true;
                     }
-                    sdata.Hull          = ship.GetShipData().Hull;
+                    sdata.Hull          = ship.shipData.Hull;
                     sdata.Power         = ship.PowerCurrent;
                     sdata.Ordnance      = ship.Ordinance;
                     sdata.yRotation     = ship.yRotation;
@@ -541,7 +541,7 @@ namespace Ship_Game
                     {
                         sdata.IsPlayerShip = true;
                     }
-                    sdata.Hull          = ship.GetShipData().Hull;
+                    sdata.Hull          = ship.shipData.Hull;
                     sdata.Power         = ship.PowerCurrent;
                     sdata.Ordnance      = ship.Ordinance;
                     sdata.yRotation     = ship.yRotation;

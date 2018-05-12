@@ -10,32 +10,20 @@ namespace Ship_Game
 {
     public sealed class RefitToWindow : GameScreen
     {
-        private Vector2 Cursor = Vector2.Zero;
-
-        private ShipListScreen screen;
-
-        private Ship shiptorefit;
-
-        //private UIButton Exit;
-
+        private readonly ShipListScreen Screen;
+        private readonly Ship Shiptorefit;
         private Submenu sub_ships;
-
         private ScrollList ShipSL;
-
         private UIButton RefitOne;
-
         private UIButton RefitAll;
-
         private string RefitTo;
-
         private DanButton ConfirmRefit;
-
         private Selector selector;
 
         public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
         {
-            this.screen = screen;
-            this.shiptorefit = entry.ship;
+            this.Screen = screen;
+            this.Shiptorefit = entry.ship;
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -43,7 +31,7 @@ namespace Ship_Game
 
         public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
         {
-            this.shiptorefit = ship;
+            this.Shiptorefit = ship;
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -63,12 +51,9 @@ namespace Ship_Game
             Rectangle r = this.sub_ships.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
-            if (this.selector != null)
-            {
-                this.selector.Draw(ScreenManager.SpriteBatch);
-            }
+            selector?.Draw(ScreenManager.SpriteBatch);
             this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
             Vector2 bCursor = new Vector2((float)(this.sub_ships.Menu.X + 5), (float)(this.sub_ships.Menu.Y + 25));
             for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
@@ -76,7 +61,7 @@ namespace Ship_Game
                 ScrollList.Entry e = this.ShipSL.Copied[i];
                 Ship ship = ResourceManager.ShipsDict[e.item as string];
                 bCursor.Y = (float)e.clickRect.Y;
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[ship.GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -84,10 +69,10 @@ namespace Ship_Game
                 {
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                 }
-                Rectangle MoneyRect = new Rectangle(e.clickRect.X + 165, e.clickRect.Y, 21, 20);
-                Vector2 moneyText = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y - 2));
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], MoneyRect, Color.White);
-                int refitCost = (int)(ship.GetCost(ship.loyalty) - this.shiptorefit.GetCost(ship.loyalty));
+                Rectangle moneyRect = new Rectangle(e.clickRect.X + 165, e.clickRect.Y, 21, 20);
+                Vector2 moneyText = new Vector2((float)(moneyRect.X + 25), (float)(moneyRect.Y - 2));
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
+                int refitCost = (int)(ship.GetCost(ship.loyalty) - this.Shiptorefit.GetCost(ship.loyalty));
                 if (refitCost < 0)
                 {
                     refitCost = 0;
@@ -100,7 +85,7 @@ namespace Ship_Game
                 this.RefitOne.Draw(base.ScreenManager.SpriteBatch);
                 this.RefitAll.Draw(base.ScreenManager.SpriteBatch);
                 Vector2 Cursor = new Vector2((float)this.ConfirmRefit.r.X, (float)(this.ConfirmRefit.r.Y + 30));
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat("Refit ", this.shiptorefit.Name, " to ", this.RefitTo), 270f), Cursor, Color.White);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat("Refit ", this.Shiptorefit.Name, " to ", this.RefitTo), 270f), Cursor, Color.White);
             }
             if (base.IsActive)
             {
@@ -111,10 +96,7 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            if (this.screen != null)
-            {
-                this.screen.ResetStatus();
-            }
+            Screen?.ResetStatus();
             base.ExitScreen();
         }
 
@@ -149,7 +131,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(Localizer.Token(2267));
                     if (input.InGameSelect)
                     {
-                        this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
+                        this.Shiptorefit.AI.OrderRefitTo(this.RefitTo);
                         GameAudio.PlaySfxAsync("echo_affirm");
                         this.ExitScreen();
                         return true;
@@ -162,7 +144,7 @@ namespace Ship_Game
                     {
                         foreach (Ship ship in EmpireManager.Player.GetShips())
                         {
-                            if (ship.Name != this.shiptorefit.Name)
+                            if (ship.Name != this.Shiptorefit.Name)
                             {
                                 continue;
                             }
@@ -179,19 +161,22 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Rectangle shipDesignsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 140, 100, 280, 500);
-            this.sub_ships = new Submenu(shipDesignsRect);
-            this.ShipSL = new ScrollList(this.sub_ships, 40);
-            this.sub_ships.AddTab("Refit to...");
-            foreach (string shipname in this.shiptorefit.loyalty.ShipsWeCanBuild)
+            var shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 140, 100, 280, 500);
+            sub_ships = new Submenu(shipDesignsRect);
+            ShipSL = new ScrollList(sub_ships, 40);
+            sub_ships.AddTab("Refit to...");
+            foreach (string shipname in Shiptorefit.loyalty.ShipsWeCanBuild)
             {
-                if (!(ResourceManager.ShipsDict[shipname].GetShipData().Hull == this.shiptorefit.GetShipData().Hull) || !(shipname != this.shiptorefit.Name) || ResourceManager.ShipRoles[ResourceManager.ShipsDict[shipname].shipData.Role].Protected)
+                Ship weCanBuild = ResourceManager.GetShipTemplate(shipname);
+                if (weCanBuild.shipData.Hull != Shiptorefit.shipData.Hull
+                    || shipname == Shiptorefit.Name 
+                    || weCanBuild.shipData.ShipRole.Protected)
                 {
                     continue;
                 }
-                this.ShipSL.AddItem(shipname);
+                ShipSL.AddItem(shipname);
             }
-            ConfirmRefit = new DanButton(new Vector2((float)shipDesignsRect.X, (float)(shipDesignsRect.Y + 505)), "Do Refit");
+            ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");
 
             RefitOne = ButtonLow(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, "", titleId:2265);
             RefitAll = ButtonLow(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, "", titleId:2266);

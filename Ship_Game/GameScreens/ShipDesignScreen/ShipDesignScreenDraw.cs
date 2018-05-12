@@ -301,18 +301,17 @@ namespace Ship_Game
                 {
                     (e.item as ModuleHeader).Draw(ScreenManager, bCursor);
                 }
-                else if (e.item is ShipData)
+                else if (e.item is ShipData ship)
                 {
                     bCursor.X = bCursor.X + 10f;
-                    ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.TextureDict[(e.item as ShipData).IconPath],
+                    ScreenManager.SpriteBatch.Draw(ship.Icon,
                         new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as ShipData).Name, tCursor,
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor,
                         Color.White);
                     tCursor.Y = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold,
-                        Localizer.GetRole((e.item as ShipData).HullRole, EmpireManager.Player), tCursor, Color.Orange);
+                        Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
                     if (e.clickRect.HitTest(MousePos))
                     {
                         if (e.clickRectHover == 0)

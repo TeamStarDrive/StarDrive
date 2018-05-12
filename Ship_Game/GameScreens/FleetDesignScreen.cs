@@ -462,12 +462,13 @@ namespace Ship_Game
                     }
                     else if (e.clickRectHover != 0)
                     {
+                        var ship = (Ship)e.item;
                         bCursor.Y = e.clickRect.Y;
                         spriteBatch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                         Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).Name, tCursor, Color.White);
+                        spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                         tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                        spriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                        spriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                         if (e.Plus != 0)
                         {
                             spriteBatch.Draw(
@@ -490,21 +491,22 @@ namespace Ship_Game
                     }
                     else
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(e.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        var ship = (Ship)e.item;
+                        spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                         Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty((e.item as Ship).VanityName) ? (e.item as Ship).VanityName : (e.item as Ship).Name), tCursor, Color.White);
+                        spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
                         tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
                         if (SubShips.Tabs[0].Selected)
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                            spriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                         }
-                        else if ((e.item as Ship).System== null)
+                        else if (ship.System== null)
                         {
                             spriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
                         }
                         else
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).System.Name, " system"), tCursor, Color.Orange);
+                            spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(ship.System.Name, " system"), tCursor, Color.Orange);
                         }
                         if (e.Plus != 0)
                         {

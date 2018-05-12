@@ -92,31 +92,32 @@ namespace Ship_Game
                 ScrollList.Entry e = this.SL.Entries[i];
                 bCursor.Y = (float)e.clickRect.Y;
                 bCursor.X = (float)e.clickRect.X - 9;
+                var ship = (Ship)e.item;
                 if (e.clickRectHover != 0)
                 {
-                    if ((e.item as Ship).Name == "Subspace Projector")
+                    if (ship.Name == "Subspace Projector")
                     {
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/subspace_projector"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     else
                     {
-                        this.ScreenManager.SpriteBatch.Draw((e.item as Ship).GetShipData().Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     
 
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    string name = (e.item as Ship).Name;
+                    string name = ship.Name;
                     SpriteFont nameFont = Fonts.Arial10;
                     this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
                     
-                    string cost = (e.item as Ship).GetCost(EmpireManager.Player).ToString();
+                    string cost = ship.GetCost(EmpireManager.Player).ToString();
 
                     string upkeep = "Doctor rocks";
-                    upkeep = (e.item as Ship).GetMaintCost(EmpireManager.Player).ToString("F2");
+                    upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
                     
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), prodiconRect, Color.White);
@@ -156,27 +157,27 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if ((e.item as Ship).Name == "Subspace Projector")
+                    if (ship.Name == "Subspace Projector")
                     {
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/subspace_projector"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     else
                     {
-                        this.ScreenManager.SpriteBatch.Draw((e.item as Ship).GetShipData().Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    string name = (e.item as Ship).Name;
+                    string name = ship.Name;
                     SpriteFont nameFont = Fonts.Arial10;
                     this.ScreenManager.SpriteBatch.DrawString(nameFont, name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
 
-                    string cost = (e.item as Ship).GetCost(EmpireManager.Player).ToString();
+                    string cost = ship.GetCost(EmpireManager.Player).ToString();
 
                     string upkeep = "Doctor rocks";
-                    upkeep = (e.item as Ship).GetMaintCost(EmpireManager.Player).ToString("F2");
+                    upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], prodiconRect, Color.White);
