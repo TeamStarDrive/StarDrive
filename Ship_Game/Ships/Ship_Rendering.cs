@@ -152,31 +152,37 @@ namespace Ship_Game.Ships
 
                 float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
                 float moduleHeight = slot.YSIZE * 16.5f;
-                us.ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
-                                         out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
 
-                // round all the values to TRY prevent module flickering on screen (well, it only helps a tiny bit)
+                Vector2 sizeOnScreen = us.ProjectToScreenSize(moduleWidth, moduleHeight);
+                Vector2 posOnScreen = us.ProjectToScreenPosition(slot.Center);
+                //us.ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
+                //                         out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
+
+
+                // round all the values to TRY prevent module flickering on screen
+                // it helps by a noticeable amount
                 posOnScreen.X = (float)Math.Round(posOnScreen.X);
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
+                if (sizeOnScreen.X.AlmostEqual(sizeOnScreen.Y, 0.001f))
+                    sizeOnScreen.X = sizeOnScreen.Y;
 
                 float slotFacing = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
-                us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, Color.White);
+                us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, sizeOnScreen.X, sizeOnScreen.Y, Color.White);
 
                 if (us.CamHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
-                    us.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColor());
+                    us.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, sizeOnScreen.X, sizeOnScreen.Y, slot.GetHealthStatusColor());
                 }
                 else
                 {
-                    Texture2D moduleTex = ResourceManager.Texture(slot.IconTexturePath);
                     //@HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
                     //so to fix that i am switching the height and width if the module is facing left or right. 
-                    if (slot.Facing == 270f || slot.Facing == 90)                    
-                        us.DrawTextureSized(moduleTex, posOnScreen, slotRotation, heightOnScreen, widthOnScreen, slot.GetHealthStatusColorWhite());                    
+                    if (slotFacing == 270f || slotFacing == 90f)
+                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, sizeOnScreen.Y, sizeOnScreen.X, slot.GetHealthStatusColorWhite());
                     else
-                        us.DrawTextureSized(moduleTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, slot.GetHealthStatusColorWhite());
+                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, sizeOnScreen.X, sizeOnScreen.Y, slot.GetHealthStatusColorWhite());
 
                     //if (enableModuleDebug)
                     //{
@@ -187,23 +193,27 @@ namespace Ship_Game.Ships
                         if (slot.Powered)
                         {
                             Texture2D poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
-                            us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, widthOnScreen, heightOnScreen, Color.White);
+                            us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, sizeOnScreen.X, sizeOnScreen.Y, Color.White);
                         }
                     }
                     else if (slot.Active && !slot.Powered && slot.PowerDraw > 0.0f)
                     {
-                        float smallerSize = Math.Min(widthOnScreen, heightOnScreen);
+                        float smallerSize = Math.Min(sizeOnScreen.X, sizeOnScreen.Y);
                         us.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
                     }
-                    if (us.Debug && slot.isExternal && slot.Active)
-                    {
-                        float smallerSize = Math.Min(widthOnScreen, heightOnScreen);
-                        us.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
-                    }
+
                     if (us.Debug)
                     {
+                        // draw blue marker on all active external modules
+                        if (slot.isExternal && slot.Active)
+                        {
+                            float smallerSize = Math.Min(sizeOnScreen.X, sizeOnScreen.Y);
+                            us.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
+                        }
+
+                        // draw the debug x/y pos
                         ModulePosToGridPoint(slot.Position, out int x, out int y);
-                        us.DrawString(posOnScreen, shipRotation, 350f / us.CamHeight, Color.Magenta, $"X {x}, Y {y}");
+                        us.DrawString(posOnScreen, shipRotation, 600f / us.CamHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
 

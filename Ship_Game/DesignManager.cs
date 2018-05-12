@@ -240,29 +240,11 @@ namespace Ship_Game
                     }
                 }
             }
-            catch(Exception x)
+            catch (Exception x)
             {
-                Log.Error(x,$"Failed to set strength or rename duing ship save");
+                Log.Error(x, "Failed to set strength or rename duing ship save");
             }
             ExitScreen();
-        }
-
-        private string parseText(string text, float Width)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(new char[] { ' ' });
-            for (int i = 0; i < (int)strArrays.Length; i++)
-            {
-                string word = strArrays[i];
-                if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
-            }
-            return string.Concat(returnString, line);
         }
 
         private void TrySave()
