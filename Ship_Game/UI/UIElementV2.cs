@@ -1,0 +1,176 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace Ship_Game
+{
+    // UIElement alignment values used for Axis and ParentAlign
+    public enum Align
+    {
+        TopLeft,     // "topleft"      x=0.0  y=0.0
+        TopCenter,   // "topcenter"    x=0.5  y=0.0
+        TopRight,    // "topright"     x=1.0  y=0.0
+
+        CenterLeft,  // "centerleft"   x=0.0  y=0.5
+        Center,      // "center"       x=0.5  y=0.5
+        CenterRight, // "centerright"  x=1.0  y=0.5
+
+        BottomLeft,  // "bottomleft"   x=0.0  y=1.0
+        BottomCenter,// "bottomcenter" x=0.5  y=1.0
+        BottomRight, // "bottomright"  x=1.0  y=1.0
+    }
+
+    public abstract class UIElementV2 : IInputHandler
+    {
+        public readonly UIElementV2 Parent;
+
+        public Vector2 Pos;    // absolute position
+        public Vector2 Size;   // absolute size in the UI
+
+        public Rectangle Rect
+        {
+            get => new Rectangle((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
+            set
+            {
+                Pos  = new Vector2(value.X, value.Y);
+                Size = new Vector2(value.Width, value.Height);
+            }
+        }
+        public float X { get => Pos.X; set => Pos.X = value; }
+        public float Y { get => Pos.Y; set => Pos.Y = value; }
+        public float Width  { get => Size.X; set => Size.X = value; }
+        public float Height { get => Size.Y; set => Size.Y = value; }
+
+
+        // Elements are sorted by ZOrder during EndLayout()
+        public int ZOrder;
+
+        public void SetAbsPos(float x, float y)
+        {
+            Pos = new Vector2(x, y);
+        }
+        public void SetSize(float width, float height)
+        {
+            Size = new Vector2(width, height);
+            RequiresLayout = true;
+        }
+
+        protected Vector2 AxisOffset   = Vector2.Zero;
+        protected Vector2 ParentOffset = Vector2.Zero;
+        protected bool RequiresLayout  = false;
+
+        /**
+         * Sets the auto-layout axis of the UIElement. Default is [0,0]
+         * Changing the axis will change the position and rotation axis of the object.
+         * @example [0.5,0.5] will set the axis to the center of the object (depends on size!)
+         */
+        public Align Axis
+        {
+            set
+            {
+                AxisOffset = AlignValue(value);
+                RequiresLayout = true;
+            }
+        }
+
+        /**
+         * Sets the auto-layout alignment to parent container bounds. Default is [0,0]
+         * By changing this value, you can make components default position different
+         * @example [1,0] will align the component to parent right
+         */
+        public Align ParentAlign
+        {
+            set
+            {
+                ParentOffset = AlignValue(value);
+                RequiresLayout = true;
+            }
+        }
+
+        /**
+         * Sets both Axis and ParentAlign to the provided Align value
+         * @example Align.Center will perfectly center to parent center
+         */
+        public Align AxisAlign
+        {
+            set
+            {
+                AxisOffset = ParentOffset = AlignValue(value);
+                RequiresLayout = true;
+            }
+        }
+
+        private static Vector2 AlignValue(Align align)
+        {
+            switch (align)
+            {
+                default:
+                case Align.TopLeft:      return new Vector2(0.0f, 0.0f);
+                case Align.TopCenter:    return new Vector2(0.5f, 0.0f);
+                case Align.TopRight:     return new Vector2(1.0f, 0.0f);
+                case Align.CenterLeft:   return new Vector2(0.0f, 0.5f);
+                case Align.Center:       return new Vector2(0.5f, 0.5f);
+                case Align.CenterRight:  return new Vector2(1.0f, 0.5f);
+                case Align.BottomLeft:   return new Vector2(0.0f, 1.0f);
+                case Align.BottomCenter: return new Vector2(0.5f, 1.0f);
+                case Align.BottomRight:  return new Vector2(1.0f, 1.0f);
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+
+        protected UIElementV2(UIElementV2 parent, Vector2 pos)
+        {
+            Parent = parent;
+            Pos = pos;
+        }
+
+        protected UIElementV2(UIElementV2 parent, Vector2 pos, Vector2 size)
+        {
+            Parent = parent;
+            Pos = pos;
+            Size = size;
+        }
+
+        protected UIElementV2(UIElementV2 parent, Rectangle rect)
+        {
+            Parent = parent;
+            Pos  = new Vector2(rect.X, rect.Y);
+            Size = new Vector2(rect.Width, rect.Height);
+        }
+
+        public abstract void Draw(SpriteBatch spriteBatch);
+        public abstract bool HandleInput(InputState input);
+        public abstract void PerformLegacyLayout(Vector2 pos);
+
+        public void RemoveFromParent()
+        {
+            if (Parent is UIElementContainer container)
+                container.Remove(this);
+        }
+
+        public virtual void Update()
+        {
+            if (!RequiresLayout)
+                return;
+            RequiresLayout = false;
+
+            Vector2 pos = Size * -AxisOffset;
+            if (Parent != null)
+            {
+                pos += Parent.Pos;
+                if (ParentOffset != Vector2.Zero)
+                {
+                    pos += Parent.Size * ParentOffset;
+                }
+            }
+            Pos = pos;
+        }
+
+        public bool HitTest(Vector2 pos)
+        {
+            return pos.X > Pos.X && pos.Y > Pos.Y && pos.X < Pos.X + Size.X && pos.Y < Pos.Y + Size.Y;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+    }
+}

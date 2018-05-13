@@ -108,7 +108,7 @@ namespace Ship_Game
 						}
 						else
 						{
-							AudioManager.PlayCue("UI_Misc20");
+							GameAudio.PlaySfxAsync("UI_Misc20");
 						}
 					}
 					else
@@ -143,13 +143,13 @@ namespace Ship_Game
 						}
 						else
 						{
-							AudioManager.PlayCue("UI_Misc20");
+							GameAudio.PlaySfxAsync("UI_Misc20");
 						}
 					}
 				}
 				else
 				{
-					AudioManager.PlayCue("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 				return true;
 			}
@@ -208,7 +208,7 @@ namespace Ship_Game
 			}
 			if (this.Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
 			{
-				AudioManager.PlayCue("UI_Misc20");
+				GameAudio.PlaySfxAsync("UI_Misc20");
 			}
 			else if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
 			{
@@ -252,12 +252,12 @@ namespace Ship_Game
 					}
 					else
 					{
-						AudioManager.PlayCue("UI_Misc20");
+						GameAudio.PlaySfxAsync("UI_Misc20");
 					}
 				}
 				else
 				{
-					AudioManager.PlayCue("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 			}
 			else
@@ -292,7 +292,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					AudioManager.PlayCue("UI_Misc20");
+					GameAudio.PlaySfxAsync("UI_Misc20");
 				}
 			}
 			return true;

@@ -18,6 +18,6 @@ namespace SynapseGaming.LightingSystem.Core
     High,
     Medium,
     Low,
-    Off,
+    Off
   }
 }

@@ -18,7 +18,7 @@ namespace Ship_Game
         public Map() : base(0, null)
         {
         }
-
+        
         public Map(int capacity) : base(capacity, null)
         {
         }
@@ -69,5 +69,11 @@ namespace Ship_Game
         {
             return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArray();
         }
+
+        public TValue[] AtomicValuesArray()
+        {
+            lock (this) return Values.ToArray();
+        }
+        
     }
 }

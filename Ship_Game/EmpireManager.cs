@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-	public class EmpireManager
-	{
-		private static readonly Array<Empire> EmpireList = new Array<Empire>();
+    public class EmpireManager
+    {
+        private static readonly Array<Empire> EmpireList = new Array<Empire>();
         private static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>(); 
 
         private static Empire PlayerEmpire;
@@ -17,6 +18,7 @@ namespace Ship_Game
         private static Empire CorsairsFaction;
 
         public static IReadOnlyList<Empire> Empires => EmpireList;
+        public static int NumEmpires => EmpireList.Count;
 
         /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
         public static Empire Player     => PlayerEmpire     ?? (PlayerEmpire     = FindPlayerEmpire());
@@ -27,12 +29,22 @@ namespace Ship_Game
         public static Empire Unknown  => UnknownFaction  ?? (UnknownFaction  = GetEmpireByName("Unknown"));
         public static Empire Corsairs => CorsairsFaction ?? (CorsairsFaction = GetEmpireByName("Corsairs"));
 
+        public static Empire FindDuplicateEmpire(Empire empire)
+        {
+            if (EmpireList.Contains(empire))
+                return empire;
+            return GetEmpireByName(empire.data.Traits.Name);
+        }
+
         public static void Add(Empire e)
         {
             // avoid duplicate entries, due to some bad design code structuring...
-            if (!EmpireList.Contains(e)) 
-                EmpireList.Add(e);
+            if (FindDuplicateEmpire(e) != null) return;
+
+            EmpireList.Add(e);
+            e.Id = EmpireList.Count;
         }
+
         public static void Clear()
         {
             EmpireList.Clear();
@@ -43,6 +55,13 @@ namespace Ship_Game
             UnknownFaction   = null;
             CorsairsFaction  = null;
         }
+
+        
+        public static Empire GetEmpireById(int empireId)
+        {
+            return empireId == 0 ? null : EmpireList[empireId-1];
+        }
+
         public static Empire GetEmpireByName(string name)
         {
             if (name == null)
@@ -87,5 +106,62 @@ namespace Ship_Game
                     allies.Add(empire);
             return allies;
         }
-	}
+
+        public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
+        {
+            var rebelEmpire = GetEmpireByName(data.RebelName);
+            if (rebelEmpire != null) return rebelEmpire;
+
+
+            Empire empire = new Empire(parent)
+            {
+                isFaction = true,
+                data = CreatingNewGameScreen.CopyEmpireData(data)
+                
+            };
+            //Added by McShooterz: mod folder support
+            DiplomaticTraits diplomaticTraits = ResourceManager.DiplomaticTraits;
+            int index1                        = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
+            int index2                        = RandomMath.InRange(diplomaticTraits.DiplomaticTraitsList.Count);
+            int index3                        = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
+            int index4                        = RandomMath.InRange(diplomaticTraits.EconomicTraitsList.Count);
+            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index1];
+            empire.data.DiplomaticPersonality = diplomaticTraits.DiplomaticTraitsList[index2];
+            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index3];
+            empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index4];
+            empire.data.SpyModifier           = data.Traits.SpyMultiplier;
+            empire.PortraitName               = data.PortraitName;
+            empire.EmpireColor                = new Color(128, 128, 128, 255);
+
+            empire.InitializeFromSave();
+            
+            empire.data.IsRebelFaction = true;
+            empire.data.Traits.Name = data.RebelName;
+            empire.data.Traits.Singular = data.RebelSing;
+            empire.data.Traits.Plural = data.RebelPlur;
+            empire.isFaction = true;
+            EmpireManager.Add(empire);
+            foreach (Empire key in EmpireManager.Empires)
+            {
+                key.AddRelation(empire);
+                empire.AddRelation(key);
+            }
+            data.RebellionLaunched = true;
+         
+            return empire;
+        }
+        public static Troop CreateRebelTroop(Empire rebelEmpire)
+        {
+            foreach (string troopType in ResourceManager.TroopTypes)
+            {
+                if (!rebelEmpire.WeCanBuildTroop(troopType))
+                    continue;
+
+                Troop troop = ResourceManager.CreateTroop(troopType, rebelEmpire);                
+                troop.Description = Localizer.Token(rebelEmpire.data.TroopDescriptionIndex);
+                return troop;                
+            }
+            return null;
+        }
+    }
 }

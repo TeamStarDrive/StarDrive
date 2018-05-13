@@ -14,6 +14,6 @@ namespace SynapseGaming.LightingSystem.Core
   public enum ObjectType
   {
     Static,
-    Dynamic,
+    Dynamic
   }
 }

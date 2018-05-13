@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
@@ -77,7 +77,7 @@ namespace SynapseGaming.LightingSystem.Effects
 
     internal static void smethod_6(float float_0, ref float float_1, ref EffectParameter effectParameter_0)
     {
-      if (effectParameter_0 == null || (double) float_0 == (double) float_1)
+      if (effectParameter_0 == null || float_0 == (double) float_1)
         return;
       float_1 = float_0;
       effectParameter_0.SetValue(float_1);
@@ -91,12 +91,12 @@ namespace SynapseGaming.LightingSystem.Effects
       effectParameter_0.SetValue(vector2_1);
     }
 
-    internal static void smethod_8(Texture2D texture2D_0, ref Texture2D texture2D_1, ref EffectParameter effectParameter_0)
+    internal static void SetParam(Texture2D texture, ref Texture2D currentValueInOut, EffectParameter param)
     {
-      if (effectParameter_0 == null || texture2D_0 == texture2D_1)
+      if (param == null || texture == currentValueInOut)
         return;
-      texture2D_1 = texture2D_0;
-      effectParameter_0.SetValue((Texture) texture2D_1);
+      currentValueInOut = texture;
+      param.SetValue(currentValueInOut);
     }
 
     internal static void smethod_9(Texture2D texture2D_0, Texture2D texture2D_1, ref Texture2D texture2D_2, ref EffectParameter effectParameter_0)
@@ -106,7 +106,7 @@ namespace SynapseGaming.LightingSystem.Effects
       if (effectParameter_0 == null || texture2D_0 == texture2D_2)
         return;
       texture2D_2 = texture2D_0;
-      effectParameter_0.SetValue((Texture) texture2D_2);
+      effectParameter_0.SetValue(texture2D_2);
     }
 
     internal static void smethod_10(List<EffectParameter> list_0, Vector4 vector4_0)
@@ -144,7 +144,7 @@ namespace SynapseGaming.LightingSystem.Effects
     {
       if (list_0 == null || list_0.Count < 1)
         return;
-      EffectHelper.smethod_11(list_0, Matrix.Transpose(matrix_0));
+      smethod_11(list_0, Matrix.Transpose(matrix_0));
     }
 
     /// <summary>
@@ -166,10 +166,10 @@ namespace SynapseGaming.LightingSystem.Effects
           if (transparentEffect2.TransparencyMode != TransparencyMode.None)
             transparentEffect1.SetTransparencyModeAndMap(transparentEffect2.TransparencyMode, transparentEffect2.Transparency, transparentEffect2.TransparencyMap);
           else
-            transparentEffect1.SetTransparencyModeAndMap(TransparencyMode.None, transparentEffect1.Transparency, (Texture) null);
+            transparentEffect1.SetTransparencyModeAndMap(TransparencyMode.None, transparentEffect1.Transparency, null);
         }
         else
-          transparentEffect1.SetTransparencyModeAndMap(TransparencyMode.None, transparentEffect1.Transparency, (Texture) null);
+          transparentEffect1.SetTransparencyModeAndMap(TransparencyMode.None, transparentEffect1.Transparency, null);
       }
       if (shadoweffect is IAddressableEffect)
       {
@@ -200,7 +200,7 @@ namespace SynapseGaming.LightingSystem.Effects
         terrainEffect1.Tiling = terrainEffect2.Tiling;
       }
       else
-        terrainEffect1.HeightMapTexture = (Texture2D) null;
+        terrainEffect1.HeightMapTexture = null;
     }
   }
 }

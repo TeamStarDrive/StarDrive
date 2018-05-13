@@ -77,7 +77,7 @@ namespace Ship_Game
 				int MaskX = (int)((float)this.Progress / (float)this.Max * (float)this.pBar.Width + (float)this.pBar.X);
 				int MaskW = this.pBar.Width - (int)((float)this.Progress / (float)this.Max * (float)this.pBar.Width);
 				Rectangle Mask = new Rectangle(MaskX, this.pBar.Y, MaskW, 18);
-				Primitives2D.FillRectangle(spriteBatch, Mask, Color.Black);
+				spriteBatch.FillRectangle(Mask, Color.Black);
 			}
 			if (this.color != "brown")
 			{
@@ -112,7 +112,7 @@ namespace Ship_Game
 				int MaskX = (int)((float)this.Progress / (float)this.Max * (float)this.pBar.Width + (float)this.pBar.X);
 				int MaskW = this.pBar.Width - (int)((float)this.Progress / (float)this.Max * (float)this.pBar.Width);
 				Rectangle Mask = new Rectangle(MaskX, this.pBar.Y, MaskW, 18);
-				Primitives2D.FillRectangle(spriteBatch, Mask, Color.Black);
+				spriteBatch.FillRectangle(Mask, Color.Black);
 			}
 			if (this.color != "brown")
 			{

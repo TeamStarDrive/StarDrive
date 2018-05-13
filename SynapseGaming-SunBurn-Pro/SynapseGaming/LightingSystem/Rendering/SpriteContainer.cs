@@ -4,14 +4,12 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using ns3;
-using ns9;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Mesh;
 using SynapseGaming.LightingSystem.Core;
-using Buffer = ns9.Buffer;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -26,14 +24,14 @@ namespace SynapseGaming.LightingSystem.Rendering
     private Vector2 vector2_0 = Vector2.One;
     private Vector2 vector2_1 = Vector2.Zero;
     private int int_1 = -1;
-    private Dictionary<int, Class70> dictionary_0 = new Dictionary<int, Class70>(16);
+    private Dictionary<int, SpriteFactory> dictionary_0 = new Dictionary<int, SpriteFactory>(16);
     private bool bool_3;
     private GraphicsDevice graphicsDevice_0;
     private TrackingPool<RenderableMesh> class21_0;
-    private DisposablePool<Buffer> class22_0;
-    private Class70 class70_0;
+    private DisposablePool<SpriteVertexBuffer> class22_0;
+    private SpriteFactory class70_0;
 
-    internal SpriteContainer(GraphicsDevice graphicsDevice_1, TrackingPool<RenderableMesh> class21_1, DisposablePool<Buffer> class22_1)
+    internal SpriteContainer(GraphicsDevice graphicsDevice_1, TrackingPool<RenderableMesh> class21_1, DisposablePool<SpriteVertexBuffer> class22_1)
     {
       this.graphicsDevice_0 = graphicsDevice_1;
       this.class21_0 = class21_1;
@@ -48,8 +46,8 @@ namespace SynapseGaming.LightingSystem.Rendering
       if (this.bool_3)
         throw new Exception("Begin already called on this object, make sure all Begin calls have an accompanying End call.");
       this.bool_3 = true;
-      this.graphicsDevice_0.Indices = (IndexBuffer) null;
-      foreach (KeyValuePair<int, Class70> keyValuePair in this.dictionary_0)
+      this.graphicsDevice_0.Indices = null;
+      foreach (KeyValuePair<int, SpriteFactory> keyValuePair in this.dictionary_0)
         keyValuePair.Value.method_3();
       while (this.RenderableMeshes.Count > 0)
       {
@@ -254,7 +252,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
       if (!this.bool_3)
         throw new Exception("Begin must be called before adding sprites to the container.");
-      Class70 class70;
+      SpriteFactory class70;
       if (this.int_1 == effecthashcode && this.class70_0 != null)
       {
         class70 = this.class70_0;
@@ -263,7 +261,7 @@ namespace SynapseGaming.LightingSystem.Rendering
       {
         if (!this.dictionary_0.TryGetValue(effecthashcode, out class70))
         {
-          class70 = new Class70(this.graphicsDevice_0, this.class22_0, effect);
+          class70 = new SpriteFactory(this.graphicsDevice_0, this.class22_0, effect);
           this.dictionary_0.Add(effecthashcode, class70);
         }
         this.int_1 = effecthashcode;
@@ -280,15 +278,15 @@ namespace SynapseGaming.LightingSystem.Rendering
       if (!this.bool_3)
         throw new Exception("Begin must be called before calling End.");
       this.bool_3 = false;
-      foreach (KeyValuePair<int, Class70> keyValuePair in this.dictionary_0)
+      foreach (KeyValuePair<int, SpriteFactory> keyValuePair in this.dictionary_0)
       {
-        Class70 class70 = keyValuePair.Value;
+        SpriteFactory class70 = keyValuePair.Value;
         Effect effect = class70.Effect;
         class70.method_1();
-        foreach (Buffer buffer in class70.Buffers)
+        foreach (SpriteVertexBuffer buffer in class70.Buffers)
         {
           RenderableMesh mesh = this.class21_0.New();
-          mesh.Build((ISceneObject) this, effect, Matrix.Identity, BoundingSphere.CreateFromBoundingBox(buffer.ObjectBoundingBox), buffer.IndexBuffer, buffer.VertexBuffer, buffer.VertexDeclaration, 0, PrimitiveType.TriangleList, buffer.VertexCount / 4 * 2, 0, buffer.VertexCount, 0, Struct1.SizeInBytes);
+          mesh.Build(this, effect, Matrix.Identity, BoundingSphere.CreateFromBoundingBox(buffer.ObjectBoundingBox), buffer.IndexBuffer, buffer.VertexBuffer, buffer.VertexDeclaration, 0, PrimitiveType.TriangleList, buffer.VertexCount / 4 * 2, 0, buffer.VertexCount, 0, SpriteVertex.SizeInBytes);
           this.Add(mesh);
         }
       }

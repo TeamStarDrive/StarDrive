@@ -64,13 +64,13 @@ namespace Ship_Game
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
-			if (HelperFunctions.CheckIntersection(this.r, MousePos))
+			if (this.r.HitTest(MousePos))
 			{
 				hover = true;
 			}
 			if (hover)
 			{
-				Primitives2D.FillRectangle(spriteBatch, this.r, new Color(128, 87, 43, 50));
+				spriteBatch.FillRectangle(this.r, new Color(128, 87, 43, 50));
 			}
 			foreach (DropDownMenu.RecTexPair r in this.container)
 			{

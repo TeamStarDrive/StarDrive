@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Deferred;
-using System;
 
 namespace SynapseGaming.LightingSystem.Processors.Deferred
 {
@@ -36,12 +36,12 @@ namespace SynapseGaming.LightingSystem.Processors.Deferred
       deferredObjectEffect.SpecularColorMapFile = input.ReadString();
       deferredObjectEffect.SpecularColorMapTexture = input.ReadExternalReference<Texture2D>();
       deferredObjectEffect.ParallaxMapFile = input.ReadString();
-      deferredObjectEffect.ParallaxMapTexture = Class13.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+      deferredObjectEffect.ParallaxMapTexture = CoreUtils.ConvertToLuminance8(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
       deferredObjectEffect.Skinned = input.ReadBoolean();
       deferredObjectEffect.DoubleSided = input.ReadBoolean();
       TransparencyMode mode = (TransparencyMode) input.ReadInt32();
       float transparency = input.ReadSingle();
-      deferredObjectEffect.SetTransparencyModeAndMap(mode, transparency, (Texture) deferredObjectEffect.DiffuseMapTexture);
+      deferredObjectEffect.SetTransparencyModeAndMap(mode, transparency, deferredObjectEffect.DiffuseMapTexture);
       deferredObjectEffect.SpecularPower = input.ReadSingle();
       deferredObjectEffect.SpecularAmount = input.ReadSingle();
       deferredObjectEffect.FresnelReflectBias = input.ReadSingle();
@@ -56,7 +56,7 @@ namespace SynapseGaming.LightingSystem.Processors.Deferred
       deferredObjectEffect.AddressModeU = (TextureAddressMode) input.ReadInt32();
       deferredObjectEffect.AddressModeV = (TextureAddressMode) input.ReadInt32();
       deferredObjectEffect.AddressModeW = (TextureAddressMode) input.ReadInt32();
-      Class55.smethod_0(input);
+      BlockUtil.SkipBlock(input);
       if (input.ReadInt32() != 1234)
         throw new Exception("Error loading asset.");
       return deferredObjectEffect;

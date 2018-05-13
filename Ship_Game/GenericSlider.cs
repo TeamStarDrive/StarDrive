@@ -48,7 +48,7 @@ namespace Ship_Game
 			Vector2 Cursor = new Vector2((float)this.ContainerRect.X, (float)this.ContainerRect.Y);
 			SpriteBatch.DrawString(Fonts.Arial12Bold, this.Text, Cursor, new Color(255, 239, 208));
 			SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6), new Rectangle?(new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6)), Color.White);
-			Primitives2D.DrawRectangle(SpriteBatch, this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+			SpriteBatch.DrawRectangle(this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
@@ -78,7 +78,7 @@ namespace Ship_Game
 			SpriteBatch.DrawString(arial12Bold, num.ToString(), textPos, new Color(255, 239, 208));
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 		}
 
@@ -88,7 +88,7 @@ namespace Ship_Game
 			Vector2 Cursor = new Vector2((float)this.ContainerRect.X, (float)this.ContainerRect.Y);
 			SpriteBatch.DrawString(Fonts.Arial12Bold, this.Text, Cursor, new Color(255, 239, 208));
 			SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6), new Rectangle?(new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6)), Color.White);
-			Primitives2D.DrawRectangle(SpriteBatch, this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+			SpriteBatch.DrawRectangle(this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
@@ -118,13 +118,13 @@ namespace Ship_Game
 			SpriteBatch.DrawString(arial12Bold, string.Concat(num.ToString(), "%"), textPos, new Color(255, 239, 208));
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 		}
 
 		public float HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+			if (!this.rect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -134,7 +134,7 @@ namespace Ship_Game
 			}
 			Rectangle clickCursor = this.cursor;
 			clickCursor.X = clickCursor.X - this.cursor.Width / 2;
-			if (HelperFunctions.CheckIntersection(clickCursor, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (clickCursor.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
 				this.dragging = true;
 			}
@@ -149,7 +149,7 @@ namespace Ship_Game
 				{
 					this.cursor.X = this.rect.X;
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 				{
 					this.dragging = false;
 				}

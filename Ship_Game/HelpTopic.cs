@@ -16,7 +16,9 @@ namespace Ship_Game
 
 		public string VideoPath;
 
-		public HelpTopic()
+	    public string Link;
+
+        public HelpTopic()
 		{
 		}
 	}

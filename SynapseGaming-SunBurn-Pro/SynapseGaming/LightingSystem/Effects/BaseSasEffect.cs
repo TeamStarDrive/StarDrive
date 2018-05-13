@@ -4,27 +4,23 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
   /// <summary>
   /// Effect class with full support for, and binding of, FX Standard Annotations and Semantics (SAS).
   /// </summary>
-  public abstract class BaseSasEffect : BaseSasBindEffect, IEditorObject, Interface0, IRenderableEffect, ISkinnedEffect, Interface1
+  public abstract class BaseSasEffect : BaseSasBindEffect, IEditorObject, IProjectFile, IRenderableEffect, ISkinnedEffect, Interface1
   {
-    private string string_0 = "";
-    private string string_1 = "";
-    private string string_2 = "";
-    private string string_3 = "";
-    private Matrix[] matrix_6 = new Matrix[1];
+      private Matrix[] matrix_6 = new Matrix[1];
     private Matrix[] matrix_7 = new Matrix[1];
     private Matrix[] matrix_8 = new Matrix[1];
     private Matrix matrix_0;
@@ -32,18 +28,13 @@ namespace SynapseGaming.LightingSystem.Effects
     private Matrix matrix_2;
     private Matrix matrix_3;
     private Matrix matrix_4;
-    private Matrix matrix_5;
-    private bool bool_3;
-    private EffectParameter effectParameter_0;
+      private bool bool_3;
 
-    /// <summary>World matrix applied to geometry using this effect.</summary>
+      /// <summary>World matrix applied to geometry using this effect.</summary>
     public Matrix World
     {
-      get
-      {
-        return this.matrix_0;
-      }
-      set
+      get => this.matrix_0;
+          set
       {
         if (this.matrix_0 == value)
           return;
@@ -54,11 +45,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>View matrix applied to geometry using this effect.</summary>
     public Matrix View
     {
-      get
-      {
-        return this.matrix_2;
-      }
-      set
+      get => this.matrix_2;
+        set
       {
         if (this.matrix_2 == value)
           return;
@@ -73,16 +61,13 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public Matrix Projection
     {
-      get
-      {
-        return this.matrix_4;
-      }
-      set
+      get => this.matrix_4;
+        set
       {
         if (this.matrix_4 == value)
           return;
         this.matrix_4 = value;
-        this.matrix_5 = Matrix.Invert(value);
+        this.ProjectionToView = Matrix.Invert(value);
         this.SyncTransformEffectData();
       }
     }
@@ -90,15 +75,9 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>
     /// Inverse projection matrix applied to geometry using this effect.
     /// </summary>
-    protected Matrix ProjectionToView
-    {
-      get
-      {
-        return this.matrix_5;
-      }
-    }
+    protected Matrix ProjectionToView { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Applies the user's effect preference. This generally trades detail
     /// for performance based on the user's selection.
     /// </summary>
@@ -119,13 +98,10 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public Matrix[] SkinBones
     {
-      get
+      get => this.matrix_6;
+        set
       {
-        return this.matrix_6;
-      }
-      set
-      {
-        if (!this.bool_3 || this.effectParameter_0 == null)
+        if (!this.bool_3 || this.SkinBonesEffectParameter == null)
           return;
         if (value != null)
         {
@@ -134,9 +110,9 @@ namespace SynapseGaming.LightingSystem.Effects
         }
         else
         {
-          if (this.matrix_7.Length < this.effectParameter_0.Elements.Count)
+          if (this.matrix_7.Length < this.SkinBonesEffectParameter.Elements.Count)
           {
-            this.matrix_7 = new Matrix[this.effectParameter_0.Elements.Count];
+            this.matrix_7 = new Matrix[this.SkinBonesEffectParameter.Elements.Count];
             for (int index = 0; index < this.matrix_7.Length; ++index)
               this.matrix_7[index] = Matrix.Identity;
           }
@@ -153,11 +129,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public bool Skinned
     {
-      get
-      {
-        return this.bool_3;
-      }
-      set
+      get => this.bool_3;
+        set
       {
         this.bool_3 = value;
         this.SetTechnique();
@@ -171,86 +144,24 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public bool AffectedInCode { get; set; }
 
-    internal string MaterialName
-    {
-      get
-      {
-        return this.string_0;
-      }
-      set
-      {
-        this.string_0 = value;
-      }
-    }
+    internal string MaterialName { get; set; } = "";
 
-    string Interface1.MaterialFile
-    {
-      get
-      {
-        return this.string_1;
-      }
-    }
+      string Interface1.MaterialFile => this.MaterialFile;
 
-    internal string MaterialFile
-    {
-      get
-      {
-        return this.string_1;
-      }
-      set
-      {
-        this.string_1 = value;
-      }
-    }
+      internal string MaterialFile { get; set; } = "";
 
-    internal string ProjectFile
-    {
-      get
-      {
-        return this.string_2;
-      }
-      set
-      {
-        this.string_2 = value;
-      }
-    }
+      internal string ProjectFile { get; set; } = "";
 
-    string Interface0.ProjectFile
-    {
-      get
-      {
-        return this.string_2;
-      }
-    }
+      string IProjectFile.ProjectFile => this.ProjectFile;
 
-    internal string EffectFile
-    {
-      get
-      {
-        return this.string_3;
-      }
-      set
-      {
-        this.string_3 = value;
-      }
-    }
+      internal string EffectFile { get; set; } = "";
 
-    /// <summary>
+      /// <summary>
     /// Effect parameter used to set the bone transform array.
     /// </summary>
-    protected EffectParameter SkinBonesEffectParameter
-    {
-      get
-      {
-        return this.effectParameter_0;
-      }
-      set
-      {
-        this.effectParameter_0 = value;
-      }
-    }
+    protected EffectParameter SkinBonesEffectParameter { get; set; }
 
-    /// <summary>
+      /// <summary>
     /// Creates a new BaseSasEffect instance from an effect containing an SAS shader
     /// (often loaded through the content pipeline or from disk).
     /// </summary>
@@ -259,17 +170,17 @@ namespace SynapseGaming.LightingSystem.Effects
     public BaseSasEffect(GraphicsDevice graphicsdevice, Effect effect)
       : base(graphicsdevice, effect)
     {
-      this.effectParameter_0 = this.FindBySasAddress("Sas.Skeleton.MeshToJointToWorld[*]");
-      LightingSystemEditor.OnCreateResource((IDisposable) this);
+      this.SkinBonesEffectParameter = this.FindBySasAddress("Sas.Skeleton.MeshToJointToWorld[*]");
+      LightingSystemEditor.OnCreateResource(this);
     }
 
     internal BaseSasEffect(GraphicsDevice graphicsDevice_0, Effect effect_0, bool bool_5)
       : base(graphicsDevice_0, effect_0)
     {
-      this.effectParameter_0 = this.FindBySasAddress("Sas.Skeleton.MeshToJointToWorld[*]");
+      this.SkinBonesEffectParameter = this.FindBySasAddress("Sas.Skeleton.MeshToJointToWorld[*]");
       if (!bool_5)
         return;
-      LightingSystemEditor.OnCreateResource((IDisposable) this);
+      LightingSystemEditor.OnCreateResource(this);
     }
 
     /// <summary>
@@ -332,7 +243,7 @@ namespace SynapseGaming.LightingSystem.Effects
       if (projection != this.matrix_4)
       {
         this.matrix_4 = projection;
-        this.matrix_5 = projectiontoview;
+        this.ProjectionToView = projectiontoview;
         flag = true;
       }
       if (!flag)
@@ -358,13 +269,13 @@ namespace SynapseGaming.LightingSystem.Effects
       EffectHelper.smethod_11(this.SasAutoBindTable.method_1("Sas.Camera.WorldToView"), this.matrix_2);
       EffectHelper.smethod_11(this.SasAutoBindTable.method_1("Sas.Camera.WorldToViewInverse"), this.matrix_3);
       EffectHelper.smethod_11(this.SasAutoBindTable.method_1("Sas.Camera.Projection"), this.matrix_4);
-      EffectHelper.smethod_11(this.SasAutoBindTable.method_1("Sas.Camera.ProjectionInverse"), this.matrix_5);
+      EffectHelper.smethod_11(this.SasAutoBindTable.method_1("Sas.Camera.ProjectionInverse"), this.ProjectionToView);
       EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.WorldTranspose"), this.matrix_0);
       EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.WorldInverseTranspose"), this.matrix_1);
       EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.WorldToViewTranspose"), this.matrix_2);
       EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.WorldToViewInverseTranspose"), this.matrix_3);
       EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.ProjectionTranspose"), this.matrix_4);
-      EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.ProjectionInverseTranspose"), this.matrix_5);
+      EffectHelper.smethod_12(this.SasAutoBindTable.method_1("Sas.Camera.ProjectionInverseTranspose"), this.ProjectionToView);
       List<EffectParameter> list_0_1 = this.SasAutoBindTable.method_1("Sas.Camera.ObjectToView");
       List<EffectParameter> list_0_2 = this.SasAutoBindTable.method_1("Sas.Camera.ObjectToViewTranspose");
       List<EffectParameter> list_0_3 = this.SasAutoBindTable.method_1("Sas.Camera.ObjectToProjection");
@@ -385,7 +296,7 @@ namespace SynapseGaming.LightingSystem.Effects
       if (list_0_5 == null && list_0_6 == null && (list_0_7 == null && list_0_8 == null))
         return;
       Matrix matrix_0_3 = this.matrix_3 * this.matrix_1;
-      Matrix matrix_0_4 = this.matrix_5 * matrix_0_3;
+      Matrix matrix_0_4 = this.ProjectionToView * matrix_0_3;
       EffectHelper.smethod_11(list_0_5, matrix_0_3);
       EffectHelper.smethod_12(list_0_6, matrix_0_3);
       EffectHelper.smethod_11(list_0_7, matrix_0_4);
@@ -397,14 +308,14 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     protected virtual void SyncSkinBoneEffectData()
     {
-      if (!this.bool_3 || this.effectParameter_0 == null)
+      if (!this.bool_3 || this.SkinBonesEffectParameter == null)
         return;
       if (this.matrix_8.Length < this.matrix_6.Length)
         this.matrix_8 = new Matrix[this.matrix_6.Length];
       for (int index = 0; index < this.matrix_6.Length; ++index)
         this.matrix_8[index] = this.matrix_6[index] * this.matrix_0;
-      this.effectParameter_0.SetArrayRange(0, Math.Min(this.matrix_8.Length, this.effectParameter_0.Elements.Count));
-      this.effectParameter_0.SetValue(this.matrix_8);
+      this.SkinBonesEffectParameter.SetArrayRange(0, Math.Min(this.matrix_8.Length, this.SkinBonesEffectParameter.Elements.Count));
+      this.SkinBonesEffectParameter.SetValue(this.matrix_8);
     }
 
     /// <summary>
@@ -414,7 +325,7 @@ namespace SynapseGaming.LightingSystem.Effects
     protected override void Dispose(bool releasemanaged)
     {
       base.Dispose(releasemanaged);
-      LightingSystemEditor.OnDisposeResource((IDisposable) this);
+      LightingSystemEditor.OnDisposeResource(this);
     }
   }
 }

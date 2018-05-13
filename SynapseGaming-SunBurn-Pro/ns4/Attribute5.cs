@@ -8,52 +8,23 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property)]
   internal class Attribute5 : Attribute4
   {
-    private int int_0;
-    private double double_0;
-    private double double_1;
-    private double double_2;
+      public int DecimalPlaces { get; }
 
-    public int DecimalPlaces
-    {
-      get
-      {
-        return this.int_0;
-      }
-    }
+      public double MinValue { get; }
 
-    public double MinValue
-    {
-      get
-      {
-        return this.double_0;
-      }
-    }
+      public double MaxValue { get; }
 
-    public double MaxValue
-    {
-      get
-      {
-        return this.double_1;
-      }
-    }
+      public double Increment { get; }
 
-    public double Increment
+      public Attribute5(int decimalplaces, double minvalue, double maxvalue, double increment)
     {
-      get
-      {
-        return this.double_2;
-      }
-    }
-
-    public Attribute5(int decimalplaces, double minvalue, double maxvalue, double increment)
-    {
-      this.int_0 = decimalplaces;
-      this.double_0 = minvalue;
-      this.double_1 = maxvalue;
-      this.double_2 = increment;
+      this.DecimalPlaces = decimalplaces;
+      this.MinValue = minvalue;
+      this.MaxValue = maxvalue;
+      this.Increment = increment;
     }
   }
 }

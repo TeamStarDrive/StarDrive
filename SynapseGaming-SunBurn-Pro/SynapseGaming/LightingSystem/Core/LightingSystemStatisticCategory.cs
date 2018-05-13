@@ -31,6 +31,6 @@ namespace SynapseGaming.LightingSystem.Core
     UserDefined6 = 2097152,
     UserDefined7 = 4194304,
     UserDefined8 = 8388608,
-    All = 1073741823,
+    All = 1073741823
   }
 }

@@ -14,6 +14,6 @@ namespace SynapseGaming.LightingSystem.Effects
     Depth,
     GBuffer,
     ShadowDepth,
-    Final,
+    Final
   }
 }

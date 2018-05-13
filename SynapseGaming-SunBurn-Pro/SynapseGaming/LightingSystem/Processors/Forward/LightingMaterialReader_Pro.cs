@@ -1,65 +1,59 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: SynapseGaming.LightingSystem.Processors.Forward.LightingMaterialReader_Pro
-// Assembly: SynapseGaming-SunBurn-Pro, Version=1.3.2.8, Culture=neutral, PublicKeyToken=c23c60523565dbfd
-// MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
-// Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
-
+﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
-using System;
 
 namespace SynapseGaming.LightingSystem.Processors.Forward
 {
-  /// <summary />
-  public class LightingMaterialReader_Pro : ContentTypeReader<LightingEffect>
-  {
     /// <summary />
-    protected override LightingEffect Read(ContentReader input, LightingEffect instance)
+    public class LightingMaterialReader_Pro : ContentTypeReader<LightingEffect>
     {
-      IGraphicsDeviceService service = (IGraphicsDeviceService) input.ContentManager.ServiceProvider.GetService(typeof (IGraphicsDeviceService));
-      LightingEffect lightingEffect = new LightingEffect(service.GraphicsDevice);
-      lightingEffect.MaterialName = input.ReadString();
-      lightingEffect.MaterialFile = input.ReadString();
-      lightingEffect.ProjectFile = input.ReadString();
-      lightingEffect.DiffuseMapFile = input.ReadString();
-      lightingEffect.DiffuseMapTexture = input.ReadExternalReference<Texture2D>();
-      lightingEffect.DiffuseAmbientMapFile = input.ReadString();
-      lightingEffect.DiffuseAmbientMapTexture = input.ReadExternalReference<Texture2D>();
-      lightingEffect.EmissiveMapFile = input.ReadString();
-      lightingEffect.EmissiveMapTexture = input.ReadExternalReference<Texture2D>();
-      lightingEffect.NormalMapFile = input.ReadString();
-      lightingEffect.NormalMapTexture = input.ReadExternalReference<Texture2D>();
-      lightingEffect.SpecularColorMapFile = input.ReadString();
-      lightingEffect.SpecularColorMapTexture = input.ReadExternalReference<Texture2D>();
-      lightingEffect.ParallaxMapFile = input.ReadString();
-      lightingEffect.ParallaxMapTexture = Class13.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
-      lightingEffect.Skinned = input.ReadBoolean();
-      lightingEffect.DoubleSided = input.ReadBoolean();
-      TransparencyMode mode = (TransparencyMode) input.ReadInt32();
-      float transparency = input.ReadSingle();
-      lightingEffect.SetTransparencyModeAndMap(mode, transparency, (Texture) lightingEffect.DiffuseMapTexture);
-      lightingEffect.SpecularPower = input.ReadSingle();
-      lightingEffect.SpecularAmount = input.ReadSingle();
-      lightingEffect.FresnelReflectBias = input.ReadSingle();
-      lightingEffect.FresnelReflectOffset = input.ReadSingle();
-      lightingEffect.FresnelMicrofacetDistribution = input.ReadSingle();
-      lightingEffect.ParallaxScale = input.ReadSingle();
-      lightingEffect.ParallaxOffset = input.ReadSingle();
-      Vector4 vector4_1 = input.ReadVector4();
-      lightingEffect.DiffuseColor = new Vector3(vector4_1.X, vector4_1.Y, vector4_1.Z);
-      Vector4 vector4_2 = input.ReadVector4();
-      lightingEffect.EmissiveColor = new Vector3(vector4_2.X, vector4_2.Y, vector4_2.Z);
-      lightingEffect.AddressModeU = (TextureAddressMode) input.ReadInt32();
-      lightingEffect.AddressModeV = (TextureAddressMode) input.ReadInt32();
-      lightingEffect.AddressModeW = (TextureAddressMode) input.ReadInt32();
-      Class55.smethod_0(input);
-      if (input.ReadInt32() != 1234)
-        throw new Exception("Error loading asset.");
-      return lightingEffect;
+        /// <summary />
+        protected override LightingEffect Read(ContentReader input, LightingEffect instance)
+        {
+            var service = (IGraphicsDeviceService)input.ContentManager.ServiceProvider.GetService(typeof(IGraphicsDeviceService));
+            var fx = new LightingEffect(service.GraphicsDevice);
+            fx.MaterialName             = input.ReadString();
+            fx.MaterialFile             = input.ReadString();
+            fx.ProjectFile              = input.ReadString();
+            fx.DiffuseMapFile           = input.ReadString();
+            fx.DiffuseMapTexture        = input.ReadExternalReference<Texture2D>();
+            fx.DiffuseAmbientMapFile    = input.ReadString();
+            fx.DiffuseAmbientMapTexture = input.ReadExternalReference<Texture2D>();
+            fx.EmissiveMapFile          = input.ReadString();
+            fx.EmissiveMapTexture       = input.ReadExternalReference<Texture2D>();
+            fx.NormalMapFile            = input.ReadString();
+            fx.NormalMapTexture         = input.ReadExternalReference<Texture2D>();
+            fx.SpecularColorMapFile     = input.ReadString();
+            fx.SpecularColorMapTexture  = input.ReadExternalReference<Texture2D>();
+            fx.ParallaxMapFile          = input.ReadString();
+            fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+            fx.Skinned                  = input.ReadBoolean();
+            fx.DoubleSided              = input.ReadBoolean();
+            var mode = (TransparencyMode)input.ReadInt32();
+            float transparency = input.ReadSingle();
+            fx.SetTransparencyModeAndMap(mode, transparency, fx.DiffuseMapTexture);
+            fx.SpecularPower                 = input.ReadSingle();
+            fx.SpecularAmount                = input.ReadSingle();
+            fx.FresnelReflectBias            = input.ReadSingle();
+            fx.FresnelReflectOffset          = input.ReadSingle();
+            fx.FresnelMicrofacetDistribution = input.ReadSingle();
+            fx.ParallaxScale                 = input.ReadSingle();
+            fx.ParallaxOffset                = input.ReadSingle();
+            Vector4 diffuse  = input.ReadVector4();
+            Vector4 emissive = input.ReadVector4();
+            fx.DiffuseColor  = new Vector3(diffuse.X, diffuse.Y, diffuse.Z);
+            fx.EmissiveColor = new Vector3(emissive.X, emissive.Y, emissive.Z);
+            fx.AddressModeU  = (TextureAddressMode)input.ReadInt32();
+            fx.AddressModeV  = (TextureAddressMode)input.ReadInt32();
+            fx.AddressModeW  = (TextureAddressMode)input.ReadInt32();
+            BlockUtil.SkipBlock(input);
+            if (input.ReadInt32() != 1234)
+                throw new Exception("Error loading asset.");
+            return fx;
+        }
     }
-  }
 }

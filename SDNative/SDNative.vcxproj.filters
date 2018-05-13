@@ -11,16 +11,16 @@
     <Filter Include="rapidxml">
       <UniqueIdentifier>{b48f0e2e-8904-4bf8-a7b7-ccc73e00b232}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rpp">
+      <UniqueIdentifier>{79ce8fcd-1024-4741-8a00-f0af719d8ebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mesh">
+      <UniqueIdentifier>{77c57a9e-f591-480f-9993-6f25e24fda18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="util\strview.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\file_io.cpp">
-      <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="MemoryUtils.cpp">
       <Filter>src</Filter>
@@ -28,13 +28,37 @@
     <ClCompile Include="util\apex_memmove.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="mesh\Mesh.cpp">
+      <Filter>mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh\Mesh_Fbx.cpp">
+      <Filter>mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh\Mesh_Obj.cpp">
+      <Filter>mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="ReCpp\rpp\debugging.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ReCpp\rpp\file_io.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ReCpp\rpp\strview.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="ReCpp\rpp\vec.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticMeshLoader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="ReCpp\rpp\sprint.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="util\file_io.h">
-      <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="rapidxml\rapidxml.hpp">
       <Filter>rapidxml</Filter>
@@ -48,22 +72,52 @@
     <ClInclude Include="rapidxml\rapidxml_utils.hpp">
       <Filter>rapidxml</Filter>
     </ClInclude>
-    <ClInclude Include="util\strview.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="node_parser.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="util\apex_memmove.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="NodeParser.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh\Mesh.h">
+      <Filter>mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\debugging.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\file_io.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\strview.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\vec.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMeshLoader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\sprint.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="ReCpp\rpp\collections.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="util\strview.natvis">
-      <Filter>util</Filter>
-    </Natvis>
     <Natvis Include="SDNative.natvis">
       <Filter>src</Filter>
     </Natvis>
+    <Natvis Include="mesh\mesh.natvis">
+      <Filter>mesh</Filter>
+    </Natvis>
+    <Natvis Include="ReCpp\rpp\strview.natvis">
+      <Filter>rpp</Filter>
+    </Natvis>
+    <Natvis Include="ReCpp\rpp\vec.natvis">
+      <Filter>rpp</Filter>
+    </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fbxsdk\libfbxsdk.dll" />
   </ItemGroup>
 </Project>

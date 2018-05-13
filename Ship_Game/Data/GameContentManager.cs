@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq.Expressions;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using SgMotion;
 
 namespace Ship_Game
 {
@@ -16,27 +15,43 @@ namespace Ship_Game
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
-        private Dictionary<string, object> LoadedAssets;
+        private Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
+        private RawContentLoader RawContent;
+
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
+        private readonly object LoadSync = new object();
+
+        public Map<string, Model> Models;
+        public Map<string, StaticMesh> Meshes;
+        public Map<string, SkinnedModel> SkinnedModels;
+        public Array<Model> RoidsModels = new Array<Model>();
+        public Array<Model> JunkModels = new Array<Model>();
 
         static GameContentManager()
         {
             FixSunBurnTypeLoader();
         }
 
-        public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
+        public GameContentManager(IServiceProvider services, string name) : base(services, "Content")
         {
             Name = name;
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
             DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
+            RawContent       = new RawContentLoader(this);
+            SkinnedModels = new Map<string, SkinnedModel>();
+            Meshes = new Map<string, StaticMesh>();
+            Models = new Map<string, Model>();
+            JunkModels = new Array<Model>();
+            RoidsModels = new Array<Model>();
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
         {
-            Parent = parent;
+            Parent     = parent;
+            RawContent = new RawContentLoader(this);
         }
 
         private object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
@@ -72,6 +87,12 @@ namespace Ship_Game
             base.Dispose(disposing);
             LoadedAssets     = null;
             DisposableAssets = null;
+            RawContent       = null;
+            Meshes = null;
+            SkinnedModels = null;
+            Models = null;
+
+
         }
 
         private static T GetField<T>(object obj, string name)
@@ -163,7 +184,8 @@ namespace Ship_Game
 
         private void RecordDisposableObject(IDisposable disposable)
         {
-            DisposableAssets.Add(disposable);
+            lock (LoadSync)
+                DisposableAssets.Add(disposable);
         }
 
         // Load the asset with the given name or path
@@ -172,10 +194,18 @@ namespace Ship_Game
         public override T Load<T>(string assetName)
         {
             if (LoadedAssets == null) throw new ObjectDisposedException(ToString());
-            if (string.IsNullOrEmpty(assetName)) throw new ArgumentNullException(nameof(assetName));
+            if (assetName.IsEmpty())  throw new ArgumentNullException(nameof(assetName));
 
-            string assetNoExt = assetName.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase) 
-                ? assetName.Substring(0, assetName.Length - 4) : assetName;
+            string extension  = "";
+            string assetNoExt = assetName;
+            string assetWext = assetName;
+            if (assetName[assetName.Length - 4] == '.')
+            {
+                extension = assetName.Substring(assetName.Length - 3).ToLower();
+                assetNoExt = assetName.Substring(0, assetName.Length - 4);
+            }
+            else assetWext += ".xnb";
+
             assetNoExt = assetNoExt.Replace("\\", "/"); // normalize path
 
             if (assetNoExt.StartsWith("./"))
@@ -190,7 +220,7 @@ namespace Ship_Game
             //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
             //    assetNoExt = assetNoExt.Substring("Content/".Length);
 
-        #if DEBUG
+        #if true // #if DEBUG
             // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
             if (assetNoExt.Contains("..") || assetNoExt.Contains("./"))
                 throw new ArgumentException($"Asset name cannot contain relative paths: '{assetNoExt}'");
@@ -210,8 +240,24 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            var asset = ReadAsset<T>(assetNoExt, RecordDisposableObject);
-            LoadedAssets.Add(assetNoExt, asset);
+            T asset = (extension.Length > 0 && extension != "xnb") //(T)RawContent.LoadAsset(assetWext, extension); // 
+                ? (T)RawContent.LoadAsset(assetName, extension) 
+                : ReadAsset<T>(assetNoExt, RecordDisposableObject); //
+
+            // detect possible resource leaks -- this is very slow, so only enable on demand
+#if false
+                string[] keys;
+                lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
+                foreach (string key in keys)
+                {
+                    if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) || 
+                        assetNoExt.EndsWith(key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
+                    }
+                }
+#endif
+            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);            
             return asset;
         }
 
@@ -220,7 +266,7 @@ namespace Ship_Game
             try
             {
                 // trying to do a direct Mod asset load, this may be different from currently active mod
-                if (assetName.StartsWith("Mods/")) 
+                if (assetName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
                 {
                     var info = new FileInfo(assetName + ".xnb");
                     if (info.Exists) return info.OpenRead();
@@ -300,5 +346,6 @@ namespace Ship_Game
                 throw;
             }
         }
+
     }
 }

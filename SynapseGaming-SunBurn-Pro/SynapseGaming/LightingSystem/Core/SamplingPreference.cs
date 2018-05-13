@@ -17,6 +17,6 @@ namespace SynapseGaming.LightingSystem.Core
   {
     Bilinear,
     Trilinear,
-    Anisotropic,
+    Anisotropic
   }
 }

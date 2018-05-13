@@ -19,9 +19,11 @@ namespace Ship_Game
         public BatchRemovalCollection(bool noQueueForRemoval)
         {
         }
-        public BatchRemovalCollection(ICollection<T> listToCopy)
+        public BatchRemovalCollection(ICollection<T> listToCopy, bool noRemoveQueue = false)
         {
             base.AddRange(listToCopy);
+            if (noRemoveQueue) return;
+            PendingRemovals = new ConcurrentStack<T>();
         }
 
         // Acquires a deterministic Read Lock on this Collection
@@ -88,6 +90,8 @@ namespace Ship_Game
             return PendingRemovals.Contains(item);
         }
 
+        public int PendingRemovalCount => PendingRemovals.Count;
+        
         public new void Add(T item)
         {
             ThisLock.EnterWriteLock();
@@ -147,10 +151,17 @@ namespace Ship_Game
         //    return result;
         //}
 
-        public new void AddRange(IEnumerable<T> collection)
+        public new void AddRange(ICollection<T> collection)
         {
             ThisLock.EnterWriteLock();
             base.AddRange(collection);
+            ThisLock.ExitWriteLock();
+        }
+
+        public new void AddRange(IEnumerable<T> enumerable)
+        {
+            ThisLock.EnterWriteLock();
+            base.AddRange(enumerable);
             ThisLock.ExitWriteLock();
         }
         // to use this:
