@@ -483,30 +483,31 @@ namespace Ship_Game.AI
                         Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
                         Vector2 fvec = Vector2.Zero.DirectionToTarget(vector2);
                         Vector2 wantedForward = Vector2.Normalize(fvec);
-                        var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                            -(float) Math.Cos((double) Owner.Rotation));
+                        var forward = new Vector2((float)Math.Sin((double)Owner.Rotation),
+                            -(float)Math.Cos((double)Owner.Rotation));
                         var right = new Vector2(-forward.Y, forward.X);
-                        var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
+                        var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
-                            RotateToFacing(elapsedTime, angleDiff, facing);                        
+                            RotateToFacing(elapsedTime, angleDiff, facing);
                     }
-                    else if (!HasPriorityOrder && !HadPO && State != AIState.FormationWarp && State != AIState.HoldPosition )
+                    else if (State == AIState.Orbit || State == AIState.AwaitingOrders
+                             || !HasPriorityOrder && !HadPO
+                             && State != AIState.HoldPosition)
                     {
-                        if (Owner.fleet.Position.OutsideRadius(Owner.Center, 7500))
-                            PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
-                            //ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
+                        if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
+                            //PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
+                            ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         else
-                        ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
-                        lock (WayPointLocker)
-                        {
-                            ActiveWayPoints.Clear();
-                            ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
-                            if (State != AIState.AwaitingOrders) //fbedard: set new order for ship returning to fleet
+                            lock (WayPointLocker)
+                            {
+                                ActiveWayPoints.Clear();
+                                ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+                                //fbedard: set new order for ship returning to fleet
                                 State = AIState.AwaitingOrders;
-                            if (Owner.fleet?.GetStack().Count > 0)
-                                ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
-                        }
+                                if (Owner.fleet?.GetStack().Count > 0)
+                                    ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                            }
                     }
                 }
             }
@@ -728,18 +729,17 @@ namespace Ship_Game.AI
                     for (int x = 0; x < Owner.Transporters.Count; x++)
                     {
                         ShipModule module = Owner.Transporters[x];
-                        if (module.TransporterTimer <= 0f && module.Active && module.Powered &&
-                            module.TransporterPower < Owner.PowerCurrent)
-                        {
-                            if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
-                                DoOrdinanceTransporterLogic(module);
-                            if (module.TransporterTroopAssault > 0 && Owner.TroopList.Any())
-                                DoAssaultTransporterLogic(module);
-                        }
+                        if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
+                            module.TransporterPower >= Owner.PowerCurrent) continue;
+                        if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
+                            DoOrdinanceTransporterLogic(module);
+                        if (module.TransporterTroopAssault > 0 && Owner.TroopList.Any())
+                            DoAssaultTransporterLogic(module);
                     }
 
                 //Do repair check if friendly ships around and no combat
-                if (Owner.InCombat || FriendliesNearby.Count <= 0) return;
+                if (Owner.InCombat || FriendliesNearby.Count <= 0)
+                    return;
                 //Added by McShooterz: logic for repair beams
                 if (Owner.hasRepairBeam)
                     for (int x = 0; x < Owner.RepairBeams.Count; x++)
