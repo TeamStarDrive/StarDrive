@@ -110,43 +110,8 @@ namespace Ship_Game
         {
             if (ActiveModule == null)
                 return;
-            ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            int x = moduleTemplate.XSIZE;
-            int y = moduleTemplate.YSIZE;
-            switch (state)
-            {
-                case ActiveModuleState.Normal:
-                {
-                    ActiveModule.XSIZE = moduleTemplate.XSIZE;
-                    ActiveModule.YSIZE = moduleTemplate.YSIZE;
-                    ActiveModState = ActiveModuleState.Normal;
-                    return;
-                }
-                case ActiveModuleState.Left:
-                {
-                    ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
-                    ActiveModState = ActiveModuleState.Left;
-                    ActiveModule.Facing = 270f;
-                    return;
-                }
-                case ActiveModuleState.Right:
-                {
-                    ActiveModule.XSIZE = y; // @todo Why are these swapped? Please comment.
-                    ActiveModule.YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa
-                    ActiveModState = ActiveModuleState.Right;
-                    ActiveModule.Facing = 90f;
-                    return;
-                }
-                case ActiveModuleState.Rear:
-                {
-                    ActiveModule.XSIZE = moduleTemplate.XSIZE;
-                    ActiveModule.YSIZE = moduleTemplate.YSIZE;
-                    ActiveModState = ActiveModuleState.Rear;
-                    ActiveModule.Facing = 180f;
-                    return;
-                }
-            }
+            ActiveModState = state;
+            ActiveModule.ApplyModuleOrientation(state);
         }
 
         private void CheckAndPowerConduit(SlotStruct slot)
@@ -288,170 +253,41 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        private float GetMaintCostShipyard(ShipData ship, float Size, Empire empire)
+        private static float GetMaintCostShipyard(ShipData ship, int size, Empire empire)
         {
-            float maint = 0f;
-            float maintModReduction = 1;
+            float maint = Ship.GetShipRoleMaintenance(ship.ShipRole, empire);
 
-            //Get Maintenance of ship role
-            bool foundMaint = false;
-            if (ResourceManager.ShipRoles.ContainsKey(ship.Role))
-            {
-                for (int i = 0; i < ResourceManager.ShipRoles[ship.Role].RaceList.Count; i++)
-                {
-                    if (ResourceManager.ShipRoles[ship.Role].RaceList[i].ShipType == empire.data.Traits.ShipType)
-                    {
-                        maint = ResourceManager.ShipRoles[ship.Role].RaceList[i].Upkeep;
-                        foundMaint = true;
-                        break;
-                    }
-                }
-                if (!foundMaint)
-                    maint = ResourceManager.ShipRoles[ship.Role].Upkeep;
-            }
-            else
-                return 0f;
-
-            //Modify Maintenance by freighter size
             if (ship.Role == ShipData.RoleName.freighter)
-            {
-                switch ((int)Size / 50)
-                {
-                    case 0:
-                        {
-                            break;
-                        }
+                maint *= Ship.GetFreighterSizeCostMultiplier(size);
 
-                    case 1:
-                        {
-                            maint *= 1.5f;
-                            break;
-                        }
-
-                    case 2:
-                    case 3:
-                    case 4:
-                        {
-                            maint *= 2f;
-                            break;
-                        }
-                    default:
-                        {
-                            maint *= (int)Size / 50f;
-                            break;
-                        }
-                }
-            }
-
-            if ((ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform) && empire.data.CivMaintMod != 1.0)
+            if (ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform)
             {
                 maint *= empire.data.CivMaintMod;
+                maint *= empire.data.Privatization ? 0.5f : 1.0f;
             }
 
-            //Apply Privatization
-            if ((ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform) && empire.data.Privatization)
-            {
-                maint *= 0.5f;
-            }
-
-            //Subspace Projectors do not get any more modifiers
+            // Subspace Projectors do not get any more modifiers
             if (ship.Name == "Subspace Projector")
-            {
                 return maint;
-            }
-
-            //Maintenance fluctuator
-            //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            if (OptionIncreaseShipMaintenance > 1)
-            {
-                maintModReduction = OptionIncreaseShipMaintenance;
-                maint *= maintModReduction;
-            }
-            return maint;
-        }
-
-        private float GetMaintCostShipyardProportional(ShipData ship, float fCost, Empire empire)
-        {
-            float maint = 0f;
-
-            // Calculate maintenance by proportion of ship cost, Duh.
-            switch (ship.Role) {
-                case ShipData.RoleName.fighter:
-                case ShipData.RoleName.scout:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepFighter;
-                    break;
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.gunboat:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCorvette;
-                    break;
-                case ShipData.RoleName.frigate:
-                case ShipData.RoleName.destroyer:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepFrigate;
-                    break;
-                case ShipData.RoleName.cruiser:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCruiser;
-                    break;
-                case ShipData.RoleName.carrier:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCarrier;
-                    break;
-                case ShipData.RoleName.capital:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepCapital;
-                    break;
-                case ShipData.RoleName.freighter:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepFreighter;
-                    break;
-                case ShipData.RoleName.platform:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepPlatform;
-                    break;
-                case ShipData.RoleName.station:
-                    maint = fCost * GlobalStats.ActiveModInfo.UpkeepStation;
-                    break;
-                default:
-                    if (ship.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
-                        maint = fCost * GlobalStats.ActiveModInfo.UpkeepDrone;
-                    else
-                        maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
-                    break;
-            }
-            if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
-                maint = fCost * GlobalStats.ActiveModInfo.UpkeepBaseline;
-            else if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline == 0)
-                maint = fCost * 0.004f;
-
-
-            // Modifiers below here  
-
-            if ((ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1.0)
-            {
-                maint *= empire.data.CivMaintMod;
-            }
-
-            if ((ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.Privatization)
-            {
-                maint *= 0.5f;
-            }
 
             if (GlobalStats.ShipMaintenanceMulti > 1)
-            {
                 maint *= GlobalStats.ShipMaintenanceMulti;
-            }
             return maint;
-
         }
 
-        private string GetNumberString(float stat)
+        private static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
         {
-            if (stat < 1000f)
-                return stat.ToString("#.#");
-            if (stat < 10000f)
-                return stat.ToString("#");
+            return fCost * Ship.GetMaintenanceModifier(shipData, empire);
+        }
+
+        private static string GetNumberString(float stat)
+        {
+            if (stat < 1000f)  return stat.ToString("#.#"); // 950.7
+            if (stat < 10000f) return stat.ToString("#");   // 9500
             float single = stat / 1000f;
-            if (single < 100)
-                return string.Concat(single.ToString("#.##"), "k");
-            if(single < 1000)
-                return string.Concat(single.ToString("#.#"), "k");
-            return string.Concat(single.ToString("#"), "k");
+            if (single < 100f)  return single.ToString("#.##") + "k"; // 57.75k
+            if (single < 1000f) return single.ToString("#.#") + "k";  // 950.7k
+            return single.ToString("#") + "k"; // 1000k
         }
 
         private string GetConduitGraphic(SlotStruct ss)
