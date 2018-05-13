@@ -1154,11 +1154,9 @@ namespace Ship_Game
             string nIncome = Localizer.Token(6127);
             string nLosses = Localizer.Token(6129);
 
-            float grossIncome = (this.p.GrossMoneyPT + this.p.GrossMoneyPT * this.p.Owner.data.Traits.TaxMod) 
-                * this.p.Owner.data.TaxRate + this.p.PlusFlatMoneyPerTurn + (this.p.Population / 1000f * this.p.PlusCreditsPerColonist);
-            float grossUpkeep = (float)((double)this.p.TotalMaintenanceCostsPerTurn + (double)this.p.TotalMaintenanceCostsPerTurn 
-                * (double)this.p.Owner.data.Traits.MaintMod);
-            float netIncome = (float)(grossIncome - grossUpkeep);
+            float grossIncome = this.p.GrossIncome;
+            float grossUpkeep = this.p.GrossUpkeep;
+            float netIncome = this.p.NetIncome;
 
             Vector2 positionGIncome = vector2_2;
             positionGIncome.X = vector2_2.X + 1;
