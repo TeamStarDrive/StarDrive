@@ -59,11 +59,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public bool Skinned
     {
-      get
-      {
-        return this.bool_2;
-      }
-      set
+      get => this.bool_2;
+        set
       {
         if (value == this.bool_2)
           return;
@@ -71,12 +68,12 @@ namespace SynapseGaming.LightingSystem.Effects
         this.SetTechnique();
         if (!this.bool_2 || this.matrix_9 != null)
           return;
-        this.SkinBones = (Matrix[]) null;
+        this.SkinBones = null;
       }
     }
 
-    internal BaseSkinnedEffect(GraphicsDevice graphicsDevice_0, string string_0)
-      : base(graphicsDevice_0, string_0)
+    internal BaseSkinnedEffect(GraphicsDevice device, string string_0)
+      : base(device, string_0)
     {
       this.effectParameter_11 = this.Parameters["_SkinBones"];
     }

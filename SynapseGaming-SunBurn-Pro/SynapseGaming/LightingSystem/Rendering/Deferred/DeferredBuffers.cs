@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using ns3;
 using ns8;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Rendering.Deferred
 {
@@ -22,13 +22,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
   {
     private SurfaceFormat surfaceFormat_0 = SurfaceFormat.Unknown;
     private List<int> list_0 = new List<int>(4);
-    private int int_0;
-    private int int_1;
-    private DeferredBufferSizing deferredBufferSizing_0;
+      private DeferredBufferSizing deferredBufferSizing_0;
     private DetailPreference detailPreference_0;
     private DetailPreference detailPreference_1;
     private IGraphicsDeviceService igraphicsDeviceService_0;
-    private Class14 class14_0;
+    private GraphicsDeviceMonitor GraphicsDeviceMonitor0;
     private DepthStencilBuffer depthStencilBuffer_0;
     private RenderTarget2D renderTarget2D_0;
     private RenderTarget2D renderTarget2D_1;
@@ -37,24 +35,12 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private FullFrameQuad fullFrameQuad_0;
 
     /// <summary>Current width of the deferred buffers.</summary>
-    public int Width
-    {
-      get
-      {
-        return this.int_0;
-      }
-    }
+    public int Width { get; private set; }
 
-    /// <summary>Current height of the deferred buffers.</summary>
-    public int Height
-    {
-      get
-      {
-        return this.int_1;
-      }
-    }
+      /// <summary>Current height of the deferred buffers.</summary>
+    public int Height { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Depth stencil buffer properly sized and formatted for rendering with the deferred
     /// buffers (only valid in between calls to BeginFrameRendering and EndFrameRendering).
     /// </summary>
@@ -63,7 +49,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       get
       {
         if (this.depthStencilBuffer_0 == null)
-          this.depthStencilBuffer_0 = new DepthStencilBuffer(this.igraphicsDeviceService_0.GraphicsDevice, this.int_0, this.int_1, DepthFormat.Depth24Stencil8);
+          this.depthStencilBuffer_0 = new DepthStencilBuffer(this.igraphicsDeviceService_0.GraphicsDevice, this.Width, this.Height, DepthFormat.Depth24Stencil8);
         return this.depthStencilBuffer_0;
       }
     }
@@ -76,7 +62,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       get
       {
         if (this.fullFrameQuad_0 == null)
-          this.fullFrameQuad_0 = new FullFrameQuad(this.igraphicsDeviceService_0.GraphicsDevice, this.int_0, this.int_1);
+          this.fullFrameQuad_0 = new FullFrameQuad(this.igraphicsDeviceService_0.GraphicsDevice, this.Width, this.Height);
         return this.fullFrameQuad_0;
       }
     }
@@ -94,11 +80,11 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     {
       this.igraphicsDeviceService_0 = graphicsdevicemanager;
       this.deferredBufferSizing_0 = buffersize;
-      this.int_0 = customwidth;
-      this.int_1 = customheight;
+      this.Width = customwidth;
+      this.Height = customheight;
       this.detailPreference_0 = precisionmode;
       this.detailPreference_1 = lightingrange;
-      this.class14_0 = new Class14(this.igraphicsDeviceService_0);
+      this.GraphicsDeviceMonitor0 = new GraphicsDeviceMonitor(this.igraphicsDeviceService_0);
     }
 
     /// <summary>
@@ -117,7 +103,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
         return this.renderTarget2D_2;
       if (buffertype == DeferredBufferType.LightingSpecular)
         return this.renderTarget2D_3;
-      return (RenderTarget2D) null;
+      return null;
     }
 
     internal SurfaceFormat method_0()
@@ -190,7 +176,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private void method_2(Class58 class58_0, ref RenderTarget2D renderTarget2D_4, SurfaceFormat surfaceFormat_1)
     {
       if (renderTarget2D_4 == null)
-        renderTarget2D_4 = new RenderTarget2D(this.igraphicsDeviceService_0.GraphicsDevice, this.int_0, this.int_1, 1, surfaceFormat_1, MultiSampleType.None, 0, RenderTargetUsage.PlatformContents);
+        renderTarget2D_4 = new RenderTarget2D(this.igraphicsDeviceService_0.GraphicsDevice, this.Width, this.Height, 1, surfaceFormat_1, MultiSampleType.None, 0, RenderTargetUsage.PlatformContents);
       class58_0.Format = renderTarget2D_4.Format;
     }
 
@@ -203,15 +189,15 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// <param name="scenestate"></param>
     public void BeginFrameRendering(ISceneState scenestate)
     {
-      if (this.class14_0.Changed)
+      if (this.GraphicsDeviceMonitor0.Changed)
         this.Unload();
       if (this.deferredBufferSizing_0 != DeferredBufferSizing.ResizeToBackBuffer)
         return;
       PresentationParameters presentationParameters = this.igraphicsDeviceService_0.GraphicsDevice.PresentationParameters;
-      if (this.int_0 == presentationParameters.BackBufferWidth && this.int_1 == presentationParameters.BackBufferHeight)
+      if (this.Width == presentationParameters.BackBufferWidth && this.Height == presentationParameters.BackBufferHeight)
         return;
-      this.int_0 = presentationParameters.BackBufferWidth;
-      this.int_1 = presentationParameters.BackBufferHeight;
+      this.Width = presentationParameters.BackBufferWidth;
+      this.Height = presentationParameters.BackBufferHeight;
       this.Unload();
     }
 
@@ -226,12 +212,12 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     /// </summary>
     public void Unload()
     {
-      Disposable.Free<DepthStencilBuffer>(ref this.depthStencilBuffer_0);
-      Disposable.Free<FullFrameQuad>(ref this.fullFrameQuad_0);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_0);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_1);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_2);
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_3);
+      Disposable.Free(ref this.depthStencilBuffer_0);
+      Disposable.Free(ref this.fullFrameQuad_0);
+      Disposable.Free(ref this.renderTarget2D_0);
+      Disposable.Free(ref this.renderTarget2D_1);
+      Disposable.Free(ref this.renderTarget2D_2);
+      Disposable.Free(ref this.renderTarget2D_3);
     }
   }
 }

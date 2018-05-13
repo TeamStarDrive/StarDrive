@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using Microsoft.Xna.Framework;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.Xna.Framework;
 
 namespace ns3
 {
@@ -33,14 +33,14 @@ namespace ns3
     public static object smethod_0(Type type_0, string string_16, CultureInfo cultureInfo_0)
     {
       if (type_0 == typeof (string))
-        return (object) string_16;
+        return string_16;
       if (type_0 == typeof (bool))
-        return (object) Class11.smethod_2(string_16);
+        return smethod_2(string_16);
       if (type_0 == typeof (float))
-        return (object) Class11.smethod_3(string_16, cultureInfo_0);
+        return smethod_3(string_16, cultureInfo_0);
       if (type_0 == typeof (Vector4))
-        return (object) Class11.smethod_4(string_16, cultureInfo_0, Vector4.Zero);
-      return (object) null;
+        return smethod_4(string_16, cultureInfo_0, Vector4.Zero);
+      return null;
     }
 
     public static T smethod_1<T>(string string_16)
@@ -62,7 +62,7 @@ namespace ns3
 
     public static float smethod_3(string string_16, CultureInfo cultureInfo_0)
     {
-      return float.Parse(string_16, (IFormatProvider) cultureInfo_0.NumberFormat);
+      return float.Parse(string_16, cultureInfo_0.NumberFormat);
     }
 
     public static Vector4 smethod_4(string string_16, CultureInfo cultureInfo_0, Vector4 vector4_0)
@@ -70,11 +70,11 @@ namespace ns3
       string[] strArray = Regex.Split(string_16, " ");
       if (strArray.Length < 3 || strArray.Length > 4)
         throw new Exception("Invalid vector data.");
-      vector4_0.X = Class11.smethod_3(strArray[0], cultureInfo_0);
-      vector4_0.Y = Class11.smethod_3(strArray[1], cultureInfo_0);
-      vector4_0.Z = Class11.smethod_3(strArray[2], cultureInfo_0);
+      vector4_0.X = smethod_3(strArray[0], cultureInfo_0);
+      vector4_0.Y = smethod_3(strArray[1], cultureInfo_0);
+      vector4_0.Z = smethod_3(strArray[2], cultureInfo_0);
       if (strArray.Length > 3)
-        vector4_0.W = Class11.smethod_3(strArray[3], cultureInfo_0);
+        vector4_0.W = smethod_3(strArray[3], cultureInfo_0);
       return vector4_0;
     }
   }

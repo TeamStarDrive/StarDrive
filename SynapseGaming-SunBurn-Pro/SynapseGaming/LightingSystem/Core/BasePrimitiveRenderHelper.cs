@@ -14,30 +14,17 @@ namespace SynapseGaming.LightingSystem.Core
   /// </summary>
   public abstract class BasePrimitiveRenderHelper
   {
-    private int int_0;
-    private VertexPositionColor[] vertexPositionColor_0;
+      private VertexPositionColor[] vertexPositionColor_0;
 
     /// <summary>Number of vertices submitted to the render helper.</summary>
-    public int VertexCount
-    {
-      get
-      {
-        return this.int_0;
-      }
-    }
+    public int VertexCount { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Maximum number of vertices the render helper can contain.
     /// </summary>
-    public int VertexCapacity
-    {
-      get
-      {
-        return this.vertexPositionColor_0.Length;
-      }
-    }
+    public int VertexCapacity => this.vertexPositionColor_0.Length;
 
-    /// <summary>
+      /// <summary>
     /// Number of primitives submitted to the render helper. This is implemented by
     /// descendant classes and derived from the VertexCount and number of vertices
     /// per-primitive.
@@ -68,14 +55,14 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="color"></param>
     protected void SubmitVertex(Vector3 position, Color color)
     {
-      this.vertexPositionColor_0[this.int_0].Position = position;
-      this.vertexPositionColor_0[this.int_0++].Color = color;
+      this.vertexPositionColor_0[this.VertexCount].Position = position;
+      this.vertexPositionColor_0[this.VertexCount++].Color = color;
     }
 
     /// <summary>Clears all submitted vertices from the render helper.</summary>
     public virtual void Clear()
     {
-      this.int_0 = 0;
+      this.VertexCount = 0;
     }
 
     /// <summary>
@@ -89,10 +76,10 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="device"></param>
     public void Render(GraphicsDevice device)
     {
-      if (this.int_0 < 2)
+      if (this.VertexCount < 2)
         return;
       device.VertexDeclaration = LightingSystemManager.Instance.method_10(device);
-      device.DrawUserPrimitives<VertexPositionColor>(this.PrimitiveType, this.vertexPositionColor_0, 0, this.PrimitiveCount);
+      device.DrawUserPrimitives(this.PrimitiveType, this.vertexPositionColor_0, 0, this.PrimitiveCount);
     }
 
     /// <summary>
@@ -106,7 +93,7 @@ namespace SynapseGaming.LightingSystem.Core
     /// <param name="effect"></param>
     public void Render(GraphicsDevice device, Effect effect)
     {
-      if (this.int_0 < 2)
+      if (this.VertexCount < 2)
         return;
       effect.Begin();
       for (int index = 0; index < effect.CurrentTechnique.Passes.Count; ++index)

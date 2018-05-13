@@ -2,14 +2,15 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
-	public sealed class DefensiveCoordinator: IDisposable
-	{
-		private readonly Empire Us;
-		public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
-		public Array<Ship> DefensiveForcePool = new Array<Ship>();
+    public sealed class DefensiveCoordinator: IDisposable
+    {
+        private readonly Empire Us;
+        public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
+        public Array<Ship> DefensiveForcePool = new Array<Ship>();
         public float DefenseDeficit;        
         public float EmpireTroopRatio;
         public float UniverseWants;
@@ -17,16 +18,16 @@ namespace Ship_Game.AI
         public float GetPctOfValue(SolarSystem system) => DefenseDict[system].PercentageOfValue;
         private int TotalValue;
         public DefensiveCoordinator(Empire e)
-		{
+        {
             Us = e;
-		}
+        }
         public void AddShip(Ship ship)
         {
-            ship.GetAI().OrderQueue.Clear();
-            ship.GetAI().SystemToDefend = null;
-            ship.GetAI().SystemToDefendGuid = Guid.Empty;
-            ship.GetAI().HasPriorityOrder = false;
-            ship.GetAI().State = AIState.SystemDefender;
+            ship.AI.OrderQueue.Clear();
+            ship.AI.SystemToDefend = null;
+            ship.AI.SystemToDefendGuid = Guid.Empty;
+            ship.AI.HasPriorityOrder = false;
+            ship.AI.State = AIState.SystemDefender;
             DefenseDeficit -= ship.GetStrength();
             DefensiveForcePool.Add(ship);
         }
@@ -43,34 +44,34 @@ namespace Ship_Game.AI
             return strength;
         }
 
-	    public float GetDefensiveThreatFromPlanets(Planet[] planets)
-	    {
-	        if (DefenseDict.Count == 0) return 0;
+        public float GetDefensiveThreatFromPlanets(Planet[] planets)
+        {
+            if (DefenseDict.Count == 0) return 0;
             int count = 0;
             float str = 0;            
-	        for (int index = 0; index < planets.Length; index++)
-	        {
-	            Planet planet = planets[index];	      
-                if (!DefenseDict.TryGetValue(planet.system, out SystemCommander scom)) continue;
+            for (int index = 0; index < planets.Length; index++)
+            {
+                Planet planet = planets[index];	      
+                if (!DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander scom)) continue;
                 count++;
                 str += scom.RankImportance;	                
-	        }
+            }
             return str / count;
         }
-        public Planet AssignIdleShips(Ship ship)
-        {
-            return DefenseDict[ship.GetAI().SystemToDefend].AssignIdleDuties(ship);
-        }
+        public Planet AssignIdleShips(Ship ship) => DefenseDict.TryGetValue(ship.AI.SystemToDefend, out SystemCommander systemCommander) 
+                ? systemCommander.AssignIdleDuties(ship) 
+                : DefenseDict.First().Value.AssignIdleDuties(ship);
+        
         public void Remove(Ship ship)
         {
-            SolarSystem systoDefend = ship.GetAI().SystemToDefend;
-             if (!DefensiveForcePool.Remove(ship))
+            SolarSystem systoDefend = ship.AI.SystemToDefend;
+            if (!DefensiveForcePool.Remove(ship))
             {
-                if(ship.Active && systoDefend != null)
-                    Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in DefensePool");
+                if (ship.Active && systoDefend != null)
+                    Debug.DebugInfoScreen.DefenseCoLogsNotInPool();
             }
             else if (ship.Active && systoDefend == null)
-                Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
+                Debug.DebugInfoScreen.DefenseCoLogsSystemNull();                
 
 
             bool found = false;
@@ -79,7 +80,7 @@ namespace Ship_Game.AI
                 if (!sysCom.RemoveShip(ship))
                 {
                     if (ship.Active)
-                        Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Not in SystemCommander");
+                        Debug.DebugInfoScreen.DefenseCoLogsNotInSystem();                        
                 }
                 else found = true;
                 // return; // when sysdefense is safe enable. 
@@ -90,23 +91,31 @@ namespace Ship_Game.AI
                 if (!kv.Value.RemoveShip(ship) ) continue;
                 if (!found)
                     found = true;
-                else Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Ship Was in Multiple SystemCommanders");
+                else Debug.DebugInfoScreen.DefenseCoLogsMultipleSystems();
 
             }
-            if (!found && ship.Active)
-            {
-                Log.Info(color: ConsoleColor.Yellow,
-                    text:
-                    systoDefend == null
-                        ? "SystemCommander: Remove : SystemToDefend Was Null"
-                        : "SystemCommander: Remove : Ship Not Found in Any");
-            }
+            Debug.DebugInfoScreen.DefenseCoLogsNull(found, ship, systoDefend);
+            
             
             
         }
+
+        public void RemoveFleet(ShipGroup shipGroup)
+        {
+            foreach (Ship ship in shipGroup.GetShips)            
+                Remove(ship);            
+        }
+
+        public void RemoveShipList(Array<Ship> ships) 
+        {
+            foreach (Ship ship in ships)
+                Remove(ship);
+        }
+
+
         private void CalculateSystemImportance()
         {
-            foreach (Planet p in Ship.universeScreen.PlanetsDict.Values) //@TODO move this to planet. this is removing troops without any safety
+            foreach (Planet p in Empire.Universe.PlanetsDict.Values) //@TODO move this to planet. this is removing troops without any safety
             {
                 if (p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {
@@ -120,8 +129,8 @@ namespace Ship_Game.AI
                 }
                 else if (p.Owner == Us) //This should stay here.
                 {
-                    if (p.system == null || DefenseDict.ContainsKey(p.system)) continue;
-                    DefenseDict.Add(p.system, new SystemCommander(Us, p.system));
+                    if (p.ParentSystem == null || DefenseDict.ContainsKey(p.ParentSystem)) continue;
+                    DefenseDict.Add(p.ParentSystem, new SystemCommander(Us, p.ParentSystem));
                 }
             }
             TotalValue = 0;
@@ -198,12 +207,12 @@ namespace Ship_Game.AI
             {
                 Ship ship = DefensiveForcePool[x];
                 if (ship.Active  
-                    && !(ship.GetAI().HasPriorityOrder || ship.GetAI().State == AIState.Resupply))
+                    && !(ship.AI.HasPriorityOrder || ship.AI.State == AIState.Resupply))
                 {
-                    if (ship.GetAI().SystemToDefend == null)
+                    if (ship.AI.SystemToDefend == null)
                         shipsAvailableForAssignment.Add(ship);
                     else
-                        ship.GetAI().State = AIState.SystemDefender;
+                        ship.AI.State = AIState.SystemDefender;
                 }
                 else Remove(ship);
             }
@@ -222,9 +231,9 @@ namespace Ship_Game.AI
                     foreach (Ship ship in shipsAvailableForAssignment
                         .OrderBy(ship => ship.Center.SqDist(kv.Key.Position)))
                     {
-                        if (ship.GetAI().State == AIState.Resupply
-                            || (ship.GetAI().State == AIState.SystemDefender
-                            && ship.GetAI().SystemToDefend != null))
+                        if (ship.AI.State == AIState.Resupply
+                            || (ship.AI.State == AIState.SystemDefender
+                            && ship.AI.SystemToDefend != null))
                             continue;
                         if (!ship.Active)
                         {
@@ -278,7 +287,7 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    ArtificialIntelligence troopAI = troop.GetAI();
+                    ShipAI troopAI = troop.AI;
                     if (troopAI == null)
                     {
                         troopShips.Remove(troop);
@@ -286,7 +295,7 @@ namespace Ship_Game.AI
                     }
                     if (troopAI.State == AIState.Rebase
                         && troopAI.OrderQueue.NotEmpty
-                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.system))
+                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
                     {
                         currentTroops++;
                         kv.Value.TroopStrengthNeeded--;
@@ -330,17 +339,27 @@ namespace Ship_Game.AI
                             target = lowTroops;
                     }
                     if (target == null) continue;
-                    troopShip.GetAI().OrderRebase(target, true);
+                    troopShip.AI.OrderRebase(target, true);
                 }
             }
             EmpireTroopRatio = UniverseWants;
+            if (UniverseWants > 1.25f)
+            {
+                foreach (var troop in troopShips)
+                {
+                    if (troop.DesignRole != ShipData.RoleName.troop) continue;
+                    if (troop.AI.State == AIState.AwaitingOrders)
+                        troop.AI.OrderScrapShip();
+                }
+            }
+
             if (UniverseWants > .8f) return;
 
             foreach (var kv in DefenseDict)
                 foreach (Planet p in kv.Key.PlanetList)
                 {
                     if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
-                    float devratio = (p.developmentLevel + 1) / (kv.Value.SystemDevelopmentlevel + 1);
+                    float devratio = (p.DevelopmentLevel + 1) / (kv.Value.SystemDevelopmentlevel + 1);
                     if (!kv.Key.CombatInSystem
                         && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
                     {

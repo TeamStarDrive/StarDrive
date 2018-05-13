@@ -8,37 +8,22 @@ using System;
 
 namespace ns4
 {
-  [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
   internal class Attribute3 : Attribute
   {
-    private string jia;
-    private bool jik;
+      public string Description { get; }
 
-    public string Description
-    {
-      get
-      {
-        return this.jia;
-      }
-    }
+      public bool Ignore { get; }
 
-    public bool Ignore
+      public Attribute3(string description)
     {
-      get
-      {
-        return this.jik;
-      }
-    }
-
-    public Attribute3(string description)
-    {
-      this.jia = description;
-      this.jik = false;
+      this.Description = description;
+      this.Ignore = false;
     }
 
     public Attribute3(bool ignore)
     {
-      this.jik = ignore;
+      this.Ignore = ignore;
     }
   }
 }

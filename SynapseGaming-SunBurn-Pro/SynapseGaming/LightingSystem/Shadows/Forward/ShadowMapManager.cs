@@ -5,7 +5,6 @@
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
 using Microsoft.Xna.Framework.Graphics;
-using ns3;
 using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Shadows.Forward
@@ -60,7 +59,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override IShadowMap CreateDirectionalShadowMap(IShadowSource shadowsource)
     {
-      return (IShadowMap) this.class22_2.New();
+      return this.class22_2.New();
     }
 
     /// <summary>
@@ -72,7 +71,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override IShadowMap CreatePointShadowMap(IShadowSource shadowsource)
     {
-      return (IShadowMap) this.class22_1.New();
+      return this.class22_1.New();
     }
 
     /// <summary>
@@ -84,7 +83,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override IShadowMap CreateSpotShadowMap(IShadowSource shadowsource)
     {
-      return (IShadowMap) this.class22_1.New();
+      return this.class22_1.New();
     }
 
     /// <summary>

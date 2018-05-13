@@ -27,64 +27,64 @@ namespace Ship_Game
     }
 
     public static class GlobalStats
-	{
-        public static string Branch = "default"; // branch of this build
-        public static string Commit = "0000";    // commit ID of this build
+    {
+        public static string Version = "";
         public static string ExtendedVersion = "";
 
         public static int ComparisonCounter = 1;
-		public static int Comparisons = 0;
-		public static bool HardcoreRuleset = false;
-		public static bool TakingInput = false;
-		public static bool WarpInSystem = true;
-		public static float FTLInSystemModifier = 1f;
+        public static int Comparisons = 0;
+        public static bool HardcoreRuleset = false;
+        public static bool TakingInput = false;
+        public static bool WarpInSystem = true;
+        public static float FTLInSystemModifier = 1f;
         public static float EnemyFTLInSystemModifier = 1f;
 
-        // @todo Get rid of all global locks
-		public static object ShieldLocker         = new object();
-		public static object ClickableSystemsLock = new object();
-		public static object SensorNodeLocker     = new object();
-		public static object BorderNodeLocker     = new object();
-		public static object BombLock             = new object();
-		public static object ObjectManagerLocker  = new object();
-		public static object ExplosionLocker      = new object();
-		public static object KnownShipsLock       = new object();
-		public static object AddShipLocker        = new object();
-		public static object BucketLock           = new object();
-		public static object OwnedPlanetsLock     = new object();
-		public static object DeepSpaceLock        = new object();
-		public static object WayPointLock         = new object();
-		public static object ClickableItemLocker  = new object();
-		public static object TaskLocker           = new object();
-		public static object FleetButtonLocker    = new object();
-		public static object BeamEffectLocker     = new object();
+        //case control for UIDs set by filename. Legacy support.
+        public static StringComparer CaseControl;
 
-		public static bool ShowAllDesigns = true;
-		public static int ModulesMoved = 0;
-		public static int DSCombatScans = 0;
-		public static int BeamTests = 0;
-		public static int ModuleUpdates = 0;
-		public static int WeaponArcChecks = 0;
-		public static int CombatScans = 0;
-		public static int DistanceCheckTotal = 0;
-		public static bool LimitSpeed = true;
-		public static float GravityWellRange;
-		public static bool PlanetaryGravityWells = true;
-		public static bool AutoCombat = true;
+        // @todo Get rid of all global locks
+        public static object ShieldLocker         = new object();
+        public static object ClickableSystemsLock = new object();
+        public static object SensorNodeLocker     = new object();
+        public static object BorderNodeLocker     = new object();
+        public static object BombLock             = new object();
+        public static object ExplosionLocker      = new object();
+        public static object KnownShipsLock       = new object();
+        public static object BucketLock           = new object();
+        public static object OwnedPlanetsLock     = new object();
+        public static object DeepSpaceLock        = new object();
+        public static object WayPointLock         = new object();
+        public static object ClickableItemLocker  = new object();
+        public static object TaskLocker           = new object();
+        public static object FleetButtonLocker    = new object();
+        public static object BeamEffectLocker     = new object();
+
+        public static bool ShowAllDesigns        = true;
+        public static int ModulesMoved           = 0;
+        public static int DSCombatScans          = 0;
+        public static int BeamTests              = 0;
+        public static int ModuleUpdates          = 0;
+        public static int WeaponArcChecks        = 0;
+        public static int CombatScans            = 0;
+        public static int DistanceCheckTotal     = 0;
+        public static bool LimitSpeed            = true;
+        public static float GravityWellRange;
+        public static bool PlanetaryGravityWells = true;
+        public static bool AutoCombat            = true;
 
         // Option for keyboard hotkey based arc movement
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"
-		public static int TimesPlayed = 0;
-		public static ModEntry ActiveMod;
-        public static bool HasMod => ActiveMod != null;
-		public static ModInformation ActiveModInfo;
-        public static string ModName = "";
-        public static string ModPath = ""; // "Mods/MyMod/"
-		public static string ResearchRootUIDToDisplay = "Colonization";
+        public static int TimesPlayed                 = 0;
+        public static ModEntry ActiveMod;
+        public static bool HasMod                     => ActiveMod != null;
+        public static ModInformation ActiveModInfo;
+        public static string ModName                  = "";
+        public static string ModPath                  = ""; // "Mods/MyMod/"
+        public static string ResearchRootUIDToDisplay = "Colonization";
         public static int RemnantKills;
         public static int RemnantActivation;
-		public static bool RemnantArmageddon = false;
-		public static int CordrazinePlanetsCaptured;
+        public static bool RemnantArmageddon          = false;
+        public static int CordrazinePlanetsCaptured;
 
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
@@ -100,51 +100,68 @@ namespace Ship_Game
         public static bool EliminationMode;
         public static bool ZoomTracking;
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
+        public static bool UnlimitedSpeed = false;
 
         public static int ShipCountLimit;
-        public static float spaceroadlimit = .025f;
-        public static int FreighterLimit = 50;
-        public static int ScriptedTechWithin = 6;
+        public static float spaceroadlimit          = .025f;
+        public static int FreighterLimit            = 50;
+        public static int ScriptedTechWithin        = 6;
         public static bool perf;
-        public static float DefensePlatformLimit = .025f;
+        public static float DefensePlatformLimit    = .025f;
         public static ReaderWriterLockSlim UiLocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        public static int BeamOOM = 0;
-        public static string bugTracker = "";
+        public static int BeamOOM                   = 0;
+        public static string bugTracker             = "";
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static bool CornersGame = false;     //Also added by Gretman
         public static int ExtraRemnantGS;
 
+        public static int CameraPanSpeed    = 2;
+        public static float DamageIntensity = 1;
+
         ////////////////////////////////
         // From old Config
         public static int XRES;
         public static int YRES;
-        public static WindowMode WindowMode;
-        public static bool RanOnce;
-        public static bool ForceFullSim = true;
-        public static int AntiAlias = 2;
-        public static bool AntiAlias8XOverride;
-        public static float MusicVolume = 0.7f;
+        public static WindowMode WindowMode = WindowMode.Fullscreen;
+        public static bool ForceFullSim   = true;
+        public static int AntiAlias       = 2;
+        public static bool RenderBloom    = true;
+        public static float MusicVolume   = 0.7f;
         public static float EffectsVolume = 1f;
-        public static Language Language = Language.English;
+        public static Language Language   = Language.English;
+
+        //Render options
+        public static int TextureQuality  = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureSampling = 2;    //0=Bilinear, 1=Trilinear, 2=Anisotropic
+        public static int MaxAnisotropy   = 2;    //# of samples, only applies with TextureSampling = 2
+        public static float ShadowQuality = 1.0f; //1.0f highest, 0.0f lowest
+        public static int ShadowDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int EffectDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static bool DrawNebulas    = true;
+        public static bool DrawStarfield  = true;
 
         public static bool IsEnglish => Language == Language.English;
-        public static bool IsFrench => Language == Language.French;
-        public static bool IsGerman => Language == Language.German;
-        public static bool IsPolish => Language == Language.Polish;
+        public static bool IsFrench  => Language == Language.French;
+        public static bool IsGerman  => Language == Language.German;
+        public static bool IsPolish  => Language == Language.Polish;
         public static bool IsRussian => Language == Language.Russian;
         public static bool IsSpanish => Language == Language.Spanish;
 
-        public static bool IsGermanOrPolish => IsGerman || IsPolish;
+        public static bool IsGermanOrPolish       => IsGerman || IsPolish;
         public static bool IsGermanFrenchOrPolish => IsGerman || IsPolish || IsFrench;
 
-        public static bool NotEnglish => Language != Language.English;
-        public static bool NotGerman => Language != Language.German;
-        public static bool NotEnglishOrSpanish => IsGerman || IsPolish || IsRussian || IsFrench;
+        public static bool NotEnglish             => Language != Language.English;
+        public static bool NotGerman              => Language != Language.German;
+        public static bool NotEnglishOrSpanish    => IsGerman || IsPolish || IsRussian || IsFrench;
         ////////////////////////////////
-
-        static GlobalStats()
-		{
+        /// debug log info
+        /// 
+        public static bool VerboseLogging;
+        public static bool TestLoad;
+        public static bool PreLoad;
+        public static void LoadConfig()
+        {
             try
             {
                 var mgr = ConfigurationManager.AppSettings;
@@ -154,39 +171,50 @@ namespace Ship_Game
                 return; // configuration file is missing
             }
 
-            string[] ver = (Assembly.GetEntryAssembly()?
+            Version = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
-                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion.Split('_');
-            if (ver?.Length > 1)
-            {
-                Branch = ver[0];
-                Commit = ver[1];
-            }
-            ExtendedVersion = $"BlackBox Texas : {Branch}_{Commit}";
+                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;
+       
+            ExtendedVersion = $"BlackBox : {Version}";
             GetSetting("GravityWellRange",       ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
             GetSetting("AutoSaveFreq",           ref AutoSaveFreq);
-            GetSetting("RanOnce",                ref RanOnce);
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
-            GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
+            GetSetting("AntiAliasSamples",       ref AntiAlias);
+            GetSetting("PostProcessBloom",       ref RenderBloom);
+            GetSetting("TextureQuality",         ref TextureQuality);   
+            GetSetting("TextureSampling",        ref TextureSampling);  
+            GetSetting("MaxAnisotropy",          ref MaxAnisotropy);    
+            GetSetting("ShadowQuality",          ref ShadowQuality); 
+            GetSetting("ShadowDetail",           ref ShadowDetail);
+            GetSetting("EffectDetail",           ref EffectDetail);
             GetSetting("AutoErrorReport",        ref AutoErrorReport);
             GetSetting("ActiveMod",              ref ModName);
+            GetSetting("CameraPanSpeed",         ref CameraPanSpeed);
+            GetSetting("VerboseLogging",         ref VerboseLogging);
+            GetSetting("TestLoad",               ref TestLoad);
+            GetSetting("PreLoad",                ref PreLoad);
+            GetSetting("DamageIntensity",        ref DamageIntensity);
             Statreset();
 
+#if DEBUG
+            VerboseLogging = true;
+#endif
+
+#if PERF 
+            perf = true;
+#endif
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
             GetSetting("Language", ref Language);
             GetSetting("XRES", ref XRES);
             GetSetting("YRES", ref YRES);
-
+            if (bool.TryParse(GetSetting("UIDCaseCheck"), out bool checkForCase))
+                CaseControl = checkForCase ? null : StringComparer.OrdinalIgnoreCase;            
+            
             LoadModInfo(ModName);
-
-            if (!RanOnce) // first run? try full screen
-                WindowMode = 0;
-            RanOnce = true;
-
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
 
@@ -202,11 +230,12 @@ namespace Ship_Game
                 return;
             }
 
-            FileInfo info = new FileInfo($"Mods/{modName}.xml");
+            var info = new FileInfo($"Mods/{modName}.xml");
             if (info.Exists)
             {
                 ModPath = "Mods/" + ModName + "/";
-                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(info);
+                var modInfo = new FileInfo($"{ModPath}/{modName}.xml");
+                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(modInfo.Exists ? modInfo : info);
                 ActiveMod     = new ModEntry(ActiveModInfo);
             }
             else
@@ -242,7 +271,7 @@ namespace Ship_Game
             GetSetting("TurnTimer",            ref TurnTimer);
             GetSetting("AltArcControl",        ref AltArcControl);
             GetSetting("FreighterLimit",       ref FreighterLimit);
-            GetSetting("LimitSpeed",           ref LimitSpeed);
+            GetSetting("LimitSpeed",           ref LimitSpeed);            
         }
 
         public static void SaveSettings()
@@ -254,13 +283,19 @@ namespace Ship_Game
             WriteSetting(config, "GravityWellRange",       GravityWellRange);
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", perf);
-            WriteSetting(config, "AutoSaveFreq",   AutoSaveFreq);
-            WriteSetting(config, "RanOnce",        RanOnce);
-            WriteSetting(config, "ForceFullSim",   ForceFullSim);
-            WriteSetting(config, "WindowMode",     WindowMode);
-            WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);
-            WriteSetting(config, "AutoErrorReport", AutoErrorReport);
-            WriteSetting(config, "ActiveMod",       ModName);
+            WriteSetting(config, "AutoSaveFreq",     AutoSaveFreq);
+            WriteSetting(config, "ForceFullSim",     ForceFullSim);
+            WriteSetting(config, "WindowMode",       WindowMode);
+            WriteSetting(config, "AntiAliasSamples", AntiAlias);
+            WriteSetting(config, "PostProcessBloom", RenderBloom);
+            WriteSetting(config, "TextureQuality",   TextureQuality);
+            WriteSetting(config, "TextureSampling",  TextureSampling);
+            WriteSetting(config, "MaxAnisotropy",    MaxAnisotropy);
+            WriteSetting(config, "ShadowQuality",    ShadowQuality);
+            WriteSetting(config, "ShadowDetail",     ShadowDetail);
+            WriteSetting(config, "EffectDetail",     EffectDetail);
+            WriteSetting(config, "AutoErrorReport",  AutoErrorReport);
+            WriteSetting(config, "ActiveMod",        ModName);
 
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
@@ -279,9 +314,13 @@ namespace Ship_Game
 
             WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));
             WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
-            WriteSetting(config, "Language", Language);
-            WriteSetting(config, "XRES", XRES);
-            WriteSetting(config, "YRES", YRES);
+            WriteSetting(config, "Language",           Language);
+            WriteSetting(config, "XRES",               XRES);
+            WriteSetting(config, "YRES",               YRES);
+            WriteSetting(config, "CameraPanSpeed",     CameraPanSpeed);
+            WriteSetting(config, "VerboseLogging",     VerboseLogging);
+            WriteSetting(config, "TestLoad",           TestLoad);
+            WriteSetting(config, "PreLoad",            PreLoad);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
@@ -350,21 +389,21 @@ namespace Ship_Game
 
         // @todo Why is this here??
         public static void IncrementCordrazineCapture()
-		{
-			CordrazinePlanetsCaptured += 1;
-			if (CordrazinePlanetsCaptured == 1)
-			{
-				Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
-			}
-		}
+        {
+            CordrazinePlanetsCaptured += 1;
+            if (CordrazinePlanetsCaptured == 1)
+            {
+                Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+            }
+        }
 
         // @todo Why is this here??
-		public static void IncrementRemnantKills(int exp)
-		{
+        public static void IncrementRemnantKills(int exp)
+        {
             RemnantKills = RemnantKills + exp;
-			if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
+            if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
+                if (RemnantKills >= 5 + (int)Empire.Universe.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
                     Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
@@ -379,6 +418,6 @@ namespace Ship_Game
                     RemnantActivation = 1;
                 }
             }
-		}
-	}
+        }
+    }
 }

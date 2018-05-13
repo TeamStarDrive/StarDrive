@@ -9,7 +9,7 @@ namespace Ship_Game
         public static Circle ProjectCircleWorldToScreen(Vector2 worldPos, float worldRadius)
         {
             UniverseScreen screen = Empire.Universe;
-            Viewport viewport = screen.ScreenManager.GraphicsDevice.Viewport;
+            Viewport viewport = screen.Viewport;
 
             Vector2 center    = viewport.Project(worldPos.ToVec3(), screen.projection, screen.view, Matrix.Identity).ToVec2();
             Vector2 projected = viewport.Project(worldPos.PointOnCircle(90f, worldRadius).ToVec3(), screen.projection, screen.view, Matrix.Identity).ToVec2();

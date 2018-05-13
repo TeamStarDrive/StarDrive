@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -16,6 +17,18 @@ namespace Ship_Game
 
     public static class Localizer
     {
+        //Hull Bonus Text
+        public static string HullArmorBonus => Token(6016); 
+        public static string HullShieldBonus => "Shield Strength";
+        public static string HullSensorBonus => Token(6016);
+        public static string HullSpeedBonus => Token(6018);
+        public static string HullCargoBonus => Token(6019);
+        public static string HullDamageBonus => "Weapon Damage";
+        public static string HullFireRateBonus => Token(6020);
+        public static string HullRepairBonus => Token(6013);
+        public static string HullCostBonus => Token(6021);
+
+
         private static string[] Strings = new string[0];
 
         public static bool Contains(int locIndex)

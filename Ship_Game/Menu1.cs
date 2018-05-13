@@ -16,13 +16,11 @@ namespace Ship_Game
 		private Rectangle vertRight;
 		private Rectangle horizTop;
 		private Rectangle horizBot;
-		private ScreenManager ScreenManager;
 		public Submenu subMenu;
 		private Rectangle fillRect;
 
-		public Menu1(ScreenManager sm, Rectangle theMenu)
+		public Menu1(Rectangle theMenu)
 		{
-            ScreenManager = sm;
             Menu = theMenu;
             corner_TL = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/menu_1_corner_TL"].Width, ResourceManager.TextureDict["NewUI/menu_1_corner_TL"].Height);
             corner_TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/menu_1_corner_TR"].Width, theMenu.Y, ResourceManager.TextureDict["NewUI/menu_1_corner_TR"].Width, ResourceManager.TextureDict["NewUI/menu_1_corner_TR"].Height);
@@ -37,7 +35,6 @@ namespace Ship_Game
 
 		public Menu1(ScreenManager sm, Rectangle theMenu, bool withSub)
 		{
-            ScreenManager = sm;
             Menu = theMenu;
             corner_TL = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/menu_1_corner_TL"].Width, ResourceManager.TextureDict["NewUI/menu_1_corner_TL"].Height);
             corner_TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/menu_1_corner_TR"].Width, theMenu.Y, ResourceManager.TextureDict["NewUI/menu_1_corner_TR"].Width, ResourceManager.TextureDict["NewUI/menu_1_corner_TR"].Height);
@@ -48,21 +45,22 @@ namespace Ship_Game
             vertLeft = new Rectangle(corner_TL.X + 1, corner_TL.Y + corner_TL.Height, ResourceManager.TextureDict["NewUI/menu_1_vert_left"].Width, theMenu.Height - corner_TL.Height - corner_BL.Height);
             vertRight = new Rectangle(theMenu.X + theMenu.Width - 1 - ResourceManager.TextureDict["NewUI/menu_1_vert_right"].Width, corner_TR.Y + corner_TR.Height, ResourceManager.TextureDict["NewUI/menu_1_vert_right"].Width, theMenu.Height - corner_TR.Height - corner_BR.Height);
 			Rectangle psubRect = new Rectangle(Menu.X + 20, Menu.Y - 5, Menu.Width - 40, Menu.Height - 15);
-            subMenu = new Submenu(ScreenManager, psubRect);
+            subMenu = new Submenu(psubRect);
             fillRect = new Rectangle(Menu.X + 8, Menu.Y + 8, Menu.Width - 16, Menu.Height - 16);
 		}
 
 		public void Draw()
 		{
-			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, fillRect, new Color(0, 0, 0, 220));
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_TL"], corner_TL, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_TR"], corner_TR, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_BL"], corner_BL, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_BR"], corner_BR, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_horiz_lower"], horizBot, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_horiz_upper"], horizTop, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_vert_left"], vertLeft, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_vert_right"], vertRight, Color.White);
+            var spriteBatch = Game1.Instance.ScreenManager.SpriteBatch;
+		    spriteBatch.FillRectangle(fillRect, new Color(0, 0, 0, 220));
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_TL"], corner_TL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_TR"], corner_TR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_BL"], corner_BL, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_corner_BR"], corner_BR, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_horiz_lower"], horizBot, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_horiz_upper"], horizTop, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_vert_left"], vertLeft, Color.White);
+		    spriteBatch.Draw(ResourceManager.TextureDict["NewUI/menu_1_vert_right"], vertRight, Color.White);
 		    subMenu?.Draw();
 		}
 
@@ -78,7 +76,7 @@ namespace Ship_Game
             vertRight = new Rectangle(theMenu.X + theMenu.Width - 1 - ResourceManager.TextureDict["NewUI/menu_1_vert_right"].Width, corner_TR.Y + corner_TR.Height, ResourceManager.TextureDict["NewUI/menu_1_vert_right"].Width, theMenu.Height - corner_TR.Height - corner_BR.Height);
             fillRect = new Rectangle(theMenu.X + 8, theMenu.Y + 8, Menu.Width - 16, Menu.Height - 16);
 			Rectangle psubRect = new Rectangle(theMenu.X + 20, theMenu.Y - 5, Menu.Width - 40, Menu.Height - 15);
-            subMenu = new Submenu(ScreenManager, psubRect);
+            subMenu = new Submenu(psubRect);
 		}
 	}
 }

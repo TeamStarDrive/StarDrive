@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Effects;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class39 : BaseRenderableEffect
   {
@@ -19,16 +19,13 @@ namespace ns6
 
     public virtual Texture2D SourceTexture
     {
-      get
+      get => this.texture2D_0;
+        set
       {
-        return this.texture2D_0;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_12);
+        EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_12);
         if (value == null)
           return;
-        EffectHelper.smethod_7(new Vector2(1f / (float) value.Width, 1f / (float) value.Height), ref this.vector2_0, ref this.effectParameter_11);
+        EffectHelper.smethod_7(new Vector2(1f / value.Width, 1f / value.Height), ref this.vector2_0, ref this.effectParameter_11);
       }
     }
 
@@ -46,7 +43,7 @@ namespace ns6
 
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new Class39(device);
+      return new Class39(device);
     }
   }
 }

@@ -1,43 +1,74 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
-using System;
+using System.Linq;
+using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-	public sealed class SlotStruct
-	{
-		public Ship_Game.Gameplay.Restrictions Restrictions;
+    public sealed class SlotStruct
+    {
+        public Restrictions Restrictions;
+        public PrimitiveQuad PQ;
+        public float Facing;
+        public bool CheckedConduits;
+        public SlotStruct Parent;
+        public ShipDesignScreen.ActiveModuleState State;
+        public bool Powered;
+        public ModuleSlotData SlotReference;
+        public string ModuleUID;
+        public ShipModule Module;
+        public string SlotOptions;
+        public Texture2D Tex;
+        public bool ShowValid = true;
 
-		public PrimitiveQuad pq;
+        private bool CanSlotSupportModule(ShipModule module)
+        {
+            if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
+                return true;
+            string moduleFitsToSlots = module.Restrictions.ToString();
 
-		public float facing;
+            if (module.Restrictions <= Restrictions.IOE )
+                return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
+            switch (module.Restrictions)
+            {
+                case Restrictions.xI:
+                    return Restrictions == Restrictions.I;
+                case Restrictions.xIO:
+                    return Restrictions == Restrictions.IO;
+                case Restrictions.xO:
+                    return Restrictions == Restrictions.O;
+                default:
+                    return false;
+            }
 
-		public bool CheckedConduits;
+        }
 
-		public SlotStruct parent;
+        public void Draw(SpriteBatch sb, Texture2D texture, Color tint)
+        {
+            Rectangle rect = Module == null ? PQ.Rect : ModuleRect;
+            sb.Draw(texture, rect, tint);
+        }
 
-		public ShipDesignScreen.ActiveModuleState state;
+        [XmlIgnore][JsonIgnore] public Vector2 Position     => new Vector2(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
 
-		public bool Powered;
+        public Vector2 Center()
+        {
+            if (Module?.UID.IsEmpty() ?? true)
+                return Vector2.Zero;
+            return new Vector2(PQ.X + Module.XSIZE*8, PQ.Y + Module.YSIZE*8);
+        }
 
-		public ModuleSlotData slotReference;
+        public Rectangle ModuleRect => new Rectangle(PQ.X, PQ.Y, Module.XSIZE * 16, Module.YSIZE * 16);
 
-		public string ModuleUID;
+        public bool Intersects(Rectangle r) => PQ.Rect.Intersects(r);
 
-		public ShipModule module;
-
-		public string SlotOptions;
-
-		public bool isDummy;
-
-		public Texture2D tex;
-
-		public bool ShowValid;
-
-		public bool ShowInvalid;
-
-		public SlotStruct()
-		{
-		}
-	}
+        public void SetValidity(ShipModule module = null)
+        {
+            ShowValid = CanSlotSupportModule(module);
+        }
+    }
 }

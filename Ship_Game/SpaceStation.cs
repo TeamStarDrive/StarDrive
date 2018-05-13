@@ -56,7 +56,7 @@ namespace Ship_Game
 			};
 
 
-			this.Position = this.planet.Position;
+			this.Position = this.planet.Center;
 
             //The Doctor: Mod definable spaceport 'station' art scaling
             float scale = 0.8f;
@@ -81,11 +81,8 @@ namespace Ship_Game
                     * Matrix.CreateRotationZ(1.57079637f)) 
                     * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
 			}
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				screenManager.inter.ObjectManager.Submit(this.InnerSO);
-				screenManager.inter.ObjectManager.Submit(this.OuterSO);
-			}
+            screenManager.AddObject(InnerSO);
+            screenManager.AddObject(OuterSO);
 		}
 
 		public void SetVisibility(bool vis, ScreenManager screenManager, Planet p)
@@ -107,7 +104,7 @@ namespace Ship_Game
 
 		public void Update(float elapsedTime)
 		{
-			this.Position = this.planet.Position;
+			this.Position = this.planet.Center;
 			SpaceStation zrotate = this;
 			zrotate.Zrotate = zrotate.Zrotate + this.rotAmount * elapsedTime;
 

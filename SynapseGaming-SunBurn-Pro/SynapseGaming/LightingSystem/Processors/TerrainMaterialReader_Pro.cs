@@ -4,6 +4,7 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,7 +13,6 @@ using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Effects.Deferred;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
 
 namespace SynapseGaming.LightingSystem.Processors
 {
@@ -24,8 +24,8 @@ namespace SynapseGaming.LightingSystem.Processors
     {
       IGraphicsDeviceService service = (IGraphicsDeviceService) input.ContentManager.ServiceProvider.GetService(typeof (IGraphicsDeviceService));
       MeshData meshData = new MeshData();
-      BaseTerrainEffect baseTerrainEffect = !input.ReadBoolean() ? (BaseTerrainEffect) new TerrainEffect(service.GraphicsDevice) : (BaseTerrainEffect) new DeferredTerrainEffect(service.GraphicsDevice);
-      meshData.Effect = (Effect) baseTerrainEffect;
+      BaseTerrainEffect baseTerrainEffect = !input.ReadBoolean() ? new TerrainEffect(service.GraphicsDevice) : (BaseTerrainEffect) new DeferredTerrainEffect(service.GraphicsDevice);
+      meshData.Effect = baseTerrainEffect;
       meshData.InfiniteBounds = true;
       meshData.MeshToObject = input.ReadMatrix();
       meshData.PrimitiveCount = input.ReadInt32();
@@ -66,8 +66,8 @@ namespace SynapseGaming.LightingSystem.Processors
       baseTerrainEffect.BlendMapFile = input.ReadString();
       baseTerrainEffect.BlendMapTexture = input.ReadExternalReference<Texture2D>();
       baseTerrainEffect.HeightMapFile = input.ReadString();
-      baseTerrainEffect.HeightMapTexture = Class13.smethod_28(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
-      Class55.smethod_0(input);
+      baseTerrainEffect.HeightMapTexture = CoreUtils.ConvertToLuminance8(service.GraphicsDevice, input.ReadExternalReference<Texture2D>());
+      BlockUtil.SkipBlock(input);
       if (input.ReadInt32() != 1234)
         throw new Exception("Error loading asset.");
       return meshData;

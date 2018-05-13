@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
 using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Shadows
 {
@@ -17,12 +17,9 @@ namespace SynapseGaming.LightingSystem.Shadows
   /// </summary>
   public class ShadowRenderTargetGroup : SafeSingletonBeginableObject, IDisposable
   {
-    private List<ShadowGroup> list_0 = new List<ShadowGroup>(16);
-    private GraphicsDevice graphicsDevice_0;
+      private GraphicsDevice graphicsDevice_0;
     private DepthStencilBuffer depthStencilBuffer_0;
-    private RenderTarget renderTarget_0;
-    private Texture2D texture2D_0;
-    private Viewport viewport_0;
+      private Viewport viewport_0;
     private Viewport viewport_1;
     private RenderTarget renderTarget_1;
     private RenderTarget renderTarget_2;
@@ -32,44 +29,20 @@ namespace SynapseGaming.LightingSystem.Shadows
     private Texture2D texture2D_1;
 
     /// <summary>The current RenderTarget used by this object.</summary>
-    public RenderTarget RenderTarget
-    {
-      get
-      {
-        return this.renderTarget_0;
-      }
-    }
+    public RenderTarget RenderTarget { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Shadow map texture generated after completing a call to Begin and End.
     /// </summary>
-    public Texture2D RenderTargetTexture
-    {
-      get
-      {
-        return this.texture2D_0;
-      }
-    }
+    public Texture2D RenderTargetTexture { get; private set; }
 
-    /// <summary>Viewport that encapsulates the entire render target.</summary>
-    public Viewport Viewport
-    {
-      get
-      {
-        return this.viewport_0;
-      }
-    }
+      /// <summary>Viewport that encapsulates the entire render target.</summary>
+    public Viewport Viewport => this.viewport_0;
 
-    /// <summary>List of shadow groups managed by this object.</summary>
-    public List<ShadowGroup> ShadowGroups
-    {
-      get
-      {
-        return this.list_0;
-      }
-    }
+      /// <summary>List of shadow groups managed by this object.</summary>
+    public List<ShadowGroup> ShadowGroups { get; } = new List<ShadowGroup>(16);
 
-    /// <summary>
+      /// <summary>
     /// Used to determine if the render target contents are valid or if the contents need
     /// to be re-rendered.
     /// 
@@ -90,7 +63,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     {
       get
       {
-        foreach (ShadowGroup shadowGroup in this.list_0)
+        foreach (ShadowGroup shadowGroup in this.ShadowGroups)
         {
           if (shadowGroup.Shadow is IShadowMap && !(shadowGroup.Shadow as IShadowMap).ContentsAreValid)
             return false;
@@ -103,7 +76,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <returns></returns>
     public bool HasShadows()
     {
-      return this.renderTarget_0 != null;
+      return this.RenderTarget != null;
     }
 
     /// <summary>
@@ -123,9 +96,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// </summary>
     public void UpdateRenderTargetTexture()
     {
-      if (this.renderTarget_0 == null)
+      if (this.RenderTarget == null)
         return;
-      this.texture2D_0 = ((RenderTarget2D) this.renderTarget_0).GetTexture();
+      this.RenderTargetTexture = ((RenderTarget2D) this.RenderTarget).GetTexture();
     }
 
     /// <summary>
@@ -138,7 +111,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     public void Build(GraphicsDevice device, RenderTarget shadowmaprendertarget, DepthStencilBuffer shadowmapdepthbuffer)
     {
       this.graphicsDevice_0 = device;
-      this.renderTarget_0 = shadowmaprendertarget;
+      this.RenderTarget = shadowmaprendertarget;
       this.depthStencilBuffer_0 = shadowmapdepthbuffer;
       if (shadowmaprendertarget != null)
       {
@@ -156,17 +129,17 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <summary>Releases resources allocated by this object.</summary>
     public void Dispose()
     {
-      this.graphicsDevice_0 = (GraphicsDevice) null;
-      this.depthStencilBuffer_0 = (DepthStencilBuffer) null;
-      this.renderTarget_0 = (RenderTarget) null;
-      this.list_0.Clear();
-      this.texture2D_0 = (Texture2D) null;
-      this.renderTarget_1 = (RenderTarget) null;
-      this.renderTarget_2 = (RenderTarget) null;
-      this.renderTarget_3 = (RenderTarget) null;
-      this.renderTarget_4 = (RenderTarget) null;
-      this.depthStencilBuffer_1 = (DepthStencilBuffer) null;
-      Disposable.Free<Texture2D>(ref this.texture2D_1);
+      this.graphicsDevice_0 = null;
+      this.depthStencilBuffer_0 = null;
+      this.RenderTarget = null;
+      this.ShadowGroups.Clear();
+      this.RenderTargetTexture = null;
+      this.renderTarget_1 = null;
+      this.renderTarget_2 = null;
+      this.renderTarget_3 = null;
+      this.renderTarget_4 = null;
+      this.depthStencilBuffer_1 = null;
+      Disposable.Free(ref this.texture2D_1);
     }
 
     /// <summary>
@@ -175,9 +148,9 @@ namespace SynapseGaming.LightingSystem.Shadows
     public override void Begin()
     {
       base.Begin();
-      if (this.renderTarget_0 == null)
+      if (this.RenderTarget == null)
         throw new Exception("Render target is null. This group dosn't contain shadows, begin cannot be called.");
-      if (!(this.renderTarget_0 is RenderTarget2D))
+      if (!(this.RenderTarget is RenderTarget2D))
         throw new Exception("Unsupported render target type. Must be RenderTarget2D.");
       this.viewport_1 = this.graphicsDevice_0.Viewport;
       this.renderTarget_1 = this.graphicsDevice_0.GetRenderTarget(0);
@@ -185,10 +158,10 @@ namespace SynapseGaming.LightingSystem.Shadows
       this.renderTarget_3 = this.graphicsDevice_0.GetRenderTarget(2);
       this.renderTarget_4 = this.graphicsDevice_0.GetRenderTarget(3);
       this.depthStencilBuffer_1 = this.graphicsDevice_0.DepthStencilBuffer;
-      this.graphicsDevice_0.SetRenderTarget(0, (RenderTarget2D) this.renderTarget_0);
-      this.graphicsDevice_0.SetRenderTarget(1, (RenderTarget2D) null);
-      this.graphicsDevice_0.SetRenderTarget(2, (RenderTarget2D) null);
-      this.graphicsDevice_0.SetRenderTarget(3, (RenderTarget2D) null);
+      this.graphicsDevice_0.SetRenderTarget(0, (RenderTarget2D) this.RenderTarget);
+      this.graphicsDevice_0.SetRenderTarget(1, null);
+      this.graphicsDevice_0.SetRenderTarget(2, null);
+      this.graphicsDevice_0.SetRenderTarget(3, null);
       this.graphicsDevice_0.DepthStencilBuffer = this.depthStencilBuffer_0;
       this.graphicsDevice_0.Viewport = this.viewport_0;
     }
@@ -197,7 +170,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     public override void End()
     {
       base.End();
-      if (this.renderTarget_0 == null)
+      if (this.RenderTarget == null)
         return;
       this.graphicsDevice_0.SetRenderTarget(0, (RenderTarget2D) this.renderTarget_1);
       this.graphicsDevice_0.SetRenderTarget(1, (RenderTarget2D) this.renderTarget_2);
@@ -205,7 +178,7 @@ namespace SynapseGaming.LightingSystem.Shadows
       this.graphicsDevice_0.SetRenderTarget(3, (RenderTarget2D) this.renderTarget_4);
       this.graphicsDevice_0.DepthStencilBuffer = this.depthStencilBuffer_1;
       this.graphicsDevice_0.Viewport = this.viewport_1;
-      this.texture2D_0 = ((RenderTarget2D) this.renderTarget_0).GetTexture();
+      this.RenderTargetTexture = ((RenderTarget2D) this.RenderTarget).GetTexture();
     }
   }
 }

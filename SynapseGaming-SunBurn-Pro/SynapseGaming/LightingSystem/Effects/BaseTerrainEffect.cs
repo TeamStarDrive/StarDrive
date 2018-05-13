@@ -8,10 +8,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using ns4;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
-using System;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
@@ -19,10 +18,9 @@ namespace SynapseGaming.LightingSystem.Effects
   /// Base class that provides data for rendering SunBurn's terrain.
   /// </summary>
   [Attribute0(true)]
-  public abstract class BaseTerrainEffect : BaseRenderableEffect, IEditorObject, Interface0, Interface1, ITerrainEffect
+  public abstract class BaseTerrainEffect : BaseRenderableEffect, IEditorObject, IProjectFile, Interface1, ITerrainEffect
   {
-    private string string_0 = "";
-    private int int_0;
+      private int int_0;
     private int int_1;
     private int int_2;
     private float float_1;
@@ -73,39 +71,17 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     public bool AffectedInCode { get; set; }
 
-    internal string MaterialFile
-    {
-      get
-      {
-        return this.string_0;
-      }
-      set
-      {
-        this.string_0 = value;
-      }
-    }
+    internal string MaterialFile { get; set; } = "";
 
-    string Interface1.MaterialFile
-    {
-      get
-      {
-        return this.string_0;
-      }
-    }
+      string Interface1.MaterialFile => this.MaterialFile;
 
-    internal string MaterialName { get; set; }
+      internal string MaterialName { get; set; }
 
     internal string ProjectFile { get; set; }
 
-    string Interface0.ProjectFile
-    {
-      get
-      {
-        return this.ProjectFile;
-      }
-    }
+    string IProjectFile.ProjectFile => this.ProjectFile;
 
-    internal string DiffuseMapLayer1File { get; set; }
+      internal string DiffuseMapLayer1File { get; set; }
 
     internal string DiffuseMapLayer2File { get; set; }
 
@@ -136,14 +112,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Diffuse 1", MajorGrouping = 2, MinorGrouping = 1, ToolTipText = "")]
     public Texture2D DiffuseMapLayer1Texture
     {
-      get
-      {
-        return this.texture2D_3;
-      }
-      set
-      {
-        EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_3, ref this.effectParameter_12);
-      }
+      get => this.texture2D_3;
+        set => EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_3, ref this.effectParameter_12);
     }
 
     /// <summary>
@@ -157,11 +127,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Diffuse 2", MajorGrouping = 3, MinorGrouping = 1, ToolTipText = "")]
     public Texture2D DiffuseMapLayer2Texture
     {
-      get
-      {
-        return this.texture2D_4;
-      }
-      set
+      get => this.texture2D_4;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_4, ref this.effectParameter_13);
         this.method_3();
@@ -179,11 +146,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Diffuse 3", MajorGrouping = 4, MinorGrouping = 1, ToolTipText = "")]
     public Texture2D DiffuseMapLayer3Texture
     {
-      get
-      {
-        return this.texture2D_5;
-      }
-      set
+      get => this.texture2D_5;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_5, ref this.effectParameter_14);
         this.method_3();
@@ -201,11 +165,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Diffuse 4", MajorGrouping = 5, MinorGrouping = 1, ToolTipText = "")]
     public Texture2D DiffuseMapLayer4Texture
     {
-      get
-      {
-        return this.texture2D_6;
-      }
-      set
+      get => this.texture2D_6;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_6, ref this.effectParameter_15);
         this.method_3();
@@ -223,14 +184,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute2("NormalMapLayer1File")]
     public Texture2D NormalMapLayer1Texture
     {
-      get
-      {
-        return this.texture2D_7;
-      }
-      set
-      {
-        EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_7, ref this.effectParameter_16);
-      }
+      get => this.texture2D_7;
+        set => EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_7, ref this.effectParameter_16);
     }
 
     /// <summary>
@@ -244,11 +199,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Normal 2", MajorGrouping = 3, MinorGrouping = 2, ToolTipText = "")]
     public Texture2D NormalMapLayer2Texture
     {
-      get
-      {
-        return this.texture2D_8;
-      }
-      set
+      get => this.texture2D_8;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_8, ref this.effectParameter_17);
         this.method_3();
@@ -266,11 +218,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Normal 3", MajorGrouping = 4, MinorGrouping = 2, ToolTipText = "")]
     public Texture2D NormalMapLayer3Texture
     {
-      get
-      {
-        return this.texture2D_9;
-      }
-      set
+      get => this.texture2D_9;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_9, ref this.effectParameter_18);
         this.method_3();
@@ -288,11 +237,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Normal 4", MajorGrouping = 5, MinorGrouping = 2, ToolTipText = "")]
     public Texture2D NormalMapLayer4Texture
     {
-      get
-      {
-        return this.texture2D_10;
-      }
-      set
+      get => this.texture2D_10;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_2, ref this.texture2D_10, ref this.effectParameter_19);
         this.method_3();
@@ -307,11 +253,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Height Map", MajorGrouping = 1, MinorGrouping = 1, ToolTipText = "")]
     public Texture2D HeightMapTexture
     {
-      get
-      {
-        return this.texture2D_11;
-      }
-      set
+      get => this.texture2D_11;
+        set
       {
         EffectHelper.smethod_9(value, this.texture2D_0, ref this.texture2D_11, ref this.effectParameter_20);
         if (this.texture2D_11 == null)
@@ -329,14 +272,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute2("BlendMapFile")]
     public Texture2D BlendMapTexture
     {
-      get
-      {
-        return this.texture2D_12;
-      }
-      set
-      {
-        EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_12, ref this.effectParameter_21);
-      }
+      get => this.texture2D_12;
+        set => EffectHelper.smethod_9(value, this.texture2D_1, ref this.texture2D_12, ref this.effectParameter_21);
     }
 
     /// <summary>
@@ -346,14 +283,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute5(2, 0.0, 32.0, 0.1)]
     public float NormalMapStrength
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_1, ref this.effectParameter_24);
-      }
+      get => this.float_1;
+        set => EffectHelper.smethod_6(value, ref this.float_1, ref this.effectParameter_24);
     }
 
     /// <summary>
@@ -364,14 +295,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute5(2, 0.0, 512.0, 0.2)]
     public float DiffuseScale
     {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_2, ref this.effectParameter_25);
-      }
+      get => this.float_2;
+        set => EffectHelper.smethod_6(value, ref this.float_2, ref this.effectParameter_25);
     }
 
     /// <summary>Adjusts the terrain displacement magnitude.</summary>
@@ -379,14 +304,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Height Scale", MajorGrouping = 6, MinorGrouping = 1, ToolTipText = "")]
     public float HeightScale
     {
-      get
-      {
-        return this.float_3;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_3, ref this.effectParameter_26);
-      }
+      get => this.float_3;
+        set => EffectHelper.smethod_6(value, ref this.float_3, ref this.effectParameter_26);
     }
 
     /// <summary>
@@ -397,14 +316,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute5(3, 0.0, 100.0, 0.01)]
     public float Tiling
     {
-      get
-      {
-        return this.float_4;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_4, ref this.effectParameter_27);
-      }
+      get => this.float_4;
+        set => EffectHelper.smethod_6(value, ref this.float_4, ref this.effectParameter_27);
     }
 
     /// <summary>
@@ -414,14 +327,8 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Specular Power", MajorGrouping = 7, MinorGrouping = 1, ToolTipText = "")]
     public float SpecularPower
     {
-      get
-      {
-        return this.float_5;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_5, ref this.effectParameter_28);
-      }
+      get => this.float_5;
+        set => EffectHelper.smethod_6(value, ref this.float_5, ref this.effectParameter_28);
     }
 
     /// <summary>
@@ -431,41 +338,23 @@ namespace SynapseGaming.LightingSystem.Effects
     [Attribute1(true, Description = "Specular Amount", MajorGrouping = 7, MinorGrouping = 2, ToolTipText = "")]
     public float SpecularAmount
     {
-      get
-      {
-        return this.float_6;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_6, ref this.effectParameter_29);
-      }
+      get => this.float_6;
+        set => EffectHelper.smethod_6(value, ref this.float_6, ref this.effectParameter_29);
     }
 
     /// <summary>Color applied to material specular reflections.</summary>
     [Attribute1(true, ControlType = ControlType.ColorSelection, Description = "Specular Color", MajorGrouping = 7, MinorGrouping = 11, ToolTipText = "")]
     public Vector3 SpecularColor
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
-      {
-        EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_30);
-      }
+      get => this.vector3_0;
+        set => EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_30);
     }
 
     /// <summary>Density or tessellation of the terrain mesh.</summary>
     public int MeshSegments
     {
-      get
-      {
-        return this.int_1;
-      }
-      set
-      {
-        EffectHelper.smethod_5(value, ref this.int_1, ref this.effectParameter_22);
-      }
+      get => this.int_1;
+        set => EffectHelper.smethod_5(value, ref this.int_1, ref this.effectParameter_22);
     }
 
     /// <summary>Creates a new BaseTerrainEffect instance.</summary>
@@ -481,10 +370,10 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <param name="graphicsdevice"></param>
     /// <param name="effectname"></param>
     /// <param name="trackeffect"></param>
-    internal BaseTerrainEffect(GraphicsDevice graphicsDevice_0, string string_13, bool bool_3)
-      : base(graphicsDevice_0, string_13)
+    internal BaseTerrainEffect(GraphicsDevice device, string string_13, bool bool_3)
+      : base(device, string_13)
     {
-      this.method_4(graphicsDevice_0, bool_3);
+      this.method_4(device, bool_3);
     }
 
     private bool method_2(Texture2D texture2D_13, Texture2D texture2D_14)
@@ -536,9 +425,9 @@ namespace SynapseGaming.LightingSystem.Effects
       this.effectParameter_28 = this.Parameters["SpecularPower"];
       this.effectParameter_29 = this.Parameters["SpecularAmount"];
       this.effectParameter_30 = this.Parameters["SpecularColor"];
-      this.texture2D_1 = LightingSystemManager.Instance.method_2("White");
-      this.texture2D_0 = LightingSystemManager.Instance.method_2("White");
-      this.texture2D_2 = LightingSystemManager.Instance.method_2("Normal");
+      this.texture2D_1 = LightingSystemManager.Instance.EmbeddedTexture("White");
+      this.texture2D_0 = LightingSystemManager.Instance.EmbeddedTexture("White");
+      this.texture2D_2 = LightingSystemManager.Instance.EmbeddedTexture("Normal");
       this.DiffuseMapLayer1Texture = this.texture2D_1;
       this.DiffuseMapLayer2Texture = this.texture2D_1;
       this.DiffuseMapLayer3Texture = this.texture2D_1;
@@ -553,7 +442,7 @@ namespace SynapseGaming.LightingSystem.Effects
       this.method_3();
       if (!bool_3)
         return;
-      LightingSystemEditor.OnCreateResource((IDisposable) this);
+      LightingSystemEditor.OnCreateResource(this);
     }
 
     /// <summary>
@@ -563,7 +452,7 @@ namespace SynapseGaming.LightingSystem.Effects
     protected override void Dispose(bool releasemanaged)
     {
       base.Dispose(releasemanaged);
-      LightingSystemEditor.OnDisposeResource((IDisposable) this);
+      LightingSystemEditor.OnDisposeResource(this);
     }
   }
 }

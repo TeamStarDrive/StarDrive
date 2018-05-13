@@ -4,13 +4,13 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
 
 namespace SynapseGaming.LightingSystem.Effects.Deferred
 {
@@ -48,14 +48,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// <summary>Main property used to eliminate shadow artifacts.</summary>
     public float ShadowPrimaryBias
     {
-      get
-      {
-        return this.vector4_2.X;
-      }
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value, this.vector4_2.Y, this.vector4_2.Z, this.vector4_2.W), ref this.vector4_2, ref this.effectParameter_26);
-      }
+      get => this.vector4_2.X;
+        set => EffectHelper.smethod_3(new Vector4(value, this.vector4_2.Y, this.vector4_2.Z, this.vector4_2.W), ref this.vector4_2, ref this.effectParameter_26);
     }
 
     /// <summary>
@@ -63,14 +57,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float ShadowSecondaryBias
     {
-      get
-      {
-        return this.vector4_2.Y;
-      }
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(this.vector4_2.X, value, this.vector4_2.Z, this.vector4_2.W), ref this.vector4_2, ref this.effectParameter_26);
-      }
+      get => this.vector4_2.Y;
+        set => EffectHelper.smethod_3(new Vector4(this.vector4_2.X, value, this.vector4_2.Z, this.vector4_2.W), ref this.vector4_2, ref this.effectParameter_26);
     }
 
     /// <summary>
@@ -80,10 +68,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public BoundingSphere ShadowArea
     {
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_3, ref this.effectParameter_27);
-      }
+      set => EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_3, ref this.effectParameter_27);
     }
 
     /// <summary>
@@ -91,11 +76,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public DeferredEffectOutput DeferredEffectOutput
     {
-      get
-      {
-        return this.deferredEffectOutput_0;
-      }
-      set
+      get => this.deferredEffectOutput_0;
+        set
       {
         if (value == this.deferredEffectOutput_0)
           return;
@@ -109,16 +91,13 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public Texture2D SceneLightingDiffuseMap
     {
-      get
+      get => this.texture2D_3;
+        set
       {
-        return this.texture2D_3;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_3, ref this.effectParameter_28);
+        EffectHelper.SetParam(value, ref this.texture2D_3, this.effectParameter_28);
         if (this.effectParameter_24 == null || this.texture2D_3 == null)
           return;
-        EffectHelper.smethod_7(new Vector2((float) this.texture2D_3.Width, (float) this.texture2D_3.Height), ref this.vector2_0, ref this.effectParameter_24);
+        EffectHelper.smethod_7(new Vector2(this.texture2D_3.Width, this.texture2D_3.Height), ref this.vector2_0, ref this.effectParameter_24);
       }
     }
 
@@ -127,14 +106,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public Texture2D SceneLightingSpecularMap
     {
-      get
-      {
-        return this.texture2D_4;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_4, ref this.effectParameter_29);
-      }
+      get => this.texture2D_4;
+        set => EffectHelper.SetParam(value, ref this.texture2D_4, this.effectParameter_29);
     }
 
     /// <summary>
@@ -142,22 +115,13 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// generate shadow maps automatically use the built-in shadow effect, however this puts
     /// heavy restrictions on how the effects handle rendering (only basic vertex transforms are supported).
     /// </summary>
-    public bool SupportsShadowGeneration
-    {
-      get
-      {
-        return false;
-      }
-    }
+    public bool SupportsShadowGeneration => false;
 
-    /// <summary>Enables scene fog.</summary>
+      /// <summary>Enables scene fog.</summary>
     public bool FogEnabled
     {
-      get
-      {
-        return this.bool_5;
-      }
-      set
+      get => this.bool_5;
+          set
       {
         this.bool_5 = value;
         this.SetTechnique();
@@ -169,14 +133,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float FogStartDistance
     {
-      get
-      {
-        return this.float_7;
-      }
-      set
-      {
-        this.method_6(value, this.float_8);
-      }
+      get => this.float_7;
+        set => this.method_6(value, this.float_8);
     }
 
     /// <summary>
@@ -184,27 +142,15 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float FogEndDistance
     {
-      get
-      {
-        return this.float_8;
-      }
-      set
-      {
-        this.method_6(this.float_7, value);
-      }
+      get => this.float_8;
+        set => this.method_6(this.float_7, value);
     }
 
     /// <summary>Color applied to scene fog.</summary>
     public Vector3 FogColor
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
-      {
-        EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_31);
-      }
+      get => this.vector3_0;
+        set => EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_31);
     }
 
     /// <summary>Creates a new DeferredObjectEffect instance.</summary>
@@ -215,10 +161,10 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       this.method_5(graphicsdevice);
     }
 
-    internal DeferredObjectEffect(GraphicsDevice graphicsDevice_0, bool bool_6)
-      : base(graphicsDevice_0, "DeferredObjectEffect", bool_6)
+    internal DeferredObjectEffect(GraphicsDevice device, bool bool_6)
+      : base(device, "DeferredObjectEffect", bool_6)
     {
-      this.method_5(graphicsDevice_0);
+      this.method_5(device);
     }
 
     /// <summary>
@@ -230,7 +176,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
         return;
       Vector3 vector3_2;
       Vector3 vector3_3;
-      Class13.smethod_1((light as ILight).CompositeColorAndIntensity, light.Depth, 0.65f, out vector3_2, out vector3_3);
+      CoreUtils.smethod_1((light as ILight).CompositeColorAndIntensity, light.Depth, 0.65f, out vector3_2, out vector3_3);
       this.vector3_2[0] = vector3_2;
       this.vector3_2[1] = vector3_3;
       this.vector3_2[2] = (vector3_2 + vector3_3) * 0.2f;
@@ -258,7 +204,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new DeferredObjectEffect(device);
+      return new DeferredObjectEffect(device);
     }
 
     private void method_5(GraphicsDevice graphicsDevice_0)
@@ -287,7 +233,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       bool bool_1 = this.TransparencyMap != null && this.TransparencyMode != TransparencyMode.None;
       if (this.deferredEffectOutput_0 == DeferredEffectOutput.ShadowDepth)
       {
-        this.CurrentTechnique = this.Techniques[Class48.smethod_2(Class48.Enum3.ShadowGen, Class48.Enum4.Point, 0, false, bool_1, this.Skinned, false)];
+        this.CurrentTechnique = this.Techniques[TechniquNames.Get(TechniquNames.Enum3.ShadowGen, TechniquNames.Enum4.Point, 0, false, bool_1, this.Skinned, false)];
       }
       else
       {
@@ -296,35 +242,35 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
         int effectDetail2 = (int) this.EffectDetail;
         bool flag2 = this._EmissiveMapTexture != null;
         if (this.deferredEffectOutput_0 == DeferredEffectOutput.GBuffer)
-          this.CurrentTechnique = this.Techniques[Class48.smethod_2(Class48.Enum3.DeferredGBuffer, !flag1 || this._ParallaxMapTexture == null ? Class48.Enum4.DiffuseBump : Class48.Enum4.DiffuseParallax, 0, this.DoubleSided, bool_1, this.Skinned, false)];
+          this.CurrentTechnique = this.Techniques[TechniquNames.Get(TechniquNames.Enum3.DeferredGBuffer, !flag1 || this._ParallaxMapTexture == null ? TechniquNames.Enum4.DiffuseBump : TechniquNames.Enum4.DiffuseParallax, 0, this.DoubleSided, bool_1, this.Skinned, false)];
         else if (this.deferredEffectOutput_0 == DeferredEffectOutput.Depth)
         {
-          Class48.Enum4 enum4_0 = Class48.Enum4.DiffuseBump;
+          TechniquNames.Enum4 enum4_0 = TechniquNames.Enum4.DiffuseBump;
           if (bool_1 && flag1 && this._ParallaxMapTexture != null)
-            enum4_0 = Class48.Enum4.DiffuseParallax;
-          this.CurrentTechnique = this.Techniques[Class48.smethod_2(Class48.Enum3.DeferredDepth, enum4_0, 0, false, bool_1, this.Skinned, false)];
+            enum4_0 = TechniquNames.Enum4.DiffuseParallax;
+          this.CurrentTechnique = this.Techniques[TechniquNames.Get(TechniquNames.Enum3.DeferredDepth, enum4_0, 0, false, bool_1, this.Skinned, false)];
         }
         else
         {
           if (this.deferredEffectOutput_0 != DeferredEffectOutput.Final)
             return;
-          Class48.Enum4 enum4_0 = !flag1 || this._ParallaxMapTexture == null ? (!flag2 ? Class48.Enum4.DiffuseBump : Class48.Enum4.DiffuseBumpEmissive) : (!flag2 ? Class48.Enum4.DiffuseParallax : Class48.Enum4.DiffuseParallaxEmissive);
+          TechniquNames.Enum4 enum4_0 = !flag1 || this._ParallaxMapTexture == null ? (!flag2 ? TechniquNames.Enum4.DiffuseBump : TechniquNames.Enum4.DiffuseBumpEmissive) : (!flag2 ? TechniquNames.Enum4.DiffuseParallax : TechniquNames.Enum4.DiffuseParallaxEmissive);
           if (this.bool_5)
-            this.CurrentTechnique = this.Techniques[Class48.smethod_2(Class48.Enum3.DeferredFinalFog, enum4_0, 0, false, bool_1, this.Skinned, false)];
+            this.CurrentTechnique = this.Techniques[TechniquNames.Get(TechniquNames.Enum3.DeferredFinalFog, enum4_0, 0, false, bool_1, this.Skinned, false)];
           else
-            this.CurrentTechnique = this.Techniques[Class48.smethod_2(Class48.Enum3.DeferredFinal, enum4_0, 0, false, bool_1, this.Skinned, false)];
+            this.CurrentTechnique = this.Techniques[TechniquNames.Get(TechniquNames.Enum3.DeferredFinal, enum4_0, 0, false, bool_1, this.Skinned, false)];
         }
       }
     }
 
     private void method_6(float float_9, float float_10)
     {
-      if (this.effectParameter_30 == null || (double) this.float_7 == (double) float_9 && (double) this.float_8 == (double) float_10)
+      if (this.effectParameter_30 == null || this.float_7 == (double) float_9 && this.float_8 == (double) float_10)
         return;
       this.float_7 = Math.Max(float_9, 0.0f);
       this.float_8 = Math.Max(this.float_7 * 1.01f, float_10);
       float y = this.float_8 - this.float_7;
-      if ((double) y != 0.0)
+      if (y != 0.0)
         y = 1f / y;
       this.effectParameter_30.SetValue(new Vector2(this.float_7, y));
     }
@@ -364,18 +310,18 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       this._DiffuseColorOriginal = diffusecolor;
       if (diffusemap != null && diffusemap != this._DefaultDiffuseMapTexture)
       {
-        EffectHelper.smethod_8(diffusemap, ref this._DiffuseMapTexture, ref this._DiffuseMapTextureIndirectParam);
+        EffectHelper.SetParam(diffusemap, ref this._DiffuseMapTexture, this._DiffuseMapTextureIndirectParam);
         EffectHelper.smethod_3(Vector4.One, ref this._DiffuseColorCached, ref this._DiffuseColorIndirectParam);
       }
       else
       {
-        EffectHelper.smethod_8(this._DefaultDiffuseMapTexture, ref this._DiffuseMapTexture, ref this._DiffuseMapTextureIndirectParam);
+        EffectHelper.SetParam(this._DefaultDiffuseMapTexture, ref this._DiffuseMapTexture, this._DiffuseMapTextureIndirectParam);
         EffectHelper.smethod_3(diffusecolor, ref this._DiffuseColorCached, ref this._DiffuseColorIndirectParam);
       }
       if (normalmap != null && normalmap != this._DefaultNormalMapTexture)
-        EffectHelper.smethod_8(normalmap, ref this._NormalMapTexture, ref this._NormalMapTextureIndirectParam);
+        EffectHelper.SetParam(normalmap, ref this._NormalMapTexture, this._NormalMapTextureIndirectParam);
       else
-        EffectHelper.smethod_8(this._DefaultNormalMapTexture, ref this._NormalMapTexture, ref this._NormalMapTextureIndirectParam);
+        EffectHelper.SetParam(this._DefaultNormalMapTexture, ref this._NormalMapTexture, this._NormalMapTextureIndirectParam);
     }
   }
 }

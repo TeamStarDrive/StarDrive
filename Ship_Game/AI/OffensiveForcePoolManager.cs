@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
@@ -10,10 +7,10 @@ namespace Ship_Game.AI
     public class OffensiveForcePoolManager
     {
         private readonly Empire Owner;
-        private GSAI Gsai => Owner.GetGSAI();
-        private ThreatMatrix ThreatMatrix => Gsai.ThreatMatrix;
-        private DefensiveCoordinator DefensiveCoordinator => Gsai.DefensiveCoordinator;
-        private Array<AO> AreasOfOperations => Gsai.AreasOfOperations;
+        private EmpireAI EmpireAI => Owner.GetGSAI();
+        private ThreatMatrix ThreatMatrix => EmpireAI.ThreatMatrix;
+        private DefensiveCoordinator DefensiveCoordinator => EmpireAI.DefensiveCoordinator;
+        private Array<AO> AreasOfOperations => EmpireAI.AreasOfOperations;
 
         public OffensiveForcePoolManager (Empire owner)
         {
@@ -33,13 +30,9 @@ namespace Ship_Game.AI
                     continue;
                 }
                 areasOfOperation.ThreatLevel = 0;
-                areasOfOperation.ThreatLevel =
-                    (int) ThreatMatrix.PingRadarStr(areasOfOperation.Position, areasOfOperation.Radius, Owner);
+                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, Owner, 50000);
 
-                int min =
-                    (int)
-                    (ownerStr *
-                     ((DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets()) + 1) * .01f));
+                int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * .1f) +100;
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
             }
@@ -49,7 +42,7 @@ namespace Ship_Game.AI
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
             var ownedPlanets = Owner.GetPlanets().ToArray();
-            Planet[] planets = ownedPlanets.UniqueExclude<Planet>(aoPlanets);
+            Planet[] planets = ownedPlanets.UniqueExclude(aoPlanets);
             if (planets == null || planets.Length == 0) return;
 
             IOrderedEnumerable<Planet> maxProductionPotential =
@@ -61,20 +54,17 @@ namespace Ship_Game.AI
             {
                 if (coreWorld == null || coreWorld.GetMaxProductionPotential() <= 5f || !coreWorld.HasShipyard) continue;
                 float aoSize = 0;
-                foreach (SolarSystem system in coreWorld.system.FiveClosestSystems)
+                foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
                 {
                     if (aoSystems.Contains(system)) continue;                                       
-                    if (aoSize < Vector2.Distance(coreWorld.Position, system.Position))
-                        aoSize = Vector2.Distance(coreWorld.Position, system.Position);
-                }
-                //float aomax = Empire.Universe.Size.X * .2f;
-                //if (aoSize > aomax)
-                //    aoSize = aomax;
+                    if (aoSize < Vector2.Distance(coreWorld.Center, system.Position))
+                        aoSize = Vector2.Distance(coreWorld.Center, system.Position);
+                }          
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in AreasOfOperations)
                 {
 
-                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Position, coreWorld.Position) >= aoSize)
+                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Center, coreWorld.Center) >= aoSize)
                         continue;
                     flag1 = false;
                     break;

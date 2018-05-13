@@ -2,35 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Gameplay;
+using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
-	public sealed class SystemCommander
-	{
-		public SolarSystem System;
-		public float ValueToUs;
-		public int IdealTroopCount;
-		public float TroopStrengthNeeded;
-		public int IdealShipStrength;
+    public sealed class SystemCommander
+    {
+        public SolarSystem System;
+        public float ValueToUs;
+        public int IdealTroopCount;
+        public float TroopStrengthNeeded;
+        public int IdealShipStrength;
         public bool IsEnoughShipStrength => GetOurStrength() >= IdealShipStrength;
         public bool IsEnoughTroopStrength => IdealTroopCount >= TroopCount;
         public float PercentageOfValue;
-        public int CurrentShipStr =0;
+        public int CurrentShipStr;
         public float SystemDevelopmentlevel;
         public float RankImportance;
         public int TroopCount;
-        public int TroopsWanted => IdealTroopCount - TroopCount;
-		public Map<Guid, Ship> ShipsDict = new Map<Guid, Ship>();
-		public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
-		private readonly Empire Us;
+        public int TroopsWanted                  => IdealTroopCount - TroopCount;
+        public Map<Guid, Ship> ShipsDict         = new Map<Guid, Ship>();
+        public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
+        public Ship[] GetShipList                => ShipsDict.Values.ToArray();
+        private readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
-        public Ship[] GetShipList => ShipsDict.Values.ToArray();
+        
 
         public SystemCommander(Empire e, SolarSystem system)
-		{
-			System = system;
-			Us = e;
-		}
+        {
+            System = system;
+            Us = e;
+        }
         
         public float UpdateSystemValue()
         {            
@@ -52,7 +55,8 @@ namespace Ship_Game.AI
             foreach (SolarSystem fiveClosestSystem in System.FiveClosestSystems)
             {
                 bool noEnemies = false;
-                if (!fiveClosestSystem.ExploredDict[Us]) continue;
+                if (!fiveClosestSystem.IsExploredBy(Us))
+                    continue;
                 foreach (Empire e in fiveClosestSystem.OwnerList)
                 {
                     if (e == Us) continue;
@@ -82,7 +86,6 @@ namespace Ship_Game.AI
                 {
                     RemoveShip(ship);
                     ships.Add(ship);
-                    CurrentShipStr -= (int) str;
                 }
             }
             return ships;
@@ -93,8 +96,8 @@ namespace Ship_Game.AI
             if (ShipsDict.Remove(shipToRemove.guid))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
-                shipToRemove.GetAI().SystemToDefend = null;
-                shipToRemove.GetAI().SystemToDefendGuid = Guid.Empty;
+                shipToRemove.AI.SystemToDefend = null;
+                shipToRemove.AI.SystemToDefendGuid = Guid.Empty;
                 return true;                
             }            
             return false;
@@ -102,20 +105,31 @@ namespace Ship_Game.AI
         public bool AddShip(Ship ship)
         {
             if (CurrentShipStr  > IdealShipStrength ) return false;
-            if (!ShipsDict.ContainsValue(ship))
+            if (ShipsDict.TryGetValue(ship.guid, out Ship dictShip))
+            {
+                if (dictShip != ship)
+                {
+                    CurrentShipStr -= (int)dictShip.BaseStrength;
+                    dictShip = ship;
+                    CurrentShipStr += (int)ship.BaseStrength;
+                }
+                
+            }
+            else
             {
                 ShipsDict.Add(ship.guid, ship);
-                CurrentShipStr += (int)ship.BaseStrength;                                
+                CurrentShipStr += (int)ship.BaseStrength;
             }
-            if (ship.GetAI().SystemToDefend != System)
-                ship.GetAI().OrderSystemDefense(System);            
+
+            if (ship.AI.SystemToDefend != System)
+                ship.AI.OrderSystemDefense(System);            
             return true;
         }
         private void Clear()
         {
             if (ShipsDict == null) return;
             foreach (Ship ship in ShipsDict.Values)
-                ship.GetAI().SystemToDefend = null;
+                if(ship.Active) ship.AI.SystemToDefend = null;
             ShipsDict.Clear();
             CurrentShipStr = 0;
         }
@@ -152,12 +166,12 @@ namespace Ship_Game.AI
                         if (!kv.Value.InCombat && kv.Value.System == System)
                         {
                             if ((assignedStr > 0f && assignedStr >= enemy.GetStrength())
-                                || kv.Value.GetAI().State == AIState.Resupply
+                                || kv.Value.AI.State == AIState.Resupply
                                 ||assignedShips.Contains(kv.Value))
                                 continue;
 
-                            kv.Value.GetAI().Intercepting = true;
-                            kv.Value.GetAI().OrderAttackSpecificTarget(enemy);
+                            kv.Value.AI.Intercepting = true;
+                            kv.Value.AI.OrderAttackSpecificTarget(enemy);
                             assignedShips[i++]=kv.Value;
                             assignedStr += kv.Value.GetStrength();
                         }
@@ -173,41 +187,41 @@ namespace Ship_Game.AI
                     Ship ship = kv.Value;
                     if (!assignedShips.Contains(ship))
                         continue;
-                    if (ship.GetAI().State == AIState.Resupply || ship.System != System)
+                    if (ship.AI.State == AIState.Resupply || ship.System != System)
                         continue;
 
-                    ship.GetAI().Intercepting = true;
-                    ship.GetAI().OrderAttackSpecificTarget(assignedShips[0]?.GetAI().Target as Ship);
+                    ship.AI.Intercepting = true;
+                    ship.AI.OrderAttackSpecificTarget(assignedShips[0].AI.Target as Ship);
                 }
             }
             else
             {
                 foreach (var kv in ShipsDict)
                 {
-                    if (kv.Value.GetAI().State == AIState.Resupply ) continue;
+                    if (kv.Value.AI.State == AIState.Resupply ) continue;
    
-                    kv.Value.GetAI().OrderSystemDefense(System);
+                    kv.Value.AI.OrderSystemDefense(System);
                 }
             }
         }
 
-		public float GetOurStrength()
-		{
-			float str = 0f;
+        public float GetOurStrength()
+        {
+            float str = 0f;
             foreach (var kv in ShipsDict)
                 str = str + kv.Value.GetStrength();
-			return str;
-		}
+            return str;
+        }
 
         public void CalculateTroopNeeds()
         {
-            int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
+            int mintroopLevel = (int)RankImportance + (int)(Empire.Universe.GameDifficulty + 1) * 2;
             TroopCount = 0;
             {
                 // find max number of troops for system.
-                var planets = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
+                var planets = System.PlanetList.FilterBy(planet => planet.Owner == Us);
                 int planetCount = planets.Length;
-                int developmentlevel = planets.Sum(development => development.developmentLevel);
+                int developmentlevel = planets.Sum(development => development.DevelopmentLevel);
                 SystemDevelopmentlevel = developmentlevel;
                 int maxtroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetPotentialGroundTroops());
                 IdealTroopCount = (mintroopLevel + (int)RankImportance) * planetCount;
@@ -223,25 +237,11 @@ namespace Ship_Game.AI
         }
         public void CalculateShipneeds()
         {
-            float predicted = Us.GetGSAI().ThreatMatrix.PingRadarStr(System.Position, 150000 * 2, Us);
-            int min = (int)ValueToUs; //(Math.Pow(ValueToUs, 3)
-            foreach (var system in System.FiveClosestSystems)
-            {
-                if (!Us.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(system, out SystemCommander syscom)
-                    || syscom == null)
-                {
-                    predicted += (int)Us.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000, Us);
-                    continue;
-                }
-                min += (int)(syscom.ValueToUs * syscom.RankImportance);
-            }
-            min = (int)(min * RankImportance);
-            if (predicted <= 0f) IdealShipStrength = min;
-            else
-            {
-                IdealShipStrength = (int)(predicted * RankImportance / 10);
-                IdealShipStrength += min;
-            }
+            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);            
+            int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
+            min /= 4;
+            IdealShipStrength = Math.Max(predicted, min);
+            
         }
         public void UpdatePlanetTracker()
         {
@@ -284,34 +284,34 @@ namespace Ship_Game.AI
         public int TroopsWanted;
         public int TroopsHere;
         public Planet Planet;
-        private readonly Empire Empire;
+        private readonly Empire Owner;
+        public float Distance;
         public PlanetTracker(Planet toTrack, Empire empire)
         {
             Planet = toTrack;
-            Empire = empire;
+            Owner = empire;
 
         }
         public float UpdateValue()
         {
-            Empire us = Planet.Owner;
+            Empire planetOwner = Planet.Owner;
             Value = 0;
-            bool enemy = Empire.IsEmpireAttackable(Planet.Owner, null);
-            if (Planet.Owner == Empire || !enemy)
+            bool enemy = Owner.IsEmpireAttackable(Planet.Owner, null);
+            if (Planet.Owner == Owner || !enemy)
             {
                 Value += Planet.Population / 10000f;
                 Value += Planet.GovBuildings ? 1 : 0;
                 Value += Planet.HasShipyard ? 5 : 0;
-                Value += Planet.developmentLevel;
-                if (Empire.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
+                Value += Planet.DevelopmentLevel;
+                if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
             }
-            Value += (Planet.MaxPopulation / 10000f);
-            Value += Planet.Fertility;
-            Value += Planet.MineralRichness;
-            Value += Planet.CommoditiesPresent.Count;
+            Value += Planet.EmpireBaseValue(Owner) *.1f;
+            
 
-            if (us == null || !enemy)
-                return Value;
-            if (!us.TryGetRelations(us, out Relationship them) || them == null || !them.Known) return Value;            
+            if (planetOwner == null || !enemy)
+                return Value;            
+            var them = Owner.GetRelations(planetOwner);
+            if (them == null || !them.Known) return Value;
             if (them.Trust < 50f) Value += 2.5f;
             if (them.Trust < 10f) Value += 2.5f;
             if (them.TotalAnger > 2.5f) Value += 2.5f;

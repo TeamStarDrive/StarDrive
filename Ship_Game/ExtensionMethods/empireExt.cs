@@ -1,10 +1,11 @@
 ﻿using System;
 using Ship_Game;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public static class EmpireExtensions
+    public static class GamePlayExtensions
     {
         public static Array<Ship> GetTroopShips(this Empire empire, ref float troopStrength)
         {
@@ -14,7 +15,7 @@ namespace Ship_Game
                 if (ship.shipData.Role != ShipData.RoleName.troop
                     || ship.fleet != null
                     || ship.Mothership != null
-                    || ship.GetAI().HasPriorityOrder)
+                    || ship.AI.HasPriorityOrder)
                     continue;
                 troopShips.Add(ship);
                 for (int i = 0; i < ship.TroopList.Count; i++)
@@ -36,6 +37,13 @@ namespace Ship_Game
                         TotalTroopStrength += troop.Strength;
                     }
             return troops;
+        }
+        public static bool AddModuleTypeToList(this ShipModule module, ShipModuleType moduleType, bool isTrue = true, Array<ShipModule> addToList = null )
+        {
+            if (module.ModuleType != moduleType || !isTrue)
+                return false;
+            addToList?.Add(module);
+            return true;           
         }
 
     }

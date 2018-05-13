@@ -4,9 +4,9 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Effects
 {
@@ -29,8 +29,8 @@ namespace SynapseGaming.LightingSystem.Effects
     public static readonly string[] SASAddress_PointLight_Range = new string[4]{ "Sas.PointLight[0].Range", "Sas.PointLight[1].Range", "Sas.PointLight[2].Range", "Sas.PointLight[3].Range" };
     private GameTime gameTime_0 = new GameTime();
     private GameTime gameTime_1 = new GameTime();
-    private BaseSasBindEffect.GClass0 gclass0_0 = new BaseSasBindEffect.GClass0();
-    /// <summary />
+
+      /// <summary />
     public const string SASAddress_World_Matrix = "Sas.Camera.World";
     /// <summary />
     public const string SASAddress_WorldInverse_Matrix = "Sas.Camera.WorldInverse";
@@ -91,11 +91,8 @@ namespace SynapseGaming.LightingSystem.Effects
     /// <summary>The current game time used by animated materials.</summary>
     public GameTime GameTime
     {
-      get
-      {
-        return this.gameTime_0;
-      }
-      set
+      get => this.gameTime_0;
+        set
       {
         this.gameTime_1 = this.gameTime_0;
         this.gameTime_0 = value;
@@ -109,15 +106,9 @@ namespace SynapseGaming.LightingSystem.Effects
     /// Used to tie any number of similar parameters using different names, semantics,
     /// and bind addresses to the same single address.
     /// </summary>
-    protected BaseSasBindEffect.GClass0 SasAutoBindTable
-    {
-      get
-      {
-        return this.gclass0_0;
-      }
-    }
+    protected GClass0 SasAutoBindTable { get; } = new GClass0();
 
-    internal BaseSasBindEffect(GraphicsDevice graphicsDevice_0, Effect effect_0)
+      internal BaseSasBindEffect(GraphicsDevice graphicsDevice_0, Effect effect_0)
       : base(graphicsDevice_0, effect_0)
     {
       this.BindAllByPartialSasAddress("Sas.");
@@ -199,7 +190,7 @@ namespace SynapseGaming.LightingSystem.Effects
         if (!string.IsNullOrEmpty(semantic) && string.Compare(semantic, name, true) == 0)
           return parameter;
       }
-      return (EffectParameter) null;
+      return null;
     }
 
     /// <summary>Finds parameter by shader variable bind address.</summary>
@@ -218,7 +209,7 @@ namespace SynapseGaming.LightingSystem.Effects
             return parameter;
         }
       }
-      return (EffectParameter) null;
+      return null;
     }
 
     /// <summary>
@@ -287,7 +278,7 @@ namespace SynapseGaming.LightingSystem.Effects
     {
       EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.Now"), new Vector4((float) this.gameTime_0.TotalRealTime.TotalMilliseconds));
       EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.Last"), new Vector4((float) this.gameTime_1.TotalRealTime.TotalMilliseconds));
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.FrameNumber"), new Vector4((float) this.int_0));
+      EffectHelper.smethod_10(this.SasAutoBindTable.method_1("Sas.Time.FrameNumber"), new Vector4(this.int_0));
     }
 
     protected class GClass0
@@ -308,7 +299,7 @@ namespace SynapseGaming.LightingSystem.Effects
       public List<EffectParameter> method_1(string string_0)
       {
         if (!this.dictionary_0.ContainsKey(string_0))
-          return (List<EffectParameter>) null;
+          return null;
         return this.dictionary_0[string_0];
       }
 

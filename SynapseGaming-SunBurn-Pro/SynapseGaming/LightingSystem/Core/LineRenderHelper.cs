@@ -15,24 +15,12 @@ namespace SynapseGaming.LightingSystem.Core
   public class LineRenderHelper : BasePrimitiveRenderHelper
   {
     /// <summary>Number of primitives submitted to the render helper.</summary>
-    public override int PrimitiveCount
-    {
-      get
-      {
-        return this.VertexCount / 2;
-      }
-    }
+    public override int PrimitiveCount => this.VertexCount / 2;
 
-    /// <summary>Primitive type used by the render helper.</summary>
-    protected override PrimitiveType PrimitiveType
-    {
-      get
-      {
-        return PrimitiveType.LineList;
-      }
-    }
+      /// <summary>Primitive type used by the render helper.</summary>
+    protected override PrimitiveType PrimitiveType => PrimitiveType.LineList;
 
-    /// <summary>Creates a new LineRenderHelper instance.</summary>
+      /// <summary>Creates a new LineRenderHelper instance.</summary>
     /// <param name="vertexcapacity">Maximum number of vertices the render helper can contain.</param>
     public LineRenderHelper(int vertexcapacity)
       : base(vertexcapacity)

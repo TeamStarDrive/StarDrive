@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
-using ns3;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using ns3;
 
 namespace SynapseGaming.LightingSystem.Core
 {
@@ -32,14 +32,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public SamplingPreference TextureSampling
     {
-      get
-      {
-        return this.samplingPreference_0;
-      }
-      set
-      {
-        this.samplingPreference_0 = value;
-      }
+      get => this.samplingPreference_0;
+        set => this.samplingPreference_0 = value;
     }
 
     /// <summary>
@@ -47,14 +41,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public DetailPreference TextureQuality
     {
-      get
-      {
-        return this.detailPreference_0;
-      }
-      set
-      {
-        this.detailPreference_0 = value;
-      }
+      get => this.detailPreference_0;
+        set => this.detailPreference_0 = value;
     }
 
     /// <summary>
@@ -62,14 +50,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public int MaxAnisotropy
     {
-      get
-      {
-        return this.int_0;
-      }
-      set
-      {
-        this.int_0 = value;
-      }
+      get => this.int_0;
+        set => this.int_0 = value;
     }
 
     /// <summary>
@@ -77,14 +59,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public DetailPreference ShadowDetail
     {
-      get
-      {
-        return this.detailPreference_1;
-      }
-      set
-      {
-        this.detailPreference_1 = value;
-      }
+      get => this.detailPreference_1;
+        set => this.detailPreference_1 = value;
     }
 
     /// <summary>
@@ -92,14 +68,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public float ShadowQuality
     {
-      get
-      {
-        return this.float_0;
-      }
-      set
-      {
-        this.float_0 = value;
-      }
+      get => this.float_0;
+        set => this.float_0 = value;
     }
 
     /// <summary>
@@ -107,14 +77,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public DetailPreference EffectDetail
     {
-      get
-      {
-        return this.detailPreference_2;
-      }
-      set
-      {
-        this.detailPreference_2 = value;
-      }
+      get => this.detailPreference_2;
+        set => this.detailPreference_2 = value;
     }
 
     /// <summary>
@@ -122,14 +86,8 @@ namespace SynapseGaming.LightingSystem.Core
     /// </summary>
     public DetailPreference PostProcessingDetail
     {
-      get
-      {
-        return this.detailPreference_3;
-      }
-      set
-      {
-        this.detailPreference_3 = value;
-      }
+      get => this.detailPreference_3;
+        set => this.detailPreference_3 = value;
     }
 
     /// <summary>
@@ -140,14 +98,14 @@ namespace SynapseGaming.LightingSystem.Core
     {
       get
       {
-        if (LightingSystemPreferences.serializeTypeDictionary_0 == null)
+        if (serializeTypeDictionary_0 == null)
         {
-          LightingSystemPreferences.serializeTypeDictionary_0 = new SerializeTypeDictionary();
-          LightingSystemPreferences.serializeTypeDictionary_0.RegisterType("Preferences", typeof (LightingSystemPreferences));
-          LightingSystemPreferences.serializeTypeDictionary_0.RegisterType("Sampling", typeof (SamplingPreference));
-          LightingSystemPreferences.serializeTypeDictionary_0.RegisterType("Detail", typeof (DetailPreference));
+          serializeTypeDictionary_0 = new SerializeTypeDictionary();
+          serializeTypeDictionary_0.RegisterType("Preferences", typeof (LightingSystemPreferences));
+          serializeTypeDictionary_0.RegisterType("Sampling", typeof (SamplingPreference));
+          serializeTypeDictionary_0.RegisterType("Detail", typeof (DetailPreference));
         }
-        return LightingSystemPreferences.serializeTypeDictionary_0;
+        return serializeTypeDictionary_0;
       }
     }
 
@@ -164,25 +122,25 @@ namespace SynapseGaming.LightingSystem.Core
         switch (serializationEntry.Name)
         {
           case "TextureSampling":
-            Class28.smethod_1<SamplingPreference>(ref this.samplingPreference_0, serializationInfo_0, "TextureSampling");
+            serializationInfo_0.GetEnum("TextureSampling", out this.samplingPreference_0);
             continue;
           case "TextureQuality":
-            Class28.smethod_1<DetailPreference>(ref this.detailPreference_0, serializationInfo_0, "TextureQuality");
+            serializationInfo_0.GetEnum("TextureQuality", out this.detailPreference_0);
             continue;
           case "MaxAnisotropy":
-            Class28.smethod_0<int>(ref this.int_0, serializationInfo_0, "MaxAnisotropy");
+            serializationInfo_0.GetValue("MaxAnisotropy", out this.int_0);
             continue;
           case "ShadowDetail":
-            Class28.smethod_1<DetailPreference>(ref this.detailPreference_1, serializationInfo_0, "ShadowDetail");
+            serializationInfo_0.GetEnum("ShadowDetail", out this.detailPreference_1);
             continue;
           case "ShadowQuality":
-            Class28.smethod_0<float>(ref this.float_0, serializationInfo_0, "ShadowQuality");
+            serializationInfo_0.GetValue("ShadowQuality", out this.float_0);
             continue;
           case "EffectDetail":
-            Class28.smethod_1<DetailPreference>(ref this.detailPreference_2, serializationInfo_0, "EffectDetail");
+            serializationInfo_0.GetEnum("EffectDetail", out this.detailPreference_2);
             continue;
           case "PostProcessingDetail":
-            Class28.smethod_1<DetailPreference>(ref this.detailPreference_3, serializationInfo_0, "PostProcessingDetail");
+            serializationInfo_0.GetEnum("PostProcessingDetail", out this.detailPreference_3);
             continue;
           default:
             continue;
@@ -199,9 +157,9 @@ namespace SynapseGaming.LightingSystem.Core
     public void LoadFromFile(string filename)
     {
       FileStream fileStream = File.OpenRead(filename);
-      object object_0 = new Class29(LightingSystemPreferences.SerializeTypeDictionary).Deserialize((Stream) fileStream);
+      object object_0 = new Class29(SerializeTypeDictionary).Deserialize(fileStream);
       if (object_0 != null)
-        Class12.smethod_1(object_0, (object) this);
+        Class12.smethod_1(object_0, this);
       fileStream.Flush();
       fileStream.Close();
       fileStream.Dispose();
@@ -216,7 +174,7 @@ namespace SynapseGaming.LightingSystem.Core
     public void SaveToFile(string filename)
     {
       FileStream fileStream = File.Create(filename);
-      new Class29(LightingSystemPreferences.SerializeTypeDictionary).Serialize((Stream) fileStream, (object) this);
+      new Class29(SerializeTypeDictionary).Serialize(fileStream, this);
       fileStream.Flush();
       fileStream.Close();
       fileStream.Dispose();
@@ -226,13 +184,13 @@ namespace SynapseGaming.LightingSystem.Core
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("TextureSampling", (object) this.samplingPreference_0);
-      info.AddValue("TextureQuality", (object) this.detailPreference_0);
+      info.AddValue("TextureSampling", this.samplingPreference_0);
+      info.AddValue("TextureQuality", this.detailPreference_0);
       info.AddValue("MaxAnisotropy", this.int_0);
-      info.AddValue("ShadowDetail", (object) this.detailPreference_1);
+      info.AddValue("ShadowDetail", this.detailPreference_1);
       info.AddValue("ShadowQuality", this.float_0);
-      info.AddValue("EffectDetail", (object) this.detailPreference_2);
-      info.AddValue("PostProcessingDetail", (object) this.detailPreference_3);
+      info.AddValue("EffectDetail", this.detailPreference_2);
+      info.AddValue("PostProcessingDetail", this.detailPreference_3);
     }
   }
 }

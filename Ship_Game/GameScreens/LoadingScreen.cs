@@ -10,7 +10,7 @@ namespace Ship_Game
 		private readonly bool LoadingIsSlow;
 		private bool OtherScreensAreGone;
 
-		private LoadingScreen(bool loadingIsSlow, GameScreen[] screensToLoad) : base(null/*no parent*/)
+        private LoadingScreen(bool loadingIsSlow, GameScreen[] screensToLoad) : base(null/*no parent*/, pause: false)
 		{
 			ScreensToLoad = screensToLoad;
             LoadingIsSlow = loadingIsSlow;
@@ -18,7 +18,7 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (ScreenState == ScreenState.Active && ScreenManager.ScreenCount == 1)
 			{
@@ -26,8 +26,7 @@ namespace Ship_Game
 			}
 			if (LoadingIsSlow)
 			{
-				SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-				Viewport viewport       = ScreenManager.GraphicsDevice.Viewport;
+				Viewport viewport       = Viewport;
 				Vector2 viewportSize    = new Vector2(viewport.Width, viewport.Height);
 				Vector2 textSize        = Fonts.Arial12Bold.MeasureString("Loading...");
 				Vector2 textPosition    = (viewportSize - textSize) / 2f;

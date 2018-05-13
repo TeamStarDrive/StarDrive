@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Rendering;
@@ -31,7 +31,7 @@ namespace Ship_Game
         {
         }
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
 			if (!IsActive)
 				return;
@@ -51,42 +51,39 @@ namespace Ship_Game
 
 		public override void ExitScreen()
 		{
-			try
+			if (SplashVideo != null)
 			{
-				if (SplashVideo != null)
-				{
-					SplashPlayer.Stop();
-					SplashVideo = null;
-					SplashPlayer.Dispose();
-				}
-				if (LoadingVideo != null)
-				{
-					LoadingPlayer.Stop();
-					LoadingVideo = null;
-					LoadingPlayer.Dispose();
-				}
+				SplashPlayer.Stop();
+				SplashVideo = null;
+				SplashPlayer.Dispose();
 			}
-			catch
+			if (LoadingVideo != null)
 			{
+				LoadingPlayer.Stop();
+				LoadingVideo = null;
+				LoadingPlayer.Dispose();
 			}
 			base.ExitScreen();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 		    if (IsExiting || !IsActive)
-                return;
+                return false;
 		    if (this.PlayedOnce && SplashPlayer.State != MediaState.Playing)
 		    {
 		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
 		        AddedScreen = true;
 		        ExitScreen();
+                return true;
 		    }
 		    if (input.InGameSelect)
 		    {
 		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
 		        ExitScreen();
+                return true;
 		    }
+            return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
@@ -114,13 +111,16 @@ namespace Ship_Game
 
             Log.Info("Loaded 'Root' Assets {0:0.0}MB", Game1.GameContent.GetLoadedAssetMegabytes());
 
+            // If you want to export XNB assets:
+		    // ResourceManager.ExportAllXnbMeshes();
+
             base.LoadContent();
             Ready = true;
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			if (!IsActive)
+			if (!IsActive || Debugger.IsAttached)
 			{
 				if (LoadingPlayer.State == MediaState.Playing) LoadingPlayer.Pause();
 				if (SplashPlayer.State == MediaState.Playing)  SplashPlayer.Pause();
@@ -150,11 +150,11 @@ namespace Ship_Game
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override void Destroy()
         {
             LoadingPlayer?.Dispose(ref LoadingPlayer);
             SplashPlayer?.Dispose(ref SplashPlayer);
-            base.Dispose(disposing);
+            base.Destroy();
         }
 	}
 }

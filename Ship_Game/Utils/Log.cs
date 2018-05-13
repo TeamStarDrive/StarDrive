@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -17,18 +16,24 @@ namespace Ship_Game
         public static readonly bool HasDebugger = Debugger.IsAttached;
 
         // sentry.io automatic crash reporting
-        private static readonly RavenClient Raven = new RavenClient("https://3e16bcf9f97d4af3b3fb4f8d4ba1830b:1f0e6d3598e14584877e0c0e87554966@sentry.io/123180");
+        private static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
         private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
 
+        // prevent flooding Raven with 2000 error messages if we fall into an exception loop
+        // instead, we count identical exceptions and resend them only over a certain threshold 
+        private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
+        private const int ErrorThreshold = 100;
+        private static bool IsTerminating;
+
         static Log()
-        {
+        {            
             string init = "\r\n\r\n";
             init +=  " ================================================================== \r\n";
             init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
-            Raven.Release     = GlobalStats.ExtendedVersion;
+            Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
                 Raven.Environment = "Staging";
@@ -66,6 +71,11 @@ namespace Ship_Game
         }
         [Conditional("DEBUG")] public static void Info(string text)
         {
+            if (GlobalStats.VerboseLogging)
+            {
+                LogFile.WriteLine(text);
+                LogFile.Flush();
+            }
             if (!HasDebugger) return;
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(text);
@@ -82,6 +92,7 @@ namespace Ship_Game
             Console.ForegroundColor = color;
             Console.WriteLine(text);
         }
+        
 
 
         // write a warning to logfile and debug console
@@ -89,15 +100,88 @@ namespace Ship_Game
         {
             Warning(string.Format(format, args));
         }
+        public static void VerboseWarning(string format, params object[] args)
+        {
+            if (GlobalStats.VerboseLogging)
+                Warning(string.Format(format, args));
+        }
         public static void Warning(string warning)
         {
             string text = "Warning: " + warning;
             LogFile.WriteLine(text);
-
+            LogFile.Flush();            
             if (!HasDebugger)
+            {                
                 return;
+            }
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
+        }
+
+        public static void WarningWithCallStack(string warning)
+        {
+            var t = new StackTrace();
+
+            string text = $"Warning:  {warning}\n{t}";
+            LogFile.WriteLine(text);
+            LogFile.Flush();
+            if (!HasDebugger)
+            {
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(text);
+        }
+
+        public static bool TestMessage(string testMessage, Importance importance = Importance.None, bool waitForEnter = false , bool waitForYes = false)
+        {
+            string text = "TestMsg: " + testMessage;
+            LogFile.WriteLine(text);
+            LogFile.Flush();
+            if (!HasActiveConsole)
+            {
+                return false;
+            }
+            Console.ForegroundColor = ImportanceColor(importance);
+            Console.WriteLine(text);
+            if (waitForEnter)
+            {                
+                Console.ForegroundColor = Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Press Any Key To Continue");
+                Console.ReadKey();
+            }
+            if (waitForYes)
+            {
+                Console.ForegroundColor = Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("(Y/N)");
+                return Console.ReadKey(true).Key == ConsoleKey.Y ;
+            }
+
+            return false;
+        }
+
+
+        private static ulong Fnv64(string text)
+        {
+            ulong hash = 0xcbf29ce484222325UL;
+            for (int i = 0; i < text.Length; ++i)
+            {
+                hash ^= text[i];
+                hash *= 0x100000001b3UL;
+            }
+            return hash;
+        }
+
+        private static bool ShouldIgnoreErrorText(string error)
+        {
+            ulong hash = Fnv64(error);
+            if (ReportedErrors.TryGetValue(hash, out int count)) // already seen this error?
+            {
+                ReportedErrors[hash] = ++count;
+                return (count % ErrorThreshold) != 0; // only log error when we reach threshold
+            }
+            ReportedErrors[hash] = 1;
+            return false; // log error
         }
 
         // write an error to logfile, sentry.io and debug console
@@ -108,9 +192,12 @@ namespace Ship_Game
         }
         public static void Error(string error)
         {
-            string text = "!! Error: " + error;
-            LogFile.WriteLine(text);
+            if (!HasDebugger && ShouldIgnoreErrorText(error))
+                return;
 
+            string text = "(!) Error: " + error;
+            LogFile.WriteLine(text);
+            LogFile.Flush();
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Error);
@@ -118,6 +205,7 @@ namespace Ship_Game
             }
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
+
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
@@ -131,26 +219,57 @@ namespace Ship_Game
         public static void Error(Exception ex, string error = null)
         {
             string text = CurryExceptionMessage(ex, error);
-            LogFile.WriteLine(text);
-            
+            if (!HasDebugger && ShouldIgnoreErrorText(text))
+                return;
+
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace ?? "");
+            LogFile.WriteLine(withStack);
+            LogFile.Flush();
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(text);
+            Console.WriteLine(withStack);
+
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
 
+        public static void ErrorDialog(Exception ex, string error = null)
+        {
+            if (IsTerminating)
+                return;
+            IsTerminating = true;
+
+            string text = CurryExceptionMessage(ex, error);
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
+            LogFile.WriteLine(withStack);
+            LogFile.Flush();
+            if (!HasDebugger) // only log errors to sentry if debugger not attached
+            {
+                CaptureEvent(text, ErrorLevel.Fatal, ex);
+                return;
+            }
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine(withStack);
+
+            ExceptionViewer.ShowExceptionDialog(withStack);
+            Environment.Exit(-1);
+        }
+
+        [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
+        {
+            if (trueCondition != true) Error(message);
+        }
 
         private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
         {
             var evt = new SentryEvent(ex)
             {
                 Message = text,
-                Level = level
+                Level   = level
             };
             if (GlobalStats.HasMod)
             {
@@ -160,13 +279,12 @@ namespace Ship_Game
             Raven.CaptureAsync(evt);
         }
 
-
-        public static string CurryExceptionMessage(Exception ex, string moreInfo = null)
+        private static string CurryExceptionMessage(Exception ex, string moreInfo = null)
         {
             IDictionary evt = ex.Data;
             if (evt.Count == 0)
             {
-                evt["Version"] = GlobalStats.ExtendedVersion;
+                evt["Version"] = GlobalStats.Version;
                 if (GlobalStats.HasMod)
                 {
                     evt["Mod"]        = GlobalStats.ActiveMod.ModName;
@@ -181,11 +299,15 @@ namespace Ship_Game
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
-                evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Commit;
             }
-            var sb = new StringBuilder("!! Exception: ");
+            var sb = new StringBuilder("(!) Exception: ");
             sb.Append(ex.Message);
-            if (moreInfo.NotEmpty()) sb.Append(" | ").Append(moreInfo);
+
+            if (ex.InnerException != null)
+                sb.Append("\nInnerEx: ").Append(ex.InnerException.Message);
+
+            if (moreInfo.NotEmpty())
+                sb.Append("\nInfo: ").Append(moreInfo);
 
             if (evt.Count != 0)
             {
@@ -195,12 +317,14 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        public static string CleanStackTrace(string stackTrace)
+        private static string CleanStackTrace(string stackTrace)
         {
             var sb = new StringBuilder("StackTrace:\r\n");
             string[] lines = stackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string line in lines)
+            foreach (string errorLine in lines)
             {
+                string line = errorLine.Replace("Microsoft.Xna.Framework", "XNA");
+
                 if (line.Contains(" in "))
                 {
                     string[] parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
@@ -210,11 +334,22 @@ namespace Ship_Game
 
                     sb.Append(method).Append(" in ").Append(file).AppendLine();
                 }
-                else if (line.Contains("Microsoft.Xna.Framework")) sb.AppendLine(line.Replace("Microsoft.Xna.Framework", "XNA"));
                 else if (line.Contains("System.Windows.Forms"))    continue; // ignore winforms
                 else sb.AppendLine(line);
             }
             return sb.ToString();
+        }
+
+        public static void OpenURL(string URL)
+        {
+            if (SteamManager.isInitialized)
+            {
+                SteamManager.ActivateOverlayWebPage(URL);
+            }
+            else
+            {
+                Process.Start(URL);
+            }
         }
 
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
@@ -234,7 +369,7 @@ namespace Ship_Game
 
         public static bool HasActiveConsole => GetConsoleWindow() != IntPtr.Zero;
 
-        public static void ShowConsoleWindow()
+        public static void ShowConsoleWindow(int bufferHeight = 300)
         {
             var handle = GetConsoleWindow();
             if (handle == IntPtr.Zero)
@@ -244,6 +379,8 @@ namespace Ship_Game
                 Console.SetError(new StreamWriter(Console.OpenStandardError()) { AutoFlush = true });
             }
             else ShowWindow(handle, 5/*SW_SHOW*/);
+
+            Console.BufferHeight = bufferHeight;
 
             // Move the console window to a secondary screen if we have multiple monitors
             if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)
@@ -265,6 +402,34 @@ namespace Ship_Game
         public static void HideConsoleWindow()
         {
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
+        }
+
+        private static ConsoleColor ImportanceColor(Importance importance)
+        {
+            switch (importance)
+            {
+                case Importance.None:
+                    return ConsoleColor.Cyan;
+                case Importance.Trivial:
+                    return ConsoleColor.Green;
+                case Importance.Regular:
+                    return ConsoleColor.White;
+                case Importance.Important:
+                    return ConsoleColor.Yellow;
+                case Importance.Critical:
+                    return ConsoleColor.Red;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(importance), importance, null);
+            }
+        }
+
+        public enum Importance
+        {
+            None,
+            Trivial,
+            Regular,
+            Important,
+            Critical
         }
     }
 }

@@ -1,13 +1,13 @@
 #include "ShipDataSerializer.h"
-#include "node_parser.h"
+#include "NodeParser.h"
 
 namespace SDNative
 {
     ////////////////////////////////////////////////////////////////////////////////////
 
-    static FINLINE void parse_position(node_parser& elem, float& posX, float& posY)
+    static FINLINE void ParsePosition(NodeParser& elem, float& posX, float& posY)
     {
-        elem.parseChildren("Position", [&](node_parser subdefs)
+        elem.parseChildren("Position", [&](NodeParser subdefs)
         {
             for (; subdefs.node; subdefs.next()) {
                 subdefs.parse("X", posX);
@@ -32,66 +32,66 @@ namespace SDNative
             const int estimatedSlots = Data.len / NumCharsPerSlotData;
             ModuleSlotList.reserve(estimatedSlots);
 
-            for (node_parser elem(root); elem.node; elem.next())
+            for (NodeParser elem{root}; elem.node; elem.next())
             {
                 // try to keep this list in the same order as in the XML files,
                 // this will lead to all elements being parsed in one sequence
-                elem.parse("Animated",      Animated);
-                elem.parse("ShipStyle",     ShipStyle);
-                elem.parse("EventOnDeath",  EventOnDeath);
-                elem.parse("experience",    Experience);
-                elem.parse("Level",         Level);
-                elem.parse("SelectionGraphic",SelectionGraphic);
-                elem.parse("Name",          Name);
-                elem.parse("HasFixedCost",  HasFixedCost);
-                elem.parse("FixedCost",     FixedCost);
-                elem.parse("HasFixedUpkeep",HasFixedUpkeep);
-                elem.parse("FixedUpkeep",   FixedUpkeep);
-                elem.parse("IsShipyard",    IsShipyard);
-                elem.parse("IsOrbitalDefense", IsOrbitalDefense);
-                elem.parse("IconPath",      IconPath);
-                elem.parse("CombatState",   CombatState);
+                elem.parse("Animated"                 , Animated);
+                elem.parse("ShipStyle"                , ShipStyle);
+                elem.parse("EventOnDeath"             , EventOnDeath);
+                elem.parse("experience"               , Experience);
+                elem.parse("Level"                    , Level);
+                elem.parse("SelectionGraphic"         , SelectionGraphic);
+                elem.parse("Name"                     , Name);
+                elem.parse("HasFixedCost"             , HasFixedCost);
+                elem.parse("FixedCost"                , FixedCost);
+                elem.parse("HasFixedUpkeep"           , HasFixedUpkeep);
+                elem.parse("FixedUpkeep"              , FixedUpkeep);
+                elem.parse("IsShipyard"               , IsShipyard);
+                elem.parse("IsOrbitalDefense"         , IsOrbitalDefense);
+                elem.parse("IconPath"                 , IconPath);
+                elem.parse("CombatState"              , CombatState);
                 elem.parse("MechanicalBoardingDefense", MechanicalBoardingDefense);
-                elem.parse("Hull",          Hull);
-                elem.parse("Role",          Role);
-                elem.parseList("ThrusterList", [this](node_parser thrusterZone)
+                elem.parse("Hull"                     , Hull);
+                elem.parse("Role"                     , Role);
+                elem.parseList("ThrusterList", [this](NodeParser thrusterZone)
                 {
                     for (; thrusterZone.node; thrusterZone.next())
                     {
                         ThrusterList.emplace_back();
                         auto& tz = ThrusterList.back();
-                        parse_position(thrusterZone, tz.X, tz.Y);
+                        ParsePosition(thrusterZone, tz.X, tz.Y);
                         thrusterZone.parse("scale", tz.Scale);
                     }
                 });
-                elem.parse("ModelPath", ModelPath);
-                elem.parse("DefaultAIState",DefaultAIState);
-                elem.parse("ShipCategory", ShipCategory);
-                elem.parse("CarrierShip", CarrierShip);
-                elem.parse("BaseStrength", BaseStrength);
-                elem.parse("BaseCanWarp", BaseCanWarp);
-                elem.parseList("ModuleSlotList", [this](node_parser slotData)
+                elem.parse("ModelPath"     , ModelPath);
+                elem.parse("DefaultAIState", DefaultAIState);
+                elem.parse("ShipCategory"  , ShipCategory);
+                elem.parse("CarrierShip"   , CarrierShip);
+                elem.parse("BaseStrength"  , BaseStrength);
+                elem.parse("BaseCanWarp"   , BaseCanWarp);
+                elem.parseList("ModuleSlotList", [this](NodeParser slotData)
                 {
+                    ModuleSlotList.emplace_back();
+                    auto& sd = ModuleSlotList.back();
+
                     for (; slotData.node; slotData.next())
                     {
-                        ModuleSlotList.emplace_back();
-                        auto& sd = ModuleSlotList.back();
-
-                        parse_position(slotData, sd.PositionX, sd.PositionY);
+                        ParsePosition(slotData, sd.PositionX, sd.PositionY);
                         slotData.parse("InstalledModuleUID", sd.InstalledModuleUID);
-                        slotData.parse("HangarshipGuid", sd.HangarshipGuid);
-                        slotData.parse("Health", sd.Health);
-                        slotData.parse("Shield_Power", sd.ShieldPower);
-                        slotData.parse("facing", sd.Facing);
-                        slotData.parse("state", sd.State);
-                        slotData.parse("Restrictions", sd.Restrictions);
-                        slotData.parse("SlotOptions", sd.SlotOptions);
+                        slotData.parse("HangarshipGuid"    , sd.HangarshipGuid);
+                        slotData.parse("Health"            , sd.Health);
+                        slotData.parse("Shield_Power"      , sd.ShieldPower);
+                        slotData.parse("facing"            , sd.Facing);
+                        slotData.parse("state"             , sd.State);
+                        slotData.parse("Restrictions"      , sd.Restrictions);
+                        slotData.parse("SlotOptions"       , sd.SlotOptions);
                     }
                 });
                 elem.parse("hullUnlockable", HullUnlockable);
                 elem.parse("allModulesUnlocakable", AllModulesUnlockable);
                 elem.parse("unLockable", UnLockable);
-                elem.parseList("techsNeeded", [this](node_parser subdefs)
+                elem.parseList("techsNeeded", [this](NodeParser subdefs)
                 {
                     for (; subdefs.node; subdefs.next())
                         TechsNeeded.push_back(subdefs.value);
@@ -106,7 +106,7 @@ namespace SDNative
             TechsLen = TechsNeeded.size();
             return true;
         }
-        catch (exception e)
+        catch (std::exception e)
         {
             return Error(e.what());
         }

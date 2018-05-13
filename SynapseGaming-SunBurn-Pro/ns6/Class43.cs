@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Effects;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class43 : Class42
   {
@@ -19,50 +19,26 @@ namespace ns6
 
     public float BloomThreshold
     {
-      get
-      {
-        return this._BloomAmount_None_Threshold_Burn.Z;
-      }
-      set
-      {
-        this.SetBloomData(this._BloomAmount_None_Threshold_Burn.X, this._BloomAmount_None_Threshold_Burn.Y, value, this._BloomAmount_None_Threshold_Burn.W);
-      }
+      get => this._BloomAmount_None_Threshold_Burn.Z;
+        set => this.SetBloomData(this._BloomAmount_None_Threshold_Burn.X, this._BloomAmount_None_Threshold_Burn.Y, value, this._BloomAmount_None_Threshold_Burn.W);
     }
 
     public float ExposureAmount
     {
-      get
-      {
-        return this._ExposureAmount_TransitionMax_TransitionMin.X;
-      }
-      set
-      {
-        this.SetExposureTransitionData(value, this._ExposureAmount_TransitionMax_TransitionMin.Y, this._ExposureAmount_TransitionMax_TransitionMin.Z);
-      }
+      get => this._ExposureAmount_TransitionMax_TransitionMin.X;
+        set => this.SetExposureTransitionData(value, this._ExposureAmount_TransitionMax_TransitionMin.Y, this._ExposureAmount_TransitionMax_TransitionMin.Z);
     }
 
     public float TransitionMaxScale
     {
-      get
-      {
-        return this._ExposureAmount_TransitionMax_TransitionMin.Y;
-      }
-      set
-      {
-        this.SetExposureTransitionData(this._ExposureAmount_TransitionMax_TransitionMin.X, value, this._ExposureAmount_TransitionMax_TransitionMin.Z);
-      }
+      get => this._ExposureAmount_TransitionMax_TransitionMin.Y;
+        set => this.SetExposureTransitionData(this._ExposureAmount_TransitionMax_TransitionMin.X, value, this._ExposureAmount_TransitionMax_TransitionMin.Z);
     }
 
     public float TransitionMinScale
     {
-      get
-      {
-        return this._ExposureAmount_TransitionMax_TransitionMin.Z;
-      }
-      set
-      {
-        this.SetExposureTransitionData(this._ExposureAmount_TransitionMax_TransitionMin.X, this._ExposureAmount_TransitionMax_TransitionMin.Y, value);
-      }
+      get => this._ExposureAmount_TransitionMax_TransitionMin.Z;
+        set => this.SetExposureTransitionData(this._ExposureAmount_TransitionMax_TransitionMin.X, this._ExposureAmount_TransitionMax_TransitionMin.Y, value);
     }
 
     public Class43(GraphicsDevice graphicsdevice)

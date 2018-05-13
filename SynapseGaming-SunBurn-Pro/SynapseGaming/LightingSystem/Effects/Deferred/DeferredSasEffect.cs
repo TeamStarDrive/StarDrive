@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
 
 namespace SynapseGaming.LightingSystem.Effects.Deferred
 {
@@ -45,14 +45,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// <summary>Main property used to eliminate shadow artifacts.</summary>
     public float ShadowPrimaryBias
     {
-      get
-      {
-        return this.vector4_0.X;
-      }
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value, this.vector4_0.Y, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_4);
-      }
+      get => this.vector4_0.X;
+        set => EffectHelper.smethod_3(new Vector4(value, this.vector4_0.Y, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_4);
     }
 
     /// <summary>
@@ -60,14 +54,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float ShadowSecondaryBias
     {
-      get
-      {
-        return this.vector4_0.Y;
-      }
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(this.vector4_0.X, value, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_4);
-      }
+      get => this.vector4_0.Y;
+        set => EffectHelper.smethod_3(new Vector4(this.vector4_0.X, value, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_4);
     }
 
     /// <summary>
@@ -77,10 +65,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public BoundingSphere ShadowArea
     {
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_2, ref this.effectParameter_6);
-      }
+      set => EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_2, ref this.effectParameter_6);
     }
 
     /// <summary>
@@ -103,11 +88,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public DeferredEffectOutput DeferredEffectOutput
     {
-      get
-      {
-        return this.deferredEffectOutput_0;
-      }
-      set
+      get => this.deferredEffectOutput_0;
+        set
       {
         this.deferredEffectOutput_0 = value;
         this.SetTechnique();
@@ -119,16 +101,13 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public Texture2D SceneLightingDiffuseMap
     {
-      get
+      get => this.texture2D_0;
+        set
       {
-        return this.texture2D_0;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_0, ref this.effectParameter_8);
+        EffectHelper.SetParam(value, ref this.texture2D_0, this.effectParameter_8);
         if (this.effectParameter_7 == null || this.texture2D_0 == null)
           return;
-        EffectHelper.smethod_7(new Vector2((float) this.texture2D_0.Width, (float) this.texture2D_0.Height), ref this.vector2_0, ref this.effectParameter_7);
+        EffectHelper.smethod_7(new Vector2(this.texture2D_0.Width, this.texture2D_0.Height), ref this.vector2_0, ref this.effectParameter_7);
       }
     }
 
@@ -137,24 +116,15 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public Texture2D SceneLightingSpecularMap
     {
-      get
-      {
-        return this.texture2D_1;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_9);
-      }
+      get => this.texture2D_1;
+        set => EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_9);
     }
 
     /// <summary>Enables scene fog.</summary>
     public bool FogEnabled
     {
-      get
-      {
-        return this.bool_5;
-      }
-      set
+      get => this.bool_5;
+        set
       {
         this.bool_5 = value;
         this.method_10(float.MaxValue, float.MaxValue);
@@ -166,14 +136,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float FogStartDistance
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        this.method_10(value, this.float_2);
-      }
+      get => this.float_1;
+        set => this.method_10(value, this.float_2);
     }
 
     /// <summary>
@@ -181,27 +145,15 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float FogEndDistance
     {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        this.method_10(this.float_1, value);
-      }
+      get => this.float_2;
+        set => this.method_10(this.float_1, value);
     }
 
     /// <summary>Color applied to scene fog.</summary>
     public Vector3 FogColor
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
-      {
-        EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_2);
-      }
+      get => this.vector3_0;
+        set => EffectHelper.smethod_4(value, ref this.vector3_0, ref this.effectParameter_2);
     }
 
     /// <summary>
@@ -230,7 +182,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       if (!(light is ILight))
         return;
       Vector4 vector4_0 = new Vector4((light as ILight).CompositeColorAndIntensity, 1f);
-      EffectHelper.smethod_10(this.SasAutoBindTable.method_1(BaseSasBindEffect.SASAddress_AmbientLight_Color[0]), vector4_0);
+      EffectHelper.smethod_10(this.SasAutoBindTable.method_1(SASAddress_AmbientLight_Color[0]), vector4_0);
     }
 
     /// <summary>
@@ -267,7 +219,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new DeferredSasEffect(device, (Effect) this);
+      return new DeferredSasEffect(device, this);
     }
 
     /// <summary>
@@ -276,35 +228,31 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     protected override void SetTechnique()
     {
       ++this.class47_0.lightingSystemStatistic_0.AccumulationValue;
-      EffectTechnique effectTechnique = (EffectTechnique) null;
+      EffectTechnique effectTechnique = null;
       switch (this.deferredEffectOutput_0)
       {
         case DeferredEffectOutput.Depth:
           if (this.Properties.ContainsKey("DepthTechnique"))
           {
             effectTechnique = this.Techniques[(string) this.Properties["DepthTechnique"]];
-            break;
           }
           break;
         case DeferredEffectOutput.GBuffer:
           if (this.Properties.ContainsKey("GBufferTechnique"))
           {
             effectTechnique = this.Techniques[(string) this.Properties["GBufferTechnique"]];
-            break;
           }
           break;
         case DeferredEffectOutput.ShadowDepth:
           if (this.Properties.ContainsKey("ShadowGenerationTechnique"))
           {
             effectTechnique = this.Techniques[(string) this.Properties["ShadowGenerationTechnique"]];
-            break;
           }
           break;
         case DeferredEffectOutput.Final:
           if (this.Properties.ContainsKey("FinalTechnique"))
           {
             effectTechnique = this.Techniques[(string) this.Properties["FinalTechnique"]];
-            break;
           }
           break;
       }
@@ -315,12 +263,12 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
 
     private void method_10(float float_4, float float_5)
     {
-      if (this.effectParameter_1 == null || (double) this.float_1 == (double) float_4 && (double) this.float_2 == (double) float_5)
+      if (this.effectParameter_1 == null || this.float_1 == (double) float_4 && this.float_2 == (double) float_5)
         return;
       this.float_1 = Math.Max(float_4, 0.0f);
       this.float_2 = Math.Max(this.float_1 * 1.01f, float_5);
       float y = this.float_2 - this.float_1;
-      if ((double) y != 0.0)
+      if (y != 0.0)
         y = 1f / y;
       this.effectParameter_1.SetValue(new Vector2(this.float_1, y));
     }
@@ -335,9 +283,9 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
         return;
       Vector4 vector4 = Vector4.Transform(new Vector4(0.0f, 0.0f, 1f, 1f), this.ProjectionToView);
       float num = 0.0f;
-      if ((double) vector4.W != 0.0)
+      if (vector4.W != 0.0)
         num = Math.Abs(vector4.Z / vector4.W);
-      if ((double) this.float_3 == (double) num)
+      if (this.float_3 == (double) num)
         return;
       this.float_3 = num;
       this.effectParameter_3.SetValue(num);
