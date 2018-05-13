@@ -1859,11 +1859,11 @@ namespace Ship_Game
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(shipname);
-                    if (roles.Contains(ship.GetDesignRoleName()))                    
+                    if (roles.Contains(ship.DesignRoleName))                    
                         continue;                    
-                    roles.Add(ship.GetDesignRoleName());
+                    roles.Add(ship.DesignRoleName);
 
-                    ModuleHeader mh = new ModuleHeader(ship.GetDesignRoleName(), 295f);
+                    ModuleHeader mh = new ModuleHeader(ship.DesignRoleName, 295f);
                     ShipSL.AddItem(mh);
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
@@ -1871,7 +1871,7 @@ namespace Ship_Game
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
-                        if (ship.GetDesignRoleName() != (e.item as ModuleHeader)?.Text)
+                        if (ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
                         {
                             continue;
                         }
@@ -1884,19 +1884,19 @@ namespace Ship_Game
                 Array<string> roles = new Array<string>();
                 foreach (Ship ship in AvailableShips)
                 {
-                    if (roles.Contains(ship.GetDesignRoleName()) || ship.shipData.Role == ShipData.RoleName.troop)
+                    if (roles.Contains(ship.DesignRoleName) || ship.shipData.Role == ShipData.RoleName.troop)
                     {
                         continue;
                     }
-                    roles.Add(ship.GetDesignRoleName());
-                    ModuleHeader mh = new ModuleHeader(ship.GetDesignRoleName(), 295f);
+                    roles.Add(ship.DesignRoleName);
+                    ModuleHeader mh = new ModuleHeader(ship.DesignRoleName, 295f);
                     ShipSL.AddItem(mh);
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
                 {
                     foreach (Ship ship in AvailableShips)
                     {
-                        if (ship.shipData.Role == ShipData.RoleName.troop || ship.GetDesignRoleName() != (e.item as ModuleHeader)?.Text)
+                        if (ship.shipData.Role == ShipData.RoleName.troop || ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
                         {
                             continue;
                         }
