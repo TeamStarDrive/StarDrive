@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -16,7 +17,7 @@ namespace Ship_Game
 
 		//private Matrix projection;
 
-		public Camera2d camera;
+		public Camera2D camera;
 
 		public ShipData ActiveHull;
 
@@ -71,11 +72,11 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
-			base.ScreenManager.SpriteBatch.Begin();
-			this.DrawUI(gameTime);
-			base.ScreenManager.SpriteBatch.End();
+		    spriteBatch.Begin();
+			DrawUI(Game1.Instance.GameTime);
+		    spriteBatch.End();
 		}
 
 		private void DrawUI(GameTime gameTime)
@@ -86,19 +87,19 @@ namespace Ship_Game
 			{
 				r.Y = r.Y + (int)(transitionOffset * 50f);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, Color.Black);
+			base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
 			r = this.bottom_sep;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
 			{
 				r.Y = r.Y + (int)(transitionOffset * 50f);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(77, 55, 25));
+			base.ScreenManager.SpriteBatch.FillRectangle(r, new Color(77, 55, 25));
 			r = this.SearchBar;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
 			{
 				r.Y = r.Y + (int)(transitionOffset * 50f);
 			}
-			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, r, new Color(54, 54, 54));
+			base.ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
 			Vector2 vector2 = new Vector2((float)(this.SearchBar.X + 3), (float)(r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
 			r = this.Fleets.r;
 			if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
@@ -120,15 +121,16 @@ namespace Ship_Game
 			this.Shipyard.Draw(base.ScreenManager, r);
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (input.Escaped)
 			{
 				this.ExitScreen();
+                return true;
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition))
+				if (!b.Rect.HitTest(input.CursorPosition))
 				{
 					b.State = UIButton.PressState.Default;
 				}
@@ -139,14 +141,9 @@ namespace Ship_Game
 					{
 						b.State = UIButton.PressState.Pressed;
 					}
-					if (this.mouseStateCurrent.LeftButton != ButtonState.Released || this.mouseStatePrevious.LeftButton != ButtonState.Pressed)
-					{
-						continue;
-					}
-					string text = b.Text;
 				}
 			}
-			base.HandleInput(input);
+			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
@@ -154,7 +151,7 @@ namespace Ship_Game
 			this.BlackBar = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 2000, 70);
 			this.bottom_sep = new Rectangle(this.BlackBar.X, this.BlackBar.Y, this.BlackBar.Width, 1);
 			this.HullSelectionRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285, 100, 280, 400);
-			this.hullSelectionSub = new Submenu(base.ScreenManager, this.HullSelectionRect, true);
+			this.hullSelectionSub = new Submenu(this.HullSelectionRect, true);
 			this.Fleets = new DanButton(new Vector2(21f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47)), "Fleets")
 			{
 				IsToggle = true,

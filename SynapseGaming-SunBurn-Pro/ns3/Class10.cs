@@ -4,10 +4,10 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns11;
-using System;
 
 namespace ns3
 {
@@ -21,18 +21,12 @@ namespace ns3
     private IndexBuffer indexBuffer_0;
     private VertexDeclaration vertexDeclaration_0;
 
-    public BasicEffect DefaultEffect
-    {
-      get
-      {
-        return this.basicEffect_0;
-      }
-    }
+    public BasicEffect DefaultEffect => this.basicEffect_0;
 
-    public Class10(GraphicsDevice device)
+      public Class10(GraphicsDevice device)
     {
       this.graphicsDevice_0 = device;
-      this.basicEffect_0 = new BasicEffect(this.graphicsDevice_0, (EffectPool) null);
+      this.basicEffect_0 = new BasicEffect(this.graphicsDevice_0, null);
       this.basicEffect_0.TextureEnabled = false;
       this.basicEffect_0.VertexColorEnabled = false;
       this.basicEffect_0.PreferPerPixelLighting = false;
@@ -45,10 +39,10 @@ namespace ns3
       int num1 = 0;
       for (int index2 = 0; index2 < 6; ++index2)
       {
-        Vector3 vector3_1 = Class10.vector3_0[Class10.int_0[index1]];
-        Vector3 vector3_2 = Class10.vector3_0[Class10.int_0[index1 + 1]];
-        Vector3 vector3_3 = Class10.vector3_0[Class10.int_0[index1 + 2]];
-        Vector3 vector3_4 = Class10.vector3_0[Class10.int_0[index1 + 3]];
+        Vector3 vector3_1 = vector3_0[int_0[index1]];
+        Vector3 vector3_2 = vector3_0[int_0[index1 + 1]];
+        Vector3 vector3_3 = vector3_0[int_0[index1 + 2]];
+        Vector3 vector3_4 = vector3_0[int_0[index1 + 3]];
         data1[index1].Position = vector3_1;
         data1[index1 + 1].Position = vector3_2;
         data1[index1 + 2].Position = vector3_3;
@@ -57,44 +51,44 @@ namespace ns3
         int index3 = num1;
         int num2 = 1;
         int num3 = index3 + num2;
-        int num4 = (int) (byte) index1;
+        int num4 = (byte) index1;
         numArray1[index3] = (short) num4;
         short[] numArray2 = data2;
         int index4 = num3;
         int num5 = 1;
         int num6 = index4 + num5;
-        int num7 = (int) (byte) (index1 + 1);
+        int num7 = (byte) (index1 + 1);
         numArray2[index4] = (short) num7;
         short[] numArray3 = data2;
         int index5 = num6;
         int num8 = 1;
         int num9 = index5 + num8;
-        int num10 = (int) (byte) (index1 + 2);
+        int num10 = (byte) (index1 + 2);
         numArray3[index5] = (short) num10;
         short[] numArray4 = data2;
         int index6 = num9;
         int num11 = 1;
         int num12 = index6 + num11;
-        int num13 = (int) (byte) (index1 + 3);
+        int num13 = (byte) (index1 + 3);
         numArray4[index6] = (short) num13;
         short[] numArray5 = data2;
         int index7 = num12;
         int num14 = 1;
         int num15 = index7 + num14;
-        int num16 = (int) (byte) (index1 + 2);
+        int num16 = (byte) (index1 + 2);
         numArray5[index7] = (short) num16;
         short[] numArray6 = data2;
         int index8 = num15;
         int num17 = 1;
         num1 = index8 + num17;
-        int num18 = (int) (byte) (index1 + 1);
+        int num18 = (byte) (index1 + 1);
         numArray6[index8] = (short) num18;
         index1 += 4;
       }
       this.vertexBuffer_0 = new VertexBuffer(this.graphicsDevice_0, typeof (VertexPositionColor), data1.Length, BufferUsage.WriteOnly);
-      this.vertexBuffer_0.SetData<VertexPositionColor>(data1);
+      this.vertexBuffer_0.SetData(data1);
       this.indexBuffer_0 = new IndexBuffer(this.graphicsDevice_0, typeof (short), data2.Length, BufferUsage.WriteOnly);
-      this.indexBuffer_0.SetData<short>(data2);
+      this.indexBuffer_0.SetData(data2);
       this.vertexDeclaration_0 = new VertexDeclaration(this.graphicsDevice_0, VertexPositionColor.VertexElements);
     }
 
@@ -115,10 +109,10 @@ namespace ns3
 
     public void Dispose()
     {
-      Disposable.Free<BasicEffect>(ref this.basicEffect_0);
-      Disposable.Free<VertexBuffer>(ref this.vertexBuffer_0);
-      Disposable.Free<IndexBuffer>(ref this.indexBuffer_0);
-      Disposable.Free<VertexDeclaration>(ref this.vertexDeclaration_0);
+      Disposable.Free(ref this.basicEffect_0);
+      Disposable.Free(ref this.vertexBuffer_0);
+      Disposable.Free(ref this.indexBuffer_0);
+      Disposable.Free(ref this.vertexDeclaration_0);
     }
   }
 }

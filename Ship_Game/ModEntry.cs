@@ -10,7 +10,7 @@ namespace Ship_Game
 		public Rectangle Portrait;
 		public ModInformation mi;
 		public string MainMenuMusic;
-        public string Version;
+        public string Version;        
         private Texture2D PortraitTex;
         private Texture2D MainMenuTex;
 
@@ -55,7 +55,7 @@ namespace Ship_Game
             if (PortraitTex != null)
                 screenManager.SpriteBatch.Draw(PortraitTex, Portrait, Color.White);
 
-			Primitives2D.DrawRectangle(screenManager.SpriteBatch, Portrait, Color.White);
+			screenManager.SpriteBatch.DrawRectangle(Portrait, Color.White);
 		}
 
         public void DrawMainMenuOverlay(ScreenManager screenManager, Rectangle portrait)

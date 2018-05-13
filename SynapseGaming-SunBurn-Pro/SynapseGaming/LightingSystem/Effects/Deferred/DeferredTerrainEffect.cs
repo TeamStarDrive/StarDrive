@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using SynapseGaming.LightingSystem.Lights;
-using System;
 
 namespace SynapseGaming.LightingSystem.Effects.Deferred
 {
@@ -44,14 +44,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// <summary>Main property used to eliminate shadow artifacts.</summary>
     public float ShadowPrimaryBias
     {
-      get
-      {
-        return this.vector4_0.X;
-      }
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value, this.vector4_0.Y, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_35);
-      }
+      get => this.vector4_0.X;
+        set => EffectHelper.smethod_3(new Vector4(value, this.vector4_0.Y, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_35);
     }
 
     /// <summary>
@@ -59,14 +53,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float ShadowSecondaryBias
     {
-      get
-      {
-        return this.vector4_0.Y;
-      }
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(this.vector4_0.X, value, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_35);
-      }
+      get => this.vector4_0.Y;
+        set => EffectHelper.smethod_3(new Vector4(this.vector4_0.X, value, this.vector4_0.Z, this.vector4_0.W), ref this.vector4_0, ref this.effectParameter_35);
     }
 
     /// <summary>
@@ -76,10 +64,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public BoundingSphere ShadowArea
     {
-      set
-      {
-        EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_1, ref this.effectParameter_36);
-      }
+      set => EffectHelper.smethod_3(new Vector4(value.Center, value.Radius), ref this.vector4_1, ref this.effectParameter_36);
     }
 
     /// <summary>
@@ -87,24 +72,15 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// generate shadow maps automatically use the built-in shadow effect, however this puts
     /// heavy restrictions on how the effects handle rendering (only basic vertex transforms are supported).
     /// </summary>
-    public bool SupportsShadowGeneration
-    {
-      get
-      {
-        return true;
-      }
-    }
+    public bool SupportsShadowGeneration => true;
 
-    /// <summary>
+      /// <summary>
     /// Determines the type of shader output for the effects to generate.
     /// </summary>
     public DeferredEffectOutput DeferredEffectOutput
     {
-      get
-      {
-        return this.deferredEffectOutput_0;
-      }
-      set
+      get => this.deferredEffectOutput_0;
+          set
       {
         if (value == this.deferredEffectOutput_0)
           return;
@@ -118,16 +94,13 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public Texture2D SceneLightingDiffuseMap
     {
-      get
+      get => this.texture2D_13;
+        set
       {
-        return this.texture2D_13;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_13, ref this.effectParameter_37);
+        EffectHelper.SetParam(value, ref this.texture2D_13, this.effectParameter_37);
         if (this.effectParameter_34 == null || this.texture2D_13 == null)
           return;
-        EffectHelper.smethod_7(new Vector2((float) this.texture2D_13.Width, (float) this.texture2D_13.Height), ref this.vector2_0, ref this.effectParameter_34);
+        EffectHelper.smethod_7(new Vector2(this.texture2D_13.Width, this.texture2D_13.Height), ref this.vector2_0, ref this.effectParameter_34);
       }
     }
 
@@ -136,24 +109,15 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public Texture2D SceneLightingSpecularMap
     {
-      get
-      {
-        return this.texture2D_14;
-      }
-      set
-      {
-        EffectHelper.smethod_8(value, ref this.texture2D_14, ref this.effectParameter_38);
-      }
+      get => this.texture2D_14;
+        set => EffectHelper.SetParam(value, ref this.texture2D_14, this.effectParameter_38);
     }
 
     /// <summary>Enables scene fog.</summary>
     public bool FogEnabled
     {
-      get
-      {
-        return this.bool_3;
-      }
-      set
+      get => this.bool_3;
+        set
       {
         this.bool_3 = value;
         this.SetTechnique();
@@ -165,14 +129,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float FogStartDistance
     {
-      get
-      {
-        return this.float_7;
-      }
-      set
-      {
-        this.method_6(value, this.float_8);
-      }
+      get => this.float_7;
+        set => this.method_6(value, this.float_8);
     }
 
     /// <summary>
@@ -180,27 +138,15 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// </summary>
     public float FogEndDistance
     {
-      get
-      {
-        return this.float_8;
-      }
-      set
-      {
-        this.method_6(this.float_7, value);
-      }
+      get => this.float_8;
+        set => this.method_6(this.float_7, value);
     }
 
     /// <summary>Color applied to scene fog.</summary>
     public Vector3 FogColor
     {
-      get
-      {
-        return this.vector3_1;
-      }
-      set
-      {
-        EffectHelper.smethod_4(value, ref this.vector3_1, ref this.effectParameter_40);
-      }
+      get => this.vector3_1;
+        set => EffectHelper.smethod_4(value, ref this.vector3_1, ref this.effectParameter_40);
     }
 
     /// <summary>Creates a new DeferredTerrainEffect instance.</summary>
@@ -211,8 +157,8 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
       this.method_5();
     }
 
-    internal DeferredTerrainEffect(GraphicsDevice graphicsDevice_0, bool bool_4)
-      : base(graphicsDevice_0, "DeferredTerrainEffect", bool_4)
+    internal DeferredTerrainEffect(GraphicsDevice device, bool bool_4)
+      : base(device, "DeferredTerrainEffect", bool_4)
     {
       this.method_5();
     }
@@ -226,7 +172,7 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
         return;
       Vector3 vector3_2;
       Vector3 vector3_3;
-      Class13.smethod_1((light as ILight).CompositeColorAndIntensity, light.Depth, 0.65f, out vector3_2, out vector3_3);
+      CoreUtils.smethod_1((light as ILight).CompositeColorAndIntensity, light.Depth, 0.65f, out vector3_2, out vector3_3);
       this.vector3_3[0] = vector3_2;
       this.vector3_3[1] = vector3_3;
       this.vector3_3[2] = (vector3_2 + vector3_3) * 0.2f;
@@ -296,17 +242,17 @@ namespace SynapseGaming.LightingSystem.Effects.Deferred
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new DeferredTerrainEffect(device);
+      return new DeferredTerrainEffect(device);
     }
 
     private void method_6(float float_9, float float_10)
     {
-      if (this.effectParameter_39 == null || (double) this.float_7 == (double) float_9 && (double) this.float_8 == (double) float_10)
+      if (this.effectParameter_39 == null || this.float_7 == (double) float_9 && this.float_8 == (double) float_10)
         return;
       this.float_7 = Math.Max(float_9, 0.0f);
       this.float_8 = Math.Max(this.float_7 * 1.01f, float_10);
       float y = this.float_8 - this.float_7;
-      if ((double) y != 0.0)
+      if (y != 0.0)
         y = 1f / y;
       this.effectParameter_39.SetValue(new Vector2(this.float_7, y));
     }

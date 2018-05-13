@@ -45,7 +45,7 @@ namespace Ship_Game
 			}
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, this.TextPos, Color.White);
 		}
@@ -67,23 +67,23 @@ namespace Ship_Game
 			}
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, this.TextPos, Color.White);
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.Button, input.CursorPosition))
+			if (!this.Button.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
 			else
 			{
 				this.Hover = true;
-				if (input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (input.LeftMouseClick)
 				{
-					AudioManager.PlayCue("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					return true;
 				}
 			}

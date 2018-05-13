@@ -15,6 +15,6 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     NormalViewSpaceAndSpecular,
     LightingDiffuse,
     LightingSpecular,
-    None,
+    None
   }
 }

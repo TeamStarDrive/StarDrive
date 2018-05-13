@@ -136,7 +136,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.r, input.CursorPosition))
+			if (!this.r.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -145,7 +145,7 @@ namespace Ship_Game
 				this.Hover = true;
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("echo_affirm");
+					GameAudio.PlaySfxAsync("echo_affirm");
 					if (this.IsToggle)
 					{
 						this.Toggled = !this.Toggled;

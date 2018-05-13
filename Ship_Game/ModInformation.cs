@@ -2,21 +2,24 @@ using System;
 
 namespace Ship_Game
 {
-	public sealed class ModInformation
-	{
-		public string ModName                = "";
-		public string CustomMenuMusic        = "";
-		public string ModDescription         = "";
-		public bool DisableDefaultRaces;
-		public string PortraitPath           = "";
-		public string ModImagePath_1920x1280 = "";
+    public sealed class ModInformation
+    {
+        public string ModName                = "";
+        public string CustomMenuMusic        = "";
+        public string ModDescription         = "";
+        public bool DisableDefaultRaces;
+        public string PortraitPath           = "";
+        public string ModImagePath_1920x1280 = "";
         public string URL                    = "";
         public string Author                 = "";
 
         //added by Gremlin
         public string Version;
+        public string BitbucketAPIString;
+        public string DownLoadSite;
         public float GlobalExplosionVisualIncreaser     = 1f;
         public float GlobalShipExplosionVisualIncreaser = 1f;
+        public int MaxOpponents = 7;
 
         //added by McShooterz
         public bool useAlternateTech;
@@ -25,6 +28,7 @@ namespace Ship_Game
         public bool removeRemnantStory;
         public bool useCombatRepair;
         public bool clearVanillaTechs;
+        public bool clearVanillaWeapons;
 
         //added by The Doctor
         public bool customMilTraitTechs;
@@ -65,5 +69,5 @@ namespace Ship_Game
         public int SwampHab  = 67;
         public int TerranHab = 75;
 
-	}
+    }
 }

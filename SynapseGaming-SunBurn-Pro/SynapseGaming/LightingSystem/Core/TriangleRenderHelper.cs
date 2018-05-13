@@ -15,24 +15,12 @@ namespace SynapseGaming.LightingSystem.Core
   public class TriangleRenderHelper : BasePrimitiveRenderHelper
   {
     /// <summary>Number of primitives submitted to the render helper.</summary>
-    public override int PrimitiveCount
-    {
-      get
-      {
-        return this.VertexCount / 3;
-      }
-    }
+    public override int PrimitiveCount => this.VertexCount / 3;
 
-    /// <summary>Primitive type used by the render helper.</summary>
-    protected override PrimitiveType PrimitiveType
-    {
-      get
-      {
-        return PrimitiveType.TriangleList;
-      }
-    }
+      /// <summary>Primitive type used by the render helper.</summary>
+    protected override PrimitiveType PrimitiveType => PrimitiveType.TriangleList;
 
-    /// <summary>Creates a new TriangleRenderHelper instance.</summary>
+      /// <summary>Creates a new TriangleRenderHelper instance.</summary>
     /// <param name="vertexcapacity">Maximum number of vertices the render helper can contain.</param>
     public TriangleRenderHelper(int vertexcapacity)
       : base(vertexcapacity)

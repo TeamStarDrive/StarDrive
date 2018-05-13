@@ -53,10 +53,10 @@ namespace Ship_Game
 			else if (this.amount < 0.5f)
 			{
 				float blackAmount = 2f * this.amount;
-				Primitives2D.FillRectangle(SpriteBatch, this.redRect, Color.Maroon);
-				Primitives2D.FillRectangle(SpriteBatch, new Rectangle(this.redRect.X, this.rect.Y, (int)(blackAmount * (float)this.redRect.Width), 6), Color.Black);
+				SpriteBatch.FillRectangle(this.redRect, Color.Maroon);
+				SpriteBatch.FillRectangle(new Rectangle(this.redRect.X, this.rect.Y, (int)(blackAmount * (float)this.redRect.Width), 6), Color.Black);
 			}
-			Primitives2D.DrawRectangle(SpriteBatch, this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+			SpriteBatch.DrawRectangle(this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
@@ -97,13 +97,25 @@ namespace Ship_Game
 			SpriteBatch.DrawString(Fonts.Arial12Bold, text, textPos, new Color(255, 239, 208));
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
+				ToolTip.CreateTooltip(this.Tip_ID);
 			}
 		}
 
+        public bool HandleInput(InputState input, ref float  currentvalue)
+        {
+            if (!rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
+            {
+                SetAmount(currentvalue);
+                return false;
+            }
+            currentvalue = HandleInput(input);
+            return true;
+
+        }
+
 		public float HandleInput(InputState input)
 		{
-			if (!HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+			if (!this.rect.HitTest(input.CursorPosition))
 			{
 				this.Hover = false;
 			}
@@ -113,7 +125,7 @@ namespace Ship_Game
 			}
 			Rectangle clickCursor = this.cursor;
 			clickCursor.X = clickCursor.X - this.cursor.Width / 2;
-			if (HelperFunctions.CheckIntersection(clickCursor, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Pressed)
+			if (clickCursor.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
 				this.dragging = true;
 			}
@@ -128,7 +140,7 @@ namespace Ship_Game
 				{
 					this.cursor.X = this.rect.X;
 				}
-				if (input.CurrentMouseState.LeftButton == ButtonState.Released)
+				if (input.MouseCurr.LeftButton == ButtonState.Released)
 				{
 					this.dragging = false;
 				}

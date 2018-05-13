@@ -59,12 +59,12 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input, ScreenManager screenManager)
 		{
-			if (HelperFunctions.CheckIntersection(this.rect, input.CursorPosition))
+			if (this.rect.HitTest(input.CursorPosition))
 			{
-				ToolTip.CreateTooltip(string.Concat(ResourceManager.GoodsDict[this.Good].Name, " storage. \n\n Click to change Import/Export settings"), screenManager);
+				ToolTip.CreateTooltip($"{ResourceManager.GoodsDict[this.Good].Name} storage. \n\n Click to change Import/Export settings");
 				if (input.InGameSelect)
 				{
-					AudioManager.PlayCue("sd_ui_accept_alt3");
+					GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 					ThreeStateButton threeStateButton = this;
 					threeStateButton.state = (ThreeStateButton.State)((int)threeStateButton.state + (int)ThreeStateButton.State.Out);
 					if (this.state > ThreeStateButton.State.Store)

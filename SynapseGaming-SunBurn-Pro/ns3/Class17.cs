@@ -11,29 +11,29 @@ namespace ns3
 {
   internal class Class17
   {
-    private static List<Class17.Struct0> list_0 = new List<Class17.Struct0>(32);
+    private static List<Struct0> list_0 = new List<Struct0>(32);
 
     public static void smethod_0(string string_0)
     {
-      Class17.list_0.Add(new Class17.Struct0(string_0, -1f));
+      list_0.Add(new Struct0(string_0, -1f));
     }
 
     public static void smethod_1(string string_0, float float_0)
     {
-      Class17.list_0.Add(new Class17.Struct0(string_0, float_0));
+      list_0.Add(new Struct0(string_0, float_0));
     }
 
     public static void smethod_2(string string_0)
     {
       string contents = "";
-      foreach (Class17.Struct0 struct0 in Class17.list_0)
+      foreach (Struct0 struct0 in list_0)
       {
-        if ((double) struct0.float_0 >= 0.0)
-          contents = contents + struct0.string_0 + ": " + (object) struct0.float_0 + "\r\n";
+        if (struct0.float_0 >= 0.0)
+          contents = contents + struct0.string_0 + ": " + struct0.float_0 + "\r\n";
         else
           contents = contents + struct0.string_0 + "\r\n";
       }
-      Class17.list_0.Clear();
+      list_0.Clear();
       File.WriteAllText(string_0, contents);
     }
 

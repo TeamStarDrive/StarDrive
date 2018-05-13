@@ -4,26 +4,21 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ns6;
+using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
-using System;
 
 namespace SynapseGaming.LightingSystem.Effects.Forward
 {
   /// <summary>Effect provides per-pixel fog.</summary>
   public class FogEffect : BaseSkinnedEffect, ISamplerEffect, IAddressableEffect, ITransparentEffect, ITerrainEffect
   {
-    private float float_3 = -1f;
-    private TextureAddressMode textureAddressMode_0 = TextureAddressMode.Wrap;
-    private TextureAddressMode textureAddressMode_1 = TextureAddressMode.Wrap;
-    private TextureAddressMode textureAddressMode_2 = TextureAddressMode.Wrap;
-    private float float_1;
+      private float float_1;
     private float float_2;
     private Vector3 vector3_0;
-    private TransparencyMode transparencyMode_0;
-    private Texture2D texture2D_0;
+      private Texture2D texture2D_0;
     private int int_0;
     private float float_4;
     private float float_5;
@@ -42,14 +37,8 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// </summary>
     public float StartDistance
     {
-      get
-      {
-        return this.float_1;
-      }
-      set
-      {
-        this.method_2(value, this.float_2);
-      }
+      get => this.float_1;
+        set => this.method_2(value, this.float_2);
     }
 
     /// <summary>
@@ -57,24 +46,15 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// </summary>
     public float EndDistance
     {
-      get
-      {
-        return this.float_2;
-      }
-      set
-      {
-        this.method_2(this.float_1, value);
-      }
+      get => this.float_2;
+        set => this.method_2(this.float_1, value);
     }
 
     /// <summary>Color of the applied fog.</summary>
     public Vector3 Color
     {
-      get
-      {
-        return this.vector3_0;
-      }
-      set
+      get => this.vector3_0;
+        set
       {
         if (this.vector3_0 == value || this.effectParameter_13 == null)
           return;
@@ -86,109 +66,52 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <summary>
     /// Determines the effect's texture address mode in the U texture-space direction.
     /// </summary>
-    public TextureAddressMode AddressModeU
-    {
-      get
-      {
-        return this.textureAddressMode_0;
-      }
-      set
-      {
-        this.textureAddressMode_0 = value;
-      }
-    }
+    public TextureAddressMode AddressModeU { get; set; } = TextureAddressMode.Wrap;
 
-    /// <summary>
+      /// <summary>
     /// Determines the effect's texture address mode in the V texture-space direction.
     /// </summary>
-    public TextureAddressMode AddressModeV
-    {
-      get
-      {
-        return this.textureAddressMode_1;
-      }
-      set
-      {
-        this.textureAddressMode_1 = value;
-      }
-    }
+    public TextureAddressMode AddressModeV { get; set; } = TextureAddressMode.Wrap;
 
-    /// <summary>
+      /// <summary>
     /// Determines the effect's texture address mode in the W texture-space direction.
     /// </summary>
-    public TextureAddressMode AddressModeW
-    {
-      get
-      {
-        return this.textureAddressMode_2;
-      }
-      set
-      {
-        this.textureAddressMode_2 = value;
-      }
-    }
+    public TextureAddressMode AddressModeW { get; set; } = TextureAddressMode.Wrap;
 
-    /// <summary>
+      /// <summary>
     /// Determines if the effect's shader changes sampler states while rendering.
     /// </summary>
-    public bool AffectsSamplerStates
-    {
-      get
-      {
-        return false;
-      }
-    }
+    public bool AffectsSamplerStates => false;
 
-    /// <summary>
+      /// <summary>
     /// The transparency style used when rendering the effect.
     /// </summary>
-    public TransparencyMode TransparencyMode
-    {
-      get
-      {
-        return this.transparencyMode_0;
-      }
-    }
+    public TransparencyMode TransparencyMode { get; private set; }
 
-    /// <summary>
+      /// <summary>
     /// Used with TransparencyMode to determine the effect transparency.
     ///   -For Clipped mode this value is a comparison value, where all TransparencyMap
     ///    alpha values below this value are *not* rendered.
     /// </summary>
-    public float Transparency
-    {
-      get
-      {
-        return this.float_3;
-      }
-    }
+    public float Transparency { get; private set; } = -1f;
 
-    /// <summary>
+      /// <summary>
     /// The texture map used for transparency (values are pulled from the alpha channel).
     /// </summary>
-    public Texture TransparencyMap
-    {
-      get
-      {
-        return (Texture) this.texture2D_0;
-      }
-    }
+    public Texture TransparencyMap => this.texture2D_0;
 
-    /// <summary>
+      /// <summary>
     /// Texture containing height values used to displace a terrain mesh. Also used
     /// for low frequency lighting.
     /// </summary>
     public Texture2D HeightMapTexture
     {
-      get
-      {
-        return this.texture2D_1;
-      }
-      set
+      get => this.texture2D_1;
+          set
       {
         if (value == this.texture2D_1)
           return;
-        EffectHelper.smethod_8(value, ref this.texture2D_1, ref this.effectParameter_19);
+        EffectHelper.SetParam(value, ref this.texture2D_1, this.effectParameter_19);
         this.SetTechnique();
       }
     }
@@ -196,14 +119,8 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <summary>Adjusts the terrain displacement magnitude.</summary>
     public float HeightScale
     {
-      get
-      {
-        return this.float_4;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_4, ref this.effectParameter_17);
-      }
+      get => this.float_4;
+        set => EffectHelper.smethod_6(value, ref this.float_4, ref this.effectParameter_17);
     }
 
     /// <summary>
@@ -212,27 +129,15 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// </summary>
     public float Tiling
     {
-      get
-      {
-        return this.float_5;
-      }
-      set
-      {
-        EffectHelper.smethod_6(value, ref this.float_5, ref this.effectParameter_18);
-      }
+      get => this.float_5;
+        set => EffectHelper.smethod_6(value, ref this.float_5, ref this.effectParameter_18);
     }
 
     /// <summary>Density or tessellation of the terrain mesh.</summary>
     public int MeshSegments
     {
-      get
-      {
-        return this.int_0;
-      }
-      set
-      {
-        EffectHelper.smethod_5(value, ref this.int_0, ref this.effectParameter_16);
-      }
+      get => this.int_0;
+        set => EffectHelper.smethod_5(value, ref this.int_0, ref this.effectParameter_16);
     }
 
     /// <summary>Creates a new FogEffect instance.</summary>
@@ -266,22 +171,22 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     public void SetTransparencyModeAndMap(TransparencyMode mode, float transparency, Texture map)
     {
       bool flag = false;
-      if (mode != this.transparencyMode_0)
+      if (mode != this.TransparencyMode)
       {
-        this.transparencyMode_0 = mode;
+        this.TransparencyMode = mode;
         flag = true;
       }
-      if (this.effectParameter_14 != null && (double) transparency != (double) this.float_3)
+      if (this.effectParameter_14 != null && transparency != (double) this.Transparency)
       {
-        this.float_3 = transparency;
-        this.effectParameter_14.SetValue(this.float_3);
+        this.Transparency = transparency;
+        this.effectParameter_14.SetValue(this.Transparency);
         flag = true;
       }
       Texture2D texture2D = map as Texture2D;
       if (this.effectParameter_15 != null && texture2D != this.texture2D_0)
       {
         this.texture2D_0 = texture2D;
-        this.effectParameter_15.SetValue((Texture) this.texture2D_0);
+        this.effectParameter_15.SetValue(this.texture2D_0);
         flag = true;
       }
       if (!flag)
@@ -291,12 +196,12 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
 
     private void method_2(float float_6, float float_7)
     {
-      if (this.effectParameter_12 == null || (double) this.float_1 == (double) float_6 && (double) this.float_2 == (double) float_7)
+      if (this.effectParameter_12 == null || this.float_1 == (double) float_6 && this.float_2 == (double) float_7)
         return;
       this.float_1 = Math.Max(float_6, 0.0f);
       this.float_2 = Math.Max(this.float_1 * 1.01f, float_7);
       float y = this.float_2 - this.float_1;
-      if ((double) y != 0.0)
+      if (y != 0.0)
         y = 1f / y;
       this.effectParameter_12.SetValue(new Vector4(this.float_1, y, 0.0f, 0.0f));
     }
@@ -310,7 +215,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
       if (this.texture2D_1 != null)
         this.CurrentTechnique = this.Techniques["Fog_Terrain_Technique"];
       else
-        this.CurrentTechnique = this.Techniques[Class48.smethod_2(Class48.Enum3.Fog, Class48.Enum4.None, 0, false, this.transparencyMode_0 != TransparencyMode.None, this.Skinned, false)];
+        this.CurrentTechnique = this.Techniques[TechniquNames.Get(TechniquNames.Enum3.Fog, TechniquNames.Enum4.None, 0, false, this.TransparencyMode != TransparencyMode.None, this.Skinned, false)];
     }
 
     /// <summary>
@@ -320,7 +225,7 @@ namespace SynapseGaming.LightingSystem.Effects.Forward
     /// <returns></returns>
     protected override Effect Create(GraphicsDevice device)
     {
-      return (Effect) new FogEffect(device);
+      return new FogEffect(device);
     }
   }
 }

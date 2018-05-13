@@ -15,25 +15,19 @@ namespace SynapseGaming.LightingSystem.Core
   /// </summary>
   public class LightingSystemPerformance
   {
-    private static Dictionary<string, LightingSystemPerformance.TimeTracker> dictionary_0 = new Dictionary<string, LightingSystemPerformance.TimeTracker>(64);
-    private static LightingSystemPerformance.TimeTracker timeTracker_0 = new LightingSystemPerformance.TimeTracker();
+    private static Dictionary<string, TimeTracker> dictionary_0 = new Dictionary<string, TimeTracker>(64);
+    private static TimeTracker timeTracker_0 = new TimeTracker();
 
-    internal static Dictionary<string, LightingSystemPerformance.TimeTracker> TimeTrackers
-    {
-      get
-      {
-        return LightingSystemPerformance.dictionary_0;
-      }
-    }
+    internal static Dictionary<string, TimeTracker> TimeTrackers => dictionary_0;
 
-    /// <summary>
+      /// <summary>
     /// 
     /// </summary>
     /// <param name="codearea"></param>
     /// <returns></returns>
-    public static LightingSystemPerformance.TimeTracker Begin(string codearea)
+    public static TimeTracker Begin(string codearea)
     {
-      return (LightingSystemPerformance.TimeTracker) null;
+      return null;
     }
 
     /// <summary>
@@ -42,7 +36,7 @@ namespace SynapseGaming.LightingSystem.Core
     [Conditional("ENABLE_TIMETRACKER")]
     public static void Reset()
     {
-      foreach (KeyValuePair<string, LightingSystemPerformance.TimeTracker> keyValuePair in LightingSystemPerformance.dictionary_0)
+      foreach (KeyValuePair<string, TimeTracker> keyValuePair in dictionary_0)
       {
         if (keyValuePair.Value.IsRunning)
           throw new Exception("TimeTracker not properly ended.");
@@ -65,23 +59,11 @@ namespace SynapseGaming.LightingSystem.Core
     {
       private Stopwatch stopwatch_0 = new Stopwatch();
 
-      internal float TotalMilliseconds
-      {
-        get
-        {
-          return (float) this.stopwatch_0.Elapsed.TotalMilliseconds;
-        }
-      }
+      internal float TotalMilliseconds => (float) this.stopwatch_0.Elapsed.TotalMilliseconds;
 
-      internal bool IsRunning
-      {
-        get
-        {
-          return this.stopwatch_0.IsRunning;
-        }
-      }
+        internal bool IsRunning => this.stopwatch_0.IsRunning;
 
-      /// <summary>
+        /// <summary>
       /// 
       /// </summary>
       [Conditional("ENABLE_TIMETRACKER")]

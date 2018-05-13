@@ -5,109 +5,135 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class Selector
-	{
-		public Rectangle Menu;
+    public sealed class Selector : UIElementV2
+    {
+        private Rectangle TR; // top-right corner
+        private Rectangle BL;
+        private Rectangle BR;
+        private Rectangle TL;
+        
+        private Rectangle HT; // horizontal top bar
+        private Rectangle HB;
+        private Rectangle VL; // vertical left bar
+        private Rectangle VR;
 
-		private Ship_Game.ScreenManager ScreenManager;
+        private readonly Color Fill;
+        private readonly Color EdgeColor;
 
-		private Rectangle UpperLeft;
+        public Selector(Rectangle theMenu) : base(null, Vector2.Zero)
+        {
+            theMenu.X = theMenu.X - 15;
+            theMenu.Y = theMenu.Y - 5;
+            theMenu.Width = theMenu.Width + 12;
+            Initialize(theMenu);
+            EdgeColor = Color.White;
+        }
 
-		private Rectangle TR;
+        public Selector(Rectangle theMenu, bool useRealRect) : base(null, Vector2.Zero)
+        {
+            Initialize(theMenu);
+            EdgeColor = Color.White;
+        }
 
-		private Rectangle topHoriz;
+        public Selector(Rectangle theMenu, Color fillColor) : base(null, Vector2.Zero)
+        {
+            Fill = fillColor;
+            Initialize(theMenu);
+            EdgeColor = Color.White;
+        }
 
-		private Rectangle botHoriz;
+        public Selector(Rectangle theMenu, Color fillColor, float textureAlpha) : base(null, Vector2.Zero)
+        {
+            Fill = fillColor;
+            EdgeColor = new Color(Color.White, (byte)textureAlpha);
+            Initialize(theMenu);
+            
 
-		private Rectangle BL;
+        }
 
-		private Rectangle BR;
+        private class ElementTextures
+        {
+            public Texture2D CornerTL, CornerTR, CornerBL, CornerBR;
+            public Texture2D RoundTL, RoundTR, RoundBL, RoundBR;
+            public Texture2D HoriVert;
+        }
+        private static ElementTextures Tex;
 
-		private Rectangle VL;
+        private void Initialize(Rectangle theMenu)
+        {
+            if (Tex == null)
+            {
+                Tex = new ElementTextures
+                {
+                    CornerTL = ResourceManager.Texture("NewUI/submenu_corner_TL"),
+                    CornerTR = ResourceManager.Texture("NewUI/submenu_corner_TR"),
+                    CornerBL = ResourceManager.Texture("NewUI/submenu_corner_BL"),
+                    CornerBR = ResourceManager.Texture("NewUI/submenu_corner_BR"),
+                    RoundTL  = ResourceManager.Texture("NewUI/rounded_upperLeft"),
+                    RoundTR  = ResourceManager.Texture("NewUI/rounded_upperRight"),
+                    RoundBL  = ResourceManager.Texture("NewUI/rounded_lowerLeft"),
+                    RoundBR  = ResourceManager.Texture("NewUI/rounded_lowerRight"),
+                    HoriVert = ResourceManager.Texture("NewUI/submenu_horiz_vert")
+                };
+            }
 
-		private Rectangle VR;
+            Rect = theMenu;
+            int x = theMenu.X,     y = theMenu.Y;
+            int w = theMenu.Width, h = theMenu.Height;
 
-		private Rectangle TL;
+            TL = new Rectangle(x, y - 2, Tex.CornerTL.Width, Tex.CornerTL.Height);
+            TR = new Rectangle(x + w - Tex.CornerTR.Width, y - 2, Tex.CornerTR.Width, Tex.CornerTR.Height);
+            BL = new Rectangle(x, y + h - Tex.CornerBL.Height + 2, Tex.CornerBL.Width, Tex.CornerBL.Height);
+            BR = new Rectangle(x + w - Tex.CornerBR.Width, y + h + 2 - Tex.CornerBR.Height, Tex.CornerBR.Width, Tex.CornerBR.Height);
+            HT = new Rectangle(x + Tex.CornerTL.Width, y - 2, w - TR.Width - Tex.CornerTL.Width, 2);
+            HB = new Rectangle(x + BL.Width, y + h, w - BL.Width - BR.Width, 2);
+            VL = new Rectangle(x, y + TR.Height - 2, 2, h - BL.Height - 2);
+            VR = new Rectangle(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
+        }
 
-		private Color fill;
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            int x = (int)X,     y = (int)Y;
+            int w = (int)Width, h = (int)Height;
+            var upperleft  = new Rectangle(x, y, 24, 24);
+            var upperRight = new Rectangle(x + w - 24, y, 24, 24);
+            var lowerLeft  = new Rectangle(x, y + h - 24, 24, 24);
+            var lowerRight = new Rectangle(x + w - 24, y + h - 24, 24, 24);
+            var top        = new Rectangle(x + 24, y, w - 48, 24);
+            var bottom     = new Rectangle(x + 24, y + h - 24, w - 48, 24);
+            var right      = new Rectangle(x + w - 24, y + 24, 24, h - 48);
+            var left       = new Rectangle(x, y + 24, 24, h - 48);
+            var middle     = new Rectangle(x + 24, y + 24, w - 48, h - 48);
 
-		public Selector(Ship_Game.ScreenManager sm, Rectangle theMenu)
-		{
-			this.ScreenManager = sm;
-			theMenu.X = theMenu.X - 15;
-			theMenu.Y = theMenu.Y - 5;
-			theMenu.Width = theMenu.Width + 12;
-			this.Menu = theMenu;
-			this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
-			this.TL = new Rectangle(theMenu.X, theMenu.Y - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);
-			this.TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, theMenu.Y - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Height);
-			this.BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height + 2, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height);
-			this.BR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, theMenu.Y + theMenu.Height + 2 - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height);
-			this.topHoriz = new Rectangle(theMenu.X + ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, theMenu.Y - 2, theMenu.Width - this.TR.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, 2);
-			this.botHoriz = new Rectangle(theMenu.X + this.BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - this.BL.Width - this.BR.Width, 2);
-			this.VL = new Rectangle(theMenu.X, theMenu.Y + this.TR.Height - 2, 2, theMenu.Height - this.BL.Height - 2);
-			this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + this.TR.Height - 2, 2, theMenu.Height - this.BR.Height - 2);
-		}
+            spriteBatch.Draw(Tex.RoundTL, upperleft,  Fill);
+            spriteBatch.Draw(Tex.RoundTR, upperRight, Fill);
+            spriteBatch.Draw(Tex.RoundBL, lowerLeft,  Fill);
+            spriteBatch.Draw(Tex.RoundBR, lowerRight, Fill);
+            spriteBatch.FillRectangle(top,    Fill);
+            spriteBatch.FillRectangle(bottom, Fill);
+            spriteBatch.FillRectangle(right,  Fill);
+            spriteBatch.FillRectangle(left,   Fill);
+            spriteBatch.FillRectangle(middle, Fill);
 
-		public Selector(Ship_Game.ScreenManager sm, Rectangle theMenu, bool UseRealRect)
-		{
-			this.ScreenManager = sm;
-			this.Menu = theMenu;
-			this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
-			this.TL = new Rectangle(theMenu.X, theMenu.Y - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);
-			this.TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, theMenu.Y - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Height);
-			this.BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height + 2, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height);
-			this.BR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, theMenu.Y + theMenu.Height + 2 - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height);
-			this.topHoriz = new Rectangle(theMenu.X + ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, theMenu.Y - 2, theMenu.Width - this.TR.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, 2);
-			this.botHoriz = new Rectangle(theMenu.X + this.BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - this.BL.Width - this.BR.Width, 2);
-			this.VL = new Rectangle(theMenu.X, theMenu.Y + this.TR.Height - 2, 2, theMenu.Height - this.BL.Height - 2);
-			this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + this.TR.Height - 2, 2, theMenu.Height - this.BR.Height - 2);
-		}
+            spriteBatch.Draw(Tex.HoriVert, HT, EdgeColor);
+            spriteBatch.Draw(Tex.HoriVert, HB, EdgeColor);
+            spriteBatch.Draw(Tex.HoriVert, VR, EdgeColor);
+            spriteBatch.Draw(Tex.HoriVert, VL, EdgeColor);
+            spriteBatch.Draw(Tex.CornerTL, TL, EdgeColor);
+            spriteBatch.Draw(Tex.CornerTR, TR, EdgeColor);
+            spriteBatch.Draw(Tex.CornerBR, BR, EdgeColor);
+            spriteBatch.Draw(Tex.CornerBL, BL, EdgeColor);
+        }
 
-		public Selector(Ship_Game.ScreenManager sm, Rectangle theMenu, Color fillColor)
-		{
-			this.fill = fillColor;
-			this.ScreenManager = sm;
-			this.Menu = theMenu;
-			this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
-			this.TL = new Rectangle(theMenu.X, theMenu.Y - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);
-			this.TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, theMenu.Y - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Height);
-			this.BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height + 2, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height);
-			this.BR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, theMenu.Y + theMenu.Height + 2 - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height);
-			this.topHoriz = new Rectangle(theMenu.X + ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, theMenu.Y - 2, theMenu.Width - this.TR.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, 2);
-			this.botHoriz = new Rectangle(theMenu.X + this.BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - this.BL.Width - this.BR.Width, 2);
-			this.VL = new Rectangle(theMenu.X, theMenu.Y + this.TR.Height - 2, 2, theMenu.Height - this.BL.Height - 2);
-			this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + this.TR.Height - 2, 2, theMenu.Height - this.BR.Height - 2);
-		}
+        public override bool HandleInput(InputState input)
+        {
+            return false;
+        }
 
-		public void Draw()
-		{
-			Rectangle upperleft = new Rectangle(this.Menu.X, this.Menu.Y, 24, 24);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_upperLeft"], upperleft, this.fill);
-			Rectangle upperRight = new Rectangle(this.Menu.X + this.Menu.Width - 24, this.Menu.Y, 24, 24);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_upperRight"], upperRight, this.fill);
-			Rectangle lowerLeft = new Rectangle(this.Menu.X, this.Menu.Y + this.Menu.Height - 24, 24, 24);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_lowerLeft"], lowerLeft, this.fill);
-			Rectangle lowerRight = new Rectangle(this.Menu.X + this.Menu.Width - 24, this.Menu.Y + this.Menu.Height - 24, 24, 24);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_lowerRight"], lowerRight, this.fill);
-			Rectangle top = new Rectangle(this.Menu.X + 24, this.Menu.Y, this.Menu.Width - 48, 24);
-			Rectangle bottom = new Rectangle(this.Menu.X + 24, this.Menu.Y + this.Menu.Height - 24, this.Menu.Width - 48, 24);
-			Rectangle right = new Rectangle(this.Menu.X + this.Menu.Width - 24, this.Menu.Y + 24, 24, this.Menu.Height - 48);
-			Rectangle left = new Rectangle(this.Menu.X, this.Menu.Y + 24, 24, this.Menu.Height - 48);
-			Rectangle middle = new Rectangle(this.Menu.X + 24, this.Menu.Y + 24, this.Menu.Width - 48, this.Menu.Height - 48);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, top, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, bottom, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, right, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, left, this.fill);
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, middle, this.fill);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TL"], this.TL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.topHoriz, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TR"], this.TR, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.botHoriz, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_BR"], this.BR, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_BL"], this.BL, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.VR, Color.White);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.VL, Color.White);
-		}
-	}
+        public override void PerformLegacyLayout(Vector2 pos)
+        {
+            Pos = pos;
+            Initialize(Rect);
+        }
+    }
 }

@@ -4697,8 +4697,46 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
 
 
-    
+    <!-- Data added in Texas Alpha1 -->
+    <Token>
+      <Index>1991</Index>
+      <Text>The more complex the module is, the more it is harder to repair it. A complexity of 2, for instance, means that it will take twice the amount of time to repair the module. Complexity of 0.5 means it will be twice as fast to repair</Text>
+    </Token>
+    <Token>
+      <Index>1992</Index>
+      <Text>Complexity</Text>
+    </Token>
+    <Token>
+      <Index>1993</Index>
+      <Text>This shield can recharge even during combat.</Text>
+    </Token>
+    <Token>
+      <Index>1994</Index>
+      <Text>C.Recharge</Text>
+    </Token>
+    <Token>
+      <Index>1995</Index>
+      <Text>The damage radius of this module's explosion, when it is destroyed. The radius will get smaller as modules nearby absorb the explosion</Text>
+    </Token>
+    <Token>
+      <Index>1996</Index>
+      <Text>The damage caused to nearby modules if this module explodes.</Text>
+    </Token>
+    <Token>
+      <Index>1997</Index>
+      <Text>Exp Rad</Text>
+    </Token>
+    <Token>
+      <Index>1998</Index>
+      <Text>Exp Dmg</Text>
+    </Token>
+    <Token>
+      <Index>1999</Index>
+      <Text>Plasma Ordnance provides a 25% damage bonus to all of our Ordnance-based weapons.</Text>
+    </Token>
+
     <!-- Second Run.  These are items that did not make the first localization run, or items that have changed since the first localization run-->
+
     <Token>
       <Index>2000</Index>
       <!-- planetname was destroyed by unknown forces-->
@@ -4714,19 +4752,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2003</Index>
-      <Text>Plasma Ordnance provides a 25% greater explosive radius and 25% damage bonus to all of our Ordnance-based weapons.</Text>
+      <Text>Plasma Ordnance provides a 25% greater explosive radius to all of our Ordnance-based weapons.</Text>
     </Token>
     <Token>
       <Index>2004</Index>
-      <Text>Reactive Armor</Text>
+      <Text>Reinforced Components</Text>
     </Token>
     <Token>
       <Index>2005</Index>
-      <Text>Reactive armor employs a basic energy field to detect imminent impacts, triggering microexplosives contained in the armor that explode towards the incoming ordnance. This effectively weakens the incoming assault. </Text>
+      <Text>Integration of hardened ship components reduces the effectiveness of explosion damage.</Text>
     </Token>
     <Token>
       <Index>2006</Index>
-      <Text>All armors are now equipped with reactive systems, which reduces the effectiveness of explosive weapons by 25%.</Text>
+      <Text>All ship modules are now slightly reinforced. Reducing radius of explosions by 25%.</Text>
     </Token>
     <Token>
       <Index>2007</Index>
@@ -6864,8 +6902,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4099</Index>
       <Text>This broadside-mounted cannon is capable of delivering a higher-powered kinetic blast than its turret-mounted cousins. Weapon mobility and target tracking are traded for the opportunity to unleash hellish volleys of unaimed fire.</Text>
     </Token>
-	
-	<!-- Somehow the 4100 range has become where I put all my new stuff - Gretman           -->
+  
+  <!-- Somehow the 4100 range has become where I put all my new stuff - Gretman           -->
     <Token>
       <Index>4100</Index>
       <Text>The delay between auto saves. This is measured in unpaused, game relative seconds.\n--Common Durations--\n60 = 1 Minute\n300 = 5 Minutes (Default)\n600 = 10 Minutes</Text>
@@ -6882,16 +6920,40 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4103</Index>
       <Text>Corners is a 4 race match similar to a sandbox game, except the map is divided into quarters, with 1 faction in each quarter, offering clear boundaries between regions of space. Defend your territory at all costs!</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>4104</Index>
       <Text>The total number of module slots available on the selected ship.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>4105</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
     </Token>
-	
-	
+
+    <Token>
+      <Index>4106</Index>
+      <Text>Support</Text>
+    </Token>
+    <Token>
+      <Index>4107</Index>
+      <Text>TroopShip</Text>
+    </Token>
+    <Token>
+      <Index>4108</Index>
+      <Text>GunBoat</Text>
+    </Token>
+    <Token>
+      <Index>4109</Index>
+      <Text>Drone</Text>
+    </Token>
+    <Token>
+      <Index>4110</Index>
+      <Text>Destroyer</Text>
+    </Token>
+    <Token>
+      <Index>4111</Index>
+      <Text>Bomber</Text>
+    </Token>
+  
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
@@ -7240,36 +7302,36 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>5087</Index>
       <Text>TradeHub</Text>
     </Token>
-	
+  
 
 
-	<!-- SD Code Mod, UI ELEMENT TEXT -->	
-	
-	<Token>
+  <!-- SD Code Mod, UI ELEMENT TEXT -->	
+  
+  <Token>
       <Index>6000</Index>
       <Text>sensor range</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6001</Index>
       <Text>subspace projection area</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6002</Index>
       <Text>Gravity Well Radius</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6003</Index>
       <Text>Defines the radius of planetary gravity wells. Larger values means ships need to be further away from a planetary body to engage FTL, et vice versa.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6004</Index>
       <Text>ECM</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6005</Index>
       <Text>ECM Resist</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6006</Index>
       <Text>Beam Dur</Text>
     </Token>
@@ -7277,471 +7339,471 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6007</Index>
       <Text>Pause On Notifications</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6008</Index>
       <Text>Boarding</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6009</Index>
       <Text>Station</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6010</Index>
       <Text>Corvette</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6011</Index>
       <Text>Power Warp</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6012</Index>
       <Text>Repair Rate Modifier</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6013</Index>
       <Text>Repair Rate</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6014</Index>
       <Text>Reactor Power Modifier</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6015</Index>
       <Text>Hull Bonus: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6016</Index>
       <Text>Armor Protection</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6017</Index>
       <Text>Sensor Range</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6018</Index>
       <Text>Max Speed</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6019</Index>
       <Text>Cargo Space</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6020</Index>
       <Text>Fire Rate</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6021</Index>
       <Text>Cost Reduction</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6022</Index>
       <Text>Prevent AI Federations</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6023</Index>
       <Text>Level</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6024</Index>
       <Text>Recovering</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6025</Index>
       <Text>has successfully complete training\nThe Agent's performance exceeded expectation.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6026</Index>
       <Text>has successfully completed training\nand has gained valuable knowledge.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6027</Index>
       <Text>was injured in a training accident.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6028</Index>
       <Text>was killed in a training accident.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6029</Index>
       <Text>has completed training, but failed to learn anything useful.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6030</Index>
       <Text>successfully infiltrated a colony:</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6031</Index>
       <Text>\nThe Agent was not detected.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6032</Index>
       <Text>was unable to infiltrate a colony\nand was wounded avoiding capture</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6033</Index>
       <Text>An enemy Agent was foiled trying to infiltrate a colony\nThe Agent was sent by</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6034</Index>
       <Text>was killed trying to infiltrate a colony.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6035</Index>
       <Text>An enemy Agent was killed trying to infiltrate one of our colonies\nThe Agent was sent by</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6036</Index>
       <Text>was unable to infiltrate a colony\nand had to abort the mission to avoid capture</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6037</Index>
       <Text>One of our Agents was assassinated:</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6038</Index>
       <Text>could not assassinate an enemy Agent \nbecause target empire has no Agents</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6039</Index>
       <Text>assassinated an enemy Agent:</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6040</Index>
       <Text>\nOur agent escaped unharmed and undetected.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6041</Index>
       <Text>\nThe Assassin was sent by</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6042</Index>
       <Text>\nOur agent was detected but escaped.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6043</Index>
       <Text>We managed to detect an enemy Assassin before it could strike\nThe Assassin was sent by</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6044</Index>
       <Text>was wounded trying to assassinate an enemy agent, but managed to escape.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6045</Index>
       <Text>An enemy Agent was killed during an assassination attempt\nThe Assassin was sent by</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6046</Index>
       <Text>was killed trying to assassinate an enemy agent.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6047</Index>
       <Text>was foiled trying to assassinate an enemy agent, but managed to escape.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6048</Index>
       <Text>An enemy Agent has sabotaged production on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6049</Index>
       <Text>\nThe Agent was sent by</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6050</Index>
       <Text>was detected while attempting to steal a technology\nand was wounded while escaping</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6051</Index>
       <Text>We foiled an enemy Agent trying to sabotage production on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6052</Index>
       <Text>was wounded while trying to sabotage</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6053</Index>
       <Text>We killed an enemy Agent trying to sabotage production on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6054</Index>
       <Text>was killed trying to sabotage an enemy colony</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6055</Index>
       <Text>escaped after being detected while trying to sabotage</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6056</Index>
       <Text>An enemy spy stole some technology from us \nbut we don't know who they were working for</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6057</Index>
       <Text>stole a technology:</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6058</Index>
       <Text>An enemy Agent stole a technology from us:</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6059</Index>
       <Text>We foiled an enemy plot to steal our technology</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6060</Index>
       <Text>An enemy Agent was killed trying to steal our technology</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6061</Index>
       <Text>was killed trying to steal technology</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6062</Index>
       <Text>was detected while attempting to steal a technology\nbut managed to escape unharmed</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6063</Index>
       <Text>aborted the Steal Technology mission because\nthere is nothing to steal;</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6064</Index>
       <Text>Credits are therefore refunded.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6065</Index>
       <Text>credits were mysteriously stolen from our treasury.\nWe have no suspects in the theft</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6066</Index>
       <Text>could not rob</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6067</Index>
       <Text>\nbecause they have no money</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6068</Index>
       <Text>stole</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6069</Index>
       <Text>credits from</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6070</Index>
       <Text>credits were stolen from our treasury by an enemy Agent.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6071</Index>
       <Text>We foiled an enemy plot to rob our treasury</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6072</Index>
       <Text>was unable to steal any credits\nand was wounded while escaping.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6073</Index>
       <Text>We killed an enemy Agent during an attempted robbery</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6074</Index>
       <Text>was killed trying to steal credits from</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6075</Index>
       <Text>was unable to steal any credits\nbut managed to escape unharmed.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6076</Index>
       <Text>We foiled an enemy plot to incite rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6077</Index>
       <Text>incited a serious rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6078</Index>
       <Text>An enemy Agent has incited rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6079</Index>
       <Text>\nHowever, they know we are behind it.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6080</Index>
       <Text>was wounded while trying to incite a rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6081</Index>
       <Text>We killed an enemy agent trying to incite rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6082</Index>
       <Text>was killed trying to incite rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6083</Index>
       <Text>escaped after being detected while trying to incite rebellion on</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6084</Index>
       <Text>sabotaged production for</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6085</Index>
       <Text>turns:</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6086</Index>
       <Text>has recovered from their injuries.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6087</Index>
       <Text>has been promoted, and gains +1 Level.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6088</Index>
       <Text>Espionage</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6089</Index>
       <Text>Espionage Overview</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6090</Index>
       <Text>Espionage Agents</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6091</Index>
       <Text>Intelligence Report</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6092</Index>
       <Text>Agent Dossier</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6093</Index>
       <Text>Capital Elimination</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6094</Index>
       <Text>Home World: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6095</Index>
       <Text>Total Planets: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6096</Index>
       <Text>Total Starships: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6097</Index>
       <Text>Treasury: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6098</Index>
       <Text>Maintenance Costs: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6099</Index>
       <Text>Total Spies: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6100</Index>
       <Text>Population: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6101</Index>
       <Text>billion</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6102</Index>
       <Text>: Government Destroyed</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6103</Index>
       <Text> and Trade</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6104</Index>
       <Text>: Trade Partner</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6105</Index>
       <Text>: No Diplomatic Relations</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6106</Index>
       <Text>Controls Home World: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6107</Index>
       <Text>Yes</Text>
     </Token>	
-	<Token>
+  <Token>
       <Index>6108</Index>
       <Text>Alias: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6109</Index>
       <Text>Home: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6110</Index>
       <Text>Age: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6111</Index>
       <Text>Service: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6112</Index>
       <Text>Training Exercises: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6113</Index>
       <Text>Agents Assassinated: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6114</Index>
       <Text>Colonies Infiltrated: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6115</Index>
       <Text>Colonies Sabotaged: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6116</Index>
       <Text>Technologies Stolen: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6117</Index>
       <Text>Treasuries Robbed: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6118</Index>
       <Text>Rebellions Started: </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6119</Index>
       <Text> years</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6120</Index>
       <Text>Ordnance/s</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6121</Index>
       <Text>Range+</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6122</Index>
       <Text>Delay</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6123</Index>
       <Text>Trans Pw</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6124</Index>
       <Text>Trans Ord</Text>
     </Token>
@@ -7749,256 +7811,256 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6125</Index>
       <Text>Gross Income</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6126</Index>
       <Text>Expenditure</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6127</Index>
       <Text>Net Income</Text>
     </Token>
-		<Token>
+    <Token>
       <Index>6128</Index>
       <Text>Land</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6129</Index>
       <Text>Net Losses</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6130</Index>
       <Text>Sensor Range</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6131</Index>
       <Text>Heal</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6132</Index>
       <Text>Troop Capacity</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6133</Index>
       <Text>Ordnance Added</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6134</Index>
       <Text>Prototype</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6135</Index>
       <Text>Assault</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6136</Index>
       <Text>Auto Research</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6137</Index>
       <Text>Ship Repair</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6138</Index>
       <Text>Auto Taxes</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6139</Index>
       <Text>In-System Enemy FTL Speed Modifier</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6140</Index>
       <Text>Food Consumption Modifier</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6141</Index>
       <Text>Shield Strength Modifier</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6142</Index>
       <Text>Kinetic Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6143</Index>
       <Text>Energy Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6144</Index>
       <Text>Guided Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6145</Index>
       <Text>Missile Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6146</Index>
       <Text>Hybrid Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6147</Index>
       <Text>Beam Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6148</Index>
       <Text>Expl Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6149</Index>
       <Text>Intcpt Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6150</Index>
       <Text>Rail Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6151</Index>
       <Text>SpB Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6152</Index>
       <Text>Bomb Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6153</Index>
       <Text>Bio Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6154</Index>
       <Text>Drone Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6155</Index>
       <Text>Warp Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6156</Index>
       <Text>Torp Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6157</Index>
       <Text>Cannon Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6158</Index>
       <Text>Sub Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6159</Index>
       <Text>PD Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6160</Index>
       <Text>Flak Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6161</Index>
       <Text>AP Res</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6172</Index>
       <Text>Power Armour</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6173</Index>
       <Text>Bulkhead</Text>
     </Token>
-	
-	<!-- Shield Resists UI -->
-	
-	<Token>
+  
+  <!-- Shield Resists UI -->
+  
+  <Token>
       <Index>6162</Index>
       <Text>Kinetic SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6163</Index>
       <Text>Energy SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6164</Index>
       <Text>Expl SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6165</Index>
       <Text>Missile SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6166</Index>
       <Text>Flak SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6167</Index>
       <Text>Hybrid SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6168</Index>
       <Text>Rail SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6169</Index>
       <Text>Sub SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6170</Index>
       <Text>Warp SR</Text>
     </Token>	
-	<Token>
+  <Token>
       <Index>6171</Index>
       <Text>Beam SR</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6172</Index>
       <Text>Power Armour</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6173</Index>
       <Text>Bulkhead</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6174</Index>
       <Text>EMP Prot</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6175</Index>
-      <Text>Dam Thr</Text>
+      <Text>Deflection</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6176</Index>
-      <Text>SDam Thr</Text>
+      <Text>SD Deflect</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6177</Index>
       <Text>EMP Protection</Text>
     </Token>
-	
-	<!-- The Doctor: I'm adding various bits of UI text into proper localisation, starting with the rule options and FTL inhibition UI -->
-	
-	<Token>
+  
+  <!-- The Doctor: I'm adding various bits of UI text into proper localisation, starting with the rule options and FTL inhibition UI -->
+  
+  <Token>
       <Index>6178</Index>
       <Text>Treat Neutral Systems as Unfriendly</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6179</Index>
       <Text>FTL Speed reduced in this system by </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6180</Index>
       <Text>FTL Speed increased in this system by </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6181</Index>
       <Text>Constructor Design:</Text>
     </Token>	
-	<Token>
-	<Index>6182</Index>
-	<Text>FTL Overlay: visualises subspace projection and FTL inhibiting gravity wells and fields.</Text>
-	</Token>		
-	<Token>
-		<Index>6183</Index>
-		<Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
-	</Token>
-	<Token>
-		<Index>6184</Index>
-		<Text>Keyboard Fire Arc Locking</Text>
-	</Token>
+  <Token>
+  <Index>6182</Index>
+  <Text>FTL Overlay: visualises subspace projection and FTL inhibiting gravity wells and fields.</Text>
+  </Token>		
+  <Token>
+    <Index>6183</Index>
+    <Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
+  </Token>
+  <Token>
+    <Index>6184</Index>
+    <Text>Keyboard Fire Arc Locking</Text>
+  </Token>
     <Token>
       <Index>6185</Index>
       <Text>Toggle Zoom Tracking</Text>
@@ -8007,34 +8069,34 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6186</Index>
       <Text>FCS Bonus</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6187</Index>
       <Text>Fire Control</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6188</Index>
       <Text>FCS Power</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6189</Index>
       <Text>ECM</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>6190</Index>
       <Text>Total Off</Text>
     </Token>
     
-	<!-- SD Code Mod, TOOLTIP TEXT -->	
-	
-	<Token>
+  <!-- SD Code Mod, TOOLTIP TEXT -->	
+  
+  <Token>
       <Index>7001</Index>
       <Text>Indicates the % chance of ECM disruption against incoming guided weapons, before the weapon's ECM resistance is deducted. Successful ECM disruption jams targeting and prevents the munition from hitting.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7002</Index>
       <Text>Indicates the resistance of this weapon's guidance against targets' ECM countermeasures. This is deducted from the target's ECM % when trying to maintain guidance.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7003</Index>
       <Text>Indicates the maximum duration for which this weapon may maintain its beam each time it fires.</Text>
     </Token>
@@ -8042,31 +8104,31 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7004</Index>
       <Text>Pauses game on notifications. Clearing notifications unpauses the game.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7005</Index>
       <Text>Order ship back to the shipyards to be scrapped.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7006</Index>
       <Text>Order ship refit</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7007</Index>
       <Text>Indicates a ship's experience level. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7008</Index>
       <Text></Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7009</Index>
       <Text>Ship will move within maximum weapons range and present her Port broadside to the enemy for maximum coverage</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7010</Index>
       <Text>Ship will move within maximum weapons range and present her Starboard broadside to the enemy for maximum coverage</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7011</Index>
       <Text>Prevents AI empires from merging into Federations at the first site of a powerful opponent.</Text>
     </Token>
@@ -8082,111 +8144,111 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7014</Index>
       <Text>Indicates the amount of ordnance this ship is capable of fabricating per second</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7015</Index>
       <Text>In the Capital Elimination game mode, empires are defeated when they lose their homeworld.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7016</Index>
       <Text>Indicates the maximum amount of damage repaired by beams from this system. </Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7017</Index>
       <Text>Indicates sensor bonus added by this module. Sensor bonuses add onto sensor range - only the highest bonus will apply.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7018</Index>
       <Text>Indicates the range of this transporter.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7019</Index>
       <Text>Indicates the power used by this when transporting.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7020</Index>
       <Text>Indicates the delay between transports.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7021</Index>
       <Text>Indicates the amount of ordnance that can be transported.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7022</Index>
       <Text>Indicates the number of troops that can be beamed down to a planet at a time.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7023</Index>
       <Text>Indicates the number of troops that this module can hold.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7024</Index>
       <Text>Indicates the amount troops are healed per second</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7025</Index>
       <Text>Indicates the credits per tick this design would cost in upkeep</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7026</Index>
       <Text>Indicates this ship's maximum sustained FTL jump duration outside of friendly subspace projection</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7027</Index>
       <Text>Indicates the time in seconds it takes for this ship's FTL drive to charge before going to warp</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7028</Index>
-      <Text>The effective power drain of this module when the ship is at FTL</Text>
+      <Text>The effective power drain of this module when the ship is at FTL. You will see this info only if this module has modifiers to the usual power draw at warp.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7029</Index>
       <Text>The number of troops this module can house</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7030</Index>
       <Text>Indicates the total complement of troops this ship can carry</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7031</Index>
       <Text>Indicates the counter-espionage strength of this empire</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7032</Index>
       <Text>Random chance this weapon will fire through enemy shields</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7033</Index>
       <Text>Number of projectiles fired</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7034</Index>
       <Text>Time between shots</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7035</Index>
       <Text>Indicates the amount of shields that are drain from the target and is added to this ships power store.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7036</Index>
       <Text>Indicates the amount of drag added to target ship to slow it down.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7037</Index>
       <Text>Indicates the amount of power that a target ship loses.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7038</Index>
       <Text>Indicates the number of troops that can be transported onto enemy ships with shields down.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7039</Index>
       <Text>Your Empire will automatically select technologies to research.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7040</Index>
       <Text>Your Empire will automatically manage taxes and treasury.</Text>
   </Token>
-	<Token>
+  <Token>
       <Index>7041</Index>
       <Text>Using this slider, you can lower the FTL speeds of enemy ships that are within the gravity wells of Solar Systems. A value of 100% provides no penalty, whereas a value of 0% will completely inhibit warp of enemy ships in system.</Text>
   </Token>
@@ -8194,165 +8256,165 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7042</Index>
       <Text>The duration a beam will last from a beam type weapon.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7043</Index>
       <Text>Opens the Espionage Management Screen</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7044</Index>
       <Text>Opens the Ship Roster</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7045</Index>
       <Text>Opens the Fleet Manager</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7046</Index>
       <Text>Indicates resistance to kinetic-type damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token> 
-	<Token>
+  <Token>
       <Index>7047</Index>
       <Text>Indicates resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7048</Index>
       <Text>Indicates resistance to guided weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7049</Index>
       <Text>Indicates resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7050</Index>
       <Text>Indicates resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7051</Index>
       <Text>Indicates resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7052</Index>
       <Text>Indicates resistance to explosive damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7053</Index>
       <Text>Indicates resistance to interceptable weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7054</Index>
       <Text>Indicates resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7055</Index>
       <Text>Indicates resistance to spatial bomb weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7056</Index>
       <Text>Indicates resistance to bombardment weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7057</Index>
       <Text>Indicates resistance to biological weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7058</Index>
       <Text>Indicates resistance to drone weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7059</Index>
       <Text>Indicates resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7060</Index>
       <Text>Indicates resistance to torpedo weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7061</Index>
       <Text>Indicates resistance to cannon weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7062</Index>
       <Text>Indicates resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7063</Index>
       <Text>Indicates resistance to PD weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7064</Index>
       <Text>Indicates resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source.</Text>
     </Token>
-	
-	<Token>
+  
+  <Token>
       <Index>7065</Index>
       <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
     </Token>
 
-	
-	<!-- Shield Resistance Tooltips -->
-	
-	<Token>
+  
+  <!-- Shield Resistance Tooltips -->
+  
+  <Token>
       <Index>7066</Index>
       <Text>Indicates shield bubble's resistance to kinetic weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7067</Index>
       <Text>Indicates shield bubble's resistance to energy weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7068</Index>
       <Text>Indicates shield bubble's resistance to explosive damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7069</Index>
       <Text>Indicates shield bubble's resistance to missile weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7070</Index>
       <Text>Indicates shield bubble's resistance to flak weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7071</Index>
       <Text>Indicates shield bubble's resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7072</Index>
       <Text>Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7073</Index>
       <Text>Indicates shield bubble's resistance to subspace weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7074</Index>
       <Text>Indicates shield bubble's resistance to warp weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>	
-	<Token>
+  <Token>
       <Index>7075</Index>
       <Text>Indicates shield bubble's resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7076</Index>
       <Text>Indicates the amount of EMP protection that this module adds to the vessel.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7077</Index>
       <Text>The total EMP protection of this design.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7078</Index>
-      <Text>Weapons that damage less than this threshold do no damage whatsoever to this module.</Text>
+      <Text>Weapons which do less damage than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7079</Index>
-      <Text>Weapons that damage less than this threshold do no damage whatsoever to this shield.</Text>
+      <Text>Weapons which do less damage than this value will simply be deflected by this Shield due to it's intensity. Beams are not affected by this due to their tunneling ability.</Text>
     </Token>
-	
-	<Token>
+  
+  <Token>
       <Index>7080</Index>
       <Text>Assigns vessel to system defence duties</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7081</Index>
       <Text>When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using ALT.\n\nWhen inactive, arcs in the shipyard can be moved by left-clicking and holding for a time delay to grab the arc.</Text>
     </Token>
@@ -8372,27 +8434,27 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7085</Index>
       <Text>Ship will rotate so that forward-firing weapons are facing its target. If in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within minimum weapons range</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7086</Index>
       <Text>This value represents the complexity of this command module's fire control systems. It represents the number of targets on sensors that can be tracked and potentially engaged simultaneously. It does not stack with more command modules.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7087</Index>
       <Text>This is the total number of targets this ship's fire control systems can track, and fire upon at a time. Higher values allow for greater weapon autonomy, while lower values can limit defenses and make them more prone to being overwhelmed.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7088</Index>
       <Text>This is the total number of targets this ship's fire control systems can track at a time. This ship can only track a single target, so is incapable of firing at other targets, including incoming projectiles, simultaneously.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7089</Index>
       <Text>This is the total electronic countermeasure (ECM) value for this ship. It represents the baseline % chance to jam an incoming missile with no ECM resistance.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7090</Index>
       <Text>This is the maximum sensor range of this vessel: essentially how far this vessel can detect spaceborne objects. A basic local scan is available through command modules; to scan further dedicated sensor modules are required.</Text>
     </Token>
-	<Token>
+  <Token>
       <Index>7091</Index>
       <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>

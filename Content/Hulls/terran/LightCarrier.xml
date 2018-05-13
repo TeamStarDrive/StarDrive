@@ -2,7 +2,7 @@
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<Name>Light Carrier</Name>
 	<Hull>LightCarrier</Hull>
-	<Role>carrier</Role>
+	<Role>cruiser</Role>
 	<IconPath>ShipIcons/10c</IconPath>
 	<!--Selection graphic is optional; used in the selection box module overlay-->
 	<SelectionGraphic>10c</SelectionGraphic>

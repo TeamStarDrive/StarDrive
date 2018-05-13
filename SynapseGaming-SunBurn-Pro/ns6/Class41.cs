@@ -6,7 +6,7 @@
 
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ns6
+namespace EmbeddedResources
 {
   internal class Class41 : Class39
   {

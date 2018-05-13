@@ -12,19 +12,17 @@ namespace Ship_Game
 
 		private int selectedEntry;
 
-		private Cue beep;
-
 		protected IList<string> MenuEntries => menuEntries;
 
-	    protected MenuScreen(GameScreen parent) : base(parent)
+	    protected MenuScreen(GameScreen parent) : base(parent, new Rectangle(0,0, 400, 400), false)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(SpriteBatch spriteBatch)
 		{
-			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+			Viewport viewport = base.Viewport;
 			Vector2 viewportSize = new Vector2((float)viewport.Width, (float)viewport.Height);
 			Vector2 position = new Vector2(0f, viewportSize.Y * 0.65f);
 			float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
@@ -43,7 +41,7 @@ namespace Ship_Game
 				float scale = 1f;
 				if (base.IsActive && i == this.selectedEntry)
 				{
-					double time = gameTime.TotalGameTime.TotalSeconds;
+					double time = Game1.Instance.GameTime.TotalGameTime.TotalSeconds;
 					float pulsate = (float)Math.Sin(time * 6) + 1f;
 					color = Color.Orange;
 					scale = scale + pulsate * 0.05f;
@@ -58,39 +56,30 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
+		public override bool HandleInput(InputState input)
 		{
 			if (input.MenuUp)
 			{
-				this.beep = AudioManager.GetCue("blip_click");
-				this.beep.Play();
-				MenuScreen menuScreen = this;
-				menuScreen.selectedEntry = menuScreen.selectedEntry - 1;
-				if (this.selectedEntry < 0)
-				{
-					this.selectedEntry = this.menuEntries.Count - 1;
-				}
+                GameAudio.PlaySfxAsync("blip_click");
+				if (--selectedEntry < 0)
+					selectedEntry = menuEntries.Count - 1;
 			}
 			if (input.MenuDown)
 			{
-				this.beep = AudioManager.GetCue("blip_click");
-				this.beep.Play();
-				MenuScreen menuScreen1 = this;
-				menuScreen1.selectedEntry = menuScreen1.selectedEntry + 1;
-				if (this.selectedEntry >= this.menuEntries.Count)
-				{
-					this.selectedEntry = 0;
-				}
+			    GameAudio.PlaySfxAsync("blip_click");
+				if (++selectedEntry >= menuEntries.Count)
+					selectedEntry = 0;
 			}
 			if (input.MenuSelect)
 			{
 				this.OnSelectEntry(this.selectedEntry);
-				return;
+				return true;
 			}
 			if (input.MenuCancel)
 			{
 				this.OnCancel();
 			}
+            return base.HandleInput(input);
 		}
 
 		protected abstract void OnCancel();

@@ -4,11 +4,11 @@
 // MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
 // Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Effects.Deferred;
-using System;
-using System.Collections.Generic;
 
 namespace SynapseGaming.LightingSystem.Processors.Deferred
 {
@@ -29,7 +29,7 @@ namespace SynapseGaming.LightingSystem.Processors.Deferred
         deferredSasEffect.SetTexture(keyValuePair.Key, keyValuePair.Value);
       deferredSasEffect.method_1(dictionary_1);
       deferredSasEffect.method_0();
-      Class55.smethod_0(input);
+      BlockUtil.SkipBlock(input);
       if (input.ReadInt32() != 1234)
         throw new Exception("Error loading asset.");
       return deferredSasEffect;
