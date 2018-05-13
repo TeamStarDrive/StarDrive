@@ -121,6 +121,13 @@ namespace Ship_Game
         public int TotalDefensiveStrength;
         public float GrossFood;
         public float GrossMoneyPT;
+        public float GrossIncome =>
+                    (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
+                    + this.PlusFlatMoneyPerTurn + (this.Population / 1000f * this.PlusCreditsPerColonist);
+        public float GrossUpkeep =>
+                    (float)((double)this.TotalMaintenanceCostsPerTurn + (double)this.TotalMaintenanceCostsPerTurn
+                    * (double)this.Owner?.data.Traits.MaintMod);
+        public float NetIncome => this.GrossIncome - this.GrossUpkeep;
         public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
