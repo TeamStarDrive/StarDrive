@@ -312,15 +312,18 @@ namespace Ship_Game
                     else if (SelectedShipList.Count > 1)
                         shipListInfoUI.SetShipList(SelectedShipList, true);
                     SelectedSomethingTimer = 3f;
-
-                    if (!InputIsDoubleClick()) return;
-
+                    if (!InputIsDoubleClick())
+                        return;
                     ViewingShip    = false;
                     AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
-
+                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3(CamPos.Z);
                     if (viewState < UnivScreenState.SystemView)
                         CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+
+                 
+                    
+                    CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
+
                     return;
                 }
             }
@@ -409,17 +412,17 @@ namespace Ship_Game
                 if (HandleGUIClicks(input))
                 {
                     SkipRightOnce = true;
-                    NeedARelease = true;
+                    NeedARelease  = true;
                     return true;
                 }
             }
             else
             {
-                SelectedFleet = null;
+                SelectedFleet  = null;
                 InputCheckPreviousShip();
-                SelectedShip = null;
+                SelectedShip   = null;
                 SelectedShipList.Clear();
-                SelectedItem = null;
+                SelectedItem   = null;
                 SelectedSystem = null;
             }
             if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == player))
