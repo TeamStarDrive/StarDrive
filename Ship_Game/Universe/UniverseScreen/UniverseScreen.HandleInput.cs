@@ -86,18 +86,17 @@ namespace Ship_Game
                 if (input.SpawnShip)
                     Ship.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
                 if (input.SpawnFleet2) HelperFunctions.CreateFleetAt("Fleet 2", empire, mouseWorldPos);                
-                if (input.SpawnFleet1) HelperFunctions.CreateFleetAt("Fleet 1", empire, mouseWorldPos);
-                
+                if (input.SpawnFleet1) HelperFunctions.CreateFleetAt("Fleet 1", empire, mouseWorldPos);                
 
                 if (SelectedShip != null)
                 {                    
-
                     if (input.KillThis)
                     {
+                        var damage = 1f;
                         if (input.IsShiftKeyDown)
-                            SelectedShip.TestForceDamge(.9f);
-                        else
-                            SelectedShip.Die(null, false);
+                            damage = .9f;
+                        //Apply damage as a percent of module health to all modules. 
+                        SelectedShip.DebugDamage(damage);
                     }
                 }
                 else if (SelectedPlanet != null && Debug && (input.KillThis))
