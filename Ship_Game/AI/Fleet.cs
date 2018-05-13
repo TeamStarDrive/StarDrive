@@ -87,22 +87,20 @@ namespace Ship_Game.AI
                 return; // recover
             }
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
-                return;
-            
+                return;            
             
             AddShipToNodes(shiptoadd);
             AssignPositions(Facing);            
         }
+
         public void AddExistingShip(Ship ship) => AddShipToNodes(ship);
+
         private void AddShipToNodes(Ship shiptoadd)
-        {
-            
+        {            
             base.AddShip(shiptoadd);
             shiptoadd.fleet = this;
             SetSpeed();
             AddShipToDataNode(shiptoadd);
-
-            //shiptoadd.GetAI().FleetNode = figure out how to set the ships datanode
         }
 
 
@@ -228,18 +226,16 @@ namespace Ship_Game.AI
             {
                 fleetDataNode = new FleetDataNode();
                 
-                fleetDataNode.FleetOffset = ship.RelativeFleetOffset;
-                //fleetDataNode.OrdersOffset = ship.RelativeFleetOffset;
+                fleetDataNode.FleetOffset  = ship.RelativeFleetOffset;
+                fleetDataNode.OrdersOffset = ship.RelativeFleetOffset;
                 DataNodes.Add(fleetDataNode);
             }
-            ship.RelativeFleetOffset = fleetDataNode.FleetOffset;
-            
+            ship.RelativeFleetOffset = fleetDataNode.FleetOffset;            
 
             fleetDataNode.Ship = ship;
             fleetDataNode.ShipName = ship.Name;
             fleetDataNode.OrdersRadius = fleetDataNode.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : fleetDataNode.OrdersRadius;            
             ship.AI.FleetNode = fleetDataNode;
-            
         }
 
         private void SortSquad(Array<Ship> allShips, Array<Squad> destSquad, bool sizeOverSpeed = false)
