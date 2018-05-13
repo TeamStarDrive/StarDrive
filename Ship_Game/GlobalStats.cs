@@ -89,7 +89,7 @@ namespace Ship_Game
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
-        public static float ShipMaintenanceMulti;
+        public static float ShipMaintenanceMulti = 1;
         public static float MinimumWarpRange;
 
         public static float StartingPlanetRichness;
