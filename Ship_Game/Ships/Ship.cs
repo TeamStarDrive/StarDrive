@@ -883,13 +883,9 @@ namespace Ship_Game.Ships
 
             if (empire != null)
             {
-                HullBonus bonus = null;
-                bool hasBonus = GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses
-                    && ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out bonus);
-
-                if (hasBonus) cost += bonus.StartingCost;
+                cost += shipData.Bonuses.StartingCost;
                 cost += cost * empire.data.Traits.ShipCostMod;
-                if (hasBonus) cost *= 1f - bonus.CostBonus;
+                cost *= 1f - shipData.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
             }
             return (int)cost;
         }
@@ -1368,19 +1364,14 @@ namespace Ship_Game.Ships
             return mod.UpkeepBaseline;
         }
 
-        public float GetMaintCostRealism() => GetMaintCostRealism(loyalty);
-
-        public float GetMaintCostRealism(Empire empire)
+        public static float GetMaintenanceModifier(ShipData shipData, Empire empire)
         {
             ShipData.RoleName role = shipData.Role;
-            if (IsFreeUpkeepShip(role, loyalty))
-                return 0f;
-
-            float maint = GetCost(empire) * GetModMaintenanceModifier(role);
+            float maint = GetModMaintenanceModifier(role);
 
             if (maint <= 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0f)
             {
-                maint = GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
+                maint = GlobalStats.ActiveModInfo.UpkeepBaseline;
             }
 
             // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
@@ -1393,35 +1384,44 @@ namespace Ship_Game.Ships
             if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire?.isFaction == false)
             {
                 maint *= empire.data.CivMaintMod;
-                if (!empire.data.Privatization)
-                    maint *= 0.5f;
+                maint *= empire.data.Privatization ? 0.5f : 1.0f;
             }
 
             if (GlobalStats.ShipMaintenanceMulti > 1)
-            {
                 maint *= GlobalStats.ShipMaintenanceMulti;
-            }
 
             if (empire != null)
             {
                 maint += maint * empire.data.Traits.MaintMod;
             }
             return maint;
-
         }
 
-        private float GetFreighterSizeCostMultiplier()
+        public float GetMaintCostRealism() => GetMaintCostRealism(loyalty);
+
+        public float GetMaintCostRealism(Empire empire)
         {
-            switch (Size / 50)
+            if (IsFreeUpkeepShip(shipData.Role, loyalty))
+                return 0f;
+
+            float shipCost = GetCost(empire);
+            return shipCost * GetMaintenanceModifier(shipData, empire);
+        }
+
+        private float GetFreighterSizeCostMultiplier() => GetFreighterSizeCostMultiplier(Size);
+
+        public static float GetFreighterSizeCostMultiplier(int size)
+        {
+            switch (size / 50)
             {
-                default: return (int)(Size / 50);
+                default: return (int)(size / 50);
                 case 0: return 1.0f;
                 case 1: return 1.5f;
                 case 2: case 3: case 4: return 2f;
             }
         }
         
-        private static float GetShipRoleMaintenance(ShipRole role, Empire empire)
+        public static float GetShipRoleMaintenance(ShipRole role, Empire empire)
         {
             for (int i = 0; i < role.RaceList.Count; ++i)
                 if (role.RaceList[i].ShipType == empire.data.Traits.ShipType)
