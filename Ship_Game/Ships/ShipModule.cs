@@ -163,6 +163,7 @@ namespace Ship_Game.Ships
         public int FixedTracking                 => Flyweight.FixedTracking;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
+        public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public bool IsRotatable                  => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -503,6 +504,14 @@ namespace Ship_Game.Ships
             // else: extra dam already calculated
 
             damageRemainder = (int)(damageAmount - absorbedDamage); 
+        }
+
+        public void TestDamage(float percent)
+        {
+            percent = percent.Clamp(0, 1);
+            float damage = (Health *percent ).Clamp(0, Health-1 );
+            var source = GetParent();
+            Damage(source, damage);            
         }
 
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
@@ -882,7 +891,7 @@ namespace Ship_Game.Ships
                 Parent.shipStatusChanged = true;
             }
 
-            SetHealth(Health); // Update and validate Health
+            //SetHealth(Health); // Update and validate Health
 
             BombTimer -= elapsedTime;
             UpdateModuleRadius();
@@ -940,8 +949,9 @@ namespace Ship_Game.Ships
         public float Repair(float repairAmount)
         {
             if (Health >= ActualMaxHealth)
-                return repairAmount;          
-            
+                return repairAmount;
+
+            repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;

@@ -592,7 +592,8 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6174), mod.EMP_Protection, 219);
             DrawStat(ref modTitlePos, Localizer.Token(6187), mod.FixedTracking, 231);
             DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", mod.TargetTracking, 226);
-            
+            if (mod.RepairDifficulty > 0) DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
+
             if (mod.PermittedHangarRoles.Length != 0)
             {
                 Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
@@ -691,6 +692,8 @@ namespace Ship_Game
             //if (w.ShieldPenChance > 0)
                 DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);            
                 DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
+
+            if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity
 
             if (w.TruePD)
             {

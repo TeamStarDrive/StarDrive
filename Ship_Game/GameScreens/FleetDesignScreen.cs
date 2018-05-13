@@ -1861,13 +1861,11 @@ namespace Ship_Game
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(shipname);
-                    if (roles.Contains(ship.shipData.GetRole()))                    
-                        continue;
-                    if (!ship.ShipIsGoodForGoalsUI())
-                        continue;
-                    roles.Add(ship.shipData.GetRole());
+                    if (roles.Contains(ship.GetDesignRoleName()))                    
+                        continue;                    
+                    roles.Add(ship.GetDesignRoleName());
 
-                    ModuleHeader mh = new ModuleHeader(ship.shipData.GetRole(), 295f);
+                    ModuleHeader mh = new ModuleHeader(ship.GetDesignRoleName(), 295f);
                     ShipSL.AddItem(mh);
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
@@ -1875,9 +1873,7 @@ namespace Ship_Game
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
-                        if (!ship.ShipIsGoodForGoalsUI())
-                            continue;
-                        if (ship.shipData.GetRole() != (e.item as ModuleHeader)?.Text)
+                        if (ship.GetDesignRoleName() != (e.item as ModuleHeader)?.Text)
                         {
                             continue;
                         }
@@ -1890,19 +1886,19 @@ namespace Ship_Game
                 Array<string> roles = new Array<string>();
                 foreach (Ship ship in AvailableShips)
                 {
-                    if (roles.Contains(ship.shipData.GetRole()) || ship.shipData.Role == ShipData.RoleName.troop)
+                    if (roles.Contains(ship.GetDesignRoleName()) || ship.shipData.Role == ShipData.RoleName.troop)
                     {
                         continue;
                     }
-                    roles.Add(ship.shipData.GetRole());
-                    ModuleHeader mh = new ModuleHeader(ship.shipData.GetRole(), 295f);
+                    roles.Add(ship.GetDesignRoleName());
+                    ModuleHeader mh = new ModuleHeader(ship.GetDesignRoleName(), 295f);
                     ShipSL.AddItem(mh);
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
                 {
                     foreach (Ship ship in AvailableShips)
                     {
-                        if (ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.GetRole() != (e.item as ModuleHeader)?.Text)
+                        if (ship.shipData.Role == ShipData.RoleName.troop || ship.GetDesignRoleName() != (e.item as ModuleHeader)?.Text)
                         {
                             continue;
                         }
