@@ -506,11 +506,10 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
-        public void TestDamage(float percent)
-        {
-            percent = percent.Clamp(0, 1);
-            float damage = (Health *percent ).Clamp(0, Health-1 );
-            var source = GetParent();
+        public void DebugDamage(float percent)
+        {            
+            float damage = (Health * percent).Clamp(0, Health);
+            var source   = GetParent();
             Damage(source, damage);            
         }
 

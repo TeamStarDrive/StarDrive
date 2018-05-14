@@ -246,15 +246,15 @@ namespace Ship_Game.Ships
                 return false;
             }
         }
-        public void TestForceDamge(float percent)
+        public void DebugDamage(float percent)
         {
             percent = percent.Clamp(0, 1);
             foreach (var module in ModuleSlotList)            
-                module.TestDamage(percent);
-            
+                module.DebugDamage(percent);            
         }
+
         public ShipData.RoleName DesignRole { get; private set; }
-        public string GetDesignRoleName() => ShipData.GetRole(DesignRole);
+        public string DesignRoleName => ShipData.GetRole(DesignRole);
         public Texture2D GetTacticalIcon()
         {
             if (DesignRole == ShipData.RoleName.support)
