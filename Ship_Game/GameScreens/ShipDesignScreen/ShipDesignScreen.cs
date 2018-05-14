@@ -61,7 +61,6 @@ namespace Ship_Game
         private ActiveModuleState ActiveModState;
         private Selector selector;
         public bool ToggleOverlay                   = true;
-        private Vector2 starfieldPos                = Vector2.Zero;
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
@@ -74,7 +73,6 @@ namespace Ship_Game
         private bool Fmlevenmore                    = false;
         public bool CarrierOnly;
         private ShipData.Category LoadCategory;
-        private HashSet<string> Techs               = new HashSet<string>();
         private readonly Texture2D TopBar132        = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
         private readonly Texture2D TopBar132Hover   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
         private readonly Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
@@ -90,28 +88,22 @@ namespace Ship_Game
 #endif
 
 
-        public ShipDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI) : base(parent)
+        public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
-            this.EmpireUI         = EmpireUI;
-            base.TransitionOnTime = TimeSpan.FromSeconds(2);
+            EmpireUI         = empireUi;
+            TransitionOnTime = TimeSpan.FromSeconds(2);
 #if SHIPYARD
             Debug = true;
 #endif
         }
-
-        private void AddToTechList(HashSet<string> techlist)
-        {
-            foreach (string tech in techlist)
-                this.Techs.Add(tech);
-        }
-
 
         private void ChangeModuleState(ActiveModuleState state)
         {
             if (ActiveModule == null)
                 return;
             ActiveModState = state;
-            ActiveModule.ApplyModuleOrientation(state);
+            ShipModule module = ResourceManager.GetModuleTemplate(ActiveModule.UID);
+            ActiveModule.ApplyModuleOrientation(module.XSIZE, module.YSIZE, state);
         }
 
         private void CheckAndPowerConduit(SlotStruct slot)
