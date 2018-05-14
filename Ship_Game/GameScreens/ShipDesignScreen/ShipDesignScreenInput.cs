@@ -731,52 +731,31 @@ namespace Ship_Game
         public override void LoadContent()
         {
             AssignLightRig("example/ShipyardLightrig");
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280 || ScreenManager
-                    .GraphicsDevice.PresentationParameters.BackBufferHeight <= 768)
+            if (ScreenWidth  <= 1280 || ScreenHeight <= 768)
             {
                 LowRes = true;
             }
-            //Rectangle leftRect = new Rectangle(5, 45, 405,
-            //    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45 -
-            //    (int) (0.4f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight) + 10);
-            //ModuleSelectionMenu = new Menu1(leftRect);
-            Rectangle modSelR   = new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400));
-            ModSel = new ModuleSelection(this, modSelR);
-            //ChooseFighterSL = ModSel.ChooseFighterSL;
+            ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400)));
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
             {
                 if (!hull.Value)
-                {
                     continue;
-                }
                 AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
             }
+
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
-            float width                  = Viewport.Width;
-            Viewport viewport            = Viewport;
-            float aspectRatio            = width / viewport.Height;
-            Offset                       = new Vector2();
-            Viewport viewport1           = Viewport;
-            Offset.X                     = viewport1.Width / 2 - 256;
-            Viewport viewport2           = Viewport;
-            Offset.Y                     = viewport2.Height / 2 - 256;
-            Camera                       = new Camera2D();
-            Camera2D vector2             = Camera;
-            Viewport viewport3           = Viewport;
-            float single                 = viewport3.Width / 2f;
-            Viewport viewport4           = Viewport;
-            vector2.Pos                  = new Vector2(single, viewport4.Height / 2f);
-            Vector3 camPos               = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View                         = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
-                         Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
-                            new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
+            Camera = new Camera2D();
+            Camera.Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f);
+            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+
+            float aspectRatio = (float)Viewport.Width / Viewport.Height;
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
+            
             ChangeHull(AvailableHulls[0]);
-
-
             CreateSOFromActiveHull();
-
-
 
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
@@ -791,13 +770,10 @@ namespace Ship_Game
                 HighestX = slot.Position.X;
             }
             float xDistance = HighestX - LowestX;
-            Viewport viewport5 = Viewport;
-            Vector3 pScreenSpace = viewport5.Project(Vector3.Zero, Projection, View, Matrix.Identity);
+            Vector3 pScreenSpace = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
             var pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
             Vector2 radialPos = MathExt.PointOnCircle(90f, xDistance);
-            Viewport viewport6 = Viewport;
-            Vector3 insetRadialPos = viewport6.Project(new Vector3(radialPos, 0f), Projection, View,
-                Matrix.Identity);
+            Vector3 insetRadialPos = Viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
             Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
             float radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
             if (radius >= xDistance)
@@ -805,16 +781,12 @@ namespace Ship_Game
                 while (radius > xDistance)
                 {
                     camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-                    View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
-                                 Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
-                                    new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-                    Viewport viewport7 = Viewport;
-                    pScreenSpace = viewport7.Project(Vector3.Zero, Projection, View, Matrix.Identity);
+                    View = Matrix.CreateRotationY(180f.ToRadians())
+                         * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                    pScreenSpace = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     radialPos = MathExt.PointOnCircle(90f, xDistance);
-                    Viewport viewport8 = Viewport;
-                    insetRadialPos = viewport8.Project(new Vector3(radialPos, 0f), Projection, View,
-                        Matrix.Identity);
+                    insetRadialPos = Viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     CameraPosition.Z = CameraPosition.Z + 1f;
@@ -825,29 +797,23 @@ namespace Ship_Game
                 while (radius < xDistance)
                 {
                     camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-                    View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) *
-                                 Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos,
-                                    new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-                    Viewport viewport9 = Viewport;
-                    pScreenSpace = viewport9.Project(Vector3.Zero, Projection, View, Matrix.Identity);
+                    View = Matrix.CreateRotationY(180f.ToRadians())
+                         * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                    pScreenSpace = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
                     pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     radialPos = MathExt.PointOnCircle(90f, xDistance);
-                    Viewport viewport10 = Viewport;
-                    insetRadialPos = viewport10.Project(new Vector3(radialPos, 0f), Projection, View,
-                        Matrix.Identity);
+                    insetRadialPos = Viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
                     CameraPosition.Z = CameraPosition.Z - 1f;
                 }
             }
-            BlackBar = new Rectangle(0,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70, 3000, 70);
-            SideBar = new Rectangle(0, 0, 280,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
+            BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
+            SideBar = new Rectangle(0, 0, 280, ScreenHeight);
       
      
             ClassifCursor =
-                new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f,
+                new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
             var cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
             Vector2 ordersBarPos = new Vector2(cursor.X, (int) cursor.Y + 20);
@@ -881,9 +847,7 @@ namespace Ship_Game
             ordersBarPos.X = ordersBarPos.X + 29f;
             CombatStatusButton(ordersBarPos, "evade", "SelectionBox/icon_formation_stop", 6);            
  
-            cursor = new Vector2(
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 150f,
-                (float) ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47);
+            cursor = new Vector2(ScreenWidth - 150f, (float)ScreenHeight - 47);
 
             BeginHLayout(cursor, -142);
             SaveButton          = ButtonMedium("Save As...", titleId: 105);            
@@ -893,8 +857,7 @@ namespace Ship_Game
             SearchBar           = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
 
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
-            HullSelectionRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 285,
-                                              (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
+            HullSelectionRect = new Rectangle(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
             HullSelectionSub = new Submenu(HullSelectionRect, true);
             WeaponSL         = new WeaponScrollList(ModSel,this);
             HullSelectionSub.AddTab(Localizer.Token(107));
@@ -934,7 +897,6 @@ namespace Ship_Game
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            
             DropdownRect =
                 new Rectangle((int) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f),
                     (int) ordersBarPos.Y, 100, 18);
@@ -970,16 +932,12 @@ namespace Ship_Game
             toggleButton.WhichToolTip = toolTipIndex;
         }
 
-
-
         private void ReallyExit()
         {
             RemoveObject(shipSO);
-
             if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
-            {
                 colonyScreen.Reset = true;
-            }
+
             // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
             base.ExitScreen();
@@ -1002,10 +960,9 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
-        public void SaveShipDesign(string name)
+        private ModuleSlotData[] CreateModuleSlots()
         {
-            ShipData toSave = ActiveHull.GetClone();
-            toSave.ModuleSlots = new ModuleSlotData[Slots.Count];
+            var savedSlots = new ModuleSlotData[Slots.Count];
             for (int i = 0; i < Slots.Count; ++i)
             {
                 SlotStruct slot = Slots[i];
@@ -1019,21 +976,31 @@ namespace Ship_Game
                 if (slot.Module != null)
                 {
                     savedSlot.Facing = slot.Module.Facing;
-
                     if (slot.Module.ModuleType == ShipModuleType.Hangar)
                         savedSlot.SlotOptions = slot.Module.hangarShipUID;
                 }
-                toSave.ModuleSlots[i] = savedSlot;
+                savedSlots[i] = savedSlot;
             }
+            return savedSlots;
+        }
+
+        private void SerializeShipDesign(ShipData shipData, string designFile)
+        {
+            var serializer = new XmlSerializer(typeof(ShipData));
+            using (var ws = new StreamWriter(designFile))
+                serializer.Serialize(ws, shipData);
+            ShipSaved = true;
+        }
+
+        public void SaveShipDesign(string name)
+        {
+            ShipData toSave = ActiveHull.GetClone();
             toSave.Name         = name;
             toSave.CombatState  = CombatState;
             toSave.ShipCategory = CategoryList.ActiveValue;
             toSave.CarrierShip  = CarrierOnly;
-
-            var serializer = new XmlSerializer(typeof(ShipData));
-            using (var ws = new StreamWriter($"{Dir.ApplicationData}/StarDrive/Saved Designs/{name}.xml"))
-                serializer.Serialize(ws, toSave);
-            ShipSaved = true;
+            toSave.ModuleSlots  = CreateModuleSlots();
+            SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/Saved Designs/{name}.xml");
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
@@ -1045,43 +1012,21 @@ namespace Ship_Game
 
         private void SaveWIP(object sender, EventArgs e)
         {
-            var savedShip = new ShipData
+            var toSave = new ShipData
             {
                 Animated     = ActiveHull.Animated,
-                CombatState  = ActiveHull.CombatState,
+                CombatState  = CombatState,
                 Hull         = ActiveHull.Hull,
                 IconPath     = ActiveHull.ActualIconPath,
                 ModelPath    = ActiveHull.ModelPath,
-                Name         = ActiveHull.Name,
+                Name         = $"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}",
                 Role         = ActiveHull.Role,
                 ShipStyle    = ActiveHull.ShipStyle,
                 ThrusterList = ActiveHull.ThrusterList,
-                ModuleSlots  = new ModuleSlotData[Slots.Count],
-                BaseHull     = ActiveHull.BaseHull
+                BaseHull     = ActiveHull.BaseHull,
+                ModuleSlots  = CreateModuleSlots()
             };
-            for (int i = 0; i < Slots.Count; ++i)
-            {
-                SlotStruct slot = Slots[i];
-                var data = new ModuleSlotData
-                {
-                    InstalledModuleUID = slot.ModuleUID,
-                    Position           = slot.SlotReference.Position,
-                    Restrictions       = slot.Restrictions,
-                    Orientation        = slot.State.ToString()
-                };
-                if (slot.Module?.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = slot.Module.hangarShipUID;
-                savedShip.ModuleSlots[i] = data;
-            }
-            string path                = Dir.ApplicationData;
-            CombatState defaultstate   = ActiveHull.CombatState;
-            savedShip.CombatState      = CombatState;
-            savedShip.Name             = $"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}";
-            var serializer             = new XmlSerializer(typeof(ShipData));
-            using (var writeFileStream = new StreamWriter($"{path}/StarDrive/WIP/{savedShip.Name}.xml"))
-                serializer.Serialize(writeFileStream, savedShip);
-            savedShip.CombatState = defaultstate;
-            ShipSaved = true;
+            SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/WIP/{toSave.Name}.xml");
         }
 
         private void SaveWIPThenChangeHull(object sender, EventArgs e)
@@ -1101,29 +1046,19 @@ namespace Ship_Game
             {
                 slot.SetValidity();
                 if (slot.ModuleUID == null)
-                {
                     continue;
-                }
                 ActiveModule = CreateDesignModule(slot.ModuleUID);
                 ChangeModuleState(slot.State);
                 if (ActiveModule.Area > 1)
                     ClearDestinationSlots(slot);                
                 InstallModuleFromLoad(slot);
-                //if (slot.Module.XSIZE * slot.Module.YSIZE > 1)
-                //    ClearDestinationSlotsNoStack(slot);
-                if(slot.Module?.ModuleType != ShipModuleType.Hangar)
-                {
+                if (slot.Module?.ModuleType != ShipModuleType.Hangar)
                     continue;
-                }
                 slot.Module.hangarShipUID = slot.SlotOptions;
             }
             //RecalculatePower();
             ActiveModule = null;
             ActiveModState = ActiveModuleState.Normal;
         }
-
-
-
-
     }
 }
