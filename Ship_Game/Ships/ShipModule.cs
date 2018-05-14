@@ -322,9 +322,11 @@ namespace Ship_Game.Ships
         {
             ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
-            module.Facing = facing;
 
-            module.ApplyModuleOrientation(orientation);
+            // @todo These are related.
+            module.Facing = facing;
+            module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, orientation);
+
             module.Initialize(xmlPos, isTemplate);
             return module;
         }
@@ -1182,29 +1184,30 @@ namespace Ship_Game.Ships
             return off;
         }
 
-        public void ApplyModuleOrientation(ShipDesignScreen.ActiveModuleState state)
+        public void ApplyModuleOrientation(int w, int h, ShipDesignScreen.ActiveModuleState state)
         {
-            int x = XSIZE;
-            int y = YSIZE;
             switch (state)
             {
                 case ShipDesignScreen.ActiveModuleState.Normal:
+                    XSIZE = w;
+                    YSIZE = h;
+                    Facing = 0f;
                     break;
                 case ShipDesignScreen.ActiveModuleState.Left:
-                    XSIZE = y; // @todo Why are these swapped? Please comment.
-                    YSIZE = x; // if the module is facing left or right, then length is now height, and vice versa    
+                    XSIZE = h; // @todo Why are these swapped? Please comment.
+                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa    
                     Facing = 270f;
                     return;
                 case ShipDesignScreen.ActiveModuleState.Right:
-                    XSIZE = y; // @todo Why are these swapped? Please comment.
-                    YSIZE = x; // if the module is facing left or right, then length is now height, and vice versa
+                    XSIZE = h; // @todo Why are these swapped? Please comment.
+                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa
                     Facing = 90f;
                     break;
                 case ShipDesignScreen.ActiveModuleState.Rear:
+                    XSIZE = w;
+                    YSIZE = h;
                     Facing = 180f;
                     break;
-                default:
-                    return;
             }
         }
 
