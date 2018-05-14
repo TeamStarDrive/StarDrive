@@ -32,9 +32,10 @@ namespace Ship_Game
         
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        public Vector2 MousePos     => Input.CursorPosition;
+        // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth      => Game1.Instance.ScreenWidth;
         public int ScreenHeight     => Game1.Instance.ScreenHeight;
+        public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => Game1.Instance.ScreenArea;
         public Vector2 ScreenCenter => Game1.Instance.ScreenArea * 0.5f;
         public GameTime GameTime    => Game1.Instance.GameTime;

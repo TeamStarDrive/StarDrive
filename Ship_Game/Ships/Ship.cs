@@ -2984,9 +2984,7 @@ namespace Ship_Game.Ships
         }
         private ShipData.RoleName GetDesignRole()
         {
-            ShipModule[] modules = ModuleSlotList;
-            ShipData.RoleName hullRole = shipData?.HullRole ?? shipData.Role;
-            return GetDesignRole(modules, hullRole, shipData.Role, Size, this);            
+            return GetDesignRole(ModuleSlotList, shipData.HullRole, shipData.Role, Size, this);            
         }
         public static ShipData.RoleName GetDesignRole(ShipModule[] modules, ShipData.RoleName hullRole, ShipData.RoleName dataRole, int size, Ship ship)
         {
