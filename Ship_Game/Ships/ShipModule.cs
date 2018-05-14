@@ -516,8 +516,8 @@ namespace Ship_Game.Ships
 
         public void DebugDamage(float percent)
         {
-            float health = Health + ShieldPower;
-            float damage = (health * percent).Clamp(0, health);
+            float health = Health * percent + ShieldPower ;
+            float damage = health.Clamp(0, Health + ShieldPower);
             var source   = GetParent();
             Damage(source, damage);            
         }
@@ -543,6 +543,8 @@ namespace Ship_Game.Ships
                     return false; // no damage could be done, the projectile was deflected.
             }
 
+            //BUG: So this makes it so that if shieldpower is greater than zero the modeule wont be damaged.
+            //even if the damage is greater than the shield amount. 
             if (damagingShields)
             {
                 ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
