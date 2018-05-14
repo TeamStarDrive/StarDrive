@@ -269,13 +269,13 @@ namespace Ship_Game.Ships
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
             var module = new ShipModule
             {
-                // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
                 Flyweight         = template.Flyweight,
+                // @note loyalty can be null, in which case it uses hull bonus only
+                Bonuses           = EmpireShipBonuses.Get(loyalty, hull),
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
                 hangarShipUID     = template.hangarShipUID,
                 hangarTimer       = template.hangarTimer,
-                Health            = template.TemplateMaxHealth,
                 TemplateMaxHealth = template.TemplateMaxHealth,
                 isWeapon          = template.isWeapon,
                 Mass              = template.Mass,
@@ -289,9 +289,8 @@ namespace Ship_Game.Ships
                 Restrictions      = template.Restrictions
             };
 
-            // @note loyalty can be null, in which case it uses hull bonus only
-            module.Bonuses = EmpireShipBonuses.Get(loyalty, hull);
-
+            module.Health = module.ActualMaxHealth;
+            
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
             module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
