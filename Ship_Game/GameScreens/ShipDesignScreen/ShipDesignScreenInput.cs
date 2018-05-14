@@ -47,9 +47,7 @@ namespace Ship_Game
             };
             ActiveHull.UpdateBaseHull();
 
-            Techs.Clear();
-            AddToTechList(ActiveHull.BaseHull.techsNeeded);
-            CarrierOnly = hull.CarrierShip;
+            CarrierOnly  = hull.CarrierShip;
             LoadCategory = hull.ShipCategory;
             Fml = true;
             Fmlevenmore = true;
@@ -1006,9 +1004,7 @@ namespace Ship_Game
 
         public void SaveShipDesign(string name)
         {
-            ActiveHull.Name = name;
             ShipData toSave = ActiveHull.GetClone();
-
             toSave.ModuleSlots = new ModuleSlotData[Slots.Count];
             for (int i = 0; i < Slots.Count; ++i)
             {
@@ -1029,29 +1025,21 @@ namespace Ship_Game
                 }
                 toSave.ModuleSlots[i] = savedSlot;
             }
-            string path = Dir.ApplicationData;
-            toSave.CombatState = CombatState;
-            toSave.Name = name;
+            toSave.Name         = name;
+            toSave.CombatState  = CombatState;
+            toSave.ShipCategory = CategoryList.ActiveValue;
+            toSave.CarrierShip  = CarrierOnly;
 
-            ActiveHull.ShipCategory = CategoryList.ActiveValue;
-
-            //Adds the category determined by the case from the dropdown to the 'toSave' ShipData.
-            toSave.ShipCategory = ActiveHull.ShipCategory;
-
-            //Adds the boolean derived from the checkbox boolean (CarrierOnly) to the ShipData. Defaults to 'false'.
-            toSave.CarrierShip = CarrierOnly;
             var serializer = new XmlSerializer(typeof(ShipData));
-            using (var ws = new StreamWriter($"{path}/StarDrive/Saved Designs/{name}.xml"))
+            using (var ws = new StreamWriter($"{Dir.ApplicationData}/StarDrive/Saved Designs/{name}.xml"))
                 serializer.Serialize(ws, toSave);
             ShipSaved = true;
 
-            Ship newTemplate = ResourceManager.AddShipTemplate(ActiveHull, fromSave: false, playerDesign: true);
+            Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
 
             ActiveHull = newTemplate.shipData;
             ActiveHull.UpdateBaseHull();
-
-            ActiveHull.CombatState = CombatState;
             ChangeHull(ActiveHull);
         }
 
