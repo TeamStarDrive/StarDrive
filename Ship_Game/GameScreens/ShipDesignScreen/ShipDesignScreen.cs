@@ -49,8 +49,8 @@ namespace Ship_Game
         private Rectangle SideBar;
 
         public ShipModule HighlightedModule;
-        private Vector2 CameraVelocity              = Vector2.Zero;
-        private Vector2 StartDragPos                = new Vector2();
+        private Vector2 CameraVelocity;
+        private Vector2 StartDragPos;
         private ShipData Changeto;
         private string ScreenToLaunch;
         private bool ShowAllArcs;
@@ -104,22 +104,6 @@ namespace Ship_Game
             ActiveModState = state;
             ShipModule module = ResourceManager.GetModuleTemplate(ActiveModule.UID);
             ActiveModule.ApplyModuleOrientation(module.XSIZE, module.YSIZE, state);
-        }
-
-        private void CheckAndPowerConduit(SlotStruct slot)
-        {
-            slot.Module.Powered = true;
-            slot.CheckedConduits = true;
-            foreach (SlotStruct ss in Slots)
-            {
-                if (ss.CheckedConduits
-                    || ss == slot
-                    || ss.Module == null
-                    || !slot.IsNeighbourTo(ss)
-                    || ss.Module.ModuleType != ShipModuleType.PowerConduit)
-                    continue;
-                CheckAndPowerConduit(ss);
-            }
         }
 
         private bool FindStructFromOffset(SlotStruct offsetBase, int x, int y, out SlotStruct found)
@@ -382,6 +366,22 @@ namespace Ship_Game
             else PlayNegativeSound();
         }
 
+        private void CheckAndPowerConduit(SlotStruct slot)
+        {
+            slot.Module.Powered = true;
+            slot.CheckedConduits = true;
+            foreach (SlotStruct ss in Slots)
+            {
+                if (ss.CheckedConduits
+                    || ss == slot
+                    || ss.Module == null
+                    || !slot.IsNeighbourTo(ss)
+                    || ss.Module.ModuleType != ShipModuleType.PowerConduit)
+                    continue;
+                CheckAndPowerConduit(ss);
+            }
+        }
+
         private void InstallModuleNoStack(SlotStruct slot)
         {
             if (!SlotStructFits(slot))
@@ -427,29 +427,20 @@ namespace Ship_Game
 
             foreach (SlotStruct slotStruct in Slots)
             {
-                //System.Diagnostics.Debug.Assert(slotStruct.parent != null, "parent is null");                   
-                if (slotStruct.Module != null && slotStruct.Module.ModuleType == ShipModuleType.PowerPlant)
+                if (slotStruct.Module?.ModuleType == ShipModuleType.PowerPlant)
                 {
                     foreach (SlotStruct slot in Slots)
                     {
-                        if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
+                        if (slot.Module?.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
                             CheckAndPowerConduit(slot);
                     }
                 }
-                else if (slotStruct.Parent != null)               
+                else if (slotStruct.Parent?.Module.ModuleType == ShipModuleType.PowerPlant)
                 {
-                    //System.Diagnostics.Debug.Assert(slotStruct.parent.module != null, "parent is fine, module is null");
-                    if (slotStruct.Parent.Module != null)
+                    foreach (SlotStruct slot in Slots)
                     {
-                        //System.Diagnostics.Debug.Assert(slotStruct.parent.module.ModuleType != null, "parent is fine, module is fine, moduletype is null");
-                        if (slotStruct.Parent.Module.ModuleType == ShipModuleType.PowerPlant)
-                        {
-                            foreach (SlotStruct slot in Slots)
-                            {
-                                if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
-                                    CheckAndPowerConduit(slot);
-                            }
-                        }
+                        if (slot.Module?.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
+                            CheckAndPowerConduit(slot);
                     }
                 }
             }
@@ -515,16 +506,9 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float desiredZ = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
-            Camera.Zoom = desiredZ;
-            if (Camera.Zoom < 0.3f)
-            {
-                Camera.Zoom = 0.3f;
-            }
-            if (Camera.Zoom > 2.65f)
-            {
-                Camera.Zoom = 2.65f;
-            }
+            Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
+            if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
+            if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
             var modules = new Array<ShipModule>();
             for (int x = 0; x < Slots.Count; x++)
@@ -535,17 +519,14 @@ namespace Ship_Game
             }
 
             var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
-            var designRoleRect = DesignRoleRect;
-            SpriteFont roleFont = Fonts.Arial12;
             if (role != Role)
             {
-                ShipData.CreateDesignRoleToolTip(role, roleFont, designRoleRect, true);
+                ShipData.CreateDesignRoleToolTip(role, Fonts.Arial12, DesignRoleRect, true);
+                Role = role;
             }
-            Role = role;
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) 
-                 * Matrix.CreateRotationX(0f.ToRadians())) 
+            View = Matrix.CreateRotationY(180f.ToRadians())
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
