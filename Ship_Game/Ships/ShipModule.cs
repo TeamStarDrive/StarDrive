@@ -163,6 +163,7 @@ namespace Ship_Game.Ships
         public int FixedTracking                 => Flyweight.FixedTracking;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
+        public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public bool IsRotatable                  => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -269,13 +270,13 @@ namespace Ship_Game.Ships
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
             var module = new ShipModule
             {
-                // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
                 Flyweight         = template.Flyweight,
+                // @note loyalty can be null, in which case it uses hull bonus only
+                Bonuses           = EmpireShipBonuses.Get(loyalty, hull),
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
                 hangarShipUID     = template.hangarShipUID,
                 hangarTimer       = template.hangarTimer,
-                Health            = template.TemplateMaxHealth,
                 TemplateMaxHealth = template.TemplateMaxHealth,
                 isWeapon          = template.isWeapon,
                 Mass              = template.Mass,
@@ -289,9 +290,7 @@ namespace Ship_Game.Ships
                 Restrictions      = template.Restrictions
             };
 
-            // @note loyalty can be null, in which case it uses hull bonus only
-            module.Bonuses = EmpireShipBonuses.Get(loyalty, hull);
-
+            module.Health = module.ActualMaxHealth;
             module.UpdateModuleRadius();
 
             // @todo This might need to be updated with latest ModuleType logic?
@@ -507,6 +506,14 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage); 
         }
 
+        public void DebugDamage(float percent)
+        {
+            float health = Health * percent + ShieldPower ;
+            float damage = health.Clamp(0, Health + ShieldPower);
+            var source   = GetParent();
+            Damage(source, damage);            
+        }
+
         public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
 
         private bool TryDamageModule(GameplayObject source, float modifiedDamage)
@@ -528,6 +535,8 @@ namespace Ship_Game.Ships
                     return false; // no damage could be done, the projectile was deflected.
             }
 
+            //BUG: So this makes it so that if shieldpower is greater than zero the modeule wont be damaged.
+            //even if the damage is greater than the shield amount. 
             if (damagingShields)
             {
                 ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
@@ -884,7 +893,7 @@ namespace Ship_Game.Ships
                 Parent.shipStatusChanged = true;
             }
 
-            SetHealth(Health); // Update and validate Health
+            //SetHealth(Health); // Update and validate Health
 
             BombTimer -= elapsedTime;
 
@@ -942,8 +951,9 @@ namespace Ship_Game.Ships
         public float Repair(float repairAmount)
         {
             if (Health >= ActualMaxHealth)
-                return repairAmount;          
-            
+                return repairAmount;
+
+            repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
             float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;
