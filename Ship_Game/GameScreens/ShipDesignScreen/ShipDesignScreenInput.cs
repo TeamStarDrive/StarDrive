@@ -818,7 +818,7 @@ namespace Ship_Game
             var cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
             Vector2 ordersBarPos = new Vector2(cursor.X, (int) cursor.Y + 20);
             ordersBarPos.X = ordersBarPos.X - 15;
-            CombatStatusButton(ordersBarPos,"attack", "SelectionBox/icon_formation_headon",1);
+            CombatStatusButton(ordersBarPos, "attack", "SelectionBox/icon_formation_headon",1);
 
             ordersBarPos.X = ordersBarPos.X + 29f;
             CombatStatusButton(ordersBarPos, "arty", "SelectionBox/icon_formation_aft", 2);
@@ -866,15 +866,10 @@ namespace Ship_Game
             foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
             {
                 if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key])
-                {
                     continue;
-                }
                 string cat = Localizer.GetRole(hull.Value.Role, EmpireManager.Player);
-                if (categories.Contains(cat))
-                {
-                    continue;
-                }
-                categories.Add(cat);
+                if (!categories.Contains(cat))
+                    categories.Add(cat);
             }
             categories.Sort();
             foreach (string cat in categories)
@@ -897,9 +892,7 @@ namespace Ship_Game
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            DropdownRect =
-                new Rectangle((int) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f),
-                    (int) ordersBarPos.Y, 100, 18);
+            DropdownRect = new Rectangle((int) (ScreenWidth * .25f), (int) ordersBarPos.Y, 100, 18);
 
             CategoryList = new CategoryDropDown(this, DropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
@@ -915,8 +908,7 @@ namespace Ship_Game
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
                 Fonts.Pirulen20,
                 Fonts.Pirulen16); 
-            Close = new CloseButton(this, new Rectangle(
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
+            Close = new CloseButton(this, new Rectangle(ScreenWidth - 27, 99, 20, 20));
             OriginalZ = CameraPosition.Z;
         }
 
@@ -935,7 +927,8 @@ namespace Ship_Game
         private void ReallyExit()
         {
             RemoveObject(shipSO);
-            if (Empire.Universe.LookingAtPlanet && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
+
+            if (Empire.Universe?.LookingAtPlanet == true && Empire.Universe.workersPanel is ColonyScreen colonyScreen)
                 colonyScreen.Reset = true;
 
             // this should go some where else, need to find it a home
