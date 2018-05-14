@@ -87,14 +87,22 @@ namespace Ship_Game.AI
                 return; // recover
             }
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
-                return;
+                return;            
+            
+            AddShipToNodes(shiptoadd);
+            AssignPositions(Facing);            
+        }
+
+        public void AddExistingShip(Ship ship) => AddShipToNodes(ship);
+
+        private void AddShipToNodes(Ship shiptoadd)
+        {            
             base.AddShip(shiptoadd);
             shiptoadd.fleet = this;
             SetSpeed();
-            AssignPositions(Facing);
             AddShipToDataNode(shiptoadd);
-            //shiptoadd.GetAI().FleetNode = figure out how to set the ships datanode
         }
+
 
         public int CountCombatSquads => CenterFlank.Count + LeftFlank.Count + RightFlank.Count + ScreenFlank.Count;
 
@@ -212,13 +220,21 @@ namespace Ship_Game.AI
 
         private void AddShipToDataNode(Ship ship)
         {
-            FleetDataNode fleetDataNode = DataNodes.Find(newship => newship.Ship == ship) ?? new FleetDataNode();
+            FleetDataNode fleetDataNode = DataNodes.Find(newship => newship.Ship == ship) ??
+                                          DataNodes.Find(newship => newship.Ship == null && newship.ShipName == ship.Name);
+            if (fleetDataNode == null)
+            {
+                fleetDataNode = new FleetDataNode();
+                
+                fleetDataNode.FleetOffset  = ship.RelativeFleetOffset;
+                fleetDataNode.OrdersOffset = ship.RelativeFleetOffset;
+                DataNodes.Add(fleetDataNode);
+            }
+            ship.RelativeFleetOffset = fleetDataNode.FleetOffset;            
+
             fleetDataNode.Ship = ship;
             fleetDataNode.ShipName = ship.Name;
-            fleetDataNode.FleetOffset = ship.RelativeFleetOffset;
-            fleetDataNode.OrdersOffset = ship.RelativeFleetOffset;
-            fleetDataNode.OrdersRadius = fleetDataNode.OrdersRadius <2 ? ship.AI.GetSensorRadius() : fleetDataNode.OrdersRadius;
-            DataNodes.Add(fleetDataNode);
+            fleetDataNode.OrdersRadius = fleetDataNode.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : fleetDataNode.OrdersRadius;            
             ship.AI.FleetNode = fleetDataNode;
         }
 
