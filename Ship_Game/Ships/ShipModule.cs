@@ -515,8 +515,9 @@ namespace Ship_Game.Ships
         }
 
         public void DebugDamage(float percent)
-        {            
-            float damage = (Health * percent).Clamp(0, Health);
+        {
+            float health = Health + ShieldPower;
+            float damage = (health * percent).Clamp(0, health);
             var source   = GetParent();
             Damage(source, damage);            
         }
