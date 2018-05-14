@@ -252,7 +252,7 @@ namespace Ship_Game
 			HelperFunctions.ClampVectorToInt(ref cursor);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, rstring, cursor, Color.White);
 			cursor = new Vector2((float)(this.MoneyRect.X + this.FoodRect.Width - 5), (float)(this.PlanetNameRect.Y + this.PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-			float Money = this.p.GrossMoneyPT + this.p.Owner.data.Traits.TaxMod * this.p.GrossMoneyPT - (this.p.TotalMaintenanceCostsPerTurn + this.p.TotalMaintenanceCostsPerTurn * this.p.Owner.data.Traits.MaintMod);
+			float Money = this.p.NetIncome;
 			string mstring = Money.ToString("#.0");
 			cursor.X = cursor.X - Fonts.Arial12.MeasureString(mstring).X;
 			HelperFunctions.ClampVectorToInt(ref cursor);

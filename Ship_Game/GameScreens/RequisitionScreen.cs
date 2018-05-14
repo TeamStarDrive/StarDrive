@@ -45,16 +45,19 @@ namespace Ship_Game
         {
             foreach (Ship ship in this.AvailableShips)
             {
+                if (ship.fleet != null)
+                    continue;
                 foreach (FleetDataNode node in this.f.DataNodes)
                 {
                     if (node.ShipName != ship.Name || node.Ship!= null)
                     {
                         continue;
                     }
-                    node.Ship = ship;
-                    ship.RelativeFleetOffset = node.FleetOffset;
-                    ship.fleet = f;
-                    f.AddShip(ship);
+                    //node.Ship = ship;
+                    //ship.RelativeFleetOffset = node.FleetOffset;
+                    //ship.fleet = f;
+                    
+                    f.AddExistingShip(ship);
 
                     foreach (Array<Fleet.Squad> flank in f.AllFlanks)
                     {
@@ -68,6 +71,7 @@ namespace Ship_Game
                             }
                         }
                     }
+                    break;
                 }
             }
             foreach (Ship ship in this.f.Ships)

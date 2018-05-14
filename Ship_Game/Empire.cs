@@ -1370,8 +1370,7 @@ namespace Ship_Game
             foreach (Planet planet in OwnedPlanets)
             {
                 planet.UpdateIncomes(false);
-                income += (planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod) * data.TaxRate;
-                income += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
+                income += planet.NetIncome;
             }
             return income;
         }

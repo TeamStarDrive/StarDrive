@@ -652,7 +652,7 @@ namespace Ship_Game
                 {
                     IOrderedEnumerable<Planet> sortedList = 
                         from p in EmpireManager.Player.GetPlanets()
-                        orderby p.GrossMoneyPT + p.Owner.data.Traits.TaxMod * p.GrossMoneyPT - (p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * p.Owner.data.Traits.MaintMod)
+                        orderby p.NetIncome
                         select p;
                     money.Ascending = true;
                     ResetListSorted(sortedList);
@@ -661,7 +661,7 @@ namespace Ship_Game
                 {
                     IOrderedEnumerable<Planet> sortedList = 
                         from p in EmpireManager.Player.GetPlanets()
-                        orderby p.GrossMoneyPT + p.Owner.data.Traits.TaxMod * p.GrossMoneyPT - (p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * p.Owner.data.Traits.MaintMod) descending
+                        orderby p.NetIncome descending
                         select p;
                     ResetListSorted(sortedList);
                     money.Ascending = false;
