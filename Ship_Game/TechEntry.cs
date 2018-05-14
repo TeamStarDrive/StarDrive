@@ -345,7 +345,7 @@ namespace Ship_Game
                 if (unlockedBonus.Tags.Count <= 0)
                 {
                     UnlockOtherBonuses(empire, unlockedBonus);
-                    return;
+                    continue;
                 }
                 foreach (string index in unlockedBonus.Tags)
                 {

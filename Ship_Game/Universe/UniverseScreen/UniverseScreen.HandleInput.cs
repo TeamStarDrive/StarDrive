@@ -86,19 +86,17 @@ namespace Ship_Game
                 if (input.SpawnShip)
                     Ship.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
                 if (input.SpawnFleet2) HelperFunctions.CreateFleetAt("Fleet 2", empire, mouseWorldPos);                
-                if (input.SpawnFleet1) HelperFunctions.CreateFleetAt("Fleet 1", empire, mouseWorldPos);
-                
+                if (input.SpawnFleet1) HelperFunctions.CreateFleetAt("Fleet 1", empire, mouseWorldPos);                
 
                 if (SelectedShip != null)
-                {
-                    //#if DEBUG
-                    //    if (SelectedShip.Center.InRadius(mouseWorldPos, SelectedShip.Radius*2) && input.RightMouseClick)
-                    //        SelectedShip.ShowGridLocalDebugPoint(mouseWorldPos);
-                    //#endif
-
+                {                    
                     if (input.KillThis)
                     {
-                        SelectedShip.Die(null, false);
+                        var damage = 1f;
+                        if (input.IsShiftKeyDown)
+                            damage = .9f;
+                        //Apply damage as a percent of module health to all modules. 
+                        SelectedShip.DebugDamage(damage);
                     }
                 }
                 else if (SelectedPlanet != null && Debug && (input.KillThis))
@@ -313,15 +311,18 @@ namespace Ship_Game
                     else if (SelectedShipList.Count > 1)
                         shipListInfoUI.SetShipList(SelectedShipList, true);
                     SelectedSomethingTimer = 3f;
-
-                    if (!InputIsDoubleClick()) return;
-
+                    if (!InputIsDoubleClick())
+                        return;
                     ViewingShip    = false;
                     AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
-
+                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3(CamPos.Z);
                     if (viewState < UnivScreenState.SystemView)
                         CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+
+                 
+                    
+                    CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
+
                     return;
                 }
             }
@@ -410,17 +411,17 @@ namespace Ship_Game
                 if (HandleGUIClicks(input))
                 {
                     SkipRightOnce = true;
-                    NeedARelease = true;
+                    NeedARelease  = true;
                     return true;
                 }
             }
             else
             {
-                SelectedFleet = null;
+                SelectedFleet  = null;
                 InputCheckPreviousShip();
-                SelectedShip = null;
+                SelectedShip   = null;
                 SelectedShipList.Clear();
-                SelectedItem = null;
+                SelectedItem   = null;
                 SelectedSystem = null;
             }
             if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == player))

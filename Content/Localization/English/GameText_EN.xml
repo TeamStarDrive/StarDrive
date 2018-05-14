@@ -4699,6 +4699,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
 
     <!-- Data added in Texas Alpha1 -->
     <Token>
+      <Index>1991</Index>
+      <Text>The more complex the module is, the more it is harder to repair it. A complexity of 2, for instance, means that it will take twice the amount of time to repair the module. Complexity of 0.5 means it will be twice as fast to repair</Text>
+    </Token>
+    <Token>
+      <Index>1992</Index>
+      <Text>Complexity</Text>
+    </Token>
+    <Token>
       <Index>1993</Index>
       <Text>This shield can recharge even during combat.</Text>
     </Token>
