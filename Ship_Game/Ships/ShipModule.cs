@@ -329,7 +329,10 @@ namespace Ship_Game.Ships
             module.Facing = facing;
 
             if (!isTemplate)
+            {
                 module.UpdateActualMaxHealth();
+                module.Health = module.ActualMaxHealth;
+            }
 
             module.ApplyModuleOrientation(orientation);
             module.Initialize(xmlPos, isTemplate);
