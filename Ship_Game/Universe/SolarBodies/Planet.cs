@@ -121,6 +121,13 @@ namespace Ship_Game
         public int TotalDefensiveStrength;
         public float GrossFood;
         public float GrossMoneyPT;
+        public float GrossIncome =>
+                    (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
+                    + this.PlusFlatMoneyPerTurn + (this.Population / 1000f * this.PlusCreditsPerColonist);
+        public float GrossUpkeep =>
+                    (float)((double)this.TotalMaintenanceCostsPerTurn + (double)this.TotalMaintenanceCostsPerTurn
+                    * (double)this.Owner?.data.Traits.MaintMod);
+        public float NetIncome => this.GrossIncome - this.GrossUpkeep;
         public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
@@ -141,7 +148,7 @@ namespace Ship_Game
         public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
-        public float RepairPerTurn = 50;        
+        public float RepairPerTurn = 0;        
         public bool PSexport { get; private set; }
 
         public float ExportPSWeight =0;
@@ -2737,7 +2744,8 @@ namespace Ship_Game
             MaxPopBonus = 0f;
             PlusTaxPercentage = 0f;
             TerraformToAdd = 0f;
-            bool shipyard =false;            
+            bool shipyard =false;
+            float repairPerTurn = 0;
             for (int index = 0; index < BuildingList.Count; ++index)
             {
                 Building building = BuildingList[index];
@@ -2778,7 +2786,7 @@ namespace Ship_Game
                 if (building.Maintenance > 0)
                     TotalMaintenanceCostsPerTurn += building.Maintenance;
                 FlatFoodAdded += building.PlusFlatFoodAmount;
-                RepairPerTurn += building.ShipRepair;
+                repairPerTurn += building.ShipRepair;
                 //Repair if no combat
                 if(!RecentCombat)
                 {
@@ -2786,6 +2794,7 @@ namespace Ship_Game
                     building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
                 }
             }
+            RepairPerTurn = repairPerTurn;
             //Added by Gretman -- This will keep a planet from still having sheilds even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
