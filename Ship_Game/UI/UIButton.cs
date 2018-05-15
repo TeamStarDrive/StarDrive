@@ -198,7 +198,8 @@ namespace Ship_Game
             }
 
             State = PressState.Hover;
-            return false;
+            // always capture input to prevent clicks from reaching elements under us
+            return true;
         }
 
         public override void PerformLegacyLayout(Vector2 pos)

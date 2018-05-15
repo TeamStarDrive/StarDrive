@@ -18,10 +18,8 @@ namespace Ship_Game
         private Submenu ChooseFighterSub;
         public FighterScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
+
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
-        public bool HitTest(InputState input) => Window.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
-        public string HangarShipName => ChooseFighterSL.HangarShipUIDLast;
-        private ShipModule HighlightedModule = null;
 
         public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window, true)
         {
@@ -60,7 +58,13 @@ namespace Ship_Game
             ChooseFighterSub.AddTab("Choose Fighter");
             ChooseFighterSL = new FighterScrollList(ChooseFighterSub, ParentScreen);
         }
-        public bool HandleInput(InputState input, ShipModule activeModule = null, ShipModule highlightedModule = null)
+
+        public bool HitTest(InputState input)
+        {
+            return Window.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
+        }
+
+        public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
         {
             if (HitTest(input) && WeaponSl.HandleInput(input))
                 return true;            
@@ -70,8 +74,6 @@ namespace Ship_Game
                 return false;
             WeaponSl.ResetOnNextDraw = true;
             WeaponSl.indexAtTop = 0;
-            if (activeModule == null)
-                HighlightedModule = highlightedModule;
             return false;
             
         }

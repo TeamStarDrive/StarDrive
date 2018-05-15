@@ -11,7 +11,7 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
-    public sealed partial class ShipDesignScreen
+    public sealed partial class ShipDesignScreen : GameScreen
     {
         private Matrix View;
         private Matrix Projection;
