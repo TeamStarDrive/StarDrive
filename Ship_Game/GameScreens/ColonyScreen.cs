@@ -95,8 +95,8 @@ namespace Ship_Game
                 this.LowRes = true;
             Rectangle theMenu1 = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             this.TitleBar = new Menu2(theMenu1);
-            this.LeftColony = new ToggleButton(new Rectangle(theMenu1.X + 25, theMenu1.Y + 24, 14, 35), "SelectionBox/button_arrow_left", "SelectionBox/button_arrow_left", "SelectionBox/button_arrow_left_hover", "SelectionBox/button_arrow_left_hover", "");
-            this.RightColony = new ToggleButton(new Rectangle(theMenu1.X + theMenu1.Width - 39, theMenu1.Y + 24, 14, 35), "SelectionBox/button_arrow_right", "SelectionBox/button_arrow_right", "SelectionBox/button_arrow_right_hover", "SelectionBox/button_arrow_right_hover", "");
+            this.LeftColony = new ToggleButton(new Vector2(theMenu1.X + 25, theMenu1.Y + 24), ToggleButtonStyle.ArrowLeft);
+            this.RightColony = new ToggleButton(new Vector2(theMenu1.X + theMenu1.Width - 39, theMenu1.Y + 24), ToggleButtonStyle.ArrowRight);
             this.TitlePos = new Vector2((float)(theMenu1.X + theMenu1.Width / 2) - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, (float)(theMenu1.Y + theMenu1.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             Rectangle theMenu2 = new Rectangle(2, theMenu1.Y + theMenu1.Height + 5, theMenu1.Width, ScreenHeight - (theMenu1.Y + theMenu1.Height) - 7);
             this.LeftMenu = new Menu1(theMenu2);
@@ -194,7 +194,10 @@ namespace Ship_Game
             this.build = new Submenu(theMenu10);
             this.build.AddTab(Localizer.Token(334));
             this.buildSL = new ScrollList(this.build);
-            this.playerDesignsToggle = new ToggleButton(new Rectangle(this.build.Menu.X + this.build.Menu.Width - 270, this.build.Menu.Y, 29, 20), "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid");
+            this.playerDesignsToggle = new ToggleButton(
+                new Vector2(build.Menu.X + build.Menu.Width - 270, build.Menu.Y),
+                ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
+
             this.playerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
             if (p.HasShipyard)
                 this.build.AddTab(Localizer.Token(335));

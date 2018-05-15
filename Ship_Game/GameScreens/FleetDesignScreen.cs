@@ -1689,72 +1689,33 @@ namespace Ship_Game
             }
             ResetLists();
             SelectedStuffRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 220, -13 + ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
-            Vector2 ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            ToggleButton attackRuns = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon")
+            
+
+            var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
+            void AddOrdersBtn(string action, string icon, int toolTip)
             {
-                Action = "attack",
-                HasToolTip = true,
-                WhichToolTip = 1
-            };
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton artillery = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_aft")
-            {
-                Action = "arty",
-                HasToolTip = true,
-                WhichToolTip = 2
-            };
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton holdPos = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_x")
-            {
-                Action = "hold",
-                HasToolTip = true,
-                WhichToolTip = 65
-            };
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton orbitLeft = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_left")
-            {
-                Action = "orbit_left",
-                HasToolTip = true,
-                WhichToolTip = 3
-            };
-            ordersBarPos.Y = ordersBarPos.Y + 29f;
-            ToggleButton broadsideLeft = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bleft")
-            {
-                Action = "broadside_left",
-                HasToolTip = true,
-                WhichToolTip = 159
-            };
-            ordersBarPos.Y = ordersBarPos.Y - 29f;
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton orbitRight = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_right")
-            {
-                Action = "orbit_right",
-                HasToolTip = true,
-                WhichToolTip = 4
-            };
-            ordersBarPos.Y = ordersBarPos.Y + 29f;
-            ToggleButton broadsideRight = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bright")
-            {
-                Action = "broadside_right",
-                HasToolTip = true,
-                WhichToolTip = 160
-            };
-            ordersBarPos.Y = ordersBarPos.Y - 29f;
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            ToggleButton evade = new ToggleButton(new Rectangle((int)ordersBarPos.X, (int)ordersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_stop")
-            {
-                Action = "evade",
-                HasToolTip = true,
-                WhichToolTip = 6
-            };
-            OrdersButtons.Add(artillery);
-            OrdersButtons.Add(holdPos);
-            OrdersButtons.Add(orbitLeft);
-            OrdersButtons.Add(broadsideLeft);
-            OrdersButtons.Add(orbitRight);
-            OrdersButtons.Add(broadsideRight);
-            OrdersButtons.Add(evade);
-            OrdersButtons.Add(attackRuns);
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
+                {
+                    Action       = action,
+                    HasToolTip   = true,
+                    WhichToolTip = toolTip
+                };
+                OrdersButtons.Add(button);
+                ordersBarPos.X += 29f;
+            }
+
+            AddOrdersBtn("attack",      "SelectionBox/icon_formation_headon", toolTip: 1);
+            AddOrdersBtn("arty",        "SelectionBox/icon_formation_aft",    toolTip: 2);
+            AddOrdersBtn("hold",        "SelectionBox/icon_formation_x",      toolTip: 65);
+            AddOrdersBtn("orbit_left",  "SelectionBox/icon_formation_left",   toolTip: 3);
+            AddOrdersBtn("orbit_right", "SelectionBox/icon_formation_right",  toolTip: 4);
+            AddOrdersBtn("evade",       "SelectionBox/icon_formation_stop",   toolTip: 6);
+
+            ordersBarPos = new Vector2(SelectedStuffRect.X + 20 + 3*29f, ordersBarPos.Y + 29f);
+            AddOrdersBtn("broadside_left",  "SelectionBox/icon_formation_bleft",  toolTip: 159);
+            AddOrdersBtn("broadside_right", "SelectionBox/icon_formation_bright", toolTip: 160);
+
+
             RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");
             SaveDesign = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 50), "Save Design...");
             LoadDesign = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20 + 100), "Load Design...");

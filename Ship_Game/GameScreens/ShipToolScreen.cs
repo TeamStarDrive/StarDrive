@@ -491,49 +491,46 @@ namespace Ship_Game
         public override void LoadContent()
         {
             ScreenManager.RemoveAllObjects();
-            PrimitiveQuad.Device = base.ScreenManager.GraphicsDevice;
-            this.aspect = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-            this.border = new PrimitiveQuad(this.aspect.X / 2f - 512f, this.aspect.Y / 2f - 512f, 1024f, 1024f);
-            this.what = this.border.Rect;
+            int screenWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
-            Rectangle ToggleBtnRect(int offset)
+            PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
+            aspect = new Vector2(screenWidth, screenHeight);
+            border = new PrimitiveQuad(aspect.X / 2f - 512f, aspect.Y / 2f - 512f, 1024f, 1024f);
+            what = border.Rect;
+
+            var designPos = new Vector2(what.X - 32f, what.Y + 5f);
+            void AddDesignBtn(string icon)
             {
-                return new Rectangle(this.what.X - 32, this.what.Y + 5 + offset, 24, 24);
+                var button = new ToggleButton(designPos, ToggleButtonStyle.Formation, icon) {Action = icon};
+                DesignStateButtons.Add(button);
+                designPos.Y += 29f;
             }
+            AddDesignBtn("I");
+            AddDesignBtn("IO");
+            AddDesignBtn("O");
+            AddDesignBtn("E");
 
-            var Internal = new ToggleButton(ToggleBtnRect(0), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "I");
-            this.DesignStateButtons.Add(Internal);
-            Internal.Action = "I";
-            var InternalO = new ToggleButton(ToggleBtnRect(29), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "IO");
-            this.DesignStateButtons.Add(InternalO);
-            InternalO.Action = "IO";
-            var External = new ToggleButton(ToggleBtnRect(58), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "O");
-            this.DesignStateButtons.Add(External);
-            External.Action = "O";
-            var Engines = new ToggleButton(ToggleBtnRect(87), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "E");
-            this.DesignStateButtons.Add(Engines);
-            Engines.Action = "E";
-            this.LoadModelButton = new DanButton(new Vector2(20f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Load Model");
-            this.SaveHullButton = new DanButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 200), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Save Hull");
-            this.ShipNameBox = new UITextEntry()
+            LoadModelButton = new DanButton(new Vector2(20f, (screenHeight - 50)), "Load Model");
+            SaveHullButton = new DanButton(new Vector2((screenWidth - 200), (screenHeight - 50)), "Save Hull");
+            ShipNameBox = new UITextEntry()
             {
-                ClickableArea = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 200, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 115, 180, 20),
+                ClickableArea = new Rectangle(screenWidth - 200, screenHeight - 115, 180, 20),
                 Text = this.HullName
             };
             AssignLightRig("example/ShipyardLightrig");
-            base.ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
-            float width = (float)base.Viewport.Width;
-            Viewport viewport = base.Viewport;
-            float aspectRatio = width / (float)viewport.Height;
-            Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-            this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
-            this.moduleSlot = TransientContent.Load<Texture2D>("Textures/Ships/singlebox");
-            this.DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
-            this.Center = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-            this.ConfigureSlots();
-            this.thruster = new Thruster();
-            this.thruster.LoadAndAssignDefaultEffects(TransientContent);
+            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            float aspectRatio = Viewport.Width / (float)Viewport.Height;
+            Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+            view = Matrix.CreateRotationY(180f.ToRadians())
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
+            moduleSlot = TransientContent.Load<Texture2D>("Textures/Ships/singlebox");
+            DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
+            Center = new Vector2((int)(screenWidth / 2), (int)(screenHeight / 2));
+            ConfigureSlots();
+            thruster = new Thruster();
+            thruster.LoadAndAssignDefaultEffects(TransientContent);
             base.LoadContent();
         }
 
