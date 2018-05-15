@@ -91,7 +91,7 @@ namespace Ship_Game.Ships
         public string BombType                   => Flyweight.BombType;
         public float WarpMassCapacity            => Flyweight.WarpMassCapacity;
         public float BonusRepairRate             => Flyweight.BonusRepairRate;
-        public float Cargo_Capacity                => Flyweight.Cargo_Capacity;
+        public float Cargo_Capacity              => Flyweight.Cargo_Capacity;
         public float shield_radius               => Flyweight.shield_radius;
         public float shield_power_max            => Flyweight.shield_power_max;
         public float shield_recharge_rate        => Flyweight.shield_recharge_rate;
@@ -255,6 +255,7 @@ namespace Ship_Game.Ships
             IconTexturePath         = template.IconTexturePath;
             TargetValue             = template.TargetValue;
             TemplateMaxHealth       = template.HealthMax;
+            UpdateModuleRadius();
         }
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
@@ -290,7 +291,8 @@ namespace Ship_Game.Ships
             };
 
             module.Health = module.ActualMaxHealth;
-            
+            module.UpdateModuleRadius();
+
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
             module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
@@ -315,15 +317,20 @@ namespace Ship_Game.Ships
         }
 
         // this is used during Ship creation, Ship template creation or Ship loading from save
-        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, 
-                                        bool isTemplate, ShipDesignScreen.ActiveModuleState orientation)
+        public static ShipModule Create(string uid, Ship parent, ModuleSlotData slot, bool isTemplate, bool fromSave)
         {
             ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
-            module.Facing = facing;
-
-            module.ApplyModuleOrientation(orientation);
-            module.Initialize(xmlPos, isTemplate);
+            module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, slot.GetOrientation());
+            // @todo These are related. But always override with slot facing
+            module.Facing = slot.Facing;
+            module.Initialize(slot.Position, isTemplate);
+            if (fromSave)
+            {
+                module.Active      = slot.Health > 0.01f;
+                module.Health      = slot.Health;
+                module.ShieldPower = slot.ShieldPower;;
+            }
             return module;
         }
 
@@ -347,7 +354,6 @@ namespace Ship_Game.Ships
             Center.Y = Position.Y + YSIZE * 8f;
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
-            UpdateModuleRadius();
             SetAttributesByType();
             
             if (!isTemplate)
@@ -398,7 +404,7 @@ namespace Ship_Game.Ships
             Radius = 9f * (XSIZE > YSIZE ? XSIZE : YSIZE);
         }
 
-        // Collision test with this ShipModule. Returns TRUE if point is inside this module's
+        // Collision test with this ShipModule. Returns TRUE if point is inside this module
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
         // are not accurately checked.
         // HitTest uses the World scene POSITION. Not module XML location
@@ -895,11 +901,11 @@ namespace Ship_Game.Ships
             //SetHealth(Health); // Update and validate Health
 
             BombTimer -= elapsedTime;
-            UpdateModuleRadius();
 
             if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
-            //Shield Recharge
+
+            // Shield Recharge
             float shieldMax = ActualShieldPowerMax;
             if (Active && Powered && ShieldPower < shieldMax)
             {
@@ -1181,22 +1187,33 @@ namespace Ship_Game.Ships
             return off;
         }
 
-        private void ApplyModuleOrientation(ShipDesignScreen.ActiveModuleState state)
+        public void ApplyModuleOrientation(int w, int h, ShipDesignScreen.ActiveModuleState state)
         {
             switch (state)
             {
-                case ShipDesignScreen.ActiveModuleState.Right:
+                case ShipDesignScreen.ActiveModuleState.Normal:
+                    XSIZE = w;
+                    YSIZE = h;
+                    Facing = 0f;
+                    break;
                 case ShipDesignScreen.ActiveModuleState.Left:
-                    int x = XSIZE;
-                    int y = YSIZE;
-                    XSIZE = y; // @todo Why are these swapped? Please comment.
-                    YSIZE = x; // These are swapped because if the module is facing left or right, then the length is now the height, and vice versa                                            
+                    XSIZE = h; // @todo Why are these swapped? Please comment.
+                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa    
+                    Facing = 270f;
                     return;
-                case ShipDesignScreen.ActiveModuleState.Normal: break;
-                case ShipDesignScreen.ActiveModuleState.Rear:   break;
-                default: return;
+                case ShipDesignScreen.ActiveModuleState.Right:
+                    XSIZE = h; // @todo Why are these swapped? Please comment.
+                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa
+                    Facing = 90f;
+                    break;
+                case ShipDesignScreen.ActiveModuleState.Rear:
+                    XSIZE = w;
+                    YSIZE = h;
+                    Facing = 180f;
+                    break;
             }
         }
+
         public override Vector2 JitterPosition() => Parent?.JitterPosition() ?? base.JitterPosition();
 
         public bool FighterOut

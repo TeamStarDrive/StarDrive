@@ -821,11 +821,10 @@ namespace Ship_Game
             return ProjTextDict[texturePath];
         }
 
-        private static void LoadTexture(FileInfo info, ContentManager contentManager = null)
+        private static void LoadTexture(FileInfo info)
         {
-            contentManager = contentManager ?? ContentManager;
             string relPath = info.CleanResPath(false);
-            var tex = contentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
+            var tex = ContentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
             relPath = info.CleanResPath();
             string texName = relPath.Substring("Textures/".Length);
             lock (TextureDict)
@@ -837,14 +836,12 @@ namespace Ship_Game
         public static FileInfo[] GatherTextureFiles(string dir)
         {
             string[] exts = {"png", "gif", "jpg", "xnb"};
-            FileInfo[] allFiles = new FileInfo[0];
-            FileInfo[] curerentFiles = new FileInfo[0]; 
-            foreach (var ext in exts)
+            var allFiles = new Array<FileInfo>();
+            foreach (string ext in exts)
             {
-                curerentFiles = GatherFilesUnified(dir, ext, false);
-                allFiles = allFiles.Concat(curerentFiles).ToArray();
+                allFiles.AddRange(GatherFilesUnified(dir, ext, false));
             }
-            return allFiles;
+            return allFiles.ToArray();
         }
 
         // This method is a hot path during Loading and accounts for ~25% of time spent
@@ -862,6 +859,7 @@ namespace Ship_Game
                 LoadTexture(info);
         #endif
 
+        #if false
             // check for any duplicate loads:
             var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
             var assets = field?.GetValue(ContentManager) as Map<string, object>;
@@ -880,6 +878,7 @@ namespace Ship_Game
                     }
                 }
             }
+        #endif
         }
 
         // Load texture with its abstract path such as

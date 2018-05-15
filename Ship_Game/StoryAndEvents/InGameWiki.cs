@@ -32,6 +32,9 @@ namespace Ship_Game
             var help          = ResourceManager.GatherFilesModOrVanilla("HelpTopics/" + GlobalStats.Language,"xml");
             if (help.Length  != 0)
                 HelpTopics    = help[0].Deserialize<HelpTopics>();
+
+            TitleText  = Localizer.Token(2304);
+            MiddleText = Localizer.Token(2303);
         }
 
         protected override void Destroy()

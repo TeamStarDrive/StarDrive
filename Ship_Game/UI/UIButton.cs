@@ -198,6 +198,12 @@ namespace Ship_Game
             }
 
             State = PressState.Hover;
+            // @note This should return false to capture the hover input,
+            //       however most UI code doesn't use UIElementV2 system yet,
+            //       so returning true would falsely trigger a lot of old style buttons
+            //       Semantic differences:
+            //         old system: true means click/event happened
+            //         UIElementV2: true means input was handled/captured and should not propagate to other elements
             return false;
         }
 
