@@ -1,15 +1,17 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class ShipAI
     {
         public Planet start;
         public Planet end;
         public string FoodOrProd;
+
+        private static float UniverseSize => UniverseScreen?.UniverseSize ?? 5000000f;
 
         private void DropoffGoods()
         {
@@ -45,7 +47,7 @@ namespace Ship_Game.AI {
             OrderTransportPassengers(5f);
         }
 
-        private float TradeSort(Ship ship, Planet PlanetCheck, string ResourceType, float cargoCount, bool Delivery)
+        private static float TradeSort(Ship ship, Planet planetCheck, string resourceType, float cargoCount, bool Delivery)
         {
             /*here I am trying to predict the planets need versus the ships speed.
              * I am returning a weighted value that is based on this but primarily the returned value is the time it takes the freighter to get to the target in a straight line
@@ -55,39 +57,40 @@ namespace Ship_Game.AI {
             //cargoCount = cargoCount > PlanetCheck.MAX_STORAGE ? PlanetCheck.MAX_STORAGE : cargoCount;
             float resourceRecharge = 0;
             float resourceAmount = 0;
-            if (ResourceType == "Food")
+            if (resourceType == "Food")
             {
-                resourceRecharge = PlanetCheck.NetFoodPerTurn;
-                resourceAmount = PlanetCheck.FoodHere;
+                resourceRecharge = planetCheck.NetFoodPerTurn;
+                resourceAmount = planetCheck.FoodHere;
             }
-            else if (ResourceType == "Production")
+            else if (resourceType == "Production")
             {
-                resourceRecharge = PlanetCheck.NetProductionPerTurn;
-                resourceAmount = PlanetCheck.ProductionHere;
+                resourceRecharge = planetCheck.NetProductionPerTurn;
+                resourceAmount = planetCheck.ProductionHere;
             }
-            float timeTotarget = ship.AI.TimeToTarget(PlanetCheck);
-            float Effeciency = resourceRecharge * timeTotarget;
+            float timeTotarget = ship.AI.TimeToTarget(planetCheck);
+            float efficiency = resourceRecharge * timeTotarget;
 
             // return PlanetCheck.MAX_STORAGE / (PlanetCheck.MAX_STORAGE -(Effeciency + resourceAmount));
 
             if (Delivery)
             {
-                bool badCargo = Effeciency + resourceAmount > PlanetCheck.MaxStorage;             
+                bool badCargo = efficiency + resourceAmount > planetCheck.MaxStorage;             
                 if (!badCargo)
-                    return timeTotarget * (badCargo
-                               ? PlanetCheck.MaxStorage / (Effeciency + resourceAmount)
-                               : 1);
+                    return timeTotarget;
             }
             else
             {
-                Effeciency = PlanetCheck.MaxStorage * .5f < ship.CargoSpaceMax
-                    ? resourceAmount + Effeciency < ship.CargoSpaceMax * .5f
-                        ? ship.CargoSpaceMax * .5f / (resourceAmount + Effeciency)
-                        : 1
-                    : 1;             
-                return timeTotarget * Effeciency; 
+                if (planetCheck.MaxStorage * 0.5f < ship.CargoSpaceMax)
+                {
+                    if (resourceAmount + efficiency < ship.CargoSpaceMax * 0.5f)
+                        efficiency = ship.CargoSpaceMax * 0.5f / (resourceAmount + efficiency);
+                    else
+                        efficiency = 1f;
+                }
+                else efficiency = 1f;
+                return timeTotarget * efficiency; 
             }
-            return timeTotarget + UniverseScreen.UniverseSize;
+            return timeTotarget + UniverseSize;
         }
 
         public void OrderTrade(float elapsedTime)
@@ -224,10 +227,7 @@ namespace Ship_Game.AI {
 
             if (planets.Count <= 0) return;
 
-            var sortPlanets = planets.OrderBy(PlanetCheck =>
-            {
-                return TradeSort(Owner, PlanetCheck, goodType, Owner.CargoSpaceMax, false);                        
-            });
+            var sortPlanets = planets.OrderBy(p => TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, false));
             foreach (Planet p in sortPlanets)
             {
                 if (p.ParentSystem.CombatInSystem) continue;
@@ -299,7 +299,7 @@ namespace Ship_Game.AI {
                 float cargoSpaceMax = p.MaxStorage - p.GetGoodHere(goodType);
                 var faster = true;
                 float thisTradeStr = TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, true);
-                if (thisTradeStr >= UniverseScreen.UniverseSize && p.GetGoodHere(goodType) >= 0)
+                if (thisTradeStr >= UniverseSize && p.GetGoodHere(goodType) >= 0)
                     continue;
                 if (goodType == "Food" && p.ImportPriority().ToString() != goodType)
                     continue;
