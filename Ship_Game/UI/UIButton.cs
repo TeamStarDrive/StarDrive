@@ -198,8 +198,13 @@ namespace Ship_Game
             }
 
             State = PressState.Hover;
-            // always capture input to prevent clicks from reaching elements under us
-            return true;
+            // @note This should return false to capture the hover input,
+            //       however most UI code doesn't use UIElementV2 system yet,
+            //       so returning true would falsely trigger a lot of old style buttons
+            //       Semantic differences:
+            //         old system: true means click/event happened
+            //         UIElementV2: true means input was handled/captured and should not propagate to other elements
+            return false;
         }
 
         public override void PerformLegacyLayout(Vector2 pos)
