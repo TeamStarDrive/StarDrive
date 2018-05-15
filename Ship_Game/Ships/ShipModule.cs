@@ -317,17 +317,20 @@ namespace Ship_Game.Ships
         }
 
         // this is used during Ship creation, Ship template creation or Ship loading from save
-        public static ShipModule Create(string uid, Ship parent, Vector2 xmlPos, float facing, 
-                                        bool isTemplate, ShipDesignScreen.ActiveModuleState orientation)
+        public static ShipModule Create(string uid, Ship parent, ModuleSlotData slot, bool isTemplate, bool fromSave)
         {
             ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
-
-            // @todo These are related.
-            module.Facing = facing;
-            module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, orientation);
-
-            module.Initialize(xmlPos, isTemplate);
+            module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, slot.GetOrientation());
+            // @todo These are related. But always override with slot facing
+            module.Facing = slot.Facing;
+            module.Initialize(slot.Position, isTemplate);
+            if (fromSave)
+            {
+                module.Active      = slot.Health > 0.01f;
+                module.Health      = slot.Health;
+                module.ShieldPower = slot.ShieldPower;;
+            }
             return module;
         }
 
