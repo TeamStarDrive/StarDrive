@@ -233,8 +233,11 @@ namespace Ship_Game.UI
             {
                 OnClick?.Invoke(this);
                 Pressed = true;
+                return true;
             }
-            return input.InGameSelect;
+
+            // edge case: capture mouse release events
+            return input.LeftMouseReleased;
         }
     }
 }

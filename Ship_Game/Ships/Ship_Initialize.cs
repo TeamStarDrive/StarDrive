@@ -24,12 +24,11 @@ namespace Ship_Game.Ships
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
             {
-                var slot = templateSlots[i];
+                ModuleSlotData slot = templateSlots[i];
                 if (slot.Restrictions == Restrictions.I)
                     internalPosistions.Add(slot.Position);
                 string uid = slot.InstalledModuleUID;
                 if (uid == "Dummy" || uid == null) // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
-
                     continue;
                 if (!ResourceManager.ModuleExists(uid))
                 {
@@ -41,7 +40,7 @@ namespace Ship_Game.Ships
 
             if (count == 0)
             {
-                Log.Warning($"Failed to load ship '{Name}' due all dummy modules!");
+                Log.Warning($"Failed to load ship '{Name}' due to all dummy modules!");
                 return false;
             }
             ModuleSlotList = new ShipModule[count];
@@ -53,23 +52,8 @@ namespace Ship_Game.Ships
                 string uid = slotData.InstalledModuleUID;
                 if (uid == "Dummy" || uid == null)
                     continue;
-                //check for an postiion rotated modules
-                //check for normal before converting for perf. Rotated modules are rare enough.
-                var orientation = ShipDesignScreen.ActiveModuleState.Normal;
-                if (slotData.Orientation.NotEmpty()
-                    && slotData.Orientation != ShipDesignScreen.ActiveModuleState.Normal.ToString())
-                {
-                    orientation = 
-                        (ShipDesignScreen.ActiveModuleState)Enum.Parse(typeof(ShipDesignScreen.ActiveModuleState), slotData.Orientation);
-                }
 
-                ShipModule module = ShipModule.Create(uid, this, slotData.Position, slotData.Facing, isTemplate, orientation);
-                if (fromSave)
-                {
-                    module.Active      = slotData.Health > 0.01f;
-                    module.Health      = slotData.Health;
-                    module.ShieldPower = slotData.ShieldPower;;
-                }
+                ShipModule module = ShipModule.Create(uid, this, slotData, isTemplate, fromSave);
                 for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
                 {
                     for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)

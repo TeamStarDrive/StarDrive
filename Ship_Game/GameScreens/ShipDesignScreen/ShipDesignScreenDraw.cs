@@ -527,11 +527,11 @@ namespace Ship_Game
          
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
-                Upkeep = GetMaintCostShipyardProportional(this.ActiveHull, Cost, EmpireManager.Player);
+                Upkeep = GetMaintCostShipyardProportional(ActiveHull, Cost, EmpireManager.Player);
             }
             else
             {
-                Upkeep = GetMaintCostShipyard(this.ActiveHull, Size, EmpireManager.Player);
+                Upkeep = GetMaintCostShipyard(ActiveHull, (int)Size, EmpireManager.Player);
             }
 
             DrawStat(ref Cursor, "Upkeep Cost:", Upkeep, 175);

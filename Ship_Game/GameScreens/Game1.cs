@@ -21,6 +21,7 @@ namespace Ship_Game
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance.Content;
 
+        // This is equivalent to PresentationParameters.BackBufferWidth
         public int ScreenWidth { get; private set; }
         public int ScreenHeight { get; private set; }
         public Vector2 ScreenArea { get; private set; }

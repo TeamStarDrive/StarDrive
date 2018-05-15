@@ -104,8 +104,8 @@ namespace Ship_Game
             {
                 for (int y = -32; y < 32; y++)
                 {
-                    PrimitiveQuad newCell = new PrimitiveQuad((float)((int)this.Center.X + 16 * x), (float)((int)this.Center.Y + 16 * y), (float)this.slotsize, (float)this.slotsize);
-                    SlotStruct newslot = new SlotStruct()
+                    var newCell = new PrimitiveQuad(((int)Center.X + 16 * x), ((int)Center.Y + 16 * y), slotsize, slotsize);
+                    var newslot = new SlotStruct()
                     {
                         PQ = newCell,
                         Restrictions = Restrictions.I
