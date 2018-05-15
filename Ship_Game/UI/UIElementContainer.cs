@@ -283,8 +283,25 @@ namespace Ship_Game
         protected CloseButton CloseButton(float x, float y)
             => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
 
+
         protected UIButton ButtonMedium(string launches, int titleId)
             => Add(new UIButton(this, ButtonStyle.Medium, LayoutNext(), launches, Localizer.Token(titleId)));
+
+        protected UIButton ButtonMedium(int titleId, string clickSfx = "", UIButton.ClickHandler click = null)
+        {
+            var button = new UIButton(this, ButtonStyle.Medium, LayoutNext(), "", Localizer.Token(titleId));
+            if (click != null)       button.OnClick += click;
+            if (clickSfx.NotEmpty()) button.ClickSfx = clickSfx;
+            return Add(button);
+        }
+
+        protected UIButton ButtonMedium(int titleId, UIButton.ClickHandler click = null)
+        {
+            var button = new UIButton(this, ButtonStyle.Medium, LayoutNext(), "", Localizer.Token(titleId));
+            if (click != null) button.OnClick += click;
+            return Add(button);
+        }
+
 
         protected ToggleButton ToggleButton(ToggleButtonStyle style, string icon)
             => Add(new ToggleButton(LayoutNext(), style, icon, this));

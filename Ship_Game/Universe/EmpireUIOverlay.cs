@@ -576,12 +576,7 @@ namespace Ship_Game
 			    if (input.WasKeyPressed(Keys.P))
 			    {
 				    GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-				    var wiki = new InGameWiki(Empire.Universe)
-				    {
-					    TitleText = Localizer.Token(2304),
-					    MiddleText = Localizer.Token(2303)
-				    };
-                    Empire.Universe.ScreenManager.AddScreen(wiki);
+                    Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));
 			    }
             }
 
@@ -725,12 +720,7 @@ namespace Ship_Game
 					else if (str5 == "?")
 					{
 						GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-						InGameWiki wiki = new InGameWiki(Empire.Universe)
-						{
-							TitleText = Localizer.Token(2304),
-							MiddleText = Localizer.Token(2303)
-						};
-                        Empire.Universe.ScreenManager.AddScreen(wiki);
+                        Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));
 					}
 				}
 			}
@@ -847,11 +837,7 @@ namespace Ship_Game
 					else if (str3 == "?")
 					{
 						GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-						InGameWiki wiki = new InGameWiki(Empire.Universe)
-						{
-							TitleText = "StarDrive Help",
-							MiddleText = "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
-						};
+					    Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));
 					}
 				}
 			}

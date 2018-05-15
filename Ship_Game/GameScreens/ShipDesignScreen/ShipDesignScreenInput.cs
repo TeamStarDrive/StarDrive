@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -79,23 +78,7 @@ namespace Ship_Game
             CombatState = hull.CombatState;
 
             CreateSOFromActiveHull();
-
-            foreach (ToggleButton button in CombatStatusButtons)
-            {
-                switch (button.Action)
-                {
-                    default: continue;
-                    case "attack":          button.Active = CombatState == CombatState.AttackRuns;     break;
-                    case "arty":            button.Active = CombatState == CombatState.Artillery;      break;
-                    case "hold":            button.Active = CombatState == CombatState.HoldPosition;   break;
-                    case "orbit_left":      button.Active = CombatState == CombatState.OrbitLeft;      break;
-                    case "broadside_left":  button.Active = CombatState == CombatState.BroadsideLeft;  break;
-                    case "broadside_right": button.Active = CombatState == CombatState.BroadsideRight; break;
-                    case "short":           button.Active = CombatState == CombatState.ShortRange;     break;
-                    case "evade":           button.Active = CombatState == CombatState.Evade;          break;
-                    case "orbit_right":     button.Active = CombatState == CombatState.OrbitRight;     break;
-                }
-            }
+            UpdateActiveCombatButton();
             SetupSlots();
         }
 
@@ -196,19 +179,16 @@ namespace Ship_Game
                 ShipData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
-                if (input.ArrowLeft)
-                    ChangeModuleState(ActiveModuleState.Left);
-                if (input.ArrowRight)
-                    ChangeModuleState(ActiveModuleState.Right);
-                if (input.ArrowDown)
-                    ChangeModuleState(ActiveModuleState.Rear);
-                if (input.ArrowUp)
-                    ChangeModuleState(ActiveModuleState.Normal);
+                if (input.ArrowLeft)  ChangeModuleState(ActiveModuleState.Left);
+                if (input.ArrowRight) ChangeModuleState(ActiveModuleState.Right);
+                if (input.ArrowDown)  ChangeModuleState(ActiveModuleState.Rear);
+                if (input.ArrowUp)    ChangeModuleState(ActiveModuleState.Normal);
             }
             if (input.ShipDesignExit && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 ExitScreen();
+                return true;
             }
             if (Close.HandleInput(input))
             {
@@ -217,53 +197,22 @@ namespace Ship_Game
             }
             if (HandleInputUndo(input))
                 return true;
-            HandleInputZoom(input);
 
+            HandleInputZoom(input);
             HandleInputDebug(input);
 
             HoveredModule = null;
-            var mousePos = input.CursorPosition;
             EmpireUI.HandleInput(input, this);
-            HullSL.HandleInput(input);
-            for (int index = HullSL.indexAtTop;
-                index < HullSL.Copied.Count && index < HullSL.indexAtTop + HullSL.entriesToDisplay;
-                ++index)
-            {
-                ScrollList.Entry e = HullSL.Copied[index];
-                if (e.item is ModuleHeader moduleHeader)
-                {
-                    if (moduleHeader.HandleInput(input, e))
-                        return true;
-                }
-                else if (e.clickRect.HitTest(mousePos))
-                {
-                    selector = new Selector(e.clickRect);
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect) continue;
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    if (!ShipSaved && !CheckDesign())
-                    {
-                        Changeto = e.item as ShipData;
-                        MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
-                        return true;
-                    }
-                    ChangeHull(e.item as ShipData);
-                    return true;
-                }
-                else
-                    e.clickRectHover = 0;
-            }
 
-            CheckCombatButtons(input);
+            if (HandleShipHullListSelection(input))
+                return true;
 
             if (ModSel.HandleInput(input, ActiveModule, HighlightedModule))
                 return true;
 
-            if (HullSelectionRect.HitTest(input.CursorPosition)
-                && input.LeftMouseDown || ModSel.HitTest(input)
-                && input.LeftMouseDown)
-                return true;
+            if (input.LeftMouseDown)
+                if (HullSelectionRect.HitTest(input.CursorPosition) || ModSel.HitTest(input))
+                    return true;
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134);
@@ -277,20 +226,44 @@ namespace Ship_Game
                 ShowAllArcs = !ShowAllArcs;
                 ArcsButton.ToggleOn = ShowAllArcs;
             }
+
+            HandleCameraMovement(input);
+
+            if (input.Escaped)
+            {
+                ExitScreen();
+                return true;
+            }
+
+            if (base.HandleInput(input)) // handle any buttons before
+                return true;
+
+            if (HandleModuleSelection(input))
+                return true;
+
+            HandleDeleteModule(input);
+            HandlePlaceNewModule(input);
+            HandleInputMoveArcs(input);
+            return false;
+        }
+
+        private void HandleCameraMovement(InputState input)
+        {
             if (input.RightMouseClick)
             {
                 StartDragPos = input.CursorPosition;
                 CameraVelocity.X = 0.0f;
             }
-            int SlotFactor = 150;
-            if (Slots.Count / 2 > SlotFactor) SlotFactor = Slots.Count / 2;
-            float CamLimit = SlotFactor + ((3 - Camera.Zoom) * SlotFactor);
-            Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager, CamLimit); //This moves the grid
+
+            int slotFactor = 150;
+            if (Slots.Count / 2 > slotFactor) slotFactor = Slots.Count / 2;
+            float camLimit = slotFactor + ((3 - Camera.Zoom) * slotFactor);
+            Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager, camLimit); //This moves the grid
             CameraPosition.X = tempPos.X; //This moves the model
             CameraPosition.Y = tempPos.Y;
             //Log.Info("CamPosX: {0}  CamPosY: {1}  Camera.PosX: {2}  Camera.PosY: {3}  Zoom: {4}  Limit: {5}",
             //      CameraPosition.X, CameraPosition.Y, Camera.Pos.X, Camera.Pos.Y, Camera.Zoom, CamLimit);
-            
+
             //i cant get this to work right. 
             //if (Input.MiddleMouseClick)
             //{
@@ -314,54 +287,84 @@ namespace Ship_Game
 
             CameraVelocity.X = MathHelper.Clamp(CameraVelocity.X, -10f, 10f);
             CameraVelocity.Y = MathHelper.Clamp(CameraVelocity.Y, -10f, 10f);
-            if (input.Escaped)
-                ExitScreen();
+        }
 
-            if (ToggleOverlay)
+        private bool HandleShipHullListSelection(InputState input)
+        {
+            HullSL.HandleInput(input);
+            int max = HullSL.indexAtTop + HullSL.entriesToDisplay;
+            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < max; ++i)
             {
-                foreach (SlotStruct slotStruct in Slots)
+                ScrollList.Entry e = HullSL.Copied[i];
+                if (e.item is ModuleHeader moduleHeader)
                 {
-                    if (!IsMouseOverModule(input, slotStruct))
-                        continue;
-
-                    if (!input.LeftMouseHeld())
+                    if (moduleHeader.HandleInput(input, e))
+                        return true;
+                }
+                else if (e.clickRect.HitTest(input.CursorPosition))
+                {
+                    selector = new Selector(e.clickRect);
+                    e.clickRectHover = 1;
+                    selector = new Selector(e.clickRect);
+                    if (!input.InGameSelect) continue;
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    if (!ShipSaved && !CheckDesign())
                     {
-                        if (slotStruct.Module != null)
-                            HoveredModule = slotStruct.Module;
-                        else if (slotStruct.Parent != null)
-                            HoveredModule = slotStruct.Parent.Module;
-                    }
-                    else if (HighlightedModule != null)
-                    {
-                        HoveredModule = HighlightedModule;
-                    }
-                    if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
-                    {
-                        GameAudio.PlaySfxAsync("simple_beep");
-                        if (Debug)
-                        {
-                            DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
-                            return true;
-                        }
-                        SlotStruct slot = slotStruct.Parent ?? slotStruct;
-                        if (ActiveModule != null || slot.Module == null) continue;
-                        SetActiveModule(CreateDesignModule(slot.Module.UID));
-                        ChangeModuleState(slot.State);
-                        ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                        Changeto = e.item as ShipData;
+                        MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
                         return true;
                     }
-                    else if (ActiveModule == null && !input.LeftMouseHeld())
+                    ChangeHull(e.item as ShipData);
+                    return true;
+                }
+                else e.clickRectHover = 0;
+            }
+
+            return false;
+        }
+
+        private bool HandleModuleSelection(InputState input)
+        {
+            if (!ToggleOverlay)
+                return false;
+
+            foreach (SlotStruct slotStruct in Slots)
+            {
+                if (!IsMouseOverModule(input, slotStruct))
+                    continue;
+
+                if (!input.LeftMouseHeld())
+                {
+                    HoveredModule = slotStruct.Module ?? slotStruct.Parent?.Module;
+                }
+                else if (HighlightedModule != null)
+                {
+                    HoveredModule = HighlightedModule;
+                }
+
+                if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
+                {
+                    GameAudio.PlaySfxAsync("simple_beep");
+                    if (Debug)
                     {
-                        HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
+                        DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
+                        return true;
                     }
+
+                    SlotStruct slot = slotStruct.Parent ?? slotStruct;
+                    if (ActiveModule != null || slot.Module == null)
+                        continue;
+                    SetActiveModule(CreateDesignModule(slot.Module.UID));
+                    ChangeModuleState(slot.State);
+                    ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                    return true;
+                }
+                if (ActiveModule == null && !input.LeftMouseHeld())
+                {
+                    HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
                 }
             }
- 
-            HandleIntputClearModule(input);
-            HandleInputPlaceModule(input);
-            HandleInputMoveArcs(input);
-            UIButtonHandleInput(input);
-            return base.HandleInput(input);
+            return false;
         }
 
         private void HandleInputMoveArcs(InputState input)
@@ -425,7 +428,7 @@ namespace Ship_Game
             }
         }
 
-        private void HandleInputPlaceModule(InputState input)
+        private void HandlePlaceNewModule(InputState input)
         {
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
@@ -440,7 +443,7 @@ namespace Ship_Game
                 if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
                     ActiveModule.UID == LastActiveUID) continue;
 
-                //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
+                // This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
                 InstallModule(slot); 
 
                 LastDesignActionPos.X = slot.PQ.X;
@@ -449,12 +452,12 @@ namespace Ship_Game
             }
         }
 
-        private void HandleIntputClearModule(InputState input)
+        private void HandleDeleteModule(InputState input)
         {
             if (!input.RightMouseClick)
                 return;
 
-            //this should actually clear slots
+            // this should actually clear slots
             ActiveModule = null;
             foreach (SlotStruct slot in Slots)
             {
@@ -491,48 +494,6 @@ namespace Ship_Game
             return designAction;
         }
 
-        private void UIButtonHandleInput(InputState input)
-        {
-            Vector2 mousePos = input.CursorPosition;
-            foreach (UIButton uiButton in Buttons)
-            {
-                if (!uiButton.Rect.HitTest(mousePos))
-                {
-                    uiButton.State = UIButton.PressState.Default;
-                    continue;
-                }
-                uiButton.State = UIButton.PressState.Hover;
-                if (input.LeftMouseClick)
-                    uiButton.State = UIButton.PressState.Pressed;
-                if (!input.LeftMouseReleased) continue;
-
-                switch (uiButton.Launches)
-                {
-                    case "Toggle Overlay":
-                        GameAudio.PlaySfxAsync("blip_click");
-                        ToggleOverlay = !ToggleOverlay;
-                        continue;
-                    case "Save As...":
-                        if (CheckDesign())
-                        {
-                            ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
-                            continue;
-                        }
-                        else
-                        {
-                            GameAudio.PlaySfxAsync("UI_Misc20");
-                            ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
-                            continue;
-                        }
-                    case "Load":
-                        ScreenManager.AddScreen(new LoadDesigns(this));
-                        continue;
-                    default:
-                        continue;
-                }
-            }
-        }
-
         private void HandleInputDebug(InputState input)
         {
             if (!Debug) return;
@@ -554,24 +515,10 @@ namespace Ship_Game
         private void HandleInputZoom(InputState input)
         {
             if (!ModSel.HitTest(input) && !HullSelectionRect.HitTest(input.CursorPosition))
-                //&& !ChooseFighterSub.Menu.HitTest(input.CursorPosition))
             {
-                if (input.ScrollOut)
-                {
-                    TransitionZoom -= 0.1f;
-                    if (TransitionZoom < 0.300000011920929)
-                        TransitionZoom = 0.3f;
-                    if (TransitionZoom > 2.65000009536743)
-                        TransitionZoom = 2.65f;
-                }
-                if (input.ScrollIn)
-                {
-                    TransitionZoom += 0.1f;
-                    if (TransitionZoom < 0.300000011920929)
-                        TransitionZoom = 0.3f;
-                    if (TransitionZoom > 2.65000009536743)
-                        TransitionZoom = 2.65f;
-                }
+                if (input.ScrollOut) TransitionZoom -= 0.1f;
+                if (input.ScrollIn)  TransitionZoom += 0.1f;
+                TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
             }
         }
 
@@ -622,53 +569,31 @@ namespace Ship_Game
                     slot2.ModuleUID = slotStruct.ModuleUID;
                     ChangeModuleState(ActiveModState);
                     InstallModuleNoStack(slot2);
-                    
-
                 }
             }
             ActiveModule = shipModule;
             ResetModuleState();
             return true;
         }
+
+        private static CombatState CombatStateFromAction(ToggleButton button)
+        {
+            return (CombatState)Enum.Parse(typeof(CombatState), button.Action);
+        }
         
-        private bool CheckCombatButtons(InputState input)
+        private void UpdateActiveCombatButton()
+        {
+            foreach (ToggleButton button in CombatStatusButtons)
+                button.Active = (CombatState == CombatStateFromAction(button));
+        }
+
+        private void OnCombatButtonPressed(ToggleButton button)
         {
             if (ActiveHull == null)
-                return false;
-            foreach (ToggleButton toggleButton in CombatStatusButtons)
-            {
-                if (toggleButton.HandleInput(input)) 
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    switch (toggleButton.Action)
-                    {
-                        case "attack":          CombatState = CombatState.AttackRuns;     break;
-                        case "arty":            CombatState = CombatState.Artillery;      break;
-                        case "hold":            CombatState = CombatState.HoldPosition;   break;
-                        case "orbit_left":      CombatState = CombatState.OrbitLeft;      break;
-                        case "broadside_left":  CombatState = CombatState.BroadsideLeft;  break;
-                        case "orbit_right":     CombatState = CombatState.OrbitRight;     break;
-                        case "broadside_right": CombatState = CombatState.BroadsideRight; break;
-                        case "evade":           CombatState = CombatState.Evade;          break;
-                        case "short":           CombatState = CombatState.ShortRange;     break;
-                    }
-                    return true;
-                }
-                
-                switch (toggleButton.Action)
-                {
-                    case "attack":          toggleButton.Active = CombatState == CombatState.AttackRuns;     break;
-                    case "arty":            toggleButton.Active = CombatState == CombatState.Artillery;      break;
-                    case "hold":            toggleButton.Active = CombatState == CombatState.HoldPosition;   break;
-                    case "orbit_left":      toggleButton.Active = CombatState == CombatState.OrbitLeft;      break;
-                    case "broadside_left":  toggleButton.Active = CombatState == CombatState.BroadsideLeft;  break;
-                    case "orbit_right":     toggleButton.Active = CombatState == CombatState.OrbitRight;     break;
-                    case "broadside_right": toggleButton.Active = CombatState == CombatState.BroadsideRight; break;
-                    case "evade":           toggleButton.Active = CombatState == CombatState.Evade;          break;
-                    case "short":           toggleButton.Active = CombatState == CombatState.ShortRange;     break;
-                }
-            }
-            return false;
+                return;
+            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+            CombatState = CombatStateFromAction(button);
+            UpdateActiveCombatButton();
         }
 
         private void JustChangeHull(object sender, EventArgs e)
@@ -679,54 +604,37 @@ namespace Ship_Game
 
         private void LaunchScreen(object sender, EventArgs e)
         {
-            string str = ScreenToLaunch;
-            string str1 = str;
-            if (str != null)
+            if (ScreenToLaunch != null)
             {
-                if (str1 == "Research")
+                switch (ScreenToLaunch)
                 {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
-                }
-                else if (str1 == "Budget")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
-                }
-            }
-            string str2 = ScreenToLaunch;
-            string str3 = str2;
-            if (str2 != null)
-            {
-                if (str3 == "Main Menu")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
-                }
-                else if (str3 == "Shipyard")
-                {
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                }
-                else if (str3 == "Empire")
-                {
-                    ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, EmpireUI));
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                }
-                else if (str3 == "Diplomacy")
-                {
-                    ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                }
-                else if (str3 == "?")
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
-                    var wiki = new InGameWiki(this)
-                    {
-                        TitleText = "StarDrive Help",
-                        MiddleText =
-                            "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
-                    };
-                    ScreenManager.AddScreen(wiki);
+                    case "Research":
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
+                        break;
+                    case "Budget":
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
+                        break;
+                    case "Main Menu":
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
+                        break;
+                    case "Shipyard":
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        break;
+                    case "Empire":
+                        ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, EmpireUI));
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        break;
+                    case "Diplomacy":
+                        ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        break;
+                    case "?":
+                        GameAudio.PlaySfxAsync("sd_ui_tactical_pause");
+                        ScreenManager.AddScreen(new InGameWiki(this));
+                        break;
                 }
             }
             ReallyExit();
@@ -749,8 +657,7 @@ namespace Ship_Game
 
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
-            Camera = new Camera2D();
-            Camera.Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f);
+            Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
@@ -808,43 +715,65 @@ namespace Ship_Game
 
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
-            void AddCombatStatusBtn(string action, string iconPath, int toolTip)
+            void AddCombatStatusBtn(CombatState state, string iconPath, int toolTip)
             {
-                var toggleButton = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
                 {
-                    Action       = action,
+                    Action       = state.ToString(),
                     HasToolTip   = true,
                     WhichToolTip = toolTip
                 };
-                CombatStatusButtons.Add(toggleButton);
+                button.OnClick += OnCombatButtonPressed;
+                Add(button);
+                CombatStatusButtons.Add(button);
                 ordersBarPos.X += 29f;
             }
-            AddCombatStatusBtn("attack",      "SelectionBox/icon_formation_headon", toolTip: 1);
-            AddCombatStatusBtn("arty",        "SelectionBox/icon_formation_aft",   toolTip: 2);
-            AddCombatStatusBtn("short",       "SelectionBox/icon_grid",            toolTip: 228);
-            AddCombatStatusBtn("hold",        "SelectionBox/icon_formation_x",     toolTip: 65);
-            AddCombatStatusBtn("orbit_left",  "SelectionBox/icon_formation_left",  toolTip: 3);
-            AddCombatStatusBtn("orbit_right", "SelectionBox/icon_formation_right", toolTip: 4);
-            AddCombatStatusBtn("evade",       "SelectionBox/icon_formation_stop",  toolTip: 6);
 
+            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: 1);
+            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: 2);
+            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             toolTip: 228);
+            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: 65);
+            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: 3);
+            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: 4);
+            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: 6);
             ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
-            AddCombatStatusBtn("broadside_left", "SelectionBox/icon_formation_bleft", 159);
-            AddCombatStatusBtn("broadside_right", "SelectionBox/icon_formation_bright", 160);
+            AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
+            AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
  
  
-            var cursor = new Vector2(ScreenWidth - 150f, (float)ScreenHeight - 47);
+            BeginHLayout(ScreenWidth - 150f, ScreenHeight - 47f, -142);
 
-            BeginHLayout(cursor, -142);
-            SaveButton          = ButtonMedium("Save As...", titleId: 105);            
-            LoadButton          = ButtonMedium("Load", titleId: 8);            
-            ToggleOverlayButton = ButtonMedium("Toggle Overlay", titleId: 106);
-            Vector2 layoutEndV  = EndLayout();
-            SearchBar           = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
+            SaveButton = ButtonMedium(titleId:105, click: b =>
+            {
+                if (!CheckDesign()) {
+                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
+                    return;
+                }
+                ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
+            });
 
+            LoadButton = ButtonMedium(titleId:8, click: b =>
+            {
+                ScreenManager.AddScreen(new LoadDesigns(this));
+            });
+
+            ToggleOverlayButton = ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
+            {
+                ToggleOverlay = !ToggleOverlay;
+            });
+
+            Vector2 layoutEndV = EndLayout();
+            SearchBar = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
+            LoadContentFinish();
+        }
+
+        private void LoadContentFinish()
+        {
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
             HullSelectionRect = new Rectangle(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
             HullSelectionSub = new Submenu(HullSelectionRect, true);
-            WeaponSL         = new WeaponScrollList(ModSel,this);
+            WeaponSL = new WeaponScrollList(ModSel, this);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
             var categories = new Array<string>();
@@ -856,12 +785,14 @@ namespace Ship_Game
                 if (!categories.Contains(cat))
                     categories.Add(cat);
             }
+
             categories.Sort();
             foreach (string cat in categories)
             {
                 var type = new ModuleHeader(cat, 240f);
                 HullSL.AddItem(type);
             }
+
             foreach (ScrollList.Entry e in HullSL.Entries)
             {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
@@ -871,28 +802,30 @@ namespace Ship_Game
                     {
                         continue;
                     }
+
                     e.AddItem(hull.Value);
                 }
             }
+
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            DropdownRect = new Rectangle((int) (ScreenWidth * .25f), (int) ordersBarPos.Y, 100, 18);
+            DropdownRect = new Rectangle((int)(ScreenWidth * 0.25f), (int)ClassifCursor.Y + 20, 100, 18);
 
             CategoryList = new CategoryDropDown(this, DropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            CarrierOnly    = ActiveHull.CarrierShip;
-            CoBoxCursor    = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
+            CarrierOnly = ActiveHull.CarrierShip;
+            CoBoxCursor = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
             CarrierOnlyBox = Checkbox(CoBoxCursor, () => CarrierOnly, "Carrier Only", 0);
 
             ShipStats = new Menu1(shipStatsPanel);
-            StatsSub  = new Submenu(shipStatsPanel);
+            StatsSub = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
                 Fonts.Pirulen20,
-                Fonts.Pirulen16); 
+                Fonts.Pirulen16);
             Close = new CloseButton(this, new Rectangle(ScreenWidth - 27, 99, 20, 20));
             OriginalZ = CameraPosition.Z;
         }

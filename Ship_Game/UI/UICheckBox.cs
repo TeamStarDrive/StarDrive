@@ -65,12 +65,14 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (Rect.HitTest(input.CursorPosition) && input.LeftMouseClick)
-            {
+            if (!Rect.HitTest(input.CursorPosition))
+                return false;
+
+            if (input.LeftMouseClick)
                 Binding.Value = !Binding.Value;
-                return true;
-            }
-            return false;
+
+            // always capture input to prevent clicks from reaching elements under us
+            return true;
         }
 
         public override void PerformLegacyLayout(Vector2 pos)
