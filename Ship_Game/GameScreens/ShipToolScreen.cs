@@ -496,23 +496,23 @@ namespace Ship_Game
             this.border = new PrimitiveQuad(this.aspect.X / 2f - 512f, this.aspect.Y / 2f - 512f, 1024f, 1024f);
             this.what = this.border.Rect;
 
-            Rectangle ToggleBtnRect(int offset)
+            Vector2 ToggleBtnPos(int offset)
             {
-                return new Rectangle(this.what.X - 32, this.what.Y + 5 + offset, 24, 24);
+                return new Vector2(what.X - 32f, what.Y + 5f + offset);
             }
 
-            var Internal = new ToggleButton(ToggleBtnRect(0), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "I");
+            var Internal = new ToggleButton(ToggleBtnPos(0), ToggleButtonStyle.Formation, "I");
             this.DesignStateButtons.Add(Internal);
             Internal.Action = "I";
-            var InternalO = new ToggleButton(ToggleBtnRect(29), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "IO");
-            this.DesignStateButtons.Add(InternalO);
-            InternalO.Action = "IO";
-            var External = new ToggleButton(ToggleBtnRect(58), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "O");
-            this.DesignStateButtons.Add(External);
-            External.Action = "O";
-            var Engines = new ToggleButton(ToggleBtnRect(87), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "E");
-            this.DesignStateButtons.Add(Engines);
-            Engines.Action = "E";
+            var internalO = new ToggleButton(ToggleBtnPos(29), ToggleButtonStyle.Formation, "IO");
+            this.DesignStateButtons.Add(internalO);
+            internalO.Action = "IO";
+            var external = new ToggleButton(ToggleBtnPos(58), ToggleButtonStyle.Formation, "O");
+            this.DesignStateButtons.Add(external);
+            external.Action = "O";
+            var engines = new ToggleButton(ToggleBtnPos(87), ToggleButtonStyle.Formation, "E");
+            this.DesignStateButtons.Add(engines);
+            engines.Action = "E";
             this.LoadModelButton = new DanButton(new Vector2(20f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Load Model");
             this.SaveHullButton = new DanButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 200), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Save Hull");
             this.ShipNameBox = new UITextEntry()

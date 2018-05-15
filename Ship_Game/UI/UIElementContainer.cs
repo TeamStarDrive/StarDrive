@@ -286,8 +286,15 @@ namespace Ship_Game
         protected UIButton ButtonMedium(string launches, int titleId)
             => Add(new UIButton(this, ButtonStyle.Medium, LayoutNext(), launches, Localizer.Token(titleId)));
 
-        protected ToggleButton ToggleButton(int height, int width, string active, string inactive, string hover, string pressed, string icon)
-            => Add(new ToggleButton(LayoutNextRect(height, width), active, inactive, hover, pressed, icon, this));
+        protected ToggleButton ToggleButton(ToggleButtonStyle style, string icon)
+            => Add(new ToggleButton(LayoutNext(), style, icon, this));
+
+        protected ToggleButton ToggleButton(ToggleButtonStyle style, string icon, ToggleButton.ClickHandler onClick)
+        {
+            var button = new ToggleButton(LayoutNext(), style, icon, this);
+            button.OnClick += onClick;
+            return Add(button);
+        }
         
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

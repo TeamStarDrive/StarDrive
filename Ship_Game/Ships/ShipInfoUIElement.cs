@@ -129,9 +129,10 @@ namespace Ship_Game.Ships
                 TIP_ID = 37
             };
             ToolTipItems.Add(ti);
-            ShipInfoRect       = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
-            var gridRect = new Rectangle(Housing.X + 16, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45, 34, 24);
-            Gridbutton         = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
+            ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
+            int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            var gridRect = new Vector2(Housing.X + 16, screenHeight - 45);
+            Gridbutton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 Active = true
             };
@@ -140,98 +141,33 @@ namespace Ship_Game.Ships
 
         public void OrderButtons(int spacing, Rectangle pordrect)
         {
-            var ordersBarPos = new Vector2((float) (Power.X + 15), (float) (Ordnance.Y + Ordnance.Height + spacing + 3));
+            float startX = pordrect.X - 15;
+            var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
+            void AddOrderBtn(string action, string icon, int toolTip)
+            {
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
+                {
+                    Action       = action,
+                    HasToolTip   = true,
+                    WhichToolTip = toolTip
+                };
+                CombatStatusButtons.Add(button);
+                ordersBarPos.X += 25f;
+            }
 
-            ordersBarPos.X = pordrect.X - 15;
-            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_headon");
-            CombatStatusButtons.Add(AttackRuns);
-            AttackRuns.Action = "attack";
-            AttackRuns.HasToolTip = true;
-            AttackRuns.WhichToolTip = 1;
+            AddOrderBtn("attack", "SelectionBox/icon_formation_headon", toolTip: 1);
+            AddOrderBtn("short",  "SelectionBox/icon_grid",          toolTip: 228);
+            AddOrderBtn("arty",   "SelectionBox/icon_formation_aft", toolTip: 2);
+            AddOrderBtn("hold",   "SelectionBox/icon_formation_x",   toolTip: 65);
+            AddOrderBtn("orbit_left",  "SelectionBox/icon_formation_left",  toolTip: 3);
+            AddOrderBtn("orbit_right", "SelectionBox/icon_formation_right", toolTip: 4);
+            AddOrderBtn("evade",       "SelectionBox/icon_formation_stop",  toolTip: 6);
 
-            ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton ShortRange = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
-            CombatStatusButtons.Add(ShortRange);
-            ShortRange.Action = "short";
-            ShortRange.HasToolTip = true;
-            ShortRange.WhichToolTip = 228;
-
-            ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton Artillery = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_aft");
-            CombatStatusButtons.Add(Artillery);
-            Artillery.Action = "arty";
-            Artillery.HasToolTip = true;
-            Artillery.WhichToolTip = 2;
-
-            ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton HoldPos = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_x");
-            CombatStatusButtons.Add(HoldPos);
-            HoldPos.Action = "hold";
-            HoldPos.HasToolTip = true;
-            HoldPos.WhichToolTip = 65;
-            ordersBarPos.X = ordersBarPos.X + 25f;
-            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_left");
-            CombatStatusButtons.Add(OrbitLeft);
-            OrbitLeft.Action = "orbit_left";
-            OrbitLeft.HasToolTip = true;
-            OrbitLeft.WhichToolTip = 3;
-            ordersBarPos.Y = ordersBarPos.Y + 25f;
-
-            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_bleft");
-            CombatStatusButtons.Add(BroadsideLeft);
-            BroadsideLeft.Action = "broadside_left";
-            BroadsideLeft.HasToolTip = true;
-            BroadsideLeft.WhichToolTip = 159;
-            ordersBarPos.Y = ordersBarPos.Y - 25f;
-            ordersBarPos.X = ordersBarPos.X + 25f;
-
-            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_right");
-            CombatStatusButtons.Add(OrbitRight);
-            OrbitRight.Action = "orbit_right";
-            OrbitRight.HasToolTip = true;
-            OrbitRight.WhichToolTip = 4;
-            ordersBarPos.Y = ordersBarPos.Y + 25f;
-
-            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_bright");
-            CombatStatusButtons.Add(BroadsideRight);
-            BroadsideRight.Action = "broadside_right";
-            BroadsideRight.HasToolTip = true;
-            BroadsideRight.WhichToolTip = 160;
-            ordersBarPos.Y = ordersBarPos.Y - 25f;
-            ordersBarPos.X = ordersBarPos.X + 25f;
-
-            ToggleButton Evade = new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed",
-                "SelectionBox/icon_formation_stop");
-            CombatStatusButtons.Add(Evade);
-            Evade.Action = "evade";
-            Evade.HasToolTip = true;
-            Evade.WhichToolTip = 6;
+            ordersBarPos = new Vector2(startX + 4*25f, ordersBarPos.Y + 25f);
+            AddOrderBtn("broadside_left",  "SelectionBox/icon_formation_bleft",  toolTip: 159);
+            AddOrderBtn("broadside_right", "SelectionBox/icon_formation_bright", toolTip: 160);
         }
+
         private void DrawOrderButtons(float transitionOffset)
         {
             foreach (OrdersButton ob in Orders)
@@ -241,6 +177,7 @@ namespace Ship_Game.Ships
                 ob.Draw(ScreenManager, r);
             }
         }
+
         private void OrderButtonInput(InputState input)
         {
             if (Ship.loyalty != EmpireManager.Player || Ship.isConstructor) return;

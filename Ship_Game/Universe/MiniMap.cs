@@ -16,33 +16,19 @@ namespace Ship_Game
 
         //to get rid of these I need to find a solution for hover and the setting of the active setting
         private readonly ToggleButton ZoomOut;
-
         private readonly ToggleButton ZoomToShip;
-
         private readonly ToggleButton PlanetScreen;
-
         private readonly ToggleButton ShipScreen;
-
         private readonly ToggleButton AIScreen;
-
         private readonly ToggleButton DeepSpaceBuild;
-
         private readonly ToggleButton Fleets;
         public UniverseScreen Screen => Empire.Universe;
-
-        private const string CNormal       = "Minimap/button_C_normal";
-        private const string BNormal       = "Minimap/button_B_normal";
-        private const string Normal        = "Minimap/button_normal";
-        private const string Hover         = "Minimap/button_hover";
-        private const string CHover        = "Minimap/button_hover";
-        private const string Active        = "Minimap/button_active";
-        private const string BHover        = "Minimap/button_B_hover";
 
         private readonly Texture2D MiniMapHousing;
         private readonly Texture2D Node;
         private readonly Texture2D Node1;
         private readonly float Scale;
-        private Vector2 MiniMapZero;
+        private readonly Vector2 MiniMapZero;
 
         public MiniMap(Rectangle housing) : base(null, housing)
         {
@@ -53,20 +39,16 @@ namespace Ship_Game
             ActualMap      = new Rectangle(housing.X + 61 + 20, housing.Y + 33, 200, 210);
 
             BeginVLayout(Housing.X + 14, Housing.Y + 70, 25);
-            //button spacing isnt quite right. 
-
-            (ZoomToShip     = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomctrl")).OnClick += ZoomToShip_OnClick;
-            (ZoomOut        = ToggleButton(22, 25, CNormal, CNormal, CHover, CNormal, "Minimap/icons_zoomout")).OnClick += ZoomOut_OnClick;
-            (PlanetScreen   = ToggleButton(22, 25, BNormal, BNormal, BHover, BNormal, "UI/icon_planetslist")).OnClick += PlanetScreen_OnClick;
-            (ShipScreen     = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_ftloverlay")).OnClick += ShipScreen_OnClick;
-            (Fleets         = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_rangeoverlay")).OnClick += Fleets_OnClick;
-            (DeepSpaceBuild = ToggleButton(22, 25, Active, Normal, Hover, Normal, "UI/icon_dsbw")).OnClick += DeepSpaceBuild_OnClick;
-            (AIScreen       = ToggleButton(26, 25, Active, "Minimap/button_down_inactive", "Minimap/button_down_hover"
-                , "Minimap/button_down_inactive", "AI")).OnClick += AIScreen_OnClick;
-
+                ZoomToShip     = ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick);
+                ZoomOut        = ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick);
+                PlanetScreen   = ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick);
+                ShipScreen     = ToggleButton(ToggleButtonStyle.Button, "UI/icon_ftloverlay", ShipScreen_OnClick);
+                Fleets         = ToggleButton(ToggleButtonStyle.Button, "UI/icon_rangeoverlay", Fleets_OnClick);
+                DeepSpaceBuild = ToggleButton(ToggleButtonStyle.Button, "UI/icon_dsbw", DeepSpaceBuild_OnClick);
+                AIScreen       = ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick);
             EndLayout();
-            Scale = ActualMap.Width / (Screen.UniverseSize * 2.1f);        //Updated to play nice with the new negative map values
-            Math.Round(Scale, 3);
+
+            Scale = ActualMap.Width / (Screen.UniverseSize * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
         }     
         
@@ -113,14 +95,9 @@ namespace Ship_Game
                 lookingAt.Width  = 2;
                 lookingAt.Height = 2;
             }
-            if (lookingAt.X < ActualMap.X)
-            {
-                lookingAt.X = ActualMap.X;
-            }
-            if (lookingAt.Y < ActualMap.Y)
-            {
-                lookingAt.Y = ActualMap.Y;
-            }
+            if (lookingAt.X < ActualMap.X) lookingAt.X = ActualMap.X;
+            if (lookingAt.Y < ActualMap.Y) lookingAt.Y = ActualMap.Y;
+
             float lookRightEdge  = lookingAt.X + lookingAt.Width;
             float lookBottomEdge = lookingAt.Y + lookingAt.Height;
             lookingAt.X          = lookRightEdge > ActualMap.Width + ActualMap.X ? ActualMap.X + ActualMap.Width - lookingAt.Width : lookingAt.X;
@@ -244,9 +221,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(58, "Page Down");
 
             if (DeepSpaceBuild.Rect.HitTest(input.CursorPosition))
-            {
                 ToolTip.CreateTooltip(54, "B");
-            }
 
             if (PlanetScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(56);

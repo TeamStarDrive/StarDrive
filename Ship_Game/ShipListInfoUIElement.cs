@@ -14,7 +14,7 @@ namespace Ship_Game
     {
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
-        private Array<ShipListInfoUIElement.TippedItem> ToolTipItems = new Array<ShipListInfoUIElement.TippedItem>();
+        private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
         private Rectangle SliderRect;
 
@@ -70,7 +70,7 @@ namespace Ship_Game
         private float HoverOff;
         private string fmt = "0";
 
-        public ShipListInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
+        public ShipListInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             this.Housing = r;
             this.screen = screen;
@@ -85,114 +85,61 @@ namespace Ship_Game
             this.RightRect = new Rectangle(this.LeftRect.X + this.LeftRect.Width, this.LeftRect.Y, 220, this.LeftRect.Height);
             float spacing = (float)(this.LeftRect.Height - 26 - 96);
             this.Power = new Rectangle(this.RightRect.X, this.LeftRect.Y + 12, 20, 20);
-            Rectangle pbarrect = new Rectangle(this.Power.X + this.Power.Width + 15, this.Power.Y, 150, 18);
+            var pbarrect = new Rectangle(this.Power.X + this.Power.Width + 15, this.Power.Y, 150, 18);
             this.pBar = new ProgressBar(pbarrect)
             {
                 color = "green"
             };
-            ShipListInfoUIElement.TippedItem ti = new ShipListInfoUIElement.TippedItem()
-            {
-                r = this.Power,
-                TIP_ID = 27
-            };
+
             this.Shields = new Rectangle(this.RightRect.X, this.LeftRect.Y + 12 + 20 + (int)spacing, 20, 20);
-            Rectangle pshieldsrect = new Rectangle(this.Shields.X + this.Shields.Width + 15, this.Shields.Y, 150, 18);
+            var pshieldsrect = new Rectangle(this.Shields.X + this.Shields.Width + 15, this.Shields.Y, 150, 18);
             this.sBar = new ProgressBar(pshieldsrect)
             {
                 color = "blue"
             };
-            ti = new ShipListInfoUIElement.TippedItem()
-            {
-                r = this.Shields,
-                TIP_ID = 28
-            };
             this.DefenseRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 112, 22, 22);
-            ti = new ShipListInfoUIElement.TippedItem()
-            {
-                r = this.DefenseRect,
-                TIP_ID = 30
-            };
             this.TroopRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 137, 22, 22);
-            ti = new ShipListInfoUIElement.TippedItem()
-            {
-                r = this.TroopRect,
-                TIP_ID = 37
-            };
-            Rectangle gridRect = new Rectangle(this.Housing.X + 16, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45, 34, 24);
-            this.gridbutton = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
+
+            
+            float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            var gridPos = new Vector2(Housing.X + 16f, screenHeight - 45f);
+            gridbutton = new ToggleButton(gridPos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 Active = true
             };
             this.clickRect = new Rectangle(this.ElementRect.X + this.ElementRect.Width - 16, this.ElementRect.Y + this.ElementRect.Height / 2 - 11, 11, 22);
             this.ShipInfoRect = new Rectangle(this.Housing.X + 60, this.Housing.Y + 110, 115, 115);
-            Rectangle rectangle = new Rectangle(this.Housing.X + 187, this.Housing.Y + 120 + 20 + (int)spacing + 20 + (int)spacing, 20, 20);
-            Vector2 OrdersBarPos = new Vector2((float)(this.Power.X + 12), (float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45));
-            OrdersBarPos.X = OrdersBarPos.X - 15;
-            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_headon");			
-            this.CombatStatusButtons.Add(AttackRuns);
-            AttackRuns.Action = CombatState.AttackRuns.ToString();
-            AttackRuns.HasToolTip = true;
-            AttackRuns.WhichToolTip = 1;
+            
 
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_grid");
-            this.CombatStatusButtons.Add(ShortRange);
-            ShortRange.Action = CombatState.ShortRange.ToString();
-            ShortRange.HasToolTip = true;
-            ShortRange.WhichToolTip = 228;
+            const float orderSize = 29f;
+            float ordersStartX = Power.X - 3f;
+            var ordersBarPos = new Vector2(ordersStartX, screenHeight - 45f);
 
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_aft");
-            this.CombatStatusButtons.Add(Artillery);
-            Artillery.Action = CombatState.Artillery.ToString();
-            Artillery.HasToolTip = true;
-            Artillery.WhichToolTip = 2;
+            void AddOrdersBarButton(CombatState state, string icon, int toolTip)
+            {
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon);			
+                CombatStatusButtons.Add(button);
+                button.Action = state.ToString();
+                button.HasToolTip = true;
+                button.WhichToolTip = toolTip;
+                ordersBarPos.X += orderSize;
+            }
 
-            OrdersBarPos.X = OrdersBarPos.X + 29f;			
-            ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_x");
-            this.CombatStatusButtons.Add(HoldPos);
-            HoldPos.Action = CombatState.HoldPosition.ToString();
-            HoldPos.HasToolTip = true;
-            HoldPos.WhichToolTip = 65;
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-            ToggleButton OrbitLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_left");
-            this.CombatStatusButtons.Add(OrbitLeft);
-            OrbitLeft.Action = CombatState.OrbitLeft.ToString();
-            OrbitLeft.HasToolTip = true;
-            OrbitLeft.WhichToolTip = 3;
-            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
+            AddOrdersBarButton(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: 1);
+            AddOrdersBarButton(CombatState.ShortRange,   "SelectionBox/icon_grid",            toolTip: 228);
+            AddOrdersBarButton(CombatState.Artillery,    "SelectionBox/icon_formation_aft",   toolTip: 2);
+            AddOrdersBarButton(CombatState.HoldPosition, "SelectionBox/icon_formation_x",     toolTip: 65);
+            AddOrdersBarButton(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",  toolTip: 3);
+            AddOrdersBarButton(CombatState.OrbitRight,   "SelectionBox/icon_formation_right", toolTip: 4);
+            AddOrdersBarButton(CombatState.Evade,        "SelectionBox/icon_formation_stop",  toolTip: 6);
 
-            ToggleButton BroadsideLeft = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bleft");
-            this.CombatStatusButtons.Add(BroadsideLeft);
-            BroadsideLeft.Action = CombatState.BroadsideLeft.ToString();
-            BroadsideLeft.HasToolTip = true;
-            BroadsideLeft.WhichToolTip = 159;
-            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
+            ordersBarPos = new Vector2(ordersStartX + orderSize * 4, ordersBarPos.Y - orderSize);
+            AddOrdersBarButton(CombatState.BroadsideLeft, "SelectionBox/icon_formation_bleft", toolTip: 159);
+            AddOrdersBarButton(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: 160);
 
-            ToggleButton OrbitRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_right");
-            this.CombatStatusButtons.Add(OrbitRight);
-            OrbitRight.Action = CombatState.OrbitRight.ToString();
-            OrbitRight.HasToolTip = true;
-            OrbitRight.WhichToolTip = 4;
-            OrdersBarPos.Y = OrdersBarPos.Y - 29f;
-
-            ToggleButton BroadsideRight = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_bright");
-            this.CombatStatusButtons.Add(BroadsideRight);
-            BroadsideRight.Action = CombatState.BroadsideRight.ToString();
-            BroadsideRight.HasToolTip = true;
-            BroadsideRight.WhichToolTip = 160;
-            OrdersBarPos.Y = OrdersBarPos.Y + 29f;
-            OrdersBarPos.X = OrdersBarPos.X + 29f;
-
-            ToggleButton Evade = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", "SelectionBox/icon_formation_stop");
-            this.CombatStatusButtons.Add(Evade);
-            Evade.Action = CombatState.Evade.ToString();
-            Evade.HasToolTip = true;
-            Evade.WhichToolTip = 6;
-            Rectangle slsubRect = new Rectangle(this.RightRect.X, this.Housing.Y + 110 - 35, this.RightRect.Width - 5, 140);
-            Submenu shipssub = new Submenu(slsubRect);
-            this.SelectedShipsSL = new ScrollList(shipssub, 24);
+            var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
+            SelectedShipsSL = new ScrollList(new Submenu(slsubRect), 24);
         }
 
         public void ClearShipList()
@@ -204,8 +151,6 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
-            string longName;
-
             if (this.screen.SelectedShipList == null) return;  //fbedard
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
@@ -287,7 +232,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 //this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
-                longName = string.Concat(this.HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
+                string longName = string.Concat(this.HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
                 if (this.HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
                     longName += string.Concat(" - ", this.HoveredShip.shipData.GetCategory());
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
