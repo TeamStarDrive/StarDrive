@@ -21,5 +21,13 @@ namespace Ship_Game.Gameplay
         
 
         public override string ToString() => $"{InstalledModuleUID} {Position} {Facing} {Restrictions}";
+
+        public ShipDesignScreen.ActiveModuleState GetOrientation()
+        {
+            if (Orientation.NotEmpty() && Orientation != "Normal")
+                return (ShipDesignScreen.ActiveModuleState)
+                    Enum.Parse(typeof(ShipDesignScreen.ActiveModuleState), Orientation);
+            return ShipDesignScreen.ActiveModuleState.Normal;
+        }
     }
 }
