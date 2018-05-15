@@ -61,32 +61,23 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * For other feature ideas, you can join our Discord chat and talk with the team!
 
 ### Development Cycle.
-so now.. we have 3 or 4 jobs.
-refactor develop. 
-to do this. use HG flow for a new feature.
-
----
-look through current issues. 
-At the first step we should have three concepts. one fix old issues. two refactor code. add new features
-Switching between these will be weird but its loose you know. do what is fun.
----
-create a feature in that area. max number of devs in feature +1. say max 3 for now. 
-The area should be refactored first. if the fix is simple do it. else just run the refactor through this whole process and come back to the issue. 
-when that is complete
-finish the feature.
----
-create a release. max 2.
-debug release. when finished. 
-finish the release.
----
-create a build from default. upload to bitbucket.
----
-create hotfix for bugs generated from new release 
-name the hotfix after the issue.
-----
-Move between work areas as work dries up in one. 
-if we have everyone working in feature pay extra attention to code review. 
-
-Take it easy. This is the kanban and agile process. I have read about it and watched videos but have never actually knowningly used it. 
-the idea is to keep stuff from stagnenting.
-issue fixes outside of the area of release and hotfix are done in feature. 
+# For new features, refactors, old bug fixes  (feature)
+* create a new branch based on develop.  
+* when change is completed sanity test the changes.
+* changes should not crash and should be functional in a basic sense.
+* ceate a pull request back to develop.
+* the pull request should indicate what areas need testing.
+# if no release branch exists after pull is accepted to develop (release)
+* create a new branch based off of develop named Release.
+* Sanity test. should not crash and changed area should be functional.
+* bug fixes should be pull requested back to develop.
+* create a delopyment and upload to bitbucket.
+* indicate in discord testing channel what needs to be looked at.
+* if no new issues are found create a pull request to default and check the delete branch option.
+# if bugs are found in the default branch (hot fix)
+* create an issue or mark existing issue as a "Blocker" for current release.
+* post the issue in the dev channel of discord. 
+* dev will need to decide what to do.
+* basically the process should be...
+* create a hotfix branch based on default.
+* create a  pull request back to develop and release.
