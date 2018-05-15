@@ -305,11 +305,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             SaveShips           = new Submenu(sub);
             SaveShips.AddTab(Localizer.Token(198));
             ShipDesigns         = new ScrollList(this.SaveShips);
-            Vector2 Cursor      = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
             TitlePosition       = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
             string path         = Dir.ApplicationData;
-            Rectangle gridRect  = new Rectangle(this.SaveShips.Menu.X + this.SaveShips.Menu.Width - 44, this.SaveShips.Menu.Y, 29, 20);
-            PlayerDesignsToggle = new PlayerDesignToggleButton(gridRect);
+            PlayerDesignsToggle = new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y));
             
             PopulateEntries(path);
             EnternamePos = TitlePosition;
@@ -446,13 +444,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public class PlayerDesignToggleButton : ToggleButton
         {
-            private const string ActiveTexture   = "SelectionBox/PlayerDesignsPressed";
-            private const string InactiveTexture = "SelectionBox/PlayerDesignsActive"; //"SelectionBox/button_grid_inactive";
-            private const string HoverTexture    =  "SelectionBox/button_grid_hover";
-            private const string PressedTexture  = "SelectionBox/button_grid_pressed";
-            private const string IconTexture     = "SelectionBox/icon_grid";
-
-            public PlayerDesignToggleButton(Rectangle gridRect) : base(gridRect, ActiveTexture, InactiveTexture, HoverTexture, PressedTexture, IconTexture)
+            public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_grid")
             {
                 Active = true;
                 WhichToolTip = 237;
