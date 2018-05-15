@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
@@ -361,25 +362,9 @@ namespace Ship_Game
                 slot.Module.Facing = slot.Facing;
                 slot.Tex           = ActiveModule.ModuleTexture;
                 slot.Module.SetAttributesNoParent();
-                RecalculatePower();
+                //RecalculatePower();
             }
             else PlayNegativeSound();
-        }
-
-        private void CheckAndPowerConduit(SlotStruct slot)
-        {
-            slot.Module.Powered = true;
-            slot.CheckedConduits = true;
-            foreach (SlotStruct ss in Slots)
-            {
-                if (ss.CheckedConduits
-                    || ss == slot
-                    || ss.Module == null
-                    || !slot.IsNeighbourTo(ss)
-                    || ss.Module.ModuleType != ShipModuleType.PowerConduit)
-                    continue;
-                CheckAndPowerConduit(ss);
-            }
         }
 
         private void InstallModuleNoStack(SlotStruct slot)
@@ -414,8 +399,34 @@ namespace Ship_Game
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
+        private static int NumModules;
+        private static int NumPowerChecks;
+
+        
+        private void CheckAndPowerConduit(SlotStruct slot)
+        {
+            slot.Module.Powered = true;
+            slot.CheckedConduits = true;
+            foreach (SlotStruct ss in Slots)
+            {
+                ++NumPowerChecks;
+                if (ss.CheckedConduits
+                    || ss == slot
+                    || ss.Module == null
+                    || !slot.IsNeighbourTo(ss)
+                    || ss.Module.ModuleType != ShipModuleType.PowerConduit)
+                    continue;
+                CheckAndPowerConduit(ss);
+            }
+        }
+
+
         private void RecalculatePower()
         {
+            Stopwatch sw = Stopwatch.StartNew();
+            NumModules = Slots.Count;
+            NumPowerChecks = 0;
+
             // reset everything
             foreach (SlotStruct slot in Slots)
             {
@@ -431,6 +442,7 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slot in Slots)
                     {
+                        ++NumPowerChecks;
                         if (slot.Module?.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
                             CheckAndPowerConduit(slot);
                     }
@@ -439,6 +451,7 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slot in Slots)
                     {
+                        ++NumPowerChecks;
                         if (slot.Module?.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
                             CheckAndPowerConduit(slot);
                     }
@@ -451,6 +464,7 @@ namespace Ship_Game
                 {
                     foreach (SlotStruct slotStruct2 in Slots)
                     {
+                        ++NumPowerChecks;
                         if (Math.Abs(slotStruct1.PQ.X - slotStruct2.PQ.X) / 16 + Math.Abs(slotStruct1.PQ.Y - slotStruct2.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
                             slotStruct2.Powered = true;
                     }
@@ -461,13 +475,16 @@ namespace Ship_Game
                     {
                         for (int x = 0; x < slotStruct1.Module.XSIZE; ++x)
                         {
-                            if (x == 0 && y == 0) continue;
+                            if (x == 0 && y == 0)
+                                continue;
+
                             foreach (SlotStruct slotStruct2 in Slots)
                             {
                                 if (slotStruct2.PQ.Y == slotStruct1.PQ.Y + 16 * y && slotStruct2.PQ.X == slotStruct1.PQ.X + 16 * x)
                                 {
                                     foreach (SlotStruct slotStruct3 in Slots)
                                     {
+                                        ++NumPowerChecks;
                                         if (Math.Abs(slotStruct2.PQ.X - slotStruct3.PQ.X) / 16 + Math.Abs(slotStruct2.PQ.Y - slotStruct3.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
                                             slotStruct3.Powered = true;
                                     }
@@ -479,6 +496,7 @@ namespace Ship_Game
             }
             foreach (SlotStruct slotStruct in this.Slots)
             {
+                ++NumPowerChecks;
                 if (slotStruct.Powered)
                 {
                     if (slotStruct.Module != null && slotStruct.Module.ModuleType != ShipModuleType.PowerConduit)
@@ -489,6 +507,9 @@ namespace Ship_Game
                 if (!slotStruct.Powered && slotStruct.Module != null && slotStruct.Module.IndirectPower)
                         slotStruct.Module.Powered = true;
             }
+
+            double elapsed = sw.Elapsed.TotalMilliseconds;
+            Log.Info($"RecalculatePower elapsed:{elapsed:G5}ms  modules:{NumModules}  totalchecks:{NumPowerChecks}");
         }
 
         public void SetActiveModule(ShipModule mod)

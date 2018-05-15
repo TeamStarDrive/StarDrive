@@ -254,10 +254,11 @@ namespace Ship_Game
                 else
                     e.clickRectHover = 0;
             }
+
+            CheckCombatButtons(input);
+
             if (ModSel.HandleInput(input, ActiveModule, HighlightedModule))
-            {
                 return true;
-            }
 
             if (HullSelectionRect.HitTest(input.CursorPosition)
                 && input.LeftMouseDown || ModSel.HitTest(input)
@@ -315,6 +316,7 @@ namespace Ship_Game
             CameraVelocity.Y = MathHelper.Clamp(CameraVelocity.Y, -10f, 10f);
             if (input.Escaped)
                 ExitScreen();
+
             if (ToggleOverlay)
             {
                 foreach (SlotStruct slotStruct in Slots)
@@ -359,7 +361,6 @@ namespace Ship_Game
             HandleInputPlaceModule(input);
             HandleInputMoveArcs(input);
             UIButtonHandleInput(input);
-            CheckToggleButton(input);
             return base.HandleInput(input);
         }
 
@@ -630,9 +631,10 @@ namespace Ship_Game
             return true;
         }
         
-        private void CheckToggleButton(InputState input)
+        private bool CheckCombatButtons(InputState input)
         {
-            if (ActiveHull == null) return;
+            if (ActiveHull == null)
+                return false;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
             {
                 if (toggleButton.HandleInput(input)) 
@@ -650,6 +652,7 @@ namespace Ship_Game
                         case "evade":           CombatState = CombatState.Evade;          break;
                         case "short":           CombatState = CombatState.ShortRange;     break;
                     }
+                    return true;
                 }
                 
                 switch (toggleButton.Action)
@@ -665,6 +668,7 @@ namespace Ship_Game
                     case "short":           toggleButton.Active = CombatState == CombatState.ShortRange;     break;
                 }
             }
+            return false;
         }
 
         private void JustChangeHull(object sender, EventArgs e)
@@ -1049,7 +1053,7 @@ namespace Ship_Game
                     continue;
                 slot.Module.hangarShipUID = slot.SlotOptions;
             }
-            //RecalculatePower();
+            RecalculatePower();
             ActiveModule = null;
             ActiveModState = ActiveModuleState.Normal;
         }
