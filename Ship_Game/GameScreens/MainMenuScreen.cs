@@ -417,7 +417,7 @@ namespace Ship_Game
         private void Options_Clicked(UIButton button)   => ScreenManager.AddScreen(new OptionsScreen(this));
         private void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         private void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
-        private void VerCheck_Clicked(UIButton button) => ScreenManager.AddScreen(new VersionChecking(this));
+        private void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
         private void Exit_Clicked(UIButton button)      => Game1.Instance.Exit();
         private void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
         private void DevSandbox_Clicked(UIButton button)  => ScreenManager.AddScreen(new DeveloperSandbox(this));

@@ -53,10 +53,10 @@ namespace Ship_Game
         public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
         public bool LeftMouseUp        => MouseCurr.LeftButton  != ButtonState.Pressed;
         public bool RightMouseUp       => MouseCurr.RightButton != ButtonState.Pressed;
-        public bool LeftMouseHeldDown  => MouseCurr.LeftButton   == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
+        public bool LeftMouseHeldDown  => MouseCurr.LeftButton  == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
         public bool RightMouseHeldDown => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
         public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
-        public bool LeftMouseHeldUp    => MouseCurr.LeftButton != ButtonState.Pressed && MousePrev.LeftButton != ButtonState.Pressed;
+        public bool LeftMouseHeldUp    => MouseCurr.LeftButton  != ButtonState.Pressed && MousePrev.LeftButton  != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         //mouse position
@@ -90,19 +90,19 @@ namespace Ship_Game
 
         }
 
-        public bool LeftMouseHeld(float seconds = 0.15f)
+        public bool LeftMouseHeld(float heldForSeconds = 0.15f)
         {
-            LeftHeld = MouseLeftDrag && MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, seconds, LeftMouseDownTime);            
+            LeftHeld = MouseLeftDrag && MouseButtonHeld(MouseCurr.LeftButton, MousePrev.LeftButton, heldForSeconds, LeftMouseDownTime);            
             return LeftHeld;
         }
-        public bool RightMouseHeld(float seconds = 0.15f)
+        public bool RightMouseHeld(float heldForSeconds = 0.15f)
         {
-            RightHeld = MouseRightDrag && MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, seconds, RightMouseDownTime);            
+            RightHeld = MouseRightDrag && MouseButtonHeld(MouseCurr.RightButton, MousePrev.RightButton, heldForSeconds, RightMouseDownTime);            
             return RightHeld;
         }
-        private static bool MouseButtonHeld(ButtonState current, ButtonState prev, float seconds, float timer)
+        private static bool MouseButtonHeld(ButtonState current, ButtonState prev, float heldForSeconds, float heldTime)
         {
-            return current == ButtonState.Pressed && prev == ButtonState.Pressed && timer >= seconds;            
+            return current == ButtonState.Pressed && prev == ButtonState.Pressed && heldTime >= heldForSeconds;            
         }
         
         private static bool MouseButtonClicked(ButtonState current, ButtonState prev)
@@ -272,26 +272,25 @@ namespace Ship_Game
 
         private void UpdateTimers(float time)
         {
-            Vector2 endHoldPoint =  Vector2.Zero;
-            TimerUpdate(time, LeftMouseDown, ref LeftMouseDownTime, ref LeftMouseWasHeldInteral, ref LeftHeld);
-            EndLeftHold = endHoldPoint;
+            TimerUpdate(time, LeftMouseDown,  ref LeftMouseDownTime,  ref LeftMouseWasHeldInteral,  ref LeftHeld);
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
-            EndRightHold       = endHoldPoint;
-            RightDblClickTimer =  RightDblClickTimer <= 0 && RightMouseClick ? DoubleClickTime : RightDblClickTimer - time;
-            LeftDblClickTimer  = LeftDblClickTimer <=0 && LeftMouseClick ? DoubleClickTime : LeftDblClickTimer - time;
+            EndLeftHold  = Vector2.Zero;
+            EndRightHold = Vector2.Zero;
+            RightDblClickTimer = RightDblClickTimer <= 0 && RightMouseClick ? DoubleClickTime : RightDblClickTimer - time;
+            LeftDblClickTimer  = LeftDblClickTimer  <= 0 && LeftMouseClick  ? DoubleClickTime : LeftDblClickTimer  - time;
 
         }
-        private void TimerUpdate(float time, bool update, ref float timer, ref bool wasHeld, ref bool held)
+        private static void TimerUpdate(float time, bool mouseDown, ref float timer, ref bool wasHeld, ref bool held)
         {
-            if (update)
+            if (mouseDown)
             {
                 timer += time;
             }
             else
             {
-                wasHeld = held && timer > 0;
+                wasHeld = held && timer > 0f;
                 held = false;
-                timer = 0;
+                timer = 0f;
             }
         }
         private Vector2 UpdateHoldStartPosistion(bool held, bool wasHeld, Vector2 holdPosistion, bool drag)
@@ -315,6 +314,7 @@ namespace Ship_Game
             MouseCurr       = Mouse.GetState();
             CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
             KeysCurr        = Keyboard.GetState();
+
             if (ExitScreenTimer >= 0)
             {
                 ExitScreenTimer -= elapsedTime;

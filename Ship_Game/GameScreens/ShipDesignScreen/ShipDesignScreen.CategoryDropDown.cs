@@ -4,7 +4,7 @@ using Ship_Game.Ships;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public sealed partial class ShipDesignScreen : GameScreen
+    public sealed partial class ShipDesignScreen
     {
         private class CategoryDropDown : DropOptions<ShipData.Category>
         {            
