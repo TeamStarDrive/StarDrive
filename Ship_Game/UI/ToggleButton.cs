@@ -234,7 +234,9 @@ namespace Ship_Game.UI
                 OnClick?.Invoke(this);
                 Pressed = true;
             }
-            return input.InGameSelect;
+
+            // always capture input to prevent clicks from reaching elements under us
+            return true;
         }
     }
 }
