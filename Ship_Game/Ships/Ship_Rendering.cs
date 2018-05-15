@@ -177,12 +177,16 @@ namespace Ship_Game.Ships
                 }
                 else
                 {
+                    float w = sizeOnScreen.X;
+                    float h = sizeOnScreen.Y;
                     //@HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
                     //so to fix that i am switching the height and width if the module is facing left or right. 
-                    if (slotFacing == 270f || slotFacing == 90f)
-                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, sizeOnScreen.Y, sizeOnScreen.X, slot.GetHealthStatusColorWhite());
-                    else
-                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, sizeOnScreen.X, sizeOnScreen.Y, slot.GetHealthStatusColorWhite());
+                    if (slotFacing.AlmostEqual(270f) || slotFacing.AlmostEqual(90f))
+                    {
+                        w = sizeOnScreen.Y;
+                        h = sizeOnScreen.X;
+                    }
+                    us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, slot.GetHealthStatusColorWhite());
 
                     //if (enableModuleDebug)
                     //{
