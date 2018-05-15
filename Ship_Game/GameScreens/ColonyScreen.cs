@@ -2014,7 +2014,7 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280));
             }
-            if ((input.Right || this.RightColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
+            if ((input.Right || RightColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 try
                 {

@@ -282,13 +282,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                 }
             }
-            if (this.PlayerDesignsToggle.HandleInput(input))
-            {
-                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                this.ShowAllDesigns = !this.ShowAllDesigns;
-                this.PlayerDesignsToggle.Active = this.ShowAllDesigns;
-                this.ResetSL();
-            }
             //if (this.PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
             //{
             //    ToolTip.CreateTooltip(Localizer.Token(2225));
@@ -307,8 +300,15 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             ShipDesigns         = new ScrollList(this.SaveShips);
             TitlePosition       = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
             string path         = Dir.ApplicationData;
-            PlayerDesignsToggle = new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y));
-            
+            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y)));
+            PlayerDesignsToggle.OnClick += p =>
+            {
+                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                ShowAllDesigns = !ShowAllDesigns;
+                PlayerDesignsToggle.Active = ShowAllDesigns;
+                ResetSL();
+            };
+
             PopulateEntries(path);
             EnternamePos = TitlePosition;
             EnterNameArea.Text = Localizer.Token(199);

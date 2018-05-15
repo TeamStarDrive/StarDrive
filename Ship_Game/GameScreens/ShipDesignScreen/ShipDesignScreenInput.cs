@@ -190,11 +190,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (Close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
             if (HandleInputUndo(input))
                 return true;
 
@@ -203,6 +198,9 @@ namespace Ship_Game
 
             HoveredModule = null;
             EmpireUI.HandleInput(input, this);
+
+            if (base.HandleInput(input)) // handle any buttons before any other selection logic
+                return true;
 
             if (HandleShipHullListSelection(input))
                 return true;
@@ -234,9 +232,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-
-            if (base.HandleInput(input)) // handle any buttons before
-                return true;
 
             if (HandleModuleSelection(input))
                 return true;
@@ -826,7 +821,9 @@ namespace Ship_Game
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
                 Fonts.Pirulen20,
                 Fonts.Pirulen16);
-            Close = new CloseButton(this, new Rectangle(ScreenWidth - 27, 99, 20, 20));
+
+            Close = CloseButton(ScreenWidth - 27, 99);
+
             OriginalZ = CameraPosition.Z;
         }
 
