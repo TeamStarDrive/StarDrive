@@ -59,3 +59,34 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * @CrunchyGremlin is the current owner of the repository, Gretman and RedFox can provide additional source guidance.
 * If you have a bug report, post an issue.
 * For other feature ideas, you can join our Discord chat and talk with the team!
+
+### Development Cycle.
+so now.. we have 3 or 4 jobs.
+refactor develop. 
+to do this. use HG flow for a new feature.
+
+---
+look through current issues. 
+At the first step we should have three concepts. one fix old issues. two refactor code. add new features
+Switching between these will be weird but its loose you know. do what is fun.
+---
+create a feature in that area. max number of devs in feature +1. say max 3 for now. 
+The area should be refactored first. if the fix is simple do it. else just run the refactor through this whole process and come back to the issue. 
+when that is complete
+finish the feature.
+---
+create a release. max 2.
+debug release. when finished. 
+finish the release.
+---
+create a build from default. upload to bitbucket.
+---
+create hotfix for bugs generated from new release 
+name the hotfix after the issue.
+----
+Move between work areas as work dries up in one. 
+if we have everyone working in feature pay extra attention to code review. 
+
+Take it easy. This is the kanban and agile process. I have read about it and watched videos but have never actually knowningly used it. 
+the idea is to keep stuff from stagnenting.
+issue fixes outside of the area of release and hotfix are done in feature. 
