@@ -1009,18 +1009,14 @@ namespace Ship_Game
 
         private void CombatStatusButton(Vector2 ordersBarPos, string action, string iconPath, int toolTipIndex)
         {
-            ToggleButton toggleButton =
-                new ToggleButton(new Rectangle((int) ordersBarPos.X, (int) ordersBarPos.Y, 24, 24),
-                    "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive",
-                    "SelectionBox/button_formation_hover", "SelectionBox/button_formation_pressed", iconPath
-                    );
+            var toggleButton = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
+            {
+                Action       = action,
+                HasToolTip   = true,
+                WhichToolTip = toolTipIndex
+            };
             CombatStatusButtons.Add(toggleButton);
-            toggleButton.Action       = action;
-            toggleButton.HasToolTip   = true;
-            toggleButton.WhichToolTip = toolTipIndex;
         }
-
-
 
         private void ReallyExit()
         {
