@@ -280,6 +280,8 @@ namespace Ship_Game
         protected UIButton ButtonDip(float x, float y, string launches, string text)
             => Add(new UIButton(this, ButtonStyle.BigDip, x, y, launches, text));
 
+
+        // @note CloseButton automatically calls ExitScreen() on this screen
         protected CloseButton CloseButton(float x, float y)
             => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
 

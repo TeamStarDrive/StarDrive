@@ -53,10 +53,10 @@ namespace Ship_Game
         public bool RightMouseDown     => MouseCurr.RightButton == ButtonState.Pressed;
         public bool LeftMouseUp        => MouseCurr.LeftButton  != ButtonState.Pressed;
         public bool RightMouseUp       => MouseCurr.RightButton != ButtonState.Pressed;
-        public bool LeftMouseHeldDown  => MouseCurr.LeftButton   == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
+        public bool LeftMouseHeldDown  => MouseCurr.LeftButton  == ButtonState.Pressed && MousePrev.LeftButton  == ButtonState.Pressed;
         public bool RightMouseHeldDown => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
         public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
-        public bool LeftMouseHeldUp    => MouseCurr.LeftButton != ButtonState.Pressed && MousePrev.LeftButton != ButtonState.Pressed;
+        public bool LeftMouseHeldUp    => MouseCurr.LeftButton  != ButtonState.Pressed && MousePrev.LeftButton  != ButtonState.Pressed;
         public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
         //mouse position
@@ -314,6 +314,7 @@ namespace Ship_Game
             MouseCurr       = Mouse.GetState();
             CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
             KeysCurr        = Keyboard.GetState();
+
             if (ExitScreenTimer >= 0)
             {
                 ExitScreenTimer -= elapsedTime;
