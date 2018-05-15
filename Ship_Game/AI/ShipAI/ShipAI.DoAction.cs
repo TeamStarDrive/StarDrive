@@ -396,11 +396,9 @@ namespace Ship_Game.AI {
             if (shipgoal.goal == null)
                 return;
             Planet target = shipgoal.TargetPlanet;
-            if (shipgoal.goal.TetherTarget != Guid.Empty)
+            if (target == null && shipgoal.goal.TetherTarget != Guid.Empty)
             {
-                if (target == null)
-                    UniverseScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
-                shipgoal.goal.BuildPosition = target.Center + shipgoal.goal.TetherOffset;
+                UniverseScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
             }
             if (target != null && (target.Center + shipgoal.goal.TetherOffset).Distance(Owner.Center) > 200f)
             {
