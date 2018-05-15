@@ -763,95 +763,76 @@ namespace Ship_Game
 
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
-                if (slot.Position.X < LowestX)
-                {
-                    LowestX = slot.Position.X;
-                }
-                if (slot.Position.X <= HighestX)
-                {
-                    continue;
-                }
-                HighestX = slot.Position.X;
+                if (slot.Position.X < LowestX)  LowestX  = slot.Position.X;
+                if (slot.Position.X > HighestX) HighestX = slot.Position.X;
             }
-            float xDistance = HighestX - LowestX;
-            Vector3 pScreenSpace = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-            var pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-            Vector2 radialPos = MathExt.PointOnCircle(90f, xDistance);
-            Vector3 insetRadialPos = Viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-            Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-            float radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-            if (radius >= xDistance)
+
+            float hullWidth = HighestX - LowestX;
+
+            // So, this attempts to zoom so the entire design is visible
+            float UpdateCameraMatrix()
             {
-                while (radius > xDistance)
+                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
+
+                View = Matrix.CreateRotationY(180f.ToRadians())
+                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+
+                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
+                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
+                return center.Distance(hullEdge) + 10f;
+            }
+
+            float visibleHullRadius = UpdateCameraMatrix();
+            if (visibleHullRadius >= hullWidth)
+            {
+                while (visibleHullRadius > hullWidth)
                 {
-                    camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-                    View = Matrix.CreateRotationY(180f.ToRadians())
-                         * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-                    pScreenSpace = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                    pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    radialPos = MathExt.PointOnCircle(90f, xDistance);
-                    insetRadialPos = Viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-                    CameraPosition.Z = CameraPosition.Z + 1f;
+                    CameraPosition.Z += 10f;
+                    visibleHullRadius = UpdateCameraMatrix();
                 }
             }
             else
             {
-                while (radius < xDistance)
+                while (visibleHullRadius < hullWidth)
                 {
-                    camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-                    View = Matrix.CreateRotationY(180f.ToRadians())
-                         * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-                    pScreenSpace = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                    pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    radialPos = MathExt.PointOnCircle(90f, xDistance);
-                    insetRadialPos = Viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-                    CameraPosition.Z = CameraPosition.Z - 1f;
+                    CameraPosition.Z -= 10f;
+                    visibleHullRadius = UpdateCameraMatrix();
                 }
             }
+
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
             SideBar = new Rectangle(0, 0, 280, ScreenHeight);
       
-     
-            ClassifCursor =
-                new Vector2(ScreenWidth * .5f,
+            ClassifCursor = new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
-            var cursor = new Vector2(ClassifCursor.X, ClassifCursor.Y);
-            Vector2 ordersBarPos = new Vector2(cursor.X, (int) cursor.Y + 20);
-            ordersBarPos.X = ordersBarPos.X - 15;
-            CombatStatusButton(ordersBarPos, "attack", "SelectionBox/icon_formation_headon",1);
 
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "arty", "SelectionBox/icon_formation_aft", 2);
+            float ordersBarX = ClassifCursor.X - 15;
+            var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
+            void AddCombatStatusBtn(string action, string iconPath, int toolTip)
+            {
+                var toggleButton = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
+                {
+                    Action       = action,
+                    HasToolTip   = true,
+                    WhichToolTip = toolTip
+                };
+                CombatStatusButtons.Add(toggleButton);
+                ordersBarPos.X += 29f;
+            }
+            AddCombatStatusBtn("attack",      "SelectionBox/icon_formation_headon", toolTip: 1);
+            AddCombatStatusBtn("arty",        "SelectionBox/icon_formation_aft",   toolTip: 2);
+            AddCombatStatusBtn("short",       "SelectionBox/icon_grid",            toolTip: 228);
+            AddCombatStatusBtn("hold",        "SelectionBox/icon_formation_x",     toolTip: 65);
+            AddCombatStatusBtn("orbit_left",  "SelectionBox/icon_formation_left",  toolTip: 3);
+            AddCombatStatusBtn("orbit_right", "SelectionBox/icon_formation_right", toolTip: 4);
+            AddCombatStatusBtn("evade",       "SelectionBox/icon_formation_stop",  toolTip: 6);
 
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "short", "SelectionBox/icon_grid", 228);
-    
-
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "hold", "SelectionBox/icon_formation_x", 65);
-
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "orbit_left", "SelectionBox/icon_formation_left", 3);
-
-            ordersBarPos.Y = ordersBarPos.Y + 29f;
-            CombatStatusButton(ordersBarPos, "broadside_left", "SelectionBox/icon_formation_bleft", 159);
-
-            ordersBarPos.Y = ordersBarPos.Y - 29f;
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "orbit_right", "SelectionBox/icon_formation_right", 4);
-
-            ordersBarPos.Y = ordersBarPos.Y + 29f;
-            CombatStatusButton(ordersBarPos, "broadside_right", "SelectionBox/icon_formation_bright", 160);
+            ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
+            AddCombatStatusBtn("broadside_left", "SelectionBox/icon_formation_bleft", 159);
+            AddCombatStatusBtn("broadside_right", "SelectionBox/icon_formation_bright", 160);
  
-            ordersBarPos.Y = ordersBarPos.Y - 29f;
-            ordersBarPos.X = ordersBarPos.X + 29f;
-            CombatStatusButton(ordersBarPos, "evade", "SelectionBox/icon_formation_stop", 6);            
  
-            cursor = new Vector2(ScreenWidth - 150f, (float)ScreenHeight - 47);
+            var cursor = new Vector2(ScreenWidth - 150f, (float)ScreenHeight - 47);
 
             BeginHLayout(cursor, -142);
             SaveButton          = ButtonMedium("Save As...", titleId: 105);            
@@ -914,17 +895,6 @@ namespace Ship_Game
                 Fonts.Pirulen16); 
             Close = new CloseButton(this, new Rectangle(ScreenWidth - 27, 99, 20, 20));
             OriginalZ = CameraPosition.Z;
-        }
-
-        private void CombatStatusButton(Vector2 ordersBarPos, string action, string iconPath, int toolTipIndex)
-        {
-            var toggleButton = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
-            {
-                Action       = action,
-                HasToolTip   = true,
-                WhichToolTip = toolTipIndex
-            };
-            CombatStatusButtons.Add(toggleButton);
         }
 
         private void ReallyExit()
