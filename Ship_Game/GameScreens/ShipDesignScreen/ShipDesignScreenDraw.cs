@@ -39,7 +39,7 @@ namespace Ship_Game
                     {
                         Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
                         slot.Draw(spriteBatch, concreteGlass, activeColor);
-                        if (slot.Powered)
+                        if (slot.InPowerRadius)
                         {
                             var yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
                             slot.Draw(spriteBatch, concreteGlass, yellow);
@@ -48,7 +48,7 @@ namespace Ship_Game
                     if (slot.Module != null || slot.Parent != null)
                         continue;
                     spriteBatch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
-                        slot.Position, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                        slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
 
                 foreach (SlotStruct slot in Slots)
@@ -388,7 +388,7 @@ namespace Ship_Game
                     continue;
                 }
                 HitPoints = slot.Module.ActualMaxHealth;
-                if (slot.Module.Mass < 0f && slot.Powered)
+                if (slot.Module.Mass < 0f && slot.InPowerRadius)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)
                     {
