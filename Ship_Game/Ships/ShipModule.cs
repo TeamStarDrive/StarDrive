@@ -322,7 +322,7 @@ namespace Ship_Game.Ships
             ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
             module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, slot.GetOrientation());
-            // @todo These are related. But always override with slot facing
+            // Orientation and Facing are related. But always override Facing with given ModuleSlotData.Facing
             module.Facing = slot.Facing;
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
