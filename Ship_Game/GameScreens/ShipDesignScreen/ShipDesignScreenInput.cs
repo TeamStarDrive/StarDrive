@@ -164,7 +164,7 @@ namespace Ship_Game
 
         public bool IsMouseOverModule(InputState input, SlotStruct slot)
         {
-            Vector2 moduleScreenPos = Camera.GetScreenSpaceFromWorldSpace(slot.Position);
+            Vector2 moduleScreenPos = Camera.GetScreenSpaceFromWorldSpace(new Vector2(slot.PQ.X, slot.PQ.Y));
             var moduleRect = new Rectangle((int)moduleScreenPos.X,     (int)moduleScreenPos.Y,
                                            (int)(16.0f * Camera.Zoom), (int)(16.0f * Camera.Zoom));
 

@@ -396,16 +396,18 @@ namespace Ship_Game
         private SlotStruct[] ModuleGrid;
         private int GridWidth;
         private int GridHeight;
-        private Vector2 GridOffset;
+        private Point GridOffset;
 
+        // this constructs a [GridWidth][GridHeight] array of current hull
+        // and allows for quick lookup for neighbours
         private void ConstructModuleGrid(Array<SlotStruct> slots)
         {
-            Vector2 min = slots[0].Position;
-            Vector2 max = min;
+            Point min = slots[0].Position;
+            Point max = min;
             foreach (SlotStruct slot in slots)
             {
-                Vector2 pos  = slot.Position;
-                Vector2 size = slot.ModuleSize;
+                Point pos  = slot.Position;
+                Point size = slot.ModuleSize;
                 if (pos.X < min.X) min.X = pos.X;
                 if (pos.Y < min.Y) min.Y = pos.Y;
                 if (pos.X+size.X > max.X) max.X = pos.X+size.X;
@@ -414,8 +416,8 @@ namespace Ship_Game
 
             float width  = max.X - min.X;
             float height = max.Y - min.Y;
-            GridWidth  = (int)(width  / 16.0f);
-            GridHeight = (int)(height / 16.0f);
+            GridWidth  = (int)(width  / 16f);
+            GridHeight = (int)(height / 16f);
             GridOffset = min;
 
             ModuleGrid = new SlotStruct[GridWidth * GridHeight];
@@ -426,43 +428,113 @@ namespace Ship_Game
             }
         }
 
-        private Point ToGridPos(Vector2 modulePos)
-        {
-            Vector2 pos = modulePos - GridOffset;
-            return new Point((int)(pos.X / 16.0f), (int)(pos.Y / 16.0f));
-        }
+        private Point ToGridPos(Point modulePos) => new Point((modulePos.X - GridOffset.X) / 16,
+                                                              (modulePos.Y - GridOffset.Y) / 16);
 
-        private bool GetUnpoweredConduit(SlotStruct conduit, int dx, int dy, out SlotStruct neighbour)
+        private void SetInPowerRadius(int x0, int y0, int x1, int y1)
         {
-            ++NumPowerChecks;
-            neighbour = null;
-            Point pos = ToGridPos(conduit.Position);
-            pos.X += dx;
-            pos.Y += dy;
-            if (pos.X < 0 || pos.Y < 0 || pos.X >= GridWidth || pos.Y >= GridHeight)
-                return false;
-
-            neighbour = ModuleGrid[pos.X + pos.Y * GridWidth];
-            return neighbour != null && !neighbour.CheckedConduits &&
-                   neighbour.Module?.ModuleType == ShipModuleType.PowerConduit;
-        }
-        
-        private void ConnectPowerConduits(SlotStruct firstConduit)
-        {
-            var open = new Array<SlotStruct>{ firstConduit };
-            // floodfill through neighbouring conduits
-            while (open.NotEmpty)
+            x0 = Math.Max(0, x0);
+            y0 = Math.Max(0, y0);
+            x1 = Math.Min(x1, GridWidth  - 1);
+            y1 = Math.Min(y1, GridHeight - 1);
+            for (int y = y0; y <= y1; ++y)
+            for (int x = x0; x <= x1; ++x)
             {
-                SlotStruct conduit = open.PopLast();
-                conduit.Module.Powered  = true;
-                conduit.CheckedConduits = true;
-                if (GetUnpoweredConduit(conduit,  0, -1, out SlotStruct north)) open.Add(north);
-                if (GetUnpoweredConduit(conduit,  0, +1, out SlotStruct south)) open.Add(south);
-                if (GetUnpoweredConduit(conduit, -1,  0, out SlotStruct west))  open.Add(west);
-                if (GetUnpoweredConduit(conduit, +1,  0, out SlotStruct east))  open.Add(east);
+                ++NumPowerChecks;
+                SlotStruct m = ModuleGrid[x + y*GridWidth];
+                if (m != null) m.InPowerRadius = true;
             }
         }
 
+        private void SetInPowerRadius(int x0, int y0, int x1, int y1, int powerX, int powerY, int radius)
+        {
+            x0 = Math.Max(0, x0);
+            y0 = Math.Max(0, y0);
+            x1 = Math.Min(x1, GridWidth  - 1);
+            y1 = Math.Min(y1, GridHeight - 1);
+            for (int y = y0; y <= y1; ++y)
+            for (int x = x0; x <= x1; ++x)
+            {
+                ++NumPowerChecks;
+                int dx = Math.Abs(x - powerX);
+                int dy = Math.Abs(y - powerY);
+                if ((dx + dy) > radius) continue;
+                SlotStruct m = ModuleGrid[x + y*GridWidth];
+                if (m != null) m.InPowerRadius = true;
+            }
+        }
+
+        // set all modules in power range as InPowerRadius
+        private void DistributePowerFrom(SlotStruct source)
+        {
+            int radius = source.Module.PowerRadius;
+            source.PowerChecked   = true;
+            source.InPowerRadius  = true;
+            source.Module.Powered = true;
+
+            int w  = source.Module.XSIZE;
+            int h  = source.Module.YSIZE;
+            int x0 = (source.PQ.X - GridOffset.X)/16;
+            int y0 = (source.PQ.Y - GridOffset.Y)/16;
+            int x1 = x0 + w - 1;
+            int y1 = y0 + h - 1; 
+            
+            SetInPowerRadius(x0, y0-radius, x1, y0-1); // Check North
+            SetInPowerRadius(x0, y1+1, x1, y1+radius); // Check South
+            SetInPowerRadius(x0-radius, y0, x0-1, y1); // Check West
+            SetInPowerRadius(x1+1, y0, x1+radius, y1); // Check East
+
+            SetInPowerRadius(x0-radius, y0-radius, x0-1, y0-1, x0, y0, radius); // Check NorthWest
+            SetInPowerRadius(x1+1, y0-radius, x1+radius, y0-1, x1, y0, radius); // Check NorthEast
+            SetInPowerRadius(x1+1, y1+1, x1+radius, y0+radius, x1, y1, radius); // Check SouthEast
+            SetInPowerRadius(x0-radius, y0-1, x0-1, y0+radius, x0, y1, radius); // Check SouthWest
+        }
+
+        private void GetNeighbouringConduits(int x0, int x1, int y0, int y1, Array<SlotStruct> open)
+        {
+            x0 = Math.Max(0, x0);
+            y0 = Math.Max(0, y0);
+            x1 = Math.Min(x1, GridWidth  - 1);
+            y1 = Math.Min(y1, GridHeight - 1);
+            for (int y = y0; y <= y1; ++y)
+            for (int x = x0; x <= x1; ++x)
+            {
+                ++NumPowerChecks;
+                SlotStruct m = ModuleGrid[x + y * GridWidth];
+                if (m != null && !m.PowerChecked && m.Module?.ModuleType == ShipModuleType.PowerConduit)
+                    open.Add(m);
+            }
+        }
+        
+        private void GetNeighbouringConduits(SlotStruct source, Array<SlotStruct> open)
+        {
+            int w  = source.Module.XSIZE;
+            int h  = source.Module.YSIZE;
+            int x0 = (source.PQ.X - GridOffset.X)/16;
+            int y0 = (source.PQ.Y - GridOffset.Y)/16;
+            int x1 = x0 + w - 1;
+            int y1 = y0 + h - 1;
+
+            GetNeighbouringConduits(x0, x1, y0-1, y0-1, open); // Check North;
+            GetNeighbouringConduits(x0, x1, y1+1, y1+1, open); // Check South;
+            GetNeighbouringConduits(x0-1, x0-1, y0, y1, open); // Check West;
+            GetNeighbouringConduits(x1+1, x1+1, y0, y1, open); // Check East;
+        }
+
+        private void ConnectPowerConduits(SlotStruct powerPlant)
+        {
+            var open = new Array<SlotStruct>();
+            GetNeighbouringConduits(powerPlant, open);
+
+            while (open.NotEmpty) // floodfill through unpowered neighbouring conduits
+            {
+                SlotStruct conduit = open.PopLast();
+                if (conduit.PowerChecked)
+                    continue;
+                DistributePowerFrom(conduit);
+                GetNeighbouringConduits(conduit, open);
+            }
+        }
 
         private void RecalculatePower()
         {
@@ -470,79 +542,46 @@ namespace Ship_Game
             NumModules = Slots.Count;
             NumPowerChecks = 0;
 
-            // reset everything
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in Slots) // reset everything
             {
-                slot.Powered = false;
-                slot.CheckedConduits = false;
-                if (slot.Module != null)
-                    slot.Module.Powered = false;
+                slot.InPowerRadius    = false;
+                slot.PowerChecked = false;
+                if (slot.Module != null) slot.Module.Powered = false;
             }
 
             ConstructModuleGrid(Slots);
 
-            // foreach powerplant tile
-            foreach (SlotStruct powerPlant in Slots)
+            foreach (SlotStruct slot in Slots)
             {
-                if (powerPlant.Module?.ModuleType        != ShipModuleType.PowerPlant &&
-                    powerPlant.Parent?.Module.ModuleType != ShipModuleType.PowerPlant)
+                SlotStruct powerSource = slot.Module != null ? slot : slot.Parent;
+                if (powerSource?.PowerChecked != false)
                     continue;
 
-                // check for neighbouring power conduits
-                if (GetUnpoweredConduit(powerPlant,  0, -1, out SlotStruct north)) ConnectPowerConduits(north);
-                if (GetUnpoweredConduit(powerPlant,  0, +1, out SlotStruct south)) ConnectPowerConduits(south);
-                if (GetUnpoweredConduit(powerPlant, -1,  0, out SlotStruct west))  ConnectPowerConduits(west);
-                if (GetUnpoweredConduit(powerPlant, +1,  0, out SlotStruct east))  ConnectPowerConduits(east);
+                ShipModule module = powerSource.Module;
+                if (module == null || module.PowerRadius <= 0 || module.ModuleType == ShipModuleType.PowerConduit)
+                    continue;
+
+                DistributePowerFrom(powerSource);
+
+                // only PowerPlants can power conduits
+                if (module.ModuleType == ShipModuleType.PowerPlant)
+                    ConnectPowerConduits(powerSource);
             }
 
-            foreach (SlotStruct slotStruct1 in Slots)
+            foreach (SlotStruct slot in Slots)
             {
-                if (slotStruct1.Module != null && slotStruct1.Module.PowerRadius > 0 && (slotStruct1.Module.ModuleType != ShipModuleType.PowerConduit || slotStruct1.Module.Powered))
+                if (slot.InPowerRadius)
                 {
-                    foreach (SlotStruct slotStruct2 in Slots)
-                    {
-                        ++NumPowerChecks;
-                        if (Math.Abs(slotStruct1.PQ.X - slotStruct2.PQ.X) / 16 + Math.Abs(slotStruct1.PQ.Y - slotStruct2.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
-                            slotStruct2.Powered = true;
-                    }
-                    if (slotStruct1.Module.XSIZE <= 1 && slotStruct1.Module.YSIZE <= 1)
-                        continue;
-
-                    for (int y = 0; y < slotStruct1.Module.YSIZE; ++y)
-                    {
-                        for (int x = 0; x < slotStruct1.Module.XSIZE; ++x)
-                        {
-                            if (x == 0 && y == 0)
-                                continue;
-
-                            foreach (SlotStruct slotStruct2 in Slots)
-                            {
-                                if (slotStruct2.PQ.Y == slotStruct1.PQ.Y + 16 * y && slotStruct2.PQ.X == slotStruct1.PQ.X + 16 * x)
-                                {
-                                    foreach (SlotStruct slotStruct3 in Slots)
-                                    {
-                                        ++NumPowerChecks;
-                                        if (Math.Abs(slotStruct2.PQ.X - slotStruct3.PQ.X) / 16 + Math.Abs(slotStruct2.PQ.Y - slotStruct3.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
-                                            slotStruct3.Powered = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    // apply power to modules, except for conduits which require direct connection
+                    if (slot.Module != null && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                        slot.Module.Powered = true;
+                    if (slot.Parent?.Module != null)
+                        slot.Parent.Module.Powered = true;                    
                 }
-            }
-            foreach (SlotStruct slotStruct in this.Slots)
-            {
-                ++NumPowerChecks;
-                if (slotStruct.Powered)
+                else if (slot.Module != null && (slot.Module.AlwaysPowered || slot.Module.PowerDraw <= 0))
                 {
-                    if (slotStruct.Module != null && slotStruct.Module.ModuleType != ShipModuleType.PowerConduit)
-                        slotStruct.Module.Powered = true;
-                    if (slotStruct.Parent != null && slotStruct.Parent.Module != null)
-                        slotStruct.Parent.Module.Powered = true;                    
+                    slot.Module.Powered = true;
                 }
-                if (!slotStruct.Powered && slotStruct.Module != null && slotStruct.Module.IndirectPower)
-                        slotStruct.Module.Powered = true;
             }
 
             double elapsed = sw.Elapsed.TotalMilliseconds;
