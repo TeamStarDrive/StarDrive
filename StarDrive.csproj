@@ -229,6 +229,7 @@
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\DesignModuleGrid.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\FighterScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\LoadDesigns.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ModuleSelection.cs" />
