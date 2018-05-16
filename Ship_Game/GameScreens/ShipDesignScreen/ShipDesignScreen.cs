@@ -431,12 +431,17 @@ namespace Ship_Game
         private Point ToGridPos(Point modulePos) => new Point((modulePos.X - GridOffset.X) / 16,
                                                               (modulePos.Y - GridOffset.Y) / 16);
 
-        private void SetInPowerRadius(int x0, int y0, int x1, int y1)
+        private void ClampGridCoords(ref int x0, ref int x1, ref int y0, ref int y1)
         {
             x0 = Math.Max(0, x0);
             y0 = Math.Max(0, y0);
             x1 = Math.Min(x1, GridWidth  - 1);
             y1 = Math.Min(y1, GridHeight - 1);
+        }
+
+        private void SetInPowerRadius(int x0, int x1, int y0, int y1)
+        {
+            ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
             for (int y = y0; y <= y1; ++y)
             for (int x = x0; x <= x1; ++x)
             {
@@ -446,12 +451,9 @@ namespace Ship_Game
             }
         }
 
-        private void SetInPowerRadius(int x0, int y0, int x1, int y1, int powerX, int powerY, int radius)
+        private void SetInPowerRadius(int x0, int x1, int y0, int y1, int powerX, int powerY, int radius)
         {
-            x0 = Math.Max(0, x0);
-            y0 = Math.Max(0, y0);
-            x1 = Math.Min(x1, GridWidth  - 1);
-            y1 = Math.Min(y1, GridHeight - 1);
+            ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
             for (int y = y0; y <= y1; ++y)
             for (int x = x0; x <= x1; ++x)
             {
@@ -464,38 +466,38 @@ namespace Ship_Game
             }
         }
 
+        private void ModuleCoords(SlotStruct m, out int x0, out int x1, out int y0, out int y1)
+        {
+            x0 = (m.PQ.X - GridOffset.X)/16;
+            y0 = (m.PQ.Y - GridOffset.Y)/16;
+            x1 = x0 + m.Module.XSIZE - 1;
+            y1 = y0 + m.Module.YSIZE - 1; 
+        }
+
         // set all modules in power range as InPowerRadius
         private void DistributePowerFrom(SlotStruct source)
         {
-            int radius = source.Module.PowerRadius;
             source.PowerChecked   = true;
             source.InPowerRadius  = true;
             source.Module.Powered = true;
+            int radius = source.Module.PowerRadius;
 
-            int w  = source.Module.XSIZE;
-            int h  = source.Module.YSIZE;
-            int x0 = (source.PQ.X - GridOffset.X)/16;
-            int y0 = (source.PQ.Y - GridOffset.Y)/16;
-            int x1 = x0 + w - 1;
-            int y1 = y0 + h - 1; 
-            
-            SetInPowerRadius(x0, y0-radius, x1, y0-1); // Check North
-            SetInPowerRadius(x0, y1+1, x1, y1+radius); // Check South
-            SetInPowerRadius(x0-radius, y0, x0-1, y1); // Check West
-            SetInPowerRadius(x1+1, y0, x1+radius, y1); // Check East
+            ModuleCoords(source, out int x0, out int x1, out int y0, out int y1);
 
-            SetInPowerRadius(x0-radius, y0-radius, x0-1, y0-1, x0, y0, radius); // Check NorthWest
-            SetInPowerRadius(x1+1, y0-radius, x1+radius, y0-1, x1, y0, radius); // Check NorthEast
-            SetInPowerRadius(x1+1, y1+1, x1+radius, y0+radius, x1, y1, radius); // Check SouthEast
-            SetInPowerRadius(x0-radius, y0-1, x0-1, y0+radius, x0, y1, radius); // Check SouthWest
+            SetInPowerRadius(x0, x1, y0-radius, y0-1); // Check North
+            SetInPowerRadius(x0, x1, y1+1, y1+radius); // Check South
+            SetInPowerRadius(x0-radius, x0-1, y0, y1); // Check West
+            SetInPowerRadius(x1+1, x1+radius, y0, y1); // Check East
+
+            SetInPowerRadius(x0-radius, x0-1, y0-radius, y0-1, x0, y0, radius); // Check NorthWest
+            SetInPowerRadius(x1+1, x1+radius, y0-radius, y0-1, x1, y0, radius); // Check NorthEast
+            SetInPowerRadius(x1+1, x1+radius, y1+1, y0+radius, x1, y1, radius); // Check SouthEast
+            SetInPowerRadius(x0-radius, x0-1, y0-1, y0+radius, x0, y1, radius); // Check SouthWest
         }
 
         private void GetNeighbouringConduits(int x0, int x1, int y0, int y1, Array<SlotStruct> open)
         {
-            x0 = Math.Max(0, x0);
-            y0 = Math.Max(0, y0);
-            x1 = Math.Min(x1, GridWidth  - 1);
-            y1 = Math.Min(y1, GridHeight - 1);
+            ClampGridCoords(ref x0, ref x1, ref y0, ref y1);
             for (int y = y0; y <= y1; ++y)
             for (int x = x0; x <= x1; ++x)
             {
@@ -508,12 +510,7 @@ namespace Ship_Game
         
         private void GetNeighbouringConduits(SlotStruct source, Array<SlotStruct> open)
         {
-            int w  = source.Module.XSIZE;
-            int h  = source.Module.YSIZE;
-            int x0 = (source.PQ.X - GridOffset.X)/16;
-            int y0 = (source.PQ.Y - GridOffset.Y)/16;
-            int x1 = x0 + w - 1;
-            int y1 = y0 + h - 1;
+            ModuleCoords(source, out int x0, out int x1, out int y0, out int y1);
 
             GetNeighbouringConduits(x0, x1, y0-1, y0-1, open); // Check North;
             GetNeighbouringConduits(x0, x1, y1+1, y1+1, open); // Check South;
