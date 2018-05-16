@@ -156,7 +156,7 @@ namespace Ship_Game.Ships
         public float FlakResist                  => Flyweight.FlakResist;
         public float DamageThreshold             => Flyweight.DamageThreshold;
         public int APResist                      => Flyweight.APResist;
-        public bool IndirectPower                => Flyweight.IndirectPower;
+        public bool AlwaysPowered                => Flyweight.IndirectPower;
         public bool isPowerArmour                => Flyweight.isPowerArmour;
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;

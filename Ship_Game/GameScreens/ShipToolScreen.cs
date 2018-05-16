@@ -142,18 +142,19 @@ namespace Ship_Game
                 string text = "If you can't see your model then your radius is likely too big or too small. A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. If it is rotated oddly change the X, Y, and Z axis. If the model is off-center then you will need to re-export the 3D model from Blender, making sure to Set Origin to the desired pivot point of your model";
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
             }
-            Vector2 WhichSelectionPos = new Vector2((float)this.what.X, (float)(this.what.Y - Fonts.Arial20Bold.LineSpacing));
-            spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(this.DesignState, " - ", this.GetDesignStateText()), WhichSelectionPos, Color.Orange);
-            WhichSelectionPos.X = WhichSelectionPos.X + 150f;
-            WhichSelectionPos.Y = WhichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
-            WhichSelectionPos.Y = WhichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
+            var whichSelectionPos = new Vector2(what.X, what.Y - Fonts.Arial20Bold.LineSpacing);
+            spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DesignState, " - ", GetDesignStateText()), whichSelectionPos, Color.Orange);
+            whichSelectionPos.X = whichSelectionPos.X + 150f;
+            whichSelectionPos.Y = whichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
+            whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
             base.ScreenManager.SpriteBatch.DrawRectangle(this.what, Color.White);
             foreach (SlotStruct slot in this.SlotList)
             {
                 if (!this.applyThruster && slot.PQ.Filled)
                 {
                     slot.Draw(spriteBatch, moduleSlot, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(" ", slot.Restrictions), slot.Position, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+                    spriteBatch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
+                        slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 if (this.applyThruster || slot.ModuleUID == null)
                 {
@@ -566,36 +567,13 @@ namespace Ship_Game
 
         private void NextDesignState()
         {
-            switch (this.DesignState)
+            switch (DesignState)
             {
-                case Restrictions.I:
-                {
-                    this.DesignState = Restrictions.O;
-                    return;
-                }
-                case Restrictions.IO:
-                {
-                    this.DesignState = Restrictions.E;
-                    return;
-                }
-                case Restrictions.IOE:
-                {
-                    return;
-                }
-                case Restrictions.O:
-                {
-                    this.DesignState = Restrictions.IO;
-                    return;
-                }
-                case Restrictions.E:
-                {
-                    this.DesignState = Restrictions.I;
-                    return;
-                }
-                default:
-                {
-                    return;
-                }
+                case Restrictions.I:  DesignState = Restrictions.O; return;
+                case Restrictions.IO: DesignState = Restrictions.E; return;
+                case Restrictions.IOE: return;
+                case Restrictions.O:  DesignState = Restrictions.IO; return;
+                case Restrictions.E:  DesignState = Restrictions.I;  return;
             }
         }
 
@@ -617,10 +595,9 @@ namespace Ship_Game
                 if (!slot.PQ.Filled)
                     continue;
 
-                var pos = slot.ModuleCenter - border.Position;
                 filledModules.Add(new ModuleSlotData
                 {
-                    Position           = pos,
+                    Position           = slot.ModuleCenter - border.Position,
                     InstalledModuleUID = slot.ModuleUID,
                     Restrictions       = slot.Restrictions
                 });
@@ -629,7 +606,7 @@ namespace Ship_Game
             data.DefaultAIState = AIState.AwaitingOrders;
             data.ThrusterList   = TList;
             var ser = new XmlSerializer(typeof(ShipData));
-            using (var wfs = new StreamWriter("Ship Tool/" + HullName + ".xml"))
+            using (var wfs = new StreamWriter($"Ship Tool/{HullName}.xml"))
                 ser.Serialize(wfs, data);
         }
 
