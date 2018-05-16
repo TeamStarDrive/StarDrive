@@ -17,7 +17,6 @@ namespace Ship_Game
         private Matrix Projection;
         public Camera2D Camera;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
-        public bool Debug;
         public ShipData ActiveHull;
         public EmpireUIOverlay EmpireUI;
         //private Menu1 ModuleSelectionMenu;
@@ -26,17 +25,13 @@ namespace Ship_Game
         public Array<SlotStruct> Slots = new Array<SlotStruct>();
         private Vector2 Offset;
         private CombatState CombatState = CombatState.AttackRuns;
-        private bool ShipSaved = true;
-        private Array<ShipData> AvailableHulls = new Array<ShipData>();
+        private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         private UIButton ToggleOverlayButton;
         private UIButton SaveButton;
         private UIButton LoadButton;
         public ModuleSelection ModSel;
         private Submenu StatsSub;
         private Menu1 ShipStats;
-        private bool LowRes;
-        private float LowestX;
-        private float HighestX;
         private GenericButton ArcsButton;
         private CloseButton Close;
         private float OriginalZ;
@@ -54,32 +49,29 @@ namespace Ship_Game
         private Vector2 StartDragPos;
         private ShipData Changeto;
         private string ScreenToLaunch;
-        private bool ShowAllArcs;
         private ShipModule HoveredModule;
-        private float TransitionZoom                = 1f;
+        private float TransitionZoom = 1f;
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
         private ActiveModuleState ActiveModState;
         private Selector selector;
-        public bool ToggleOverlay                   = true;
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
-        public Stack<DesignAction> DesignStack      = new Stack<DesignAction>();
-        private string LastActiveUID                = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
-        private Vector2 LastDesignActionPos         = Vector2.Zero;
+        public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
+        private string LastActiveUID           = ""; // Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 LastDesignActionPos    = Vector2.Zero;
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
-        private bool Fml                            = false;
-        private bool Fmlevenmore                    = false;
+        private bool ShowAllArcs;
+        private bool Fml;
+        private bool Fmlevenmore;
         public bool CarrierOnly;
+        public bool ToggleOverlay = true;
+        private bool ShipSaved = true;
+        private bool LowRes;
+        public bool Debug;
         private ShipData.Category LoadCategory;
-        private readonly Texture2D TopBar132        = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
-        private readonly Texture2D TopBar132Hover   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
-        private readonly Texture2D TopBar132Pressed = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
-        private readonly Texture2D TopBar68         = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px");
-        private readonly Texture2D TopBar68Hover    = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_hover");
-        private readonly Texture2D TopBar68Pressed  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_pressed"];
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
 
@@ -401,22 +393,73 @@ namespace Ship_Game
 
         private static int NumModules;
         private static int NumPowerChecks;
+        private SlotStruct[] ModuleGrid;
+        private int GridWidth;
+        private int GridHeight;
+        private Vector2 GridOffset;
 
-        
-        private void CheckAndPowerConduit(SlotStruct slot)
+        private void ConstructModuleGrid(Array<SlotStruct> slots)
         {
-            slot.Module.Powered = true;
-            slot.CheckedConduits = true;
-            foreach (SlotStruct ss in Slots)
+            Vector2 min = slots[0].Position;
+            Vector2 max = min;
+            foreach (SlotStruct slot in slots)
             {
-                ++NumPowerChecks;
-                if (ss.CheckedConduits
-                    || ss == slot
-                    || ss.Module == null
-                    || !slot.IsNeighbourTo(ss)
-                    || ss.Module.ModuleType != ShipModuleType.PowerConduit)
-                    continue;
-                CheckAndPowerConduit(ss);
+                Vector2 pos  = slot.Position;
+                Vector2 size = slot.ModuleSize;
+                if (pos.X < min.X) min.X = pos.X;
+                if (pos.Y < min.Y) min.Y = pos.Y;
+                if (pos.X+size.X > max.X) max.X = pos.X+size.X;
+                if (pos.Y+size.Y > max.Y) max.Y = pos.Y+size.Y;
+            }
+
+            float width  = max.X - min.X;
+            float height = max.Y - min.Y;
+            GridWidth  = (int)(width  / 16.0f);
+            GridHeight = (int)(height / 16.0f);
+            GridOffset = min;
+
+            ModuleGrid = new SlotStruct[GridWidth * GridHeight];
+            foreach (SlotStruct slot in slots)
+            {
+                Point pt = ToGridPos(slot.Position);
+                ModuleGrid[pt.X + pt.Y * GridWidth] = slot;
+            }
+        }
+
+        private Point ToGridPos(Vector2 modulePos)
+        {
+            Vector2 pos = modulePos - GridOffset;
+            return new Point((int)(pos.X / 16.0f), (int)(pos.Y / 16.0f));
+        }
+
+        private bool GetUnpoweredConduit(SlotStruct conduit, int dx, int dy, out SlotStruct neighbour)
+        {
+            ++NumPowerChecks;
+            neighbour = null;
+            Point pos = ToGridPos(conduit.Position);
+            pos.X += dx;
+            pos.Y += dy;
+            if (pos.X < 0 || pos.Y < 0 || pos.X >= GridWidth || pos.Y >= GridHeight)
+                return false;
+
+            neighbour = ModuleGrid[pos.X + pos.Y * GridWidth];
+            return neighbour != null && !neighbour.CheckedConduits &&
+                   neighbour.Module?.ModuleType == ShipModuleType.PowerConduit;
+        }
+        
+        private void ConnectPowerConduits(SlotStruct firstConduit)
+        {
+            var open = new Array<SlotStruct>{ firstConduit };
+            // floodfill through neighbouring conduits
+            while (open.NotEmpty)
+            {
+                SlotStruct conduit = open.PopLast();
+                conduit.Module.Powered  = true;
+                conduit.CheckedConduits = true;
+                if (GetUnpoweredConduit(conduit,  0, -1, out SlotStruct north)) open.Add(north);
+                if (GetUnpoweredConduit(conduit,  0, +1, out SlotStruct south)) open.Add(south);
+                if (GetUnpoweredConduit(conduit, -1,  0, out SlotStruct west))  open.Add(west);
+                if (GetUnpoweredConduit(conduit, +1,  0, out SlotStruct east))  open.Add(east);
             }
         }
 
@@ -436,26 +479,20 @@ namespace Ship_Game
                     slot.Module.Powered = false;
             }
 
-            foreach (SlotStruct slotStruct in Slots)
+            ConstructModuleGrid(Slots);
+
+            // foreach powerplant tile
+            foreach (SlotStruct powerPlant in Slots)
             {
-                if (slotStruct.Module?.ModuleType == ShipModuleType.PowerPlant)
-                {
-                    foreach (SlotStruct slot in Slots)
-                    {
-                        ++NumPowerChecks;
-                        if (slot.Module?.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
-                            CheckAndPowerConduit(slot);
-                    }
-                }
-                else if (slotStruct.Parent?.Module.ModuleType == ShipModuleType.PowerPlant)
-                {
-                    foreach (SlotStruct slot in Slots)
-                    {
-                        ++NumPowerChecks;
-                        if (slot.Module?.ModuleType == ShipModuleType.PowerConduit && slot.IsNeighbourTo(slotStruct))
-                            CheckAndPowerConduit(slot);
-                    }
-                }
+                if (powerPlant.Module?.ModuleType        != ShipModuleType.PowerPlant &&
+                    powerPlant.Parent?.Module.ModuleType != ShipModuleType.PowerPlant)
+                    continue;
+
+                // check for neighbouring power conduits
+                if (GetUnpoweredConduit(powerPlant,  0, -1, out SlotStruct north)) ConnectPowerConduits(north);
+                if (GetUnpoweredConduit(powerPlant,  0, +1, out SlotStruct south)) ConnectPowerConduits(south);
+                if (GetUnpoweredConduit(powerPlant, -1,  0, out SlotStruct west))  ConnectPowerConduits(west);
+                if (GetUnpoweredConduit(powerPlant, +1,  0, out SlotStruct east))  ConnectPowerConduits(east);
             }
 
             foreach (SlotStruct slotStruct1 in Slots)
