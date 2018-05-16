@@ -928,32 +928,5 @@ namespace Ship_Game
             SaveWIP(sender, e);
             ChangeHull(Changeto);
         }
-        
-        private void SetupSlots()
-        {
-            Slots.Clear();
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
-                Slots.Add(new SlotStruct(slot, Offset));
-
-            foreach (SlotStruct slot in Slots)
-            {
-                slot.SetValidity();
-                if (slot.ModuleUID == null)
-                    continue;
-                ActiveModule = CreateDesignModule(slot.ModuleUID);
-                ChangeModuleState(slot.State);
-                if (ActiveModule.Area > 1)
-                    ClearDestinationSlots(slot);                
-                InstallModuleFromLoad(slot);
-                if (slot.Module?.ModuleType != ShipModuleType.Hangar)
-                    continue;
-                slot.Module.hangarShipUID = slot.SlotOptions;
-            }
-
-            ModuleGrid = new DesignModuleGrid(Slots);
-            RecalculatePower();
-            ActiveModule = null;
-            ActiveModState = ActiveModuleState.Normal;
-        }
     }
 }
