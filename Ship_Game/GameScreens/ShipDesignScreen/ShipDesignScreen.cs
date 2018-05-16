@@ -341,24 +341,6 @@ namespace Ship_Game
             ChangeModuleState(ActiveModState);
         }
 
-        private void InstallModuleFromLoad(SlotStruct slot)
-        {
-            if (SlotStructFits(slot))
-            {
-                ActiveModuleState activeModuleState = slot.State;
-                ClearSlot(slot);
-                ClearDestinationSlots(slot);
-                slot.ModuleUID     = ActiveModule.UID;
-                slot.Module        = ActiveModule; 
-                slot.State         = activeModuleState;
-                slot.Module.Facing = slot.Facing;
-                slot.Tex           = ActiveModule.ModuleTexture;
-                slot.Module.SetAttributesNoParent();
-                //RecalculatePower();
-            }
-            else PlayNegativeSound();
-        }
-
         private void InstallModuleNoStack(SlotStruct slot)
         {
             if (!SlotStructFits(slot))
@@ -389,14 +371,55 @@ namespace Ship_Game
             //set rotation for new module at cursor
         }
 
+        private void InstallModuleFromLoad(SlotStruct slot)
+        {
+            if (SlotStructFits(slot))
+            {
+                ActiveModuleState activeModuleState = slot.State;
+                ClearSlot(slot);
+                ClearDestinationSlots(slot);
+                slot.ModuleUID     = ActiveModule.UID;
+                slot.Module        = ActiveModule; 
+                slot.State         = activeModuleState;
+                slot.Module.Facing = slot.Facing;
+                slot.Tex           = ActiveModule.ModuleTexture;
+                slot.Module.SetAttributesNoParent();
+                //RecalculatePower();
+            }
+            else PlayNegativeSound();
+        }
+
+        private void SetupSlots()
+        {
+            Slots.Clear();
+            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
+                Slots.Add(new SlotStruct(slot, Offset));
+
+            foreach (SlotStruct slot in Slots)
+            {
+                slot.SetValidity();
+                if (slot.ModuleUID == null)
+                    continue;
+                ActiveModule = CreateDesignModule(slot.ModuleUID);
+                ChangeModuleState(slot.State);
+                if (ActiveModule.Area > 1)
+                    ClearDestinationSlots(slot);                
+                InstallModuleFromLoad(slot);
+                if (slot.Module?.ModuleType != ShipModuleType.Hangar)
+                    continue;
+                slot.Module.hangarShipUID = slot.SlotOptions;
+            }
+
+            ModuleGrid = new DesignModuleGrid(Slots);
+            RecalculatePower();
+            ActiveModule = null;
+            ActiveModState = ActiveModuleState.Normal;
+        }
+
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
         private DesignModuleGrid ModuleGrid;
-
-        private void RecalculatePower()
-        {
-            ModuleGrid.RecalculatePower();
-        }
+        private void RecalculatePower() => ModuleGrid.RecalculatePower();
 
         public void SetActiveModule(ShipModule mod)
         {
@@ -438,9 +461,6 @@ namespace Ship_Game
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
- 
-
-
         public enum ActiveModuleState
         {
             Normal,
@@ -462,7 +482,5 @@ namespace Ship_Game
             Normal
 
         }
-        
-
     }
 }
