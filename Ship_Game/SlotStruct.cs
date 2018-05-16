@@ -88,8 +88,15 @@ namespace Ship_Game
             sb.Draw(texture, rect, tint);
         }
 
+
         [XmlIgnore][JsonIgnore] public Vector2 Position     => new Vector2(PQ.X, PQ.Y);
         [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
+        [XmlIgnore][JsonIgnore] public Vector2 ModuleSize   => new Vector2(PQ.W, PQ.H);
+
+        // Width and Height in 1x1, 2x2, etc
+        [XmlIgnore][JsonIgnore] public int Width  => (int)(PQ.W / 16.0f);
+        [XmlIgnore][JsonIgnore] public int Height => (int)(PQ.H / 16.0f);
+        [XmlIgnore][JsonIgnore] public Point Size => new Point((int)(PQ.W / 16.0f), (int)(PQ.H / 16.0f));
 
         public Vector2 Center()
         {

@@ -644,11 +644,8 @@ namespace Ship_Game
             }
             ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400)));
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
-            {
-                if (!hull.Value)
-                    continue;
-                AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
-            }
+                if (hull.Value)
+                    AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
 
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
@@ -663,13 +660,15 @@ namespace Ship_Game
             ChangeHull(AvailableHulls[0]);
             CreateSOFromActiveHull();
 
+            float lowestX  = ActiveHull.ModuleSlots[0].Position.X;
+            float highestX = lowestX;
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
             {
-                if (slot.Position.X < LowestX)  LowestX  = slot.Position.X;
-                if (slot.Position.X > HighestX) HighestX = slot.Position.X;
+                if (slot.Position.X < lowestX)  lowestX  = slot.Position.X;
+                if (slot.Position.X > highestX) highestX = slot.Position.X;
             }
 
-            float hullWidth = HighestX - LowestX;
+            float hullWidth = highestX - lowestX;
 
             // So, this attempts to zoom so the entire design is visible
             float UpdateCameraMatrix()
