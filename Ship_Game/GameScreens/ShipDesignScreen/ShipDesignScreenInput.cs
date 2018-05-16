@@ -79,7 +79,6 @@ namespace Ship_Game
 
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
-            SetupSlots();
         }
 
         private bool CheckDesign()
@@ -934,9 +933,8 @@ namespace Ship_Game
         {
             Slots.Clear();
             foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
-            {
                 Slots.Add(new SlotStruct(slot, Offset));
-            }
+
             foreach (SlotStruct slot in Slots)
             {
                 slot.SetValidity();
@@ -951,6 +949,8 @@ namespace Ship_Game
                     continue;
                 slot.Module.hangarShipUID = slot.SlotOptions;
             }
+
+            ModuleGrid = new DesignModuleGrid(Slots);
             RecalculatePower();
             ActiveModule = null;
             ActiveModState = ActiveModuleState.Normal;
