@@ -46,9 +46,6 @@ namespace Ship_Game
             }
         }
 
-        public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
-                                                             (modulePos.Y - Offset.Y) / 16);
-
         public void RecalculatePower()
         {
             Stopwatch sw = Stopwatch.StartNew();
@@ -100,6 +97,21 @@ namespace Ship_Game
 
 
         #region Grid Coordinate Utils
+
+        public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
+                                                             (modulePos.Y - Offset.Y) / 16);
+
+        // Gets slotstruct or null at the given location
+        public SlotStruct Get(Point modulePos)
+        {
+            Point pos = ToGridPos(modulePos);
+            return Grid[pos.X + pos.Y * Width];
+        }
+
+        public bool Get(Point modulePos, out SlotStruct slot)
+        {
+            return (slot = Get(modulePos)) != null;
+        }
 
         private void ClampGridCoords(ref int x0, ref int x1, ref int y0, ref int y1)
         {
