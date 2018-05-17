@@ -51,6 +51,7 @@ namespace Ship_Game
             Module        = parent.Module;
             State         = parent.State;
             SlotReference = parent.SlotReference;
+            Tex           = parent.Tex;
         }
 
         public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
