@@ -348,8 +348,7 @@ namespace Ship_Game
                     SlotStruct slot = slotStruct.Parent ?? slotStruct;
                     if (ActiveModule != null || slot.Module == null)
                         continue;
-                    SetActiveModule(CreateDesignModule(slot.Module.UID));
-                    ChangeModuleState(slot.State);
+                    SetActiveModule(slot.Module.UID, slot.State);
                     ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
                     return true;
                 }
@@ -438,7 +437,8 @@ namespace Ship_Game
                     ActiveModule.UID == LastActiveUID) continue;
 
                 // This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                InstallModule(slot); 
+                InstallModule(slot, ActiveModule, ActiveModState); 
+
 
                 LastDesignActionPos.X = slot.PQ.X;
                 LastDesignActionPos.Y = slot.PQ.Y;
@@ -544,11 +544,9 @@ namespace Ship_Game
             }
             if (designAction.clickedSS.ModuleUID != null)
             {
-                ActiveModule = CreateDesignModule(designAction.clickedSS.ModuleUID);
+                SpawnActiveModule(designAction.clickedSS.ModuleUID, slot1.State);
                 ActiveModule.Facing = slot1.Facing;
-                ActiveModState = slot1.State;
-                ChangeModuleState(slot1.State);
-                InstallModuleNoStack(slot1);
+                InstallModuleNoStack(slot1, ActiveModule, ActiveModState);
             }
             foreach (SlotStruct slotStruct in designAction.AlteredSlots)
             {
@@ -557,12 +555,11 @@ namespace Ship_Game
                     if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null)
                         continue;
 
-                    ActiveModule = CreateDesignModule(slotStruct.ModuleUID);
-                    ActiveModState = slotStruct.State;                    
-                    slot2.Facing = slotStruct.Facing;
+                    slot2.Facing    = slotStruct.Facing;
                     slot2.ModuleUID = slotStruct.ModuleUID;
-                    ChangeModuleState(ActiveModState);
-                    InstallModuleNoStack(slot2);
+
+                    SpawnActiveModule(slotStruct.ModuleUID, slotStruct.State);
+                    InstallModuleNoStack(slot2, ActiveModule, ActiveModState);
                 }
             }
             ActiveModule = shipModule;

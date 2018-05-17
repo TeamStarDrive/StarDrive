@@ -64,8 +64,7 @@ namespace Ship_Game
                         continue;
 
                     var module = (ShipModule)e.item;
-                    Screen.SetActiveModule(Screen.CreateDesignModule(module.UID));
-                    Screen.ResetModuleState();
+                    Screen.SetActiveModule(module.UID, ShipDesignScreen.ActiveModuleState.Normal);
                     return true;
                 }
                 else
