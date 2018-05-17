@@ -99,24 +99,14 @@ namespace Ship_Game
             ActiveModule.ApplyModuleOrientation(template.XSIZE, template.YSIZE, state);
         }
 
-        private bool FindStructFromOffset(SlotStruct offsetBase, int x, int y, out SlotStruct found)
+        private bool FindStructFromOffset(SlotStruct offsetBase, int dx, int dy, out SlotStruct found)
         {
             found = null;
-            if (x == 0 && y == 0)
+            if (dx == 0 && dy == 0)
                 return false; // ignore self, {0,0} is offsetBase
 
-            int sx = offsetBase.PQ.X + 16 * x;
-            int sy = offsetBase.PQ.Y + 16 * y;
-            for (int i = 0; i < Slots.Count; ++i)
-            {
-                SlotStruct s = Slots[i];
-                if (s.PQ.X == sx && s.PQ.Y == sy)
-                {
-                    found = s;
-                    return true;
-                }
-            }
-            return false;
+            var pos = new Point(offsetBase.PQ.X + dx*16, offsetBase.PQ.Y + dy*16);
+            return ModuleGrid.Get(pos, out found);
         }
 
         // @todo This is all broken. Redo everything.
@@ -156,9 +146,8 @@ namespace Ship_Game
                 {
                     for (int x = 0; x < parent.Module.XSIZE; ++x)
                     {
-                        if (!FindStructFromOffset(parent, x, y, out SlotStruct slot2))
-                            continue;
-                        slot2.Clear();
+                        if (FindStructFromOffset(parent, x, y, out SlotStruct slot2))
+                            slot2.Clear();
                     }
                 }
             }
@@ -339,23 +328,11 @@ namespace Ship_Game
                 return;
             }
 
-            var designAction = new DesignAction
-            {
-                clickedSS = new SlotStruct
-                {
-                    PQ            = slot.PQ,
-                    Restrictions  = slot.Restrictions,
-                    Facing        = slot.Module?.Facing ?? 0.0f,
-                    ModuleUID     = slot.ModuleUID,
-                    Module        = slot.Module,
-                    Tex           = slot.Tex,
-                    SlotReference = slot.SlotReference,
-                    State         = slot.State,
-                }
-            };
-            DesignStack.Push(designAction);
+            DesignStack.Push(new DesignAction(slot));
+
             ClearSlot(slot);
             ClearDestinationSlots(slot, newModule);
+
             slot.ModuleUID            = newModule.UID;
             slot.Module               = newModule;
             slot.Module.XSIZE         = newModule.XSIZE;
@@ -383,6 +360,7 @@ namespace Ship_Game
 
             ClearSlotNoStack(slot);
             ClearDestinationSlots(slot, newModule);
+
             slot.ModuleUID            = newModule.UID;
             slot.Module               = newModule;
             slot.State                = newState;
@@ -399,9 +377,6 @@ namespace Ship_Game
 
         private void InstallModuleFromLoad(SlotStruct slot, ShipModule newModule)
         {
-            if (newModule.Area > 1)
-                ClearDestinationSlots(slot, newModule);
-
             if (SlotStructFits(slot, newModule))
             {
                 ActiveModuleState activeModuleState = slot.State;
