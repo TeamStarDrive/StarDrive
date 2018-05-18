@@ -390,7 +390,8 @@ namespace Ship_Game
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                if (slot.ModuleUID == null)
+                string uid = slot.ModuleUID;
+                if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
 
                 ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.State);
