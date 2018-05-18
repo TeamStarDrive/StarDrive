@@ -28,7 +28,7 @@ namespace Ship_Game.Ships
                 if (slot.Restrictions == Restrictions.I)
                     internalPosistions.Add(slot.Position);
                 string uid = slot.InstalledModuleUID;
-                if (uid == "Dummy" || uid == null) // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
                 if (!ResourceManager.ModuleExists(uid))
                 {
