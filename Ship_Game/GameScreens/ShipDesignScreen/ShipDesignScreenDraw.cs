@@ -25,7 +25,7 @@ namespace Ship_Game
             if (ToggleOverlay)
             {
                 Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
-                foreach (SlotStruct slot in Slots)
+                foreach (SlotStruct slot in ModuleGrid.SlotsList)
                 {
                     if (slot.Module != null)
                     {
@@ -51,7 +51,7 @@ namespace Ship_Game
                         slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
 
-                foreach (SlotStruct slot in Slots)
+                foreach (SlotStruct slot in ModuleGrid.SlotsList)
                 {
                     if (slot.ModuleUID == null || slot.Tex == null)
                     {
@@ -93,19 +93,7 @@ namespace Ship_Game
                     }
                     else if (slot.Module.XSIZE <= 1 && slot.Module.YSIZE <= 1)
                     {
-                        if (slot.Module.ModuleType != ShipModuleType.PowerConduit)
-                        {
-                            slot.Draw(spriteBatch, slot.Tex, Color.White);
-                        }
-                        else
-                        {
-                            string graphic = GetConduitGraphic(slot);
-                            slot.Draw(spriteBatch, ResourceManager.Texture(graphic), Color.White);
-                            if (slot.Module.Powered)
-                            {
-                                slot.Draw(spriteBatch, ResourceManager.Texture(graphic + "_power"), Color.White);
-                            }
-                        }
+                        slot.Draw(spriteBatch, slot.Tex, Color.White);
                     }
                     else if (slot.SlotReference.Position.X <= 256f)
                     {
@@ -123,7 +111,7 @@ namespace Ship_Game
                     }
                     spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
                 }
-                foreach (SlotStruct slot in Slots)
+                foreach (SlotStruct slot in ModuleGrid.SlotsList)
                 {
                     if (slot.ModuleUID == null || slot.Tex == null ||
                         slot.Module != HighlightedModule && !ShowAllArcs)
@@ -168,7 +156,7 @@ namespace Ship_Game
                     else if (!w.isBeam)                       DrawArc(new Color(255, 0, 0, 255));
                     else                                      DrawArc(new Color(0, 0, 255, 255));
                 }
-                foreach (SlotStruct ss in this.Slots)
+                foreach (SlotStruct ss in ModuleGrid.SlotsList)
                 {
                     if (ss.Module == null)
                     {
@@ -380,7 +368,7 @@ namespace Ship_Game
 
             HullBonus bonus = ActiveHull.Bonuses;
 
-            foreach (SlotStruct slot in this.Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 Size = Size + 1f;
                 if (slot.Module == null)
@@ -759,11 +747,11 @@ namespace Ship_Game
 
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing);
             bool hasBridge = false;
-            bool EmptySlots = true;
-            foreach (SlotStruct slot in this.Slots)
+            bool emptySlots = true;
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 if (slot.ModuleUID == null && slot.Parent == null)
-                    EmptySlots = false;
+                    emptySlots = false;
 
                 if (slot.Module != null)
                 {
@@ -788,7 +776,7 @@ namespace Ship_Game
                 this.DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
                 CursorReq.Y = CursorReq.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawRequirement(ref CursorReq, Localizer.Token(121), EmptySlots);
+            this.DrawRequirement(ref CursorReq, Localizer.Token(121), emptySlots);
         }
 
        public void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color

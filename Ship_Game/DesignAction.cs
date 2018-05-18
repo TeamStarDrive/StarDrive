@@ -15,7 +15,10 @@ namespace Ship_Game
 
         public DesignAction(SlotStruct slotStructToCopy)
         {
-            clickedSS = new SlotStruct(slotStructToCopy);
+            clickedSS = new SlotStruct(slotStructToCopy)
+            {
+                Tex = slotStructToCopy.Tex
+            };
         }
     }
 }

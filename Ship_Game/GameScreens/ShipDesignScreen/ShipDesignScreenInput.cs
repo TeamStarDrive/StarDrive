@@ -84,7 +84,7 @@ namespace Ship_Game
         private bool CheckDesign()
         {
             bool hasBridge = false;
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 if (slot.ModuleUID == null && slot.Parent == null)
                     return false; // empty slots not allowed!
@@ -131,17 +131,11 @@ namespace Ship_Game
         public void ExitToMenu(string launches)
         {
             ScreenToLaunch = launches;
-            bool noSlotsFilled = true;
-            foreach (SlotStruct slot in Slots)
-            {
-                if (slot.ModuleUID == null && slot.Parent == null) continue;
-                noSlotsFilled = false;
-                break;
-            }
+            bool isEmptyDesign = ModuleGrid.IsEmptyDesign();
 
             bool goodDesign = CheckDesign();
 
-            if (noSlotsFilled || (ShipSaved && goodDesign))
+            if (isEmptyDesign || (ShipSaved && goodDesign))
             {
                 LaunchScreen(null, null);
                 ReallyExit();
@@ -164,8 +158,8 @@ namespace Ship_Game
         public bool IsMouseOverModule(InputState input, SlotStruct slot)
         {
             Vector2 moduleScreenPos = Camera.GetScreenSpaceFromWorldSpace(new Vector2(slot.PQ.X, slot.PQ.Y));
-            var moduleRect = new Rectangle((int)moduleScreenPos.X,     (int)moduleScreenPos.Y,
-                                           (int)(16.0f * Camera.Zoom), (int)(16.0f * Camera.Zoom));
+            var moduleRect = new Rectangle((int)moduleScreenPos.X,  (int)moduleScreenPos.Y,
+                                           (int)(Camera.Zoom * 16), (int)(Camera.Zoom * 16));
 
             return moduleRect.HitTest(input.CursorPosition);
         }
@@ -250,7 +244,9 @@ namespace Ship_Game
             }
 
             int slotFactor = 150;
-            if (Slots.Count / 2 > slotFactor) slotFactor = Slots.Count / 2;
+            if (ModuleGrid.SlotsCount / 2 > slotFactor)
+                slotFactor = ModuleGrid.SlotsCount / 2;
+            
             float camLimit = slotFactor + ((3 - Camera.Zoom) * slotFactor);
             Vector2 tempPos = Camera.WASDCamMovement(input, ScreenManager, camLimit); //This moves the grid
             CameraPosition.X = tempPos.X; //This moves the model
@@ -322,7 +318,7 @@ namespace Ship_Game
             if (!ToggleOverlay)
                 return false;
 
-            foreach (SlotStruct slotStruct in Slots)
+            foreach (SlotStruct slotStruct in ModuleGrid.SlotsList)
             {
                 if (!IsMouseOverModule(input, slotStruct))
                     continue;
@@ -362,7 +358,7 @@ namespace Ship_Game
 
         private void HandleInputMoveArcs(InputState input)
         {
-            foreach (SlotStruct slotStruct in Slots)
+            foreach (SlotStruct slotStruct in ModuleGrid.SlotsList)
             {
                 if (slotStruct.ModuleUID == null || HighlightedModule == null ||
                     (slotStruct.Module != HighlightedModule || !(slotStruct.Module.FieldOfFire > 0f)) ||
@@ -402,7 +398,7 @@ namespace Ship_Game
                     }
                     float minCompare = float.MinValue;
                     float maxCompare = float.MaxValue;
-                    foreach(SlotStruct slot in Slots)
+                    foreach(SlotStruct slot in ModuleGrid.SlotsList)
                     {
                         if (slot.ModuleUID == null || slot.Tex == null || slot.Module.ModuleType != ShipModuleType.Turret) continue;
                         float facing = slot.Module.Facing;
@@ -426,7 +422,7 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 if (!IsMouseOverModule(input, slot))
                     continue;
@@ -453,7 +449,7 @@ namespace Ship_Game
 
             // this should actually clear slots
             ActiveModule = null;
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 slot.SetValidity();
                 if (!IsMouseOverModule(input, slot))
@@ -462,8 +458,7 @@ namespace Ship_Game
                 bool slotModuleExists = slot.Module != null;
                 if (!slotModuleExists && slot.Parent == null) continue;
                 
-                var designAction = DesignateSlotForAction(slotModuleExists ? slot : slot.Parent);
-                DesignStack.Push(designAction);
+                DesignStack.Push(DesignateSlotForAction(slotModuleExists ? slot : slot.Parent));
                 GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 ClearParentSlot(slotModuleExists ? slot : slot.Parent);
                 RecalculatePower();
@@ -473,19 +468,7 @@ namespace Ship_Game
         private DesignAction DesignateSlotForAction(SlotStruct slot)
         {
             slot.SetValidity(slot.Module);
-            var designAction = new DesignAction
-            {
-                clickedSS = new SlotStruct
-                {
-                    PQ            = slot.PQ,
-                    Restrictions  = slot.Restrictions,
-                    Facing        = slot.Module?.Facing ?? 0.0f,
-                    ModuleUID     = slot.ModuleUID,
-                    Module        = slot.Module,
-                    SlotReference = slot.SlotReference
-                }
-            };
-            return designAction;
+            return new DesignAction(slot);
         }
 
         private void HandleInputDebug(InputState input)
@@ -525,7 +508,7 @@ namespace Ship_Game
             ShipModule shipModule = ActiveModule;
             DesignAction designAction = DesignStack.Pop();
             var slot1 = new SlotStruct();
-            foreach (SlotStruct slot2 in Slots)
+            foreach (SlotStruct slot2 in ModuleGrid.SlotsList)
             {
                 if (slot2.PQ == designAction.clickedSS.PQ)
                 {
@@ -550,7 +533,7 @@ namespace Ship_Game
             }
             foreach (SlotStruct slotStruct in designAction.AlteredSlots)
             {
-                foreach (SlotStruct slot2 in Slots)
+                foreach (SlotStruct slot2 in ModuleGrid.SlotsList)
                 {
                     if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null)
                         continue;
@@ -853,10 +836,11 @@ namespace Ship_Game
 
         private ModuleSlotData[] CreateModuleSlots()
         {
-            var savedSlots = new ModuleSlotData[Slots.Count];
-            for (int i = 0; i < Slots.Count; ++i)
+            int count = ModuleGrid.SlotsCount;
+            var savedSlots = new ModuleSlotData[count];
+            for (int i = 0; i < count; ++i)
             {
-                SlotStruct slot = Slots[i];
+                SlotStruct slot = ModuleGrid.SlotsList[i];
                 var savedSlot = new ModuleSlotData
                 {
                     InstalledModuleUID = slot.ModuleUID ?? "Dummy",
