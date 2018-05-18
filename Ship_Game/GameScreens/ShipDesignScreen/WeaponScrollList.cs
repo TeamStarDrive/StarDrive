@@ -196,34 +196,9 @@ namespace Ship_Game
         }
         private bool CheckBadModuleSize(ShipModule module)
         {
-            if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2) return false;
-
-            bool doesntFit = false;          
-            foreach (SlotStruct s in Screen.Slots)
-                s.SetValidity(module);
-            foreach (SlotStruct slot in Screen.Slots)
-            {
-                if (Screen.SlotStructFits(slot, module))
-                {
-                    doesntFit = false;
-                    break;
-                }
-              
-                if (module.YSIZE != module.XSIZE)
-                    if (Screen.SlotStructFits(slot, module , rotated: true))
-                    {
-                        doesntFit = false;                        
-                        break;
-                    }
-                doesntFit = true;            
-            }
-
-            foreach (SlotStruct s in Screen.Slots)
-                s.SetValidity();
-
-
-
-            return doesntFit;
+            if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
+                return false;
+            return Screen.CheckBadModuleSize(module);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -497,33 +472,31 @@ namespace Ship_Game
 
         private static bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
         {
-            if (mod.FighterModule || mod.CorvetteModule || mod.FrigateModule || mod.StationModule ||
-                mod.DestroyerModule || mod.CruiserModule
-                || mod.CarrierModule || mod.CapitalModule || mod.FreighterModule || mod.PlatformModule ||
-                mod.DroneModule)
+            if (mod.FighterModule   || mod.CorvetteModule || mod.FrigateModule || mod.StationModule ||
+                mod.DestroyerModule || mod.CruiserModule  || mod.CarrierModule || mod.CapitalModule ||
+                mod.FreighterModule || mod.PlatformModule || mod.DroneModule)
             {
-                if (role == ShipData.RoleName.drone && mod.DroneModule == false) return true;
-                if (role == ShipData.RoleName.scout && mod.FighterModule == false) return true;
-                if (role == ShipData.RoleName.fighter && mod.FighterModule == false) return true;
-                if (role == ShipData.RoleName.corvette && mod.CorvetteModule == false) return true;
-                if (role == ShipData.RoleName.gunboat && mod.CorvetteModule == false) return true;
-                if (role == ShipData.RoleName.frigate && mod.FrigateModule == false) return true;
+                if (role == ShipData.RoleName.drone     && mod.DroneModule     == false) return true;
+                if (role == ShipData.RoleName.scout     && mod.FighterModule   == false) return true;
+                if (role == ShipData.RoleName.fighter   && mod.FighterModule   == false) return true;
+                if (role == ShipData.RoleName.corvette  && mod.CorvetteModule  == false) return true;
+                if (role == ShipData.RoleName.gunboat   && mod.CorvetteModule  == false) return true;
+                if (role == ShipData.RoleName.frigate   && mod.FrigateModule   == false) return true;
                 if (role == ShipData.RoleName.destroyer && mod.DestroyerModule == false) return true;
-                if (role == ShipData.RoleName.cruiser && mod.CruiserModule == false) return true;
-                if (role == ShipData.RoleName.carrier && mod.CarrierModule == false) return true;
-                if (role == ShipData.RoleName.capital && mod.CapitalModule == false) return true;
+                if (role == ShipData.RoleName.cruiser   && mod.CruiserModule   == false) return true;
+                if (role == ShipData.RoleName.carrier   && mod.CarrierModule   == false) return true;
+                if (role == ShipData.RoleName.capital   && mod.CapitalModule   == false) return true;
                 if (role == ShipData.RoleName.freighter && mod.FreighterModule == false) return true;
-                if (role == ShipData.RoleName.platform && mod.PlatformModule == false) return true;
-                if (role == ShipData.RoleName.station && mod.StationModule == false) return true;
+                if (role == ShipData.RoleName.platform  && mod.PlatformModule  == false) return true;
+                if (role == ShipData.RoleName.station   && mod.StationModule   == false) return true;
             }
             else if (mod.FightersOnly)
             {
-                if (role == ShipData.RoleName.fighter) return true;
-                if (role == ShipData.RoleName.scout) return true;
+                if (role == ShipData.RoleName.fighter)  return true;
+                if (role == ShipData.RoleName.scout)    return true;
                 if (role == ShipData.RoleName.corvette) return true;
-                if (role == ShipData.RoleName.gunboat) return true;
+                if (role == ShipData.RoleName.gunboat)  return true;
             }
-
             return false;
         }
     }

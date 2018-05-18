@@ -22,7 +22,6 @@ namespace Ship_Game
         //private Menu1 ModuleSelectionMenu;
         private SceneObject shipSO;
         private Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
-        public Array<SlotStruct> Slots = new Array<SlotStruct>();
         private Vector2 Offset;
         private CombatState CombatState = CombatState.AttackRuns;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
@@ -119,15 +118,9 @@ namespace Ship_Game
                     if (!FindStructFromOffset(slot, x, y, out SlotStruct slot2))
                         continue;
                     if (slot2.Module != null || slot2.Parent != null) 
-                    {
                         ClearParentSlot(slot2.Parent ?? slot2); 
-                    }
                     
-                    slot2.ModuleUID = null;
-                    slot2.Tex       = null;
-                    slot2.Module    = null;
-                    slot2.Parent    = slot;
-                    slot2.State     = ActiveModuleState.Normal;
+                    slot2.Clear(newParent: slot);
                 }
             }
         }
@@ -251,7 +244,7 @@ namespace Ship_Game
         private string GetConduitGraphic(SlotStruct ss)
         {
             var conduit = new Ship.ConduitGraphic();
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
                 if (slot.Module?.ModuleType == ShipModuleType.PowerConduit)
                     conduit.Add(slot.PQ.X - ss.PQ.X, slot.PQ.Y - ss.PQ.Y);
             return conduit.GetGraphic();
@@ -268,9 +261,8 @@ namespace Ship_Game
             {
                 for (int y = 0; y < ySize; ++y)
                 {
-                    for (int i = 0; i < Slots.Count; ++i)
+                    foreach (SlotStruct ss in ModuleGrid.SlotsList)
                     {
-                        SlotStruct ss = Slots[i];
                         if (ss.ShowValid && ss.PQ.Y == sy + (16 * y) && ss.PQ.X == sx + (16 * x))
                         {
                             ++numFreeSlots;
@@ -313,7 +305,7 @@ namespace Ship_Game
             SpawnActiveModule(uid, state);
             ActiveModule.SetAttributesNoParent();
 
-            foreach (SlotStruct s in Slots)                                    
+            foreach (SlotStruct s in ModuleGrid.SlotsList)                                    
                 s.SetValidity(ActiveModule);
             
             HighlightedModule = null;
@@ -394,11 +386,9 @@ namespace Ship_Game
 
         private void SetupSlots()
         {
-            Slots.Clear();
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
-                Slots.Add(new SlotStruct(slot, Offset));
+            ModuleGrid = new DesignModuleGrid(ActiveHull.ModuleSlots, Offset);
 
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 if (slot.ModuleUID == null)
                     continue;
@@ -410,9 +400,38 @@ namespace Ship_Game
                     slot.Module.hangarShipUID = slot.SlotOptions;
             }
 
-            ModuleGrid = new DesignModuleGrid(Slots);
             RecalculatePower();
             ResetActiveModule();
+        }
+
+        // @todo Refactor this
+        public bool CheckBadModuleSize(ShipModule module)
+        {
+            bool doesntFit = false;          
+            foreach (SlotStruct s in ModuleGrid.SlotsList)
+                s.SetValidity(module);
+
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                if (SlotStructFits(slot, module))
+                {
+                    doesntFit = false;
+                    break;
+                }
+              
+                if (module.YSIZE != module.XSIZE)
+                    if (SlotStructFits(slot, module , rotated: true))
+                    {
+                        doesntFit = false;                        
+                        break;
+                    }
+                doesntFit = true;            
+            }
+
+            foreach (SlotStruct s in ModuleGrid.SlotsList)
+                s.SetValidity();
+
+            return doesntFit;
         }
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
@@ -427,11 +446,10 @@ namespace Ship_Game
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
             var modules = new Array<ShipModule>();
-            for (int x = 0; x < Slots.Count; x++)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                SlotStruct slot = Slots[x];
-                if (slot?.Module == null) continue;
-                modules.Add(slot.Module);
+                if (slot.Module != null)
+                    modules.Add(slot.Module);
             }
 
             var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
