@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -9,7 +12,7 @@ namespace Ship_Game
     public class DesignModuleGrid
     {
         private readonly SlotStruct[] Grid;
-        private readonly Array<SlotStruct> Slots;
+        private readonly SlotStruct[] Slots;
         private readonly int Width;
         private readonly int Height;
         private readonly Point Offset;
@@ -17,12 +20,15 @@ namespace Ship_Game
 
         // this constructs a [GridWidth][GridHeight] array of current hull
         // and allows for quick lookup for neighbours
-        public DesignModuleGrid(Array<SlotStruct> slots)
+        public DesignModuleGrid(ModuleSlotData[] slotData, Vector2 slotOffset)
         {
-            Slots = slots;
-            Point min = slots[0].Position;
+            Slots = new SlotStruct[slotData.Length];
+            for (int i = 0; i < slotData.Length; ++i)
+                Slots[i] = new SlotStruct(slotData[i], slotOffset);
+
+            Point min = Slots[0].Position;
             Point max = min;
-            foreach (SlotStruct slot in slots)
+            foreach (SlotStruct slot in Slots)
             {
                 Point pos  = slot.Position;
                 Point size = slot.ModuleSize;
@@ -39,12 +45,110 @@ namespace Ship_Game
             Offset = min;
 
             Grid = new SlotStruct[Width * Height];
-            foreach (SlotStruct slot in slots)
+            foreach (SlotStruct slot in Slots)
             {
                 Point pt = ToGridPos(slot.Position);
                 Grid[pt.X + pt.Y * Width] = slot;
             }
         }
+
+
+        #region Grid Coordinate Utils
+
+        public int SlotsCount => Slots.Length;
+        public IReadOnlyList<SlotStruct> SlotsList => Slots;
+
+        public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
+                                                             (modulePos.Y - Offset.Y) / 16);
+
+        // Gets slotstruct or null at the given location
+        // @note modulePos is in 16x coordinates
+        public SlotStruct Get(Point modulePos)
+        {
+            Point pos = ToGridPos(modulePos);
+            if (pos.X < 0 || pos.Y < 0 || pos.X >= Width || pos.Y >= Height)
+                return null; // out of bounds
+            return Grid[pos.X + pos.Y * Width];
+        }
+
+        public bool Get(Point modulePos, out SlotStruct slot)
+        {
+            return (slot = Get(modulePos)) != null;
+        }
+
+        private bool GetSlotAt(int gridX, int gridY, ShipModuleType type, out SlotStruct slot)
+        {
+            slot = Grid[gridX + gridY * Width];
+            return slot?.Module?.ModuleType == type;
+        }
+
+        private bool SlotMatches(int gridX, int gridY, ShipModuleType type)
+        {
+            if (gridX < 0 || gridY < 0 || gridX >= Width || gridY >= Height)
+                return false; // out of bounds
+            return Grid[gridX + gridY * Width]?.Module?.ModuleType == type;
+        }
+
+        private void ClampGridCoords(ref int x0, ref int x1, ref int y0, ref int y1)
+        {
+            x0 = Math.Max(0, x0);
+            y0 = Math.Max(0, y0);
+            x1 = Math.Min(x1, Width  - 1);
+            y1 = Math.Min(y1, Height - 1);
+        }
+
+        private void ModuleCoords(SlotStruct m, out int x0, out int x1, out int y0, out int y1)
+        {
+            x0 = (m.PQ.X - Offset.X)/16;
+            y0 = (m.PQ.Y - Offset.Y)/16;
+            x1 = x0 + m.Module.XSIZE - 1;
+            y1 = y0 + m.Module.YSIZE - 1; 
+        }
+
+        public bool IsEmptyDesign()
+        {
+            foreach (SlotStruct slot in Slots)
+                if (slot.ModuleUID.NotEmpty() || slot.Parent != null)
+                    return false;
+            return true;
+        }
+
+        #endregion
+
+
+        public Texture2D GetConduitGraphicAt(SlotStruct ss)
+        {
+            Point ssPos = ToGridPos(ss.Position);
+            var conduit = new Ship.ConduitGraphic();
+
+            if (SlotMatches(ssPos.X - 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(-1, 0); // Left
+            if (SlotMatches(ssPos.X + 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(+1, 0); // Right
+            if (SlotMatches(ssPos.X, ssPos.Y - 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, -1); // North
+            if (SlotMatches(ssPos.X, ssPos.Y + 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, +1); // South
+
+            string graphic = conduit.GetGraphic();
+            if (ss.Module.Powered)
+                graphic = graphic + "_power";
+            return ResourceManager.Texture(graphic);
+        }
+
+
+        #region Installing and Removing modules
+
+        public void ClearDestinationSlots(SlotStruct slot, ShipModule newModule)
+        {
+
+        }
+
+        public void InstallModule(SlotStruct slot, ShipModule newModule)
+        {
+
+        }
+
+        #endregion
+
+
+        #region Recalculate Power
 
         public void RecalculatePower()
         {
@@ -79,54 +183,26 @@ namespace Ship_Game
             {
                 if (slot.InPowerRadius)
                 {
-                    // apply power to modules, except for conduits which require direct connection
+                    // apply power to modules, but not to conduits
                     if (slot.Module != null && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         slot.Module.Powered = true;
+
+                    // @todo Get rid of parent links
                     if (slot.Parent?.Module != null)
-                        slot.Parent.Module.Powered = true;                    
+                        slot.Parent.Module.Powered = true;
                 }
                 else if (slot.Module != null && (slot.Module.AlwaysPowered || slot.Module.PowerDraw <= 0))
                 {
                     slot.Module.Powered = true;
                 }
+
+                // for conduits we assign their conduit graphic instead
+                if (slot.Module?.ModuleType == ShipModuleType.PowerConduit)
+                    slot.Tex = GetConduitGraphicAt(slot);
             }
 
             double elapsed = sw.Elapsed.TotalMilliseconds;
-            Log.Info($"RecalculatePower elapsed:{elapsed:G5}ms  modules:{Slots.Count}  totalchecks:{NumPowerChecks}");
-        }
-
-
-        #region Grid Coordinate Utils
-
-        public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
-                                                             (modulePos.Y - Offset.Y) / 16);
-
-        // Gets slotstruct or null at the given location
-        public SlotStruct Get(Point modulePos)
-        {
-            Point pos = ToGridPos(modulePos);
-            return Grid[pos.X + pos.Y * Width];
-        }
-
-        public bool Get(Point modulePos, out SlotStruct slot)
-        {
-            return (slot = Get(modulePos)) != null;
-        }
-
-        private void ClampGridCoords(ref int x0, ref int x1, ref int y0, ref int y1)
-        {
-            x0 = Math.Max(0, x0);
-            y0 = Math.Max(0, y0);
-            x1 = Math.Min(x1, Width  - 1);
-            y1 = Math.Min(y1, Height - 1);
-        }
-
-        private void ModuleCoords(SlotStruct m, out int x0, out int x1, out int y0, out int y1)
-        {
-            x0 = (m.PQ.X - Offset.X)/16;
-            y0 = (m.PQ.Y - Offset.Y)/16;
-            x1 = x0 + m.Module.XSIZE - 1;
-            y1 = y0 + m.Module.YSIZE - 1; 
+            Log.Info($"RecalculatePower elapsed:{elapsed:G5}ms  modules:{Slots.Length}  totalchecks:{NumPowerChecks}");
         }
 
         #endregion

@@ -51,7 +51,6 @@ namespace Ship_Game
             Module        = parent.Module;
             State         = parent.State;
             SlotReference = parent.SlotReference;
-            Tex           = parent.Tex;
         }
 
         public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
@@ -111,12 +110,12 @@ namespace Ship_Game
             ShowValid = CanSlotSupportModule(module);
         }
 
-        public void Clear()
+        public void Clear(SlotStruct newParent = null)
         {
             ModuleUID = null;
             Tex       = null;
             Module    = null;
-            Parent    = null;
+            Parent    = newParent;
             State     = ShipDesignScreen.ActiveModuleState.Normal;
         }
     }

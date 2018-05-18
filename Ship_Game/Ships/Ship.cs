@@ -1832,8 +1832,10 @@ namespace Ship_Game.Ships
             public bool Up;
             public void Add(int dx, int dy)
             {
-                dx /= 16;
-                dy /= 16;
+                AddGridPos(dx / 16, dy / 16);
+            }
+            public void AddGridPos(int dx, int dy)
+            {
                 Left  |= dx == -1 && dy == 0;
                 Right |= dx == +1 && dy == 0;
                 Down  |= dx ==  0 && dy == -1;

@@ -12,8 +12,14 @@ namespace SDUnitTests
     [TestFixture]
     public class TestSpatialManager
     {
-
+        
         public TestSpatialManager()
+        {
+
+        }
+
+        [Test]
+        public void BasicInsert()
         {
 
         }
