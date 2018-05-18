@@ -843,7 +843,7 @@ namespace Ship_Game
                 SlotStruct slot = ModuleGrid.SlotsList[i];
                 var savedSlot = new ModuleSlotData
                 {
-                    InstalledModuleUID = slot.ModuleUID ?? "Dummy",
+                    InstalledModuleUID = slot.ModuleUID,
                     Position           = slot.SlotReference.Position,
                     Restrictions       = slot.Restrictions,
                     Orientation        = slot.State.ToString()
