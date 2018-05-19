@@ -465,10 +465,10 @@ namespace Ship_Game.Ships
             {
                 //Bug workaround. 0 powerdraw modules get marked as unpowered which causes issues when function 
                 //depends on powered even if no power is used. 
-                if (!module.Powered && module.IndirectPower || module.PowerDraw <=0)
+                if (!module.Powered && module.AlwaysPowered || module.PowerDraw <= 0)
                     module.Powered = true;
-
             }
+
         }
     }
 }
