@@ -461,7 +461,7 @@ namespace Ship_Game
                 DesignStack.Push(DesignateSlotForAction(slotModuleExists ? slot : slot.Parent));
                 GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 ClearParentSlot(slotModuleExists ? slot : slot.Parent);
-                RecalculatePower();
+                ModuleGrid.RecalculatePower();
             }
         }
 

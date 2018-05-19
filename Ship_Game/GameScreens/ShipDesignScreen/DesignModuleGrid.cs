@@ -105,6 +105,16 @@ namespace Ship_Game
             y1 = y0 + m.Module.YSIZE - 1; 
         }
 
+        private bool IsInBounds(Point gridPoint)
+        {
+            return gridPoint.X >= 0 && gridPoint.Y >= 0 && gridPoint.X < Width && gridPoint.Y < Height;
+        }
+
+        private bool IsInBounds(int gridX, int gridY)
+        {
+            return gridX >= 0 && gridY >= 0 && gridX < Width && gridY < Height;
+        }
+
         public bool IsEmptyDesign()
         {
             foreach (SlotStruct slot in Slots)
@@ -114,6 +124,27 @@ namespace Ship_Game
         }
 
         #endregion
+
+
+        public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module)
+        {
+            Point p = ToGridPos(slot.Position);
+            var last = new Point(p.X + (module.XSIZE - 1), 
+                                 p.Y + (module.YSIZE - 1));
+            if (!IsInBounds(p) || !IsInBounds(last))
+                return false;
+
+            for (int x = p.X; x <= last.X; ++x) 
+            {
+                for (int y = p.Y; y <= last.Y; ++y)
+                {
+                    SlotStruct dest = Grid[x + y*Width];
+                    if (dest?.CanSlotSupportModule(module) != true)
+                        return false;
+                }
+            }
+            return true;
+        }
 
 
         public Texture2D GetConduitGraphicAt(SlotStruct ss)

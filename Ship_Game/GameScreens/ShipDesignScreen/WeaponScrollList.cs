@@ -84,14 +84,14 @@ namespace Ship_Game
                 Entries.Clear();
                 var weaponCategories = new HashSet<string>();
 
-                Action<string> addCategoryItem = (category) =>
+                void AddCategoryItem(string category)
                 {
-                    if (weaponCategories.Contains(category)) return;                    
-                    weaponCategories.Add(category);                    
+                    if (weaponCategories.Contains(category)) return;
+                    weaponCategories.Add(category);
                     AddItem(new ModuleHeader(category, 240f));
-                };
+                }
 
-                Array<ShipModule> modules = new Array<ShipModule>();
+                var modules = new Array<ShipModule>();
                 foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                 {
                     if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
@@ -107,26 +107,26 @@ namespace Ship_Game
                     {
                         if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)
                         {
-                            if      (tmp.InstalledWeapon.Tag_Flak)    addCategoryItem("Flak Cannon");
-                            else if (tmp.InstalledWeapon.Tag_Railgun) addCategoryItem("Magnetic Cannon");
-                            else if (tmp.InstalledWeapon.Tag_Array)   addCategoryItem("Beam Array");
-                            else if (tmp.InstalledWeapon.Tag_Tractor) addCategoryItem("Tractor Beam");
+                            if      (tmp.InstalledWeapon.Tag_Flak)    AddCategoryItem("Flak Cannon");
+                            else if (tmp.InstalledWeapon.Tag_Railgun) AddCategoryItem("Magnetic Cannon");
+                            else if (tmp.InstalledWeapon.Tag_Array)   AddCategoryItem("Beam Array");
+                            else if (tmp.InstalledWeapon.Tag_Tractor) AddCategoryItem("Tractor Beam");
                             else if (tmp.InstalledWeapon.Tag_Missile
-                                 && !tmp.InstalledWeapon.Tag_Guided)  addCategoryItem("Unguided Rocket");
-                            else                                      addCategoryItem(tmp.InstalledWeapon.WeaponType);
+                                 && !tmp.InstalledWeapon.Tag_Guided)  AddCategoryItem("Unguided Rocket");
+                            else                                      AddCategoryItem(tmp.InstalledWeapon.WeaponType);
                         }
                         else
                         {
                             if (CheckBadModuleSize(tmp)) continue;
                             modules.Add(module.Value);
-                            addCategoryItem(tmp.InstalledWeapon.WeaponType);
+                            AddCategoryItem(tmp.InstalledWeapon.WeaponType);
                         }
                     }
                     else if (tmp.ModuleType == ShipModuleType.Bomb)
                     {
                         if (CheckBadModuleSize(tmp)) continue;
                         modules.Add(module.Value);
-                        addCategoryItem("Bomb");
+                        AddCategoryItem("Bomb");
                     }
                 }
 
@@ -194,11 +194,12 @@ namespace Ship_Game
             }
             DrawList();
         }
+
         private bool CheckBadModuleSize(ShipModule module)
         {
             if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
                 return false;
-            return Screen.CheckBadModuleSize(module);
+            return Screen.IsBadModuleSize(module);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -349,7 +350,8 @@ namespace Ship_Game
                 if (ResetOnNextDraw)
                 {
                     Entries.Clear();
-                    Array<string> ModuleCategories = new Array<string>();
+
+                    var moduleCategories = new HashSet<ShipModuleType>();
                     foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
                     {
                         if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
@@ -369,11 +371,10 @@ namespace Ship_Game
                             if (CheckBadModuleSize(tmp)) continue;
                             modules.Add(tmp);
 
-                            if (ModuleCategories.Contains(tmp.ModuleType.ToString())) continue;
-                                
-                            ModuleCategories.Add(tmp.ModuleType.ToString());
-                            ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                            AddItem(type);
+                            if (!moduleCategories.Add(tmp.ModuleType))
+                                continue;
+
+                            AddItem(new ModuleHeader(tmp.ModuleType.ToString(), 240f));
                         }
                     }
                     foreach (Entry e in Entries)
