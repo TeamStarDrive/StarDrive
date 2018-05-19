@@ -14,10 +14,10 @@ namespace Ship_Game
         public Restrictions Restrictions;
         public PrimitiveQuad PQ;
         public float Facing;
-        public bool CheckedConduits;
+        public bool PowerChecked; // this conduit or power plant already checked?
+        public bool InPowerRadius; // is this slot covered by a power radius?
         public SlotStruct Parent;
         public ShipDesignScreen.ActiveModuleState State;
-        public bool Powered;
         public ModuleSlotData SlotReference;
         public string ModuleUID;
         public ShipModule Module;
@@ -55,13 +55,6 @@ namespace Ship_Game
 
         public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
 
-        public bool IsNeighbourTo(SlotStruct slot)
-        {
-            int absDx = Math.Abs(slot.PQ.X - PQ.X) / 16;
-            int absDy = Math.Abs(slot.PQ.Y - PQ.Y) / 16;
-            return (absDx + absDy) == 1;
-        }
-
         private bool CanSlotSupportModule(ShipModule module)
         {
             if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
@@ -88,15 +81,18 @@ namespace Ship_Game
             sb.Draw(texture, rect, tint);
         }
 
-
-        [XmlIgnore][JsonIgnore] public Vector2 Position     => new Vector2(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Vector2 PosVec2      => new Vector2(PQ.X, PQ.Y);
         [XmlIgnore][JsonIgnore] public Vector2 ModuleCenter => new Vector2(PQ.X + PQ.W/2, PQ.Y + PQ.H/2);
-        [XmlIgnore][JsonIgnore] public Vector2 ModuleSize   => new Vector2(PQ.W, PQ.H);
+
+        [XmlIgnore][JsonIgnore] public Point Position     => new Point(PQ.X, PQ.Y);
+        [XmlIgnore][JsonIgnore] public Point ModuleSize   => new Point(PQ.W, PQ.H);
 
         // Width and Height in 1x1, 2x2, etc
-        [XmlIgnore][JsonIgnore] public int Width  => (int)(PQ.W / 16.0f);
-        [XmlIgnore][JsonIgnore] public int Height => (int)(PQ.H / 16.0f);
-        [XmlIgnore][JsonIgnore] public Point Size => new Point((int)(PQ.W / 16.0f), (int)(PQ.H / 16.0f));
+        [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;
+        [XmlIgnore][JsonIgnore] public int Height => PQ.H/16;
+        [XmlIgnore][JsonIgnore] public Point IntSize => new Point(PQ.W/16, PQ.H/16);
+        [XmlIgnore][JsonIgnore] public Point IntPos  => new Point(PQ.X/16, PQ.Y/16);
+        [XmlIgnore][JsonIgnore] public Rectangle IntRect => new Rectangle(PQ.X/16, PQ.Y/16, PQ.W/16, PQ.H/16);
 
         public Vector2 Center()
         {
@@ -114,12 +110,12 @@ namespace Ship_Game
             ShowValid = CanSlotSupportModule(module);
         }
 
-        public void Clear()
+        public void Clear(SlotStruct newParent = null)
         {
             ModuleUID = null;
             Tex       = null;
             Module    = null;
-            Parent    = null;
+            Parent    = newParent;
             State     = ShipDesignScreen.ActiveModuleState.Normal;
         }
     }

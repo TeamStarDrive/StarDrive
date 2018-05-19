@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     public static class Log
     {
-        private static readonly StreamWriter LogFile = new StreamWriter("blackbox.log", true, Encoding.ASCII, 8192);
+        private static readonly StreamWriter LogFile;
         public static readonly bool HasDebugger = Debugger.IsAttached;
 
         // sentry.io automatic crash reporting
@@ -32,6 +32,11 @@ namespace Ship_Game
             init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
+
+            if (File.Exists("blackbox.log"))
+                File.Copy("blackbox.log", "blackbox.old.log", true);
+
+            LogFile = new StreamWriter("blackbox.log", false, Encoding.ASCII, 32*1024);
             LogFile.Write(init);
             Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)

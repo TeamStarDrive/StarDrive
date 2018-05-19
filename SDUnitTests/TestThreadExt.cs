@@ -11,7 +11,7 @@ namespace SDUnitTests
         [Test]
         public void TestParallelRange()
         {
-            var numbers = new int[133333337];
+            var numbers = new int[13333337];
 
             Parallel.For(0, numbers.Length, (start, end) =>
             {
@@ -61,7 +61,7 @@ namespace SDUnitTests
         [Test]
         public void TestParallelFor()
         {
-            var numbers = new int[133333337];
+            var numbers = new int[13333337];
             Parallel.For(0, numbers.Length, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
@@ -112,7 +112,7 @@ namespace SDUnitTests
         {
             TestDelegate action = () =>
             {
-                var items = new int[13337];
+                var items = new int[1337];
                 Parallel.For(0, items.Length, (start, end) =>
                 {
                     Parallel.For(start, end, (start1, end1) =>
@@ -132,7 +132,7 @@ namespace SDUnitTests
         {
             TestDelegate action = () =>
             {
-                var items = new int[13337];
+                var items = new int[1337];
                 Parallel.For(0, items.Length, (start, end) =>
                 {
                     throw new ArgumentException("Test");
