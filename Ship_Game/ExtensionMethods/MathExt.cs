@@ -19,6 +19,10 @@ namespace Ship_Game
         {
             return Max(min, Min(value, max));
         }
+        public static int Clamp(this int value, int min, int max)
+        {
+            return Max(min, Min(value, max));
+        }
         public static Vector2 Clamped(this Vector2 v, float minXy, float maxXy)
         {
             return new Vector2(Max(minXy, Min(v.X, maxXy)), 

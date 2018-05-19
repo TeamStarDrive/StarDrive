@@ -22,7 +22,6 @@ namespace Ship_Game
         //private Menu1 ModuleSelectionMenu;
         private SceneObject shipSO;
         private Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
-        public Array<SlotStruct> Slots = new Array<SlotStruct>();
         private Vector2 Offset;
         private CombatState CombatState = CombatState.AttackRuns;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
@@ -95,49 +94,33 @@ namespace Ship_Game
             if (ActiveModule == null)
                 return;
             ActiveModState = state;
-            ShipModule module = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            ActiveModule.ApplyModuleOrientation(module.XSIZE, module.YSIZE, state);
+            ShipModule template = ResourceManager.GetModuleTemplate(ActiveModule.UID);
+            ActiveModule.ApplyModuleOrientation(template.XSIZE, template.YSIZE, state);
         }
 
-        private bool FindStructFromOffset(SlotStruct offsetBase, int x, int y, out SlotStruct found)
+        private bool FindStructFromOffset(SlotStruct offsetBase, int dx, int dy, out SlotStruct found)
         {
             found = null;
-            if (x == 0 && y == 0)
+            if (dx == 0 && dy == 0)
                 return false; // ignore self, {0,0} is offsetBase
 
-            int sx = offsetBase.PQ.X + 16 * x;
-            int sy = offsetBase.PQ.Y + 16 * y;
-            for (int i = 0; i < Slots.Count; ++i)
-            {
-                SlotStruct s = Slots[i];
-                if (s.PQ.X == sx && s.PQ.Y == sy)
-                {
-                    found = s;
-                    return true;
-                }
-            }
-            return false;
+            var pos = new Point(offsetBase.PQ.X + dx*16, offsetBase.PQ.Y + dy*16);
+            return ModuleGrid.Get(pos, out found);
         }
 
         // @todo This is all broken. Redo everything.
-        private void ClearDestinationSlots(SlotStruct slot)
+        private void ClearDestinationSlots(SlotStruct slot, ShipModule newModule)
         {
-            for (int y = 0; y < ActiveModule.YSIZE; y++)
+            for (int y = 0; y < newModule.YSIZE; y++)
             {
-                for (int x = 0; x < ActiveModule.XSIZE; x++)
+                for (int x = 0; x < newModule.XSIZE; x++)
                 {
                     if (!FindStructFromOffset(slot, x, y, out SlotStruct slot2))
                         continue;
                     if (slot2.Module != null || slot2.Parent != null) 
-                    {
                         ClearParentSlot(slot2.Parent ?? slot2); 
-                    }
                     
-                    slot2.ModuleUID = null;
-                    slot2.Tex       = null;
-                    slot2.Module    = null;
-                    slot2.Parent    = slot;
-                    slot2.State     = ActiveModuleState.Normal;
+                    slot2.Clear(newParent: slot);
                 }
             }
         }
@@ -156,9 +139,8 @@ namespace Ship_Game
                 {
                     for (int x = 0; x < parent.Module.XSIZE; ++x)
                     {
-                        if (!FindStructFromOffset(parent, x, y, out SlotStruct slot2))
-                            continue;
-                        slot2.Clear();
+                        if (FindStructFromOffset(parent, x, y, out SlotStruct slot2))
+                            slot2.Clear();
                     }
                 }
             }
@@ -262,16 +244,15 @@ namespace Ship_Game
         private string GetConduitGraphic(SlotStruct ss)
         {
             var conduit = new Ship.ConduitGraphic();
-            foreach (SlotStruct slot in Slots)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
                 if (slot.Module?.ModuleType == ShipModuleType.PowerConduit)
                     conduit.Add(slot.PQ.X - ss.PQ.X, slot.PQ.Y - ss.PQ.Y);
             return conduit.GetGraphic();
         }
 
 
-        public bool SlotStructFits(SlotStruct slot, ShipModule activeModule = null, bool rotated = false)
+        public bool SlotStructFits(SlotStruct slot, ShipModule activeModule, bool rotated = false)
         {
-            activeModule = activeModule ?? ActiveModule;
             int numFreeSlots = 0;
             int sx = slot.PQ.X, sy = slot.PQ.Y;
             int xSize = rotated ? activeModule.YSIZE : activeModule.XSIZE;
@@ -280,9 +261,8 @@ namespace Ship_Game
             {
                 for (int y = 0; y < ySize; ++y)
                 {
-                    for (int i = 0; i < Slots.Count; ++i)
+                    foreach (SlotStruct ss in ModuleGrid.SlotsList)
                     {
-                        SlotStruct ss = Slots[i];
                         if (ss.ShowValid && ss.PQ.Y == sy + (16 * y) && ss.PQ.X == sx + (16 * x))
                         {
                             ++numFreeSlots;
@@ -297,270 +277,168 @@ namespace Ship_Game
         {
             return ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
         }
-        
-        private void InstallModule(SlotStruct slot)
+
+        public ShipModule CreateDesignModule(string uid, ActiveModuleState state)
         {
-            if (!SlotStructFits(slot))
+            ShipModule m = ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
+            m.ApplyModuleOrientation(m.XSIZE, m.YSIZE, state);
+            return m;
+        }
+
+        // spawn a new active module under cursor
+        private void SpawnActiveModule(string uid, ActiveModuleState state)
+        {
+            ActiveModule = CreateDesignModule(uid, state);
+            ActiveModState = state;
+        }
+
+        private void ResetActiveModule()
+        {
+            ActiveModule = null;
+            ActiveModState = ActiveModuleState.Normal;
+        }
+        
+        public void SetActiveModule(string uid, ActiveModuleState state)
+        {
+            GameAudio.PlaySfxAsync("smallservo");
+
+            SpawnActiveModule(uid, state);
+            ActiveModule.SetAttributesNoParent();
+
+            foreach (SlotStruct s in ModuleGrid.SlotsList)                                    
+                s.SetValidity(ActiveModule);
+            
+            HighlightedModule = null;
+            HoveredModule     = null;
+        }        
+        
+        private void InstallModule(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
+        {
+            if (!SlotStructFits(slot, newModule))
             {
                 PlayNegativeSound();
                 return;
             }
 
-            var designAction = new DesignAction
-            {
-                clickedSS = new SlotStruct
-                {
-                    PQ            = slot.PQ,
-                    Restrictions  = slot.Restrictions,
-                    Facing        = slot.Module?.Facing ?? 0.0f,
-                    ModuleUID     = slot.ModuleUID,
-                    Module        = slot.Module,
-                    Tex           = slot.Tex,
-                    SlotReference = slot.SlotReference,
-                    State         = slot.State,
-                }
-            };
-            DesignStack.Push(designAction);
+            DesignStack.Push(new DesignAction(slot));
+
             ClearSlot(slot);
-            ClearDestinationSlots(slot);
-            ChangeModuleState(ActiveModState);
-            slot.ModuleUID            = ActiveModule.UID;
-            slot.Module               = CreateDesignModule(ActiveModule.UID);
-            slot.Module.XSIZE         = ActiveModule.XSIZE;
-            slot.Module.YSIZE         = ActiveModule.YSIZE;
-            slot.Module.XMLPosition   = ActiveModule.XMLPosition;
-            slot.State                = ActiveModState;
-            slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
-            slot.Module.Facing        = ActiveModule.Facing;
-            slot.Tex                  = ActiveModule.ModuleTexture;
+            ClearDestinationSlots(slot, newModule);
+
+            slot.ModuleUID            = newModule.UID;
+            slot.Module               = newModule;
+            slot.Module.XSIZE         = newModule.XSIZE;
+            slot.Module.YSIZE         = newModule.YSIZE;
+            slot.Module.XMLPosition   = newModule.XMLPosition;
+            slot.State                = newState;
+            slot.Module.hangarShipUID = newModule.hangarShipUID;
+            slot.Module.Facing        = newModule.Facing;
+            slot.Tex                  = newModule.ModuleTexture;
             slot.Module.SetAttributesNoParent();
 
             RecalculatePower();
             ShipSaved = false;
-            ActiveModule = CreateDesignModule(ActiveModule.UID);
-            ChangeModuleState(ActiveModState);
+
+            SpawnActiveModule(newModule.UID, newState);
         }
 
-        private void InstallModuleFromLoad(SlotStruct slot)
+        private void InstallModuleNoStack(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
         {
-            if (SlotStructFits(slot))
-            {
-                ActiveModuleState activeModuleState = slot.State;
-                ClearSlot(slot);
-                ClearDestinationSlots(slot);
-                slot.ModuleUID     = ActiveModule.UID;
-                slot.Module        = ActiveModule; 
-                slot.State         = activeModuleState;
-                slot.Module.Facing = slot.Facing;
-                slot.Tex           = ActiveModule.ModuleTexture;
-                slot.Module.SetAttributesNoParent();
-                //RecalculatePower();
-            }
-            else PlayNegativeSound();
-        }
-
-        private void InstallModuleNoStack(SlotStruct slot)
-        {
-            if (!SlotStructFits(slot))
+            if (!SlotStructFits(slot, newModule))
             {
                 PlayNegativeSound();
                 return;
             }
 
             ClearSlotNoStack(slot);
-            ClearDestinationSlots(slot);
-            slot.ModuleUID            = ActiveModule.UID;
-            slot.Module               = ActiveModule;
-            slot.State                = ActiveModState;
-            slot.Module.hangarShipUID = ActiveModule.hangarShipUID;
-            slot.Module.Facing        = ActiveModule.Facing;
-            slot.Tex                  = ActiveModule.ModuleTexture;
+            ClearDestinationSlots(slot, newModule);
+
+            slot.ModuleUID            = newModule.UID;
+            slot.Module               = newModule;
+            slot.State                = newState;
+            slot.Module.hangarShipUID = newModule.hangarShipUID;
+            slot.Module.Facing        = newModule.Facing;
+            slot.Tex                  = newModule.ModuleTexture;
             slot.Module.SetAttributesNoParent();
 
             RecalculatePower();
             ShipSaved = false;
-            if (ActiveModule.ModuleType != ShipModuleType.Hangar)
+
+            SpawnActiveModule(newModule.UID, newState);
+        }
+
+        private void InstallModuleFromLoad(SlotStruct slot, ShipModule newModule)
+        {
+            if (SlotStructFits(slot, newModule))
             {
-                ActiveModule = CreateDesignModule(ActiveModule.UID);
+                ActiveModuleState activeModuleState = slot.State;
+                ClearSlot(slot);
+                ClearDestinationSlots(slot, newModule);
+                slot.ModuleUID     = newModule.UID;
+                slot.Module        = newModule; 
+                slot.State         = activeModuleState;
+                slot.Module.Facing = slot.Facing;
+                slot.Tex           = newModule.ModuleTexture;
+                slot.Module.SetAttributesNoParent();
+            }
+            else PlayNegativeSound();
+        }
+
+        private void SetupSlots()
+        {
+            ModuleGrid = new DesignModuleGrid(ActiveHull.ModuleSlots, Offset);
+
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                string uid = slot.ModuleUID;
+                if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
+                    continue;
+
+                ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.State);
+                InstallModuleFromLoad(slot, newModule);
+
+                if (slot.Module?.ModuleType == ShipModuleType.Hangar)
+                    slot.Module.hangarShipUID = slot.SlotOptions;
             }
 
-            //grabs a fresh copy of the same module type to cursor 
-            ChangeModuleState(ActiveModState);
-            //set rotation for new module at cursor
+            RecalculatePower();
+            ResetActiveModule();
+        }
+
+        // @todo Refactor this
+        public bool CheckBadModuleSize(ShipModule module)
+        {
+            bool doesntFit = false;          
+            foreach (SlotStruct s in ModuleGrid.SlotsList)
+                s.SetValidity(module);
+
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                if (SlotStructFits(slot, module))
+                {
+                    doesntFit = false;
+                    break;
+                }
+              
+                if (module.YSIZE != module.XSIZE)
+                    if (SlotStructFits(slot, module , rotated: true))
+                    {
+                        doesntFit = false;                        
+                        break;
+                    }
+                doesntFit = true;            
+            }
+
+            foreach (SlotStruct s in ModuleGrid.SlotsList)
+                s.SetValidity();
+
+            return doesntFit;
         }
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
-        private static int NumModules;
-        private static int NumPowerChecks;
-        private SlotStruct[] ModuleGrid;
-        private int GridWidth;
-        private int GridHeight;
-        private Vector2 GridOffset;
-
-        private void ConstructModuleGrid(Array<SlotStruct> slots)
-        {
-            Vector2 min = slots[0].Position;
-            Vector2 max = min;
-            foreach (SlotStruct slot in slots)
-            {
-                Vector2 pos  = slot.Position;
-                Vector2 size = slot.ModuleSize;
-                if (pos.X < min.X) min.X = pos.X;
-                if (pos.Y < min.Y) min.Y = pos.Y;
-                if (pos.X+size.X > max.X) max.X = pos.X+size.X;
-                if (pos.Y+size.Y > max.Y) max.Y = pos.Y+size.Y;
-            }
-
-            float width  = max.X - min.X;
-            float height = max.Y - min.Y;
-            GridWidth  = (int)(width  / 16.0f);
-            GridHeight = (int)(height / 16.0f);
-            GridOffset = min;
-
-            ModuleGrid = new SlotStruct[GridWidth * GridHeight];
-            foreach (SlotStruct slot in slots)
-            {
-                Point pt = ToGridPos(slot.Position);
-                ModuleGrid[pt.X + pt.Y * GridWidth] = slot;
-            }
-        }
-
-        private Point ToGridPos(Vector2 modulePos)
-        {
-            Vector2 pos = modulePos - GridOffset;
-            return new Point((int)(pos.X / 16.0f), (int)(pos.Y / 16.0f));
-        }
-
-        private bool GetUnpoweredConduit(SlotStruct conduit, int dx, int dy, out SlotStruct neighbour)
-        {
-            ++NumPowerChecks;
-            neighbour = null;
-            Point pos = ToGridPos(conduit.Position);
-            pos.X += dx;
-            pos.Y += dy;
-            if (pos.X < 0 || pos.Y < 0 || pos.X >= GridWidth || pos.Y >= GridHeight)
-                return false;
-
-            neighbour = ModuleGrid[pos.X + pos.Y * GridWidth];
-            return neighbour != null && !neighbour.CheckedConduits &&
-                   neighbour.Module?.ModuleType == ShipModuleType.PowerConduit;
-        }
-        
-        private void ConnectPowerConduits(SlotStruct firstConduit)
-        {
-            var open = new Array<SlotStruct>{ firstConduit };
-            // floodfill through neighbouring conduits
-            while (open.NotEmpty)
-            {
-                SlotStruct conduit = open.PopLast();
-                conduit.Module.Powered  = true;
-                conduit.CheckedConduits = true;
-                if (GetUnpoweredConduit(conduit,  0, -1, out SlotStruct north)) open.Add(north);
-                if (GetUnpoweredConduit(conduit,  0, +1, out SlotStruct south)) open.Add(south);
-                if (GetUnpoweredConduit(conduit, -1,  0, out SlotStruct west))  open.Add(west);
-                if (GetUnpoweredConduit(conduit, +1,  0, out SlotStruct east))  open.Add(east);
-            }
-        }
-
-
-        private void RecalculatePower()
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            NumModules = Slots.Count;
-            NumPowerChecks = 0;
-
-            // reset everything
-            foreach (SlotStruct slot in Slots)
-            {
-                slot.Powered = false;
-                slot.CheckedConduits = false;
-                if (slot.Module != null)
-                    slot.Module.Powered = false;
-            }
-
-            ConstructModuleGrid(Slots);
-
-            // foreach powerplant tile
-            foreach (SlotStruct powerPlant in Slots)
-            {
-                if (powerPlant.Module?.ModuleType        != ShipModuleType.PowerPlant &&
-                    powerPlant.Parent?.Module.ModuleType != ShipModuleType.PowerPlant)
-                    continue;
-
-                // check for neighbouring power conduits
-                if (GetUnpoweredConduit(powerPlant,  0, -1, out SlotStruct north)) ConnectPowerConduits(north);
-                if (GetUnpoweredConduit(powerPlant,  0, +1, out SlotStruct south)) ConnectPowerConduits(south);
-                if (GetUnpoweredConduit(powerPlant, -1,  0, out SlotStruct west))  ConnectPowerConduits(west);
-                if (GetUnpoweredConduit(powerPlant, +1,  0, out SlotStruct east))  ConnectPowerConduits(east);
-            }
-
-            foreach (SlotStruct slotStruct1 in Slots)
-            {
-                if (slotStruct1.Module != null && slotStruct1.Module.PowerRadius > 0 && (slotStruct1.Module.ModuleType != ShipModuleType.PowerConduit || slotStruct1.Module.Powered))
-                {
-                    foreach (SlotStruct slotStruct2 in Slots)
-                    {
-                        ++NumPowerChecks;
-                        if (Math.Abs(slotStruct1.PQ.X - slotStruct2.PQ.X) / 16 + Math.Abs(slotStruct1.PQ.Y - slotStruct2.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
-                            slotStruct2.Powered = true;
-                    }
-                    if (slotStruct1.Module.XSIZE <= 1 && slotStruct1.Module.YSIZE <= 1)
-                        continue;
-
-                    for (int y = 0; y < slotStruct1.Module.YSIZE; ++y)
-                    {
-                        for (int x = 0; x < slotStruct1.Module.XSIZE; ++x)
-                        {
-                            if (x == 0 && y == 0)
-                                continue;
-
-                            foreach (SlotStruct slotStruct2 in Slots)
-                            {
-                                if (slotStruct2.PQ.Y == slotStruct1.PQ.Y + 16 * y && slotStruct2.PQ.X == slotStruct1.PQ.X + 16 * x)
-                                {
-                                    foreach (SlotStruct slotStruct3 in Slots)
-                                    {
-                                        ++NumPowerChecks;
-                                        if (Math.Abs(slotStruct2.PQ.X - slotStruct3.PQ.X) / 16 + Math.Abs(slotStruct2.PQ.Y - slotStruct3.PQ.Y) / 16 <= (int)slotStruct1.Module.PowerRadius)
-                                            slotStruct3.Powered = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            foreach (SlotStruct slotStruct in this.Slots)
-            {
-                ++NumPowerChecks;
-                if (slotStruct.Powered)
-                {
-                    if (slotStruct.Module != null && slotStruct.Module.ModuleType != ShipModuleType.PowerConduit)
-                        slotStruct.Module.Powered = true;
-                    if (slotStruct.Parent != null && slotStruct.Parent.Module != null)
-                        slotStruct.Parent.Module.Powered = true;                    
-                }
-                if (!slotStruct.Powered && slotStruct.Module != null && slotStruct.Module.IndirectPower)
-                        slotStruct.Module.Powered = true;
-            }
-
-            double elapsed = sw.Elapsed.TotalMilliseconds;
-            Log.Info($"RecalculatePower elapsed:{elapsed:G5}ms  modules:{NumModules}  totalchecks:{NumPowerChecks}");
-        }
-
-        public void SetActiveModule(ShipModule mod)
-        {
-            if (mod == null) return;
-            GameAudio.PlaySfxAsync("smallservo");
-            mod.SetAttributesNoParent();
-            ActiveModule = mod;
-            foreach (SlotStruct s in Slots)                                    
-                s.SetValidity(ActiveModule);
-            
-            HighlightedModule = null;
-            HoveredModule = null;
-        }        
+        private DesignModuleGrid ModuleGrid;
+        private void RecalculatePower() => ModuleGrid.RecalculatePower();
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
@@ -569,11 +447,10 @@ namespace Ship_Game
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
             var modules = new Array<ShipModule>();
-            for (int x = 0; x < Slots.Count; x++)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                SlotStruct slot = Slots[x];
-                if (slot?.Module == null) continue;
-                modules.Add(slot.Module);
+                if (slot.Module != null)
+                    modules.Add(slot.Module);
             }
 
             var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
@@ -588,9 +465,6 @@ namespace Ship_Game
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
-
- 
-
 
         public enum ActiveModuleState
         {
@@ -613,7 +487,5 @@ namespace Ship_Game
             Normal
 
         }
-        
-
     }
 }
