@@ -55,24 +55,50 @@ namespace Ship_Game
 
         public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
 
-        private bool CanSlotSupportModule(ShipModule module)
+
+        private static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
+        private static bool MatchO(Restrictions b) => b == Restrictions.O || b == Restrictions.IO || b == Restrictions.OE;
+        private static bool MatchE(Restrictions b) => b == Restrictions.E || b == Restrictions.IE || b == Restrictions.OE;
+
+        private static bool IsPartialMatch(Restrictions a, Restrictions b)
+        {
+            switch (a)
+            {
+                case Restrictions.I:  return MatchI(b);
+                case Restrictions.O:  return MatchO(b);
+                case Restrictions.E:  return MatchE(b);
+                case Restrictions.IO: return MatchI(b) || MatchO(b);
+                case Restrictions.IE: return MatchI(b) || MatchE(b);
+                case Restrictions.OE: return MatchO(b) || MatchE(b);
+            }
+            return false;
+        }
+
+        public bool CanSlotSupportModule(ShipModule module)
         {
             if (module == null || module.Restrictions == Restrictions.IOE || module.Restrictions == Restrictions)
                 return true;
 
-            if (module.Restrictions <= Restrictions.IOE )
+            if (module.Restrictions <= Restrictions.IOE)
             {
+                bool newPartial = IsPartialMatch(Restrictions, module.Restrictions);
                 string moduleFitsToSlots = module.Restrictions.ToString();
-                return Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
+                bool oldPartial = Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
+
+                if (newPartial != oldPartial)
+                {
+                    Log.Warning($"newPartial {newPartial} but expected {oldPartial}  slot {Restrictions}  module {module.Restrictions}");
+                }
+                return oldPartial;
             }
 
-            switch (module.Restrictions)
+            switch (module.Restrictions) // exclusive restrictions
             {
                 case Restrictions.xI:  return Restrictions == Restrictions.I;
                 case Restrictions.xIO: return Restrictions == Restrictions.IO;
                 case Restrictions.xO:  return Restrictions == Restrictions.O;
-                default:               return false;
             }
+            return false;
         }
 
         public void Draw(SpriteBatch sb, Texture2D texture, Color tint)
@@ -90,8 +116,8 @@ namespace Ship_Game
         // Width and Height in 1x1, 2x2, etc
         [XmlIgnore][JsonIgnore] public int Width  => PQ.W/16;
         [XmlIgnore][JsonIgnore] public int Height => PQ.H/16;
-        [XmlIgnore][JsonIgnore] public Point IntSize => new Point(PQ.W/16, PQ.H/16);
         [XmlIgnore][JsonIgnore] public Point IntPos  => new Point(PQ.X/16, PQ.Y/16);
+        [XmlIgnore][JsonIgnore] public Point IntSize => new Point(PQ.W/16, PQ.H/16);
         [XmlIgnore][JsonIgnore] public Rectangle IntRect => new Rectangle(PQ.X/16, PQ.Y/16, PQ.W/16, PQ.H/16);
 
         public Vector2 Center()
