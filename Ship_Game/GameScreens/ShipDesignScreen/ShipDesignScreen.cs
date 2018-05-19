@@ -241,38 +241,6 @@ namespace Ship_Game
             return single.ToString("#") + "k"; // 1000k
         }
 
-        private string GetConduitGraphic(SlotStruct ss)
-        {
-            var conduit = new Ship.ConduitGraphic();
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
-                if (slot.Module?.ModuleType == ShipModuleType.PowerConduit)
-                    conduit.Add(slot.PQ.X - ss.PQ.X, slot.PQ.Y - ss.PQ.Y);
-            return conduit.GetGraphic();
-        }
-
-
-        public bool SlotStructFits(SlotStruct slot, ShipModule activeModule, bool rotated = false)
-        {
-            int numFreeSlots = 0;
-            int sx = slot.PQ.X, sy = slot.PQ.Y;
-            int xSize = rotated ? activeModule.YSIZE : activeModule.XSIZE;
-            int ySize = rotated ? activeModule.XSIZE : activeModule.YSIZE;
-            for (int x = 0; x < xSize; ++x) 
-            {
-                for (int y = 0; y < ySize; ++y)
-                {
-                    foreach (SlotStruct ss in ModuleGrid.SlotsList)
-                    {
-                        if (ss.ShowValid && ss.PQ.Y == sy + (16 * y) && ss.PQ.X == sx + (16 * x))
-                        {
-                            ++numFreeSlots;
-                        }
-                    }
-                }
-            }
-            return numFreeSlots == (activeModule.XSIZE * activeModule.YSIZE);
-        }
-
         public ShipModule CreateDesignModule(string uid)
         {
             return ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
@@ -314,7 +282,7 @@ namespace Ship_Game
         
         private void InstallModule(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
         {
-            if (!SlotStructFits(slot, newModule))
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
             {
                 PlayNegativeSound();
                 return;
@@ -336,7 +304,7 @@ namespace Ship_Game
             slot.Tex                  = newModule.ModuleTexture;
             slot.Module.SetAttributesNoParent();
 
-            RecalculatePower();
+            ModuleGrid.RecalculatePower();
             ShipSaved = false;
 
             SpawnActiveModule(newModule.UID, newState);
@@ -344,7 +312,7 @@ namespace Ship_Game
 
         private void InstallModuleNoStack(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
         {
-            if (!SlotStructFits(slot, newModule))
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
             {
                 PlayNegativeSound();
                 return;
@@ -361,7 +329,7 @@ namespace Ship_Game
             slot.Tex                  = newModule.ModuleTexture;
             slot.Module.SetAttributesNoParent();
 
-            RecalculatePower();
+            ModuleGrid.RecalculatePower();
             ShipSaved = false;
 
             SpawnActiveModule(newModule.UID, newState);
@@ -369,20 +337,23 @@ namespace Ship_Game
 
         private void InstallModuleFromLoad(SlotStruct slot, ShipModule newModule)
         {
-            if (SlotStructFits(slot, newModule))
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
             {
-                ActiveModuleState activeModuleState = slot.State;
-                ClearSlot(slot);
-                ClearDestinationSlots(slot, newModule);
-                slot.ModuleUID     = newModule.UID;
-                slot.Module        = newModule; 
-                slot.State         = activeModuleState;
-                slot.Module.Facing = slot.Facing;
-                slot.Tex           = newModule.ModuleTexture;
-                slot.Module.SetAttributesNoParent();
+                Log.Warning($"InstallModuleFromLoad failed! {newModule}");
+                return;
             }
-            else PlayNegativeSound();
+            ActiveModuleState activeModuleState = slot.State;
+            ClearSlot(slot);
+            ClearDestinationSlots(slot, newModule);
+            slot.ModuleUID     = newModule.UID;
+            slot.Module        = newModule; 
+            slot.State         = activeModuleState;
+            slot.Module.Facing = slot.Facing;
+            slot.Tex           = newModule.ModuleTexture;
+            slot.Module.SetAttributesNoParent();
         }
+
+        private DesignModuleGrid ModuleGrid;
 
         private void SetupSlots()
         {
@@ -401,44 +372,19 @@ namespace Ship_Game
                     slot.Module.hangarShipUID = slot.SlotOptions;
             }
 
-            RecalculatePower();
+            ModuleGrid.RecalculatePower();
             ResetActiveModule();
         }
 
-        // @todo Refactor this
-        public bool CheckBadModuleSize(ShipModule module)
+        public bool IsBadModuleSize(ShipModule module)
         {
-            bool doesntFit = false;          
-            foreach (SlotStruct s in ModuleGrid.SlotsList)
-                s.SetValidity(module);
-
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
-            {
-                if (SlotStructFits(slot, module))
-                {
-                    doesntFit = false;
-                    break;
-                }
-              
-                if (module.YSIZE != module.XSIZE)
-                    if (SlotStructFits(slot, module , rotated: true))
-                    {
-                        doesntFit = false;                        
-                        break;
-                    }
-                doesntFit = true;            
-            }
-
-            foreach (SlotStruct s in ModuleGrid.SlotsList)
-                s.SetValidity();
-
-            return doesntFit;
+                if (ModuleGrid.ModuleFitsAtSlot(slot, module))
+                    return false;
+            return true;
         }
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
-
-        private DesignModuleGrid ModuleGrid;
-        private void RecalculatePower() => ModuleGrid.RecalculatePower();
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
