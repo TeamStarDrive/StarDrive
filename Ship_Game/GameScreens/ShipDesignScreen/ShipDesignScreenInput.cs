@@ -672,7 +672,7 @@ namespace Ship_Game
         {
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
             HullSelectionRect = new Rectangle(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
-            HullSelectionSub = new Submenu(HullSelectionRect, true);
+            HullSelectionSub = new Submenu(HullSelectionRect);
             WeaponSL = new WeaponScrollList(ModSel, this);
             HullSelectionSub.AddTab(Localizer.Token(107));
             HullSL = new ScrollList(HullSelectionSub);
@@ -689,8 +689,7 @@ namespace Ship_Game
             categories.Sort();
             foreach (string cat in categories)
             {
-                var type = new ModuleHeader(cat, 240f);
-                HullSL.AddItem(type);
+                HullSL.AddItem(new ModuleHeader(cat, 240));
             }
 
             foreach (ScrollList.Entry e in HullSL.Entries)

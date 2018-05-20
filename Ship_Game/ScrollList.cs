@@ -346,16 +346,16 @@ namespace Ship_Game
                         this.ScrollBar.Y = this.ScrollBarHousing.Y + this.ScrollBarHousing.Height - this.ScrollBar.Height;
                     }
                 }
-                float MousePosAsPct = (input.CursorPosition.Y - (float)this.ScrollBarHousing.Y) / (float)this.ScrollBarHousing.Height;
-                if (MousePosAsPct < 0f)
+                float mousePosAsPct = (input.CursorPosition.Y - (float)this.ScrollBarHousing.Y) / (float)this.ScrollBarHousing.Height;
+                if (mousePosAsPct < 0f)
                 {
-                    MousePosAsPct = 0f;
+                    mousePosAsPct = 0f;
                 }
-                if (MousePosAsPct > 1f)
+                if (mousePosAsPct > 1f)
                 {
-                    MousePosAsPct = 1f;
+                    mousePosAsPct = 1f;
                 }
-                this.indexAtTop = (int)((float)this.Copied.Count * MousePosAsPct);
+                this.indexAtTop = (int)((float)this.Copied.Count * mousePosAsPct);
                 if (this.indexAtTop + this.entriesToDisplay >= this.Copied.Count)
                 {
                     this.indexAtTop = this.Copied.Count - this.entriesToDisplay;
@@ -433,7 +433,7 @@ namespace Ship_Game
             }
             if (this.DraggedEntry != null && input.MouseCurr.LeftButton == ButtonState.Pressed)
             {
-                int Dragged = 0;
+                int dragged = 0;
                 for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
                 {
                     ScrollList.Entry e = null;
@@ -447,7 +447,7 @@ namespace Ship_Game
                     }
                     if (e.clickRect == this.DraggedEntry.clickRect)
                     {
-                        Dragged = this.Entries.IndexOf(e);
+                        dragged = this.Entries.IndexOf(e);
                     }
                 }
                 for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
@@ -455,23 +455,23 @@ namespace Ship_Game
                     ScrollList.Entry e = this.Entries[i];
                     if (e.clickRect.HitTest(input.CursorPosition))
                     {
-                        int NewIndex = 0;
+                        int newIndex = 0;
                         try
                         {
-                            NewIndex = this.Entries.IndexOf(e);
+                            newIndex = this.Entries.IndexOf(e);
                         }
                         catch
                         {
                             continue;
                         }
-                        if (NewIndex < Dragged)
+                        if (newIndex < dragged)
                         {
                             ScrollList.Entry toReplace = e;
-                            this.Entries[NewIndex] = this.Entries[Dragged];
-                            this.Entries[NewIndex].clickRect = toReplace.clickRect;
-                            this.Entries[Dragged] = toReplace;
-                            this.Entries[Dragged].clickRect = this.DraggedEntry.clickRect;
-                            this.DraggedEntry = this.Entries[NewIndex];
+                            this.Entries[newIndex] = this.Entries[dragged];
+                            this.Entries[newIndex].clickRect = toReplace.clickRect;
+                            this.Entries[dragged] = toReplace;
+                            this.Entries[dragged].clickRect = this.DraggedEntry.clickRect;
+                            this.DraggedEntry = this.Entries[newIndex];
                             break;
                         }
                     }
@@ -776,18 +776,18 @@ namespace Ship_Game
 
         public void Update()
         {
-            this.Copied = new BatchRemovalCollection<ScrollList.Entry>();
-            foreach (ScrollList.Entry e in this.Entries)
+            this.Copied.Clear();
+            foreach (Entry e in this.Entries)
             {
                 this.Copied.Add(e);
                 if (!e.ShowingSub)
                 {
                     continue;
                 }
-                foreach (ScrollList.Entry sub in e.SubEntries)
+                foreach (Entry sub in e.SubEntries)
                 {
                     this.Copied.Add(sub);
-                    foreach (ScrollList.Entry subsub in sub.SubEntries)
+                    foreach (Entry subsub in sub.SubEntries)
                     {
                         this.Copied.Add(subsub);
                     }
