@@ -37,7 +37,8 @@ namespace Ship_Game
                     }
                     else
                     {
-                        Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
+                        bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
+                        Color activeColor = valid ? Color.LightGreen : Color.Red;
                         slot.Draw(spriteBatch, concreteGlass, activeColor);
                         if (slot.InPowerRadius)
                         {

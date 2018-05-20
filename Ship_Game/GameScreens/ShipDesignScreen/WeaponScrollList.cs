@@ -123,7 +123,6 @@ namespace Ship_Game
                 return false;
 
             tmp = Screen.CreateDesignModule(mod.UID);
-            tmp.SetAttributesNoParent();                    
             return true;
         }
 

@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -57,9 +54,6 @@ namespace Ship_Game
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
         private Vector2 ClassifCursor;
-        public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
-        private string LastActiveUID           = ""; // Gretman - To Make the Ctrl-Z much more responsive
-        private Vector2 LastDesignActionPos    = Vector2.Zero;
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
         private bool ShowAllArcs;
@@ -75,18 +69,18 @@ namespace Ship_Game
         private Rectangle DesignRoleRect;
 
 
-#if SHIPYARD
-        short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0;        //For Gretman's debug shipyard
-#endif
+    #if SHIPYARD
+        short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0; //For Gretman's debug shipyard
+    #endif
 
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
             EmpireUI         = empireUi;
             TransitionOnTime = TimeSpan.FromSeconds(2);
-#if SHIPYARD
+        #if SHIPYARD
             Debug = true;
-#endif
+        #endif
         }
 
         private void ChangeModuleState(ActiveModuleState state)
@@ -107,64 +101,6 @@ namespace Ship_Game
             var pos = new Point(offsetBase.PQ.X + dx*16, offsetBase.PQ.Y + dy*16);
             return ModuleGrid.Get(pos, out found);
         }
-
-        // @todo This is all broken. Redo everything.
-        private void ClearDestinationSlots(SlotStruct slot, ShipModule newModule)
-        {
-            for (int y = 0; y < newModule.YSIZE; y++)
-            {
-                for (int x = 0; x < newModule.XSIZE; x++)
-                {
-                    if (!FindStructFromOffset(slot, x, y, out SlotStruct slot2))
-                        continue;
-                    if (slot2.Module != null || slot2.Parent != null) 
-                        ClearParentSlot(slot2.Parent ?? slot2); 
-                    
-                    slot2.Clear(newParent: slot);
-                }
-            }
-        }
-
-        // @todo This is all broken. Redo everything.
-        private void ClearParentSlot(SlotStruct parent, bool addToAlteredSlots = true)
-        {
-            //actually supposed to clear ALL slots of a module, not just the parent
-            if (addToAlteredSlots && DesignStack.Count > 0)
-            {
-                DesignStack.Peek().AlteredSlots.Add(new SlotStruct(parent));
-            }
-            if (parent.Module != null)
-            {
-                for (int y = 0; y < parent.Module.YSIZE; ++y)
-                {
-                    for (int x = 0; x < parent.Module.XSIZE; ++x)
-                    {
-                        if (FindStructFromOffset(parent, x, y, out SlotStruct slot2))
-                            slot2.Clear();
-                    }
-                }
-            }
-            parent.Clear();
-        }
-
-        private void ClearSlot(SlotStruct slot, bool addToAlteredSlots = true)
-        {   
-            //this is the clearslot function actually used atm
-            //only called from installmodule atm, not from manual module removal
-            if (slot.Module != null || slot.Parent != null)
-            {
-                ClearParentSlot(slot.Parent ?? slot, addToAlteredSlots);
-            }
-            else
-            {
-                //this requires not being a child slot and not containing a module
-                //only empty parent slots can trigger this
-                //why would we want to clear an empty slot?
-                //might be used on initial load instead of a proper slot constructor
-                slot.Clear();
-            }
-        }
-        private void ClearSlotNoStack(SlotStruct slot) => ClearSlot(slot, false);
 
         private ModuleSlotData FindModuleSlotAtPos(Vector2 slotPos)
         {
@@ -243,7 +179,9 @@ namespace Ship_Game
 
         public ShipModule CreateDesignModule(string uid)
         {
-            return ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
+            ShipModule m = ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
+            m.SetAttributesNoParent();                    
+            return m;
         }
 
         public ShipModule CreateDesignModule(string uid, ActiveModuleState state)
@@ -258,6 +196,7 @@ namespace Ship_Game
         {
             ActiveModule = CreateDesignModule(uid, state);
             ActiveModState = state;
+            ActiveModule.SetAttributesNoParent();
         }
 
         private void ResetActiveModule()
@@ -271,11 +210,7 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync("smallservo");
 
             SpawnActiveModule(uid, state);
-            ActiveModule.SetAttributesNoParent();
 
-            foreach (SlotStruct s in ModuleGrid.SlotsList)                                    
-                s.SetValidity(ActiveModule);
-            
             HighlightedModule = null;
             HoveredModule     = null;
         }        
@@ -288,69 +223,16 @@ namespace Ship_Game
                 return;
             }
 
-            DesignStack.Push(new DesignAction(slot));
-
-            ClearSlot(slot);
-            ClearDestinationSlots(slot, newModule);
-
-            slot.ModuleUID            = newModule.UID;
-            slot.Module               = newModule;
-            slot.Module.XSIZE         = newModule.XSIZE;
-            slot.Module.YSIZE         = newModule.YSIZE;
-            slot.Module.XMLPosition   = newModule.XMLPosition;
-            slot.State                = newState;
-            slot.Module.hangarShipUID = newModule.hangarShipUID;
-            slot.Module.Facing        = newModule.Facing;
-            slot.Tex                  = newModule.ModuleTexture;
-            slot.Module.SetAttributesNoParent();
-
+            ModuleGrid.ClearSlots(slot, newModule.XSIZE, newModule.YSIZE);
+            ModuleGrid.InstallModule(slot, newModule, newState);
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
 
             SpawnActiveModule(newModule.UID, newState);
         }
 
-        private void InstallModuleNoStack(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
+        private void InstallModuleFromLoad(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
         {
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
-            {
-                PlayNegativeSound();
-                return;
-            }
-
-            ClearSlotNoStack(slot);
-            ClearDestinationSlots(slot, newModule);
-
-            slot.ModuleUID            = newModule.UID;
-            slot.Module               = newModule;
-            slot.State                = newState;
-            slot.Module.hangarShipUID = newModule.hangarShipUID;
-            slot.Module.Facing        = newModule.Facing;
-            slot.Tex                  = newModule.ModuleTexture;
-            slot.Module.SetAttributesNoParent();
-
-            ModuleGrid.RecalculatePower();
-            ShipSaved = false;
-
-            SpawnActiveModule(newModule.UID, newState);
-        }
-
-        private void InstallModuleFromLoad(SlotStruct slot, ShipModule newModule)
-        {
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
-            {
-                Log.Warning($"InstallModuleFromLoad failed! {newModule}");
-                return;
-            }
-            ActiveModuleState activeModuleState = slot.State;
-            ClearSlot(slot);
-            ClearDestinationSlots(slot, newModule);
-            slot.ModuleUID     = newModule.UID;
-            slot.Module        = newModule; 
-            slot.State         = activeModuleState;
-            slot.Module.Facing = slot.Facing;
-            slot.Tex           = newModule.ModuleTexture;
-            slot.Module.SetAttributesNoParent();
         }
 
         private DesignModuleGrid ModuleGrid;
@@ -366,7 +248,13 @@ namespace Ship_Game
                     continue;
 
                 ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.State);
-                InstallModuleFromLoad(slot, newModule);
+                if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
+                {
+                    Log.Warning($"InstallModuleFromLoad failed! {newModule}");
+                    continue;
+                }
+
+                ModuleGrid.InstallModule(slot, newModule, slot.State);
 
                 if (slot.Module?.ModuleType == ShipModuleType.Hangar)
                     slot.Module.hangarShipUID = slot.SlotOptions;
@@ -384,7 +272,9 @@ namespace Ship_Game
             return true;
         }
 
+
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
+
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
@@ -411,6 +301,7 @@ namespace Ship_Game
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
+
 
         public enum ActiveModuleState
         {

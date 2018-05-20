@@ -105,16 +105,6 @@ namespace Ship_Game
             y1 = y0 + m.Module.YSIZE - 1; 
         }
 
-        private bool IsInBounds(Point gridPoint)
-        {
-            return gridPoint.X >= 0 && gridPoint.Y >= 0 && gridPoint.X < Width && gridPoint.Y < Height;
-        }
-
-        private bool IsInBounds(int gridX, int gridY)
-        {
-            return gridX >= 0 && gridY >= 0 && gridX < Width && gridY < Height;
-        }
-
         public bool IsEmptyDesign()
         {
             foreach (SlotStruct slot in Slots)
@@ -126,49 +116,84 @@ namespace Ship_Game
         #endregion
 
 
+        #region ModuleRect Bounds
+
+        private struct ModuleRect
+        {
+            public int X0, X1; // inclusive span [X0, X1] eg [firstX, lastX]
+            public int Y0, Y1; // inclusive span [Y0, Y1] eg [firstY, lastY]
+            public ModuleRect(Point pos, int moduleWidth, int moduleHeight)
+            {
+                X0 = pos.X;
+                Y0 = pos.Y;
+                X1 = pos.X + (moduleWidth  - 1);
+                Y1 = pos.Y + (moduleHeight - 1);
+            }
+        }
+        
+        private bool IsInBounds(Point gridPoint)
+            => gridPoint.X >= 0 && gridPoint.Y >= 0 && gridPoint.X < Width && gridPoint.Y < Height;
+
+        private bool IsInBounds(int gridX, int gridY)
+            => gridX >= 0 && gridY >= 0 && gridX < Width && gridY < Height;
+
+        private bool IsInBounds(ModuleRect r)
+            => IsInBounds(r.X0, r.Y0) && IsInBounds(r.X1, r.Y1);
+
+        private ModuleRect GetModuleSpan(SlotStruct slot, int width, int height)
+            => new ModuleRect(ToGridPos(slot.Position), width, height);
+
+        #endregion
+
+
+        #region Installing and Removing modules
+
         public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module)
         {
-            Point p = ToGridPos(slot.Position);
-            var last = new Point(p.X + (module.XSIZE - 1), 
-                                 p.Y + (module.YSIZE - 1));
-            if (!IsInBounds(p) || !IsInBounds(last))
+            ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
+            if (!IsInBounds(span))
                 return false;
-
-            for (int x = p.X; x <= last.X; ++x) 
-            for (int y = p.Y; y <= last.Y; ++y)
+            for (int x = span.X0; x <= span.X1; ++x) 
+            for (int y = span.Y0; y <= span.Y1; ++y)
                 if (Grid[x + y*Width]?.CanSlotSupportModule(module) != true)
                     return false;
             return true;
         }
 
-
-        public Texture2D GetConduitGraphicAt(SlotStruct ss)
+        
+        public void InstallModule(SlotStruct slot, ShipModule newModule, ShipDesignScreen.ActiveModuleState newState)
         {
-            Point ssPos = ToGridPos(ss.Position);
-            var conduit = new Ship.ConduitGraphic();
+            slot.ModuleUID = newModule.UID;
+            slot.Module    = newModule;
+            slot.State     = newState;
+            slot.Tex       = newModule.ModuleTexture;
+            slot.Module.SetAttributesNoParent();
 
-            if (SlotMatches(ssPos.X - 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(-1, 0); // Left
-            if (SlotMatches(ssPos.X + 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(+1, 0); // Right
-            if (SlotMatches(ssPos.X, ssPos.Y - 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, -1); // North
-            if (SlotMatches(ssPos.X, ssPos.Y + 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, +1); // South
-
-            string graphic = conduit.GetGraphic();
-            if (ss.Module.Powered)
-                graphic = graphic + "_power";
-            return ResourceManager.Texture(graphic);
+            ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);
+            for (int x = span.X0; x <= span.X1; ++x)
+            for (int y = span.Y0; y <= span.Y1; ++y)
+                Grid[x + y*Width].Parent = slot;
         }
 
-
-        #region Installing and Removing modules
-
-        public void ClearDestinationSlots(SlotStruct slot, ShipModule newModule)
+        private void ClearOccupiedSlot(SlotStruct slot)
         {
-
+            ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);
+            for (int x = span.X0; x <= span.X1; ++x) 
+            for (int y = span.Y0; y <= span.Y1; ++y)
+                Grid[x + y*Width].Clear();
         }
 
-        public void InstallModule(SlotStruct slot, ShipModule newModule)
+        public void ClearSlots(SlotStruct slot, int width, int height)
         {
-
+            ModuleRect span = GetModuleSpan(slot, width, height);
+            for (int x = span.X0; x <= span.X1; ++x)
+            for (int y = span.Y0; y <= span.Y1; ++y)
+            {
+                SlotStruct dest = Grid[x + y*Width];
+                if (dest.Parent != null)
+                    ClearOccupiedSlot(dest.Parent);
+                dest.Clear();
+            }
         }
 
         #endregion
@@ -229,6 +254,22 @@ namespace Ship_Game
 
             double elapsed = sw.Elapsed.TotalMilliseconds;
             Log.Info($"RecalculatePower elapsed:{elapsed:G5}ms  modules:{Slots.Length}  totalchecks:{NumPowerChecks}");
+        }
+        
+        public Texture2D GetConduitGraphicAt(SlotStruct ss)
+        {
+            Point ssPos = ToGridPos(ss.Position);
+            var conduit = new Ship.ConduitGraphic();
+
+            if (SlotMatches(ssPos.X - 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(-1, 0); // Left
+            if (SlotMatches(ssPos.X + 1, ssPos.Y, ShipModuleType.PowerConduit)) conduit.AddGridPos(+1, 0); // Right
+            if (SlotMatches(ssPos.X, ssPos.Y - 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, -1); // North
+            if (SlotMatches(ssPos.X, ssPos.Y + 1, ShipModuleType.PowerConduit)) conduit.AddGridPos(0, +1); // South
+
+            string graphic = conduit.GetGraphic();
+            if (ss.Module.Powered)
+                graphic = graphic + "_power";
+            return ResourceManager.Texture(graphic);
         }
 
         #endregion

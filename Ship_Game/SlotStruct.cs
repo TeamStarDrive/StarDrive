@@ -23,7 +23,6 @@ namespace Ship_Game
         public ShipModule Module;
         public string SlotOptions;
         public Texture2D Tex;
-        public bool ShowValid = true;
 
         public SlotStruct()
         {
@@ -53,7 +52,12 @@ namespace Ship_Game
             SlotReference = parent.SlotReference;
         }
 
-        public override string ToString() => $"UID={ModuleUID} {Position} {Facing} {Restrictions}";
+        public override string ToString()
+        {
+            if (Parent == null)
+                return $"{Module?.UID} {Position} {Facing} {Restrictions}";
+            return $"{Position} {Facing} {Restrictions}   Parent={{{Parent}}}";
+        }
 
 
         private static bool MatchI(Restrictions b) => b == Restrictions.I || b == Restrictions.IO || b == Restrictions.IE;
@@ -121,17 +125,12 @@ namespace Ship_Game
 
         public bool Intersects(Rectangle r) => PQ.Rect.Intersects(r);
 
-        public void SetValidity(ShipModule module = null)
-        {
-            ShowValid = CanSlotSupportModule(module);
-        }
-
-        public void Clear(SlotStruct newParent = null)
+        public void Clear()
         {
             ModuleUID = null;
             Tex       = null;
             Module    = null;
-            Parent    = newParent;
+            Parent    = null;
             State     = ShipDesignScreen.ActiveModuleState.Normal;
         }
     }
