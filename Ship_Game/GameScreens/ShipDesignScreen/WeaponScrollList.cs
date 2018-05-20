@@ -70,329 +70,156 @@ namespace Ship_Game
                 else
                     e.clickRectHover = 0;
             }
-
-
-
             return false;
 
         }
 
-        private void DrawTab1()
-        {
-            if (ResetOnNextDraw)
-            {
-                Entries.Clear();
-                var weaponCategories = new HashSet<string>();
-
-                void AddCategoryItem(string category)
-                {
-                    if (weaponCategories.Contains(category)) return;
-                    weaponCategories.Add(category);
-                    AddItem(new ModuleHeader(category, 240f));
-                }
-
-                var modules = new Array<ShipModule>();
-                foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                {
-                    if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                        continue;
-
-                    ShipModule tmp = Screen.CreateDesignModule(module.Key);
-                    tmp.SetAttributesNoParent();                    
-       
-                    if (RestrictedModCheck(Screen.ActiveHull.Role, tmp))
-                        continue;
-
-                    if (tmp.isWeapon)
-                    {
-                        if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)
-                        {
-                            if      (tmp.InstalledWeapon.Tag_Flak)    AddCategoryItem("Flak Cannon");
-                            else if (tmp.InstalledWeapon.Tag_Railgun) AddCategoryItem("Magnetic Cannon");
-                            else if (tmp.InstalledWeapon.Tag_Array)   AddCategoryItem("Beam Array");
-                            else if (tmp.InstalledWeapon.Tag_Tractor) AddCategoryItem("Tractor Beam");
-                            else if (tmp.InstalledWeapon.Tag_Missile
-                                 && !tmp.InstalledWeapon.Tag_Guided)  AddCategoryItem("Unguided Rocket");
-                            else                                      AddCategoryItem(tmp.InstalledWeapon.WeaponType);
-                        }
-                        else
-                        {
-                            if (CheckBadModuleSize(tmp)) continue;
-                            modules.Add(module.Value);
-                            AddCategoryItem(tmp.InstalledWeapon.WeaponType);
-                        }
-                    }
-                    else if (tmp.ModuleType == ShipModuleType.Bomb)
-                    {
-                        if (CheckBadModuleSize(tmp)) continue;
-                        modules.Add(module.Value);
-                        AddCategoryItem("Bomb");
-                    }
-                }
-
-                foreach (Entry e in Entries)
-                {
-                    foreach (ShipModule module in modules)
-                    {            
-                        ShipModule tmp = module;
-                        tmp.SetAttributesNoParent();
-                        bool restricted =
-                            tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule ||
-                            tmp.DestroyerModule || tmp.CruiserModule
-                            || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule ||
-                            tmp.PlatformModule || tmp.DroneModule;
-                        if (!restricted && tmp.FightersOnly &&
-                                 Screen.ActiveHull.Role != ShipData.RoleName.fighter &&
-                                 Screen.ActiveHull.Role != ShipData.RoleName.scout &&
-                                 Screen.ActiveHull.Role != ShipData.RoleName.corvette &&
-                                 Screen.ActiveHull.Role != ShipData.RoleName.gunboat)
-                            continue;
-                        
-                        if (tmp.isWeapon)
-                        {
-                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.expandedWeaponCats)
-                            {
-                                if (tmp.InstalledWeapon.Tag_Flak || tmp.InstalledWeapon.Tag_Array ||
-                                    tmp.InstalledWeapon.Tag_Railgun || tmp.InstalledWeapon.Tag_Tractor ||
-                                    (tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided))
-                                {
-                                    if ((e.item as ModuleHeader).Text == "Flak Cannon" && tmp.InstalledWeapon.Tag_Flak)
-                                        e.AddItem(module);
-                                    if ((e.item as ModuleHeader).Text == "Magnetic Cannon" &&
-                                        tmp.InstalledWeapon.Tag_Railgun)
-                                        e.AddItem(module);
-                                    if ((e.item as ModuleHeader).Text == "Beam Array" &&
-                                        tmp.InstalledWeapon.Tag_Array)
-                                        e.AddItem(module);
-                                    if ((e.item as ModuleHeader).Text == "Tractor Beam" &&
-                                        tmp.InstalledWeapon.Tag_Tractor)
-                                        e.AddItem(module);
-                                    if ((e.item as ModuleHeader).Text == "Unguided Rocket" &&
-                                        tmp.InstalledWeapon.Tag_Missile && !tmp.InstalledWeapon.Tag_Guided)
-                                        e.AddItem(module);
-                                }
-                                else if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
-                                {
-                                    e.AddItem(module);
-                                }
-                            }
-                            else
-                            {
-                                if ((e.item as ModuleHeader).Text == tmp.InstalledWeapon.WeaponType)
-                                {
-                                    e.AddItem(module);
-                                }
-                            }
-                        }
-                        else if (tmp.ModuleType == ShipModuleType.Bomb && (e.item as ModuleHeader).Text == "Bomb")
-                        {
-                            e.AddItem(module);
-                        }
-                    }
-                }
-                ResetOnNextDraw = false;
-            }
-            DrawList();
-        }
-
-        private bool CheckBadModuleSize(ShipModule module)
+        private bool IsBadModuleSize(ShipModule module)
         {
             if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
                 return false;
             return Screen.IsBadModuleSize(module);
         }
 
+        private readonly Map<int, Entry> Categories = new Map<int, Entry>();
+
+        private void AddCategoryItem(int categoryId, string categoryName, ShipModule mod)
+        {
+            if (!Categories.TryGetValue(categoryId, out Entry e))
+            {
+                e = AddItem(new ModuleHeader(categoryName, 240f));
+                Categories.Add(categoryId, e);
+            }
+            e.AddItem(mod);
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             SelectionBox?.Draw(spriteBatch);
 
-            if (Screen.ModSel.Tabs[0].Selected)
+            if (ResetOnNextDraw)
             {
-                DrawTab1();
-
+                Entries.Clear();
+                Categories.Clear();
+                if      (Screen.ModSel.Tabs[0].Selected) AddWeaponCategories();
+                else if (Screen.ModSel.Tabs[1].Selected) AddPowerCategories();
+                else if (Screen.ModSel.Tabs[2].Selected) AddDefenseCategories();
+                else if (Screen.ModSel.Tabs[3].Selected) AddSpecialCategories();
+                ResetOnNextDraw = false;
             }
-            Array<ShipModule> modules = new Array<ShipModule>();
-            if (Screen.ModSel.Tabs[2].Selected)
-            {
-                if (ResetOnNextDraw)
-                {
-                    Entries.Clear();
-                    Array<string> ModuleCategories = new Array<string>();
-                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                    {
-                        if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                        {
-                            continue;
-                        }
-                        ShipModule tmp = Screen.CreateDesignModule(module.Key);
-                        tmp.SetAttributesNoParent();
 
-                        if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
-                        
-                        if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield ||
-                             tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead &&
-                            !tmp.isPowerArmour)
-                        {
-                            if (CheckBadModuleSize(tmp)) continue;
-                            modules.Add(tmp);
-                            if (!ModuleCategories.Contains(tmp.ModuleType.ToString()))
-                            {
-                                ModuleCategories.Add(tmp.ModuleType.ToString());
-                                ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                                AddItem(type);
-                            }
-                        }
-
-                        // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
-                        if (tmp.isPowerArmour && tmp.ModuleType == ShipModuleType.Armor )
-                        {
-                            if (CheckBadModuleSize(tmp)) continue;
-                            modules.Add(tmp);
-                            if (!ModuleCategories.Contains(Localizer.Token(6172)))
-                            {
-                                ModuleCategories.Add(Localizer.Token(6172));
-                                ModuleHeader type = new ModuleHeader(Localizer.Token(6172), 240f);
-                                AddItem(type);
-                            }
-                        }
-                        if (tmp.isBulkhead && tmp.ModuleType == ShipModuleType.Armor)
-                        {
-                            if (CheckBadModuleSize(tmp)) continue;
-                            modules.Add(tmp);
-                            if (!ModuleCategories.Contains(Localizer.Token(6173)))
-                            {
-                                ModuleCategories.Add(Localizer.Token(6173));
-                                ModuleHeader type = new ModuleHeader(Localizer.Token(6173), 240f);
-                                AddItem(type);
-                            }
-                        }
-                    }
-                    foreach (Entry e in Entries)
-                    {
-                        foreach (var module in modules)
-                        {
-                            ShipModule tmp = module;
-
-
-                            tmp.SetAttributesNoParent();
-
-                            if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
-
-                            if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield ||
-                                 tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead &&
-                                !tmp.isPowerArmour && (e.item as ModuleHeader).Text == tmp.ModuleType.ToString())
-                            {
-                                e.AddItem(module);
-                            }
-                            if (tmp.isPowerArmour && (e.item as ModuleHeader).Text == Localizer.Token(6172))
-                            {
-                                e.AddItem(module);
-                            }
-                            if (tmp.isBulkhead && (e.item as ModuleHeader).Text == Localizer.Token(6173))
-                            {
-                                e.AddItem(module);
-                            }
-                            tmp = null;
-                        }
-                    }
-                    ResetOnNextDraw = false;
-                }
-                DrawList();
-            }
-            if (Screen.ModSel.Tabs[1].Selected)
-            {
-                if (ResetOnNextDraw)
-                {
-                    Entries.Clear();
-                    Array<string> ModuleCategories = new Array<string>();
-                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                    {
-                        if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                        {
-                            continue;
-                        }
-                        ShipModule tmp = Screen.CreateDesignModule(module.Key);
-                        tmp.SetAttributesNoParent();
-                        if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;
-                        
-                        if (tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell ||
-                             tmp.ModuleType == ShipModuleType.PowerPlant ||
-                             tmp.ModuleType == ShipModuleType.PowerConduit)
-                        {
-                            if (CheckBadModuleSize(tmp)) continue;
-                            modules.Add(tmp);
-                            if (!ModuleCategories.Contains(tmp.ModuleType.ToString()))
-                            {
-
-                                ModuleCategories.Add(tmp.ModuleType.ToString());
-                                ModuleHeader type = new ModuleHeader(tmp.ModuleType.ToString(), 240f);
-                                AddItem(type);
-                            }
-                        }
-                    }
-                    foreach (Entry e in Entries)
-                    {
-                        string cat = (e.item as ModuleHeader).Text;
-                        foreach (ShipModule module in modules)
-                        {                            
-                            if (cat == module.ModuleType.ToString())
-                            {
-                                e.AddItem(module);
-                            }
-                        }
-                    }
-                    ResetOnNextDraw = false;
-                }
-                DrawList();
-            }
-            if (Screen.ModSel.Tabs[3].Selected)
-            {
-                if (ResetOnNextDraw)
-                {
-                    Entries.Clear();
-
-                    var moduleCategories = new HashSet<ShipModuleType>();
-                    foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
-                    {
-                        if (!EmpireManager.Player.IsModuleUnlocked(module.Key) || module.Value.UID == "Dummy")
-                        {
-                            continue;
-                        }
-                        ShipModule tmp = Screen.CreateDesignModule(module.Key);
-                        tmp.SetAttributesNoParent();
-                        if (RestrictedModCheck(Screen.ActiveHull.Role, tmp)) continue;                        
-                        if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
-                             tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
-                             tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
-                             tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter ||
-                             tmp.ModuleType == ShipModuleType.Ordnance ||
-                             tmp.ModuleType == ShipModuleType.Construction) )
-                        {
-                            if (CheckBadModuleSize(tmp)) continue;
-                            modules.Add(tmp);
-
-                            if (!moduleCategories.Add(tmp.ModuleType))
-                                continue;
-
-                            AddItem(new ModuleHeader(tmp.ModuleType.ToString(), 240f));
-                        }
-                    }
-                    foreach (Entry e in Entries)
-                    {
-                        string cat = (e.item as ModuleHeader).Text;
-                        foreach (ShipModule module in modules)
-                        {
-                            if (cat == module.ModuleType.ToString())
-                            {
-                                e.AddItem(module);
-                            }
-                        }
-                    }
-                    ResetOnNextDraw = false;
-                }
-                DrawList();
-            }
+            DrawList();
             base.Draw(spriteBatch);
+        }
+
+        private bool IsModuleAvailable(ShipModule mod, out ShipModule tmp)
+        {
+            tmp = null;
+
+            if (!EmpireManager.Player.IsModuleUnlocked(mod.UID) || mod.UID == "Dummy")
+                return false;
+
+            if (RestrictedModCheck(Screen.ActiveHull.Role, mod))
+                return false;
+
+            tmp = Screen.CreateDesignModule(mod.UID);
+            tmp.SetAttributesNoParent();                    
+            return true;
+        }
+
+        private void AddWeaponCategories()
+        {
+            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            {
+                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                    continue;
+
+                if (tmp.isWeapon)
+                {
+                    Weapon w = tmp.InstalledWeapon;
+                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)
+                    {
+                        if      (w.Tag_Flak)    AddCategoryItem(400, "Flak Cannon", tmp);
+                        else if (w.Tag_Railgun) AddCategoryItem(401, "Magnetic Cannon", tmp);
+                        else if (w.Tag_Array)   AddCategoryItem(401, "Beam Array", tmp);
+                        else if (w.Tag_Tractor) AddCategoryItem(401, "Tractor Beam", tmp);
+                        else if (w.Tag_Missile
+                             && !w.Tag_Guided)  AddCategoryItem(401, "Unguided Rocket", tmp);
+                        else                    AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, tmp);
+                    }
+                    else
+                    {
+                        AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, tmp);
+                    }
+                }
+                else if (tmp.ModuleType == ShipModuleType.Bomb)
+                {
+                    AddCategoryItem("Bomb".GetHashCode(), "Bomb", tmp);
+                }
+            }
+        }
+
+        private void AddPowerCategories()
+        {
+            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            {
+                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                    continue;
+
+                if (tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell ||
+                    tmp.ModuleType == ShipModuleType.PowerPlant ||
+                    tmp.ModuleType == ShipModuleType.PowerConduit)
+                {
+                    AddCategoryItem((int)tmp.ModuleType, tmp.ModuleType.ToString(), tmp);
+                }
+            }
+        }
+
+        private void AddDefenseCategories()
+        {
+            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            {
+                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                    continue;
+
+                if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield ||
+                     tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour)
+                {
+                    if (IsBadModuleSize(tmp) == false)
+                        AddCategoryItem((int)tmp.ModuleType, tmp.ModuleType.ToString(), tmp);
+                }
+                // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType
+                // is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
+                else if (tmp.isPowerArmour && tmp.ModuleType == ShipModuleType.Armor)
+                {
+                    if (IsBadModuleSize(tmp) == false) 
+                        AddCategoryItem(6172, Localizer.Token(6172), tmp);
+                }
+                else if (tmp.isBulkhead && tmp.ModuleType == ShipModuleType.Armor)
+                {
+                    if (IsBadModuleSize(tmp) == false) 
+                        AddCategoryItem(6173, Localizer.Token(6173), tmp);
+                }
+            }
+        }
+
+        private void AddSpecialCategories()
+        {
+            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            {
+                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                    continue;
+
+                if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
+                     tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
+                     tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
+                     tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter ||
+                     tmp.ModuleType == ShipModuleType.Ordnance ||
+                     tmp.ModuleType == ShipModuleType.Construction))
+                {
+                    AddCategoryItem((int)tmp.ModuleType, tmp.ModuleType.ToString(), tmp);
+                }
+            }
         }
 
         private void DrawList()

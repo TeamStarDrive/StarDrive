@@ -80,17 +80,7 @@ namespace Ship_Game
                 return true;
 
             if (module.Restrictions <= Restrictions.IOE)
-            {
-                bool newPartial = IsPartialMatch(Restrictions, module.Restrictions);
-                string moduleFitsToSlots = module.Restrictions.ToString();
-                bool oldPartial = Restrictions.ToString().Any(slotCapability => moduleFitsToSlots.Any(res => res == slotCapability));
-
-                if (newPartial != oldPartial)
-                {
-                    Log.Warning($"newPartial {newPartial} but expected {oldPartial}  slot {Restrictions}  module {module.Restrictions}");
-                }
-                return oldPartial;
-            }
+                return IsPartialMatch(Restrictions, module.Restrictions);
 
             switch (module.Restrictions) // exclusive restrictions
             {

@@ -135,14 +135,9 @@ namespace Ship_Game
                 return false;
 
             for (int x = p.X; x <= last.X; ++x) 
-            {
-                for (int y = p.Y; y <= last.Y; ++y)
-                {
-                    SlotStruct dest = Grid[x + y*Width];
-                    if (dest?.CanSlotSupportModule(module) != true)
-                        return false;
-                }
-            }
+            for (int y = p.Y; y <= last.Y; ++y)
+                if (Grid[x + y*Width]?.CanSlotSupportModule(module) != true)
+                    return false;
             return true;
         }
 
