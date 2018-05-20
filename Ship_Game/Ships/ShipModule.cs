@@ -233,28 +233,28 @@ namespace Ship_Game.Ships
         private ShipModule(ShipModule_Deserialize template) : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
-            Flyweight               = new ShipModuleFlyweight(template);
-            XSIZE                   = template.XSIZE;
-            YSIZE                   = template.YSIZE;
-            Mass                    = template.Mass;
-            Powered                 = template.Powered;
-            FieldOfFire             = template.FieldOfFire;
-            Facing                  = template.facing;
-            XMLPosition             = template.XMLPosition;
-            WeaponType              = template.WeaponType;
-            NameIndex               = template.NameIndex;
-            DescriptionIndex        = template.DescriptionIndex;
-            Restrictions            = template.Restrictions;
-            ShieldPower             = template.shield_power;
-            hangarShipUID           = template.hangarShipUID;
-            hangarTimer             = template.hangarTimer;
-            isWeapon                = template.isWeapon;
-            OrdinanceCapacity       = template.OrdinanceCapacity;
-            BombTimer               = template.BombTimer;
-            ModuleType              = template.ModuleType;
-            IconTexturePath         = template.IconTexturePath;
-            TargetValue             = template.TargetValue;
-            TemplateMaxHealth       = template.HealthMax;
+            Flyweight = new ShipModuleFlyweight(template);
+            XSIZE             = template.XSIZE;
+            YSIZE             = template.YSIZE;
+            Mass              = template.Mass;
+            Powered           = template.Powered;
+            FieldOfFire       = template.FieldOfFire;
+            Facing            = template.facing;
+            XMLPosition       = template.XMLPosition;
+            NameIndex         = template.NameIndex;
+            DescriptionIndex  = template.DescriptionIndex;
+            Restrictions      = template.Restrictions;
+            ShieldPower       = template.shield_power;
+            hangarShipUID     = template.hangarShipUID;
+            hangarTimer       = template.hangarTimer;
+            ModuleType        = template.ModuleType;
+            isWeapon          = template.isWeapon;
+            WeaponType        = template.WeaponType;
+            OrdinanceCapacity = template.OrdinanceCapacity;
+            BombTimer         = template.BombTimer;
+            IconTexturePath   = template.IconTexturePath;
+            TargetValue       = template.TargetValue;
+            TemplateMaxHealth = template.HealthMax;
             UpdateModuleRadius();
         }
 
@@ -278,9 +278,10 @@ namespace Ship_Game.Ships
                 hangarShipUID     = template.hangarShipUID,
                 hangarTimer       = template.hangarTimer,
                 TemplateMaxHealth = template.TemplateMaxHealth,
-                isWeapon          = template.isWeapon,
-                Mass              = template.Mass,
                 ModuleType        = template.ModuleType,
+                isWeapon          = template.isWeapon,
+                WeaponType        = template.WeaponType,
+                Mass              = template.Mass,
                 NameIndex         = template.NameIndex,
                 OrdinanceCapacity = template.OrdinanceCapacity,
                 ShieldPower       = template.shield_power_max, //Hmmm... This one is strange -Gretman
@@ -861,14 +862,13 @@ namespace Ship_Game.Ships
                     ConfigWeapon(false);
                     break;
             }
-            Health = ActualMaxHealth;
         }
 
         private void ConfigWeapon(bool addToParent)
         {
-            InstalledWeapon = ResourceManager.CreateWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
+            InstalledWeapon = ResourceManager.CreateWeapon(WeaponType);
             InstalledWeapon.Module = this;
-            InstalledWeapon.Owner = Parent;
+            InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;
             

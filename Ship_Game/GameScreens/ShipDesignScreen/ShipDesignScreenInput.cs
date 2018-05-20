@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -24,9 +25,6 @@ namespace Ship_Game
         #endif
             if (hull == null) return;
             ModSel.ResetLists();
-            DesignStack.Clear();
-            LastDesignActionPos = Vector2.Zero;
-            LastActiveUID = "";
 
             RemoveObject(shipSO);
             ActiveHull = new ShipData
@@ -155,15 +153,6 @@ namespace Ship_Game
             ExitMessageBox(this, LaunchScreen, SaveChanges, 2121);
         }
 
-        public bool IsMouseOverModule(InputState input, SlotStruct slot)
-        {
-            Vector2 moduleScreenPos = Camera.GetScreenSpaceFromWorldSpace(new Vector2(slot.PQ.X, slot.PQ.Y));
-            var moduleRect = new Rectangle((int)moduleScreenPos.X,  (int)moduleScreenPos.Y,
-                                           (int)(Camera.Zoom * 16), (int)(Camera.Zoom * 16));
-
-            return moduleRect.HitTest(input.CursorPosition);
-        }
-
         public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
@@ -233,6 +222,12 @@ namespace Ship_Game
             HandlePlaceNewModule(input);
             HandleInputMoveArcs(input);
             return false;
+        }
+
+        public bool GetSlotUnderCursor(InputState input, out SlotStruct slot)
+        {
+            Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(input.CursorPosition);
+            return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
         }
 
         private void HandleCameraMovement(InputState input)
@@ -318,11 +313,8 @@ namespace Ship_Game
             if (!ToggleOverlay)
                 return false;
 
-            foreach (SlotStruct slotStruct in ModuleGrid.SlotsList)
+            if (GetSlotUnderCursor(input, out SlotStruct slotStruct))
             {
-                if (!IsMouseOverModule(input, slotStruct))
-                    continue;
-
                 if (!input.LeftMouseHeld())
                 {
                     HoveredModule = slotStruct.Module ?? slotStruct.Parent?.Module;
@@ -342,11 +334,12 @@ namespace Ship_Game
                     }
 
                     SlotStruct slot = slotStruct.Parent ?? slotStruct;
-                    if (ActiveModule != null || slot.Module == null)
-                        continue;
-                    SetActiveModule(slot.Module.UID, slot.State);
-                    ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
-                    return true;
+                    if (ActiveModule == null && slot.Module != null)
+                    {
+                        SetActiveModule(slot.Module.UID, slot.State);
+                        ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                        return true;
+                    }
                 }
                 if (ActiveModule == null && !input.LeftMouseHeld())
                 {
@@ -422,23 +415,13 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            if (GetSlotUnderCursor(input, out SlotStruct slot))
             {
-                if (!IsMouseOverModule(input, slot))
-                    continue;
-
                 GameAudio.PlaySfxAsync("sub_bass_mouseover");
-
-                if (slot.PQ.X == (int) LastDesignActionPos.X && slot.PQ.Y == (int) LastDesignActionPos.Y &&
-                    ActiveModule.UID == LastActiveUID) continue;
-
-                // This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
-                InstallModule(slot, ActiveModule, ActiveModState); 
-
-
-                LastDesignActionPos.X = slot.PQ.X;
-                LastDesignActionPos.Y = slot.PQ.Y;
-                LastActiveUID = ActiveModule.UID;
+                if (slot.ModuleUID != ActiveModule.UID)
+                {
+                    InstallModule(slot, ActiveModule, ActiveModState); 
+                }
             }
         }
 
@@ -447,28 +430,18 @@ namespace Ship_Game
             if (!input.RightMouseClick)
                 return;
 
-            // this should actually clear slots
             ActiveModule = null;
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            if (GetSlotUnderCursor(input, out SlotStruct slot))
             {
-                slot.SetValidity();
-                if (!IsMouseOverModule(input, slot))
-                    continue;
+                if (slot.Module != null || slot.Parent != null)
+                {
+                    SlotStruct root = slot.Parent ?? slot;
+                    ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
+                    ModuleGrid.RecalculatePower();
 
-                bool slotModuleExists = slot.Module != null;
-                if (!slotModuleExists && slot.Parent == null) continue;
-                
-                DesignStack.Push(DesignateSlotForAction(slotModuleExists ? slot : slot.Parent));
-                GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                ClearParentSlot(slotModuleExists ? slot : slot.Parent);
-                ModuleGrid.RecalculatePower();
+                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
+                }
             }
-        }
-
-        private DesignAction DesignateSlotForAction(SlotStruct slot)
-        {
-            slot.SetValidity(slot.Module);
-            return new DesignAction(slot);
         }
 
         private void HandleInputDebug(InputState input)
@@ -491,62 +464,17 @@ namespace Ship_Game
 
         private void HandleInputZoom(InputState input)
         {
-            if (!ModSel.HitTest(input) && !HullSelectionRect.HitTest(input.CursorPosition))
-            {
-                if (input.ScrollOut) TransitionZoom -= 0.1f;
-                if (input.ScrollIn)  TransitionZoom += 0.1f;
-                TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
-            }
+            if (ModSel.HitTest(input) || HullSelectionRect.HitTest(input.CursorPosition))
+                return;
+            if (input.ScrollOut) TransitionZoom -= 0.1f;
+            if (input.ScrollIn)  TransitionZoom += 0.1f;
+            TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
         }
 
         private bool HandleInputUndo(InputState input)
         {
-            if (!input.Undo) return false;
-            if (DesignStack.Count <= 0)
-                return true;
-            LastActiveUID = "";
-            ShipModule shipModule = ActiveModule;
-            DesignAction designAction = DesignStack.Pop();
-            var slot1 = new SlotStruct();
-            foreach (SlotStruct slot2 in ModuleGrid.SlotsList)
-            {
-                if (slot2.PQ == designAction.clickedSS.PQ)
-                {
-                    ClearSlotNoStack(slot2);
-                    slot1 = slot2;
-                    slot1.Facing = designAction.clickedSS.Facing;                      
-                }
-                foreach (SlotStruct slotStruct in designAction.AlteredSlots)
-                {
-                    if (slot2.PQ != slotStruct.PQ)
-                        continue;
-                    slot2.State = slotStruct.State;
-                    ClearSlotNoStack(slot2);                    
-                    break;
-                }
-            }
-            if (designAction.clickedSS.ModuleUID != null)
-            {
-                SpawnActiveModule(designAction.clickedSS.ModuleUID, slot1.State);
-                ActiveModule.Facing = slot1.Facing;
-                InstallModuleNoStack(slot1, ActiveModule, ActiveModState);
-            }
-            foreach (SlotStruct slotStruct in designAction.AlteredSlots)
-            {
-                foreach (SlotStruct slot2 in ModuleGrid.SlotsList)
-                {
-                    if (slot2.PQ != slotStruct.PQ || slotStruct.ModuleUID == null)
-                        continue;
-
-                    slot2.Facing    = slotStruct.Facing;
-                    slot2.ModuleUID = slotStruct.ModuleUID;
-
-                    SpawnActiveModule(slotStruct.ModuleUID, slotStruct.State);
-                    InstallModuleNoStack(slot2, ActiveModule, ActiveModState);
-                }
-            }
-            ActiveModule = shipModule;
-            ResetModuleState();
+            if (!input.Undo)
+                return false;
             return true;
         }
 
@@ -637,7 +565,6 @@ namespace Ship_Game
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
             
             ChangeHull(AvailableHulls[0]);
-            CreateSOFromActiveHull();
 
             float lowestX  = ActiveHull.ModuleSlots[0].Position.X;
             float highestX = lowestX;
