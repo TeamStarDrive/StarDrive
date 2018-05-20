@@ -161,10 +161,10 @@ namespace Ship_Game
                 ShipData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
-                if (input.ArrowLeft)  ChangeModuleState(ActiveModuleState.Left);
-                if (input.ArrowRight) ChangeModuleState(ActiveModuleState.Right);
-                if (input.ArrowDown)  ChangeModuleState(ActiveModuleState.Rear);
-                if (input.ArrowUp)    ChangeModuleState(ActiveModuleState.Normal);
+                if (input.ArrowLeft)  ReorientActiveModule(ModuleOrientation.Left);
+                if (input.ArrowRight) ReorientActiveModule(ModuleOrientation.Right);
+                if (input.ArrowDown)  ReorientActiveModule(ModuleOrientation.Rear);
+                if (input.ArrowUp)    ReorientActiveModule(ModuleOrientation.Normal);
             }
             if (input.ShipDesignExit && !GlobalStats.TakingInput)
             {
@@ -333,7 +333,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.State);
+                    SetActiveModule(slot.Module.UID, slot.Orientation, slot.Facing);
                     ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
                     return true;
                 }
@@ -747,7 +747,7 @@ namespace Ship_Game
 
         public void ResetModuleState()
         {
-            ActiveModState = ActiveModuleState.Normal;
+            ActiveModState = ModuleOrientation.Normal;
         }
 
         private void SaveChanges(object sender, EventArgs e)
@@ -768,7 +768,7 @@ namespace Ship_Game
                     InstalledModuleUID = slot.ModuleUID,
                     Position           = slot.SlotReference.Position,
                     Restrictions       = slot.Restrictions,
-                    Orientation        = slot.State.ToString()
+                    Orientation        = slot.Orientation.ToString()
                 };
                 if (slot.Module != null)
                 {

@@ -320,9 +320,7 @@ namespace Ship_Game.Ships
         {
             ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
-            module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, slot.GetOrientation());
-            // Orientation and Facing are related. But always override Facing with given ModuleSlotData.Facing
-            module.Facing = slot.Facing;
+            module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
             {
@@ -1163,29 +1161,32 @@ namespace Ship_Game.Ships
             return off;
         }
 
-        public void ApplyModuleOrientation(int w, int h, ShipDesignScreen.ActiveModuleState state)
+        public static float DefaultFacingFor(ModuleOrientation orientation)
         {
-            switch (state)
+            switch (orientation)
             {
-                case ShipDesignScreen.ActiveModuleState.Normal:
+                default:
+                case ModuleOrientation.Normal: return 0f;
+                case ModuleOrientation.Left:   return 270f;
+                case ModuleOrientation.Right:  return 90f;
+                case ModuleOrientation.Rear:   return 180f;
+            }
+        }
+
+        public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
+        {
+            Facing = facing;
+            switch (orientation)
+            {
+                case ModuleOrientation.Normal:
+                case ModuleOrientation.Rear:
                     XSIZE = w;
                     YSIZE = h;
-                    Facing = 0f;
                     break;
-                case ShipDesignScreen.ActiveModuleState.Left:
-                    XSIZE = h; // @todo Why are these swapped? Please comment.
-                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa    
-                    Facing = 270f;
-                    return;
-                case ShipDesignScreen.ActiveModuleState.Right:
-                    XSIZE = h; // @todo Why are these swapped? Please comment.
-                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa
-                    Facing = 90f;
-                    break;
-                case ShipDesignScreen.ActiveModuleState.Rear:
-                    XSIZE = w;
-                    YSIZE = h;
-                    Facing = 180f;
+                case ModuleOrientation.Left:
+                case ModuleOrientation.Right:
+                    XSIZE = h; // if the module is facing left or right, then length is now height
+                    YSIZE = w;
                     break;
             }
         }

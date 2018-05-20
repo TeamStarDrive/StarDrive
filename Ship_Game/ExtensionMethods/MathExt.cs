@@ -866,7 +866,7 @@ namespace Ship_Game
         public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
-            return -1.40129846432482E-45 <= delta && delta <= 1.40129846432482E-45;
+            return -0.000001f <= delta && delta <= 0.000001f;
         }
         public static bool AlmostEqual(this float a, float b, float tolerance)
         {
