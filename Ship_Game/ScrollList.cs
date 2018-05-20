@@ -919,9 +919,7 @@ namespace Ship_Game
 
             public void AddItem(object o)
             {
-                Entry e = new Entry();
-                e.item = o;
-                SubEntries.Add(e);
+                SubEntries.Add(new Entry {item = o});
             }
 
             public void AddItem(object o, int addrect, int addpencil)
