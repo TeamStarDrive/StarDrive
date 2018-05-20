@@ -62,7 +62,7 @@ namespace Ship_Game
                         continue;
 
                     var module = (ShipModule)e.item;
-                    Screen.SetActiveModule(module.UID, ShipDesignScreen.ActiveModuleState.Normal);
+                    Screen.SetActiveModule(module.UID, ModuleOrientation.Normal, 0f);
                     return true;
                 }
                 else

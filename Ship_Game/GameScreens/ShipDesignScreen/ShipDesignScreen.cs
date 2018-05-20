@@ -49,7 +49,7 @@ namespace Ship_Game
         private float TransitionZoom = 1f;
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
-        private ActiveModuleState ActiveModState;
+        private ModuleOrientation ActiveModState;
         private Selector selector;
         private CategoryDropDown CategoryList;
         private Rectangle DropdownRect;
@@ -83,13 +83,14 @@ namespace Ship_Game
         #endif
         }
 
-        private void ChangeModuleState(ActiveModuleState state)
+        private void ReorientActiveModule(ModuleOrientation orientation)
         {
             if (ActiveModule == null)
                 return;
-            ActiveModState = state;
+            ActiveModState = orientation;
             ShipModule template = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            ActiveModule.ApplyModuleOrientation(template.XSIZE, template.YSIZE, state);
+            ActiveModule.SetModuleFacing(template.XSIZE, template.YSIZE, 
+                                         orientation, ShipModule.DefaultFacingFor(orientation));
         }
 
         private bool FindStructFromOffset(SlotStruct offsetBase, int dx, int dy, out SlotStruct found)
@@ -184,55 +185,51 @@ namespace Ship_Game
             return m;
         }
 
-        public ShipModule CreateDesignModule(string uid, ActiveModuleState state)
+        public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
         {
             ShipModule m = ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
-            m.ApplyModuleOrientation(m.XSIZE, m.YSIZE, state);
+            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
             return m;
         }
 
         // spawn a new active module under cursor
-        private void SpawnActiveModule(string uid, ActiveModuleState state)
+        private void SpawnActiveModule(string uid, ModuleOrientation orientation, float facing)
         {
-            ActiveModule = CreateDesignModule(uid, state);
-            ActiveModState = state;
+            ActiveModule = CreateDesignModule(uid, orientation, facing);
+            ActiveModState = orientation;
             ActiveModule.SetAttributes();
         }
 
         private void ResetActiveModule()
         {
             ActiveModule = null;
-            ActiveModState = ActiveModuleState.Normal;
+            ActiveModState = ModuleOrientation.Normal;
         }
         
-        public void SetActiveModule(string uid, ActiveModuleState state)
+        public void SetActiveModule(string uid, ModuleOrientation orientation, float facing)
         {
             GameAudio.PlaySfxAsync("smallservo");
 
-            SpawnActiveModule(uid, state);
+            SpawnActiveModule(uid, orientation, facing);
 
             HighlightedModule = null;
             HoveredModule     = null;
         }        
         
-        private void InstallModule(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
+        private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
                 PlayNegativeSound();
                 return;
             }
 
-            ModuleGrid.ClearSlots(slot, newModule.XSIZE, newModule.YSIZE);
-            ModuleGrid.InstallModule(slot, newModule, newState);
+            ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
+            ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
 
-            SpawnActiveModule(newModule.UID, newState);
-        }
-
-        private void InstallModuleFromLoad(SlotStruct slot, ShipModule newModule, ActiveModuleState newState)
-        {
+            SpawnActiveModule(module.UID, orientation, slot.Facing);
         }
 
         private DesignModuleGrid ModuleGrid;
@@ -247,14 +244,14 @@ namespace Ship_Game
                 if (uid == null || uid == "Dummy") // @note Backwards savegame compatibility for ship designs, dummy modules are deprecated
                     continue;
 
-                ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.State);
+                ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.Orientation, slot.Facing);
                 if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
                 {
                     Log.Warning($"InstallModuleFromLoad failed! {newModule}");
                     continue;
                 }
 
-                ModuleGrid.InstallModule(slot, newModule, slot.State);
+                ModuleGrid.InstallModule(slot, newModule, slot.Orientation);
 
                 if (slot.Module?.ModuleType == ShipModuleType.Hangar)
                     slot.Module.hangarShipUID = slot.SlotOptions;
@@ -303,14 +300,6 @@ namespace Ship_Game
         }
 
 
-        public enum ActiveModuleState
-        {
-            Normal,
-            Left,
-            Right,
-            Rear
-        }
-
         private enum SlotModOperation
         {
             Delete,
@@ -322,7 +311,11 @@ namespace Ship_Game
             OE,
             IOE,
             Normal
-
         }
+    }
+
+    public enum ModuleOrientation
+    {
+        Normal, Left, Right, Rear
     }
 }

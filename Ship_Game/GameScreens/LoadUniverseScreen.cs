@@ -80,7 +80,9 @@ namespace Ship_Game
             }
             foreach(TechEntry tech in sdata.TechTree)
             {
-                e.TechnologyDict.Add(tech.UID, tech);
+                if (!ResourceManager.TryGetTech(tech.UID, out _))
+                    Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
+                else e.TechnologyDict.Add(tech.UID, tech);
             }            
             e.InitializeFromSave();
             e.Money = sdata.Money;

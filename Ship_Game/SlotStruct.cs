@@ -13,11 +13,11 @@ namespace Ship_Game
     {
         public Restrictions Restrictions;
         public PrimitiveQuad PQ;
-        public float Facing;
+        public float Facing; // Facing is the turret aiming dir
+        public ModuleOrientation Orientation; // Orientation controls the visual 4-dir rotation of module
         public bool PowerChecked; // this conduit or power plant already checked?
         public bool InPowerRadius; // is this slot covered by a power radius?
         public SlotStruct Parent;
-        public ShipDesignScreen.ActiveModuleState State;
         public ModuleSlotData SlotReference;
         public string ModuleUID;
         public ShipModule Module;
@@ -30,14 +30,14 @@ namespace Ship_Game
 
         public SlotStruct(ModuleSlotData slot, Vector2 offset)
         {
-            Enum.TryParse(slot.Orientation, out ShipDesignScreen.ActiveModuleState slotState);
+            Enum.TryParse(slot.Orientation, out ModuleOrientation slotState);
             Vector2 pos = slot.Position;
             PQ            = new PrimitiveQuad(pos.X + offset.X - 8f, pos.Y + offset.Y - 8f, 16f, 16f);
             Restrictions  = slot.Restrictions;
             Facing        = slot.Facing;
             ModuleUID     = slot.InstalledModuleUID;
             SlotReference = slot;
-            State         = slotState;
+            Orientation   = slotState;
             SlotOptions   = slot.SlotOptions;
         }
 
@@ -48,7 +48,7 @@ namespace Ship_Game
             Facing        = parent.Facing;
             ModuleUID     = parent.ModuleUID;
             Module        = parent.Module;
-            State         = parent.State;
+            Orientation         = parent.Orientation;
             SlotReference = parent.SlotReference;
         }
 
@@ -131,7 +131,7 @@ namespace Ship_Game
             Tex       = null;
             Module    = null;
             Parent    = null;
-            State     = ShipDesignScreen.ActiveModuleState.Normal;
+            Orientation     = ModuleOrientation.Normal;
         }
     }
 }

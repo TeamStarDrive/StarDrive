@@ -58,14 +58,14 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    if (slot.State != ActiveModuleState.Normal)
+                    if (slot.Orientation != ModuleOrientation.Normal)
                     {
                         var r = slot.ModuleRect;
 
                         // @todo Simplify this
-                        switch (slot.State)
+                        switch (slot.Orientation)
                         {
-                            case ActiveModuleState.Left:
+                            case ModuleOrientation.Left:
                             {
                                 int w = slot.Module.XSIZE * 16;
                                 int h = slot.Module.YSIZE * 16;
@@ -75,7 +75,7 @@ namespace Ship_Game
                                 spriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                                 break;
                             }
-                            case ActiveModuleState.Right:
+                            case ModuleOrientation.Right:
                             {
                                 int w = slot.Module.YSIZE * 16;
                                 int h = slot.Module.XSIZE * 16;
@@ -85,7 +85,7 @@ namespace Ship_Game
                                 spriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                                 break;
                             }
-                            case ActiveModuleState.Rear:
+                            case ModuleOrientation.Rear:
                             {
                                 spriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
                                 break;
@@ -192,13 +192,13 @@ namespace Ship_Game
                     (int) ((float) (16 * this.ActiveModule.YSIZE) * this.Camera.Zoom));
                 switch (this.ActiveModState)
                 {
-                    case ActiveModuleState.Normal:
+                    case ModuleOrientation.Normal:
                     {
                         spriteBatch.Draw(
                             iconTexturePath, r, Color.White);
                         break;
                     }
-                    case ActiveModuleState.Left:
+                    case ModuleOrientation.Left:
                     {
                         r.Y = r.Y + (int) ((16 * moduleTemplate.XSIZE) * Camera.Zoom);
                         int h = r.Height;
@@ -210,7 +210,7 @@ namespace Ship_Game
                             -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
-                    case ActiveModuleState.Right:
+                    case ModuleOrientation.Right:
                     {
                         r.X = r.X + (int) ((16 * moduleTemplate.YSIZE) * Camera.Zoom);
                         int h = r.Height;
@@ -222,7 +222,7 @@ namespace Ship_Game
                             1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
-                    case ActiveModuleState.Rear:
+                    case ModuleOrientation.Rear:
                     {
                         spriteBatch.Draw(
                             iconTexturePath, r, null, Color.White,
