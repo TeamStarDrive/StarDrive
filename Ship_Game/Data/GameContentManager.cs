@@ -178,7 +178,7 @@ namespace Ship_Game
 
             if (totalMemSaved > 0f)
             {
-                Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB)", Name, count, totalMemSaved);
+                Log.Info($"Unloaded '{Name}' ({count} assets, {totalMemSaved:0.0}MB)");
             }
         }
 
@@ -231,7 +231,7 @@ namespace Ship_Game
         #endif
 
             if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, "Load<{0}> {1}", typeof(T).Name, assetNoExt);
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetNoExt}");
 
             if (TryGetAsset(assetNoExt, out object existing))
             {

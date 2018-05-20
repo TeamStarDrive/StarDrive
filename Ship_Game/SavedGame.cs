@@ -599,13 +599,13 @@ namespace Ship_Game
                             };
                             ser.Serialize(textWriter, data);
                         }
-                        Log.Warning("JSON Total Save elapsed: {0}s", t.Elapsed);
+                        Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
                     }
                     else
                     {
                         var ser = new XmlSerializer(typeof(UniverseSaveData));
                         ser.Serialize(writeStream, data);
-                        Log.Warning("XML Total Save elapsed: {0}s", t.Elapsed);
+                        Log.Warning($"XML Total Save elapsed: {t.Elapsed}s");
                     }
                 }
                 HelperFunctions.Compress(info);
@@ -655,7 +655,7 @@ namespace Ship_Game
                     usData = ser.Deserialize<UniverseSaveData>(reader);
                 }
 
-                Log.Warning("JSON Total Load elapsed: {0}s  ", t.Elapsed);
+                Log.Warning($"JSON Total Load elapsed: {t.Elapsed}s  ");
             }
             else // old 100MB XML savegame format (haha)
             {
@@ -679,7 +679,7 @@ namespace Ship_Game
                 using (FileStream stream = decompressed.OpenRead())
                     usData = (UniverseSaveData)serializer1.Deserialize(stream);
 
-                Log.Warning("XML Total Load elapsed: {0}s  mem: {1}MB", t.Elapsed, serSize / (1024f * 1024f));
+                Log.Warning($"XML Total Load elapsed: {t.Elapsed}s  mem: {serSize / (1024f * 1024f)}MB");
             }
             decompressed.Delete();
 

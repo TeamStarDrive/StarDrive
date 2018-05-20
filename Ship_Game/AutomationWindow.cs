@@ -112,7 +112,7 @@ namespace Ship_Game
             {
                 if (!options.SetActiveEntry(defaultShip)) // we can't build a default ship??? wtf
                 {
-                    Log.Warning("Failed to enable default automation ship '{0}' for player {1}", defaultShip, EmpireManager.Player);
+                    Log.Warning($"Failed to enable default automation ship '{defaultShip}' for player {EmpireManager.Player}");
                     WarnBuildableShips();
                     options.AddOption(defaultShip, 0);
                 }

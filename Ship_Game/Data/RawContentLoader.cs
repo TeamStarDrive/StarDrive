@@ -65,11 +65,11 @@ namespace Ship_Game
         {            
             if (IsSupportedMeshExtension(ext))
             {
-                Log.Info(ConsoleColor.Magenta, "Raw LoadMesh: {0}", fileNameWithExt);
+                Log.Info(ConsoleColor.Magenta, $"Raw LoadMesh: {fileNameWithExt}");
                 return StaticMeshFromFile(fileNameWithExt);
             }
 
-            Log.Info(ConsoleColor.Magenta, "Raw LoadTexture: {0}", fileNameWithExt);
+            Log.Info(ConsoleColor.Magenta, $"Raw LoadTexture: {fileNameWithExt}");
             return LoadImageAsTexture(fileNameWithExt);
         }
 
@@ -398,7 +398,7 @@ namespace Ship_Game
             {
                 if (!File.Exists(writeTo))
                 {
-                    Log.Warning("  ExportTexture: {0}", writeTo);
+                    Log.Warning($"  ExportTexture: {writeTo}");
                     texture.Save(writeTo, ImageFileFormat.Png);
                 }
             }
