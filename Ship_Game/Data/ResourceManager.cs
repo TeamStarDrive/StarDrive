@@ -92,6 +92,8 @@ namespace Ship_Game
             return technology;
         }
 
+        public static bool TryGetTech(string techUid, out Technology tech) => TechTree.TryGetValue(techUid, out tech);
+
         public static ExplorationEvent Event(string eventName, string defaultEvent = "default")
         {
             if (EventsDict.TryGetValue(eventName, out ExplorationEvent events)) return events;
