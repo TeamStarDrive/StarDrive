@@ -21,7 +21,7 @@ namespace Ship_Game
 
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
 
-        public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window, true)
+        public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window)
         {
             ParentScreen = parentScreen;
             Window = window;
@@ -125,8 +125,9 @@ namespace Ship_Game
         {
             //ActiveModSubMenu.Draw();
             Rectangle r = ActiveModSubMenu.Menu;
-            r.Y = r.Y + 25;
-            r.Height = r.Height - 25;
+            int down = 25;
+            r.Y += down;
+            r.Height -= down;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             ShipModule mod = ParentScreen.ActiveModule ?? ParentScreen.HighlightedModule;
@@ -166,44 +167,25 @@ namespace Ship_Game
             string rest = "";
             switch (moduleTemplate.Restrictions)
             {
-                case Restrictions.IO:
-                    rest = "Any Slot except E";
-                    break;
-                case Restrictions.I:
-                    rest = "I, IO, IE or IOE";
-                    break;
-                case Restrictions.O:
-                    rest = "O, IO, OE, or IOE";
-                    break;
-                case Restrictions.E:
-                    rest = "E, IE, OE, or IOE";
-                    break;
-                case Restrictions.IOE:
-                    rest = "Any Slot";
-                    break;
-                case Restrictions.IE:
-                    rest = "Any Slot except O";
-                    break;
-                case Restrictions.OE:
-                    rest = "Any Slot except I";
-                    break;
-                case Restrictions.xI:
-                    rest = "Only I";
-                    break;
-                case Restrictions.xIO:
-                    rest = "Only IO";
-                    break;
-                case Restrictions.xO:
-                    rest = "Only O";
-                    break;
+                case Restrictions.IO:  rest = "Any Slot except E"; break;
+                case Restrictions.I:   rest = "I, IO, IE or IOE"; break;
+                case Restrictions.O:   rest = "O, IO, OE, or IOE"; break;
+                case Restrictions.E:   rest = "E, IE, OE, or IOE"; break;
+                case Restrictions.IOE: rest = "Any Slot"; break;
+                case Restrictions.IE:  rest = "Any Slot except O"; break;
+                case Restrictions.OE:  rest = "Any Slot except I"; break;
+                case Restrictions.xI:  rest = "Only I"; break;
+                case Restrictions.xIO: rest = "Only IO"; break;
+                case Restrictions.xO:  rest = "Only O"; break;
             }
 
             // Concat ship class restrictions
             string shipRest = "";
             bool specialString = false;
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones &&
-                GlobalStats.ActiveModInfo.useDestroyers)
+            bool modDrones = GlobalStats.ActiveModInfo?.useDrones == true;
+            bool modDestroyers = GlobalStats.ActiveModInfo?.useDestroyers == true;
+            if (modDrones && modDestroyers)
             {
                 if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule &&
                     mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule &&
@@ -248,10 +230,9 @@ namespace Ship_Game
                     shipRest = "All Hulls";
                     specialString = true;
                 }
-            }
-            if (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.useDrones &&
-                GlobalStats.ActiveModInfo.useDestroyers)
-            {
+
+                /////
+
                 if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule &&
                     mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule &&
                     mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
@@ -278,10 +259,9 @@ namespace Ship_Game
                     shipRest = "All Hulls";
                     specialString = true;
                 }
-            }
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones &&
-                !GlobalStats.ActiveModInfo.useDestroyers)
-            {
+
+                /////
+
                 if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule &&
                     mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule &&
                     mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
@@ -323,8 +303,9 @@ namespace Ship_Game
                     specialString = true;
                 }
             }
-            if (GlobalStats.ActiveModInfo == null || (!GlobalStats.ActiveModInfo.useDrones &&
-                                                      !GlobalStats.ActiveModInfo.useDestroyers))
+
+
+            if (GlobalStats.ActiveModInfo == null || (!modDrones && !modDestroyers))
             {
                 if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule &&
                     mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule &&
@@ -353,42 +334,28 @@ namespace Ship_Game
                     specialString = true;
                 }
             }
-
-            else if (!specialString && (!mod.DroneModule && GlobalStats.ActiveModInfo != null &&
-                                        GlobalStats.ActiveModInfo.useDrones) || !mod.FighterModule ||
-                     !mod.CorvetteModule || !mod.FrigateModule ||
-                     (!mod.DestroyerModule && GlobalStats.ActiveModInfo != null &&
-                      GlobalStats.ActiveModInfo.useDestroyers) || !mod.CruiserModule || !mod.CruiserModule ||
-                     !mod.CarrierModule || !mod.CapitalModule || !mod.PlatformModule || !mod.StationModule ||
-                     !mod.FreighterModule)
+            else if (!specialString &&
+                     (!mod.DroneModule && modDrones) || (!mod.DestroyerModule && modDestroyers) ||
+                     !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || !mod.CruiserModule  ||
+                     !mod.CruiserModule || !mod.CarrierModule  || !mod.CapitalModule || !mod.PlatformModule ||
+                     !mod.StationModule || !mod.FreighterModule)
             {
-                if (mod.DroneModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDrones)
-                    shipRest += "Dr ";
-                if (mod.FighterModule)
-                    shipRest += "F ";
-                if (mod.CorvetteModule)
-                    shipRest += "CO ";
-                if (mod.FrigateModule)
-                    shipRest += "FF ";
-                if (mod.DestroyerModule && GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useDestroyers)
-                    shipRest += "DD ";
-                if (mod.CruiserModule)
-                    shipRest += "CC ";
-                if (mod.CarrierModule)
-                    shipRest += "CV ";
-                if (mod.CapitalModule)
-                    shipRest += "CA ";
-                if (mod.FreighterModule)
-                    shipRest += "Frt ";
-                if (mod.PlatformModule || mod.StationModule)
-                    shipRest += "Stat ";
+                if (mod.DroneModule && modDrones) shipRest += "Dr ";
+                if (mod.FighterModule)  shipRest += "F ";
+                if (mod.CorvetteModule) shipRest += "CO ";
+                if (mod.FrigateModule)  shipRest += "FF ";
+                if (mod.DestroyerModule && modDestroyers) shipRest += "DD ";
+                if (mod.CruiserModule) shipRest += "CC ";
+                if (mod.CarrierModule) shipRest += "CV ";
+                if (mod.CapitalModule) shipRest += "CA ";
+                if (mod.FreighterModule) shipRest += "Frt ";
+                if (mod.PlatformModule || mod.StationModule) shipRest += "Stat ";
             }
+
             //DrawString(ref modTitlePos, string.Concat(Localizer.Token(122), ": ", rest));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(Localizer.Token(122), ": ", rest),
-                modTitlePos, Color.Orange);
-            modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Hulls: ", shipRest), modTitlePos,
-                Color.LightSteelBlue);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.Token(122)+": "+rest, modTitlePos, Color.Orange);
+            modTitlePos.Y = modTitlePos.Y + Fonts.Arial8Bold.LineSpacing;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
             modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing + 11);
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon && moduleTemplate.BombType == null)
@@ -396,33 +363,32 @@ namespace Ship_Game
                 var weaponTemplate = ResourceManager.GetWeaponTemplate(moduleTemplate.WeaponType);
 
                 var sb = new StringBuilder();
-                if (weaponTemplate.Tag_Guided) sb.Append("GUIDED ");
+                if (weaponTemplate.Tag_Guided)    sb.Append("GUIDED ");
                 if (weaponTemplate.Tag_Intercept) sb.Append("INTERCEPTABLE ");
-                if (weaponTemplate.Tag_Energy) sb.Append("ENERGY ");
-                if (weaponTemplate.Tag_Hybrid) sb.Append("HYBRID ");
-                if (weaponTemplate.Tag_Kinetic) sb.Append("KINETIC ");
+                if (weaponTemplate.Tag_Energy)    sb.Append("ENERGY ");
+                if (weaponTemplate.Tag_Hybrid)    sb.Append("HYBRID ");
+                if (weaponTemplate.Tag_Kinetic)   sb.Append("KINETIC ");
                 if (weaponTemplate.Tag_Explosive && !weaponTemplate.Tag_Flak) sb.Append("EXPLOSIVE ");
-                if (weaponTemplate.Tag_Subspace) sb.Append("SUBSPACE ");
-                if (weaponTemplate.Tag_Warp) sb.Append("WARP ");
-                if (weaponTemplate.Tag_PD) sb.Append("POINT DEFENSE ");
-                if (weaponTemplate.Tag_Flak) sb.Append("FLAK ");
+                if (weaponTemplate.Tag_Subspace)  sb.Append("SUBSPACE ");
+                if (weaponTemplate.Tag_Warp)      sb.Append("WARP ");
+                if (weaponTemplate.Tag_PD)        sb.Append("POINT DEFENSE ");
+                if (weaponTemplate.Tag_Flak)      sb.Append("FLAK ");
 
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats &&
-                    (weaponTemplate.Tag_Missile && !weaponTemplate.Tag_Guided))
+                if (GlobalStats.ActiveModInfo?.expandedWeaponCats == true && weaponTemplate.Tag_Missile && !weaponTemplate.Tag_Guided)
                     sb.Append("ROCKET ");
                 else if (weaponTemplate.Tag_Missile)
                     sb.Append("MISSILE ");
 
-                if (weaponTemplate.Tag_Tractor) sb.Append("TRACTOR ");
-                if (weaponTemplate.Tag_Beam) sb.Append("BEAM ");
-                if (weaponTemplate.Tag_Array) sb.Append("ARRAY ");
-                if (weaponTemplate.Tag_Railgun) sb.Append("RAILGUN ");
-                if (weaponTemplate.Tag_Torpedo) sb.Append("TORPEDO ");
-                if (weaponTemplate.Tag_Bomb) sb.Append("BOMB ");
+                if (weaponTemplate.Tag_Tractor)   sb.Append("TRACTOR ");
+                if (weaponTemplate.Tag_Beam)      sb.Append("BEAM ");
+                if (weaponTemplate.Tag_Array)     sb.Append("ARRAY ");
+                if (weaponTemplate.Tag_Railgun)   sb.Append("RAILGUN ");
+                if (weaponTemplate.Tag_Torpedo)   sb.Append("TORPEDO ");
+                if (weaponTemplate.Tag_Bomb)      sb.Append("BOMB ");
                 if (weaponTemplate.Tag_BioWeapon) sb.Append("BIOWEAPON ");
                 if (weaponTemplate.Tag_SpaceBomb) sb.Append("SPACEBOMB ");
-                if (weaponTemplate.Tag_Drone) sb.Append("DRONE ");
-                if (weaponTemplate.Tag_Cannon) sb.Append("CANNON ");
+                if (weaponTemplate.Tag_Drone)     sb.Append("DRONE ");
+                if (weaponTemplate.Tag_Cannon)    sb.Append("CANNON ");
                 DrawString(ref modTitlePos, sb.ToString(), Fonts.Arial8Bold);
 
                 modTitlePos.Y = modTitlePos.Y + (Fonts.Arial8Bold.LineSpacing + 5);
@@ -430,7 +396,7 @@ namespace Ship_Game
             }
 
             string txt = ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
-                (float)(ActiveModSubMenu.Menu.Width - 20), Fonts.Arial12);
+                                   ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12);
 
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);

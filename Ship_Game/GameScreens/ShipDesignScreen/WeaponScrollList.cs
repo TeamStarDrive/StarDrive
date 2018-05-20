@@ -15,6 +15,7 @@ namespace Ship_Game
         private Selector SelectionBox;
         private readonly InputState Input;
         public bool ResetOnNextDraw = true;
+
         public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
         {
             Screen = shipDesignScreen;
@@ -39,12 +40,9 @@ namespace Ship_Game
                 DestroySelectionBox();
                 return false;
             }
-            for (int index = indexAtTop;
-                index < Copied.Count
-                && index < indexAtTop + entriesToDisplay;
-                ++index)
+            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
             {
-                Entry e = Copied[index];
+                Entry e = Copied[i];
 
                 if (e.item is ModuleHeader moduleHeader)
                 {
@@ -71,7 +69,6 @@ namespace Ship_Game
                     e.clickRectHover = 0;
             }
             return false;
-
         }
 
         private bool IsBadModuleSize(ShipModule module)
@@ -81,16 +78,32 @@ namespace Ship_Game
             return Screen.IsBadModuleSize(module);
         }
 
+        private bool IsGoodModuleSize(ShipModule module)
+        {
+            return !IsBadModuleSize(module);
+        }
+
         private readonly Map<int, Entry> Categories = new Map<int, Entry>();
 
         private void AddCategoryItem(int categoryId, string categoryName, ShipModule mod)
         {
+            if (!IsGoodModuleSize(mod))
+                return;
             if (!Categories.TryGetValue(categoryId, out Entry e))
             {
-                e = AddItem(new ModuleHeader(categoryName, 240f));
+                e = AddItem(new ModuleHeader(categoryName, 240));
                 Categories.Add(categoryId, e);
             }
             e.AddItem(mod);
+        }
+
+        private void OpenCategory(int categoryId)
+        {
+            if (Categories.TryGetValue(categoryId, out Entry e))
+            {
+                var category = (ModuleHeader)e.item;
+                category.Expand(true, e);
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -108,29 +121,29 @@ namespace Ship_Game
                 ResetOnNextDraw = false;
             }
 
-            DrawList();
+            DrawList(spriteBatch);
             base.Draw(spriteBatch);
         }
 
-        private bool IsModuleAvailable(ShipModule mod, out ShipModule tmp)
+        private bool IsModuleAvailable(ShipModule template, out ShipModule tmp)
         {
             tmp = null;
 
-            if (!EmpireManager.Player.IsModuleUnlocked(mod.UID) || mod.UID == "Dummy")
+            if (!EmpireManager.Player.IsModuleUnlocked(template.UID) || template.UID == "Dummy")
                 return false;
 
-            if (RestrictedModCheck(Screen.ActiveHull.Role, mod))
+            if (RestrictedModCheck(Screen.ActiveHull.Role, template))
                 return false;
 
-            tmp = Screen.CreateDesignModule(mod.UID);
+            tmp = Screen.CreateDesignModule(template.UID);
             return true;
         }
 
         private void AddWeaponCategories()
         {
-            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
             {
-                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                if (!IsModuleAvailable(template, out ShipModule tmp))
                     continue;
 
                 if (tmp.isWeapon)
@@ -160,132 +173,126 @@ namespace Ship_Game
 
         private void AddPowerCategories()
         {
-            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
             {
-                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                if (!IsModuleAvailable(template, out ShipModule tmp))
                     continue;
 
-                if (tmp.ModuleType == ShipModuleType.Engine || tmp.ModuleType == ShipModuleType.FuelCell ||
-                    tmp.ModuleType == ShipModuleType.PowerPlant ||
-                    tmp.ModuleType == ShipModuleType.PowerConduit)
-                {
-                    AddCategoryItem((int)tmp.ModuleType, tmp.ModuleType.ToString(), tmp);
-                }
+                ShipModuleType type = tmp.ModuleType;
+                if (type == ShipModuleType.PowerConduit)
+                    type = ShipModuleType.PowerPlant; // force PowerConduit's into PowerPlant category
+
+                if (type == ShipModuleType.PowerPlant|| type == ShipModuleType.FuelCell || type == ShipModuleType.Engine)
+                    AddCategoryItem((int)type, type.ToString(), tmp);
             }
+            OpenCategory((int)ShipModuleType.PowerPlant);
         }
 
         private void AddDefenseCategories()
         {
-            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
             {
-                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                if (!IsModuleAvailable(template, out ShipModule tmp))
                     continue;
-
-                if ((tmp.ModuleType == ShipModuleType.Armor || tmp.ModuleType == ShipModuleType.Shield ||
-                     tmp.ModuleType == ShipModuleType.Countermeasure) && !tmp.isBulkhead && !tmp.isPowerArmour)
+                
+                ShipModuleType type = tmp.ModuleType;
+                if (type == ShipModuleType.Shield ||
+                    type == ShipModuleType.Countermeasure ||
+                    (type == ShipModuleType.Armor && !tmp.isBulkhead && !tmp.isPowerArmour))
                 {
-                    if (IsBadModuleSize(tmp) == false)
-                        AddCategoryItem((int)tmp.ModuleType, tmp.ModuleType.ToString(), tmp);
+                    AddCategoryItem((int)type, type.ToString(), tmp);
                 }
                 // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType
                 // is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
-                else if (tmp.isPowerArmour && tmp.ModuleType == ShipModuleType.Armor)
+                else if (tmp.isPowerArmour && type == ShipModuleType.Armor)
                 {
-                    if (IsBadModuleSize(tmp) == false) 
-                        AddCategoryItem(6172, Localizer.Token(6172), tmp);
+                    AddCategoryItem(6172, Localizer.Token(6172), tmp);
                 }
-                else if (tmp.isBulkhead && tmp.ModuleType == ShipModuleType.Armor)
+                else if (tmp.isBulkhead && type == ShipModuleType.Armor)
                 {
-                    if (IsBadModuleSize(tmp) == false) 
-                        AddCategoryItem(6173, Localizer.Token(6173), tmp);
+                    AddCategoryItem(6173, Localizer.Token(6173), tmp);
                 }
             }
+            OpenCategory((int)ShipModuleType.Shield);
         }
 
         private void AddSpecialCategories()
         {
-            foreach (KeyValuePair<string, ShipModule> module in ResourceManager.ShipModules)
+            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
             {
-                if (!IsModuleAvailable(module.Value, out ShipModule tmp))
+                if (!IsModuleAvailable(template, out ShipModule tmp))
                     continue;
 
-                if ((tmp.ModuleType == ShipModuleType.Troop || tmp.ModuleType == ShipModuleType.Colony ||
-                     tmp.ModuleType == ShipModuleType.Command || tmp.ModuleType == ShipModuleType.Storage ||
-                     tmp.ModuleType == ShipModuleType.Hangar || tmp.ModuleType == ShipModuleType.Sensors ||
-                     tmp.ModuleType == ShipModuleType.Special || tmp.ModuleType == ShipModuleType.Transporter ||
-                     tmp.ModuleType == ShipModuleType.Ordnance ||
-                     tmp.ModuleType == ShipModuleType.Construction))
+                ShipModuleType type = tmp.ModuleType;
+                if (type == ShipModuleType.Troop    || type == ShipModuleType.Colony      ||
+                    type == ShipModuleType.Command  || type == ShipModuleType.Storage     ||
+                    type == ShipModuleType.Hangar   || type == ShipModuleType.Sensors     ||
+                    type == ShipModuleType.Special  || type == ShipModuleType.Transporter ||
+                    type == ShipModuleType.Ordnance || type == ShipModuleType.Construction)
                 {
-                    AddCategoryItem((int)tmp.ModuleType, tmp.ModuleType.ToString(), tmp);
+                    AddCategoryItem((int)type, type.ToString(), tmp);
                 }
             }
+            OpenCategory((int)ShipModuleType.Command);
         }
 
-        private void DrawList()
+        private void DrawList(SpriteBatch spriteBatch)
         {
-            float h;
-            float x = (float)Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = Input.CursorPosition;//  new Vector2(x, (float) state.Y);
-            Vector2 bCursor = new Vector2((float)(Screen.ModSel.Menu.X + 10), (float)(Screen.ModSel.Menu.Y + 45));
-            for (int i = indexAtTop;
-                i < Copied.Count && i < indexAtTop + entriesToDisplay;
-                i++)
+            Vector2 mousePos = Input.CursorPosition;
+            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; i++)
             {
-                bCursor = new Vector2((float)(Screen.ModSel.Menu.X + 10), (float)(Screen.ModSel.Menu.Y + 45));
-                ScrollList.Entry e = Copied[i];
-                bCursor.Y = (float)e.clickRect.Y;
-                if (e.item is ModuleHeader)
+                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, Screen.ModSel.Menu.Y + 45);
+                Entry e = Copied[i];
+                bCursor.Y = e.clickRect.Y;
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).Draw(Screen.ScreenManager, bCursor);
+                    header.Draw(Screen.ScreenManager, bCursor);
                 }
                 else if (e.item is ShipModule mod)
                 {
                     bCursor.X += 5f;
-                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
-                    var modTexture = moduleTemplate.ModuleTexture;
-                    Rectangle modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
-                    Vector2 vector2 = new Vector2(bCursor.X + 15f, bCursor.Y + 15f);
-                    Vector2 vector21 =
-                        new Vector2((modTexture.Width / 2f), (modTexture.Height / 2f));
+                    Texture2D modTexture = mod.ModuleTexture;
+                    var modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
                     float aspectRatio = (float)modTexture.Width / modTexture.Height;
                     float w = modRect.Width;
+                    float h;
                     for (h = modRect.Height; w > 30f || h > 30f; h = h - 1.6f)
                     {
-                        w = w - aspectRatio * 1.6f;
+                        w -= aspectRatio * 1.6f;
                     }
-                    modRect.Width = (int)w;
+                    modRect.Width  = (int)w;
                     modRect.Height = (int)h;
-                    Screen.ScreenManager.SpriteBatch.Draw(modTexture, modRect, Color.White);
-                    //Added by McShooterz: allow longer modules names
-                    Vector2 tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
-                    if (Fonts.Arial12Bold.MeasureString(Localizer.Token((e.item as ShipModule).NameIndex)).X + 90 <
-                        Screen.ModSel.Menu.Width)
+                    spriteBatch.Draw(modTexture, modRect, Color.White);
+
+                    var tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
+
+                    string moduleName = Localizer.Token(mod.NameIndex);
+                    if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < Screen.ModSel.Menu.Width)
                     {
-                        Screen.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        spriteBatch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, Color.White);
+                        tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     }
                     else
                     {
-                        Screen.ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold,
-                            Localizer.Token((e.item as ShipModule).NameIndex), tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + (float)Fonts.Arial11Bold.LineSpacing;
+                        spriteBatch.DrawString(Fonts.Arial11Bold, moduleName, tCursor, Color.White);
+                        tCursor.Y += Fonts.Arial11Bold.LineSpacing;
                     }
-                    Screen.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, moduleTemplate.Restrictions.ToString(),
-                        tCursor, Color.Orange);
-                    tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(moduleTemplate.Restrictions.ToString()).X;
-                    if (moduleTemplate.IsRotatable)
+
+                    string restriction = mod.Restrictions.ToString();
+                    spriteBatch.DrawString(Fonts.Arial8Bold, restriction, tCursor, Color.Orange);
+                    tCursor.X += Fonts.Arial8Bold.MeasureString(restriction).X;
+
+                    if (mod.IsRotatable)
                     {
-                        Rectangle rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
-                        Screen.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_can_rotate"],
-                            rotateRect, Color.White);
-                        if (rotateRect.HitTest(MousePos))
+                        var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
+                        spriteBatch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
+                        if (rotateRect.HitTest(mousePos))
                         {
                             ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys");
                         }
                     }
-                    if (e.clickRect.HitTest(MousePos))
+
+                    if (e.clickRect.HitTest(mousePos))
                     {
                         if (e.clickRectHover == 0)
                         {

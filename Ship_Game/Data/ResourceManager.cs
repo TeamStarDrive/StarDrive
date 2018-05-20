@@ -920,6 +920,7 @@ namespace Ship_Game
         public static ShipModule GetModuleTemplate(string uid) => ShipModulesDict[uid];
         public static bool ModuleExists(string uid) => ShipModulesDict.ContainsKey(uid);
         public static IReadOnlyDictionary<string, ShipModule> ShipModules => ShipModulesDict;
+        public static ICollection<ShipModule> ShipModuleTemplates => ShipModulesDict.Values;
         public static bool TryGetModule(string uid, out ShipModule mod) => ShipModulesDict.TryGetValue(uid, out mod);
 
         public static RacialTraits RaceTraits
