@@ -139,78 +139,97 @@ namespace Ship_Game
             return true;
         }
 
+        private Array<ShipModule> SortedModules
+        {
+            get
+            {
+                var modules = new Array<ShipModule>(); // gather into a list so we can sort the modules logically
+                foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
+                    if (IsModuleAvailable(template, out ShipModule tmp))
+                        modules.Add(tmp);
+                
+                modules.Sort((a, b) =>
+                {
+                    // PowerConduit must always be first, so give them ordinal 0
+                    int ta = a.ModuleType == ShipModuleType.PowerConduit ? 0 : (int)a.ModuleType;
+                    int tb = b.ModuleType == ShipModuleType.PowerConduit ? 0 : (int)b.ModuleType;
+                    if (ta != tb) return ta - tb;
+
+                    // then by Area
+                    int aa = a.Area;
+                    int ab = b.Area;
+                    if (aa != ab) return aa - ab;
+
+                    // and finally by UID
+                    return string.Compare(a.UID, b.UID, StringComparison.Ordinal);
+                });
+                return modules;
+            }
+        }
+
         private void AddWeaponCategories()
         {
-            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
+            foreach (ShipModule m in SortedModules)
             {
-                if (!IsModuleAvailable(template, out ShipModule tmp))
-                    continue;
-
-                if (tmp.isWeapon)
+                if (m.isWeapon)
                 {
-                    Weapon w = tmp.InstalledWeapon;
+                    Weapon w = m.InstalledWeapon;
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)
                     {
-                        if      (w.Tag_Flak)    AddCategoryItem(400, "Flak Cannon", tmp);
-                        else if (w.Tag_Railgun) AddCategoryItem(401, "Magnetic Cannon", tmp);
-                        else if (w.Tag_Array)   AddCategoryItem(401, "Beam Array", tmp);
-                        else if (w.Tag_Tractor) AddCategoryItem(401, "Tractor Beam", tmp);
+                        if      (w.Tag_Flak)    AddCategoryItem(400, "Flak Cannon", m);
+                        else if (w.Tag_Railgun) AddCategoryItem(401, "Magnetic Cannon", m);
+                        else if (w.Tag_Array)   AddCategoryItem(401, "Beam Array", m);
+                        else if (w.Tag_Tractor) AddCategoryItem(401, "Tractor Beam", m);
                         else if (w.Tag_Missile
-                             && !w.Tag_Guided)  AddCategoryItem(401, "Unguided Rocket", tmp);
-                        else                    AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, tmp);
+                             && !w.Tag_Guided)  AddCategoryItem(401, "Unguided Rocket", m);
+                        else                    AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, m);
                     }
                     else
                     {
-                        AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, tmp);
+                        AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, m);
                     }
                 }
-                else if (tmp.ModuleType == ShipModuleType.Bomb)
+                else if (m.ModuleType == ShipModuleType.Bomb)
                 {
-                    AddCategoryItem("Bomb".GetHashCode(), "Bomb", tmp);
+                    AddCategoryItem("Bomb".GetHashCode(), "Bomb", m);
                 }
             }
         }
 
         private void AddPowerCategories()
         {
-            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
+            foreach (ShipModule m in SortedModules)
             {
-                if (!IsModuleAvailable(template, out ShipModule tmp))
-                    continue;
+                ShipModuleType type = m.ModuleType;
+                if (type == ShipModuleType.PowerConduit) // force PowerConduit into PowerPlant category
+                    type = ShipModuleType.PowerPlant;
 
-                ShipModuleType type = tmp.ModuleType;
-                if (type == ShipModuleType.PowerConduit)
-                    type = ShipModuleType.PowerPlant; // force PowerConduit's into PowerPlant category
-
-                if (type == ShipModuleType.PowerPlant|| type == ShipModuleType.FuelCell || type == ShipModuleType.Engine)
-                    AddCategoryItem((int)type, type.ToString(), tmp);
+                if (type == ShipModuleType.PowerPlant || type == ShipModuleType.FuelCell || type == ShipModuleType.Engine)
+                    AddCategoryItem((int)type, type.ToString(), m);
             }
             OpenCategory((int)ShipModuleType.PowerPlant);
         }
 
         private void AddDefenseCategories()
         {
-            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
+            foreach (ShipModule m in SortedModules)
             {
-                if (!IsModuleAvailable(template, out ShipModule tmp))
-                    continue;
-                
-                ShipModuleType type = tmp.ModuleType;
+                ShipModuleType type = m.ModuleType;
                 if (type == ShipModuleType.Shield ||
                     type == ShipModuleType.Countermeasure ||
-                    (type == ShipModuleType.Armor && !tmp.isBulkhead && !tmp.isPowerArmour))
+                    (type == ShipModuleType.Armor && !m.isBulkhead && !m.isPowerArmour))
                 {
-                    AddCategoryItem((int)type, type.ToString(), tmp);
+                    AddCategoryItem((int)type, type.ToString(), m);
                 }
                 // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType
                 // is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
-                else if (tmp.isPowerArmour && type == ShipModuleType.Armor)
+                else if (m.isPowerArmour && type == ShipModuleType.Armor)
                 {
-                    AddCategoryItem(6172, Localizer.Token(6172), tmp);
+                    AddCategoryItem(6172, Localizer.Token(6172), m);
                 }
-                else if (tmp.isBulkhead && type == ShipModuleType.Armor)
+                else if (m.isBulkhead && type == ShipModuleType.Armor)
                 {
-                    AddCategoryItem(6173, Localizer.Token(6173), tmp);
+                    AddCategoryItem(6173, Localizer.Token(6173), m);
                 }
             }
             OpenCategory((int)ShipModuleType.Shield);
@@ -218,22 +237,18 @@ namespace Ship_Game
 
         private void AddSpecialCategories()
         {
-            foreach (ShipModule template in ResourceManager.ShipModuleTemplates)
+            foreach (ShipModule m in SortedModules)
             {
-                if (!IsModuleAvailable(template, out ShipModule tmp))
-                    continue;
-
-                ShipModuleType type = tmp.ModuleType;
+                ShipModuleType type = m.ModuleType;
                 if (type == ShipModuleType.Troop    || type == ShipModuleType.Colony      ||
                     type == ShipModuleType.Command  || type == ShipModuleType.Storage     ||
                     type == ShipModuleType.Hangar   || type == ShipModuleType.Sensors     ||
                     type == ShipModuleType.Special  || type == ShipModuleType.Transporter ||
                     type == ShipModuleType.Ordnance || type == ShipModuleType.Construction)
-                {
-                    AddCategoryItem((int)type, type.ToString(), tmp);
-                }
+                    AddCategoryItem((int)type, type.ToString(), m);
             }
             OpenCategory((int)ShipModuleType.Command);
+            OpenCategory((int)ShipModuleType.Storage);
         }
 
         private void DrawList(SpriteBatch spriteBatch)

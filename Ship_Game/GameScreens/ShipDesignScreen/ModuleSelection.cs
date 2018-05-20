@@ -38,11 +38,8 @@ namespace Ship_Game
             WeaponSl = new WeaponScrollList(this, ParentScreen);
             var active = new Rectangle(Window.X, Window.Y + Window.Height + 15, Window.Width, 300);
             //activeModWindow = new Menu1(ScreenManager, active);
-            var acsub = new Rectangle(active.X, Window.Y + Window.Height + 15, 305, 320);
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 760)
-            {
-                acsub.Height = acsub.Height + 120;
-            }
+            var acsub = new Rectangle(active.X, Window.Y + Window.Height + 15, 305, 370);
+
             ActiveModSubMenu = new Submenu(acsub);
             ActiveModSubMenu.AddTab("Active Module");
             Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);

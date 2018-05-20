@@ -293,7 +293,7 @@ namespace Ship_Game
                     selector = new Selector(e.clickRect);
                     if (!input.InGameSelect) continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    if (!ShipSaved && !CheckDesign())
+                    if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
                     {
                         Changeto = e.item as ShipData;
                         MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
@@ -549,7 +549,7 @@ namespace Ship_Game
             {
                 LowRes = true;
             }
-            ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 400)));
+            ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
             foreach (KeyValuePair<string, bool> hull in EmpireManager.Player.GetHDict())
                 if (hull.Value)
                     AvailableHulls.Add(ResourceManager.HullsDict[hull.Key]);
