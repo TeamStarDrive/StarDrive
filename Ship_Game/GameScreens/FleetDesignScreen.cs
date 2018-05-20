@@ -1826,8 +1826,7 @@ namespace Ship_Game
                         continue;                    
                     roles.Add(ship.DesignRoleName);
 
-                    ModuleHeader mh = new ModuleHeader(ship.DesignRoleName, 295f);
-                    ShipSL.AddItem(mh);
+                    ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
                 {
@@ -1852,8 +1851,7 @@ namespace Ship_Game
                         continue;
                     }
                     roles.Add(ship.DesignRoleName);
-                    ModuleHeader mh = new ModuleHeader(ship.DesignRoleName, 295f);
-                    ShipSL.AddItem(mh);
+                    ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
                 {

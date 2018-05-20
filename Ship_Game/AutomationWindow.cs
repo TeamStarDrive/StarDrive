@@ -23,7 +23,7 @@ namespace Ship_Game
             const int windowWidth = 210;
             Rect = new Rectangle(ScreenWidth - 115 - windowWidth, 490, windowWidth, 300);
             Rectangle win = Rect;
-            ConstructionSubMenu = new Submenu(win, true);
+            ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
             BeginVLayout(win.X + 12, win.Y + 25, ystep: 45);
