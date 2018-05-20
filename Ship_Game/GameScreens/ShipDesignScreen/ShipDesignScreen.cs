@@ -180,7 +180,7 @@ namespace Ship_Game
         public ShipModule CreateDesignModule(string uid)
         {
             ShipModule m = ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
-            m.SetAttributesNoParent();                    
+            m.SetAttributes();                    
             return m;
         }
 
@@ -196,7 +196,7 @@ namespace Ship_Game
         {
             ActiveModule = CreateDesignModule(uid, state);
             ActiveModState = state;
-            ActiveModule.SetAttributesNoParent();
+            ActiveModule.SetAttributes();
         }
 
         private void ResetActiveModule()

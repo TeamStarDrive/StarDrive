@@ -167,7 +167,7 @@ namespace Ship_Game
             slot.Module    = newModule;
             slot.State     = newState;
             slot.Tex       = newModule.ModuleTexture;
-            slot.Module.SetAttributesNoParent();
+            slot.Module.SetAttributes();
 
             ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
@@ -208,8 +208,8 @@ namespace Ship_Game
 
             foreach (SlotStruct slot in Slots) // reset everything
             {
-                slot.InPowerRadius    = false;
-                slot.PowerChecked = false;
+                slot.InPowerRadius = false;
+                slot.PowerChecked  = false;
                 if (slot.Module != null) slot.Module.Powered = false;
             }
 

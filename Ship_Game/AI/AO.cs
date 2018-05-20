@@ -170,8 +170,10 @@ namespace Ship_Game.AI
             }
 
             if (!didSetFleet)
-                Log.Warning("Savegame FleetGuid {0} ({1} fleetIdx:{2} [{3}]) not found in owner FleetsDict!!", 
-                    FleetGuid, owner.Name, WhichFleet, WhichFleet != -1 ? owner.GetFleetsDict()[WhichFleet].Name : "");
+            {
+                string fleetName = WhichFleet != -1 ? owner.GetFleetsDict()[WhichFleet].Name : "";
+                Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet} [{fleetName}]) not found in owner FleetsDict!!");
+            }
         }
 
         public void PrepareForSave()
