@@ -1,5 +1,6 @@
 using Ship_Game.Gameplay;
 using System;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -43,17 +44,9 @@ namespace Ship_Game
         public static StringComparer CaseControl;
 
         // @todo Get rid of all global locks
-        public static object ShieldLocker         = new object();
         public static object ClickableSystemsLock = new object();
-        public static object SensorNodeLocker     = new object();
-        public static object BorderNodeLocker     = new object();
-        public static object BombLock             = new object();
         public static object ExplosionLocker      = new object();
-        public static object KnownShipsLock       = new object();
-        public static object BucketLock           = new object();
         public static object OwnedPlanetsLock     = new object();
-        public static object DeepSpaceLock        = new object();
-        public static object WayPointLock         = new object();
         public static object ClickableItemLocker  = new object();
         public static object TaskLocker           = new object();
         public static object FleetButtonLocker    = new object();
@@ -131,7 +124,7 @@ namespace Ship_Game
         public static float EffectsVolume = 1f;
         public static Language Language   = Language.English;
 
-        //Render options
+        // Render options
         public static int TextureQuality  = 0;    //0=High, 1=Medium, 2=Low, 3=Off
         public static int TextureSampling = 2;    //0=Bilinear, 1=Trilinear, 2=Anisotropic
         public static int MaxAnisotropy   = 2;    //# of samples, only applies with TextureSampling = 2
@@ -154,17 +147,19 @@ namespace Ship_Game
         public static bool NotEnglish             => Language != Language.English;
         public static bool NotGerman              => Language != Language.German;
         public static bool NotEnglishOrSpanish    => IsGerman || IsPolish || IsRussian || IsFrench;
+
         ////////////////////////////////
         /// debug log info
         /// 
         public static bool VerboseLogging;
         public static bool TestLoad;
         public static bool PreLoad;
+
         public static void LoadConfig()
         {
             try
             {
-                var mgr = ConfigurationManager.AppSettings;
+                NameValueCollection mgr = ConfigurationManager.AppSettings;
             }
             catch (ConfigurationErrorsException)
             {
@@ -199,13 +194,13 @@ namespace Ship_Game
             GetSetting("DamageIntensity",        ref DamageIntensity);
             Statreset();
 
-#if DEBUG
+        #if DEBUG
             VerboseLogging = true;
-#endif
+        #endif
 
-#if PERF 
+        #if PERF 
             perf = true;
-#endif
+        #endif
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
             GetSetting("Language", ref Language);

@@ -1,29 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
     public sealed class Technology
     {
         public string UID;
-
         public string IconPath;
+        [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
 
+        public int RootNode;
         public float Cost;
-
         public bool Secret;
-
         public bool Discovered;
-
-        public byte RootNode;
+        public bool Unlockable;
 
         public TechnologyType TechnologyType = TechnologyType.General;
 
         public int NameIndex;
-
         public int DescriptionIndex;
 
-        public bool Unlockable;
 
         public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();
         public Array<LeadsToTech> ComesFrom              = new Array<LeadsToTech>();
@@ -36,7 +33,7 @@ namespace Ship_Game
         public Array<RevealedTech> TechsRevealed         = new Array<RevealedTech>();
 
         //Added by McShooterz to allow for techs with more than one level
-        public byte MaxLevel = 1;
+        public int MaxLevel = 1;
 
         //added by McShooterz: Racial Tech variables
         public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();

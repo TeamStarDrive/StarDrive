@@ -220,8 +220,6 @@ namespace Ship_Game.Ships
         
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
-        public ShipData GetHull()   => Parent?.shipData;
-
 
 
         private ShipModule() : base(GameObjectType.ShipModule)
@@ -248,8 +246,8 @@ namespace Ship_Game.Ships
             hangarShipUID     = template.hangarShipUID;
             hangarTimer       = template.hangarTimer;
             ModuleType        = template.ModuleType;
-            isWeapon          = template.isWeapon;
             WeaponType        = template.WeaponType;
+            isWeapon          = WeaponType.NotEmpty();
             OrdinanceCapacity = template.OrdinanceCapacity;
             BombTimer         = template.BombTimer;
             IconTexturePath   = template.IconTexturePath;
@@ -355,7 +353,7 @@ namespace Ship_Game.Ships
             Center.Y = Position.Y + YSIZE * 8f;
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
-            SetAttributesByType();
+            SetAttributes();
             
             if (!isTemplate)
             {
@@ -808,72 +806,50 @@ namespace Ship_Game.Ships
             Parent.Ordinance -= hangarShip.Mass / 5f;
         }
 
-        private void SetAttributesByType()
+        public void SetAttributes()
         {
             switch (ModuleType)
             {
                 case ShipModuleType.Turret:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     InstalledWeapon.isTurret = true;
                     break;
                 case ShipModuleType.MainGun:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     InstalledWeapon.isMainGun = true;
                     break;
                 case ShipModuleType.MissileLauncher:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     break;
                 case ShipModuleType.Colony:
-                    Parent.isColonyShip = true;
+                    if (Parent != null)
+                        Parent.isColonyShip = true;
                     break;
                 case ShipModuleType.Bomb:
-                    Parent.BombBays.Add(this);
+                    Parent?.BombBays.Add(this);
                     break;
                 case ShipModuleType.Drone:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     break;
                 case ShipModuleType.Spacebomb:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     break;
             }
-            if (IsSupplyBay)
+            
+            if (IsSupplyBay && Parent != null)
                 Parent.IsSupplyShip = true;
         }
 
-        public void SetAttributesNoParent()
+        private void ConfigWeapon()
         {
-            switch (ModuleType)
-            {
-                case ShipModuleType.Turret:
-                    ConfigWeapon(false);
-                    InstalledWeapon.isTurret = true;
-                    break;
-                case ShipModuleType.MainGun:
-                    ConfigWeapon(false);
-                    InstalledWeapon.isMainGun = true;
-                    break;
-                case ShipModuleType.MissileLauncher:
-                    ConfigWeapon(false);
-                    break;
-                case ShipModuleType.Drone:
-                    ConfigWeapon(false);
-                    break;
-                case ShipModuleType.Spacebomb:
-                    ConfigWeapon(false);
-                    break;
-            }
-        }
-
-        private void ConfigWeapon(bool addToParent)
-        {
+            if (InstalledWeapon != null && InstalledWeapon.WeaponType == WeaponType)
+                return;
             InstalledWeapon = ResourceManager.CreateWeapon(WeaponType);
             InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;
-            
-            if (addToParent)
-                Parent.Weapons.Add(InstalledWeapon);
+            Parent?.Weapons.Add(InstalledWeapon);
         }
 
         public void SetHangarShip(Ship ship)

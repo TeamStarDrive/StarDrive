@@ -159,7 +159,7 @@ namespace Ship_Game
                 {
                     shipData.allModulesUnlocakable = false;
                     shipData.hullUnlockable = false;
-                    Log.VerboseWarning($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
+                    Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
@@ -188,7 +188,7 @@ namespace Ship_Game
                         if (modUnlockable) continue;
 
                         shipData.allModulesUnlocakable = false;
-                        Log.VerboseWarning($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
+                        Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
@@ -225,7 +225,7 @@ namespace Ship_Game
         public static void LoadItAll()
         {
             Reset();
-            Log.Info("Load {0}", GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla");
+            Log.Info($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage();            
             LoadTextures();
             LoadToolTips();
@@ -241,7 +241,6 @@ namespace Ship_Game
             LoadProjTexts();
             LoadBuildings();
             LoadProjectileMeshes();
-            LoadTechTree();
             LoadRandomItems();
             LoadFlagTextures();
             LoadNebulas();
@@ -250,8 +249,13 @@ namespace Ship_Game
             LoadLargeStars();
             LoadEmpires();            
             LoadDialogs();
+
+            LoadTechTree();
             LoadEncounters();
             LoadExpEvents();
+            TechValidator();
+
+
             LoadArtifacts();
             LoadShipRoles();
             LoadPlanetEdicts();
@@ -276,9 +280,11 @@ namespace Ship_Game
 
         private static void TestHullLoad()
         {
-            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true)) return;
+            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true))
+                return;
+
             ContentManager.EnableLoadInfoLog = true;
-            foreach (var hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
+            foreach (ShipData hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
             {
                 try
                 {
@@ -297,27 +303,29 @@ namespace Ship_Game
         }
         private static void TestCompressedTextures()
         {
-            if(!Log.TestMessage("Test - Checking For Uncompressed Texture \n",waitForYes:true)) return;
-            foreach (var textDic in TextureDict)
+            if (!Log.TestMessage("Test - Checking For Uncompressed Texture \n", waitForYes:true))
+                return;
+            foreach (KeyValuePair<string, Texture2D> textDic in TextureDict)
             {
                 Texture2D tex  = textDic.Value;
-                var texUsage   = tex.TextureUsage;
-                var texFormat  = tex.Format;
-                if (texFormat != SurfaceFormat.Color) continue;
+                TextureUsage texUsage   = tex.TextureUsage;
+                SurfaceFormat texFormat  = tex.Format;
+                if (texFormat != SurfaceFormat.Color)
+                    continue;
                 Log.TestMessage($"Uncompressed Texture {textDic.Key}", Log.Importance.Important);
                 Log.TestMessage($"{tex.ResourceType} Dimensions:{tex.Size()} \n");
-                
             }
             
             Log.TestMessage("Test - Checking For Uncompressed Texture Finished", waitForEnter: true);
         }
         private static void TestTechTextures()
         {
-            if (!Log.TestMessage("Test - Checking For Tech Texture Existence \n", waitForYes: true)) return;
-            foreach (var testItem in TechTree)
+            if (!Log.TestMessage("Test - Checking For Tech Texture Existence \n", waitForYes: true))
+                return;
+            foreach (KeyValuePair<string, Technology> testItem in TechTree)
             {
-                var item = testItem.Value;
-                var texPath = $"TechIcons/{item.IconPath}";
+                Technology item = testItem.Value;
+                string texPath = $"TechIcons/{item.IconPath}";
                 Log.TestMessage($"Tech:{testItem.Key} Path:{texPath}");
 
                 if (TextureDict.ContainsKey(texPath)) continue;
@@ -329,12 +337,12 @@ namespace Ship_Game
         }
         public static bool PreLoadModels(Empire empire)
         {
-            if (!GlobalStats.PreLoad) return true;
+            if (!GlobalStats.PreLoad)
+                return true;
             Log.Warning($"\nPreloading Ship Models for {empire.Name}.\n");
             try
             {
-                var techDict = empire.TechnologyDict;
-                foreach (var kv in techDict)
+                foreach (KeyValuePair<string, TechEntry> kv in empire.TechnologyDict)
                 {
                     kv.Value.LoadShipModelsFromDiscoveredTech(empire);
                 }
@@ -348,9 +356,6 @@ namespace Ship_Game
             }
             HelperFunctions.CollectMemory();
             return true;
-
-            
-            
         }
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
@@ -782,7 +787,7 @@ namespace Ship_Game
 
                         if (!File.Exists(savePath))
                         {
-                            Log.Warning("ExportMesh: {0}", savePath);
+                            Log.Warning($"ExportMesh: {savePath}");
                             RawContentLoader.SaveModel(model, nameNoExt, savePath);
                         }
                     }
@@ -1013,17 +1018,22 @@ namespace Ship_Game
         {
             Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
 
-            foreach (var encounter in Encounters)
+            foreach (Encounter encounter in Encounters)
             {
-                foreach (var message in encounter.MessageList)
-                    foreach (var response in message.ResponseOptions)
+                foreach (Message message in encounter.MessageList)
+                {
+                    foreach (Response response in message.ResponseOptions)
+                    {
                         if (TechTree.TryGetValue(response.UnlockTech ?? "", out Technology tech))
                         {
-                            if (tech.Unlockable) continue;
+                            if (tech.Unlockable)
+                                continue;
                             tech.Unlockable = true;
                             if (GlobalStats.VerboseLogging)
-                                Log.VerboseWarning($"Technology was marked unlockable by encounter '{encounter.Name}' : '{tech.UID}'");
+                                Log.WarningVerbose($"Technology was marked unlockable by encounter '{encounter.Name}' : '{tech.UID}'");
                         }
+                    }
+                }
             }
         }
 
@@ -1039,7 +1049,7 @@ namespace Ship_Game
                         if (tech.Unlockable) continue;
                         tech.Unlockable = true;
                         if (GlobalStats.VerboseLogging)
-                            Log.VerboseWarning($"Technology was marked unlockable by event '{pair.Entity.Name}' : '{tech.UID}'");
+                            Log.WarningVerbose($"Technology was marked unlockable by event '{pair.Entity.Name}' : '{tech.UID}'");
                     }                    
                 }
 
@@ -1335,7 +1345,7 @@ namespace Ship_Game
                 if (GlobalStats.VerboseLogging)
                 {
                     if (ShipModulesDict.ContainsKey(data.UID))
-                        Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
+                        Log.Info($"ShipModule UID already found. Conflicting name:  {data.UID}");
                     if (!Localizer.Contains(data.NameIndex))
                         Log.Warning($"{data.UID} Nameindex missing. Index: {data.NameIndex}");
             
@@ -1355,10 +1365,10 @@ namespace Ship_Game
                 
             }
 
-            Log.Info("Num ShipModule_Advanced: {0}", ShipModuleFlyweight.TotalNumModules);
+            //Log.Info("Num ShipModuleFlyweight: {0}", ShipModuleFlyweight.TotalNumModules);
 
             foreach (var entry in ShipModulesDict)
-                entry.Value.SetAttributesNoParent();
+                entry.Value.SetAttributes();
         }
 
         
@@ -1467,8 +1477,7 @@ namespace Ship_Game
                 string commonIdentifier = info.NameNoExt();
                 if (designs.TryGetValue(commonIdentifier, out ShipDesignInfo design))
                 {
-
-                    Log.Info($"DesignOverride: {design.File.CleanResPath(),-34} with -> {info.CleanResPath()}");
+                    //Log.Info($"DesignOverride: {design.File.CleanResPath(),-34} with -> {info.CleanResPath()}");
                 }
 
                 designs[commonIdentifier] = new ShipDesignInfo
@@ -1505,16 +1514,17 @@ namespace Ship_Game
         }
 
 
-        private static void TechValidator(Array<InfoPair<Technology>> techList)
+        private static void TechValidator()
         {
-            Array<Technology> rootTechs = new Array<Technology>();
-            foreach (InfoPair<Technology> rootTech in techList)
+            Array<Technology> techs = TechTree.Values.ToArrayList();
+            var rootTechs = new Array<Technology>();
+            foreach (Technology rootTech in techs)
             {
-                rootTech.Entity.UID = String.Intern(rootTech.Info.NameNoExt());
-                if (rootTech.Entity.RootNode == 0) continue;
-                if (rootTechs.Contains(rootTech.Entity))
-                    Log.Warning($"Duplicate root tech : '{rootTech.Entity}'");
-                rootTechs.Add(rootTech.Entity);
+                if (rootTech.RootNode == 0)
+                    continue;
+                if (rootTechs.Contains(rootTech))
+                    Log.Warning($"Duplicate root tech : '{rootTech}'");
+                rootTechs.Add(rootTech);
             }
 
             void WalkTechTree(Technology technology)
@@ -1523,8 +1533,7 @@ namespace Ship_Game
 
                 foreach (Technology.LeadsToTech leadsTo in technology.LeadsTo)
                 {
-                    Technology tech = techList.Find(lead => lead.Entity.UID == leadsTo.UID)?.Entity;
-                    
+                    Technology tech = techs.Find(lead => lead.UID == leadsTo.UID);
                     if (tech == null)
                     {
                         Log.Warning($"Technology : '{technology.UID}' can not locate lead to tech : '{leadsTo.UID}'");
@@ -1534,52 +1543,42 @@ namespace Ship_Game
                     tech.ComesFrom.Add(new Technology.LeadsToTech(technology.UID));
                     WalkTechTree(tech);
                 }                
-
             }
 
-            foreach (var rootTech in rootTechs)
+            foreach (Technology rootTech in rootTechs)
             {                
                 WalkTechTree(rootTech);
             }
-            foreach (var notInTree in techList)
+            foreach (Technology notInTree in techs)
             {
-                if (notInTree.Entity.RootNode != 1 && notInTree.Entity.ComesFrom.Count == 0)
-                    notInTree.Entity.Discovered = false;
-            }
-            Array<string> unLockableShipItems = new Array<string>();
-
-            foreach (var techEntity in techList)
-            {
-                Technology tech = techEntity.Entity;
-                if (tech.Unlockable)
-                {
-                    foreach (var module in tech.ModulesUnlocked)
-                        unLockableShipItems.Add(module.ModuleUID);
-                    foreach (var module in tech.HullsUnlocked)
-                        unLockableShipItems.Add(module.Name);
-                    continue;
-                }
-                Log.VerboseWarning($"Technology Cannot be researched. This may be intentional  : '{techEntity.Info.PathNoExt()}'");                
+                if (notInTree.RootNode != 1 && notInTree.ComesFrom.Count == 0)
+                    notInTree.Discovered = false;
             }
 
+            foreach (Technology tech in techs)
+            {
+                if (!tech.Unlockable)
+                    Log.WarningVerbose($"Tech {tech.UID} cannot be researched! Source: '{tech.DebugSourceFile}'");                
+            }
         }
 
         private static void LoadTechTree()
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
-            var techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly, uniqueFileNames: true);
+            Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly, uniqueFileNames: true);
 
-            TechValidator(techs);
-
-            foreach (var pair in techs)
+            foreach (InfoPair<Technology> pair in techs)
             {
-                Technology tech = pair.Entity;                               
+                Technology tech = pair.Entity;
+                tech.DebugSourceFile = pair.Info.RelPath();
+                //tech.UID = string.Intern(pair.Info.NameNoExt()); // @note by RedFox: this seems to cause issues, disabling for now
+                if (TechTree.ContainsKey(tech.UID))
+                    Log.Warning($"Overwriting tech {tech.UID} !\n  from: {TechTree[tech.UID].DebugSourceFile}\n  with: {tech.DebugSourceFile}");
                 TechTree[tech.UID] = tech;
 
                 // categorize uncategorized techs
                 if (tech.TechnologyType != TechnologyType.General)
                     continue;
-
                     
                 if (tech.ModulesUnlocked.Count > 0)
                 {
@@ -1778,7 +1777,7 @@ namespace Ship_Game
                 if (!MissingTooltips.Contains(tipId))
                 {
                     MissingTooltips.Add(tipId);
-                    Log.Warning("Missing ToolTip: {0}", tipId);
+                    Log.Warning($"Missing ToolTip: {tipId}");
                 }
                 return null;
             }

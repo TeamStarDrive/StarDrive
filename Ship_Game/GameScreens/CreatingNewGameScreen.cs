@@ -102,7 +102,7 @@ namespace Ship_Game
             NumSystems = (int)(size * starNumModifier);
 
             Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(Data.Size.X);
-            Log.Info("Empire.ProjectorRadius = {0}", Empire.ProjectorRadius);
+            Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
 
             UniverseData.UniverseWidth = Data.Size.X * 2;
             Data.Size *= Scale;
@@ -317,11 +317,11 @@ namespace Ship_Game
                 //Intentionally using too high of a value here, because of the truncated decimal. -Gretman
                 int index = RandomMath.InRange(removalCollection.Count);
 
-                Log.Info("Race excluded from game: {0}  (Index {1} of {2})", removalCollection[index].PortraitName, index, removalCollection.Count - 1);
+                Log.Info($"Race excluded from game: {removalCollection[index].PortraitName}  (Index {index} of {removalCollection.Count-1})");
                 removalCollection.RemoveAt(index);
             }
 
-            Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
+            Log.Info($"Memory purged: {spaceSaved - GC.GetTotalMemory(true)}");
 
             foreach (EmpireData data in removalCollection)
             {
@@ -381,7 +381,7 @@ namespace Ship_Game
             }
             ResourceManager.MarkShipDesignsUnlockable();
 
-            Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
+            Log.Info($"Memory purged: {spaceSaved - GC.GetTotalMemory(true)}");
 
             foreach (Empire empire in Data.EmpireList)
             {

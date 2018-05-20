@@ -313,38 +313,34 @@ namespace Ship_Game
             if (!ToggleOverlay)
                 return false;
 
-            if (GetSlotUnderCursor(input, out SlotStruct slotStruct))
+            if (!GetSlotUnderCursor(input, out SlotStruct slotStruct))
+                return false;
+            
+            if (!input.LeftMouseHeld())
+                HoveredModule = slotStruct.Module ?? slotStruct.Parent?.Module;
+            else if (HighlightedModule != null)
+                HoveredModule = HighlightedModule;
+
+            if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
             {
-                if (!input.LeftMouseHeld())
+                GameAudio.PlaySfxAsync("simple_beep");
+                if (Debug)
                 {
-                    HoveredModule = slotStruct.Module ?? slotStruct.Parent?.Module;
-                }
-                else if (HighlightedModule != null)
-                {
-                    HoveredModule = HighlightedModule;
+                    DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
+                    return true;
                 }
 
-                if (input.LeftMouseReleased && !input.LeftMouseWasHeld)
+                SlotStruct slot = slotStruct.Parent ?? slotStruct;
+                if (ActiveModule == null && slot.Module != null)
                 {
-                    GameAudio.PlaySfxAsync("simple_beep");
-                    if (Debug)
-                    {
-                        DebugAlterSlot(slotStruct.SlotReference.Position, Operation);
-                        return true;
-                    }
-
-                    SlotStruct slot = slotStruct.Parent ?? slotStruct;
-                    if (ActiveModule == null && slot.Module != null)
-                    {
-                        SetActiveModule(slot.Module.UID, slot.State);
-                        ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
-                        return true;
-                    }
+                    SetActiveModule(slot.Module.UID, slot.State);
+                    ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                    return true;
                 }
-                if (ActiveModule == null && !input.LeftMouseHeld())
-                {
-                    HighlightedModule = slotStruct.Parent?.Module ?? slotStruct.Module;
-                }
+            }
+            if (ActiveModule == null && !input.LeftMouseHeld())
+            {
+                HighlightedModule = slotStruct.Module ?? slotStruct.Parent?.Module;
             }
             return false;
         }
