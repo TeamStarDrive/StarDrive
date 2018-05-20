@@ -1,12 +1,11 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
     public sealed class Camera2D
     {
         private Matrix WorldMatrix;
+        private Matrix InverseWorld;
         private bool Changed = true;
 
         private Vector2 CamPos = Vector2.Zero;
@@ -49,8 +48,9 @@ namespace Ship_Game
         private void UpdateTransform()
         {
             WorldMatrix = Matrix.CreateTranslation(new Vector3(-CamPos.X, -CamPos.Y, 0f))
-                          * Matrix.CreateScale(new Vector3(CamZoom, CamZoom, 1f))
-                          * Matrix.CreateTranslation(ScreenCenter);
+                        * Matrix.CreateScale(new Vector3(CamZoom, CamZoom, 1f))
+                        * Matrix.CreateTranslation(ScreenCenter);
+            Matrix.Invert(ref WorldMatrix, out InverseWorld);
         }
 
         public Matrix Transform
@@ -63,12 +63,21 @@ namespace Ship_Game
             }
         }
 
-        public Vector2 GetScreenSpaceFromWorldSpace(Vector2 worldCoordinate)
+        public Vector2 GetScreenSpaceFromWorldSpace(Vector2 worldCoord)
         {
             if (Changed)
                 UpdateTransform();
-            Vector2.Transform(ref worldCoordinate, ref WorldMatrix, out Vector2 screenSpace);
-            return screenSpace;
+            Vector2.Transform(ref worldCoord, ref WorldMatrix, out Vector2 screenCoord);
+            return screenCoord;
+        }
+
+        public Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenCoord)
+        {
+            Vector2 worldPos = screenCoord;
+            worldPos -= Game1.Instance.ScreenCenter;
+            worldPos /= Zoom;
+            worldPos += Pos;
+            return worldPos;
         }
 
         public void Move(Vector2 amount)
@@ -98,34 +107,27 @@ namespace Ship_Game
             Move(adjustCam);
             return new Vector2(CamPos.X - ScreensizeX, CamPos.Y - ScreensizeY);
         }
+
         private Vector2 CameraVelocity = Vector2.Zero;
+
         public void CameraDrag(InputState input)
         {            
             if (input.RightMouseHeld())
+            {
                 if (input.StartRighthold.OutsideRadius(input.CursorPosition, 10f))
-                {
-                    CameraVelocity = input.CursorPosition.DirectionToTarget(input.StartRighthold);
-                    CameraVelocity = Vector2.Normalize(CameraVelocity) *
-                                     Vector2.Distance(input.StartRighthold, input.CursorPosition);
-                }
+                    CameraVelocity = input.StartRighthold - input.CursorPosition;
                 else
-                {
                     CameraVelocity = Vector2.Zero;
-                }
-            if (!input.RightMouseHeld() && !input.LeftMouseHeld())
+            }
+            else if (!input.LeftMouseHeld())
             {
                 CameraVelocity = Vector2.Zero;
             }
+
             if (CameraVelocity.Length() > 150f)
-            {
-                CameraVelocity = Vector2.Normalize(CameraVelocity) * 150f;
-            }
-            if (float.IsNaN(CameraVelocity.X) || float.IsNaN(CameraVelocity.Y))
-            {
-                CameraVelocity = Vector2.Zero;
-            }
-            if (CameraVelocity != Vector2.Zero)
-                Move(CameraVelocity);
+                CameraVelocity = CameraVelocity.Normalized() * 150f;
+
+            Move(CameraVelocity);
         }
     }
 }
