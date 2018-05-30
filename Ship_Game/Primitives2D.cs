@@ -26,6 +26,7 @@ namespace Ship_Game
             spriteBatch.DrawLine(new Vector2(x, b),     new Vector2(x, b-o+1), color);
         }
 
+        // This is the [ ] selection rectangle you see when selecting planets and ships
         public static void BracketRectangle(this SpriteBatch spriteBatch, Vector2 pos, float radius, Color color)
         {
             Vector2 tl = pos + new Vector2(-(radius + 3f), -(radius + 3f));
