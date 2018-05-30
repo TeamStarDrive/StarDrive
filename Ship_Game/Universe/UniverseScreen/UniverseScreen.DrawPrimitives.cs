@@ -96,6 +96,13 @@ namespace Ship_Game
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
+        {
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
+            DrawCircle(screenPos, screenRadius, color, thickness);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
@@ -103,30 +110,41 @@ namespace Ship_Game
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCircleOnPlanet(Vector2 posInWorld, float radiusInWorld, int sides, Color color, float thickness = 1f)
+        public void DrawCapsuleProjected(Capsule capsuleInWorld, Color color, float thickness = 1f)
         {
-            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, 2500f);
-            DrawCircle(screenPos, screenRadius, sides, color, thickness);
+            var capsuleOnScreen = new Capsule(
+                ProjectToScreenPosition(capsuleInWorld.Start),
+                ProjectToScreenPosition(capsuleInWorld.End),
+                ProjectToScreenSize(capsuleInWorld.Radius)
+            );
+            ScreenManager.SpriteBatch.DrawCapsule(capsuleOnScreen, color, thickness);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, int sides = 16, float zAxis = 0f)
+        public void DrawCircleOnPlanet(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
+        {
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, 2500f);
+            DrawCircle(screenPos, screenRadius, color, thickness);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DrawCircleProjectedZ(Vector2 posInWorld, float radiusInWorld, Color color, float zAxis = 0f)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius, zAxis);
-            DrawCircle(screenPos, screenRadius, sides, color);
+            DrawCircle(screenPos, screenRadius, color);
         }
 
         // draws a projected circle, with an additional overlay texture
-        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor, float z = 0)
+        public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, Texture2D overlay, Color overlayColor, float z = 0)
         {
             ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2 screenPos, out float screenRadius);
             float scale = screenRadius / (overlay.Width * .5f);
             DrawTexture(overlay, screenPos, scale, 0f, overlayColor);
-            DrawCircle(screenPos, screenRadius, sides, color, thickness);
+            DrawCircle(screenPos, screenRadius, color, thickness);
         } 
 
-        public void DarwCircleOnPlanetTextured(Vector2 posInWorld, float radiusInWorld, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
-            => DrawCircleProjected(posInWorld, radiusInWorld, color, sides, thickness, overlay, overlayColor, 2500f);
+        public void DarwCircleOnPlanetTextured(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, Texture2D overlay, Color overlayColor)
+            => DrawCircleProjected(posInWorld, radiusInWorld, color, thickness, overlay, overlayColor, 2500f);
 
 
         public void DrawRectangleProjected(Rectangle rectangle, Color edge)

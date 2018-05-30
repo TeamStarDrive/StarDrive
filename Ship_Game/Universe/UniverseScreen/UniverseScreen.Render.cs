@@ -144,7 +144,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    if (viewState < UniverseScreen.UnivScreenState.GalaxyView)
+                    if (viewState < UnivScreenState.GalaxyView)
                     {
                         if (solarSystem.SunPath != sunPath)
                             sunTexture = ResourceManager.Texture("Suns/" + solarSystem.SunPath);
@@ -161,17 +161,21 @@ namespace Ship_Game
                                 Planet planet = solarSystem.PlanetList[i];
                                 Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
-                                if (this.viewState > UniverseScreen.UnivScreenState.ShipView)
+
+                                if (viewState > UnivScreenState.ShipView)
                                 {
-                                    DrawCircle(sysScreenPos, planetOrbitRadius, 100,
-                                        new Color((byte) 50, (byte) 50, (byte) 50, (byte) 90), 3f);
+                                    var transparentDarkGray = new Color(50, 50, 50, 90);
+                                    DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
+
                                     if (planet.Owner == null)
-                                        this.DrawCircle(sysScreenPos, planetOrbitRadius, 100,
-                                            new Color((byte) 50, (byte) 50, (byte) 50, (byte) 90), 3f);
+                                    {
+                                        DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
+                                    }
                                     else
-                                        this.DrawCircle(sysScreenPos, planetOrbitRadius, 100,
-                                            new Color(planet.Owner.EmpireColor.R, planet.Owner.EmpireColor.G,
-                                                planet.Owner.EmpireColor.B, (byte) 100), 3f);
+                                    {
+                                        var empireColor = new Color(planet.Owner.EmpireColor, 100);
+                                        DrawCircle(sysScreenPos, planetOrbitRadius, empireColor, 3f);
+                                    }
                                 }
                             }
                         }
@@ -279,8 +283,8 @@ namespace Ship_Game
                             if (viewState == UniverseScreen.UnivScreenState.SectorView)
                             {
                                 vector2.Y += radius;
-                                DrawCircle(new Vector2(vector3_4.X, vector3_4.Y), radius, 100,
-                                    new Color((byte) 50, (byte) 50, (byte) 50, (byte) 90), 1f);
+                                var transparentDarkGray = new Color(50, 50, 50, 90);
+                                DrawCircle(new Vector2(vector3_4.X, vector3_4.Y), radius, transparentDarkGray);
                             }
                             else
                                 vector2.Y += num2;
