@@ -190,7 +190,10 @@ namespace Ship_Game.Ships
 
                     if (us.Debug)
                     {
-                        us.DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
+                        if (slot.XSIZE == slot.YSIZE)
+                            us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
+                        else
+                            us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
                     }
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
@@ -423,7 +426,7 @@ namespace Ship_Game.Ships
         }
         public void DrawWeaponRangeCircles(UniverseScreen screen)
         {
-            screen.DrawCircleProjected(Center, maxWeaponsRange, 64, Color.Red);
+            screen.DrawCircleProjected(Center, maxWeaponsRange, Color.Red);
         }
     }
 }

@@ -393,8 +393,8 @@ namespace Ship_Game
                         continue;
                     }
                     Vector2 center = new Vector2((float)(pgs.ClickRect.X + pgs.ClickRect.Width / 2), (float)(pgs.ClickRect.Y + pgs.ClickRect.Height / 2));
-                    DrawCircle(center, 5f, 50, Color.White, 5f);
-                    DrawCircle(center, 5f, 50, Color.Black);
+                    DrawCircle(center, 5f, Color.White, 5f);
+                    DrawCircle(center, 5f, Color.Black);
                 }
                 if (!(this.draggedTroop.item is Ship))
                 {
@@ -613,8 +613,8 @@ namespace Ship_Game
                             }
                             this.ScreenManager.SpriteBatch.FillRectangle(nearby.ClickRect, new Color(255, 255, 255, 30));
                             Vector2 center = new Vector2((float)(nearby.ClickRect.X + nearby.ClickRect.Width / 2), (float)(nearby.ClickRect.Y + nearby.ClickRect.Height / 2));
-                            DrawCircle(center, 5f, 50, Color.White, 5f);
-                            DrawCircle(center, 5f, 50, Color.Black);
+                            DrawCircle(center, 5f, Color.White, 5f);
+                            DrawCircle(center, 5f, Color.Black);
                         }
                     }
                 }
