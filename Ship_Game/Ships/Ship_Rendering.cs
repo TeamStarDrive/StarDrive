@@ -188,10 +188,10 @@ namespace Ship_Game.Ships
                     }
                     us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, slot.GetHealthStatusColorWhite());
 
-                    //if (enableModuleDebug)
-                    //{
-                    //    us.DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
-                    //}
+                    if (us.Debug)
+                    {
+                        us.DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
+                    }
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
                         if (slot.Powered)
