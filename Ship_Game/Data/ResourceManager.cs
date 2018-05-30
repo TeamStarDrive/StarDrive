@@ -1569,14 +1569,26 @@ namespace Ship_Game
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly, uniqueFileNames: true);
 
+            var duplicateTech = new Map<string, Technology>();
+
             foreach (InfoPair<Technology> pair in techs)
             {
                 Technology tech = pair.Entity;
                 tech.DebugSourceFile = pair.Info.RelPath();
-                //tech.UID = string.Intern(pair.Info.NameNoExt()); // @note by RedFox: this seems to cause issues, disabling for now
-                if (TechTree.ContainsKey(tech.UID))
-                    Log.Warning($"Overwriting tech {tech.UID} !\n  from: {TechTree[tech.UID].DebugSourceFile}\n  with: {tech.DebugSourceFile}");
-                TechTree[tech.UID] = tech;
+
+                // tech XML's have their own UID's but unfortunately there are many mismatches in data files
+                // so we only use the XML UID to detect potential duplications
+                string xmlUid = tech.UID;
+
+                if (duplicateTech.TryGetValue(xmlUid, out Technology previous))
+                    Log.Warning($"Possibly duplicate tech '{xmlUid}' !\n  first: {previous.DebugSourceFile}\n  second: {tech.DebugSourceFile}");
+                else
+                    duplicateTech.Add(xmlUid, tech);
+
+                // CA relies on tech XML filenames for the tech UID
+                string fileUid = string.Intern(pair.Info.NameNoExt());
+                tech.UID = fileUid;
+                TechTree[fileUid] = tech;
 
                 // categorize uncategorized techs
                 if (tech.TechnologyType != TechnologyType.General)
