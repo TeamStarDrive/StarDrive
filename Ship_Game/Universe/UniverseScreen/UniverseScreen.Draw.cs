@@ -444,7 +444,7 @@ namespace Ship_Game
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
                         float radius = cplanet.planetToClick.GravityWellRadius;
-                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 50, 1f,
+                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 1f,
                             inhibit, new Color(200, 0, 0, 50));
                     }
                 }
@@ -453,7 +453,7 @@ namespace Ship_Game
                     if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f)
                     {
                         float radius = ship.shipToClick.InhibitionRadius;
-                        DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 50, 1f,
+                        DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 1f,
                             inhibit, new Color(200, 0, 0, 40));
                     }
                 }
@@ -461,7 +461,7 @@ namespace Ship_Game
                 {
                     foreach (Empire.InfluenceNode influ in player.BorderNodes.AtomicCopy())
                     {
-                        DrawCircleProjected(influ.Position, influ.Radius, new Color(30, 30, 150, 150), 50, 1f, inhibit,
+                        DrawCircleProjected(influ.Position, influ.Radius, new Color(30, 30, 150, 150), 1f, inhibit,
                             new Color(0, 200, 0, 20));
                     }
                 }
@@ -491,7 +491,7 @@ namespace Ship_Game
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
                         float radius = 2500f * cplanet.planetToClick.Scale;
-                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 50, 1f,
+                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 1f,
                             nodeTex, new Color(0, 0, 255, 50));
                     }
                 }
@@ -803,7 +803,7 @@ namespace Ship_Game
         {
             var goal = SelectedItem?.AssociatedGoal;
             if (goal == null) return;
-            DrawCircleProjected(goal.BuildPosition, 50f, 50, goal.empire.EmpireColor);            
+            DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);            
         }
 
         private void DrawShipUI(GameTime gameTime)
@@ -934,11 +934,11 @@ namespace Ship_Game
                         {
                             if (item.UID == "Subspace Projector")
                             {
-                                DrawCircleProjected(item.BuildPos, Empire.ProjectorRadius, 50, Color.Orange, 2f);
+                                DrawCircleProjected(item.BuildPos, Empire.ProjectorRadius, Color.Orange, 2f);
                             }
                             else if (buildTemplate.SensorRange > 0f)
                             {
-                                DrawCircleProjected(item.BuildPos, buildTemplate.SensorRange, 50, Color.Blue, 2f);
+                                DrawCircleProjected(item.BuildPos, buildTemplate.SensorRange, Color.Blue, 2f);
                             }
                         }
                     }
@@ -951,7 +951,7 @@ namespace Ship_Game
             {
                 Vector2 center = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
                 float screenRadius = ProjectToScreenSize(Empire.ProjectorRadius);
-                DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), 50, Color.Orange, 2f); //
+                DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
             }
         }
 

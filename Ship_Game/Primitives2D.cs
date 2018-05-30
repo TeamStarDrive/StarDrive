@@ -45,6 +45,12 @@ namespace Ship_Game
             Pixel.SetData(new []{ Color.White });
         }
 
+        public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 posOnScreen, float radius, Color color, float thickness = 1f)
+        {
+            int sides = (int)radius + 2;
+            spriteBatch.DrawCircle(posOnScreen, radius, sides, color, thickness);
+        }
+
         public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
         {
             float step = 6.28318530717959f / sides;
@@ -64,9 +70,23 @@ namespace Ship_Game
             spriteBatch.DrawLine(previous, start, color, thickness);
         }
 
+        public static void DrawCapsule(this SpriteBatch spriteBatch, Capsule capsuleOnScreen,
+                                       Color color, float thickness = 1f)
+        {
+            Vector2 start = capsuleOnScreen.Start;
+            Vector2 end   = capsuleOnScreen.End;
+            float radius  = capsuleOnScreen.Radius;
+            Vector2 left = (end - start).LeftVector().Normalized() * radius;
+
+            spriteBatch.DrawLine(start + left, end + left, color, thickness);
+            spriteBatch.DrawLine(start - left, end - left, color, thickness);
+            spriteBatch.DrawCircle(start, radius, color, thickness);
+            spriteBatch.DrawCircle(end, radius, color, thickness);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DrawCircle(this SpriteBatch spriteBatch, float x, float y, float radius, int sides, Color color, float thickness = 1f)
-            => spriteBatch.DrawCircle(new Vector2(x, y), radius, sides, color, thickness);
+        public static void DrawCircle(this SpriteBatch spriteBatch, float x, float y, float radius, Color color, float thickness = 1f)
+            => spriteBatch.DrawCircle(new Vector2(x, y), radius, color, thickness);
 
         public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
         {

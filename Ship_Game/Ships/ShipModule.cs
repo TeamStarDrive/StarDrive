@@ -394,11 +394,14 @@ namespace Ship_Game.Ships
             Rotation = Parent.Rotation;
         }
 
+        // radius multiplier for collision detection
+        // radius of a 1x1 module is 8.0
+        private const float CollisionRadiusMultiplier = 11f;
+
+        // this is called once during module creation
         private void UpdateModuleRadius()
         {
-            // slightly bigger radius for better collision detection
-            //Replaced [8f * 1.125f] with 9f. This is calculated for every module on every call of update() so this might add up -Gretman
-            Radius = 9f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+            Radius = CollisionRadiusMultiplier * (XSIZE > YSIZE ? XSIZE : YSIZE);
         }
 
         // Collision test with this ShipModule. Returns TRUE if point is inside this module
@@ -418,22 +421,30 @@ namespace Ship_Game.Ships
             if (XSIZE == YSIZE)
                 return true;
 
-            int smaller = XSIZE < YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
-            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
+            Capsule capsule = GetModuleCollisionCapsule();
+            return capsule.HitTest(worldPos, radius);
+        }
 
-            // now for more expensive and accurate capsule-line collision testing
-            // since we can have 4x1 modules etc, so we need to construct a line+radius
-            float diameter = ((float)smaller / larger) * smaller * 16.0f;
+        // Gets the collision capsule in World coordinates
+        public Capsule GetModuleCollisionCapsule()
+        {
+            float shorter = XSIZE <  YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
+            float longer  = XSIZE >= YSIZE ? XSIZE : YSIZE;
 
             // if high module, use forward vector, if wide module, use right vector
-            Vector2 dir = Rotation.AngleToDirection();
-            if (XSIZE > YSIZE) dir = dir.LeftVector();
+            Vector2 longerDir = Rotation.RadiansToDirection();
+            if (XSIZE > YSIZE) longerDir = longerDir.LeftVector();
 
-            float offset = (larger * 16.0f - diameter) * 0.5f;
-            Vector2 startPos = Position - dir * offset;
-            Vector2 endPos = Position + dir * offset;
-            float rayWidth = diameter * 1.125f; // approx 18.0x instead of 16.0x
-            return worldPos.RayHitTestCircle(radius, startPos, endPos, rayWidth);
+            // now for more expensive and accurate capsule-line collision testing
+            // since we can have 4x1 modules etc, we construct a capsule
+            float smallerOffset = (shorter / longer) * longer * 8.0f;
+
+            float longerOffset = longer * 8.0f - smallerOffset;
+            return new Capsule(
+                Center - longerDir * longerOffset,
+                Center + longerDir * longerOffset,
+                shorter * CollisionRadiusMultiplier
+            );
         }
 
         public bool HitTestShield(Vector2 worldPos, float radius)
