@@ -8,6 +8,8 @@ namespace Ship_Game
     {
         public string UID;
         public string IconPath;
+
+        /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
 
         public int RootNode;
