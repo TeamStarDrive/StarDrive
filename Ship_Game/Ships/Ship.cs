@@ -2193,7 +2193,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if ((!hasCommand && InternalSlotsHealthPercent < 0.5f) || InternalSlotsHealthPercent < 0.35f)
+            if (InternalSlotsHealthPercent < 0.5f)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
@@ -2519,7 +2519,7 @@ namespace Ship_Game.Ships
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //Get total internal slots
-                if (slot.Restrictions == Restrictions.I && slot.Active)
+                if ((slot.Restrictions == Restrictions.I || slot.Restrictions == Restrictions.IO) && slot.Active)
                     ActiveInternalSlotCount += slot.XSIZE * slot.YSIZE;
                 
                 RepairRate += slot.ActualBonusRepairRate;
