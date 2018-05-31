@@ -220,8 +220,6 @@ namespace Ship_Game.Ships
         
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
-        public ShipData GetHull()   => Parent?.shipData;
-
 
 
         private ShipModule() : base(GameObjectType.ShipModule)
@@ -233,28 +231,28 @@ namespace Ship_Game.Ships
         private ShipModule(ShipModule_Deserialize template) : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
-            Flyweight               = new ShipModuleFlyweight(template);
-            XSIZE                   = template.XSIZE;
-            YSIZE                   = template.YSIZE;
-            Mass                    = template.Mass;
-            Powered                 = template.Powered;
-            FieldOfFire             = template.FieldOfFire;
-            Facing                  = template.facing;
-            XMLPosition             = template.XMLPosition;
-            WeaponType              = template.WeaponType;
-            NameIndex               = template.NameIndex;
-            DescriptionIndex        = template.DescriptionIndex;
-            Restrictions            = template.Restrictions;
-            ShieldPower             = template.shield_power;
-            hangarShipUID           = template.hangarShipUID;
-            hangarTimer             = template.hangarTimer;
-            isWeapon                = template.isWeapon;
-            OrdinanceCapacity       = template.OrdinanceCapacity;
-            BombTimer               = template.BombTimer;
-            ModuleType              = template.ModuleType;
-            IconTexturePath         = template.IconTexturePath;
-            TargetValue             = template.TargetValue;
-            TemplateMaxHealth       = template.HealthMax;
+            Flyweight = new ShipModuleFlyweight(template);
+            XSIZE             = template.XSIZE;
+            YSIZE             = template.YSIZE;
+            Mass              = template.Mass;
+            Powered           = template.Powered;
+            FieldOfFire       = template.FieldOfFire;
+            Facing            = template.facing;
+            XMLPosition       = template.XMLPosition;
+            NameIndex         = template.NameIndex;
+            DescriptionIndex  = template.DescriptionIndex;
+            Restrictions      = template.Restrictions;
+            ShieldPower       = template.shield_power;
+            hangarShipUID     = template.hangarShipUID;
+            hangarTimer       = template.hangarTimer;
+            ModuleType        = template.ModuleType;
+            WeaponType        = template.WeaponType;
+            isWeapon          = WeaponType.NotEmpty();
+            OrdinanceCapacity = template.OrdinanceCapacity;
+            BombTimer         = template.BombTimer;
+            IconTexturePath   = template.IconTexturePath;
+            TargetValue       = template.TargetValue;
+            TemplateMaxHealth = template.HealthMax;
             UpdateModuleRadius();
         }
 
@@ -278,9 +276,10 @@ namespace Ship_Game.Ships
                 hangarShipUID     = template.hangarShipUID,
                 hangarTimer       = template.hangarTimer,
                 TemplateMaxHealth = template.TemplateMaxHealth,
-                isWeapon          = template.isWeapon,
-                Mass              = template.Mass,
                 ModuleType        = template.ModuleType,
+                isWeapon          = template.isWeapon,
+                WeaponType        = template.WeaponType,
+                Mass              = template.Mass,
                 NameIndex         = template.NameIndex,
                 OrdinanceCapacity = template.OrdinanceCapacity,
                 ShieldPower       = template.shield_power_max, //Hmmm... This one is strange -Gretman
@@ -321,9 +320,7 @@ namespace Ship_Game.Ships
         {
             ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
             module.Parent = parent;
-            module.ApplyModuleOrientation(module.XSIZE, module.YSIZE, slot.GetOrientation());
-            // Orientation and Facing are related. But always override Facing with given ModuleSlotData.Facing
-            module.Facing = slot.Facing;
+            module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
             {
@@ -354,7 +351,7 @@ namespace Ship_Game.Ships
             Center.Y = Position.Y + YSIZE * 8f;
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
-            SetAttributesByType();
+            SetAttributes();
             
             if (!isTemplate)
             {
@@ -397,11 +394,14 @@ namespace Ship_Game.Ships
             Rotation = Parent.Rotation;
         }
 
+        // radius multiplier for collision detection
+        // radius of a 1x1 module is 8.0
+        private const float CollisionRadiusMultiplier = 11f;
+
+        // this is called once during module creation
         private void UpdateModuleRadius()
         {
-            // slightly bigger radius for better collision detection
-            //Replaced [8f * 1.125f] with 9f. This is calculated for every module on every call of update() so this might add up -Gretman
-            Radius = 9f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+            Radius = CollisionRadiusMultiplier * (XSIZE > YSIZE ? XSIZE : YSIZE);
         }
 
         // Collision test with this ShipModule. Returns TRUE if point is inside this module
@@ -421,22 +421,30 @@ namespace Ship_Game.Ships
             if (XSIZE == YSIZE)
                 return true;
 
-            int smaller = XSIZE < YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
-            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
+            Capsule capsule = GetModuleCollisionCapsule();
+            return capsule.HitTest(worldPos, radius);
+        }
 
-            // now for more expensive and accurate capsule-line collision testing
-            // since we can have 4x1 modules etc, so we need to construct a line+radius
-            float diameter = ((float)smaller / larger) * smaller * 16.0f;
+        // Gets the collision capsule in World coordinates
+        public Capsule GetModuleCollisionCapsule()
+        {
+            float shorter = XSIZE <  YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
+            float longer  = XSIZE >= YSIZE ? XSIZE : YSIZE;
 
             // if high module, use forward vector, if wide module, use right vector
-            Vector2 dir = Rotation.AngleToDirection();
-            if (XSIZE > YSIZE) dir = dir.LeftVector();
+            Vector2 longerDir = Rotation.RadiansToDirection();
+            if (XSIZE > YSIZE) longerDir = longerDir.LeftVector();
 
-            float offset = (larger * 16.0f - diameter) * 0.5f;
-            Vector2 startPos = Position - dir * offset;
-            Vector2 endPos = Position + dir * offset;
-            float rayWidth = diameter * 1.125f; // approx 18.0x instead of 16.0x
-            return worldPos.RayHitTestCircle(radius, startPos, endPos, rayWidth);
+            // now for more expensive and accurate capsule-line collision testing
+            // since we can have 4x1 modules etc, we construct a capsule
+            float smallerOffset = (shorter / longer) * longer * 8.0f;
+
+            float longerOffset = longer * 8.0f - smallerOffset;
+            return new Capsule(
+                Center - longerDir * longerOffset,
+                Center + longerDir * longerOffset,
+                shorter * CollisionRadiusMultiplier
+            );
         }
 
         public bool HitTestShield(Vector2 worldPos, float radius)
@@ -807,73 +815,50 @@ namespace Ship_Game.Ships
             Parent.Ordinance -= hangarShip.Mass / 5f;
         }
 
-        private void SetAttributesByType()
+        public void SetAttributes()
         {
             switch (ModuleType)
             {
                 case ShipModuleType.Turret:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     InstalledWeapon.isTurret = true;
                     break;
                 case ShipModuleType.MainGun:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     InstalledWeapon.isMainGun = true;
                     break;
                 case ShipModuleType.MissileLauncher:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     break;
                 case ShipModuleType.Colony:
-                    Parent.isColonyShip = true;
+                    if (Parent != null)
+                        Parent.isColonyShip = true;
                     break;
                 case ShipModuleType.Bomb:
-                    Parent.BombBays.Add(this);
+                    Parent?.BombBays.Add(this);
                     break;
                 case ShipModuleType.Drone:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     break;
                 case ShipModuleType.Spacebomb:
-                    ConfigWeapon(true);
+                    ConfigWeapon();
                     break;
             }
-            if (IsSupplyBay)
+            
+            if (IsSupplyBay && Parent != null)
                 Parent.IsSupplyShip = true;
         }
 
-        public void SetAttributesNoParent()
+        private void ConfigWeapon()
         {
-            switch (ModuleType)
-            {
-                case ShipModuleType.Turret:
-                    ConfigWeapon(false);
-                    InstalledWeapon.isTurret = true;
-                    break;
-                case ShipModuleType.MainGun:
-                    ConfigWeapon(false);
-                    InstalledWeapon.isMainGun = true;
-                    break;
-                case ShipModuleType.MissileLauncher:
-                    ConfigWeapon(false);
-                    break;
-                case ShipModuleType.Drone:
-                    ConfigWeapon(false);
-                    break;
-                case ShipModuleType.Spacebomb:
-                    ConfigWeapon(false);
-                    break;
-            }
-            Health = ActualMaxHealth;
-        }
-
-        private void ConfigWeapon(bool addToParent)
-        {
-            InstalledWeapon = ResourceManager.CreateWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
+            if (InstalledWeapon != null && InstalledWeapon.WeaponType == WeaponType)
+                return;
+            InstalledWeapon = ResourceManager.CreateWeapon(WeaponType);
             InstalledWeapon.Module = this;
-            InstalledWeapon.Owner = Parent;
+            InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
             isWeapon = true;
-            
-            if (addToParent)
-                Parent.Weapons.Add(InstalledWeapon);
+            Parent?.Weapons.Add(InstalledWeapon);
         }
 
         public void SetHangarShip(Ship ship)
@@ -1187,29 +1172,32 @@ namespace Ship_Game.Ships
             return off;
         }
 
-        public void ApplyModuleOrientation(int w, int h, ShipDesignScreen.ActiveModuleState state)
+        public static float DefaultFacingFor(ModuleOrientation orientation)
         {
-            switch (state)
+            switch (orientation)
             {
-                case ShipDesignScreen.ActiveModuleState.Normal:
+                default:
+                case ModuleOrientation.Normal: return 0f;
+                case ModuleOrientation.Left:   return 270f;
+                case ModuleOrientation.Right:  return 90f;
+                case ModuleOrientation.Rear:   return 180f;
+            }
+        }
+
+        public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
+        {
+            Facing = facing;
+            switch (orientation)
+            {
+                case ModuleOrientation.Normal:
+                case ModuleOrientation.Rear:
                     XSIZE = w;
                     YSIZE = h;
-                    Facing = 0f;
                     break;
-                case ShipDesignScreen.ActiveModuleState.Left:
-                    XSIZE = h; // @todo Why are these swapped? Please comment.
-                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa    
-                    Facing = 270f;
-                    return;
-                case ShipDesignScreen.ActiveModuleState.Right:
-                    XSIZE = h; // @todo Why are these swapped? Please comment.
-                    YSIZE = w; // if the module is facing left or right, then length is now height, and vice versa
-                    Facing = 90f;
-                    break;
-                case ShipDesignScreen.ActiveModuleState.Rear:
-                    XSIZE = w;
-                    YSIZE = h;
-                    Facing = 180f;
+                case ModuleOrientation.Left:
+                case ModuleOrientation.Right:
+                    XSIZE = h; // if the module is facing left or right, then length is now height
+                    YSIZE = w;
                     break;
             }
         }

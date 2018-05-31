@@ -639,8 +639,7 @@ namespace Ship_Game.AI {
                 HasPriorityOrder = false;
                 State = DefaultAIState;
                 OrderQueue.Clear();
-                Log.Info("Do Land Troop: Troop Assault Canceled with {0} troops and {1} Landing Spots ",
-                    Owner.TroopList.Count, goal.TargetPlanet.GetGroundLandingSpots());
+                Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
             }
             else if (distCenter < radius)
             {

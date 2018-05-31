@@ -193,7 +193,7 @@ namespace Particle3DSample
             Settings = Content.Load<ParticleSettings>(SettingsName);
             // if (SettingsName == "3DParticles/ProjectileTrailSettings") Settings.MaxParticles *= 10;
             Settings.MaxParticles = ParticleCount >0 ? ParticleCount : Settings.MaxParticles; 
-            Log.Info("Max Particles for :{0} is {1}", SettingsName, Settings.MaxParticles);
+            //Log.Info($"{SettingsName}  MaxParticles={Settings.MaxParticles}");
             Particles = new ParticleVertex[Settings.MaxParticles];
             LoadParticleEffect();
             VertexDeclaration = new VertexDeclaration(GraphicsDevice, ParticleVertex.VertexElements);

@@ -181,8 +181,7 @@ namespace Ship_Game.AI.Tasks {
                 if (!ship.ShipIsGoodForGoals())
                     continue;
                 if (ship.fleet != null)
-                    Log.Info("GetAvailableShips: a ship is in fleet '{0}' and not available for {1}", ship.fleet.Name,
-                        type.ToString());
+                    Log.Info($"GetAvailableShips: a ship is in fleet '{ship.fleet.Name}' and not available for {type}");
                 if (area.GetWaitingShips().ContainsRef(ship))
                     Log.Error("ship is in waiting list and should not be");
 
@@ -705,15 +704,14 @@ namespace Ship_Game.AI.Tasks {
                 Log.Error("{0} has no areas of operation", Owner.Name);
                 return null;
             }
-            AO closestAO =
-                aos.FindMaxFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
-                    ao => -ao.Center.SqDist(AO));
-            if (closestAO == null)
+            AO closestAo = aos.FindMaxFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted, 
+                                               ao => -ao.Center.SqDist(AO));
+            if (closestAo == null)
             {
-                Log.Info("{0} : no coreFleetsFound of operation found", Owner.Name);
+                Log.Info($"{Owner.Name} : no coreFleetsFound of operation found");
                 return null;
             }
-            return closestAO.GetCoreFleet();
+            return closestAo.GetCoreFleet();
         }
         private void RequisitionExplorationForce()
         {

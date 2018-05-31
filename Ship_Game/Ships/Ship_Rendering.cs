@@ -153,7 +153,8 @@ namespace Ship_Game.Ships
                 float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
                 float moduleHeight = slot.YSIZE * 16.5f;
 
-                Vector2 sizeOnScreen = us.ProjectToScreenSize(moduleWidth, moduleHeight);
+                float w = us.ProjectToScreenSize(moduleWidth);
+                float h = us.ProjectToScreenSize(moduleHeight);
                 Vector2 posOnScreen = us.ProjectToScreenPosition(slot.Center);
                 //us.ProjectToScreenCoords(slot.Center, moduleWidth, moduleHeight,
                 //                         out Vector2 posOnScreen, out float widthOnScreen, out float heightOnScreen);
@@ -163,46 +164,51 @@ namespace Ship_Game.Ships
                 // it helps by a noticeable amount
                 posOnScreen.X = (float)Math.Round(posOnScreen.X);
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
-                if (sizeOnScreen.X.AlmostEqual(sizeOnScreen.Y, 0.001f))
-                    sizeOnScreen.X = sizeOnScreen.Y;
+                if (w.AlmostEqual(h, 0.001f)) w = h;
 
                 float slotFacing = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
-                us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, sizeOnScreen.X, sizeOnScreen.Y, Color.White);
+                us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);
 
                 if (us.CamHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
-                    us.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, sizeOnScreen.X, sizeOnScreen.Y, slot.GetHealthStatusColor());
+                    us.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, w, h, slot.GetHealthStatusColor());
                 }
                 else
                 {
-                    float w = sizeOnScreen.X;
-                    float h = sizeOnScreen.Y;
-                    //@HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
-                    //so to fix that i am switching the height and width if the module is facing left or right. 
-                    if (slotFacing.AlmostEqual(270f) || slotFacing.AlmostEqual(90f))
+                    Color healthColor = slot.GetHealthStatusColorWhite();
+                    if (slot.XSIZE == slot.YSIZE)
                     {
-                        w = sizeOnScreen.Y;
-                        h = sizeOnScreen.X;
+                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
+                        if (us.Debug)
+                            us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
                     }
-                    us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, slot.GetHealthStatusColorWhite());
+                    else
+                    {
+                        // @TODO HACK the dimensions are already rotated so that rotating again puts it in the wrong orientation. 
+                        // so to fix that i am switching the height and width if the module is facing left or right. 
+                        if (slotFacing.AlmostEqual(270f) || slotFacing.AlmostEqual(90f))
+                        {
+                            float oldW = w; w = h; h = oldW; // swap(w, h)
+                        }
 
-                    //if (enableModuleDebug)
-                    //{
-                    //    us.DrawCircleProjected(slot.Center, slot.Radius, 20, Color.Red, 2f);
-                    //}
+                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
+                        if (us.Debug)
+                            us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
+                    }
+
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
                     {
                         if (slot.Powered)
                         {
                             Texture2D poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
-                            us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, sizeOnScreen.X, sizeOnScreen.Y, Color.White);
+                            us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, w, h, Color.White);
                         }
                     }
                     else if (slot.Active && !slot.Powered && slot.PowerDraw > 0.0f)
                     {
-                        float smallerSize = Math.Min(sizeOnScreen.X, sizeOnScreen.Y);
+                        float smallerSize = Math.Min(w, h);
                         us.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
                     }
 
@@ -211,7 +217,7 @@ namespace Ship_Game.Ships
                         // draw blue marker on all active external modules
                         if (slot.isExternal && slot.Active)
                         {
-                            float smallerSize = Math.Min(sizeOnScreen.X, sizeOnScreen.Y);
+                            float smallerSize = Math.Min(w, h);
                             us.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
                         }
 
@@ -237,9 +243,7 @@ namespace Ship_Game.Ships
         {
             // try to scale the icon so its size remains consistent when zooming in/out
             float size = ScaleIconSize(screenRadius, minSize, maxSize);
-            
             us.DrawTextureSized(GetTacticalIcon(), screenPos, Rotation, size, size, loyalty.EmpireColor);
-            
         }
 
         private void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
@@ -423,7 +427,7 @@ namespace Ship_Game.Ships
         }
         public void DrawWeaponRangeCircles(UniverseScreen screen)
         {
-            screen.DrawCircleProjected(Center, maxWeaponsRange, 64, Color.Red);
+            screen.DrawCircleProjected(Center, maxWeaponsRange, Color.Red);
         }
     }
 }

@@ -70,7 +70,7 @@ namespace Ship_Game
             if (info.Exists)
                 return info.Deserialize<FleetDesign>();
 
-            Log.Warning("Failed to load fleet design '{0}'", designPath);
+            Log.Warning($"Failed to load fleet design '{designPath}'");
             return null;
         }
 
@@ -135,7 +135,7 @@ namespace Ship_Game
                     compress.Write(buffer, 0, bytesRead = inFile.Read(buffer, 0, buffer.Length));
                 } while (bytesRead == buffer.Length);
 
-                Log.Info("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
+                Log.Info($"Compressed {fi.Name} from {fi.Length} to {outFile.Length} bytes.");
             }
         }
 
@@ -152,7 +152,7 @@ namespace Ship_Game
                 int numRead;
                 while ((numRead = decompress.Read(buffer, 0, buffer.Length)) > 0)
                     outFile.Write(buffer, 0, numRead);
-                Log.Info("Decompressed: {0}", fi.Name);
+                Log.Info($"Decompressed: {fi.Name}");
                 return origName;
             }
         }
@@ -338,24 +338,19 @@ namespace Ship_Game
                 default:                          return 5;
             }
         }
-        public static void CompactLargeObjectHeap()
-        {
-            
-            
-        }
+
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
-
-            Log.TestMessage(" ========= CollectMemory ========= ", Log.Importance.Important);
-            float before = GC.GetTotalMemory(false) / (1024f * 1024f);
+            Log.Warning(" ========= CollectMemory ========= ");
+            float before = GC.GetTotalMemory(forceFullCollection: false) / (1024f * 1024f);
             CollectMemorySilent();
             float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
-            Log.TestMessage($"   Before: {before:0.0}MB  After: {after:0.0}MB", Log.Importance.Important);
-            Log.TestMessage($"   Process Memory : {ProcessMemoryMb}", Log.Importance.Important);
-            Log.TestMessage(" ================================= ", Log.Importance.Important);
-            
+            Log.Warning($"   Before: {before:0.0}MB  After: {after:0.0}MB");
+            float processMemory = Process.GetCurrentProcess().WorkingSet64 / (1024f * 1024f);
+            Log.Warning($"   Process Memory: {processMemory:0.0}MB");
+            Log.Warning(" ================================= ");
         }
 
         public static void CollectMemorySilent()
@@ -364,7 +359,5 @@ namespace Ship_Game
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
-
-        public static float ProcessMemoryMb => Process.GetCurrentProcess().WorkingSet64 / (1024f * 1024f);
     }
 }

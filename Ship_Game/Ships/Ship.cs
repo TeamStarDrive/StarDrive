@@ -2195,7 +2195,7 @@ namespace Ship_Game.Ships
             if ((InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount) <.35f)            
                   Die(LastDamagedBy, false);
 
-            Mass = Math.Max((Size / 2), Mass);
+            Mass = Math.Max(Size * 0.5f, Mass);
             Mass = Math.Max(Mass, 1);
             PowerCurrent -= PowerDraw * deltaTime;
             if (PowerCurrent < PowerStoreMax)
@@ -3189,7 +3189,6 @@ namespace Ship_Game.Ships
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
-        public bool ShipIsGoodForGoalsUI(float baseStrengthNeeded = 0) => ShipIsGoodForGoals(baseStrengthNeeded, EmpireManager.Player);
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
             if (!Active) return false;
@@ -3206,7 +3205,9 @@ namespace Ship_Game.Ships
 
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
+            {
                 Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
+            }
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;
             return false;

@@ -7,6 +7,24 @@ using static System.Math;
 
 namespace Ship_Game
 {
+    public struct Capsule
+    {
+        public Vector2 Start;
+        public Vector2 End;
+        public float Radius;
+        public Vector2 Center => (Start + End) * 0.5f;
+        public Capsule(Vector2 start, Vector2 end, float radius)
+        {
+            Start = start;
+            End = end;
+            Radius = radius;
+        }
+        public bool HitTest(Vector2 hitPos, float hitRadius)
+        {
+            return hitPos.RayHitTestCircle(hitRadius, Start, End, Radius);
+        }
+    }
+
     // Added by RedFox
     // Note about StarDrive coordinate system:
     //   +X is right on screen
@@ -114,6 +132,12 @@ namespace Ship_Game
         public static Vector2 Normalized(this Vector2 v)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y);
+            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
+        }
+
+        public static Vector2 Normalized(this Vector2 v, float newMagnitude)
+        {
+            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y) / newMagnitude;
             return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
         }
 
@@ -529,6 +553,7 @@ namespace Ship_Game
             }
             return center;
         }
+
         public static Vector2 NearestPointOnFiniteLine(this Vector2 pnt,  Vector2 start, Vector2 end)
         {
             Vector2 line = (end - start);
@@ -540,8 +565,9 @@ namespace Ship_Game
             d = Clamp(d, 0f, len);
             return start + line * d;
         }
+
         // does this wide RAY collide with our Circle?
-        public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayWidth)
+        public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayRadius)
         {
             float a1 = rayEnd.Y - rayStart.Y;
             float b1 = rayStart.X - rayEnd.X;
@@ -550,7 +576,7 @@ namespace Ship_Game
             float det = a1*a1 + b1*b1;
             if (det > 0.0f)
             {
-                float r2 = radius + rayWidth / 2;
+                float r2 = radius + rayRadius;
                 float dx = center.X - ((a1 * c1 - b1 * c2) / det);
                 float dy = center.Y - ((a1 * c2 - -b1 * c1) / det);
                 return dx * dx + dy * dy <= r2 * r2;
@@ -866,7 +892,7 @@ namespace Ship_Game
         public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
-            return -1.40129846432482E-45 <= delta && delta <= 1.40129846432482E-45;
+            return -0.000001f <= delta && delta <= 0.000001f;
         }
         public static bool AlmostEqual(this float a, float b, float tolerance)
         {
