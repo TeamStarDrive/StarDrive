@@ -2192,8 +2192,9 @@ namespace Ship_Game.Ships
             SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
-            if ((InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount) <.35f)            
-                  Die(LastDamagedBy, false);
+            InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
+            if ((!hasCommand && InternalSlotsHealthPercent < 0.5f) || InternalSlotsHealthPercent < 0.35f)
+                Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
             Mass = Math.Max(Mass, 1);
