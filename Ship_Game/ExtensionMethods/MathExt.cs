@@ -12,6 +12,7 @@ namespace Ship_Game
         public Vector2 Start;
         public Vector2 End;
         public float Radius;
+        public Vector2 Center => (Start + End) * 0.5f;
         public Capsule(Vector2 start, Vector2 end, float radius)
         {
             Start = start;
