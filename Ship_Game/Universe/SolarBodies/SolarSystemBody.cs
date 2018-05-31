@@ -1459,7 +1459,7 @@ namespace Ship_Game
                 if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.GetOwner() != newOwner))
                     continue;
                 kv.Value.ChangeLoyalty(newOwner);             
-                Log.Info("Owner of platform tethered to {0} changed from {1} to {2}", Name, Owner.PortraitName, newOwner.PortraitName);
+                Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
             }
             Owner = newOwner;
             TurnsSinceTurnover = 0;

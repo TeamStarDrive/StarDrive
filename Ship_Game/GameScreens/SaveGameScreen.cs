@@ -55,11 +55,11 @@ namespace Ship_Game
                         data.FI = new FileInfo(Path + data.SaveName + SavedGame.NewZipExt);
                     if (!data.FI.Exists)
                     {
-                        Log.Warning("Missing save payload {0}", data.FI.FullName);
+                        Log.Warning($"Missing save payload {data.FI.FullName}");
                         continue;
                     }
 
-                    string info = data.PlayerName + " StarDate " + data.StarDate;
+                    string info = $"{data.PlayerName} StarDate {data.StarDate}";
                     string extraInfo = data.RealDate;
                     saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
                 }

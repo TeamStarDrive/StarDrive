@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
             ToBuildUID = toCopy.Name;
             empire = owner;
             if (ToBuildUID.IsEmpty())
-                Log.Warning("Missing Troop {0}", ToBuildUID);
+                Log.Warning($"Missing Troop {ToBuildUID}");
         }
 
         private GoalStep FindPlanetToBuildAt()

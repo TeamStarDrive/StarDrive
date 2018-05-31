@@ -372,7 +372,7 @@ namespace Ship_Game
                     InitRandomShip();
 
                 if (input.WasAnyKeyPressed)
-                    Log.Info("rot {0}   {1}", ShipRotation, MoonRotation);
+                    Log.Info($"rot {ShipRotation}   {MoonRotation}");
             }
 
             // handle buttons and stuff
@@ -505,7 +505,7 @@ namespace Ship_Game
 
             LoadTestContent();
 
-            Log.Info("MainMenuScreen GameContent {0:0.0}MB", TransientContent.GetLoadedAssetMegabytes());
+            Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
         }
 
         // for quick feature testing in the main menu
@@ -607,7 +607,7 @@ namespace Ship_Game
             //float length = bb.Max.Z - bb.Min.Z;
             //float width  = bb.Max.X - bb.Min.X;
             //float height = bb.Max.Y - bb.Min.Y;
-            Log.Info("ship width: {0}  scale: {1}", ShipObj.ObjectBoundingSphere.Radius*2, ShipScale);
+            Log.Info($"ship width: {ShipObj.ObjectBoundingSphere.Radius*2}  scale: {ShipScale}");
 
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
             AddObject(ShipObj);

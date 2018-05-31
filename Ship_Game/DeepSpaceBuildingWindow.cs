@@ -1,9 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
@@ -33,15 +31,14 @@ namespace Ship_Game
         private Guid TargetPlanet = Guid.Empty;
 
 
-        public DeepSpaceBuildingWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
+        public DeepSpaceBuildingWindow(ScreenManager screenManager, UniverseScreen screen)
         {
             this.screen = screen;
-            this.ScreenManager = ScreenManager;
+            ScreenManager = screenManager;
 
-            int WindowWidth = 320;
-            this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth, 260, WindowWidth, 225);
-            Rectangle rectangle = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth + 20, 225, WindowWidth - 40, 455);
-            this.ConstructionSubMenu = new Submenu(this.win, true);
+            const int windowWidth = 320;
+            this.win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - windowWidth, 260, windowWidth, 225);
+            this.ConstructionSubMenu = new Submenu(this.win);
             this.ConstructionSubMenu.AddTab("Build Menu");
             this.SL = new ScrollList(this.ConstructionSubMenu, 40);
 

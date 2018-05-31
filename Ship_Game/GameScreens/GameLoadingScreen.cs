@@ -109,7 +109,7 @@ namespace Ship_Game
             // Initialize all game resources
 		    ResourceManager.LoadItAll();
 
-            Log.Info("Loaded 'Root' Assets {0:0.0}MB", Game1.GameContent.GetLoadedAssetMegabytes());
+            Log.Info($"Loaded 'Root' Assets {Game1.GameContent.GetLoadedAssetMegabytes():0.0}MB");
 
             // If you want to export XNB assets:
 		    // ResourceManager.ExportAllXnbMeshes();
