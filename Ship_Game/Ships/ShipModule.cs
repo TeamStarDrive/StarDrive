@@ -681,7 +681,7 @@ namespace Ship_Game.Ships
         {
             ++DebugInfoScreen.ModulesDied;
 
-            Health = 0f;
+            SetHealth(0f);
             var center = new Vector3(Center.X, Center.Y, -100f);
 
             SolarSystem inSystem = Parent.System;

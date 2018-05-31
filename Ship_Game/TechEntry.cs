@@ -406,7 +406,7 @@ namespace Ship_Game
                 case "Hull Strengthening":
                 case "Module HP Bonus":
                     data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    empire.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    EmpireShipBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
                     break;
                 case "Reaction Drive Upgrade":
                 case "STL Speed Bonus": data.SubLightModifier += unlockedBonus.Bonus; break;
@@ -439,7 +439,7 @@ namespace Ship_Game
                 case "Armor Phasing": data.ArmorPiercingBonus += (int)unlockedBonus.Bonus; break;
                 case "Kulrathi Might":
                     data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    empire.RecalculateMaxHP = true; //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    EmpireShipBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
                     break;
                 case "Subspace Inhibition": data.Inhibitors = true; break;
                 // Added by McShooterz              : New Bonuses

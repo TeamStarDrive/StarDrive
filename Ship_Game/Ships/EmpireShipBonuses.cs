@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace Ship_Game.Ships
 {
+
+    // Bonuses for each ship hull type for each empire
     public class EmpireShipBonuses
     {
         /// <summary>
@@ -14,7 +16,7 @@ namespace Ship_Game.Ships
         public float ShieldMod     { get; private set; } = 1.0f;
         public float HealthMod     { get; private set; } = 1.0f;
 
-        private void Update(Empire empire, ShipData shipData)
+        public void Update(Empire empire, ShipData shipData)
         {
             float EmpireDataMod(float mod)
             {
@@ -30,8 +32,53 @@ namespace Ship_Game.Ships
 
         public static readonly EmpireShipBonuses Default = new EmpireShipBonuses();
 
-        private static readonly Map<Empire, Map<ShipData, EmpireShipBonuses>> EmpireShips
-                          = new Map<Empire, Map<ShipData, EmpireShipBonuses>>();
+        private static readonly Map<Empire, EmpireBonusData> EmpireBonuses = new Map<Empire, EmpireBonusData>();
+
+        private class EmpireBonusData
+        {
+            private readonly Empire Empire;
+            private static int NextRevisionId; // to make each revision globally unique
+            public int RevisionId { get; private set; } = ++NextRevisionId;
+            private readonly Map<ShipData, EmpireShipBonuses> HullBonuses = new Map<ShipData, EmpireShipBonuses>();
+
+            public EmpireBonusData(Empire empire)
+            {
+                Empire = empire;
+            }
+            public void Update()
+            {
+                foreach (KeyValuePair<ShipData, EmpireShipBonuses> kv in HullBonuses)
+                    kv.Value.Update(Empire, kv.Key);
+                RevisionId = ++NextRevisionId;
+            }
+            public EmpireShipBonuses GetOrCreateShipBonus(ShipData shipData)
+            {
+                lock (this)
+                {
+                    if (!HullBonuses.TryGetValue(shipData, out EmpireShipBonuses shipBonuses))
+                    {
+                        shipBonuses = new EmpireShipBonuses();
+                        HullBonuses[shipData] = shipBonuses;
+                        shipBonuses.Update(Empire, shipData);
+                    }
+                    return shipBonuses;
+                }
+            }
+        }
+
+        private static EmpireBonusData GetOrCreateBonusData(Empire empire)
+        {
+            // @note Loading is multi-threaded, so cache init must be thread safe
+            lock (EmpireBonuses)
+            {
+                if (!EmpireBonuses.TryGetValue(empire, out EmpireBonusData bonusData))
+                {
+                    bonusData = new EmpireBonusData(empire);
+                    EmpireBonuses[empire] = bonusData;
+                }
+                return bonusData;
+            }
+        }
 
         /// <summary>
         /// Gets bonuses for a specific empire and a specific ship hull type
@@ -41,31 +88,7 @@ namespace Ship_Game.Ships
             if (empire   == null) throw new InvalidOperationException("Empire must not be null");
             if (shipData == null) throw new InvalidOperationException("ShipData must not be null");
 
-            Map<ShipData, EmpireShipBonuses> hullBonuses;
-            EmpireShipBonuses bonuses;
-
-            // @note Loading is multi-threaded, so cache init must be thread safe
-
-            lock (EmpireShips)
-            {
-                if (!EmpireShips.TryGetValue(empire, out hullBonuses))
-                {
-                    hullBonuses = new Map<ShipData, EmpireShipBonuses>();
-                    EmpireShips[empire] = hullBonuses;
-                }
-            }
-
-            lock (hullBonuses)
-            {
-                if (!hullBonuses.TryGetValue(shipData, out bonuses))
-                {
-                    bonuses = new EmpireShipBonuses();
-                    hullBonuses[shipData] = bonuses;
-                    bonuses.Update(empire, shipData);
-                }
-            }
-
-            return bonuses;
+            return GetOrCreateBonusData(empire).GetOrCreateShipBonus(shipData);
         }
 
         /// <summary>
@@ -74,29 +97,29 @@ namespace Ship_Game.Ships
         /// </summary>
         public static void RefreshBonuses(Empire empire)
         {
-            lock (EmpireShips)
+            lock (EmpireBonuses)
             {
-                if (EmpireShips.TryGetValue(empire, out Map<ShipData, EmpireShipBonuses> hullBonuses))
-                {
-                    foreach (KeyValuePair<ShipData, EmpireShipBonuses> kv in hullBonuses)
-                        kv.Value.Update(empire, kv.Key);
-                }
+                if (EmpireBonuses.TryGetValue(empire, out EmpireBonusData bonusData))
+                    bonusData.Update();
             }
         }
 
         public static void RefreshBonuses()
         {
             Log.Info("Refreshing all bonuses");
-            lock (EmpireShips)
+            lock (EmpireBonuses)
             {
-                foreach (KeyValuePair<Empire, Map<ShipData, EmpireShipBonuses>> empireShips in EmpireShips)
-                {
-                    foreach (KeyValuePair<ShipData, EmpireShipBonuses> kv in empireShips.Value)
-                    {
-                        kv.Value.Update(empireShips.Key, kv.Key);
-                    }
-                }
+                foreach (KeyValuePair<Empire, EmpireBonusData> empireBonuses in EmpireBonuses)
+                    empireBonuses.Value.Update();
             }
+        }
+
+        // this helps us keep track whether bonuses changed or not
+        public static int GetBonusRevisionId(Empire empire)
+        {
+            if (EmpireBonuses.TryGetValue(empire, out EmpireBonusData bonusData))
+                return bonusData.RevisionId;
+            return 0;
         }
     }
 }

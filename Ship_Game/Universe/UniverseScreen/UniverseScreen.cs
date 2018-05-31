@@ -893,11 +893,11 @@ namespace Ship_Game
             }
             float x = num1 / SelectedShipList.Count;
             float y = num2 / SelectedShipList.Count;
-            MultiShipData multiShipData = new MultiShipData();
+            var multiShipData = new MultiShipData();
             multiShipData.status = num3 / num4;
             multiShipData.weightedCenter = new Vector2(x, y);
             multiShipData.Radius = 0.0f;
-            foreach (GameplayObject gameplayObject in SelectedShipList)
+            foreach (Ship gameplayObject in SelectedShipList)
             {
                 float num5 = Vector2.Distance(gameplayObject.Position, multiShipData.weightedCenter);
                 if (num5 > multiShipData.Radius)
