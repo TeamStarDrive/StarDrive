@@ -8,85 +8,71 @@ namespace Ship_Game
 {
 	public sealed class ModuleHeader
 	{
-		public bool Open;
+		public string Text;
+	    public bool Hover { get; private set; }
+	    private bool Open;
+		private readonly int Width = 305;
+		private Rectangle ClickRect;
+		private Rectangle R;
 
-		public string Text = "";
-
-		private float Width = 305f;
-
-		public bool Hover;
-
-		private Rectangle ClickRect = new Rectangle();
-
-		private Rectangle r;
-
-		public ModuleHeader(string Text)
+		public ModuleHeader(string text)
 		{
-			this.Text = Text;
+			Text = text;
+		}
+		public ModuleHeader(string text, int width)
+		{
+			Width = width;
+			Text = text;
 		}
 
-		public ModuleHeader(string Text, float Width)
+		public void Draw(ScreenManager screenManager, Vector2 position)
 		{
-			this.Width = Width;
-			this.Text = Text;
+		    DrawWidth(screenManager, position, Width);
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, Vector2 Position)
+		public void DrawWidth(ScreenManager screenManager, Vector2 position, int width)
 		{
-            var spriteBatch = ScreenManager.SpriteBatch;
+		    var spriteBatch = screenManager.SpriteBatch;
+			R = new Rectangle((int)position.X, (int)position.Y, width, 30);
 
-			this.r = new Rectangle((int)Position.X, (int)Position.Y, (int)this.Width, 30);
-			(new Selector(this.r, (this.Hover ? new Color(95, 82, 47) : new Color(32, 30, 18)))).Draw(spriteBatch);
-			Vector2 textPos = new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
-		    spriteBatch.DrawString(Fonts.Pirulen12, this.Text, textPos, Color.White);
-			this.ClickRect = new Rectangle(this.r.X + this.r.Width - 15, this.r.Y + 10, 10, 10);
-			textPos = new Vector2((float)this.ClickRect.X - Fonts.Arial20Bold.MeasureString((this.Open ? "-" : "+")).X / 2f, (float)(this.ClickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2));
-		    spriteBatch.DrawString(Fonts.Arial20Bold, (this.Open ? "-" : "+"), textPos, Color.White);
+			new Selector(R, (Hover ? new Color(95, 82, 47) : new Color(32, 30, 18))).Draw(spriteBatch);
+
+		    var textPos = new Vector2(R.X + 10, R.Y + R.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
+		    spriteBatch.DrawString(Fonts.Pirulen12, Text, textPos, Color.White);
+			ClickRect = new Rectangle(R.X + R.Width - 15, R.Y + 10, 10, 10);
+
+		    string open = Open ? "-" : "+";
+			textPos = new Vector2(ClickRect.X - Fonts.Arial20Bold.MeasureString(open).X / 2f,
+			                      ClickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2);
+		    spriteBatch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
 		}
 
-		public void DrawWidth(Ship_Game.ScreenManager ScreenManager, Vector2 Position, int width)
-		{
-		    var spriteBatch = ScreenManager.SpriteBatch;
-
-			this.r = new Rectangle((int)Position.X, (int)Position.Y, width, 30);
-			(new Selector(this.r, (this.Hover ? new Color(95, 82, 47) : new Color(32, 30, 18)))).Draw(spriteBatch);
-			Vector2 textPos = new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
-		    spriteBatch.DrawString(Fonts.Pirulen12, this.Text, textPos, Color.White);
-			this.ClickRect = new Rectangle(this.r.X + this.r.Width - 15, this.r.Y + 10, 10, 10);
-			textPos = new Vector2((float)this.ClickRect.X - Fonts.Arial20Bold.MeasureString((this.Open ? "-" : "+")).X / 2f, (float)(this.ClickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2));
-		    spriteBatch.DrawString(Fonts.Arial20Bold, (this.Open ? "-" : "+"), textPos, Color.White);
-		}
+        public void Expand(bool expanded, ScrollList.Entry e)
+        {
+            Open = expanded;
+            e.ShowingSub = expanded;
+            if (!expanded)
+            {
+                e.ParentList.indexAtTop = e.ParentList.indexAtTop - e.SubEntries.Count;
+                if (e.ParentList.indexAtTop < 0)
+                    e.ParentList.indexAtTop = 0;
+            }
+            e.ParentList.Update();
+        }
 
 		public bool HandleInput(InputState input, ScrollList.Entry e)
 		{
-			if (!e.clickRect.HitTest(input.CursorPosition))
+			if (e.clickRect.HitTest(input.CursorPosition))
 			{
-				this.Hover = false;
-			}
-			else
-			{
-				this.Hover = true;
-			    if (!input.LeftMouseClick) return false;
+			    Hover = true;
+			    if (!input.LeftMouseClick)
+			        return false;
+			    
 			    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-			    this.Open = !this.Open;
-			    e.ShowingSub = !e.ShowingSub;
-			    if (!this.Open)
-			    {
-			        int num = 0;
-			        foreach (ScrollList.Entry subEntry in e.SubEntries)
-			        {
-			            num++;
-			        }
-			        ScrollList parentList = e.ParentList;
-			        parentList.indexAtTop = parentList.indexAtTop - num;
-			        if (e.ParentList.indexAtTop < 0)
-			        {
-			            e.ParentList.indexAtTop = 0;
-			        }
-			    }
-			    e.ParentList.Update();
+			    Expand(!Open, e);
 			    return true;
 			}
+			Hover = false;
 			return false;
 		}
 	}

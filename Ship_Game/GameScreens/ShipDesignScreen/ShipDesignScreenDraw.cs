@@ -37,7 +37,8 @@ namespace Ship_Game
                     }
                     else
                     {
-                        Color activeColor = slot.ShowValid ? Color.LightGreen : Color.Red;
+                        bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
+                        Color activeColor = valid ? Color.LightGreen : Color.Red;
                         slot.Draw(spriteBatch, concreteGlass, activeColor);
                         if (slot.InPowerRadius)
                         {
@@ -57,14 +58,14 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    if (slot.State != ActiveModuleState.Normal)
+                    if (slot.Orientation != ModuleOrientation.Normal)
                     {
                         var r = slot.ModuleRect;
 
                         // @todo Simplify this
-                        switch (slot.State)
+                        switch (slot.Orientation)
                         {
-                            case ActiveModuleState.Left:
+                            case ModuleOrientation.Left:
                             {
                                 int w = slot.Module.XSIZE * 16;
                                 int h = slot.Module.YSIZE * 16;
@@ -74,7 +75,7 @@ namespace Ship_Game
                                 spriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                                 break;
                             }
-                            case ActiveModuleState.Right:
+                            case ModuleOrientation.Right:
                             {
                                 int w = slot.Module.YSIZE * 16;
                                 int h = slot.Module.XSIZE * 16;
@@ -84,7 +85,7 @@ namespace Ship_Game
                                 spriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                                 break;
                             }
-                            case ActiveModuleState.Rear:
+                            case ModuleOrientation.Rear:
                             {
                                 spriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
                                 break;
@@ -121,7 +122,7 @@ namespace Ship_Game
                     Vector2 center = slot.Center();
                     if (slot.Module.shield_power_max > 0f)
                     {
-                        DrawCircle(center, slot.Module.ShieldHitRadius, 50, Color.LightGreen);
+                        DrawCircle(center, slot.Module.ShieldHitRadius, Color.LightGreen);
                     }
 
                     if (slot.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
@@ -191,13 +192,13 @@ namespace Ship_Game
                     (int) ((float) (16 * this.ActiveModule.YSIZE) * this.Camera.Zoom));
                 switch (this.ActiveModState)
                 {
-                    case ActiveModuleState.Normal:
+                    case ModuleOrientation.Normal:
                     {
                         spriteBatch.Draw(
                             iconTexturePath, r, Color.White);
                         break;
                     }
-                    case ActiveModuleState.Left:
+                    case ModuleOrientation.Left:
                     {
                         r.Y = r.Y + (int) ((16 * moduleTemplate.XSIZE) * Camera.Zoom);
                         int h = r.Height;
@@ -209,7 +210,7 @@ namespace Ship_Game
                             -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
-                    case ActiveModuleState.Right:
+                    case ModuleOrientation.Right:
                     {
                         r.X = r.X + (int) ((16 * moduleTemplate.YSIZE) * Camera.Zoom);
                         int h = r.Height;
@@ -221,7 +222,7 @@ namespace Ship_Game
                             1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
                         break;
                     }
-                    case ActiveModuleState.Rear:
+                    case ModuleOrientation.Rear:
                     {
                         spriteBatch.Draw(
                             iconTexturePath, r, null, Color.White,
@@ -234,7 +235,7 @@ namespace Ship_Game
                     Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y) +
                                      new Vector2(moduleTemplate.XSIZE * 16 / 2f,
                                          moduleTemplate.YSIZE * 16 / 2f);
-                    DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, 50, Color.LightGreen);
+                    DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
                 }
             }
             this.DrawUI(gameTime);

@@ -68,12 +68,6 @@ namespace Ship_Game
 
         // just echo info to console, don't write to logfile
         // not used in release builds or if there's no debugger attached
-        [Conditional("DEBUG")] public static void Info(string format, params object[] args)
-        {
-            if (!HasDebugger) return;
-            Console.ForegroundColor = DefaultColor;
-            Console.WriteLine(string.Format(format, args));
-        }
         [Conditional("DEBUG")] public static void Info(string text)
         {
             if (GlobalStats.VerboseLogging)
@@ -85,12 +79,6 @@ namespace Ship_Game
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(text);
         }
-        [Conditional("DEBUG")] public static void Info(ConsoleColor color, string format, params object[] args)
-        {
-            if (!HasDebugger) return;
-            Console.ForegroundColor = color;
-            Console.WriteLine(string.Format(format, args));
-        }
         [Conditional("DEBUG")] public static void Info(ConsoleColor color, string text)
         {
             if (!HasDebugger) return;
@@ -101,24 +89,17 @@ namespace Ship_Game
 
 
         // write a warning to logfile and debug console
-        public static void Warning(string format, params object[] args)
-        {
-            Warning(string.Format(format, args));
-        }
-        public static void VerboseWarning(string format, params object[] args)
+        public static void WarningVerbose(string warning)
         {
             if (GlobalStats.VerboseLogging)
-                Warning(string.Format(format, args));
+                Warning(warning);
         }
         public static void Warning(string warning)
         {
             string text = "Warning: " + warning;
             LogFile.WriteLine(text);
             LogFile.Flush();            
-            if (!HasDebugger)
-            {                
-                return;
-            }
+            if (!HasDebugger) return;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
         }
@@ -138,17 +119,19 @@ namespace Ship_Game
             Console.WriteLine(text);
         }
 
-        public static bool TestMessage(string testMessage, Importance importance = Importance.None, bool waitForEnter = false , bool waitForYes = false)
+        public static bool TestMessage(string testMessage, 
+            Importance importance = Importance.None, 
+            bool waitForEnter = false,
+            bool waitForYes = false)
         {
-            string text = "TestMsg: " + testMessage;
-            LogFile.WriteLine(text);
+            LogFile.WriteLine(testMessage);
             LogFile.Flush();
             if (!HasActiveConsole)
             {
                 return false;
             }
             Console.ForegroundColor = ImportanceColor(importance);
-            Console.WriteLine(text);
+            Console.WriteLine(testMessage);
             if (waitForEnter)
             {                
                 Console.ForegroundColor = Console.ForegroundColor = ConsoleColor.White;
@@ -413,18 +396,12 @@ namespace Ship_Game
         {
             switch (importance)
             {
-                case Importance.None:
-                    return ConsoleColor.Cyan;
-                case Importance.Trivial:
-                    return ConsoleColor.Green;
-                case Importance.Regular:
-                    return ConsoleColor.White;
-                case Importance.Important:
-                    return ConsoleColor.Yellow;
-                case Importance.Critical:
-                    return ConsoleColor.Red;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(importance), importance, null);
+                case Importance.None:      return ConsoleColor.Cyan;
+                case Importance.Trivial:   return ConsoleColor.Green;
+                case Importance.Regular:   return ConsoleColor.White;
+                case Importance.Important: return ConsoleColor.Yellow;
+                case Importance.Critical:  return ConsoleColor.Red;
+                default: throw new ArgumentOutOfRangeException(nameof(importance), importance, null);
             }
         }
 

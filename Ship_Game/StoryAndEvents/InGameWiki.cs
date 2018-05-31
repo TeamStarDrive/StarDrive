@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -260,23 +261,13 @@ namespace Ship_Game
                 - 40, Fonts.Arial12Bold, ref HelpEntries);
             TitlePosition = new Vector2(TextRect.X + TextRect.Width / 2 
                 - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TextRect.Y + 10);
-            Array<string> categories = new Array<string>();
+
+            var categories = new HashSet<string>();
             foreach (HelpTopic halp in HelpTopics.HelpTopicsList)
             {
-                if (categories.Contains(halp.Category))                
-                    continue;
-                
-                categories.Add(halp.Category);
-                ModuleHeader mh = new ModuleHeader(halp.Category, 295f);
-                HelpCategories.AddItem(mh);
-            }
-            foreach (ScrollList.Entry e in HelpCategories.Entries)
-            {
-                foreach (HelpTopic halp in HelpTopics.HelpTopicsList)
+                if (categories.Add(halp.Category))
                 {
-                    if (halp.Category != ((ModuleHeader) e.item)?.Text)                    
-                        continue;
-                    
+                    ScrollList.Entry e = HelpCategories.AddItem(new ModuleHeader(halp.Category, 295));
                     e.AddItem(halp);
                 }
             }

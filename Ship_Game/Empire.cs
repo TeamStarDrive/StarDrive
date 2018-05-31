@@ -2210,7 +2210,7 @@ namespace Ship_Game
 
                         }
                     }
-                    else Log.Info("Rebellion Failure: {0}", this.data.RebelName);
+                    else Log.Info($"Rebellion Failure: {data.RebelName}");
                     data.TurnsBelowZero = 0;
                 }
 

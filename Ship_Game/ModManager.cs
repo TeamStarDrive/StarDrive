@@ -202,7 +202,7 @@ namespace Ship_Game
         }
         private void LoadModTask()
         {
-            Log.Info("ModManager.LoadMod {0}", SelectedMod.ModName);
+            Log.Info($"ModManager.LoadMod {SelectedMod.ModName}");
             GlobalStats.LoadModInfo(SelectedMod);
             ResourceManager.LoadItAll();
             mmscreen.LoadContent();
@@ -251,7 +251,7 @@ namespace Ship_Game
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("Load error in file {0}", info.Name);
+                    Log.Warning($"Load error in file {info.Name}");
                     ex.Data.Add("Load Error in file", info.Name);
                 }
             }

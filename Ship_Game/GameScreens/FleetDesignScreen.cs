@@ -294,12 +294,11 @@ namespace Ship_Game
             }
             foreach (FleetDataNode node in HoveredNodeList)
             {
-                if (node.Ship== null)
+                if (node.Ship == null)
                 {
-                    if (node.Ship!= null)
-                    {
+                    if (node.Ship != null)
                         continue;
-                    }
+
                     float radius = 150f;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
@@ -317,7 +316,7 @@ namespace Ship_Game
                         }
                         spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
-                    DrawCircle(pPos, radius, 250, new Color(255, 255, 255, 70), 2f);
+                    DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
                 }
                 else
                 {
@@ -339,7 +338,7 @@ namespace Ship_Game
                         }
                         spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
-                    DrawCircle(pPos, radius, 250, new Color(255, 255, 255, 70), 2f);
+                    DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
                 }
             }
             foreach (FleetDataNode node in SelectedNodeList)
@@ -367,7 +366,7 @@ namespace Ship_Game
                         }
                         spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
-                    DrawCircle(pPos, radius, 250, Color.White, 2f);
+                    DrawCircle(pPos, radius, Color.White, 2f);
                 }
                 else
                 {
@@ -389,7 +388,7 @@ namespace Ship_Game
                         }
                         spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
-                    DrawCircle(pPos, radius, 250, Color.White, 2f);
+                    DrawCircle(pPos, radius, Color.White, 2f);
                 }
             }
             DrawFleetManagementIndicators();
@@ -1826,8 +1825,7 @@ namespace Ship_Game
                         continue;                    
                     roles.Add(ship.DesignRoleName);
 
-                    ModuleHeader mh = new ModuleHeader(ship.DesignRoleName, 295f);
-                    ShipSL.AddItem(mh);
+                    ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
                 {
@@ -1852,8 +1850,7 @@ namespace Ship_Game
                         continue;
                     }
                     roles.Add(ship.DesignRoleName);
-                    ModuleHeader mh = new ModuleHeader(ship.DesignRoleName, 295f);
-                    ShipSL.AddItem(mh);
+                    ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
                 foreach (ScrollList.Entry e in ShipSL.Entries)
                 {

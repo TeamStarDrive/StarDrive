@@ -670,7 +670,7 @@ namespace Ship_Game.Debug
             {
                 foreach (var circle in circles)
                 {
-                    Screen.DrawCircleProjected(circle.Center, circle.Radius, 32, circle.C, 3);
+                    Screen.DrawCircleProjected(circle.Center, circle.Radius, circle.C, 3);
                 }
                 return;
             }
@@ -678,7 +678,7 @@ namespace Ship_Game.Debug
             while (circles.Count > 0)
             {
                 var circle = circles.PopLast();
-                Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0, 32,
+                Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0,
                     circle?.C ?? Color.Black, 3);
             }
         }

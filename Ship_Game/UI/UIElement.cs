@@ -73,8 +73,8 @@ namespace Ship_Game
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DrawCircle(Vector2 center, float radius, int sides, Color color, float thickness = 1.0f)
-            => ScreenManager.SpriteBatch.DrawCircle(center, radius, sides, color, thickness);
+        public void DrawCircle(Vector2 center, float radius, Color color, float thickness = 1.0f)
+            => ScreenManager.SpriteBatch.DrawCircle(center, radius, color, thickness);
 
     }
 }

@@ -1,20 +1,86 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
+    public class SubmenuStyle
+    {
+        public Texture2D HorizVert       { get; private set; }
+        public Texture2D CornerTL        { get; private set; }
+        public Texture2D CornerTR        { get; private set; }
+        public Texture2D CornerBR        { get; private set; }
+        public Texture2D CornerBL        { get; private set; }
+
+        public Texture2D Left          { get; private set; }
+        public Texture2D LeftUnsel     { get; private set; }
+        public Texture2D HoverLeftEdge { get; private set; }
+        public Texture2D HoverLeft     { get; private set; }
+        public Texture2D HoverMid      { get; private set; }
+        public Texture2D HoverRight    { get; private set; }
+        public Texture2D Middle        { get; private set; }
+        public Texture2D MiddleUnsel   { get; private set; }
+        public Texture2D Right         { get; private set; }
+        public Texture2D RightUnsel    { get; private set; }
+        public Texture2D RightExt      { get; private set; }
+        public Texture2D RightExtUnsel { get; private set; }
+
+        // create the style dynamically to allow hotloading
+        public static SubmenuStyle CreateBrown() => new SubmenuStyle
+        {
+            HorizVert       = ResourceManager.Texture("NewUI/submenu_horiz_vert"),
+            CornerTL        = ResourceManager.Texture("NewUI/submenu_corner_TL"),
+            CornerTR        = ResourceManager.Texture("NewUI/submenu_corner_TR"),
+            CornerBR        = ResourceManager.Texture("NewUI/submenu_corner_BR"),
+            CornerBL        = ResourceManager.Texture("NewUI/submenu_corner_BL"),
+
+            HoverLeftEdge = ResourceManager.Texture("NewUI/submenu_header_hover_leftedge"),
+            HoverLeft     = ResourceManager.Texture("NewUI/submenu_header_hover_left"),
+            HoverMid      = ResourceManager.Texture("NewUI/submenu_header_hover_mid"),
+            HoverRight    = ResourceManager.Texture("NewUI/submenu_header_hover_right"),
+
+            Left          = ResourceManager.Texture("NewUI/submenu_header_left"),
+            LeftUnsel     = ResourceManager.Texture("NewUI/submenu_header_left_unsel"),
+            Middle        = ResourceManager.Texture("NewUI/submenu_header_middle"),
+            MiddleUnsel   = ResourceManager.Texture("NewUI/submenu_header_middle_unsel"),
+            Right         = ResourceManager.Texture("NewUI/submenu_header_right"),
+            RightUnsel    = ResourceManager.Texture("NewUI/submenu_header_right_unsel"),
+            RightExt      = ResourceManager.Texture("NewUI/submenu_header_rightextend"),
+            RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel"),
+        };
+
+        public static SubmenuStyle CreateBlue() => new SubmenuStyle
+        {
+            HorizVert       = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert"),
+            CornerTL        = ResourceManager.Texture("ResearchMenu/submenu_corner_TL"),
+            CornerTR        = ResourceManager.Texture("ResearchMenu/submenu_corner_TR"),
+            CornerBR        = ResourceManager.Texture("ResearchMenu/submenu_corner_BR"),
+            CornerBL        = ResourceManager.Texture("ResearchMenu/submenu_corner_BL"),
+
+            // research menu doesn't have any hovers, so just reuse left/middle/right
+            HoverLeftEdge = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
+            HoverLeft     = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
+            HoverMid      = ResourceManager.Texture("ResearchMenu/submenu_header_middle"),
+            HoverRight    = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
+
+            Left          = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
+            LeftUnsel     = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
+            Middle        = ResourceManager.Texture("ResearchMenu/submenu_header_middle"),
+            MiddleUnsel   = ResourceManager.Texture("ResearchMenu/submenu_header_middle"),
+            Right         = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
+            RightUnsel    = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
+            RightExt      = ResourceManager.Texture("ResearchMenu/submenu_transition_right"),
+            RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right"),
+        };
+    }
+
     public class Submenu
     {
         public Rectangle Menu;
         private readonly ScreenManager ScreenManager;
         public Array<Tab> Tabs = new Array<Tab>();
-        public bool LowRes;
 
         private Rectangle UpperLeft;
-        private readonly Rectangle TR;
+        private Rectangle TR;
         private Rectangle topHoriz;
         private Rectangle botHoriz;
         private Rectangle BL;
@@ -24,324 +90,141 @@ namespace Ship_Game
         private Rectangle TL;
 
         private SpriteFont toUse;
-        private bool Blue;
 
-        private InputState Input;
+        private readonly SubmenuStyle Style;
+        private readonly InputState Input;
 
         public Submenu(Rectangle theMenu)
         {
             ScreenManager = Game1.Instance.ScreenManager;
             Input = ScreenManager.input;
-            if (Game1.Instance.ScreenWidth <= 1280)
-            {
-                this.LowRes = true;
-            }
-            if (!this.LowRes)
-            {
-                this.toUse = Fonts.Arial12Bold;
-            }
-            else
-            {
-                this.toUse = Fonts.Arial12Bold;
-            }
-            this.toUse = Fonts.Pirulen12;
-            this.Menu = theMenu;
-            this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
-            this.TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);
-            this.TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, theMenu.Y + 25 - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Height);
-            this.BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height + 2, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height);
-            this.BR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, theMenu.Y + theMenu.Height + 2 - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height);
-            this.topHoriz = new Rectangle(theMenu.X + ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, theMenu.Y + 25 - 2, theMenu.Width - this.TR.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, 2);
-            this.botHoriz = new Rectangle(theMenu.X + this.BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - this.BL.Width - this.BR.Width, 2);
-            this.VL = new Rectangle(theMenu.X, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BL.Height - 2);
-            this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
-        }
 
+            Style = SubmenuStyle.CreateBrown();
+            toUse = Fonts.Pirulen12;
+            InitLayout(theMenu);
+        }
         public Submenu(bool blue, Rectangle theMenu)
         {
-            Blue = blue;
             ScreenManager = Game1.Instance.ScreenManager;
-            if (Game1.Instance.ScreenWidth <= 1280)
-            {
-                LowRes = true;
-            }
-
-            this.toUse = Fonts.Pirulen12;
-            this.Menu = theMenu;
-            this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["ResearchMenu/submenu_header_left"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_header_left"].Height);
-            this.TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"].Height);
-            this.TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["ResearchMenu/submenu_corner_TR"].Width, theMenu.Y + 25 - 2, ResourceManager.TextureDict["ResearchMenu/submenu_corner_TR"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_corner_TR"].Height);
-            this.BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - ResourceManager.TextureDict["ResearchMenu/submenu_corner_BL"].Height + 2, ResourceManager.TextureDict["ResearchMenu/submenu_corner_BL"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_corner_BL"].Height);
-            this.BR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["ResearchMenu/submenu_corner_BR"].Width, theMenu.Y + theMenu.Height + 2 - ResourceManager.TextureDict["ResearchMenu/submenu_corner_BR"].Height, ResourceManager.TextureDict["ResearchMenu/submenu_corner_BR"].Width, ResourceManager.TextureDict["ResearchMenu/submenu_corner_BR"].Height);
-            this.topHoriz = new Rectangle(theMenu.X + ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"].Width, theMenu.Y + 25 - 2, theMenu.Width - this.TR.Width - ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"].Width, 2);
-            this.botHoriz = new Rectangle(theMenu.X + this.BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - this.BL.Width - this.BR.Width, 2);
-            this.VL = new Rectangle(theMenu.X, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BL.Height - 2);
-            this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
+            Input = ScreenManager.input;
+            Style = blue ? SubmenuStyle.CreateBlue() : SubmenuStyle.CreateBrown();
+            toUse = Fonts.Pirulen12;
+            InitLayout(theMenu);
         }
 
-        public Submenu(Rectangle theMenu, bool LowRes)
+        private void InitLayout(Rectangle theMenu)
         {
-            ScreenManager = Game1.Instance.ScreenManager;
-            this.LowRes = LowRes;
-            if (Game1.Instance.ScreenWidth <= 1280)
-            {
-                LowRes = true;
-            }
-            if (!LowRes)
-            {
-                this.toUse = Fonts.Arial12Bold;
-            }
-            else
-            {
-                this.toUse = Fonts.Arial12Bold;
-            }
-            this.toUse = Fonts.Pirulen12;
-            this.Menu = theMenu;
-            this.UpperLeft = new Rectangle(theMenu.X, theMenu.Y, ResourceManager.TextureDict["NewUI/submenu_header_left"].Width, ResourceManager.TextureDict["NewUI/submenu_header_left"].Height);
-            this.TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Height);
-            this.TR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, theMenu.Y + 25 - 2, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_TR"].Height);
-            this.BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height + 2, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BL"].Height);
-            this.BR = new Rectangle(theMenu.X + theMenu.Width - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, theMenu.Y + theMenu.Height + 2 - ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Width, ResourceManager.TextureDict["NewUI/submenu_corner_BR"].Height);
-            this.topHoriz = new Rectangle(theMenu.X + ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, theMenu.Y + 25 - 2, theMenu.Width - this.TR.Width - ResourceManager.TextureDict["NewUI/submenu_corner_TL"].Width, 2);
-            this.botHoriz = new Rectangle(theMenu.X + this.BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - this.BL.Width - this.BR.Width, 2);
-            this.VL = new Rectangle(theMenu.X, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BL.Height - 2);
-            this.VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + this.TR.Height - 2, 2, theMenu.Height - 25 - this.BR.Height - 2);
+            Menu = theMenu;
+            UpperLeft = new Rectangle(theMenu.X, theMenu.Y, Style.Left.Width, Style.Left.Height);
+            TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, Style.CornerTL.Width, Style.CornerTL.Height);
+            TR = new Rectangle(theMenu.X + theMenu.Width - Style.CornerTR.Width, theMenu.Y + 25 - 2, Style.CornerTR.Width, Style.CornerTR.Height);
+            BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - Style.CornerBL.Height + 2, Style.CornerBL.Width, Style.CornerBL.Height);
+            BR = new Rectangle(theMenu.X + theMenu.Width - Style.CornerBR.Width, theMenu.Y + theMenu.Height + 2 - Style.CornerBR.Height, Style.CornerBR.Width, Style.CornerBR.Height);
+            topHoriz = new Rectangle(theMenu.X + TL.Width, theMenu.Y + 25 - 2, theMenu.Width - TR.Width - TL.Width, 2);
+            botHoriz = new Rectangle(theMenu.X + BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - BL.Width - BR.Width, 2);
+            VL = new Rectangle(theMenu.X, theMenu.Y + 25 + TR.Height - 2, 2, theMenu.Height - 25 - BL.Height - 2);
+            VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + TR.Height - 2, 2, theMenu.Height - 25 - BR.Height - 2);
         }
+
 
         public void AddTab(string title)
         {
-            int w = (int)this.toUse.MeasureString(title).X;
-            float tabX = (float)(this.UpperLeft.X + this.UpperLeft.Width);
-            foreach (Submenu.Tab ta in this.Tabs)
+            float tabX = UpperLeft.X + UpperLeft.Width;
+            foreach (Tab ta in Tabs)
+                tabX += ta.tabRect.Width + Style.Right.Width;
+
+            var tabRect = new Rectangle((int)tabX, UpperLeft.Y, (int)toUse.MeasureString(title).X + 2, 25);
+            Tabs.Add(new Tab
             {
-                tabX = tabX + (float)ta.tabRect.Width;
-                tabX = tabX + (float)ResourceManager.TextureDict["NewUI/submenu_header_right"].Width;
-            }
-            Rectangle tabRect = new Rectangle((int)tabX, this.UpperLeft.Y, w + 2, 25);
-            Submenu.Tab t = new Submenu.Tab()
-            {
-                tabRect = tabRect,
-                Title = title
-            };
-            if (this.Tabs.Count != 0)
-            {
-                t.Selected = false;
-            }
-            else
-            {
-                t.Selected = true;
-            }
-            t.Hover = false;
-            this.Tabs.Add(t);
+                tabRect  = tabRect,
+                Title    = title,
+                Selected = Tabs.Count == 0,
+                Hover    = false
+            });
         }
 
         public void Draw()
         {
-            if (!this.Blue)
+            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+
+            spriteBatch.Draw(Style.CornerTL, TL, Color.White);
+            if (Tabs.Count > 0)
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TL"], this.TL, Color.White);
-                if (this.Tabs.Count > 0 && this.Tabs[0].Selected)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_left"], this.UpperLeft, Color.White);
-                }
-                else if (this.Tabs.Count > 0 && !this.Tabs[0].Hover)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_left_unsel"], this.UpperLeft, Color.White);
-                }
-                else if (this.Tabs.Count > 0 && this.Tabs[0].Hover)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_hover_leftedge"], this.UpperLeft, Color.White);
-                }
-                if (this.Tabs.Count == 1)
-                {
-                    foreach (Submenu.Tab t in this.Tabs)
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_middle"], t.tabRect, Color.White);
-                        Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["NewUI/submenu_header_right"].Width, 25);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_right"], right, Color.White);
-                        Vector2 textPos = new Vector2((float)t.tabRect.X, (float)(t.tabRect.Y + t.tabRect.Height / 2 - this.toUse.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(this.toUse, t.Title, textPos, new Color(255, 239, 208));
-                    }
-                }
-                else if (this.Tabs.Count > 1)
-                {
-                    for (int i = 0; i < this.Tabs.Count; i++)
-                    {
-                        Submenu.Tab t = this.Tabs[i];
-                        if (t.Selected)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_middle"], t.tabRect, Color.White);
-                            Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["NewUI/submenu_header_right"].Width, 25);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_right"], right, Color.White);
-                            if (this.Tabs.Count - 1 > i && !this.Tabs[i + 1].Selected)
-                            {
-                                if (this.Tabs[i + 1].Hover)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_hover_left"], right, Color.White);
-                                }
-                                else
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_rightextend_unsel"], right, Color.White);
-                                }
-                            }
-                        }
-                        else if (!t.Hover)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_middle_unsel"], t.tabRect, Color.White);
-                            Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["NewUI/submenu_header_right_unsel"].Width, 25);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_right_unsel"], right, Color.White);
-                            if (this.Tabs.Count - 1 > i)
-                            {
-                                if (this.Tabs[i + 1].Selected)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_rightextend"], right, Color.White);
-                                }
-                                else if (this.Tabs[i + 1].Hover)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_hover_left"], right, Color.White);
-                                }
-                                else
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_rightextend_unsel"], right, Color.White);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_hover_mid"], t.tabRect, Color.White);
-                            Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["NewUI/submenu_header_hover_right"].Width, 25);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_hover_right"], right, Color.White);
-                            if (this.Tabs.Count - 1 > i)
-                            {
-                                if (this.Tabs[i + 1].Selected)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_rightextend"], right, Color.White);
-                                }
-                                else if (this.Tabs[i + 1].Hover)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_hover_left"], right, Color.White);
-                                }
-                                else
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_header_rightextend_unsel"], right, Color.White);
-                                }
-                            }
-                        }
-                        Vector2 textPos = new Vector2((float)t.tabRect.X, (float)(t.tabRect.Y + t.tabRect.Height / 2 - this.toUse.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(this.toUse, t.Title, textPos, new Color(255, 239, 208));
-                    }
-                }
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.topHoriz, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_TR"], this.TR, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.botHoriz, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_BR"], this.BR, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_corner_BL"], this.BL, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.VR, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/submenu_horiz_vert"], this.VL, Color.White);
-                return;
+                Texture2D header = Tabs[0].Selected ? Style.Left :
+                                   Tabs[0].Hover    ? Style.HoverLeftEdge :
+                                                      Style.LeftUnsel;
+                spriteBatch.Draw(header, UpperLeft, Color.White);
             }
-            if (this.Blue)
+
+            if (Tabs.Count == 1)
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_corner_TL"], this.TL, Color.White);
-                if (this.Tabs.Count > 0 && this.Tabs[0].Selected)
+                foreach (Tab t in Tabs)
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_left"], this.UpperLeft, Color.White);
+                    var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
+                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - toUse.LineSpacing / 2));
+
+                    spriteBatch.Draw(Style.Middle, t.tabRect, Color.White);
+                    spriteBatch.Draw(Style.Right, right, Color.White);
+                    spriteBatch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
                 }
-                else if (this.Tabs.Count > 0 && !this.Tabs[0].Hover)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_left_unsel"], this.UpperLeft, Color.White);
-                }
-                else if (this.Tabs.Count > 0 && this.Tabs[0].Hover)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_leftedge"], this.UpperLeft, Color.White);
-                }
-                if (this.Tabs.Count == 1)
-                {
-                    foreach (Submenu.Tab t in this.Tabs)
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_middle"], t.tabRect, Color.White);
-                        Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["ResearchMenu/submenu_header_right"].Width, 25);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_right"], right, Color.White);
-                        Vector2 textPos = new Vector2((float)t.tabRect.X, (float)(t.tabRect.Y + t.tabRect.Height / 2 - this.toUse.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(this.toUse, t.Title, textPos, new Color(255, 239, 208));
-                    }
-                }
-                else if (this.Tabs.Count > 1)
-                {
-                    for (int i = 0; i < this.Tabs.Count; i++)
-                    {
-                        Submenu.Tab t = this.Tabs[i];
-                        if (t.Selected)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_middle"], t.tabRect, Color.White);
-                            Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["ResearchMenu/submenu_header_right"].Width, 25);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_right"], right, Color.White);
-                            if (this.Tabs.Count - 1 > i && !this.Tabs[i + 1].Selected)
-                            {
-                                if (this.Tabs[i + 1].Hover)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_left"], right, Color.White);
-                                }
-                                else
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_rightextend_unsel"], right, Color.White);
-                                }
-                            }
-                        }
-                        else if (!t.Hover)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_middle_unsel"], t.tabRect, Color.White);
-                            Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["ResearchMenu/submenu_header_right_unsel"].Width, 25);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_right_unsel"], right, Color.White);
-                            if (this.Tabs.Count - 1 > i)
-                            {
-                                if (this.Tabs[i + 1].Selected)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_rightextend"], right, Color.White);
-                                }
-                                else if (this.Tabs[i + 1].Hover)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_left"], right, Color.White);
-                                }
-                                else
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_rightextend_unsel"], right, Color.White);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_mid"], t.tabRect, Color.White);
-                            Rectangle right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_right"].Width, 25);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_right"], right, Color.White);
-                            if (this.Tabs.Count - 1 > i)
-                            {
-                                if (this.Tabs[i + 1].Selected)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_rightextend"], right, Color.White);
-                                }
-                                else if (this.Tabs[i + 1].Hover)
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_hover_left"], right, Color.White);
-                                }
-                                else
-                                {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_header_rightextend_unsel"], right, Color.White);
-                                }
-                            }
-                        }
-                        Vector2 textPos = new Vector2((float)t.tabRect.X, (float)(t.tabRect.Y + t.tabRect.Height / 2 - this.toUse.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(this.toUse, t.Title, textPos, new Color(255, 239, 208));
-                    }
-                }
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_horiz_vert"], this.topHoriz, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_corner_TR"], this.TR, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_horiz_vert"], this.botHoriz, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_corner_BR"], this.BR, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_corner_BL"], this.BL, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_horiz_vert"], this.VR, Color.White);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/submenu_horiz_vert"], this.VL, Color.White);
             }
+            else if (Tabs.Count > 1)
+            {
+                for (int i = 0; i < Tabs.Count; i++)
+                {
+                    Tab t = Tabs[i];
+                    if (t.Selected)
+                    {
+                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
+
+                        spriteBatch.Draw(Style.Middle, t.tabRect, Color.White);
+                        spriteBatch.Draw(Style.Right, right, Color.White);
+
+                        if (Tabs.Count - 1 > i && !Tabs[i + 1].Selected)
+                        {
+                            Texture2D tab = Tabs[i + 1].Hover ? Style.HoverLeft : Style.RightExtUnsel;
+                            spriteBatch.Draw(tab, right, Color.White);
+                        }
+                    }
+                    else if (!t.Hover)
+                    {
+                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.RightUnsel.Width, 25);
+
+                        spriteBatch.Draw(Style.MiddleUnsel, t.tabRect, Color.White);
+                        spriteBatch.Draw(Style.RightUnsel, right, Color.White);
+                        if (Tabs.Count - 1 > i)
+                        {
+                            Texture2D tex = Tabs[i + 1].Selected ? Style.RightExt :
+                                            Tabs[i + 1].Hover    ? Style.HoverLeft :
+                                                                   Style.RightExtUnsel;
+                            spriteBatch.Draw(tex, right, Color.White);
+                        }
+                    }
+                    else
+                    {
+                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.HoverRight.Width, 25);
+
+                        spriteBatch.Draw(Style.HoverMid, t.tabRect, Color.White);
+                        spriteBatch.Draw(Style.HoverRight, right, Color.White);
+                        if (Tabs.Count - 1 > i)
+                        {
+                            Texture2D tex = Tabs[i + 1].Selected ? Style.RightExt :
+                                            Tabs[i + 1].Hover    ? Style.HoverLeft :
+                                                                   Style.RightExtUnsel;
+                            spriteBatch.Draw(tex, right, Color.White);
+                        }
+                    }
+                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - toUse.LineSpacing / 2));
+                    spriteBatch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
+                }
+            }
+            spriteBatch.Draw(Style.HorizVert, topHoriz, Color.White);
+            spriteBatch.Draw(Style.CornerTR,  TR, Color.White);
+            spriteBatch.Draw(Style.HorizVert, botHoriz, Color.White);
+            spriteBatch.Draw(Style.CornerBR,  BR, Color.White);
+            spriteBatch.Draw(Style.CornerBL,  BL, Color.White);
+            spriteBatch.Draw(Style.HorizVert, VR, Color.White);
+            spriteBatch.Draw(Style.HorizVert, VL, Color.White);
         }
 
         /// TODO: there are 3 pretty much identical functions here... what the hell??
