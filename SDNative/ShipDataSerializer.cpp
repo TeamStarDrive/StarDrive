@@ -1,9 +1,42 @@
 #include "ShipDataSerializer.h"
 #include "NodeParser.h"
+#include <rpp/sprint.h>
 
 namespace SDNative
 {
     ////////////////////////////////////////////////////////////////////////////////////
+
+    struct LineColumnInfo
+    {
+        int line = 0, column = 0;
+
+        LineColumnInfo(const load_buffer& data, const char* where)
+        {
+            line_parser parser{ data };
+            for (strview prevLine, nextLine; ; ++line, prevLine = nextLine)
+            {
+                if (!parser.read_line(nextLine) || nextLine.str > where) {
+                    column = int(where - prevLine.str) + 1;
+                    break;
+                }
+            }
+        }
+    };
+
+    // make text errors human readable
+    static string visualize_bytes(const char* where, int len)
+    {
+        rpp::string_buffer sb;
+        for (int i = 0; i < len; ++i)
+        {
+            char ch = where[i];
+            if (ch == '\r') { sb << "\\r"; break; }
+            if (ch == '\n') { sb << "\\n"; break; }
+            if (isprint(where[i])) sb << where[i];
+            else                  (sb << "\\x").write_hex(where[i], uppercase);
+        }
+        return sb.str();
+    }
 
     static FINLINE void ParsePosition(NodeParser& elem, float& posX, float& posY)
     {
@@ -106,13 +139,19 @@ namespace SDNative
             TechsLen = TechsNeeded.size();
             return true;
         }
-        catch (std::exception e)
+        catch (parse_error& e)
+        {
+            LineColumnInfo info { Data, e.where<char>() };
+            return Error(format("XML Parsing failed: %s at line %d column %d: '%s'", 
+                                e.what(), info.line, info.column, visualize_bytes(e.where<char>(), 24)));
+        }
+        catch (std::exception& e)
         {
             return Error(e.what());
         }
     }
 
-    bool ShipData::Error(const string & err)
+    bool ShipData::Error(string err)
     {
         ErrorMessage = ErrorStr = err;
         return false;
