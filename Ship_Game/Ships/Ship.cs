@@ -130,7 +130,8 @@ namespace Ship_Game.Ships
         public float InhibitedTimer;
         public int Level;
         public bool PlayerShip;
-        public float HealthMax;
+        private int MaxHealthRevision;
+        public float HealthMax { get; private set; }
         public float ShipMass;
         public int TroopCapacity;
         public float OrdAddedPerSecond;
@@ -246,6 +247,7 @@ namespace Ship_Game.Ships
                 return false;
             }
         }
+
         public void DebugDamage(float percent)
         {
             percent = percent.Clamp(0, 1);
@@ -2138,36 +2140,42 @@ namespace Ship_Game.Ships
                             shield_power = shield_max;
                     }
                 }
-                //Add ordnance
+
+                // Add ordnance
                 if (Ordinance < OrdinanceMax)
                 {
                     Ordinance += OrdAddedPerSecond;
                     if (Ordinance > OrdinanceMax)
                         Ordinance = OrdinanceMax;
                 }
-                else
-                    Ordinance = OrdinanceMax;
-                //Repair
-                
-                if ( Health < HealthMax)
+                else Ordinance = OrdinanceMax;
+
+                // Update max health if needed
+                int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
+                if (MaxHealthRevision != latestRevision)
+                {
+                    MaxHealthRevision = latestRevision;
+                    HealthMax = RecalculateMaxHealth();
+                }
+
+                // Repair
+                if (Health < HealthMax)
                 {
                     if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
                     {
-                        //Added by McShooterz: Priority repair
+                        // Added by McShooterz: Priority repair
                         float repair = InCombat ? RepairRate * 0.1f : RepairRate;
                         ApplyAllRepair(repair, Level);
                     }                  
                 }
            
                 UpdateTroops();
-                //this.UpdateSystem(elapsedTime);
                 updateTimer = 1f;
                 if (NeedRecalculate)
                 {
                     RecalculatePower();
                     NeedRecalculate = false;
                 }
-
             }
             SetHealthStatus();
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
@@ -2471,12 +2479,6 @@ namespace Ship_Game.Ships
 
         public void AddShipHealth(float addHealth)
         {
-            if (HealthMax < 1)
-            {
-                Log.Warning($"Ship {Name} has no Health?");
-                RecalculateMaxHealth();
-            }
-            
             Health = (Health + addHealth).Clamp(0, HealthMax);
             SetHealthStatus();            
         }
@@ -2942,24 +2944,21 @@ namespace Ship_Game.Ships
             Warp,
         }
 
-        // Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
-        public void RecalculateMaxHealth()
+        private float RecalculateMaxHealth()
         {
-            if (!Active) return;
             #if DEBUG
-            bool maxHealthDebug = VanityName == "MerCraft";
-            if (maxHealthDebug) Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
-#endif            
+                bool maxHealthDebug = VanityName == "MerCraft";
+                if (maxHealthDebug) Log.Info($"Health was {Health} / {HealthMax}   ({loyalty.data.Traits.ModHpModifier})");
+            #endif
+                
             float healthMax = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 healthMax += ModuleSlotList[i].ActualMaxHealth;
 
-            Health    = Health.Clamp(0, healthMax);
-            HealthMax = healthMax;
-
             #if DEBUG
-            if (maxHealthDebug) Log.Info($"Health is  {Health} / {HealthMax}");
+                if (maxHealthDebug) Log.Info($"Health is  {Health} / {HealthMax}");
             #endif
+            return healthMax;
         }
 
         private float PercentageOfShipByModules(ShipModule[] modules)
