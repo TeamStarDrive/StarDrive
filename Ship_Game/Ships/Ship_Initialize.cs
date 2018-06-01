@@ -490,7 +490,7 @@ namespace Ship_Game.Ships
                     hasRepairBeam = true;
                 }
 
-                if (module.Restrictions == Restrictions.I || module.Restrictions == Restrictions.IO) InternalSlotCount += module.XSIZE * module.YSIZE;
+                if (module.HasInternalRestrictions) InternalSlotCount += module.XSIZE * module.YSIZE;
                 HasRepairModule |= module.IsRepairModule;
 
                 float massModifier = 1f;
