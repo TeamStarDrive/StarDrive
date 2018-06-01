@@ -333,7 +333,6 @@ namespace Ship_Game.Ships
             RecalculatePower();        
             ShipStatusChange();
             InitializeThrusters();
-            RecalculateMaxHealth();
             SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
             if (worldInit)
@@ -404,7 +403,7 @@ namespace Ship_Game.Ships
             OrdinanceMax              = 0f;
             OrdAddedPerSecond         = 0f;
             rotationRadiansPerSecond  = 0f;
-            Health                    = int.MaxValue;
+            Health                    = 0f;
             TroopCapacity             = 0;
             ECMValue                  = 0f;
             FTLSpoolTime              = 0f;
@@ -420,7 +419,6 @@ namespace Ship_Game.Ships
 
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
-            RecalculateMaxHealth();
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
@@ -500,12 +498,13 @@ namespace Ship_Game.Ships
 
                 Thrust     += module.thrust;
                 WarpThrust += module.WarpThrust;
+                Health     += module.Health;
 
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
-                PowerStoreMax        += module.ActualPowerStoreMax;
-                PowerCurrent         += module.ActualPowerStoreMax;
-                PowerFlowMax         += module.ActualPowerFlowMax;
-                shield_max           += module.ActualShieldPowerMax;
+                PowerStoreMax += module.ActualPowerStoreMax;
+                PowerCurrent  += module.ActualPowerStoreMax;
+                PowerFlowMax  += module.ActualPowerFlowMax;
+                shield_max    += module.ActualShieldPowerMax;
                 if (module.ModuleType == ShipModuleType.Armor)
                     armor_max += module.ActualMaxHealth;
 
@@ -518,7 +517,7 @@ namespace Ship_Game.Ships
 
                 if (!fromSave)
                 {
-                    Ordinance     += module.OrdinanceCapacity;
+                    Ordinance += module.OrdinanceCapacity;
                 }
             }
             shipStatusChanged = true;

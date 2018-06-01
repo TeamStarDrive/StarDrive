@@ -101,7 +101,6 @@ namespace Ship_Game
         public bool canBuildSupportShips;
         public float currentMilitaryStrength;
         public float freighterBudget;
-        public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
         public float MaxResearchPotential = 10;        
         public HashSet<string> ShipTechs = new HashSet<string>();
@@ -1322,24 +1321,21 @@ namespace Ship_Game
                         }
                     }
 
-                this.empireShipTotal = 0;
-                this.empireShipCombat = 0;
-                foreach (Ship ship in this.OwnedShips)
+                empireShipTotal = 0;
+                empireShipCombat = 0;
+                foreach (Ship ship in OwnedShips)
                 {
-                    if (this.RecalculateMaxHP)            //This applies any new ModHPModifier that may have been gained -Gretman
-                        ship.RecalculateMaxHealth();
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null)  //fbedard: total ships in combat
-                        this.empireShipCombat++;                    
+                        empireShipCombat++;                    
                     if (ship.Mothership != null || ship.DesignRole == ShipData.RoleName.troop 
                                                 || ship.DesignRole == ShipData.RoleName.freighter 
                                                 || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
-                    this.empireShipTotal++;
+                    empireShipTotal++;
                 }
-                this.RecalculateMaxHP = false;
-                UpdateTimer = (float)GlobalStats.TurnTimer;
-                this.DoMoney();
-                this.TakeTurn();
+                UpdateTimer = GlobalStats.TurnTimer;
+                DoMoney();
+                TakeTurn();
             }
             SetRallyPoints();
             UpdateFleets(elapsedTime);
@@ -2838,8 +2834,8 @@ namespace Ship_Game
             }
             if (art.ModuleHPMod > 0f)
             {
-                this.data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
-                this.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
             }
             if (art.PlusFlatMoney > 0f)
             {
@@ -2888,8 +2884,8 @@ namespace Ship_Game
             }
             if (art.ModuleHPMod > 0f)
             {
-                this.data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
-                this.RecalculateMaxHP = true; // So existing ships will benefit from changes to ModHpModifier -Gretman
+                data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
             }
             if (art.PlusFlatMoney > 0f)
             {
@@ -2910,10 +2906,12 @@ namespace Ship_Game
             if (art.SensorMod > 0f)
             {
                 this.data.SensorModifier -= (art.SensorMod + art.SensorMod * this.data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this);
             }
             if (art.ShieldPenBonus > 0f)
             {
                 this.data.ShieldPenBonusChance -= (art.ShieldPenBonus + art.ShieldPenBonus * this.data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this);
             }
         }
 

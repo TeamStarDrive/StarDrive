@@ -78,8 +78,7 @@ namespace Ship_Game
                 if (TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
                     ModuleHPMod,
                     triggerer.data.Traits, "Empire-wide Ship Module Hitpoint Bonus: ", popup))
-                    triggerer.RecalculateMaxHP = true;
-                //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    EmpireShipBonuses.RefreshBonuses(triggerer); // RedFox: This will refresh all empire module stats
 
                 TrySetArtifactEffect(ref triggerer.data.FlatMoneyBonus,
                     PlusFlatMoney,
