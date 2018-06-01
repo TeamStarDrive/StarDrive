@@ -197,6 +197,7 @@ namespace Ship_Game.Ships
         public float ActualShieldPowerMax  => shield_power_max * Bonuses.ShieldMod;
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
+        public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
 
         // this is the design spec of the module
         private float TemplateMaxHealth;
