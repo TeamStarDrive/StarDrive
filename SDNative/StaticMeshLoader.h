@@ -1,9 +1,9 @@
 #pragma once
-#include "mesh/Mesh.h"
+#include "NanoMesh/Nano/Mesh.h"
 
 namespace SDNative
 {
-    using namespace mesh;
+    using namespace Nano;
     using rpp::ushort;
     using rpp::BoundingSphere;
     using rpp::Matrix4;
@@ -31,10 +31,10 @@ namespace SDNative
         strview SpecularPath;
         strview NormalPath;
         strview EmissivePath;
-        Color3 AmbientColor  = Color3::WHITE;
-        Color3 DiffuseColor  = Color3::WHITE;
-        Color3 SpecularColor = Color3::WHITE;
-        Color3 EmissiveColor = Color3::BLACK;
+        Color3 AmbientColor  = Color3::White();
+        Color3 DiffuseColor  = Color3::White();
+        Color3 SpecularColor = Color3::White();
+        Color3 EmissiveColor = Color3::Black();
         float Specular = 1.0f;
         float Alpha    = 1.0f;
 
