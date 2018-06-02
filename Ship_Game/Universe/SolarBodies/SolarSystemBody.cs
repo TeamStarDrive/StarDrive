@@ -124,7 +124,7 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
 
-        
+        public Array<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
 
 
 

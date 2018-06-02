@@ -775,99 +775,110 @@ namespace Ship_Game
             }
         }     
 
-        public Array<Building> GetBuildingsWeCanBuildHere()
+        public void RefreshBuildingsWeCanBuildHere()
         {
-            if (Owner == null)
-                return new Array<Building>();
+            if (Owner == null) return;
             BuildingsCanBuild.Clear();
-            bool flag1 = true;
+
+            //See if it already has a command building or not.
+            bool needCommandBuilding = true;
             foreach (Building building in BuildingList)
             {
                 if (building.Name == "Capital City" || building.Name == "Outpost")
                 {
-                    flag1 = false;
+                    needCommandBuilding = false;
                     break;
                 }
             }
+
             foreach (KeyValuePair<string, bool> keyValuePair in Owner.GetBDict())
             {
-                if (keyValuePair.Value)
-                {
-                    Building building1 = ResourceManager.BuildingsDict[keyValuePair.Key];
-                    bool flag2 = true;
-                    if(Owner.data.Traits.Cybernetic >0)
-                    {
-                        if(building1.PlusFlatFoodAmount >0 || building1.PlusFoodPerColonist >0)
-                        {
-                            continue;
-                        }
-                    }
-                    if (!flag1 && (building1.Name == "Outpost" || building1.Name == "Capital City"))
-                        flag2 = false;
-                    if (building1.BuildOnlyOnce)
-                    {
-                        foreach (Planet planet in Owner.GetPlanets())
-                        {
-                            foreach (Building building2 in planet.BuildingList)
-                            {
-                                if (planet.Name == building1.Name)
-                                {
-                                    flag2 = false;
-                                    break;
-                                }
-                            }
-                            if (flag2)
-                            {
-                                foreach (QueueItem queueItem in planet.ConstructionQueue)
-                                {
-                                    if (queueItem.isBuilding && queueItem.Building.Name == building1.Name)
-                                    {
-                                        flag2 = false;
-                                        break;
-                                    }
-                                }
-                                if (!flag2)
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                    }
-                    if (flag2)
-                    {
-                        foreach (Building building2 in BuildingList)
-                        {
-                            if (building2.Name == building1.Name && building1.Name != "Biospheres" && building2.Unique)
-                            {
-                                flag2 = false;
-                                break;
-                            }
-                        }
-                        for (int index = 0; index < ConstructionQueue.Count; ++index)
-                        {
-                            QueueItem queueItem = ConstructionQueue[index];
-                            if (queueItem.isBuilding && queueItem.Building.Name == building1.Name && (building1.Name != "Biospheres" && queueItem.Building.Unique))
-                            {
-                                flag2 = false;
-                                break;
-                            }
-                        }
-                        if(building1.Name == "Biosphers")
-                        {
-                            foreach(PlanetGridSquare tile in TilesList)
-                            {
-                                if (!tile.Habitable)
-                                    break;
-                                flag2 = false;
+                if (!keyValuePair.Value) continue;
+                Building building1 = ResourceManager.BuildingsDict[keyValuePair.Key];
 
-                            }
+                //Skip adding +food buildings for cybernetic races
+                if (Owner.data.Traits.Cybernetic > 0 && (building1.PlusFlatFoodAmount > 0 || building1.PlusFoodPerColonist > 0)) continue;
+
+                //Skip adding command buildings if planet already has one
+                if (!needCommandBuilding && (building1.Name == "Outpost" || building1.Name == "Capital City")) continue;
+
+                bool foundIt = false;
+
+                //Make sure the building isn't already built on this planet
+                foreach (Building building2 in BuildingList)
+                {
+                    if (!building2.Unique) continue;
+
+                    if (building2.Name == building1.Name)
+                    {
+                        foundIt = true;
+                        break;
+                    }
+                }
+                if (foundIt) continue;
+
+                //Make sure the building isn't already being built on this planet
+                for (int index = 0; index < ConstructionQueue.Count; ++index)
+                {
+                    QueueItem queueItem = ConstructionQueue[index];
+                    if (queueItem.isBuilding && queueItem.Building.Name == building1.Name && queueItem.Building.Unique)
+                    {
+                        foundIt = true;
+                        break;
+                    }
+                }
+                if (foundIt) continue;
+
+                //Hide Biospheres if the entire planet is already habitable
+                if (building1.Name == "Biosphers")
+                {
+                    bool allHabitable = true;
+                    foreach (PlanetGridSquare tile in TilesList)
+                    {
+                        if (!tile.Habitable)
+                        {
+                            allHabitable = false;
+                            break;
                         }
                     }
-                    if (flag2)
-                        BuildingsCanBuild.Add(building1);
+                    if (allHabitable) continue;
                 }
+
+                //If this is a one-per-empire building, make sure it hasn't been built already elsewhere
+                //Reusing fountIt bool from above
+                if (building1.BuildOnlyOnce)
+                {
+                    //Check for this unique building across the empire
+                    foreach (Planet planet in Owner.GetPlanets())
+                    {
+                        //First check built buildings
+                        foreach (Building building2 in planet.BuildingList)
+                        {
+                            if (building2.Name == building1.Name)
+                            {
+                                foundIt = false;
+                                break;
+                            }
+                        }
+                        if (foundIt) break;
+
+                        //Then check production queue
+                        foreach (QueueItem queueItem in planet.ConstructionQueue)
+                        {
+                            if (queueItem.isBuilding && queueItem.Building.Name == building1.Name)
+                            {
+                                foundIt = true;
+                                break;
+                            }
+                        }
+                        if (foundIt) break;
+                    }
+                    if (foundIt) continue;
+                }
+
+                //If the building is still a candidate after all that, then add it to the list!
+                BuildingsCanBuild.Add(building1);
             }
-            return BuildingsCanBuild;
         }
 
         public void AddBuildingToCQ(Building b) => SbProduction.AddBuildingToCQ(b);
@@ -881,11 +892,6 @@ namespace Ship_Game
                 if (ConstructionQueue[index].isBuilding && ConstructionQueue[index].Building.Name == UID)
                     return true;
             }
-            //foreach (var pgs in TilesList)
-            //{
-            //    if (pgs.QItem?.isBuilding  == true && pgs.QItem.Building.Name == UID)
-            //        return true;
-            //}
             return false;
         }
 
@@ -1426,18 +1432,22 @@ namespace Ship_Game
 
         public void DoGoverning()
         {
+            if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!
+
             float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
-            if (colonyType == Planet.ColonyType.Colony)
-                return;
-            GetBuildingsWeCanBuildHere();
+            RefreshBuildingsWeCanBuildHere();
+
+            //Figure out the cheapest buildings for each category
             Building cheapestFlatfood =
                 BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0)
                     .OrderByDescending(cost => cost.Cost).FirstOrDefault();
 
             Building cheapestFlatprod = BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0)
                 .OrderByDescending(cost => cost.Cost).FirstOrDefault();
+
             Building cheapestFlatResearch = BuildingsCanBuild.Where(flat => flat.PlusFlatResearchAmount > 0)
                 .OrderByDescending(cost => cost.Cost).FirstOrDefault();
+
             if (Owner.data.Traits.Cybernetic > 0)
             {
                 cheapestFlatfood =
@@ -1446,6 +1456,7 @@ namespace Ship_Game
             Building pro = cheapestFlatprod;
             Building food = cheapestFlatfood;
             Building res = cheapestFlatResearch;
+
             bool noMoreBiospheres = true;
             if (income > .05f && !NeedsFood())
                 foreach (PlanetGridSquare pgs in TilesList)
@@ -1455,6 +1466,7 @@ namespace Ship_Game
                     noMoreBiospheres = false;
                     break;
                 }
+
             int buildingsinQueue = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
             bool needsBiospheres =
                 ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres")
@@ -1587,7 +1599,7 @@ namespace Ship_Game
                     }
                     if (num5 < 2)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
 
                         foreach (PlanetGridSquare PGS in TilesList)
                         {
@@ -1616,7 +1628,7 @@ namespace Ship_Game
                     if (num5 < 2)
                     {
                         float coreCost = 99999f;
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
                         Building b = null;
                         foreach (Building building in BuildingsCanBuild)
                         {
@@ -1799,10 +1811,10 @@ namespace Ship_Game
                     }
 
                     bool flag8 = false;
-                    GetBuildingsWeCanBuildHere();
+                    RefreshBuildingsWeCanBuildHere();
                     if (num6 < 2)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
 
                         foreach (PlanetGridSquare PGS in TilesList)
                         {
@@ -1980,7 +1992,7 @@ namespace Ship_Game
                     }
                     if (num8 < 2.0)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
 
                         foreach (PlanetGridSquare PGS in TilesList)
                         {
@@ -2007,7 +2019,7 @@ namespace Ship_Game
                     }
                     if (num8 < 2.0)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
                         Building b = null;
                         float num1 = 99999f;
                         foreach (Building building in BuildingsCanBuild)
@@ -2124,7 +2136,7 @@ namespace Ship_Game
                     }
                     if (num9 < 2)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
 
                         foreach (PlanetGridSquare PGS in TilesList)
                         {
@@ -2152,7 +2164,7 @@ namespace Ship_Game
 
                     if (num9 < 2.0f)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
                         Building b = null;
                         float num1 = 99999f;
                         foreach (Building building in BuildingsCanBuild.OrderBy(cost => cost.Cost))
@@ -2298,7 +2310,7 @@ namespace Ship_Game
                     }
                     if (buildingCount < 2.0f)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
 
                         foreach (PlanetGridSquare PGS in TilesList)
                         {
@@ -2324,7 +2336,7 @@ namespace Ship_Game
                         }
 
 
-                        GetBuildingsWeCanBuildHere();
+                        RefreshBuildingsWeCanBuildHere();
                         Building b = null;
                         float num1 = 99999f;
                         foreach (Building building in BuildingsCanBuild.OrderBy(cost => cost.Cost))
@@ -2629,29 +2641,23 @@ namespace Ship_Game
             }
         }
 
-        public bool GoodBuilding (Building b)
-        {
-            return true;
-        }
-
         public float GetMaxProductionPotential()
         {
-            float num1 = 0.0f;
-            float num2 = MineralRichness * Population / 1000;
+            float bonusProd = 0.0f;
+            float baseProd = MineralRichness * Population / 1000;
             for (int index = 0; index < BuildingList.Count; ++index)
             {
                 Building building = BuildingList[index];
                 if (building.PlusProdPerRichness > 0.0)
-                    num1 += building.PlusProdPerRichness * MineralRichness;
-                num1 += building.PlusFlatProductionAmount;
+                    bonusProd += building.PlusProdPerRichness * MineralRichness;
+                bonusProd += building.PlusFlatProductionAmount;
                 if (building.PlusProdPerColonist > 0.0)
-                    num2 += building.PlusProdPerColonist;
+                    baseProd += building.PlusProdPerColonist;
             }
-            float num3 = num2 + num1 * Population / 1000;
-            float num4 = num3;
+            float finalProd = baseProd + bonusProd * Population / 1000;
             if (Owner.data.Traits.Cybernetic > 0)
-                return num4 + Owner.data.Traits.ProductionMod * num4 - Consumption;
-            return num4 + Owner.data.Traits.ProductionMod * num4;
+                return finalProd + Owner.data.Traits.ProductionMod * finalProd - Consumption;
+            return finalProd + Owner.data.Traits.ProductionMod * finalProd;
         }
 
         public float GetMaxResearchPotential =>        
@@ -2860,58 +2866,19 @@ namespace Ship_Game
         
         private void GrowPopulation()
         {
-            if (Owner == null)
-                return;
+            if (Owner == null) return;
             
-            float num1 = Owner.data.BaseReproductiveRate * Population;
-            if ( num1 > Owner.data.Traits.PopGrowthMax * 1000  && Owner.data.Traits.PopGrowthMax != 0 )
-                num1 = Owner.data.Traits.PopGrowthMax * 1000f;
-            if ( num1 < Owner.data.Traits.PopGrowthMin * 1000 )
-                num1 = Owner.data.Traits.PopGrowthMin * 1000f;
-            float num2 = num1 + PlusFlatPopulationPerTurn;
-            float num3 = num2 + Owner.data.Traits.ReproductionMod * num2;
-            if ( Math.Abs(Unfed) <= 0 )
-            {
-
-                
-                Population += num3;
-                //if (Population +  num3 > MaxPopulation + MaxPopBonus)
-                //    Population = MaxPopulation + MaxPopBonus;
-            }
+            float normalRepRate = Owner.data.BaseReproductiveRate * Population;
+            if ( normalRepRate > Owner.data.Traits.PopGrowthMax * 1000  && Owner.data.Traits.PopGrowthMax != 0 )
+                normalRepRate = Owner.data.Traits.PopGrowthMax * 1000f;
+            if ( normalRepRate < Owner.data.Traits.PopGrowthMin * 1000 )
+                normalRepRate = Owner.data.Traits.PopGrowthMin * 1000f;
+            normalRepRate += PlusFlatPopulationPerTurn;
+            float adjustedRepRate = normalRepRate + Owner.data.Traits.ReproductionMod * normalRepRate;
+            if (Unfed != 0) Population += adjustedRepRate;
             else
                 Population += Unfed * 10f;
-            if (Population >= 100.0)
-                return;
-            Population = 100f;
-        }
-
-        public float CalculateGrowth(float EstimatedFoodGain)
-        {
-            if (Owner != null)
-            {
-                float num1 = Owner.data.BaseReproductiveRate * Population;
-                if ( num1 > Owner.data.Traits.PopGrowthMax)
-                    num1 = Owner.data.Traits.PopGrowthMax;
-                if ( num1 < Owner.data.Traits.PopGrowthMin)
-                    num1 = Owner.data.Traits.PopGrowthMin;
-                float num2 = num1 + PlusFlatPopulationPerTurn;
-                float num3 = num2 + Owner.data.Traits.ReproductionMod * num2;
-                if (Owner.data.Traits.Cybernetic > 0)
-                {
-                    if (ProductionHere + NetProductionPerTurn - Consumption <= 0.1)
-                        return -(Math.Abs(ProductionHere + NetProductionPerTurn - Consumption) / 10f);
-                    if (Population < MaxPopulation + MaxPopBonus && Population +  num3 < MaxPopulation + MaxPopBonus)
-                        return Owner.data.BaseReproductiveRate * Population;
-                }
-                else
-                {
-                    if (FoodHere + NetFoodPerTurn - Consumption <= 0f)
-                        return -(Math.Abs(FoodHere + NetFoodPerTurn - Consumption) / 10f);
-                    if (Population < MaxPopulation + MaxPopBonus && Population +  num3 < MaxPopulation + MaxPopBonus)
-                        return Owner.data.BaseReproductiveRate * Population;
-                }
-            }
-            return 0.0f;
+            if (Population < 100.0) Population = 100f;
         }
 
         public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
@@ -2927,7 +2894,6 @@ namespace Ship_Game
                     events = true;
                     break;
                 }
-
             }
             return events;
         }
