@@ -1428,6 +1428,62 @@ namespace Ship_Game
 
         }
 
+        private void BuildShipywardifAble() //A Gretman function to support DoGoverning()
+        {
+            if (Owner != Empire.Universe.PlayerEmpire
+                && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
+                && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
+            {
+                bool hasShipyard = false;
+                foreach (QueueItem queueItem in ConstructionQueue)
+                {
+                    if (queueItem.isShip && queueItem.sData.IsShipyard)
+                    {
+                        hasShipyard = true;
+                        break;
+                    }
+                }
+                if (!hasShipyard && DevelopmentLevel > 2)
+                    ConstructionQueue.Add(new QueueItem()
+                    {
+                        isShip = true,
+                        sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
+                        Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
+                                UniverseScreen.GamePaceStatic
+                    });
+            }
+        }
+
+        private void BuildOutpostifAble() //A Gretman function to support DoGoverning()
+        {
+            bool foundOutpost = false;
+
+            //First check the existing buildings
+            foreach (Building building in BuildingList)
+            {
+                if (building.Name == "Outpost" || building.Name == "Capital City")
+                {
+                    foundOutpost = true;
+                    break;
+                }
+            }
+            if (foundOutpost) return;
+
+            //Then check the queue
+            foreach (QueueItem queueItem in ConstructionQueue)
+            {
+                if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
+                {
+                    foundOutpost = true;
+                    break;
+                }
+            }
+            if (foundOutpost) return;
+
+            //Still no? Build it!
+            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"), false);
+        }
+
         public void DoGoverning()
         {
             if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!
@@ -1469,6 +1525,7 @@ namespace Ship_Game
                 }
 
             int buildingsinQueue = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
+
             bool StuffInQueueToBuild = ConstructionQueue.Count > 5;
             bool ForgetReseachAndBuild =
                 string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild ||
@@ -1477,6 +1534,9 @@ namespace Ship_Game
             //Switch to Industrial if there is nothing in the research queue -- Is this really a good idea to change the governor type?
             if (colonyType == ColonyType.Research && string.IsNullOrEmpty(Owner.ResearchTopic))
                 colonyType = ColonyType.Industrial;
+
+            //If there is no Outpost or Capital, build it
+            BuildOutpostifAble();
 
             //Each governer did this individually before. Moving it here so the rest of it will make more sense
 
@@ -1488,12 +1548,6 @@ namespace Ship_Game
 
                 {
                     #region Resource control
-
-                    //Determine Food needs first
-                    //if (this.DetermineIfSelfSufficient())
-
-                    #region MyRegion
-
                     {
                         //this.fs = GoodState.EXPORT;
                         //Determine if excess food
@@ -1531,8 +1585,6 @@ namespace Ship_Game
                         }
                     }
 
-                    #endregion
-
                     SetExportState(colonyType);
 
                     //If we can build a shipyard, but dont have one, build it
@@ -1553,28 +1605,12 @@ namespace Ship_Game
                             }
                         }
                     }
-                    bool flag6 = true;
                     foreach (Building building in BuildingList)
                     {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag6 = false;
                         if (building.Name == "Terraformer")
                             flag5 = true;
                     }
-                    if (flag6)
-                    {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"), false);
-                    }
+
                     if (buildingsInQueue < 2)
                     {
                         //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
@@ -1606,7 +1642,7 @@ namespace Ship_Game
                     if (buildingsInQueue < 2)
                     {
                         float coreCost = 99999f;
-                        //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
+                        RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
                         Building b = null;
                         foreach (Building building in BuildingsCanBuild)
                         {
@@ -1644,37 +1680,11 @@ namespace Ship_Game
                                 || cheapestFlatfood == b || cheapestFlatprod == b || cheapestFlatResearch == b                                
                             )) 
                         {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
                                 AddBuildingToCQ(b, false);
                         }
                         //if it must be built with high pri put it here. 
                         else if (b != null)
                         {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
                                 AddBuildingToCQ(b);
                         }
                         else if (Owner.GetBDict()["Biospheres"] && MineralRichness >= 1.0f &&
@@ -1769,33 +1779,11 @@ namespace Ship_Game
                             ++num6;
                     }
                 }
-                bool flag7 = true;
-                foreach (Building building in BuildingList)
-                {
-                    if (building.Name == "Outpost" || building.Name == "Capital City")
-                        flag7 = false;
-                }
-                if (flag7)
-                {
-                    bool flag1 = false;
-                    foreach (QueueItem queueItem in ConstructionQueue)
-                    {
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                        {
-                            flag1 = true;
-                            break;
-                        }
-                    }
-                    if (!flag1)
-                        AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                }
 
                 bool flag8 = false;
-                //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
+
                 if (num6 < 2)
                 {
-                    //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
-
                     foreach (PlanetGridSquare PGS in TilesList)
                     {
                         bool qitemTest = PGS.QItem != null;
@@ -1866,9 +1854,7 @@ namespace Ship_Game
                                 continue;
                             if (building.PlusFlatProductionAmount > 0.0f
                                 || building.PlusProdPerColonist > 0.0f
-                                || (building.PlusProdPerRichness > 0.0f
-                                )
-                            ) //this.WeCanAffordThis(b,this.colonyType) )//
+                                || building.PlusProdPerRichness > 0.0f ) 
                             {
                                 indycost = building.Cost;
                                 b = building;
@@ -1878,29 +1864,11 @@ namespace Ship_Game
                                 indycost = building.Cost;
                             b = building;
                         }
-                        if (b != null
-                        ) //(this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
+                        if (b != null)
                         {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
-                            {
-                                AddBuildingToCQ(b);
-
-                                ++num6;
-                            }
+                            AddBuildingToCQ(b);
+                            ++num6;
                         }
-                        
                     }
                     break;
 
@@ -1953,26 +1921,7 @@ namespace Ship_Game
                                 ++num8;
                         }
                     }
-                    bool flag10 = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag10 = false;
-                    }
-                    if (flag10)
-                    {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                    }
+
                     if (num8 < 2.0)
                     {
                         //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
@@ -2002,7 +1951,6 @@ namespace Ship_Game
                     }
                     if (num8 < 2.0)
                     {
-                        //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
                         Building b = null;
                         float num1 = 99999f;
                         foreach (Building building in BuildingsCanBuild)
@@ -2027,24 +1975,8 @@ namespace Ship_Game
 
                             if (b != null && num8 < 2) 
                             {
-                                bool flag1 = true;
-
-                                if (b.BuildOnlyOnce)
-                                {
-                                    for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                    {
-                                        if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                        {
-                                            flag1 = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (flag1)
-                                {
-                                    AddBuildingToCQ(b);
-                                    num8++;
-                                }
+                                AddBuildingToCQ(b);
+                                num8++;
                             }
                         }
                     }
@@ -2097,27 +2029,6 @@ namespace Ship_Game
                         }
                     }
 
-                    bool flag12 = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag12 = false;
-
-                    }
-                    if (flag12)
-                    {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                    }
                     if (num9 < 2)
                     {
                         //RefreshBuildingsWeCanBuildHere();  //This was done at the start of this function -Gretman
@@ -2180,24 +2091,7 @@ namespace Ship_Game
                                 b = building;
                             }
                         }
-                        if (b != null
-                        ) 
-                        {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
-                                AddBuildingToCQ(b);
-                        }
+                        if (b != null) AddBuildingToCQ(b);
                     }
                     break;
 
@@ -2247,27 +2141,8 @@ namespace Ship_Game
                                 ++buildingCount;
                         }
                     }
-                    bool missingOutpost = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            missingOutpost = false;
-                    }
-                    if (missingOutpost)
-                    {
-                        bool hasOutpost = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                hasOutpost = true;
-                                break;
-                            }
-                        }
-                        if (!hasOutpost)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                    }
 
+                    //If we can build a shipyard, but dont have one, build it
                     BuildShipywardifAble();
 
                     if (buildingCount < 2.0f)
@@ -2328,24 +2203,8 @@ namespace Ship_Game
                                 b = building;
                             }
                         }
-                        if (b != null
-                        ) 
-                        {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
-                                AddBuildingToCQ(b);
-                        }
+                        if (b != null) AddBuildingToCQ(b);
+
                     }
                     break;
 
@@ -2390,7 +2249,7 @@ namespace Ship_Game
                 }
 
                 #endregion
-            }
+            } //End Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
                 colonyType != ColonyType.Research) 
@@ -2601,32 +2460,6 @@ namespace Ship_Game
 
                 #endregion
             }
-        }
-
-        private void BuildShipywardifAble() //A Gretman function to support DoGoverning()
-        {
-            if (Owner != Empire.Universe.PlayerEmpire
-                && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
-                && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
-                {
-                    bool hasShipyard = false;
-                    foreach (QueueItem queueItem in ConstructionQueue)
-                    {
-                        if (queueItem.isShip && queueItem.sData.IsShipyard)
-                        {
-                            hasShipyard = true;
-                            break;
-                        }
-                    }
-                    if (!hasShipyard && DevelopmentLevel > 2)
-                        ConstructionQueue.Add(new QueueItem()
-                        {
-                            isShip = true,
-                            sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                            Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
-                                    UniverseScreen.GamePaceStatic
-                        });
-                }
         }
 
         public float GetMaxProductionPotential()
