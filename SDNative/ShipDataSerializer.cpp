@@ -1,9 +1,43 @@
 #include "ShipDataSerializer.h"
 #include "NodeParser.h"
+#include <rpp/sprint.h>
 
 namespace SDNative
 {
+    using rapidxml::xml_document;
     ////////////////////////////////////////////////////////////////////////////////////
+
+    struct LineColumnInfo
+    {
+        int line = 0, column = 0;
+
+        LineColumnInfo(const load_buffer& data, const char* where)
+        {
+            rpp::line_parser parser{ data };
+            for (strview prevLine, nextLine; ; ++line, prevLine = nextLine)
+            {
+                if (!parser.read_line(nextLine) || nextLine.str > where) {
+                    column = int(where - prevLine.str) + 1;
+                    break;
+                }
+            }
+        }
+    };
+
+    // make text errors human readable
+    static string visualize_bytes(const char* where, int len)
+    {
+        rpp::string_buffer sb;
+        for (int i = 0; i < len; ++i)
+        {
+            char ch = where[i];
+            if (ch == '\r') { sb << "\\r"; break; }
+            if (ch == '\n') { sb << "\\n"; break; }
+            if (isprint(ch)) sb << ch;
+            else            (sb << "\\x").write_hex(ch, rpp::uppercase);
+        }
+        return sb.str();
+    }
 
     static FINLINE void ParsePosition(NodeParser& elem, float& posX, float& posY)
     {
@@ -18,12 +52,11 @@ namespace SDNative
 
     bool ShipData::LoadFromFile(const wchar_t* filename)
     {
-        using namespace rpp;
-        Data = file::read_all(filename);
+        Data = rpp::file::read_all(filename);
         if (!Data) return Error("Failed to open ShipData xml");
         try
         {
-            xml_document<> doc; doc.parse<parse_fastest>(Data.str);
+            xml_document<> doc; doc.parse<rapidxml::parse_fastest>(Data.str);
             xml_node<>* root = doc.first_node("ShipData");
             if (!root) return Error("Invalid ShipData xml: no <ShipData> node found");
 
@@ -106,13 +139,19 @@ namespace SDNative
             TechsLen = TechsNeeded.size();
             return true;
         }
-        catch (std::exception e)
+        catch (rapidxml::parse_error& e)
+        {
+            LineColumnInfo info { Data, e.where<char>() };
+            return Error(rpp::format("XML Parsing failed: %s at line %d column %d: '%s'", 
+                         e.what(), info.line, info.column, visualize_bytes(e.where<char>(), 24)));
+        }
+        catch (std::exception& e)
         {
             return Error(e.what());
         }
     }
 
-    bool ShipData::Error(const string & err)
+    bool ShipData::Error(string err)
     {
         ErrorMessage = ErrorStr = err;
         return false;
