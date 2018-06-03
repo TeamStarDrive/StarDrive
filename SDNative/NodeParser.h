@@ -4,8 +4,9 @@
 
 namespace SDNative
 {
-    using namespace rpp;
-    using namespace rapidxml;
+    using rpp::strview;
+    using rapidxml::xml_node;
+    using rapidxml::node_element;
 
     struct NodeParser
     {
