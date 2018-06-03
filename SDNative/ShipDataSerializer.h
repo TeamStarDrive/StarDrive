@@ -1,9 +1,14 @@
 #pragma once
+#include <string>
+#include <rpp/strview.h>
 #include <rpp/file_io.h>
 
 namespace SDNative
 {
-    using namespace rpp;
+    using std::string;
+    using std::vector;
+    using rpp::strview;
+    using rpp::load_buffer;
     ////////////////////////////////////////////////////////////////////////////////////
 
     struct ThrusterZone
@@ -77,7 +82,7 @@ namespace SDNative
         load_buffer Data;
 
         bool LoadFromFile(const wchar_t* filename);
-        bool Error(const string& err);
+        bool Error(string err);
     };
 
     extern "C" {
