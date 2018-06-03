@@ -1,24 +1,36 @@
 ﻿using System;
-using Ship_Game;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
     public static class GamePlayExtensions
     {
-        public static Array<Ship> GetTroopShips(this Empire empire)
+        /// <summary>
+        /// Empire extension for getting available troops ships
+        /// </summary>
+        public static Array<Ship> GetAvailableTroopShips(this Empire empire)
         {
-            Array<Ship> ships = empire.GetShips(ship =>
-                ship.shipData.Role == ShipData.RoleName.troop 
-                && ship.fleet == null 
-                && ship.Mothership == null 
-                && !ship.AI.HasPriorityOrder
-                && ship.AI.State != AI.AIState.Scrap
-            );
+            var ships = new Array<Ship>();
+
+            BatchRemovalCollection<Ship> collection = empire.GetShips();
+            for (int x = 0; x < collection.Count; x++)
+            {
+                Ship ship = collection[x];
+                if (!ship.Active
+                    || ship.shipData.Role != ShipData.RoleName.troop
+                    || ship.fleet         != null
+                    || ship.Mothership    != null
+                    || ship.AI.State      == AI.AIState.Scrap
+                    || ship.AI.HasPriorityOrder)
+                    continue;
+                ships.Add(ship);
+            }
+
             return ships;
         }
-
+        /// <summary>
+        /// Generic empire ship filter. Use this to help remember to move filter needs to extensions when needed.
+        /// </summary>
         public static Array<Ship> GetShips(this Empire empire, Predicate<Ship> filter)
         {
             Array<Ship> ships = new Array<Ship>();

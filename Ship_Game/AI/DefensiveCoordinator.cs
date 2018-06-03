@@ -256,8 +256,8 @@ namespace Ship_Game.AI
         public SolarSystem GetNearestSystemNeedingTroops(Vector2 posistion)
         {
             return DefenseDict.MaxKeyByValuesFiltered(sComs =>
-                    (1 - sComs.TroopStrengthNeeded / sComs.IdealTroopCount) * sComs.ValueToUs *
-                    (int)(sComs.System.Position.Distance(posistion) / (UniverseData.UniverseWidth / 5f))
+                    (1 - sComs.TroopCount / sComs.IdealTroopCount) * sComs.ValueToUs *
+                    (int)(UniverseData.UniverseWidth - sComs.System.Position.SqDist(posistion)) / UniverseData.UniverseWidth 
                 , sCom => sCom.TroopStrengthNeeded > 0 && sCom.System.PlanetList.Count > 0 && sCom.System.PlanetList.Sum(p=> p. GetGroundLandingSpots())>0
             );
         }
@@ -278,8 +278,8 @@ namespace Ship_Game.AI
                     return;
             }
 
-            var troopShips = Us.GetTroopShips();
-            int totalTroopWanted = 0;
+            Array<Ship> troopShips = Us.GetAvailableTroopShips();
+            int totalTroopWanted   = 0;
             int totalCurrentTroops = 0;
             foreach (var kv in DefenseDict)
             {
