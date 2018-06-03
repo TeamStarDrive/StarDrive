@@ -735,12 +735,13 @@ namespace Ship_Game
 
         private float CalculateFarmerPercentForSurplus(float desiredSurplus)
         {
+            if (Fertility == 0.0) return 0.0f; //Easy out for crap-planets
+
             float Surplus = 0.0f;
             float NoDivByZero = .0000001f;
             if(Owner.data.Traits.Cybernetic >0)
             {
-
-                Surplus = Surplus = (float)((Consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
+                Surplus = (float)((Consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
                     * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate) + NoDivByZero);
 
                 if (Surplus < .75f)
@@ -754,9 +755,6 @@ namespace Ship_Game
                     return .75f;
                 }
             }
-            
-            if (Fertility == 0.0)
-                return 0.0f;
             // replacing while loop with singal fromula, should save some clock cycles
 
            
@@ -775,99 +773,110 @@ namespace Ship_Game
             }
         }     
 
-        public Array<Building> GetBuildingsWeCanBuildHere()
+        public void RefreshBuildingsWeCanBuildHere()
         {
-            if (Owner == null)
-                return new Array<Building>();
+            if (Owner == null) return;
             BuildingsCanBuild.Clear();
-            bool flag1 = true;
+
+            //See if it already has a command building or not.
+            bool needCommandBuilding = true;
             foreach (Building building in BuildingList)
             {
                 if (building.Name == "Capital City" || building.Name == "Outpost")
                 {
-                    flag1 = false;
+                    needCommandBuilding = false;
                     break;
                 }
             }
+
             foreach (KeyValuePair<string, bool> keyValuePair in Owner.GetBDict())
             {
-                if (keyValuePair.Value)
-                {
-                    Building building1 = ResourceManager.BuildingsDict[keyValuePair.Key];
-                    bool flag2 = true;
-                    if(Owner.data.Traits.Cybernetic >0)
-                    {
-                        if(building1.PlusFlatFoodAmount >0 || building1.PlusFoodPerColonist >0)
-                        {
-                            continue;
-                        }
-                    }
-                    if (!flag1 && (building1.Name == "Outpost" || building1.Name == "Capital City"))
-                        flag2 = false;
-                    if (building1.BuildOnlyOnce)
-                    {
-                        foreach (Planet planet in Owner.GetPlanets())
-                        {
-                            foreach (Building building2 in planet.BuildingList)
-                            {
-                                if (planet.Name == building1.Name)
-                                {
-                                    flag2 = false;
-                                    break;
-                                }
-                            }
-                            if (flag2)
-                            {
-                                foreach (QueueItem queueItem in planet.ConstructionQueue)
-                                {
-                                    if (queueItem.isBuilding && queueItem.Building.Name == building1.Name)
-                                    {
-                                        flag2 = false;
-                                        break;
-                                    }
-                                }
-                                if (!flag2)
-                                    break;
-                            }
-                            else
-                                break;
-                        }
-                    }
-                    if (flag2)
-                    {
-                        foreach (Building building2 in BuildingList)
-                        {
-                            if (building2.Name == building1.Name && building1.Name != "Biospheres" && building2.Unique)
-                            {
-                                flag2 = false;
-                                break;
-                            }
-                        }
-                        for (int index = 0; index < ConstructionQueue.Count; ++index)
-                        {
-                            QueueItem queueItem = ConstructionQueue[index];
-                            if (queueItem.isBuilding && queueItem.Building.Name == building1.Name && (building1.Name != "Biospheres" && queueItem.Building.Unique))
-                            {
-                                flag2 = false;
-                                break;
-                            }
-                        }
-                        if(building1.Name == "Biosphers")
-                        {
-                            foreach(PlanetGridSquare tile in TilesList)
-                            {
-                                if (!tile.Habitable)
-                                    break;
-                                flag2 = false;
+                if (!keyValuePair.Value) continue;
+                Building building1 = ResourceManager.BuildingsDict[keyValuePair.Key];
 
-                            }
+                //Skip adding +food buildings for cybernetic races
+                if (Owner.data.Traits.Cybernetic > 0 && (building1.PlusFlatFoodAmount > 0 || building1.PlusFoodPerColonist > 0)) continue;
+
+                //Skip adding command buildings if planet already has one
+                if (!needCommandBuilding && (building1.Name == "Outpost" || building1.Name == "Capital City")) continue;
+
+                bool foundIt = false;
+
+                //Make sure the building isn't already built on this planet
+                foreach (Building building2 in BuildingList)
+                {
+                    if (!building2.Unique) continue;
+
+                    if (building2.Name == building1.Name)
+                    {
+                        foundIt = true;
+                        break;
+                    }
+                }
+                if (foundIt) continue;
+
+                //Make sure the building isn't already being built on this planet
+                for (int index = 0; index < ConstructionQueue.Count; ++index)
+                {
+                    QueueItem queueItem = ConstructionQueue[index];
+                    if (queueItem.isBuilding && queueItem.Building.Name == building1.Name && queueItem.Building.Unique)
+                    {
+                        foundIt = true;
+                        break;
+                    }
+                }
+                if (foundIt) continue;
+
+                //Hide Biospheres if the entire planet is already habitable
+                if (building1.Name == "Biosphers")
+                {
+                    bool allHabitable = true;
+                    foreach (PlanetGridSquare tile in TilesList)
+                    {
+                        if (!tile.Habitable)
+                        {
+                            allHabitable = false;
+                            break;
                         }
                     }
-                    if (flag2)
-                        BuildingsCanBuild.Add(building1);
+                    if (allHabitable) continue;
                 }
+
+                //If this is a one-per-empire building, make sure it hasn't been built already elsewhere
+                //Reusing fountIt bool from above
+                if (building1.BuildOnlyOnce)
+                {
+                    //Check for this unique building across the empire
+                    foreach (Planet planet in Owner.GetPlanets())
+                    {
+                        //First check built buildings
+                        foreach (Building building2 in planet.BuildingList)
+                        {
+                            if (building2.Name == building1.Name)
+                            {
+                                foundIt = false;
+                                break;
+                            }
+                        }
+                        if (foundIt) break;
+
+                        //Then check production queue
+                        foreach (QueueItem queueItem in planet.ConstructionQueue)
+                        {
+                            if (queueItem.isBuilding && queueItem.Building.Name == building1.Name)
+                            {
+                                foundIt = true;
+                                break;
+                            }
+                        }
+                        if (foundIt) break;
+                    }
+                    if (foundIt) continue;
+                }
+
+                //If the building is still a candidate after all that, then add it to the list!
+                BuildingsCanBuild.Add(building1);
             }
-            return BuildingsCanBuild;
         }
 
         public void AddBuildingToCQ(Building b) => SbProduction.AddBuildingToCQ(b);
@@ -881,11 +890,6 @@ namespace Ship_Game
                 if (ConstructionQueue[index].isBuilding && ConstructionQueue[index].Building.Name == UID)
                     return true;
             }
-            //foreach (var pgs in TilesList)
-            //{
-            //    if (pgs.QItem?.isBuilding  == true && pgs.QItem.Building.Name == UID)
-            //        return true;
-            //}
             return false;
         }
 
@@ -1424,30 +1428,137 @@ namespace Ship_Game
 
         }
 
-        public void DoGoverning()
+        private void BuildShipywardifAble() //A Gretman function to support DoGoverning()
         {
-            float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
-            if (colonyType == Planet.ColonyType.Colony)
-                return;
-            GetBuildingsWeCanBuildHere();
-            Building cheapestFlatfood =
-                BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0)
+            if (Owner != Empire.Universe.PlayerEmpire
+                && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
+                && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
+            {
+                bool hasShipyard = false;
+                foreach (QueueItem queueItem in ConstructionQueue)
+                {
+                    if (queueItem.isShip && queueItem.sData.IsShipyard)
+                    {
+                        hasShipyard = true;
+                        break;
+                    }
+                }
+                if (!hasShipyard && DevelopmentLevel > 2)
+                    ConstructionQueue.Add(new QueueItem()
+                    {
+                        isShip = true,
+                        sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
+                        Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
+                                UniverseScreen.GamePaceStatic
+                    });
+            }
+        }
+
+        private void BuildOutpostifAble() //A Gretman function to support DoGoverning()
+        {
+            bool foundOutpost = false;
+
+            //First check the existing buildings
+            foreach (Building building in BuildingList)
+            {
+                if (building.Name == "Outpost" || building.Name == "Capital City")
+                {
+                    foundOutpost = true;
+                    break;
+                }
+            }
+            if (foundOutpost) return;
+
+            //Then check the queue
+            foreach (QueueItem queueItem in ConstructionQueue)
+            {
+                if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
+                {
+                    foundOutpost = true;
+                    break;
+                }
+            }
+            if (foundOutpost) return;
+
+            //Still no? Build it!
+            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"), false);
+
+            //Move Outpost to the top of the list, and rush production
+            for (int index = 0; index < ConstructionQueue.Count; ++index)
+            {
+                QueueItem queueItem1 = ConstructionQueue[index];
+                if (index == 0 && queueItem1.isBuilding)
+                {
+                    if (queueItem1.Building.Name == "Outpost")
+                    {
+                        SbProduction.ApplyAllStoredProduction(0);
+                    }
+                    break;
+                }
+                else if (queueItem1.isBuilding && queueItem1.Building.Name == "Outpost")
+                {
+                    ConstructionQueue.Remove(queueItem1);
+                    ConstructionQueue.Insert(0, queueItem1);
+                    break;
+                }
+            }
+        }
+
+        private bool BuildBasicInfrastructure() //A Gretman function to support DoGoverning()
+        {
+            //Figure out the cheapest buildings for each category
+            Building cheapestFlatprod = BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0)
                     .OrderByDescending(cost => cost.Cost).FirstOrDefault();
 
-            Building cheapestFlatprod = BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0)
-                .OrderByDescending(cost => cost.Cost).FirstOrDefault();
-            Building cheapestFlatResearch = BuildingsCanBuild.Where(flat => flat.PlusFlatResearchAmount > 0)
-                .OrderByDescending(cost => cost.Cost).FirstOrDefault();
+            Building cheapestFlatfood;
             if (Owner.data.Traits.Cybernetic > 0)
             {
-                cheapestFlatfood =
-                    cheapestFlatprod; // this.BuildingsCanBuild.Where(flat => flat.PlusProdPerColonist > 0).OrderByDescending(cost => cost.Cost).FirstOrDefault();
+                cheapestFlatfood = cheapestFlatprod;
             }
-            Building pro = cheapestFlatprod;
-            Building food = cheapestFlatfood;
-            Building res = cheapestFlatResearch;
+            else
+            {
+                cheapestFlatfood = BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0)
+                            .OrderByDescending(cost => cost.Cost).FirstOrDefault();
+            }
+
+            Building cheapestFlatResearch = BuildingsCanBuild.Where(flat => flat.PlusFlatResearchAmount > 0)
+                .OrderByDescending(cost => cost.Cost).FirstOrDefault();
+
+            Building buildthis = null;
+            buildthis = cheapestFlatprod ?? cheapestFlatfood ?? cheapestFlatResearch;
+
+            if (buildthis == null) return false;
+
+            AddBuildingToCQ(buildthis);
+            return true;
+        }
+
+        private int BiasedCountQueue()
+        {
+            //I have no idea why the Biospheres are double counted in the original code, but they are. ConstructionQueue.Count would be so much easier.
+            int total = 0;
+            foreach (QueueItem queueItem in ConstructionQueue)
+            {
+                if (queueItem.isBuilding)
+                {
+                    ++total;
+                    if (queueItem.Building.Name == "Biospheres") ++total;
+                }
+            }
+            return total;
+        }
+
+        public void DoGoverning()
+        {
+            if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!
+
+            float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
+            RefreshBuildingsWeCanBuildHere();
+
+            //See if we could build more Biospheres.
             bool noMoreBiospheres = true;
             if (income > .05f && !NeedsFood())
+            {
                 foreach (PlanetGridSquare pgs in TilesList)
                 {
                     if (pgs.Habitable)
@@ -1455,49 +1566,44 @@ namespace Ship_Game
                     noMoreBiospheres = false;
                     break;
                 }
-            int buildingsinQueue = ConstructionQueue.Where(isbuilding => isbuilding.isBuilding).Count();
-            bool needsBiospheres =
-                ConstructionQueue.Where(isbuilding => isbuilding.isBuilding && isbuilding.Building.Name == "Biospheres")
-                    .Count() != buildingsinQueue;
-            bool
-                StuffInQueueToBuild =
-                    ConstructionQueue.Count >
-                    5; // .Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
+            }
+
+            bool StuffInQueueToBuild = ConstructionQueue.Count > 5;
             bool ForgetReseachAndBuild =
                 string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild ||
                 (DevelopmentLevel < 3 && (ProductionHere + 1) / (MaxStorage + 1) < .5f);
+
+            //Switch to Industrial if there is nothing in the research queue -- Is this really a good idea to change the governor type?
             if (colonyType == ColonyType.Research && string.IsNullOrEmpty(Owner.ResearchTopic))
-            {
                 colonyType = ColonyType.Industrial;
-            }
+
+            //If there is no Outpost or Capital, build it
+            BuildOutpostifAble();
+
+            //Get biosphere biased count of the buildings in the production queue
+            int buildingsInQueue = BiasedCountQueue();
 
             switch (colonyType)
             {
                 case Planet.ColonyType.Core:
 
-                    #region Core
-
+                #region Core
                 {
-                    #region Resource control
-
-                    //Determine Food needs first
-                    //if (this.DetermineIfSelfSufficient())
-
-                    #region MyRegion
-
                     {
-                        //this.fs = GoodState.EXPORT;
-                        //Determine if excess food
+                        float surplus = 0;
 
-                        float surplus = (NetFoodPerTurn * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) *
-                                        (1 - (FoodHere + 1) / (MaxStorage + 1));
                         if (Owner.data.Traits.Cybernetic > 0)
                         {
                             surplus = GrossProductionPerTurn - Consumption;
                             surplus = surplus * ((string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) *
                                       (1 - (ProductionHere + 1) / (MaxStorage + 1));
-                            //(1 - (this.ProductionHere + 1) / (this.MAX_STORAGE + 1));
                         }
+                        else
+                        {
+                            surplus = (NetFoodPerTurn * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) *
+                                                                    (1 - (FoodHere + 1) / (MaxStorage + 1));
+                        }
+
                         FarmerPercentage = CalculateFarmerPercentForSurplus(surplus);
                         if (FarmerPercentage == 1 && StuffInQueueToBuild)
                             FarmerPercentage = CalculateFarmerPercentForSurplus(0);
@@ -1522,101 +1628,30 @@ namespace Ship_Game
                         }
                     }
 
-                    #endregion
-
                     SetExportState(colonyType);
 
-                    if (Owner != Empire.Universe.PlayerEmpire
-                        && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
-                        && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard)
-                        )
-                    {
-                        bool hasShipyard = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isShip && queueItem.sData.IsShipyard)
-                            {
-                                hasShipyard = true;
-                                break;
-                            }
-                        }
-                        if (!hasShipyard && DevelopmentLevel > 2)
-                            ConstructionQueue.Add(new QueueItem()
-                            {
-                                isShip = true,
-                                sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                                Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner) *
-                                       UniverseScreen.GamePaceStatic
-                            });
-                    }
+                    //If we can build a shipyard, but dont have one, build it
+                    BuildShipywardifAble();
 
-                    #endregion
-
-                    byte num5 = 0;
-                    bool flag5 = false;
-                    foreach (QueueItem queueItem in ConstructionQueue)
-                    {
-                        if (queueItem.isBuilding && queueItem.Building.Name != "Biospheres")
-                            ++num5;
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                            ++num5;
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                            flag5 = true;
-                    }
-                    bool flag6 = true;
+                    bool haveTerraformer = false;   //Why the special interest in the terraformer?
                     foreach (Building building in BuildingList)
                     {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag6 = false;
                         if (building.Name == "Terraformer")
-                            flag5 = true;
+                        {
+                            haveTerraformer = true;
+                            break;
+                        }
                     }
-                    if (flag6)
+
+                    //Try and build some basic infrastructure
+                    if (buildingsInQueue < 2)
                     {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"), false);
+                        if (BuildBasicInfrastructure()) buildingsInQueue++;
                     }
-                    if (num5 < 2)
-                    {
-                        GetBuildingsWeCanBuildHere();
 
-                        foreach (PlanetGridSquare PGS in TilesList)
-                        {
-                            bool qitemTest = PGS.QItem != null;
-                            if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
-                                pro = null;
-                            if (PGS.building != cheapestFlatfood &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
-                                food = cheapestFlatfood;
-
-                            if (PGS.building != cheapestFlatResearch &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
-                                res = cheapestFlatResearch;
-                        }
-
-                        Building buildthis = null;
-                        buildthis = pro;
-                        buildthis = pro ?? food ?? res;
-
-                        if (buildthis != null)
-                        {
-                            num5++;
-                            AddBuildingToCQ(buildthis, false);
-                        }
-                    }
-                    if (num5 < 2)
+                    if (buildingsInQueue < 2)
                     {
                         float coreCost = 99999f;
-                        GetBuildingsWeCanBuildHere();
                         Building b = null;
                         foreach (Building building in BuildingsCanBuild)
                         {
@@ -1625,12 +1660,10 @@ namespace Ship_Game
                             //if you dont want it to be built put it here.
                             //this first if is the low pri build spot. 
                             //the second if will override items that make it through this if. 
-                            if (cheapestFlatfood == null && cheapestFlatprod == null &&
-                               
-                                ((building.MinusFertilityOnBuild <= 0.0f || Owner.data.Traits.Cybernetic > 0) &&
+                            if (((building.MinusFertilityOnBuild <= 0.0f || Owner.data.Traits.Cybernetic > 0) &&
                                  !(building.Name == "Biospheres"))
                                 && (building.PlusTerraformPoints < 0 ||
-                                    !flag5 && (Fertility < 1.0 && Owner.data.Traits.Cybernetic <= 0))
+                                    !haveTerraformer && (Fertility < 1.0 && Owner.data.Traits.Cybernetic <= 0))
                                     
                             )
                             {
@@ -1651,40 +1684,13 @@ namespace Ship_Game
                             ( b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0 || b.PlusProdPerColonist > 0
                                 || b.PlusFoodPerColonist > 0 || b.PlusFlatFoodAmount > 0
                                 || b.CreditsPerColonist > 0 || b.PlusTaxPercentage > 0
-                                || cheapestFlatfood == b || cheapestFlatprod == b || cheapestFlatResearch == b                                
                             )) 
                         {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
                                 AddBuildingToCQ(b, false);
                         }
                         //if it must be built with high pri put it here. 
                         else if (b != null)
                         {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
                                 AddBuildingToCQ(b);
                         }
                         else if (Owner.GetBDict()["Biospheres"] && MineralRichness >= 1.0f &&
@@ -1706,32 +1712,8 @@ namespace Ship_Game
                                 TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
                         }
                     }
-
-                    for (int index = 0; index < ConstructionQueue.Count; ++index)
-                    {
-                        QueueItem queueItem1 = ConstructionQueue[index];
-                        if (index == 0 && queueItem1.isBuilding)
-                        {
-                            if (queueItem1.Building.Name == "Outpost") 
-                            {
-                               SbProduction.ApplyAllStoredProduction(0);
-                            }
-                            break;
-                        }
-                        else if (queueItem1.isBuilding &&
-                                 (queueItem1.Building.PlusFlatProductionAmount > 0.0f ||
-                                  queueItem1.Building.PlusProdPerColonist > 0.0f ||
-                                  queueItem1.Building.Name == "Outpost"))
-                        {
-                            ConstructionQueue.Remove(queueItem1);
-                            ConstructionQueue.Insert(0, queueItem1);
-                        }
-                    }
-
-
                     break;
                 }
-
                 #endregion
 
                 case Planet.ColonyType.Industrial:
@@ -1766,150 +1748,41 @@ namespace Ship_Game
                         FarmerPercentage = 0;
                     }
                 }
-                    SetExportState(colonyType);
+                SetExportState(colonyType);
 
-
-                    float num6 = 0.0f;
-                    foreach (QueueItem queueItem in ConstructionQueue)
-                    {
-                        if (queueItem.isBuilding)
-                            ++num6;
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                            ++num6;
-                    }
-                    bool flag7 = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag7 = false;
-                    }
-                    if (flag7)
-                    {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                    }
-
-                    bool flag8 = false;
-                    GetBuildingsWeCanBuildHere();
-                    if (num6 < 2)
-                    {
-                        GetBuildingsWeCanBuildHere();
-
-                        foreach (PlanetGridSquare PGS in TilesList)
-                        {
-                            bool qitemTest = PGS.QItem != null;
-                            if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
-                                pro = null;
-                            if (PGS.building != cheapestFlatfood &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
-                                food = cheapestFlatfood;
-
-                            if (PGS.building != cheapestFlatResearch &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
-                                res = cheapestFlatResearch;
-                        }
-                        Building buildthis = null;
-                        buildthis = pro;
-                        buildthis = pro ?? food ?? res;
-
-                        if (buildthis != null)
-                        {
-                            num6++;
-                            AddBuildingToCQ(buildthis);
-                        }
-                    }
+                //Try and build some basic infrastructure
+                if (buildingsInQueue < 2)
                 {
-                    double num1 = 0;
-                    foreach (Building building1 in BuildingsCanBuild)
+                    if (BuildBasicInfrastructure()) buildingsInQueue++;
+                }
+
+                if (buildingsInQueue < 2f)
+                {
+                    float indycost = 99999f;
+                    Building b = null;
+                    foreach (Building building in BuildingsCanBuild) //.OrderBy(cost=> cost.Cost))
                     {
-                        if (building1.PlusFlatProductionAmount > 0.0
-                            || building1.PlusProdPerColonist > 0.0
-                            || building1.PlusProdPerRichness > 0.0
-                        )
+                        if (!WeCanAffordThis(building, colonyType))
+                            continue;
+                        if (building.PlusFlatProductionAmount > 0.0f
+                            || building.PlusProdPerColonist > 0.0f
+                            || building.PlusProdPerRichness > 0.0f ) 
                         {
-                            foreach (Building building2 in BuildingList)
-                            {
-                                if (building2 == building1)
-                                    ++num1;
-                            }
-                            flag8 = num1 <= 9;
+                            indycost = building.Cost;
+                            b = building;
                             break;
                         }
+                        else if (indycost > building.Cost) //building.Name!="Biospheres" || developmentLevel >2 )
+                            indycost = building.Cost;
+                        b = building;
+                    }
+                    if (b != null)
+                    {
+                        AddBuildingToCQ(b);
+                        ++buildingsInQueue;
                     }
                 }
-                    bool flag9 = true;
-                    if (flag8)
-                    {
-                        using (ConstructionQueue.AcquireReadLock())
-                            foreach (QueueItem queueItem in ConstructionQueue)
-                            {
-                                if (queueItem.isBuilding
-                                    && (queueItem.Building.PlusFlatProductionAmount > 0.0
-                                        || queueItem.Building.PlusProdPerColonist > 0.0
-                                        || queueItem.Building.PlusProdPerRichness > 0.0)
-                                )
-                                {
-                                    flag9 = false;
-                                    break;
-                                }
-                            }
-                    }
-                    if (flag9 && num6 < 2f)
-                    {
-                        float indycost = 99999f;
-                        Building b = null;
-                        foreach (Building building in BuildingsCanBuild) //.OrderBy(cost=> cost.Cost))
-                        {
-                            if (!WeCanAffordThis(building, colonyType))
-                                continue;
-                            if (building.PlusFlatProductionAmount > 0.0f
-                                || building.PlusProdPerColonist > 0.0f
-                                || (building.PlusProdPerRichness > 0.0f
-                                )
-                            ) //this.WeCanAffordThis(b,this.colonyType) )//
-                            {
-                                indycost = building.Cost;
-                                b = building;
-                                break;
-                            }
-                            else if (indycost > building.Cost) //building.Name!="Biospheres" || developmentLevel >2 )
-                                indycost = building.Cost;
-                            b = building;
-                        }
-                        if (b != null
-                        ) //(this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn > 0.0 || (b.CreditsPerColonist > 0 || this.PlusTaxPercentage > 0))) // ((double)this.Owner.EstimateIncomeAtTaxRate(0.25f) - (double)b.Maintenance > 0.0 || this.Owner.Money > this.Owner.GrossTaxes * 3)) //this.WeCanAffordThis(b, this.colonyType)) //
-                        {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
-                            {
-                                AddBuildingToCQ(b);
-
-                                ++num6;
-                            }
-                        }
-                        
-                    }
-                    break;
+                break;
 
                 #endregion
 
@@ -1949,107 +1822,36 @@ namespace Ship_Game
                         FarmerPercentage = 0;
                     }
                     SetExportState(colonyType);
-                    
-                    float num8 = 0.0f;
-                    foreach (QueueItem queueItem in ConstructionQueue)
-                    {
-                        if (queueItem.isBuilding)
-                            ++num8;
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                            ++num8;
-                    }
-                    bool flag10 = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag10 = false;
-                    }
-                    if (flag10)
-                    {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                    }
-                    if (num8 < 2.0)
-                    {
-                        GetBuildingsWeCanBuildHere();
 
-                        foreach (PlanetGridSquare PGS in TilesList)
-                        {
-                            bool qitemTest = PGS.QItem != null;
-                            if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
-                                pro = null;
-                            if (PGS.building != cheapestFlatfood &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
-                                food = cheapestFlatfood;
-
-                            if (PGS.building != cheapestFlatResearch &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
-                                res = cheapestFlatResearch;
-                        }
-                        Building buildthis = null;
-                        buildthis = pro;
-                        buildthis = pro ?? food ?? res;
-
-                        if (buildthis != null && WeCanAffordThis(buildthis, colonyType))
-                        {
-                            num8++;
-                            AddBuildingToCQ(buildthis);
-                        }
-                    }
-                    if (num8 < 2.0)
+                    //Try and build some basic infrastructure
+                    if (buildingsInQueue < 2)
                     {
-                        GetBuildingsWeCanBuildHere();
+                        if (BuildBasicInfrastructure()) buildingsInQueue++;
+                    }
+
+                    if (buildingsInQueue < 2.0)
+                    {
                         Building b = null;
-                        float num1 = 99999f;
-                        foreach (Building building in BuildingsCanBuild)
+                        float currentBestCost = 99999f;
+                        foreach (Building building in BuildingsCanBuild)    //This will basically build anything?!
                         {
                             if (!WeCanAffordThis(building, colonyType))
                                 continue;
-                            if (building.Name == "Outpost") 
-                            {
-                        
-                                b = building;
-                                break;
-                            }
-                            else if (num8 < 2 && building.Cost < num1 &&
+
+                            if (buildingsInQueue < 2 && building.Cost < currentBestCost &&
                                      (building.Name != "Biospheres" ||
-                                      (num8 == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
+                                      (buildingsInQueue == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
                         
                             {
-                                num1 = building.Cost;
+                                currentBestCost = building.Cost;
                                 b = building;
-                                num8++;
+                                buildingsInQueue++;
                             }
 
-                            if (b != null && num8 < 2) 
+                            if (b != null && buildingsInQueue < 2) 
                             {
-                                bool flag1 = true;
-
-                                if (b.BuildOnlyOnce)
-                                {
-                                    for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                    {
-                                        if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                        {
-                                            flag1 = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (flag1)
-                                {
-                                    AddBuildingToCQ(b);
-                                    num8++;
-                                }
+                                AddBuildingToCQ(b);
+                                buildingsInQueue++;
                             }
                         }
                     }
@@ -2091,117 +1893,36 @@ namespace Ship_Game
                         FarmerPercentage = 0;
                     }
 
-                    float num9 = 0.0f;
-
-                    foreach (QueueItem queueItem in ConstructionQueue)
+                    //Try and build some basic infrastructure
+                    if (buildingsInQueue < 2)
                     {
-                        if (queueItem.isBuilding)
-                            ++num9;
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                            ++num9;
-
-                    }
-                    bool flag12 = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            flag12 = false;
-
-                    }
-                    if (flag12)
-                    {
-                        bool flag1 = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                flag1 = true;
-                                break;
-                            }
-                        }
-                        if (!flag1)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
-                    }
-                    if (num9 < 2)
-                    {
-                        GetBuildingsWeCanBuildHere();
-
-                        foreach (PlanetGridSquare PGS in TilesList)
-                        {
-                            bool qitemTest = PGS.QItem != null;
-                            if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
-                                pro = null;
-                            if (PGS.building != cheapestFlatfood &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
-                                food = cheapestFlatfood;
-
-                            if (PGS.building != cheapestFlatResearch &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
-                                res = cheapestFlatResearch;
-                        }
-                        Building buildthis = null;
-                        buildthis = pro;
-                        buildthis = pro ?? food ?? res;
-
-                        if (buildthis != null)
-                        {
-                            num9++;
-                            AddBuildingToCQ(buildthis);
-                        }
+                        if (BuildBasicInfrastructure()) buildingsInQueue++;
                     }
 
-                    if (num9 < 2.0f)
+                    if (buildingsInQueue < 2.0f)
                     {
-                        GetBuildingsWeCanBuildHere();
                         Building b = null;
                         float num1 = 99999f;
                         foreach (Building building in BuildingsCanBuild.OrderBy(cost => cost.Cost))
                         {
                             if (!WeCanAffordThis(building, colonyType))
                                 continue;
-                            if (building.Name == "Outpost") 
-                            {
-                                float num2 = building.Cost;
-                                b = building;
-                                break;
-                            }
-                            else if (building.Cost < num1
-                                     && cheapestFlatfood == null
-                                     && cheapestFlatprod == null
-                                     && cheapestFlatResearch == null &&
-                                     (building.Name == "Biospheres" && !noMoreBiospheres))
 
+                            if (building.Cost < num1 && (building.Name == "Biospheres" && !noMoreBiospheres))
                             {
                                 num1 = building.Cost;
                                 b = building;
                             }
                             else if (building.Cost < num1 &&
                                      (building.Name != "Biospheres" ||
-                                      (num9 == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
+                                      (buildingsInQueue == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
 
                             {
                                 num1 = building.Cost;
                                 b = building;
                             }
                         }
-                        if (b != null
-                        ) 
-                        {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
-                                AddBuildingToCQ(b);
-                        }
+                        if (b != null) AddBuildingToCQ(b);
                     }
                     break;
 
@@ -2235,12 +1956,6 @@ namespace Ship_Game
                         FarmerPercentage = 0;
                     }
 
-
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
                     if (!Owner.isPlayer && FS == GoodState.STORE)
                     {
                         FS = GoodState.IMPORT;
@@ -2251,97 +1966,31 @@ namespace Ship_Game
                     foreach (QueueItem queueItem in ConstructionQueue)
                     {
                         if (queueItem.isBuilding)
+                        {
                             ++buildingCount;
-                        if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
-                            ++buildingCount;
-                    }
-                    bool missingOutpost = true;
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Outpost" || building.Name == "Capital City")
-                            missingOutpost = false;
-                    }
-                    if (missingOutpost)
-                    {
-                        bool hasOutpost = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
-                            {
-                                hasOutpost = true;
-                                break;
-                            }
+                            if (queueItem.Building.Name == "Biospheres")
+                                ++buildingCount;
                         }
-                        if (!hasOutpost)
-                            AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                     }
-                    if (Owner != EmpireManager.Player
-                        && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
-                        && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard) && GrossMoneyPT > 3.0)
+
+                    //If we can build a shipyard, but dont have one, build it
+                    BuildShipywardifAble();
+
+                    //Try and build some basic infrastructure
+                    if (buildingCount < 2)
                     {
-                        bool hasShipyard = false;
-                        foreach (QueueItem queueItem in ConstructionQueue)
-                        {
-                            if (queueItem.isShip && queueItem.sData.IsShipyard)
-                            {
-                                hasShipyard = true;
-                                break;
-                            }
-                        }
-                        if (!hasShipyard)
-                            ConstructionQueue.Add(new QueueItem()
-                            {
-                                isShip = true,
-                                sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
-                                Cost = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].GetCost(Owner)
-                            });
+                        if (BuildBasicInfrastructure()) buildingCount++;
                     }
-                    if (buildingCount < 2.0f)
+
                     {
-                        GetBuildingsWeCanBuildHere();
-
-                        foreach (PlanetGridSquare PGS in TilesList)
-                        {
-                            bool qitemTest = PGS.QItem != null;
-                            if (PGS.building == cheapestFlatprod || qitemTest && PGS.QItem.Building == cheapestFlatprod)
-                                pro = null;
-                            if (PGS.building != cheapestFlatfood &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatfood))
-                                food = cheapestFlatfood;
-
-                            if (PGS.building != cheapestFlatResearch &&
-                                !(qitemTest && PGS.QItem.Building == cheapestFlatResearch))
-                                res = cheapestFlatResearch;
-                        }
-                        Building buildthis = null;
-                        buildthis = pro;
-                        buildthis = pro ?? food ?? res;
-
-                        if (buildthis != null)
-                        {
-                            buildingCount++;
-                            AddBuildingToCQ(buildthis);
-                        }
-
-
-                        GetBuildingsWeCanBuildHere();
                         Building b = null;
                         float num1 = 99999f;
                         foreach (Building building in BuildingsCanBuild.OrderBy(cost => cost.Cost))
                         {
                             if (!WeCanAffordThis(building, colonyType))
                                 continue;
-                            if (building.Name == "Outpost") 
-                            {
-                                float num2 = building.Cost;
-                                b = building;
-                                break;
-                            }
-                            else if (building.Cost < num1
-                                     && cheapestFlatfood == null
-                                     && cheapestFlatprod == null
-                                     && cheapestFlatResearch == null &&
-                                     (building.Name == "Biospheres" && !noMoreBiospheres))
+
+                            if (building.Cost < num1 && (building.Name == "Biospheres" && !noMoreBiospheres))
                             {
                                 num1 = building.Cost;
                                 b = building;
@@ -2354,24 +2003,8 @@ namespace Ship_Game
                                 b = building;
                             }
                         }
-                        if (b != null
-                        ) 
-                        {
-                            bool flag1 = true;
-                            if (b.BuildOnlyOnce)
-                            {
-                                for (int index = 0; index < Owner.GetPlanets().Count; ++index)
-                                {
-                                    if (Owner.GetPlanets()[index].BuildingInQueue(b.Name))
-                                    {
-                                        flag1 = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (flag1)
-                                AddBuildingToCQ(b);
-                        }
+                        if (b != null) AddBuildingToCQ(b);
+
                     }
                     break;
 
@@ -2416,7 +2049,7 @@ namespace Ship_Game
                 }
 
                 #endregion
-            }
+            } //End Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
                 colonyType != ColonyType.Research) 
@@ -2629,29 +2262,23 @@ namespace Ship_Game
             }
         }
 
-        public bool GoodBuilding (Building b)
-        {
-            return true;
-        }
-
         public float GetMaxProductionPotential()
         {
-            float num1 = 0.0f;
-            float num2 = MineralRichness * Population / 1000;
+            float bonusProd = 0.0f;
+            float baseProd = MineralRichness * Population / 1000;
             for (int index = 0; index < BuildingList.Count; ++index)
             {
                 Building building = BuildingList[index];
                 if (building.PlusProdPerRichness > 0.0)
-                    num1 += building.PlusProdPerRichness * MineralRichness;
-                num1 += building.PlusFlatProductionAmount;
+                    bonusProd += building.PlusProdPerRichness * MineralRichness;
+                bonusProd += building.PlusFlatProductionAmount;
                 if (building.PlusProdPerColonist > 0.0)
-                    num2 += building.PlusProdPerColonist;
+                    baseProd += building.PlusProdPerColonist;
             }
-            float num3 = num2 + num1 * Population / 1000;
-            float num4 = num3;
+            float finalProd = baseProd + bonusProd * Population / 1000;
             if (Owner.data.Traits.Cybernetic > 0)
-                return num4 + Owner.data.Traits.ProductionMod * num4 - Consumption;
-            return num4 + Owner.data.Traits.ProductionMod * num4;
+                return finalProd + Owner.data.Traits.ProductionMod * finalProd - Consumption;
+            return finalProd + Owner.data.Traits.ProductionMod * finalProd;
         }
 
         public float GetMaxResearchPotential =>        
@@ -2860,58 +2487,19 @@ namespace Ship_Game
         
         private void GrowPopulation()
         {
-            if (Owner == null)
-                return;
+            if (Owner == null) return;
             
-            float num1 = Owner.data.BaseReproductiveRate * Population;
-            if ( num1 > Owner.data.Traits.PopGrowthMax * 1000  && Owner.data.Traits.PopGrowthMax != 0 )
-                num1 = Owner.data.Traits.PopGrowthMax * 1000f;
-            if ( num1 < Owner.data.Traits.PopGrowthMin * 1000 )
-                num1 = Owner.data.Traits.PopGrowthMin * 1000f;
-            float num2 = num1 + PlusFlatPopulationPerTurn;
-            float num3 = num2 + Owner.data.Traits.ReproductionMod * num2;
-            if ( Math.Abs(Unfed) <= 0 )
-            {
-
-                
-                Population += num3;
-                //if (Population +  num3 > MaxPopulation + MaxPopBonus)
-                //    Population = MaxPopulation + MaxPopBonus;
-            }
+            float normalRepRate = Owner.data.BaseReproductiveRate * Population;
+            if ( normalRepRate > Owner.data.Traits.PopGrowthMax * 1000  && Owner.data.Traits.PopGrowthMax != 0 )
+                normalRepRate = Owner.data.Traits.PopGrowthMax * 1000f;
+            if ( normalRepRate < Owner.data.Traits.PopGrowthMin * 1000 )
+                normalRepRate = Owner.data.Traits.PopGrowthMin * 1000f;
+            normalRepRate += PlusFlatPopulationPerTurn;
+            float adjustedRepRate = normalRepRate + Owner.data.Traits.ReproductionMod * normalRepRate;
+            if (Unfed != 0) Population += adjustedRepRate;
             else
                 Population += Unfed * 10f;
-            if (Population >= 100.0)
-                return;
-            Population = 100f;
-        }
-
-        public float CalculateGrowth(float EstimatedFoodGain)
-        {
-            if (Owner != null)
-            {
-                float num1 = Owner.data.BaseReproductiveRate * Population;
-                if ( num1 > Owner.data.Traits.PopGrowthMax)
-                    num1 = Owner.data.Traits.PopGrowthMax;
-                if ( num1 < Owner.data.Traits.PopGrowthMin)
-                    num1 = Owner.data.Traits.PopGrowthMin;
-                float num2 = num1 + PlusFlatPopulationPerTurn;
-                float num3 = num2 + Owner.data.Traits.ReproductionMod * num2;
-                if (Owner.data.Traits.Cybernetic > 0)
-                {
-                    if (ProductionHere + NetProductionPerTurn - Consumption <= 0.1)
-                        return -(Math.Abs(ProductionHere + NetProductionPerTurn - Consumption) / 10f);
-                    if (Population < MaxPopulation + MaxPopBonus && Population +  num3 < MaxPopulation + MaxPopBonus)
-                        return Owner.data.BaseReproductiveRate * Population;
-                }
-                else
-                {
-                    if (FoodHere + NetFoodPerTurn - Consumption <= 0f)
-                        return -(Math.Abs(FoodHere + NetFoodPerTurn - Consumption) / 10f);
-                    if (Population < MaxPopulation + MaxPopBonus && Population +  num3 < MaxPopulation + MaxPopBonus)
-                        return Owner.data.BaseReproductiveRate * Population;
-                }
-            }
-            return 0.0f;
+            if (Population < 100.0) Population = 100f;
         }
 
         public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
@@ -2927,7 +2515,6 @@ namespace Ship_Game
                     events = true;
                     break;
                 }
-
             }
             return events;
         }
