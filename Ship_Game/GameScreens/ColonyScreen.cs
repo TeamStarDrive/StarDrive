@@ -388,7 +388,8 @@ namespace Ship_Game
             queue.Draw();
             if (build.Tabs[0].Selected)
             {
-                Array<Building> buildingsWeCanBuildHere = this.p.GetBuildingsWeCanBuildHere();
+                this.p.RefreshBuildingsWeCanBuildHere();
+                Array<Building> buildingsWeCanBuildHere = this.p.GetBuildingsCanBuild();
                 if (this.p.BuildingList.Count != this.buildingsHereLast || this.buildingsCanBuildLast != buildingsWeCanBuildHere.Count || this.Reset)
                 {
                     BuildingsCanBuild = buildingsWeCanBuildHere;
