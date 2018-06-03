@@ -790,8 +790,8 @@ namespace Ship_Game
 
         public int GetGroundLandingSpots()
         {            
-            int spotCount = TilesList.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1).Sum(spots => spots.number_allowed_troops); 
-            int troops = TroopsHere.FilterBy(owner => owner.GetOwner() == Owner).Length;
+            int spotCount = TilesList.Sum(spots => spots.number_allowed_troops); //.FilterBy(spot => (spot.building?.CombatStrength ?? 0) < 1)
+            int troops    = TroopsHere.FilterBy(owner => owner.GetOwner() == Owner).Length;
             return spotCount - troops;
 
 
