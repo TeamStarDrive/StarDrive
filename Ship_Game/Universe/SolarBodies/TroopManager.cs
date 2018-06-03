@@ -745,15 +745,15 @@ namespace Ship_Game
             //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == null || empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
             //this.TroopsHere.thisLock.ExitReadLock();
             //return num;
-            float enemyTroopStrength = 0f;
-            TroopsHere.ForEach(trooper =>
+            float enemyTroopStrength = 0;
+            for (int x = 0; x < TroopsHere.Count; x++)
             {
+                Troop trooper = TroopsHere[x];
+                if (trooper.OwnerString == allButThisEmpire.data.Traits.Name)
+                    continue;
+                enemyTroopStrength += trooper.Strength;
+            }
 
-                if (trooper.GetOwner() != allButThisEmpire)
-                {
-                    enemyTroopStrength += trooper.Strength;
-                }
-            });
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b;
@@ -765,9 +765,8 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                if (b == null)
-                    continue;
-                if (b.CombatStrength > 0)
+
+                if (b?.CombatStrength > 0)
                     enemyTroopStrength += b.Strength + b.CombatStrength;
             }
 

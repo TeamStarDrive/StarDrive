@@ -7,23 +7,40 @@ namespace Ship_Game
 {
     public static class GamePlayExtensions
     {
-        public static Array<Ship> GetTroopShips(this Empire empire, ref float troopStrength)
+        public static Array<Ship> GetTroopShips(this Empire empire)
         {
-            Array<Ship> troopShips = new Array<Ship>();
+            Array<Ship> ships = empire.GetShips(ship =>
+                ship.shipData.Role == ShipData.RoleName.troop 
+                && ship.fleet == null 
+                && ship.Mothership == null 
+                && !ship.AI.HasPriorityOrder
+                && ship.AI.State != AI.AIState.Scrap
+            );
+            return ships;
+        }
+
+        public static Array<Ship> GetShips(this Empire empire, Predicate<Ship> filter)
+        {
+            Array<Ship> ships = new Array<Ship>();
             foreach (Ship ship in empire.GetShips())
             {
-                if (ship.shipData.Role != ShipData.RoleName.troop
-                    || ship.fleet != null
-                    || ship.Mothership != null
-                    || ship.AI.HasPriorityOrder)
-                    continue;
-                troopShips.Add(ship);
-                for (int i = 0; i < ship.TroopList.Count; i++)
-                    if (ship.TroopList[i].GetOwner() == empire)
-                        troopStrength += ship.TroopList[i].Strength;
+                if (!filter(ship)) continue;
+                
+                ships.Add(ship);
             }
-            return troopShips;
+            return ships;
         }
+
+        public static float CalculateShipsValue(this Array<Ship> ships, Func<Ship,float> calculator)
+        {
+            float value =0;
+            foreach (Ship ship in ships)            
+                value += calculator(ship);
+            return value;
+        }
+
+
+
 
         public static Array<Troop> GetTroopUnits(this Empire empire, ref float TotalTroopStrength)
         {
