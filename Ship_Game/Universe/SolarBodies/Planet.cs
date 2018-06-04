@@ -100,7 +100,7 @@ namespace Ship_Game
             }
             return 0;
         }
-        public float FoodPercentAdded;
+        //public float FoodPercentAdded;  //This variable is never used... -Gretman
         public float FlatFoodAdded;
         public float NetProductionPerTurn;
         private float MaxProductionPerTurn;
@@ -738,39 +738,31 @@ namespace Ship_Game
             if (Fertility == 0.0) return 0.0f; //Easy out for crap-planets
 
             float Surplus = 0.0f;
-            float NoDivByZero = .0000001f;
-            if(Owner.data.Traits.Cybernetic >0)
+            if (Owner.data.Traits.Cybernetic > 0)
             {
-                Surplus = (float)((Consumption + desiredSurplus - PlusFlatProductionPerTurn) / ((Population / 1000.0) 
-                    * (MineralRichness + PlusProductionPerColonist)) * (1 - Owner.data.TaxRate) + NoDivByZero);
+                float totalConsumption = Consumption + desiredSurplus - PlusFlatProductionPerTurn;
+                float totalPopulation = (Population / 1000) + 0.0000001f; ;
+                float totalProductionRate = (1 - Owner.data.TaxRate);
 
-                if (Surplus < .75f)
-                {
-                    if (Surplus < 0)
-                        return 0.0f;
-                    return Surplus;
-                }
-                else
-                {
-                    return .75f;
-                }
-            }
-            // replacing while loop with singal fromula, should save some clock cycles
+                if (totalConsumption == 0 || totalPopulation == 0 || totalProductionRate == 0) return 0.0f; //No divide by 0
 
-           
-            Surplus = (float)((Consumption + desiredSurplus - FlatFoodAdded) / ((Population / 1000.0) 
-                * (Fertility + PlusFoodPerColonist) * (1 + FoodPercentAdded) +NoDivByZero));
-            if (Surplus < .75f)
-            {
-                if (Surplus < 0)
-                    return 0.0f;
-                return Surplus;
+                Surplus = totalConsumption / totalPopulation / totalProductionRate;
             }
             else
-            {
-                //if you cant reach the desired surplus, produce as much as you can
-                return .75f;
+            {                         //'Consumption' = Amount of food consumed after race modifier (Gluttonous, Efficient Metabolism, etc)
+                float totalConsumption = Consumption + desiredSurplus - FlatFoodAdded;
+                float totalPopulation = Population / 1000;
+                float totalProductionRate = Fertility + PlusFoodPerColonist;
+
+                if (totalConsumption == 0 || totalPopulation == 0 || totalProductionRate == 0) return 0.0f; //No divide by 0
+
+                Surplus = totalConsumption / totalPopulation / totalProductionRate;
             }
+
+            if      (Surplus <= 0) return 0.0f;
+            else if (Surplus >= 1) return 1.0f;
+            else return Surplus;
+            
         }     
 
         public void RefreshBuildingsWeCanBuildHere()
@@ -1604,11 +1596,15 @@ namespace Ship_Game
                                                                     (1 - (FoodHere + 1) / (MaxStorage + 1));
                         }
 
+                        //Try and work out a surplus
                         FarmerPercentage = CalculateFarmerPercentForSurplus(surplus);
+                        //If that requires too much, then try again without the surplus
                         if (FarmerPercentage == 1 && StuffInQueueToBuild)
                             FarmerPercentage = CalculateFarmerPercentForSurplus(0);
+                        //If it still needs all of the workers, reserve a small amount for other tasks.
                         if (FarmerPercentage == 1 && StuffInQueueToBuild)
                             FarmerPercentage = .9f;
+
                         WorkerPercentage =
                             (1f - FarmerPercentage) *
                             (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
@@ -2436,12 +2432,14 @@ namespace Ship_Game
             NetResearchPerTurn = NetResearchPerTurn - Owner.data.TaxRate * NetResearchPerTurn;
             //Food
             NetFoodPerTurn =  (FarmerPercentage * Population / 1000 * (Fertility + PlusFoodPerColonist)) + FlatFoodAdded;
-            NetFoodPerTurn = NetFoodPerTurn + FoodPercentAdded * NetFoodPerTurn;
             GrossFood = NetFoodPerTurn;
             //Production
             NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
             MaxProductionPerTurn = GetMaxProductionPotential();
+
+            Consumption =  (Population / 1000 + Owner.data.Traits.ConsumptionModifier * Population / 1000);
+
             if (Owner.data.Traits.Cybernetic > 0)
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else
@@ -2458,8 +2456,7 @@ namespace Ship_Game
                 else
                     Station.SetVisibility(true, Empire.Universe.ScreenManager, this);
             }
-
-            Consumption =  (Population / 1000 + Owner.data.Traits.ConsumptionModifier * Population / 1000);
+            
             if(Owner.data.Traits.Cybernetic >0)
             {
                 if(Population > 0.1 && NetProductionPerTurn <= 0)
