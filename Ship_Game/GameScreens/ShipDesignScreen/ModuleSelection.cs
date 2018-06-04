@@ -619,12 +619,14 @@ namespace Ship_Game
             if (rawDamage > 0f)
             {
                 int salvos = w.SalvoCount > 0 ? w.SalvoCount : 1;
+                int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
                 float dps = isBeam 
                     ? (beamDamage / delay)
                     : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
 
                 DrawStat(ref cursor, "DPS", dps, 86);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
+                if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
 
             
@@ -721,7 +723,7 @@ namespace Ship_Game
                 case WeaponStat.Damage:    return weapon.DamageAmount;
                 case WeaponStat.Range:     return weapon.Range;
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
-                case WeaponStat.FireDelay: return weapon.fireDelay;
+                case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;
                 case WeaponStat.Shield:    return weapon.EffectVSShields;
                 default: return 0f;

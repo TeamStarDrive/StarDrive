@@ -443,7 +443,7 @@ namespace Ship_Game
                             weapon = slot.Module.InstalledWeapon;
                         else
                             weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
-                        OrdnanceUsed += weapon.OrdinanceRequiredToFire  * weapon.SalvoCount;
+                        OrdnanceUsed += weapon.OrdnanceUsagePerSecond;
                         WeaponPowerNeeded += weapon.BeamPowerCostPerSecond + weapon.PowerRequiredToFire;                        
                     }
                     //end
