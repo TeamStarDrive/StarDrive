@@ -2177,7 +2177,6 @@ namespace Ship_Game.Ships
                     NeedRecalculate = false;
                 }
             }
-            SetHealthStatus();
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
             if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear 
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
@@ -2458,31 +2457,20 @@ namespace Ship_Game.Ships
             }
         }
 
-
         public ShipStatus HealthStatus
         {
-            get;
-            private set;            
-        }
-        private void SetHealthStatus()
-        {
-            if (engineState == MoveState.Warp
-                || AI.State == AIState.Refit
-                || AI.State == AIState.Resupply)
+            get
             {
-                HealthStatus = ShipStatus.NotApplicable;
-                return;
+                if (engineState == MoveState.Warp
+                    || AI.State == AIState.Refit
+                    || AI.State == AIState.Resupply)
+                        return ShipStatus.NotApplicable;
+                Health = Health.Clamp(0, HealthMax);
+                return ToShipStatus(Health, HealthMax);
             }
-           
-            Health = Health.Clamp(0, HealthMax);
-            HealthStatus = ToShipStatus(Health, HealthMax);
         }
 
-        public void AddShipHealth(float addHealth)
-        {
-            Health = (Health + addHealth).Clamp(0, HealthMax);
-            SetHealthStatus();            
-        }
+        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamp(0, HealthMax);
 
         public void ShipStatusChange()
         {
