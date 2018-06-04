@@ -1215,5 +1215,10 @@
       <Title>Complexity</Title>
       <Data>1991</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>242</TIP_ID>
+      <Title>Projectiles</Title>
+      <Data>1990</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
