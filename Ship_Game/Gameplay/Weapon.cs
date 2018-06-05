@@ -183,17 +183,17 @@ namespace Ship_Game.Gameplay
                 return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
             }
         }
-        public static void LoadCorrections(Weapon weapon)
+        public void InitializeTemplate()
         {
-            weapon.BeamDuration = weapon.BeamDuration > 0 ? weapon.BeamDuration : 2f;
-            weapon.fireDelay = Math.Max(0.016f, weapon.fireDelay);
-            weapon.SalvoTimer = Math.Max(0, weapon.SalvoTimer);
-            if (weapon.Tag_Missile)
+            BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
+            fireDelay = Math.Max(0.016f, fireDelay);
+            SalvoTimer = Math.Max(0, SalvoTimer);
+            if (Tag_Missile)
             {
-                if (weapon.WeaponType.IsEmpty()) weapon.WeaponType = "Missile";
-                else if (weapon.WeaponType != "Missile")
+                if (WeaponType.IsEmpty()) WeaponType = "Missile";
+                else if (WeaponType != "Missile")
                 {
-                    Log.Warning($"Weapon '{weapon.UID}' has 'tag_missile' but Weapontype is '{weapon.WeaponType}' instead of missile. This Causes invisible projectiles.");
+                    Log.Warning($"Weapon '{UID}' has 'tag_missile' but Weapontype is '{WeaponType}' instead of missile. This Causes invisible projectiles.");
                 }
             }
         }
