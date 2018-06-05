@@ -371,41 +371,38 @@ namespace Ship_Game
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                Size = Size + 1f;
+                Size += 1f;
                 if (slot.Module == null)
                 {
                     continue;
                 }
-                HitPoints = slot.Module.ActualMaxHealth;
+                HitPoints += slot.Module.ActualMaxHealth;
                 if (slot.Module.Mass < 0f && slot.InPowerRadius)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)
-                    {
                         Mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
-                    }
                     else
                         Mass += slot.Module.Mass;
                 }
                 else if (slot.Module.Mass > 0f)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)
-                    {
                         Mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
-                    }
                     else
                         Mass += slot.Module.Mass;
                 }
-                TroopCount += slot.Module.TroopCapacity;
+                TroopCount    += slot.Module.TroopCapacity;
                 PowerCapacity += slot.Module.ActualPowerStoreMax;
-                OrdnanceCap = OrdnanceCap + (float) slot.Module.OrdinanceCapacity;
-                PowerFlow += slot.Module.ActualPowerFlowMax;
+                OrdnanceCap   += (float) slot.Module.OrdinanceCapacity;
+                PowerFlow     += slot.Module.ActualPowerFlowMax;
 
                 if (slot.Module.Powered)
                 {
-                    EMPResist += slot.Module.EMP_Protection;
-                    WarpableMass = WarpableMass + slot.Module.WarpMassCapacity;
-                    PowerDraw = PowerDraw + slot.Module.PowerDraw;
-                    WarpDraw = WarpDraw + slot.Module.PowerDrawAtWarp;
+                    EMPResist    += slot.Module.EMP_Protection;
+                    WarpableMass += slot.Module.WarpMassCapacity;
+                    PowerDraw    += slot.Module.PowerDraw;
+                    WarpDraw     += slot.Module.PowerDrawAtWarp;
+
                     if (slot.Module.ECM > TotalECM)
                         TotalECM = slot.Module.ECM;
                     if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
@@ -421,17 +418,16 @@ namespace Ship_Game
                     {
                         FTLSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
                     }
-                    ShieldPower += slot.Module.ActualShieldPowerMax;
-                    Thrust = Thrust + slot.Module.thrust;
-                    WarpThrust = WarpThrust + slot.Module.WarpThrust;
-                    TurnThrust = TurnThrust + slot.Module.TurnThrust;
 
-                    RepairRate += slot.Module.ActualBonusRepairRate;
+                    ShieldPower      += slot.Module.ActualShieldPowerMax;
+                    Thrust           += slot.Module.thrust;
+                    WarpThrust       += slot.Module.WarpThrust;
+                    TurnThrust       += slot.Module.TurnThrust;
+                    RepairRate       += slot.Module.ActualBonusRepairRate;
                     OrdnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
+
                     if (slot.Module.SensorRange > sensorRange)
-                    {
                         sensorRange = slot.Module.SensorRange;
-                    }
                     if (slot.Module.SensorBonus > sensorBonus)
                         sensorBonus = slot.Module.SensorBonus;
 
@@ -443,8 +439,9 @@ namespace Ship_Game
                             weapon = slot.Module.InstalledWeapon;
                         else
                             weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
-                        OrdnanceUsed += weapon.OrdnanceUsagePerSecond;
-                        WeaponPowerNeeded += weapon.BeamPowerCostPerSecond + weapon.PowerRequiredToFire;                        
+
+                        OrdnanceUsed      += weapon.OrdnanceUsagePerSecond;
+                        WeaponPowerNeeded += weapon.PowerFireUsagePerSecond;                        
                     }
                     //end
                     if (slot.Module.FixedTracking > fixedtargets)
@@ -452,34 +449,36 @@ namespace Ship_Game
 
                     targets += slot.Module.TargetTracking;
                 }
-                Cost = Cost + slot.Module.Cost * UniverseScreen.GamePaceStatic;
-                CargoSpace = CargoSpace + slot.Module.Cargo_Capacity;
+                Cost        += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                CargoSpace  += slot.Module.Cargo_Capacity;
             }
 
             targets += fixedtargets;
+            Mass    += (float) (ActiveHull.ModuleSlots.Length / 2f);
+            Mass    *= EmpireManager.Player.data.MassModifier;
 
-            Mass = Mass + (float) (ActiveHull.ModuleSlots.Length / 2f);
-            Mass = Mass * EmpireManager.Player.data.MassModifier;
             if (Mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
-            {
                 Mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
-            }
-            float Speed = 0f;
+
+            float Speed     = 0f;
             float WarpSpeed = WarpThrust / (Mass + 0.1f);
+
             //Added by McShooterz: hull bonus speed
-            WarpSpeed *= EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;
-            float single = WarpSpeed / 1000f;
+            WarpSpeed        *= EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;
+            float single      = WarpSpeed / 1000f;
             string WarpString = string.Concat(single.ToString("#.0"), "k");
-            float Turn = 0f;
+            float Turn        = 0f;
+
             if (Mass > 0f)
             {
                 Speed = Thrust / Mass;
-                Turn = TurnThrust / Mass / 700f;
+                Turn  = TurnThrust / Mass / 700f;
             }
+
             float AfterSpeed = AfterThrust / (Mass + 0.1f);
-            AfterSpeed = AfterSpeed * EmpireManager.Player.data.SubLightModifier;
-            Turn = (float) MathHelper.ToDegrees(Turn);
-            Vector2 Cursor = new Vector2((float) (this.StatsSub.Menu.X + 10), (float) (this.ShipStats.Menu.Y + 33));
+            AfterSpeed      *= EmpireManager.Player.data.SubLightModifier;
+            Turn             = (float) MathHelper.ToDegrees(Turn);
+            Vector2 Cursor   = new Vector2((float) (this.StatsSub.Menu.X + 10), (float) (this.ShipStats.Menu.Y + 33));
 
             void hullBonus(float stat, string text)
             {
@@ -515,13 +514,9 @@ namespace Ship_Game
             Cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
          
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-            {
                 Upkeep = GetMaintCostShipyardProportional(ActiveHull, Cost, EmpireManager.Player);
-            }
             else
-            {
                 Upkeep = GetMaintCostShipyard(ActiveHull, (int)Size, EmpireManager.Player);
-            }
 
             DrawStat(ref Cursor, "Upkeep Cost:", Upkeep, 175);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
@@ -563,7 +558,7 @@ namespace Ship_Game
             }
 
 
-            float fWarpTime = ((-PowerCapacity / fDrawAtWarp) * 0.9f);
+            float fWarpTime  = ((-PowerCapacity / fDrawAtWarp) * 0.9f);
             string sWarpTime = fWarpTime.ToString("0.#");
             if (WarpSpeed > 0)
             {
