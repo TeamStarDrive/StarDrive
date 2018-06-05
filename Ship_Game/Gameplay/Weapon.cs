@@ -186,6 +186,8 @@ namespace Ship_Game.Gameplay
         public static void LoadCorrections(Weapon weapon)
         {
             weapon.BeamDuration = weapon.BeamDuration > 0 ? weapon.BeamDuration : 2f;
+            weapon.fireDelay = Math.Max(0.016f, weapon.fireDelay);
+            weapon.SalvoTimer = Math.Max(0, weapon.SalvoTimer);
             if (weapon.Tag_Missile)
             {
                 if (weapon.WeaponType.IsEmpty()) weapon.WeaponType = "Missile";
@@ -219,14 +221,16 @@ namespace Ship_Game.Gameplay
             return wep;
         }
 
+        [XmlIgnore][JsonIgnore]
         public float NetFireDelay
         {
             get
             {
-                return Math.Max(0.016f, fireDelay + SalvoTimer);
+                return fireDelay + SalvoTimer;
             }
         }
 
+        [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond
         {
             get
@@ -235,6 +239,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        [XmlIgnore][JsonIgnore]
         public float PowerFireUsagePerSecond // only usage during fire, not power maintenance 
         {
             get
