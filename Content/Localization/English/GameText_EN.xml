@@ -4695,8 +4695,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1860</Index>
       <Text>Expansionists</Text>
     </Token>
-
-
+    <!-- Data added in Texas Alpha2 -->
+    <Token>
+      <Index>1990</Index>
+      <Text>This weapon fires more than one projectile per shot. It will also fire this multiple projectiles per Salvo, if it has Salvo fire. A weapon with projectile count of 2 and salvo of 3, for instance, will fire 6 projectiles per salvo</Text>
+    </Token>
     <!-- Data added in Texas Alpha1 -->
     <Token>
       <Index>1991</Index>
@@ -8218,7 +8221,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7033</Index>
-      <Text>Number of projectiles fired</Text>
+      <Text>This weapons fire a salvo of projectiles</Text>
     </Token>
   <Token>
       <Index>7034</Index>
