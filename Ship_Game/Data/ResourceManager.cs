@@ -1817,7 +1817,7 @@ namespace Ship_Game
                 Weapon wep = pair.Entity;
                 wep.UID = String.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
-                Weapon.LoadCorrections(wep);                
+                wep.InitializeTemplate();                
             }
         }
 
