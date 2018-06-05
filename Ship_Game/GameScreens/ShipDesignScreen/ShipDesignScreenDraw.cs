@@ -530,7 +530,10 @@ namespace Ship_Game
             this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), PowerCapacity, 100,
                 Color.LightSkyBlue);
             Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-            this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(111), ":"), (PowerFlow - PowerDraw), 101,
+
+            float powerRecharge = PowerFlow - PowerDraw;
+
+            this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(111), ":"), powerRecharge, 101,
                 Color.LightSkyBlue);
 
             //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
@@ -580,7 +583,7 @@ namespace Ship_Game
             }
 
 
-            float powerconsumed = WeaponPowerNeeded - PowerFlow;
+            float powerconsumed = WeaponPowerNeeded - powerRecharge;
             float EnergyDuration = 0f;
             if (powerconsumed > 0)
             {
