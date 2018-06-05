@@ -223,7 +223,7 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                return fireDelay + SalvoTimer > 0 ? fireDelay + SalvoTimer : 0.016f;
+                return Math.Max(0.016f, fireDelay + SalvoTimer);
             }
         }
 
@@ -232,6 +232,14 @@ namespace Ship_Game.Gameplay
             get
             { 
                 return OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
+            }
+        }
+
+        public float PowerFireUsagePerSecond // only usage during fire, not power maintenance 
+        {
+            get
+            {
+                return BeamPowerCostPerSecond + (PowerRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay);
             }
         }
 
