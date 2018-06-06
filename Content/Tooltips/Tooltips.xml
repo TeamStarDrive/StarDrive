@@ -1220,5 +1220,20 @@
       <Title>Projectiles</Title>
       <Data>1990</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>243</TIP_ID>
+      <Title>Average E.Weapons Power Usage when firing</Title>
+      <Data>1989</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>244</TIP_ID>
+      <Title>Beam Peak Power drain</Title>
+      <Data>1988</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>245</TIP_ID>
+      <Title>Beam Peak Power Time</Title>
+      <Data>1987</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
