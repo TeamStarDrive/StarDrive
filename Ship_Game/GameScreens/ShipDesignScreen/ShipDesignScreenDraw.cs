@@ -331,11 +331,11 @@ namespace Ship_Game
 
         private void DrawShipInfoPanel()
         {
-            float HitPoints = 0f;
+            float hitPoints = 0f;
             float Mass = 0f;
-            float PowerDraw = 0f;
-            float PowerCapacity = 0f;
-            float OrdnanceCap = 0f;
+            float powerDraw = 0f;
+            float powerCapacity = 0f;
+            float ordnanceCap = 0f;
             float PowerFlow = 0f;
             float ShieldPower = 0f;
             float Thrust = 0f;
@@ -350,12 +350,12 @@ namespace Ship_Game
             float WarpDraw = 0f;
             float FTLCount = 0f;
             float FTLSpeed = 0f;
-            float RepairRate = 0f;
+            float repairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
-            float OrdnanceUsed = 0f;
-            float OrdnanceRecoverd = 0f;
-            float WeaponPowerNeeded = 0f;
+            float ordnanceUsed = 0f;
+            float ordnanceRecoverd = 0f;
+            float weaponPowerNeeded = 0f;
             float Upkeep = 0f;
             float FTLSpoolTimer = 0f;
             float EMPResist = 0f;
@@ -364,8 +364,12 @@ namespace Ship_Game
             float Def = 0;
             float strength = 0;
             float targets = 0;
-            int fixedtargets = 0;
+            int fixedTargets = 0;
             float TotalECM = 0f;
+            int numberOfBeams = 0;
+            float beamPeakPowerNeeded = 0f;
+            float beamTotalDuration = 0f;
+            float weaponPowerNeededNoBeams = 0f;
 
             HullBonus bonus = ActiveHull.Bonuses;
 
@@ -376,7 +380,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                HitPoints += slot.Module.ActualMaxHealth;
+                hitPoints += slot.Module.ActualMaxHealth;
                 if (slot.Module.Mass < 0f && slot.InPowerRadius)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)
@@ -392,15 +396,15 @@ namespace Ship_Game
                         Mass += slot.Module.Mass;
                 }
                 TroopCount    += slot.Module.TroopCapacity;
-                PowerCapacity += slot.Module.ActualPowerStoreMax;
-                OrdnanceCap   += (float) slot.Module.OrdinanceCapacity;
+                powerCapacity += slot.Module.ActualPowerStoreMax;
+                ordnanceCap   += (float) slot.Module.OrdinanceCapacity;
                 PowerFlow     += slot.Module.ActualPowerFlowMax;
 
                 if (slot.Module.Powered)
                 {
                     EMPResist    += slot.Module.EMP_Protection;
                     WarpableMass += slot.Module.WarpMassCapacity;
-                    PowerDraw    += slot.Module.PowerDraw;
+                    powerDraw    += slot.Module.PowerDraw;
                     WarpDraw     += slot.Module.PowerDrawAtWarp;
 
                     if (slot.Module.ECM > TotalECM)
@@ -423,8 +427,8 @@ namespace Ship_Game
                     Thrust           += slot.Module.thrust;
                     WarpThrust       += slot.Module.WarpThrust;
                     TurnThrust       += slot.Module.TurnThrust;
-                    RepairRate       += slot.Module.ActualBonusRepairRate;
-                    OrdnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
+                    repairRate       += slot.Module.ActualBonusRepairRate;
+                    ordnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
 
                     if (slot.Module.SensorRange > sensorRange)
                         sensorRange = slot.Module.SensorRange;
@@ -440,12 +444,20 @@ namespace Ship_Game
                         else
                             weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
 
-                        OrdnanceUsed      += weapon.OrdnanceUsagePerSecond;
-                        WeaponPowerNeeded += weapon.PowerFireUsagePerSecond;                        
+                        ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
+                        weaponPowerNeeded += weapon.PowerFireUsagePerSecond; 
+                        if (weapon.isBeam)
+                        {
+                            numberOfBeams       += 1;
+                            beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
+                            beamTotalDuration   += weapon.BeamDuration;
+                        }
+                        else
+                            weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // need non beam weapons power cost to add it the beam peak power cost
                     }
                     //end
-                    if (slot.Module.FixedTracking > fixedtargets)
-                        fixedtargets = slot.Module.FixedTracking;
+                    if (slot.Module.FixedTracking > fixedTargets)
+                        fixedTargets = slot.Module.FixedTracking;
 
                     targets += slot.Module.TargetTracking;
                 }
@@ -453,7 +465,7 @@ namespace Ship_Game
                 CargoSpace  += slot.Module.Cargo_Capacity;
             }
 
-            targets += fixedtargets;
+            targets += fixedTargets;
             Mass    += (float) (ActiveHull.ModuleSlots.Length / 2f);
             Mass    *= EmpireManager.Player.data.MassModifier;
 
@@ -478,7 +490,7 @@ namespace Ship_Game
             float AfterSpeed = AfterThrust / (Mass + 0.1f);
             AfterSpeed      *= EmpireManager.Player.data.SubLightModifier;
             Turn             = (float) MathHelper.ToDegrees(Turn);
-            Vector2 Cursor   = new Vector2((float) (this.StatsSub.Menu.X + 10), (float) (this.ShipStats.Menu.Y + 33));
+            Vector2 Cursor   = new Vector2((float) (StatsSub.Menu.X + 10), (float) (ShipStats.Menu.Y + 33));
 
             void hullBonus(float stat, string text)
             {
@@ -519,21 +531,21 @@ namespace Ship_Game
                 Upkeep = GetMaintCostShipyard(ActiveHull, (int)Size, EmpireManager.Player);
 
             DrawStat(ref Cursor, "Upkeep Cost:", Upkeep, 175);
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             DrawStat(ref Cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
             
 
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
-            this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), PowerCapacity, 100,
+            DrawStatColor(ref Cursor, string.Concat(Localizer.Token(110), ":"), powerCapacity, 100,
                 Color.LightSkyBlue);
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
 
-            float powerRecharge = PowerFlow - PowerDraw;
+            float powerRecharge = PowerFlow - powerDraw;
 
-            this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(111), ":"), powerRecharge, 101,
+            DrawStatColor(ref Cursor, string.Concat(Localizer.Token(111), ":"), powerRecharge, 101,
                 Color.LightSkyBlue);
 
             //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
@@ -541,101 +553,116 @@ namespace Ship_Game
             if (WarpDraw != 0)
             {
                 fDrawAtWarp = (PowerFlow - (WarpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
-                                            (PowerDraw * EmpireManager.Player.data.FTLPowerDrainModifier)));
+                                            (powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier)));
                 if (WarpSpeed > 0)
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
                         Color.LightSkyBlue);
                 }
             }
             else
             {
-                fDrawAtWarp = (PowerFlow - PowerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
+                fDrawAtWarp = (PowerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
                 if (WarpSpeed > 0)
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
                         Color.LightSkyBlue);
                 }
             }
 
-
-            float fWarpTime  = ((-PowerCapacity / fDrawAtWarp) * 0.9f);
+            float fWarpTime  = ((-powerCapacity / fDrawAtWarp) * 0.9f);
             string sWarpTime = fWarpTime.ToString("0.#");
             if (WarpSpeed > 0)
             {
                 if (fDrawAtWarp < 0)
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy(ref Cursor, "FTL Time:", sWarpTime, 176);
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "FTL Time:", sWarpTime, 176);
                 }
                 else if (fWarpTime > 900)
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
                 }
                 else
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
                 }
             }
 
+            if (bEnergyWeapons == true)
+            {
+                float powerConsumed = weaponPowerNeeded - powerRecharge;
+                if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
+                {
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatColor(ref Cursor, "Avg E.Wpn Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
+                    float EnergyDuration = 0f;
+                    EnergyDuration       = powerCapacity / powerConsumed;
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatColor(ref Cursor, "Power Time:", EnergyDuration, 163, Color.LightSkyBlue);
+                }
+                else
+                {
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "Power Time:", "INF", 163);
+                }
+            }
 
-            float powerconsumed = WeaponPowerNeeded - powerRecharge;
-            float EnergyDuration = 0f;
-            if (powerconsumed > 0)
+            if (numberOfBeams > 0) // show relevant peak power consumption calcs if beams are present
             {
-                EnergyDuration = WeaponPowerNeeded > 0 ? ((PowerCapacity) / powerconsumed) : 0;
-                if ((EnergyDuration >= 0) && bEnergyWeapons == true)
+                float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
+                if (powerConsumedWithBeams > 0) // There is power drain from ship's reserves when firing its energy weapons + peak beam cost after taking into acount recharge 
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatColor(ref Cursor, "Power Time:", EnergyDuration, 163, Color.LightSkyBlue);
-                }
-                else if (bEnergyWeapons == true)
-                {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergyBad(ref Cursor, "Power Time:", EnergyDuration.ToString("N1"), 163);
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatColor(ref Cursor, "Peak Beam Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
+                    float averageBeamDuration = beamTotalDuration / numberOfBeams;
+                    float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
+                    if (peakEnergyDuration < averageBeamDuration)
+                    {
+                        Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                        DrawStatColor(ref Cursor, "Beam Peak Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
+                    }
+                    else
+                    {
+                        Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                        DrawStatEnergy(ref Cursor, "Beam Peak Pwr Time:", "INF", 245);
+                    }
                 }
             }
-            else
-            {
-                if (bEnergyWeapons == true)
-                {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatEnergy(ref Cursor, "Power Time:", "INF", 163);
-                }
-            }
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
-            this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(113), ":"), HitPoints, 103, Color.Goldenrod);
+
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
+            DrawStatColor(ref Cursor, string.Concat(Localizer.Token(113), ":"), hitPoints, 103, Color.Goldenrod);
             //Added by McShooterz: draw total repair
-            if (RepairRate > 0)
+            if (repairRate > 0)
             {
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6013), ":"), RepairRate, 236,
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6013), ":"), repairRate, 236,
                     Color.Goldenrod);
             }
             if (ShieldPower > 0)
             {
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(114), ":"), ShieldPower, 104,
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(114), ":"), ShieldPower, 104,
                     Color.Goldenrod);
             }
             if (EMPResist > 0)
             {
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6177), ":"), EMPResist, 220,
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6177), ":"), EMPResist, 220,
                     Color.Goldenrod);
             }
             if (TotalECM > 0)
             {
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), TotalECM, 234,
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), TotalECM, 234,
                     Color.Goldenrod, isPercent: true);
             }
 
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
             
 
             #region HardcoreRule info
@@ -647,20 +674,20 @@ namespace Ship_Game
                 string warpmassstring = string.Concat(massstring, "/", wmassstring);
                 if (Mass > WarpableMass)
                 {
-                    this.DrawStatBad(ref Cursor, "Warpable Mass:", warpmassstring, 153);
+                    DrawStatBad(ref Cursor, "Warpable Mass:", warpmassstring, 153);
                 }
                 else
                 {
-                    this.DrawStat(ref Cursor, "Warpable Mass:", warpmassstring, 153);
+                    DrawStat(ref Cursor, "Warpable Mass:", warpmassstring, 153);
                 }
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawRequirement(ref Cursor, "Warp Capable", Mass <= WarpableMass);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawRequirement(ref Cursor, "Warp Capable", Mass <= WarpableMass);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                 if (FTLCount > 0f)
                 {
                     float speed = FTLSpeed / FTLCount;
-                    this.DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), speed, 135);
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), speed, 135);
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
 
@@ -668,83 +695,83 @@ namespace Ship_Game
 
             else if (WarpSpeed <= 0f)
             {
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135, Color.DarkSeaGreen);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135, Color.DarkSeaGreen);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             else
             {
-                this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (WarpSpeed > 0 && FTLSpoolTimer > 0)
             {
-                this.DrawStatColor(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177, Color.DarkSeaGreen);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177, Color.DarkSeaGreen);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
 
             float modifiedSpeed = Speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             DrawStatColor(ref Cursor, string.Concat(Localizer.Token(116), ":"), modifiedSpeed, 105, Color.DarkSeaGreen);
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
             if (AfterSpeed != 0)
             {
-                this.DrawStatColor(ref Cursor, "Afterburner Speed:", AfterSpeed, 105, Color.DarkSeaGreen);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, "Afterburner Speed:", AfterSpeed, 105, Color.DarkSeaGreen);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(117), ":"), Turn, 107, Color.DarkSeaGreen);
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
-            if (OrdnanceCap > 0)
+            DrawStatColor(ref Cursor, string.Concat(Localizer.Token(117), ":"), Turn, 107, Color.DarkSeaGreen);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
+            if (ordnanceCap > 0)
             {
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(118), ":"), OrdnanceCap, 108,
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(118), ":"), ordnanceCap, 108,
                     Color.IndianRed);
             }
-            if (OrdnanceRecoverd > 0)
+            if (ordnanceRecoverd > 0)
             {
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatColor(ref Cursor, "Ordnance Created / s:", OrdnanceRecoverd, 162, Color.IndianRed);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, "Ordnance Created / s:", ordnanceRecoverd, 162, Color.IndianRed);
             }
-            if (OrdnanceCap > 0)
+            if (ordnanceCap > 0)
             {
                 float AmmoTime = 0f;
-                if (OrdnanceUsed - OrdnanceRecoverd > 0)
+                if (ordnanceUsed - ordnanceRecoverd > 0)
                 {
-                    AmmoTime = OrdnanceCap / (OrdnanceUsed - OrdnanceRecoverd);
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatColor(ref Cursor, "Ammo Time:", AmmoTime, 164, Color.IndianRed);
+                    AmmoTime = ordnanceCap / (ordnanceUsed - ordnanceRecoverd);
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatColor(ref Cursor, "Ammo Time:", AmmoTime, 164, Color.IndianRed);
                 }
                 else
                 {
-                    Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    this.DrawStatOrdnance(ref Cursor, "Ammo Time:", "INF", 164);
+                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatOrdnance(ref Cursor, "Ammo Time:", "INF", 164);
                 }
             }
             if (TroopCount > 0)
             {
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6132), ":"), (float) TroopCount, 180,
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6132), ":"), (float) TroopCount, 180,
                     Color.IndianRed);
             }
 
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 10);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
             if (CargoSpace > 0)
             {
                 DrawStat(ref Cursor, string.Concat(Localizer.Token(119), ":"), CargoSpace * bonus.CargoModifier, 109);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (sensorRange != 0)
             {
                 float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (targets > 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6188), ":"), ((targets + 1f)), 232);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStat(ref Cursor, string.Concat(Localizer.Token(6188), ":"), ((targets + 1f)), 232);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
 
-            Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing);
+            Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing);
             bool hasBridge = false;
             bool emptySlots = true;
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
@@ -765,17 +792,17 @@ namespace Ship_Game
             strength = (Def > Off ? Off * 2 : Def + Off);
             if (strength > 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
-                Cursor.Y = Cursor.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawStat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
+                Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            Vector2 CursorReq = new Vector2((float) (this.StatsSub.Menu.X - 180),
-                (float) (this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
-            if (this.ActiveHull.Role != ShipData.RoleName.platform)
+            Vector2 CursorReq = new Vector2((float) (StatsSub.Menu.X - 180),
+                (float) (ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
+            if (ActiveHull.Role != ShipData.RoleName.platform)
             {
-                this.DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
+                DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
                 CursorReq.Y = CursorReq.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            this.DrawRequirement(ref CursorReq, Localizer.Token(121), emptySlots);
+            DrawRequirement(ref CursorReq, Localizer.Token(121), emptySlots);
         }
 
        public void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color

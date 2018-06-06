@@ -4697,6 +4697,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1987</Index>
+      <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during the average beam duration times of the ship</Text>
+    </Token>
+    <Token>
+      <Index>1988</Index>
+      <Text>This indicates that there is a net powerdrain from the ship's reseves (after considering power recharge) if all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
+    </Token>    
+    <Token>
+      <Index>1989</Index>
+      <Text>This indicates that there is a net powerdrain from the ship's reseves (after considering power recharge) if all the ship's energy weapons are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
+    </Token>
+    <Token>
       <Index>1990</Index>
       <Text>This weapon fires more than one projectile per shot. It will also fire this multiple projectiles per Salvo, if it has Salvo fire. A weapon with projectile count of 2 and salvo of 3, for instance, will fire 6 projectiles per salvo</Text>
     </Token>
@@ -8137,7 +8149,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on average power usage when firing</Text>
     </Token>
     <Token>
       <Index>7013</Index>

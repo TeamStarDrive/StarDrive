@@ -244,7 +244,7 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                return (BeamPowerCostPerSecond * BeamDuration * 2 + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
+                return (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
             }
         }
 
