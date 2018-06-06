@@ -741,7 +741,7 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic > 0)
             {
                 float totalConsumption = Consumption + desiredSurplus - PlusFlatProductionPerTurn;
-                float totalPopulation = (Population / 1000) + 0.0000001f; ;
+                float totalPopulation = (Population / 1000);
                 float totalProductionRate = (1 - Owner.data.TaxRate);
 
                 if (totalConsumption == 0 || totalPopulation == 0 || totalProductionRate == 0) return 0.0f; //No divide by 0
@@ -1540,6 +1540,40 @@ namespace Ship_Game
             return total;
         }
 
+        private float CalculateWorkForce (float minValue, float storageRatio, float breakPoint)
+        {
+            if (minValue == 0) return 0.0f;
+
+            if (storageRatio <= breakPoint)
+                minValue += minValue * (1 - storageRatio);   //Nice smooth changes in output
+            else
+                minValue += minValue * ((1 - storageRatio) * 0.5f); //Much less agressive when higher than breakpoint
+
+            if (minValue > 1.0f) minValue = 1.0f;
+            if (minValue < 0.05f) minValue = 0.05f; //Avoid the crazy small worker percentages
+            return minValue;
+        }
+
+        private bool workerFillStorage(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
+        {
+            float storedFoodRatio = FoodHere / (MaxStorage + 0.0001f);
+            float storedProdRatio = ProductionHere / (MaxStorage + 0.0001f);
+            if (Fertility + PlusFoodPerColonist <= 0.1 || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
+
+            if (storedFoodRatio < percentage)  //Note that this will try to fill food first, then Production
+            {
+                FarmerPercentage += workers;
+                return true;
+            }
+            else if (storedProdRatio < percentage)
+            {
+                WorkerPercentage += workers;
+                return true;
+            }
+
+            return false;
+        }
+
         public void DoGoverning()
         {
             if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!
@@ -1559,14 +1593,18 @@ namespace Ship_Game
                     break;
                 }
             }
-
-            bool StuffInQueueToBuild = ConstructionQueue.Count > 5;
-            bool ForgetReseachAndBuild =
-                string.IsNullOrEmpty(Owner.ResearchTopic) || StuffInQueueToBuild ||
+            bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
+            bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
+            bool littleInQueueToBuild = ConstructionQueue.Count >= 1;
+            float storedProductionRatio = ProductionHere / (MaxStorage + 0.0001f);
+            float storedFoodRatio = FoodHere / (MaxStorage + 0.00001f);
+            float foodMinimum = CalculateFarmerPercentForSurplus(0);
+            bool ForgetReseachAndBuild = 
+                notResearching || lotsInQueueToBuild ||
                 (DevelopmentLevel < 3 && (ProductionHere + 1) / (MaxStorage + 1) < .5f);
 
-            //Switch to Industrial if there is nothing in the research queue -- Is this really a good idea to change the governor type?
-            if (colonyType == ColonyType.Research && string.IsNullOrEmpty(Owner.ResearchTopic))
+            //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
+            if (colonyType == ColonyType.Research && notResearching)
                 colonyType = ColonyType.Industrial;
 
             //If there is no Outpost or Capital, build it
@@ -1581,47 +1619,45 @@ namespace Ship_Game
 
                 #region Core
                 {
+                    float surplus = 0;
+
+                    if (Owner.data.Traits.Cybernetic > 0)
                     {
-                        float surplus = 0;
+                        surplus = GrossProductionPerTurn - Consumption;
+                        surplus = surplus * (notResearching ? 1 : .5f) *
+                                    (1 - (ProductionHere + 1) / (MaxStorage + 1));
+                    }
+                    else
+                    {
+                        surplus = (NetFoodPerTurn * (notResearching ? 1 : .5f)) *
+                                                                (1 - (FoodHere + 1) / (MaxStorage + 1));
+                    }
 
-                        if (Owner.data.Traits.Cybernetic > 0)
-                        {
-                            surplus = GrossProductionPerTurn - Consumption;
-                            surplus = surplus * ((string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) *
-                                      (1 - (ProductionHere + 1) / (MaxStorage + 1));
-                        }
-                        else
-                        {
-                            surplus = (NetFoodPerTurn * (string.IsNullOrEmpty(Owner.ResearchTopic) ? 1 : .5f)) *
-                                                                    (1 - (FoodHere + 1) / (MaxStorage + 1));
-                        }
+                    //Try and work out a surplus
+                    FarmerPercentage = CalculateFarmerPercentForSurplus(surplus);
+                    //If that requires too much, then try again without the surplus
+                    if (FarmerPercentage == 1 && lotsInQueueToBuild)
+                        FarmerPercentage = CalculateFarmerPercentForSurplus(0);
+                    //If it still needs all of the workers, reserve a small amount for other tasks.
+                    if (FarmerPercentage == 1 && lotsInQueueToBuild)
+                        FarmerPercentage = .9f;
 
-                        //Try and work out a surplus
-                        FarmerPercentage = CalculateFarmerPercentForSurplus(surplus);
-                        //If that requires too much, then try again without the surplus
-                        if (FarmerPercentage == 1 && StuffInQueueToBuild)
-                            FarmerPercentage = CalculateFarmerPercentForSurplus(0);
-                        //If it still needs all of the workers, reserve a small amount for other tasks.
-                        if (FarmerPercentage == 1 && StuffInQueueToBuild)
-                            FarmerPercentage = .9f;
+                    WorkerPercentage =
+                        (1f - FarmerPercentage) *
+                        (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
 
-                        WorkerPercentage =
-                            (1f - FarmerPercentage) *
-                            (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-
-                        float Remainder = 1f - FarmerPercentage;
-                        //Research is happening
-                        WorkerPercentage = (Remainder * (string.IsNullOrEmpty(Owner.ResearchTopic)
-                                                ? 1
-                                                : (1 - (ProductionHere) / (MaxStorage))));
-                        if (ProductionHere / MaxStorage > .9 && !StuffInQueueToBuild)
-                            WorkerPercentage = 0;
-                        ResearcherPercentage = Remainder - WorkerPercentage;
-                        if (Owner.data.Traits.Cybernetic > 0)
-                        {
-                            WorkerPercentage += FarmerPercentage;
-                            FarmerPercentage = 0;
-                        }
+                    float Remainder = 1f - FarmerPercentage;
+                    //Research is happening
+                    WorkerPercentage = (Remainder * (notResearching
+                                            ? 1
+                                            : (1 - (ProductionHere) / (MaxStorage))));
+                    if (ProductionHere / MaxStorage > .9 && !lotsInQueueToBuild)
+                        WorkerPercentage = 0;
+                    ResearcherPercentage = Remainder - WorkerPercentage;
+                    if (Owner.data.Traits.Cybernetic > 0)
+                    {
+                        WorkerPercentage += FarmerPercentage;
+                        FarmerPercentage = 0;
                     }
 
                     SetExportState(colonyType);
@@ -1719,8 +1755,7 @@ namespace Ship_Game
                     WorkerPercentage = 1f;
                     ResearcherPercentage = 0.0f;
                     float IndySurplus =
-                        (NetFoodPerTurn) * 
-                        (1 - (FoodHere + 1) / (MaxStorage + 1));
+                        (NetFoodPerTurn) * (1 - (FoodHere + 1) / (MaxStorage + 1));
                     if (Owner.data.Traits.Cybernetic > 0)
                     {
                         IndySurplus = GrossProductionPerTurn - Consumption;
@@ -1729,12 +1764,12 @@ namespace Ship_Game
                 {
                     FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
                     FarmerPercentage *= (FoodHere / MaxStorage) > .25 ? .5f : 1;
-                    if (FarmerPercentage == 1 && StuffInQueueToBuild)
+                    if (FarmerPercentage == 1 && lotsInQueueToBuild)
                         FarmerPercentage = CalculateFarmerPercentForSurplus(0);
                     WorkerPercentage =
                         (1f - FarmerPercentage) 
                         * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-                    if (ProductionHere / MaxStorage > .75 && !StuffInQueueToBuild)
+                    if (ProductionHere / MaxStorage > .75 && !lotsInQueueToBuild)
                         WorkerPercentage = 0;
 
                     ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
@@ -1790,15 +1825,14 @@ namespace Ship_Game
                     WorkerPercentage = 0.0f;
                     ResearcherPercentage = 1f;
                   
-                    ForgetReseachAndBuild =
-                        string.IsNullOrEmpty(Owner.ResearchTopic); 
+                    ForgetReseachAndBuild = notResearching; 
                     IndySurplus = (NetFoodPerTurn) * ((MaxStorage - FoodHere * 2f) / MaxStorage);
                     
                     FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
 
                     WorkerPercentage = (1f - FarmerPercentage);
 
-                    if (StuffInQueueToBuild)
+                    if (lotsInQueueToBuild)
                         WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage) / DevelopmentLevel;
                     else
                         WorkerPercentage = 0;
@@ -1865,18 +1899,17 @@ namespace Ship_Game
                     ResearcherPercentage = 0.0f;
 
                     SetExportState(colonyType);
-                    StuffInQueueToBuild = ConstructionQueue.Where(building =>
+                    lotsInQueueToBuild = ConstructionQueue.Where(building =>
                                                   building.isBuilding || (building.Cost > NetProductionPerTurn * 10))
                                               .Count() > 0;
-                    ForgetReseachAndBuild =
-                        string.IsNullOrEmpty(Owner.ResearchTopic); //? 1 : .5f;
+                    ForgetReseachAndBuild = notResearching; //? 1 : .5f;
                     IndySurplus = (NetFoodPerTurn) * ((MaxStorage - FoodHere) / MaxStorage);
 
                     FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
 
                     WorkerPercentage = (1f - FarmerPercentage);
 
-                    if (StuffInQueueToBuild)
+                    if (lotsInQueueToBuild)
                         WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage);
                     else
                         WorkerPercentage = 0;
@@ -1939,7 +1972,7 @@ namespace Ship_Game
 
                     WorkerPercentage = (1f - FarmerPercentage);
 
-                    if (StuffInQueueToBuild)
+                    if (lotsInQueueToBuild)
                         WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage);
                     else
                         WorkerPercentage = 0;
@@ -2011,36 +2044,109 @@ namespace Ship_Game
                     #region TradeHub
 
                 {
-                    FarmerPercentage = 0.0f;
-                    WorkerPercentage = 1f;
-                    ResearcherPercentage = 0.0f;
-                    PS = ProductionHere >= 20 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
-                    float IndySurplus2 =
-                        (NetFoodPerTurn) * 
-                        (1 - (FoodHere + 1) / (MaxStorage + 1));
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        IndySurplus = GrossProductionPerTurn - Consumption;
-                        IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));                        
-                    }
-                    
-                    {
-                        FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus2);
-                        if (FarmerPercentage == 1 && StuffInQueueToBuild)
-                            FarmerPercentage = CalculateFarmerPercentForSurplus(0);
-                        WorkerPercentage =
-                            (1f - FarmerPercentage) 
-                            * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-                        if (ProductionHere / MaxStorage > .75 && !StuffInQueueToBuild)
-                            WorkerPercentage = 0;
-                        ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
-                        if (Owner.data.Traits.Cybernetic > 0)
+                        FarmerPercentage = foodMinimum;
+                        WorkerPercentage = 0.0f;
+                        ResearcherPercentage = 0.0f;
+
+                        if (FarmerPercentage >= 0.90f) FarmerPercentage = 0.90f;  //Dont let Farming consume all labor
+
+                        float leftoverWorkers = 1 - FarmerPercentage;
+                        float allocateWorkers = 0.0f;
+                        if (leftoverWorkers > 0.0)
                         {
-                            WorkerPercentage += FarmerPercentage;
-                            FarmerPercentage = 0;
+                            allocateWorkers = 0.0f; //Reuse temporary variable
+                            if (leftoverWorkers > 0.1)  //Allocate some or all of them, maybe leaving more for different priorities below
+                            {
+                                allocateWorkers = 0.1f;
+                                leftoverWorkers -= 0.1f;
+                            }
+                            else
+                            {
+                                allocateWorkers = leftoverWorkers;
+                                leftoverWorkers = 0.0f;
+                            }
+
+                            if      (littleInQueueToBuild)    WorkerPercentage += allocateWorkers;  //First priority project for this group is build shit
+                            else if (workerFillStorage(allocateWorkers, 0.33f));                    //Second priority is to fill storage to 33%
+                            else if (workerFillStorage(allocateWorkers, 0.66f));                    //Third is fill to 66%
+                            else if (workerFillStorage(allocateWorkers, 0.90f));                    //You get the idea
+                            else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                            else ResearcherPercentage += allocateWorkers;                           //Last priority is research, or top off storage if no research
                         }
-                        SetExportState(colonyType);
-                    }
+
+                        if (leftoverWorkers > 0.0)  //If there are more leftover Workers, then we can divide them into groups for different tasks
+                        {
+                            allocateWorkers = 0.0f;
+                            if (leftoverWorkers > 0.15)
+                            {
+                                allocateWorkers = 0.15f;
+                                leftoverWorkers -= 0.15f;
+                            }
+                            else
+                            {
+                                allocateWorkers = leftoverWorkers;
+                                leftoverWorkers = 0.0f;
+                            }
+
+                            if      (lotsInQueueToBuild) WorkerPercentage += allocateWorkers;
+                            else if (workerFillStorage(allocateWorkers, 0.50f));
+                            else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                            else     ResearcherPercentage += allocateWorkers; 
+
+                        }
+
+                        if (leftoverWorkers > 0.0)  //If there are more leftover Workers, then we can divide them into groups for different tasks
+                        {
+                            allocateWorkers = 0.0f;
+                            if (leftoverWorkers > 0.25)
+                            {
+                                allocateWorkers = 0.25f;
+                                leftoverWorkers -= 0.25f;
+                            }
+                            else
+                            {
+                                allocateWorkers = leftoverWorkers;
+                                leftoverWorkers = 0.0f;
+                            }
+
+                            if (littleInQueueToBuild) WorkerPercentage += allocateWorkers;
+                            else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                            else ResearcherPercentage += allocateWorkers;
+
+                        }
+
+                        break;
+
+                            FarmerPercentage = 0.0f;
+                            WorkerPercentage = 1f;
+                            ResearcherPercentage = 0.0f;
+                            PS = ProductionHere >= 20 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                            float IndySurplus2 =
+                                (NetFoodPerTurn) *
+                                (1 - (FoodHere + 1) / (MaxStorage + 1));
+                            if (Owner.data.Traits.Cybernetic > 0)
+                            {
+                                IndySurplus = GrossProductionPerTurn - Consumption;
+                                IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));
+                            }
+
+                            {
+                                FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus2);
+                                if (FarmerPercentage == 1 && lotsInQueueToBuild)
+                                    FarmerPercentage = CalculateFarmerPercentForSurplus(0);
+                                WorkerPercentage =
+                                    (1f - FarmerPercentage)
+                                    * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
+                                if (ProductionHere / MaxStorage > .75 && !lotsInQueueToBuild)
+                                    WorkerPercentage = 0;
+                                ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
+                                if (Owner.data.Traits.Cybernetic > 0)
+                                {
+                                    WorkerPercentage += FarmerPercentage;
+                                    FarmerPercentage = 0;
+                                }
+                                SetExportState(colonyType);
+                            }
                     break;
                 }
 
