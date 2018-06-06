@@ -336,36 +336,36 @@ namespace Ship_Game
             float powerDraw = 0f;
             float powerCapacity = 0f;
             float ordnanceCap = 0f;
-            float PowerFlow = 0f;
-            float ShieldPower = 0f;
-            float Thrust = 0f;
-            float AfterThrust = 0f;
-            float CargoSpace = 0f;
-            int TroopCount = 0;
-            float Size = 0f;
-            float Cost = 0f;
-            float WarpThrust = 0f;
-            float TurnThrust = 0f;
-            float WarpableMass = 0f;
-            float WarpDraw = 0f;
-            float FTLCount = 0f;
-            float FTLSpeed = 0f;
+            float powerFlow = 0f;
+            float shieldPower = 0f;
+            float thrust = 0f;
+            float afterThrust = 0f;
+            float cargoSpace = 0f;
+            int troopCount = 0;
+            float size = 0f;
+            float cost = 0f;
+            float warpThrust = 0f;
+            float turnThrust = 0f;
+            float warpableMass = 0f;
+            float warpDraw = 0f;
+            float warpCount = 0f;
+            float warpSpeed = 0f;
             float repairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
             float ordnanceUsed = 0f;
             float ordnanceRecoverd = 0f;
             float weaponPowerNeeded = 0f;
-            float Upkeep = 0f;
-            float FTLSpoolTimer = 0f;
-            float EMPResist = 0f;
+            float upkeep = 0f;
+            float warpSpoolTimer = 0f;
+            float empResist = 0f;
             bool bEnergyWeapons = false;
-            float Off = 0f;
-            float Def = 0;
+            float offense = 0f;
+            float defense = 0;
             float strength = 0;
             float targets = 0;
             int fixedTargets = 0;
-            float TotalECM = 0f;
+            float totalECM = 0f;
             int numberOfBeams = 0;
             float beamPeakPowerNeeded = 0f;
             float beamTotalDuration = 0f;
@@ -375,7 +375,7 @@ namespace Ship_Game
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                Size += 1f;
+                size += 1f;
                 if (slot.Module == null)
                 {
                     continue;
@@ -395,38 +395,38 @@ namespace Ship_Game
                     else
                         Mass += slot.Module.Mass;
                 }
-                TroopCount    += slot.Module.TroopCapacity;
+                troopCount    += slot.Module.TroopCapacity;
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += (float) slot.Module.OrdinanceCapacity;
-                PowerFlow     += slot.Module.ActualPowerFlowMax;
+                powerFlow     += slot.Module.ActualPowerFlowMax;
 
                 if (slot.Module.Powered)
                 {
-                    EMPResist    += slot.Module.EMP_Protection;
-                    WarpableMass += slot.Module.WarpMassCapacity;
+                    empResist    += slot.Module.EMP_Protection;
+                    warpableMass += slot.Module.WarpMassCapacity;
                     powerDraw    += slot.Module.PowerDraw;
-                    WarpDraw     += slot.Module.PowerDrawAtWarp;
+                    warpDraw     += slot.Module.PowerDrawAtWarp;
 
-                    if (slot.Module.ECM > TotalECM)
-                        TotalECM = slot.Module.ECM;
+                    if (slot.Module.ECM > totalECM)
+                        totalECM = slot.Module.ECM;
                     if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
                         bEnergyWeapons = true;
                     if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.BeamPowerCostPerSecond > 0)
                         bEnergyWeapons = true;
                     if (slot.Module.FTLSpeed > 0f)
                     {
-                        FTLCount = FTLCount + 1f;
-                        FTLSpeed = FTLSpeed + slot.Module.FTLSpeed;
+                        warpCount += 1f;
+                        warpSpeed += slot.Module.FTLSpeed;
                     }
-                    if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > FTLSpoolTimer)
+                    if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
                     {
-                        FTLSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
+                        warpSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
                     }
 
-                    ShieldPower      += slot.Module.ActualShieldPowerMax;
-                    Thrust           += slot.Module.thrust;
-                    WarpThrust       += slot.Module.WarpThrust;
-                    TurnThrust       += slot.Module.TurnThrust;
+                    shieldPower      += slot.Module.ActualShieldPowerMax;
+                    thrust           += slot.Module.thrust;
+                    warpThrust       += slot.Module.WarpThrust;
+                    turnThrust       += slot.Module.TurnThrust;
                     repairRate       += slot.Module.ActualBonusRepairRate;
                     ordnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
 
@@ -445,7 +445,7 @@ namespace Ship_Game
                             weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
 
                         ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
-                        weaponPowerNeeded += weapon.PowerFireUsagePerSecond; 
+                        weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
                         if (weapon.isBeam)
                         {
                             numberOfBeams       += 1;
@@ -453,7 +453,7 @@ namespace Ship_Game
                             beamTotalDuration   += weapon.BeamDuration;
                         }
                         else
-                            weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // need non beam weapons power cost to add it the beam peak power cost
+                            weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // need non beam weapons power cost to add to the beam peak power cost
                     }
                     //end
                     if (slot.Module.FixedTracking > fixedTargets)
@@ -461,8 +461,8 @@ namespace Ship_Game
 
                     targets += slot.Module.TargetTracking;
                 }
-                Cost        += slot.Module.Cost * UniverseScreen.GamePaceStatic;
-                CargoSpace  += slot.Module.Cargo_Capacity;
+                cost        += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                cargoSpace  += slot.Module.Cargo_Capacity;
             }
 
             targets += fixedTargets;
@@ -473,7 +473,7 @@ namespace Ship_Game
                 Mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
 
             float Speed     = 0f;
-            float WarpSpeed = WarpThrust / (Mass + 0.1f);
+            float WarpSpeed = warpThrust / (Mass + 0.1f);
 
             //Added by McShooterz: hull bonus speed
             WarpSpeed        *= EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;
@@ -483,11 +483,11 @@ namespace Ship_Game
 
             if (Mass > 0f)
             {
-                Speed = Thrust / Mass;
-                Turn  = TurnThrust / Mass / 700f;
+                Speed = thrust / Mass;
+                Turn  = turnThrust / Mass / 700f;
             }
 
-            float AfterSpeed = AfterThrust / (Mass + 0.1f);
+            float AfterSpeed = afterThrust / (Mass + 0.1f);
             AfterSpeed      *= EmpireManager.Player.data.SubLightModifier;
             Turn             = (float) MathHelper.ToDegrees(Turn);
             Vector2 Cursor   = new Vector2((float) (StatsSub.Menu.X + 10), (float) (ShipStats.Menu.Y + 33));
@@ -522,15 +522,15 @@ namespace Ship_Game
             Cursor = EndLayout();
             //Added by McShooterz: hull bonus starting cost
             DrawStat(ref Cursor, Localizer.Token(109) + ":",
-                ((int) Cost + bonus.StartingCost) * (1f - bonus.CostBonus), 99);
+                ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus), 99);
             Cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
          
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                Upkeep = GetMaintCostShipyardProportional(ActiveHull, Cost, EmpireManager.Player);
+                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player);
             else
-                Upkeep = GetMaintCostShipyard(ActiveHull, (int)Size, EmpireManager.Player);
+                upkeep = GetMaintCostShipyard(ActiveHull, (int)size, EmpireManager.Player);
 
-            DrawStat(ref Cursor, "Upkeep Cost:", Upkeep, 175);
+            DrawStat(ref Cursor, "Upkeep Cost:", upkeep, 175);
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             DrawStat(ref Cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
             Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -543,16 +543,16 @@ namespace Ship_Game
                 Color.LightSkyBlue);
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
 
-            float powerRecharge = PowerFlow - powerDraw;
+            float powerRecharge = powerFlow - powerDraw;
 
             DrawStatColor(ref Cursor, string.Concat(Localizer.Token(111), ":"), powerRecharge, 101,
                 Color.LightSkyBlue);
 
             //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
             float fDrawAtWarp = 0;
-            if (WarpDraw != 0)
+            if (warpDraw != 0)
             {
-                fDrawAtWarp = (PowerFlow - (WarpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
+                fDrawAtWarp = (powerFlow - (warpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
                                             (powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier)));
                 if (WarpSpeed > 0)
                 {
@@ -563,33 +563,12 @@ namespace Ship_Game
             }
             else
             {
-                fDrawAtWarp = (PowerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
+                fDrawAtWarp = (powerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
                 if (WarpSpeed > 0)
                 {
                     Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                     DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
                         Color.LightSkyBlue);
-                }
-            }
-
-            float fWarpTime  = ((-powerCapacity / fDrawAtWarp) * 0.9f);
-            string sWarpTime = fWarpTime.ToString("0.#");
-            if (WarpSpeed > 0)
-            {
-                if (fDrawAtWarp < 0)
-                {
-                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    DrawStatEnergy(ref Cursor, "FTL Time:", sWarpTime, 176);
-                }
-                else if (fWarpTime > 900)
-                {
-                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
-                }
-                else
-                {
-                    Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                    DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
                 }
             }
 
@@ -634,6 +613,27 @@ namespace Ship_Game
                 }
             }
 
+            float fWarpTime = ((-powerCapacity / fDrawAtWarp) * 0.9f);
+            string sWarpTime = fWarpTime.ToString("0.#");
+            if (WarpSpeed > 0)
+            {
+                if (fDrawAtWarp < 0)
+                {
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "FTL Time:", sWarpTime, 176);
+                }
+                else if (fWarpTime > 900)
+                {
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
+                }
+                else
+                {
+                    Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    DrawStatEnergy(ref Cursor, "FTL Time:", "INF", 176);
+                }
+            }
+
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
             DrawStatColor(ref Cursor, string.Concat(Localizer.Token(113), ":"), hitPoints, 103, Color.Goldenrod);
             //Added by McShooterz: draw total repair
@@ -643,22 +643,22 @@ namespace Ship_Game
                 DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6013), ":"), repairRate, 236,
                     Color.Goldenrod);
             }
-            if (ShieldPower > 0)
+            if (shieldPower > 0)
             {
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(114), ":"), ShieldPower, 104,
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(114), ":"), shieldPower, 104,
                     Color.Goldenrod);
             }
-            if (EMPResist > 0)
+            if (empResist > 0)
             {
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6177), ":"), EMPResist, 220,
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6177), ":"), empResist, 220,
                     Color.Goldenrod);
             }
-            if (TotalECM > 0)
+            if (totalECM > 0)
             {
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), TotalECM, 234,
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), totalECM, 234,
                     Color.Goldenrod, isPercent: true);
             }
 
@@ -670,9 +670,9 @@ namespace Ship_Game
             if (GlobalStats.HardcoreRuleset)
             {
                 string massstring = GetNumberString(Mass);
-                string wmassstring = GetNumberString(WarpableMass);
+                string wmassstring = GetNumberString(warpableMass);
                 string warpmassstring = string.Concat(massstring, "/", wmassstring);
-                if (Mass > WarpableMass)
+                if (Mass > warpableMass)
                 {
                     DrawStatBad(ref Cursor, "Warpable Mass:", warpmassstring, 153);
                 }
@@ -681,11 +681,11 @@ namespace Ship_Game
                     DrawStat(ref Cursor, "Warpable Mass:", warpmassstring, 153);
                 }
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawRequirement(ref Cursor, "Warp Capable", Mass <= WarpableMass);
+                DrawRequirement(ref Cursor, "Warp Capable", Mass <= warpableMass);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                if (FTLCount > 0f)
+                if (warpCount > 0f)
                 {
-                    float speed = FTLSpeed / FTLCount;
+                    float speed = warpSpeed / warpCount;
                     DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), speed, 135);
                     Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                 }
@@ -703,9 +703,9 @@ namespace Ship_Game
                 DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            if (WarpSpeed > 0 && FTLSpoolTimer > 0)
+            if (WarpSpeed > 0 && warpSpoolTimer > 0)
             {
-                DrawStatColor(ref Cursor, "FTL Spool:", FTLSpoolTimer, 177, Color.DarkSeaGreen);
+                DrawStatColor(ref Cursor, "FTL Spool:", warpSpoolTimer, 177, Color.DarkSeaGreen);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
 
@@ -745,18 +745,18 @@ namespace Ship_Game
                     DrawStatOrdnance(ref Cursor, "Ammo Time:", "INF", 164);
                 }
             }
-            if (TroopCount > 0)
+            if (troopCount > 0)
             {
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6132), ":"), (float) TroopCount, 180,
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6132), ":"), (float)troopCount, 180,
                     Color.IndianRed);
             }
 
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
 
-            if (CargoSpace > 0)
+            if (cargoSpace > 0)
             {
-                DrawStat(ref Cursor, string.Concat(Localizer.Token(119), ":"), CargoSpace * bonus.CargoModifier, 109);
+                DrawStat(ref Cursor, string.Concat(Localizer.Token(119), ":"), cargoSpace * bonus.CargoModifier, 109);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (sensorRange != 0)
@@ -781,15 +781,15 @@ namespace Ship_Game
 
                 if (slot.Module != null)
                 {
-                    Off += slot.Module.CalculateModuleOffense();
-                    Def += slot.Module.CalculateModuleDefense((int) Size);
+                    offense += slot.Module.CalculateModuleOffense();
+                    defense += slot.Module.CalculateModuleDefense((int)size);
                 }
                 if (slot.ModuleUID == null || !ResourceManager.GetModuleTemplate(slot.ModuleUID).IsCommandModule)
                     continue;
 
                 hasBridge = true;
             }
-            strength = (Def > Off ? Off * 2 : Def + Off);
+            strength = (defense > offense ? offense * 2 : defense + offense);
             if (strength > 0)
             {
                 DrawStat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
@@ -800,7 +800,7 @@ namespace Ship_Game
             if (ActiveHull.Role != ShipData.RoleName.platform)
             {
                 DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
-                CursorReq.Y = CursorReq.Y + (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                CursorReq.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             DrawRequirement(ref CursorReq, Localizer.Token(121), emptySlots);
         }
