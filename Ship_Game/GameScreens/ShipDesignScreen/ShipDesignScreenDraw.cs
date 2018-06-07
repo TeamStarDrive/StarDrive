@@ -463,6 +463,7 @@ namespace Ship_Game
                 cargoSpace  += slot.Module.Cargo_Capacity;
             }
 
+            empResist += size; // so the player will know the true EMP Tolerance
             targets += fixedTargets;
             mass    += (float) (ActiveHull.ModuleSlots.Length / 2f);
             mass    *= EmpireManager.Player.data.MassModifier;
