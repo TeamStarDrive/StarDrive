@@ -576,7 +576,7 @@ namespace Ship_Game
                 if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
                 {
                     Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    DrawStatColor(ref Cursor, "Avg E.Wpn Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
+                    DrawStatColor(ref Cursor, "Avg Wpn Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
                     float EnergyDuration = 0f;
                     EnergyDuration       = powerCapacity / powerConsumed;
                     Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -596,17 +596,17 @@ namespace Ship_Game
                 if (powerConsumedWithBeams > 0) // There is power drain from ship's reserves when firing its energy weapons + peak beam cost after taking into acount recharge 
                 {
                     Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    DrawStatColor(ref Cursor, "Peak Beam Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
+                    DrawStatColor(ref Cursor, "Peak Wpn Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
                     float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
                     if (peakEnergyDuration < beamLongestDuration)
                     {
                         Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                        DrawStatColor(ref Cursor, "Beam Peak Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
+                        DrawStatColor(ref Cursor, "Peak Wpn Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
                     }
                     else
                     {
                         Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                        DrawStatEnergy(ref Cursor, "Beam Peak Pwr Time:", "INF", 245);
+                        DrawStatEnergy(ref Cursor, "Peak Wpn Pwr Time:", "INF", 245);
                     }
                 }
             }
