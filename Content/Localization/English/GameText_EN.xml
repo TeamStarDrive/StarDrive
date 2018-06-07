@@ -4702,11 +4702,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1988</Index>
-      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
+      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' power per second upon firing</Text>
     </Token>    
     <Token>
       <Index>1989</Index>
-      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
+      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' power per second upon firing</Text>
     </Token>
     <Token>
       <Index>1990</Index>
@@ -8149,7 +8149,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on average power usage when firing</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing</Text>
     </Token>
     <Token>
       <Index>7013</Index>

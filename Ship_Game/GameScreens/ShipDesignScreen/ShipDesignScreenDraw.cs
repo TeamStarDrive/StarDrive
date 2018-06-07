@@ -576,7 +576,7 @@ namespace Ship_Game
                 if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
                 {
                     Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    DrawStatColor(ref Cursor, "Avg Wpn Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
+                    DrawStatColor(ref Cursor, "Wpn Fire Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
                     float EnergyDuration = 0f;
                     EnergyDuration       = powerCapacity / powerConsumed;
                     Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
