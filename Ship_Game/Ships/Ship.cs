@@ -248,6 +248,14 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float EMPTolerance
+        {
+            get
+            {
+                return Size + BonusEMP_Protection;
+            }
+        }
+
         public void DebugDamage(float percent)
         {
             percent = percent.Clamp(0, 1);
@@ -1998,7 +2006,7 @@ namespace Ship_Game.Ships
                 --EMPDamage;
                 EMPDamage = Math.Max(0, EMPDamage);
 
-                EMPdisabled = EMPDamage > Size + BonusEMP_Protection;
+                EMPdisabled = EMPDamage > EMPTolerance;
             }
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
