@@ -735,7 +735,7 @@ namespace Ship_Game
 
         private float CalculateFarmerPercentForSurplus(float desiredSurplus)
         {
-            if (Fertility == 0.0) return 0.0f; //Easy out for crap-planets
+            if (Fertility + PlusFoodPerColonist <= 0.1) return 0.0f; //Easy out for crap-planets
 
             float Surplus = 0.0f;
             if (Owner.data.Traits.Cybernetic > 0)
@@ -1556,11 +1556,18 @@ namespace Ship_Game
 
         private bool workerFillStorage(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
         {
-            float storedFoodRatio = FoodHere / (MaxStorage + 0.0001f);
-            float storedProdRatio = ProductionHere / (MaxStorage + 0.0001f);
+            if (MaxStorage == 0) return false;
+            float storedFoodRatio = FoodHere / MaxStorage;
+            float storedProdRatio = ProductionHere / MaxStorage;
             if (Fertility + PlusFoodPerColonist <= 0.1 || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
 
-            if (storedFoodRatio < percentage)  //Note that this will try to fill food first, then Production
+            if (storedFoodRatio < percentage && storedProdRatio < percentage)
+            {
+                FarmerPercentage += workers * 0.5f;
+                WorkerPercentage += workers * 0.5f;
+                return true;
+            }
+            else if (storedFoodRatio < percentage)
             {
                 FarmerPercentage += workers;
                 return true;
@@ -1572,6 +1579,31 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        private bool workerFillStorageFood(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
+        {
+            float storedFoodRatio = FoodHere / (MaxStorage + 0.0001f);
+            if (Fertility + PlusFoodPerColonist <= 0.1 || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
+
+            if (storedFoodRatio < percentage)
+            {
+                FarmerPercentage += workers;
+                return true;
+            }
+            else return false;
+        }
+
+        private bool workerFillStorageProd(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
+        {
+            float storedProdRatio = ProductionHere / (MaxStorage + 0.0001f);
+
+            if (storedProdRatio < percentage)
+            {
+                WorkerPercentage += workers;
+                return true;
+            }
+            else return false;
         }
 
         public void DoGoverning()
@@ -2044,6 +2076,7 @@ namespace Ship_Game
                     #region TradeHub
 
                 {
+                        //New resource management by Gretman
                         FarmerPercentage = foodMinimum;
                         WorkerPercentage = 0.0f;
                         ResearcherPercentage = 0.0f;
@@ -2054,64 +2087,44 @@ namespace Ship_Game
                         float allocateWorkers = 0.0f;
                         if (leftoverWorkers > 0.0)
                         {
-                            allocateWorkers = 0.0f; //Reuse temporary variable
-                            if (leftoverWorkers > 0.1)  //Allocate some or all of them, maybe leaving more for different priorities below
-                            {
-                                allocateWorkers = 0.1f;
-                                leftoverWorkers -= 0.1f;
-                            }
-                            else
-                            {
-                                allocateWorkers = leftoverWorkers;
-                                leftoverWorkers = 0.0f;
-                            }
+                            allocateWorkers  = Math.Min(leftoverWorkers, 0.10f);
+                            leftoverWorkers -= allocateWorkers;
 
                             if      (littleInQueueToBuild)    WorkerPercentage += allocateWorkers;  //First priority project for this group is build shit
-                            else if (workerFillStorage(allocateWorkers, 0.33f));                    //Second priority is to fill storage to 33%
-                            else if (workerFillStorage(allocateWorkers, 0.66f));                    //Third is fill to 66%
-                            else if (workerFillStorage(allocateWorkers, 0.90f));                    //You get the idea
+                            else if (workerFillStorage(allocateWorkers, 0.60f));                    //Second priority is to fill storage up to 60%
                             else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
                             else ResearcherPercentage += allocateWorkers;                           //Last priority is research, or top off storage if no research
                         }
 
                         if (leftoverWorkers > 0.0)  //If there are more leftover Workers, then we can divide them into groups for different tasks
                         {
-                            allocateWorkers = 0.0f;
-                            if (leftoverWorkers > 0.15)
-                            {
-                                allocateWorkers = 0.15f;
-                                leftoverWorkers -= 0.15f;
-                            }
-                            else
-                            {
-                                allocateWorkers = leftoverWorkers;
-                                leftoverWorkers = 0.0f;
-                            }
+                            allocateWorkers  = Math.Min(leftoverWorkers, 0.10f);
+                            leftoverWorkers -= allocateWorkers;
 
                             if      (lotsInQueueToBuild) WorkerPercentage += allocateWorkers;
-                            else if (workerFillStorage(allocateWorkers, 0.50f));
-                            else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
-                            else     ResearcherPercentage += allocateWorkers; 
+                            else if (workerFillStorage(allocateWorkers, 1.00f));
+                            else     ResearcherPercentage += allocateWorkers;
 
                         }
 
-                        if (leftoverWorkers > 0.0)  //If there are more leftover Workers, then we can divide them into groups for different tasks
+                        if (leftoverWorkers > 0.0)
                         {
-                            allocateWorkers = 0.0f;
-                            if (leftoverWorkers > 0.25)
-                            {
-                                allocateWorkers = 0.25f;
-                                leftoverWorkers -= 0.25f;
-                            }
-                            else
-                            {
-                                allocateWorkers = leftoverWorkers;
-                                leftoverWorkers = 0.0f;
-                            }
+                            allocateWorkers  = Math.Min(leftoverWorkers, 0.15f);
+                            leftoverWorkers -= allocateWorkers;
 
-                            if (littleInQueueToBuild) WorkerPercentage += allocateWorkers;
+                            if      (littleInQueueToBuild) WorkerPercentage += allocateWorkers;
                             else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
-                            else ResearcherPercentage += allocateWorkers;
+                            else     ResearcherPercentage += allocateWorkers;
+
+                        }
+
+                        if (leftoverWorkers > 0.0)
+                        {
+                            allocateWorkers  = Math.Min(leftoverWorkers, 1.0f);  //All the rest
+                            leftoverWorkers -= allocateWorkers;
+
+                            if      (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                            else     ResearcherPercentage += allocateWorkers;
 
                         }
 
