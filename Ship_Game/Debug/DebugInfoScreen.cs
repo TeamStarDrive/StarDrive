@@ -384,6 +384,7 @@ namespace Ship_Game.Debug
                 }
                 DrawString("Strength: " + ship.BaseStrength);
                 DrawString("HP: " + ship.Health + " / " + ship.HealthMax);
+                DrawString("ActiveIntSlot: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
 
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
