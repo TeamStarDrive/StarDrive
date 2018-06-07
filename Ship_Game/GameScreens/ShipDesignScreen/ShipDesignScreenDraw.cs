@@ -366,9 +366,8 @@ namespace Ship_Game
             float targets = 0;
             int fixedTargets = 0;
             float totalECM = 0f;
-            int numberOfBeams = 0;
             float beamPeakPowerNeeded = 0f;
-            float beamTotalDuration = 0f;
+            float beamLongestDuration = 0f;
             float weaponPowerNeededNoBeams = 0f;
 
             HullBonus bonus = ActiveHull.Bonuses;
@@ -448,9 +447,8 @@ namespace Ship_Game
                         weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
                         if (weapon.isBeam)
                         {
-                            numberOfBeams       += 1;
                             beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
-                            beamTotalDuration   += weapon.BeamDuration;
+                            beamLongestDuration = Math.Max(beamLongestDuration, weapon.BeamDuration);
                         }
                         else
                             weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // need non beam weapons power cost to add to the beam peak power cost
@@ -590,17 +588,17 @@ namespace Ship_Game
                     DrawStatEnergy(ref Cursor, "Power Time:", "INF", 163);
                 }
             }
-
-            if (numberOfBeams > 0) // show relevant peak power consumption calcs if beams are present
+            // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs 
+            // more power than actually neede. Need to find a better way to show accurate numbers to the player in such case
+            if (beamLongestDuration > 0) // show relevant peak power consumption calcs if beams are present
             {
                 float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
                 if (powerConsumedWithBeams > 0) // There is power drain from ship's reserves when firing its energy weapons + peak beam cost after taking into acount recharge 
                 {
                     Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                     DrawStatColor(ref Cursor, "Peak Beam Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
-                    float averageBeamDuration = beamTotalDuration / numberOfBeams;
                     float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
-                    if (peakEnergyDuration < averageBeamDuration)
+                    if (peakEnergyDuration < beamLongestDuration)
                     {
                         Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
                         DrawStatColor(ref Cursor, "Beam Peak Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
