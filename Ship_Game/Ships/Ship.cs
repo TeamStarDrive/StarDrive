@@ -2200,7 +2200,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < 0.4f)
+            if (InternalSlotsHealthPercent < 0.5f)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
