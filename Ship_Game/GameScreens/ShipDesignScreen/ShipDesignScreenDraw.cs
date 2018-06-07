@@ -332,7 +332,7 @@ namespace Ship_Game
         private void DrawShipInfoPanel()
         {
             float hitPoints = 0f;
-            float Mass = 0f;
+            float mass = 0f;
             float powerDraw = 0f;
             float powerCapacity = 0f;
             float ordnanceCap = 0f;
@@ -348,8 +348,8 @@ namespace Ship_Game
             float turnThrust = 0f;
             float warpableMass = 0f;
             float warpDraw = 0f;
-            float warpCount = 0f;
-            float warpSpeed = 0f;
+            float ftlCount = 0f;
+            float ftlSpeed = 0f;
             float repairRate = 0f;
             float sensorRange = 0f;
             float sensorBonus = 0f;
@@ -383,16 +383,16 @@ namespace Ship_Game
                 if (slot.Module.Mass < 0f && slot.InPowerRadius)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)
-                        Mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
+                        mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
                     else
-                        Mass += slot.Module.Mass;
+                        mass += slot.Module.Mass;
                 }
                 else if (slot.Module.Mass > 0f)
                 {
                     if (slot.Module.ModuleType == ShipModuleType.Armor)
-                        Mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
+                        mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
                     else
-                        Mass += slot.Module.Mass;
+                        mass += slot.Module.Mass;
                 }
                 troopCount    += slot.Module.TroopCapacity;
                 powerCapacity += slot.Module.ActualPowerStoreMax;
@@ -414,8 +414,8 @@ namespace Ship_Game
                         bEnergyWeapons = true;
                     if (slot.Module.FTLSpeed > 0f)
                     {
-                        warpCount += 1f;
-                        warpSpeed += slot.Module.FTLSpeed;
+                        ftlCount += 1f;
+                        ftlSpeed += slot.Module.FTLSpeed;
                     }
                     if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
                     {
@@ -464,30 +464,30 @@ namespace Ship_Game
             }
 
             targets += fixedTargets;
-            Mass    += (float) (ActiveHull.ModuleSlots.Length / 2f);
-            Mass    *= EmpireManager.Player.data.MassModifier;
+            mass    += (float) (ActiveHull.ModuleSlots.Length / 2f);
+            mass    *= EmpireManager.Player.data.MassModifier;
 
-            if (Mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
-                Mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
+            if (mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
+                mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
 
-            float Speed     = 0f;
-            float WarpSpeed = warpThrust / (Mass + 0.1f);
+            float speed     = 0f;
+            float warpSpeed = warpThrust / (mass + 0.1f);
 
             //Added by McShooterz: hull bonus speed
-            WarpSpeed        *= EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;
-            float single      = WarpSpeed / 1000f;
-            string WarpString = string.Concat(single.ToString("#.0"), "k");
-            float Turn        = 0f;
+            warpSpeed        *= EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;
+            float single      = warpSpeed / 1000f;
+            string warpString = string.Concat(single.ToString("#.0"), "k");
+            float turn        = 0f;
 
-            if (Mass > 0f)
+            if (mass > 0f)
             {
-                Speed = thrust / Mass;
-                Turn  = turnThrust / Mass / 700f;
+                speed = thrust / mass;
+                turn  = turnThrust / mass / 700f;
             }
 
-            float AfterSpeed = afterThrust / (Mass + 0.1f);
-            AfterSpeed      *= EmpireManager.Player.data.SubLightModifier;
-            Turn             = (float) MathHelper.ToDegrees(Turn);
+            float afterSpeed = afterThrust / (mass + 0.1f);
+            afterSpeed      *= EmpireManager.Player.data.SubLightModifier;
+            turn             = (float) MathHelper.ToDegrees(turn);
             Vector2 Cursor   = new Vector2((float) (StatsSub.Menu.X + 10), (float) (ShipStats.Menu.Y + 33));
 
             void hullBonus(float stat, string text)
@@ -532,7 +532,7 @@ namespace Ship_Game
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             DrawStat(ref Cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
             Cursor.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
+            DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)mass, 79);
             
 
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
@@ -552,7 +552,7 @@ namespace Ship_Game
             {
                 fDrawAtWarp = (powerFlow - (warpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
                                             (powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier)));
-                if (WarpSpeed > 0)
+                if (warpSpeed > 0)
                 {
                     Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                     DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
@@ -562,7 +562,7 @@ namespace Ship_Game
             else
             {
                 fDrawAtWarp = (powerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
-                if (WarpSpeed > 0)
+                if (warpSpeed > 0)
                 {
                     Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                     DrawStatColor(ref Cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102,
@@ -589,7 +589,7 @@ namespace Ship_Game
                 }
             }
             // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs 
-            // more power than actually neede. Need to find a better way to show accurate numbers to the player in such case
+            // more power than actually needed. Need to find a better way to show accurate numbers to the player in such case
             if (beamLongestDuration > 0) // show relevant peak power consumption calcs if beams are present
             {
                 float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
@@ -613,7 +613,7 @@ namespace Ship_Game
 
             float fWarpTime = ((-powerCapacity / fDrawAtWarp) * 0.9f);
             string sWarpTime = fWarpTime.ToString("0.#");
-            if (WarpSpeed > 0)
+            if (warpSpeed > 0)
             {
                 if (fDrawAtWarp < 0)
                 {
@@ -667,10 +667,10 @@ namespace Ship_Game
 
             if (GlobalStats.HardcoreRuleset)
             {
-                string massstring = GetNumberString(Mass);
+                string massstring = GetNumberString(mass);
                 string wmassstring = GetNumberString(warpableMass);
                 string warpmassstring = string.Concat(massstring, "/", wmassstring);
-                if (Mass > warpableMass)
+                if (mass > warpableMass)
                 {
                     DrawStatBad(ref Cursor, "Warpable Mass:", warpmassstring, 153);
                 }
@@ -679,44 +679,44 @@ namespace Ship_Game
                     DrawStat(ref Cursor, "Warpable Mass:", warpmassstring, 153);
                 }
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawRequirement(ref Cursor, "Warp Capable", Mass <= warpableMass);
+                DrawRequirement(ref Cursor, "Warp Capable", mass <= warpableMass);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                if (warpCount > 0f)
+                if (ftlCount > 0f)
                 {
-                    float speed = warpSpeed / warpCount;
-                    DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), speed, 135);
+                    float harcoreSpeed = ftlSpeed / ftlCount;
+                    DrawStat(ref Cursor, string.Concat(Localizer.Token(2170), ":"), harcoreSpeed, 135);
                     Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
 
             #endregion
 
-            else if (WarpSpeed <= 0f)
+            else if (warpSpeed <= 0f)
             {
                 DrawStatColor(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135, Color.DarkSeaGreen);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
             else
             {
-                DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), WarpString, 135);
+                DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            if (WarpSpeed > 0 && warpSpoolTimer > 0)
+            if (warpSpeed > 0 && warpSpoolTimer > 0)
             {
                 DrawStatColor(ref Cursor, "FTL Spool:", warpSpoolTimer, 177, Color.DarkSeaGreen);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
 
-            float modifiedSpeed = Speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
+            float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             DrawStatColor(ref Cursor, string.Concat(Localizer.Token(116), ":"), modifiedSpeed, 105, Color.DarkSeaGreen);
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             //added by McShooterz: afterburn speed
-            if (AfterSpeed != 0)
+            if (afterSpeed != 0)
             {
-                DrawStatColor(ref Cursor, "Afterburner Speed:", AfterSpeed, 105, Color.DarkSeaGreen);
+                DrawStatColor(ref Cursor, "Afterburner Speed:", afterSpeed, 105, Color.DarkSeaGreen);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            DrawStatColor(ref Cursor, string.Concat(Localizer.Token(117), ":"), Turn, 107, Color.DarkSeaGreen);
+            DrawStatColor(ref Cursor, string.Concat(Localizer.Token(117), ":"), turn, 107, Color.DarkSeaGreen);
             Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 10);
             if (ordnanceCap > 0)
             {
