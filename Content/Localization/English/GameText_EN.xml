@@ -4698,15 +4698,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1987</Index>
-      <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during the average beam duration times of the ship</Text>
+      <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time</Text>
     </Token>
     <Token>
       <Index>1988</Index>
-      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) if all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
+      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
     </Token>    
     <Token>
       <Index>1989</Index>
-      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) if all the ship's energy weapons are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
+      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' average power per second upon firing</Text>
     </Token>
     <Token>
       <Index>1990</Index>
