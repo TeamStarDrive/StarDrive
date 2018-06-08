@@ -3091,8 +3091,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1035</Index>
-      <Text>This is an inexpensive but bulky electromagnetic capacitor. Any ship equipped with pulse capacitors will be substantially more difficult to disable with electromagnetic pulse weaponry.
-      </Text>
+      <Text>This is an inexpensive but bulky electromagnetic capacitor. Any ship equipped with pulse capacitors will be substantially more difficult to disable with electromagnetic pulse weaponry. They also help the ship recover faster from EMP overloads</Text>
     </Token>
     <Token>
       <Index>1036</Index>
@@ -8418,7 +8417,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7078</Index>
-      <Text>Weapons which do less damage than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
+      <Text>Weapons which do less damage (or EMP damage) than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
     </Token>
   <Token>
       <Index>7079</Index>
