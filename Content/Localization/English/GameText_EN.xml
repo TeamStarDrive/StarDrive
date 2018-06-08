@@ -3091,8 +3091,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1035</Index>
-      <Text>This is an inexpensive but bulky electromagnetic capacitor. Any ship equipped with pulse capacitors will be substantially more difficult to disable with electromagnetic pulse weaponry.
-      </Text>
+      <Text>This is an inexpensive but bulky electromagnetic capacitor. Any ship equipped with pulse capacitors will be substantially more difficult to disable with electromagnetic pulse weaponry. They also help the ship recover faster from EMP overloads</Text>
     </Token>
     <Token>
       <Index>1036</Index>
@@ -4696,6 +4695,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Expansionists</Text>
     </Token>
     <!-- Data added in Texas Alpha2 -->
+    <Token>
+      <Index>1987</Index>
+      <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time</Text>
+    </Token>
+    <Token>
+      <Index>1988</Index>
+      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons, along with beams at full power, are persistently firing on targets, based on the weapons' power per second upon firing</Text>
+    </Token>    
+    <Token>
+      <Index>1989</Index>
+      <Text>This indicates that there is a net power drain from the ship's reserves (after considering power recharge) when all the ship's energy weapons are persistently firing on targets, based on the weapons' power per second upon firing</Text>
+    </Token>
     <Token>
       <Index>1990</Index>
       <Text>This weapon fires more than one projectile per shot. It will also fire this multiple projectiles per Salvo, if it has Salvo fire. A weapon with projectile count of 2 and salvo of 3, for instance, will fire 6 projectiles per salvo</Text>
@@ -8137,7 +8148,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing</Text>
     </Token>
     <Token>
       <Index>7013</Index>
@@ -8406,7 +8417,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7078</Index>
-      <Text>Weapons which do less damage than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
+      <Text>Weapons which do less damage (or EMP damage) than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
     </Token>
   <Token>
       <Index>7079</Index>
