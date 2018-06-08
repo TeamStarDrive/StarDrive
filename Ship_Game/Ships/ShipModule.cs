@@ -545,6 +545,8 @@ namespace Ship_Game.Ships
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
+                if (proj?.Weapon.EMPDamage >= damageThreshold && !damagingShields)
+                    CauseEmpDamage(proj); // EMP damage can be applied if its above the damage threshold and not hitting shields
                 if (modifiedDamage < damageThreshold)
                     return false; // no damage could be done, the projectile was deflected.
             }
@@ -568,11 +570,9 @@ namespace Ship_Game.Ships
             }
             else
             {
-                if (proj != null)
-                {
-                    CauseEmpDamage(proj);
-                    if (beam != null) CauseSpecialBeamDamage(beam);
-                }
+                if (beam != null)
+                    CauseSpecialBeamDamage(beam);
+
                 SetHealth(Health - modifiedDamage);
                 DebugPerseveranceNoDamage();
 
@@ -625,12 +625,9 @@ namespace Ship_Game.Ships
 
         private void BeamMassDamage(Beam beam)
         {
-            if (beam.Weapon.MassDamage <= 0f || Parent.IsTethered() || Parent.EnginesKnockedOut)
+            if (beam.Weapon.MassDamage <= 0f)
                 return;
-            Parent.Mass += beam.Weapon.MassDamage;
-            Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-            Parent.Speed = Parent.velocityMaximum;
-            Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
+            Parent.CauseMassDamage(beam.Weapon.MassDamage);
         }
 
         private void BeamRepulsionDamage(Beam beam)
