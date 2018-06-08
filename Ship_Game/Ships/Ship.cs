@@ -288,6 +288,45 @@ namespace Ship_Game.Ships
 
             return size;
         }
+
+        public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
+
+        public void CausePowerDamage(float powerDamage)
+        {
+            PowerCurrent -= powerDamage;
+            PowerCurrent.Clamp(0, PowerStoreMax);
+        }
+
+        public void CauseTroopDamage(float troopDamageChance)
+        {
+            if (TroopList.Count > 0)
+            {
+                if (UniverseRandom.RandomBetween(0f, 100f) < troopDamageChance)
+                {
+                    TroopList[0].Strength = TroopList[0].Strength - 1;
+                    if (TroopList[0].Strength <= 0)
+                        TroopList.RemoveAt(0);
+                }
+            }
+            else if (MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < troopDamageChance)
+                MechanicalBoardingDefense -= 1f;
+        }
+
+        public void CauseRepulsionDamage(Beam beam)
+        {
+            if (IsTethered() || EnginesKnockedOut)
+                return;
+            if (beam.Owner == null || beam.Weapon == null)
+                return;
+            Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Mass;
+        }
+
+        public void AddPowerFromSiphon(float siphonPowerAquired)
+        {
+            PowerCurrent += siphonPowerAquired;
+            PowerCurrent.Clamp(0, PowerStoreMax);
+        }
+
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             if (attackerRelationThis.Treaty_NAPact) return false;
