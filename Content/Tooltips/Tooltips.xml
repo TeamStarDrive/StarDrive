@@ -1220,5 +1220,20 @@
       <Title>Projectiles</Title>
       <Data>1990</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>243</TIP_ID>
+      <Title>Total Weapons Power Usage per second when firing</Title>
+      <Data>1989</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>244</TIP_ID>
+      <Title>Weapons Peak Power drain during full beam duraion</Title>
+      <Data>1988</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>245</TIP_ID>
+      <Title>Weapons Peak Power Time during full beam duraion</Title>
+      <Data>1987</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
