@@ -248,13 +248,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float EMPTolerance
-        {
-            get
-            {
-                return Size + BonusEMP_Protection;
-            }
-        }
+        public float EmpTolerance => Size + BonusEMP_Protection;
+
+        public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
 
         public void DebugDamage(float percent)
         {
@@ -291,11 +287,9 @@ namespace Ship_Game.Ships
 
         public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
 
-        public void CausePowerDamage(float powerDamage)
-        {
-            PowerCurrent -= powerDamage;
-            PowerCurrent.Clamp(0, PowerStoreMax);
-        }
+        public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamp(0, PowerStoreMax);
+
+        public void AddPowerFromSiphon(float siphonPowerAquired) => PowerCurrent = (PowerCurrent + siphonPowerAquired).Clamp(0, PowerStoreMax);
 
         public void CauseTroopDamage(float troopDamageChance)
         {
@@ -321,10 +315,15 @@ namespace Ship_Game.Ships
             Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Mass;
         }
 
-        public void AddPowerFromSiphon(float siphonPowerAquired)
+        public void CauseMassDamage(float massDamage)
         {
-            PowerCurrent += siphonPowerAquired;
-            PowerCurrent.Clamp(0, PowerStoreMax);
+            if (IsTethered() || EnginesKnockedOut)
+                return;
+            Mass += massDamage;
+            velocityMaximum = Thrust / Mass;
+            Speed = velocityMaximum;
+            rotationRadiansPerSecond = Speed / 700f;
+            shipStatusChanged = true; 
         }
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
@@ -2042,10 +2041,10 @@ namespace Ship_Game.Ships
             updateTimer -= deltaTime;
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
-                --EMPDamage;
+                EMPDamage -= EmpRecovery;
                 EMPDamage = Math.Max(0, EMPDamage);
 
-                EMPdisabled = EMPDamage > EMPTolerance;
+                EMPdisabled = EMPDamage > EmpTolerance;
             }
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
@@ -2559,7 +2558,7 @@ namespace Ship_Game.Ships
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
                 
-                RepairRate += module.ActualBonusRepairRate;
+                RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
                 if (module.Mass < 0.0 && module.Powered)
                     Mass += module.Mass;
                 else if (module.Mass > 0.0)
@@ -2597,6 +2596,7 @@ namespace Ship_Game.Ships
                     }
                     else
                         ModulePowerDraw += module.PowerDraw;
+
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
