@@ -230,6 +230,18 @@ namespace Ship_Game
             return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
         }
 
+        public bool GetMirrorSlot(int xPos, int yPos, int xSize, out SlotStruct slot2)
+        {
+            int center = 952;
+            int mirrorOffset = (xSize - 1) * 16;
+            int mirrorX;
+            if (xPos > center)
+                mirrorX = center - 8 - mirrorOffset -  (xPos - (center + 8));
+            else
+                mirrorX = center + 8 + mirrorOffset + (center - 8 - xPos);
+            return ModuleGrid.Get(new Point(mirrorX, yPos), out slot2);
+        }
+
         private void HandleCameraMovement(InputState input)
         {
             if (input.RightMouseClick)
@@ -416,7 +428,8 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync("sub_bass_mouseover");
                 if (slot.ModuleUID != ActiveModule.UID)
                 {
-                    InstallModule(slot, ActiveModule, ActiveModState); 
+                    GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, out SlotStruct slot2);
+                    InstallModule(slot, ActiveModule, ActiveModState, slot2); 
                 }
             }
         }
@@ -657,6 +670,14 @@ namespace Ship_Game
             ToggleOverlayButton = ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
+            });
+
+            SymmetricDesignButton = ButtonMedium(titleId: SymmetricDesignLocId, clickSfx: "blip_click", click: b =>
+            {
+                //ToggleOverlay = !ToggleOverlay;
+                SymmetricDesignLocId = SymmetricDesignLocId == 1986 ? 1985 : 1986;
+                SymmetricDesignButton.Text = Localizer.Token(SymmetricDesignLocId);
+                IsSymmetricDesign = !IsSymmetricDesign;
             });
 
             Vector2 layoutEndV = EndLayout();
