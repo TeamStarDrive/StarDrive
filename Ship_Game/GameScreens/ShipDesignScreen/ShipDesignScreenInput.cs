@@ -490,7 +490,8 @@ namespace Ship_Game
                         if (IsMirrorModuleValid(root.Module, mirroredRoot?.Module))
                             ModuleGrid.ClearSlots(mirroredRoot, mirroredRoot.Module.XSIZE, mirroredRoot.Module.YSIZE);
                     }
-                    ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
+                    if (root.Module != null)
+                        ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
                     ModuleGrid.RecalculatePower();
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
