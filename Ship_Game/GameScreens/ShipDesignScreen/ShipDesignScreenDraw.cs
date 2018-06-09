@@ -977,6 +977,14 @@ namespace Ship_Game
                 r.Y = r.Y + (int) (transitionOffset * 50f);
             }
             this.ToggleOverlayButton.Draw(ScreenManager.SpriteBatch, r);
+            r = this.SymmetricDesignButton.Rect;
+            if (ScreenState == ScreenState.TransitionOn ||
+                ScreenState == ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.SymmetricDesignButton.Draw(ScreenManager.SpriteBatch, r);
+
             ModSel.Draw(ScreenManager.SpriteBatch);
             
             this.DrawHullSelection();

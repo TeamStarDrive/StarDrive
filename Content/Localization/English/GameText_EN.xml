@@ -4696,6 +4696,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1985</Index>
+      <Text>Symmetric Design</Text>
+    </Token>
+    <Token>
+      <Index>1986</Index>
+      <Text>Normal Design</Text>
+    </Token>    
+    <Token>
       <Index>1987</Index>
       <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time</Text>
     </Token>
