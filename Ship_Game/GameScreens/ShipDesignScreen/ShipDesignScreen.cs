@@ -68,7 +68,6 @@ namespace Ship_Game
         private ShipData.Category LoadCategory;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
-        public int SymmetricDesignLocId = 1986;
         public bool IsSymmetricDesign;
 
 
@@ -219,11 +218,12 @@ namespace Ship_Game
             HoveredModule     = null;
         }        
         
-        private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation, SlotStruct slot2)
+        private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
-            GetMirrorOrientation(orientation, slot2, out ModuleOrientation orientation2);
+
+            GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, orientation, out SlotStruct slot2, out ModuleOrientation orientation2);
+            // FB: install the module only if both fit the slots, since ships might be non symmetric
             if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || (IsSymmetricDesign && !ModuleGrid.ModuleFitsAtSlot(slot2, module)))
-            //if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
                 PlayNegativeSound();
                 return;
@@ -233,23 +233,14 @@ namespace Ship_Game
             ModuleGrid.InstallModule(slot, module, orientation);
             if (IsSymmetricDesign)
             {
+                SpawnActiveModule(module.UID, orientation2, slot.Facing);
                 ModuleGrid.ClearSlots(slot2, module.XSIZE, module.YSIZE);
-                ModuleGrid.InstallModule(slot2, module, orientation2);
+                ModuleGrid.InstallModule(slot2, ActiveModule, orientation2);
             }
+
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
-
             SpawnActiveModule(module.UID, orientation, slot.Facing);
-        }
-
-        private void GetMirrorOrientation(ModuleOrientation orientation,  SlotStruct slot2, out ModuleOrientation orientation2)
-        {
-            if (orientation == ModuleOrientation.Left)
-                orientation2 = ModuleOrientation.Right;
-            else if (orientation == ModuleOrientation.Right)
-                orientation2 = ModuleOrientation.Left;
-            else
-                orientation2 = orientation;
         }
 
         private DesignModuleGrid ModuleGrid;
