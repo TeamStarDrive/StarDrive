@@ -196,6 +196,8 @@ namespace Ship_Game
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134);
+            if (SymmetricDesignButton.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(246);
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
@@ -230,7 +232,7 @@ namespace Ship_Game
             return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
         }
 
-        public bool GetMirrorSlot(int xPos, int yPos, int xSize, ModuleOrientation orientation, out SlotStruct slot2, out ModuleOrientation orientation2)
+        public bool GetMirrorSlot(int xPos, int yPos, int xSize, ModuleOrientation orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation)
         {
             int center = 952;
             int mirrorOffset = (xSize - 1) * 16;
@@ -241,13 +243,28 @@ namespace Ship_Game
                 mirrorX = center + 8 - mirrorOffset  + (center - 8 - xPos);
 
             if (orientation == ModuleOrientation.Left)
-                orientation2 = ModuleOrientation.Right;
+                mirroredOrientation = ModuleOrientation.Right;
             else if (orientation == ModuleOrientation.Right)
-                orientation2 = ModuleOrientation.Left;
+                mirroredOrientation = ModuleOrientation.Left;
             else
-                orientation2 = orientation;
+                mirroredOrientation = orientation;
 
-            return ModuleGrid.Get(new Point(mirrorX, yPos), out slot2);
+            return ModuleGrid.Get(new Point(mirrorX, yPos), out mirroredSlot);
+        }
+
+        public ShipModule GetMirrorModule(SlotStruct slot)
+        {
+            SlotStruct root = slot.Parent ?? slot;
+            GetMirrorSlot(root.PQ.X, root.PQ.Y, root.Module.XSIZE, root.Orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
+            return mirroredSlot.Parent?.Module ?? mirroredSlot.Module;
+        }
+
+        public bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
+        {
+            if (mirroredModule == null) return false;
+            if (module.UID == mirroredModule.UID)
+                return true;
+            return false;
         }
 
         private void HandleCameraMovement(InputState input)
@@ -393,16 +410,30 @@ namespace Ship_Game
                 {
                     Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center());
                     float arc = spaceFromWorldSpace.AngleToTarget(input.CursorPosition);
-                    
+
+                    ShipModule mirroredModule;
+
                     if (Input.IsShiftKeyDown)
                     {
                         HighlightedModule.Facing = (float)Math.Round(arc);
+                        if (IsSymmetricDesignMode)
+                        {
+                            mirroredModule = GetMirrorModule(slotStruct);
+                            if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
+                                mirroredModule.Facing = (float)Math.Round(360 - arc);
+                        }
                         return;
                     }
 
                     if (!Input.IsAltKeyDown)
                     {
                         HighlightedModule.Facing = (float)Math.Round(arc / 15f) * 15;
+                        if (IsSymmetricDesignMode)
+                        {
+                            mirroredModule = GetMirrorModule(slotStruct);
+                            if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
+                                mirroredModule.Facing = (float)Math.Round(360 - arc / 15f) * 15;
+                        }
                         return;
                     }
                     float minCompare = float.MinValue;
@@ -452,6 +483,13 @@ namespace Ship_Game
                 if (slot.Module != null || slot.Parent != null)
                 {
                     SlotStruct root = slot.Parent ?? slot;
+                    if (IsSymmetricDesignMode)
+                    {
+                        GetMirrorSlot(root.PQ.X, root.PQ.Y, root.Module.XSIZE, root.Orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
+                        SlotStruct mirroredRoot = mirroredSlot.Parent ?? mirroredSlot;
+                        if (IsMirrorModuleValid(root.Module, mirroredRoot?.Module))
+                            ModuleGrid.ClearSlots(mirroredRoot, mirroredRoot.Module.XSIZE, mirroredRoot.Module.YSIZE);
+                    }
                     ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
                     ModuleGrid.RecalculatePower();
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
@@ -680,8 +718,8 @@ namespace Ship_Game
 
             SymmetricDesignButton = ButtonMedium(titleId: 1986, clickSfx: "blip_click", click: b =>
             {
-                IsSymmetricDesign = !IsSymmetricDesign;
-                SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesign ? 1985 : 1986);
+                IsSymmetricDesignMode = !IsSymmetricDesignMode;
+                SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
             });
 
             Vector2 layoutEndV = EndLayout();

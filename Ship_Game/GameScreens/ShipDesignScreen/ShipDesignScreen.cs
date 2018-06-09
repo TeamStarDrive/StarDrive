@@ -68,7 +68,7 @@ namespace Ship_Game
         private ShipData.Category LoadCategory;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
-        public bool IsSymmetricDesign;
+        public bool IsSymmetricDesignMode;
 
 
     #if SHIPYARD
@@ -221,9 +221,9 @@ namespace Ship_Game
         private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
 
-            GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, orientation, out SlotStruct slot2, out ModuleOrientation orientation2);
+            GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
             // FB: install the module only if both fit the slots, since ships might be non symmetric
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || (IsSymmetricDesign && !ModuleGrid.ModuleFitsAtSlot(slot2, module)))
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || (IsSymmetricDesignMode && !ModuleGrid.ModuleFitsAtSlot(mirroredSlot, module)))
             {
                 PlayNegativeSound();
                 return;
@@ -231,11 +231,12 @@ namespace Ship_Game
 
             ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
-            if (IsSymmetricDesign)
+            if (IsSymmetricDesignMode)
             {
-                SpawnActiveModule(module.UID, orientation2, slot.Facing);
-                ModuleGrid.ClearSlots(slot2, module.XSIZE, module.YSIZE);
-                ModuleGrid.InstallModule(slot2, ActiveModule, orientation2);
+                SpawnActiveModule(module.UID, mirroredOrientation, slot.Facing);
+                ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, slot.Facing);
+                ModuleGrid.ClearSlots(mirroredSlot, module.XSIZE, module.YSIZE);
+                ModuleGrid.InstallModule(mirroredSlot, mirroredModule, mirroredOrientation);
             }
 
             ModuleGrid.RecalculatePower();
