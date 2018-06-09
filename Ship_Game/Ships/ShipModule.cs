@@ -346,7 +346,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-
+            
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
