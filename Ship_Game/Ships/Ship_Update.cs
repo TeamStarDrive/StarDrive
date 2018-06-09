@@ -387,8 +387,8 @@ namespace Ship_Game.Ships
             foreach (ShipModule slot in ModuleSlotList)
             {
                 if (slot != module && slot.ModuleType == ShipModuleType.PowerConduit && !slot.CheckedConduits && 
-                    (int)Math.Abs(module.Position.X - slot.Position.X) / 16 + 
-                    (int)Math.Abs(module.Position.Y - slot.Position.Y) / 16 == 1)
+                    (int)Math.Abs(module.LocalCenter.X - slot.LocalCenter.X)  + 
+                    (int)Math.Abs(module.LocalCenter.Y - slot.LocalCenter.Y) <= 16)
                     CheckAndPowerConduit(slot);
             }
         }
@@ -406,69 +406,79 @@ namespace Ship_Game.Ships
             {
                 ShipModule module = ModuleSlotList[i];
 
-                if (module.ModuleType == ShipModuleType.PowerPlant && module.Active)
+                if (module.ModuleType != ShipModuleType.PowerPlant || !module.Active) continue;
+                module.Powered = true;
+                foreach (ShipModule slot2 in ModuleSlotList)
                 {
-                    foreach (ShipModule slot2 in ModuleSlotList)
-                    {
-                        if (slot2.ModuleType == ShipModuleType.PowerConduit
-                            && ((int)Math.Abs(slot2.Position.X - module.Position.X) / 16 + (int)Math.Abs(slot2.Position.Y - module.Position.Y) / 16 == 1))
-                            CheckAndPowerConduit(slot2);
-                    }
+                    if (slot2.ModuleType == ShipModuleType.PowerConduit)
+                        continue;
+                    int distance = (int)Math.Abs(slot2.LocalCenter.X - module.LocalCenter.X) + (int)Math.Abs(slot2.LocalCenter.Y - module.LocalCenter.Y);
+                    if (distance <= 16)
+                        CheckAndPowerConduit(slot2);
+                    else
+                        if (IsAnyPartOfModuleInRadius(module, slot2.LocalCenter, 16))
+                        CheckAndPowerConduit(slot2);
+
                 }
             }
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (!module.Active || (module.PowerRadius < 1 && module.ModuleType != ShipModuleType.PowerConduit) || module.Powered)
+                if (!module.Active || module.PowerRadius < 1 || !module.Powered)
                     continue;
-
-                float cx = module.XSIZE * 8;
-                cx = cx <= 8 ? module.Position.X : module.Position.X + cx;
-                float cy = module.YSIZE * 8;
-                cy = cy <= 8 ? module.Position.Y : module.Position.Y + cy;
-
-                int powerRadius = module.PowerRadius * 16 + 8;
+                
+                float cx = module.LocalCenter.X;
+                float cy = module.LocalCenter.Y;
+                int powerRadius = module.PowerRadius * 16 + (int)module.Radius ;
 
                 foreach (ShipModule slot2 in ModuleSlotList)
 
                 {
-                    if (!slot2.Active || slot2.PowerDraw < 1)
+                    if (!slot2.Active || slot2.Powered || slot2.PowerDraw < 1 || slot2.AlwaysPowered || slot2.PowerRadius > 0 || slot2 == module) 
+                    {
+                        if (slot2.PowerDraw < 1 || slot2.AlwaysPowered)
+                            module.Powered = true;
                         continue;
-                    if ((int)Math.Abs(cx - slot2.Position.X) / 16 + (int)Math.Abs(cy - slot2.Position.Y) / 16 <= powerRadius)
+                    }
+
+                    int distanceFromPowerX = (int)Math.Abs(cx - slot2.LocalCenter.X); // - slot2.XSIZE * 8 + 8;
+                    int distanceFromPowerY = (int)Math.Abs(cy - slot2.LocalCenter.Y); // - slot2.YSIZE * 8 + 8;
+                    if (distanceFromPowerX + distanceFromPowerY <= powerRadius)                      
                     {
                         slot2.Powered = true;
                         continue;
                     }
-                    for (int y = 0; y < slot2.YSIZE; ++y)
-                    {
-                        if (slot2.Powered) break;
-                        float sy = slot2.Position.Y + (y * 16);
-                        for (int x = 0; x < slot2.XSIZE; ++x)
-                        {
-                            if (x == 0 && y == 0)
-                                continue;
-
-                            float sx = slot2.Position.X + (x * 16);
-                            if ((int)Math.Abs(cx - sx) / 16 + (int)Math.Abs(cy - sy) /16 <= powerRadius)
-                            {
-                                slot2.Powered = true;
-                                break;
-                            }
-
-                        }
-                    }
+                    //if its really far away dont bother.
+                    if (distanceFromPowerX + distanceFromPowerY > slot2.Area * 16 + powerRadius)
+                        continue;
+                    slot2.Powered = IsAnyPartOfModuleInRadius(slot2, new Vector2(cx, cy), powerRadius);
+                    //if (IsAnyPartOfModuleInRadius(slot2, new Vector2(cx, cy), powerRadius))
+                    //  slot2.Powered = true;
                 }
             }
+        }
+        //not sure where to put this. I guess shipModule but its huge. Maybe an extension?
+        private static bool IsAnyPartOfModuleInRadius(ShipModule moduleAreaToCheck, Vector2 pos, int radius)
+        {
+            float cx = pos.X;
+            float cy = pos.Y;
 
-            foreach (ShipModule module in ModuleSlotList)
+            for (int y = 0; y < moduleAreaToCheck.YSIZE; ++y)
             {
-                //Bug workaround. 0 powerdraw modules get marked as unpowered which causes issues when function 
-                //depends on powered even if no power is used. 
-                if (!module.Powered && module.AlwaysPowered || module.PowerDraw <= 0)
-                    module.Powered = true;
-            }
+                float sy = moduleAreaToCheck.Position.Y + (y * 16);
+                for (int x = 0; x < moduleAreaToCheck.XSIZE; ++x)
+                {
+                    if (x == 0 && y == 0)
+                        continue;
 
+                    float sx = moduleAreaToCheck.Position.X + (x * 16);
+                    if ((int) Math.Abs(cx - sx) + (int) Math.Abs(cy - sy) > radius)
+                        continue;
+                    return true;                    
+                }
+            }
+            return false;
         }
     }
 }
