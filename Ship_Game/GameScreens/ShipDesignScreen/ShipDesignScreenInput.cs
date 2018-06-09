@@ -236,9 +236,9 @@ namespace Ship_Game
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
             if (xPos > center)
-                mirrorX = center - 8 - mirrorOffset -  (xPos - (center + 8));
+                mirrorX = center - 8 - mirrorOffset - (xPos - (center + 8));
             else
-                mirrorX = center + 8 + mirrorOffset + (center - 8 - xPos);
+                mirrorX = center + 8 - mirrorOffset  + (center - 8 - xPos);
             return ModuleGrid.Get(new Point(mirrorX, yPos), out slot2);
         }
 
