@@ -230,7 +230,7 @@ namespace Ship_Game
             return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
         }
 
-        public bool GetMirrorSlot(int xPos, int yPos, int xSize, out SlotStruct slot2)
+        public bool GetMirrorSlot(int xPos, int yPos, int xSize, ModuleOrientation orientation, out SlotStruct slot2, out ModuleOrientation orientation2)
         {
             int center = 952;
             int mirrorOffset = (xSize - 1) * 16;
@@ -239,6 +239,14 @@ namespace Ship_Game
                 mirrorX = center - 8 - mirrorOffset - (xPos - (center + 8));
             else
                 mirrorX = center + 8 - mirrorOffset  + (center - 8 - xPos);
+
+            if (orientation == ModuleOrientation.Left)
+                orientation2 = ModuleOrientation.Right;
+            else if (orientation == ModuleOrientation.Right)
+                orientation2 = ModuleOrientation.Left;
+            else
+                orientation2 = orientation;
+
             return ModuleGrid.Get(new Point(mirrorX, yPos), out slot2);
         }
 
@@ -428,8 +436,7 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync("sub_bass_mouseover");
                 if (slot.ModuleUID != ActiveModule.UID)
                 {
-                    GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, out SlotStruct slot2);
-                    InstallModule(slot, ActiveModule, ActiveModState, slot2); 
+                    InstallModule(slot, ActiveModule, ActiveModState); 
                 }
             }
         }
@@ -447,7 +454,6 @@ namespace Ship_Game
                     SlotStruct root = slot.Parent ?? slot;
                     ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
                     ModuleGrid.RecalculatePower();
-
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
             }
@@ -672,12 +678,10 @@ namespace Ship_Game
                 ToggleOverlay = !ToggleOverlay;
             });
 
-            SymmetricDesignButton = ButtonMedium(titleId: SymmetricDesignLocId, clickSfx: "blip_click", click: b =>
+            SymmetricDesignButton = ButtonMedium(titleId: 1986, clickSfx: "blip_click", click: b =>
             {
-                //ToggleOverlay = !ToggleOverlay;
-                SymmetricDesignLocId = SymmetricDesignLocId == 1986 ? 1985 : 1986;
-                SymmetricDesignButton.Text = Localizer.Token(SymmetricDesignLocId);
                 IsSymmetricDesign = !IsSymmetricDesign;
+                SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesign ? 1985 : 1986);
             });
 
             Vector2 layoutEndV = EndLayout();
