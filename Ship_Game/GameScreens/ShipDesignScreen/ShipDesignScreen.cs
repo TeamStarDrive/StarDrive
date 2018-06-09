@@ -234,7 +234,7 @@ namespace Ship_Game
             if (IsSymmetricDesignMode)
             {
                 SpawnActiveModule(module.UID, mirroredOrientation, slot.Facing);
-                ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, slot.Facing);
+                ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, 360 - slot.Facing);
                 ModuleGrid.ClearSlots(mirroredSlot, module.XSIZE, module.YSIZE);
                 ModuleGrid.InstallModule(mirroredSlot, mirroredModule, mirroredOrientation);
             }
