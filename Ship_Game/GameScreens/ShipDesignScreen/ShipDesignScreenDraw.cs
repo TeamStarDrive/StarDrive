@@ -141,11 +141,20 @@ namespace Ship_Game
                     void DrawArc(Color drawcolor)
                     {
                         var origin = new Vector2(250f, 250f);
-
                         var toDraw = new Rectangle((int)center.X, (int)center.Y, 500, 500);
                         spriteBatch.Draw(arcTexture, toDraw, null, drawcolor
                             , slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
-
+                        if (IsSymmetricDesignMode)
+                        {
+                            GetMirrorSlot(slot.PQ.X, slot.PQ.Y, slot.Module.XSIZE, slot.Orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
+                            SlotStruct mirroredRoot = mirroredSlot.Parent ?? mirroredSlot;
+                            if (IsMirrorModuleValid(slot.Module, mirroredRoot?.Module))
+                            {
+                                Vector2 mirroredCenter = mirroredSlot.Center();
+                                var mirrortoDraw = new Rectangle((int)mirroredCenter.X, (int)mirroredCenter.Y, 500, 500);
+                                spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirroredRoot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+                            }
+                        }
                     }
 
                     Weapon w = slot.Module.InstalledWeapon;
