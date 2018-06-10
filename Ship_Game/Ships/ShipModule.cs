@@ -325,8 +325,8 @@ namespace Ship_Game.Ships
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
             {
+                module.SetHealth(slot.Health);
                 module.Active      = slot.Health > 0.01f;
-                module.Health      = slot.Health;
                 module.ShieldPower = slot.ShieldPower;;
             }
             return module;
@@ -545,7 +545,9 @@ namespace Ship_Game.Ships
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
-                if (modifiedDamage <= damageThreshold)
+                if (proj?.Weapon.EMPDamage >= damageThreshold && !damagingShields)
+                    CauseEmpDamage(proj); // EMP damage can be applied if its above the damage threshold and not hitting shields
+                if (modifiedDamage < damageThreshold)
                     return false; // no damage could be done, the projectile was deflected.
             }
 
@@ -568,11 +570,9 @@ namespace Ship_Game.Ships
             }
             else
             {
-                if (proj != null)
-                {
-                    CauseEmpDamage(proj);
-                    if (beam != null) CauseSpecialBeamDamage(beam);
-                }
+                if (beam != null)
+                    CauseSpecialBeamDamage(beam);
+
                 SetHealth(Health - modifiedDamage);
                 DebugPerseveranceNoDamage();
 
@@ -596,8 +596,9 @@ namespace Ship_Game.Ships
 
         private void CauseEmpDamage(Projectile proj)
         {
-            if (proj.Weapon.EMPDamage > 0f)
-                Parent.EMPDamage += proj.Weapon.EMPDamage;
+            if (proj.Weapon.EMPDamage <= 0f)
+                return;
+            Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
         }
 
         private void CauseSpecialBeamDamage(Beam beam)
@@ -610,45 +611,30 @@ namespace Ship_Game.Ships
 
         private void BeamPowerDamage(Beam beam)
         {
-            Parent.PowerCurrent -= beam.Weapon.PowerDamage;
-            if (Parent.PowerCurrent < 0f)
-                Parent.PowerCurrent = 0f;
+            if (beam.Weapon.PowerDamage <= 0)
+                return;
+            Parent.CausePowerDamage(beam.Weapon.PowerDamage);
         }
+
         private void BeamTroopDamage(Beam beam)
         {
-            if (beam.Weapon.TroopDamageChance > 0f)
-            {
-                if (Parent.TroopList.Count > 0)
-                {
-                    if (UniverseRandom.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
-                    {
-                        Parent.TroopList[0].Strength = Parent.TroopList[0].Strength - 1;
-                        if (Parent.TroopList[0].Strength <= 0)
-                            Parent.TroopList.RemoveAt(0);
-                    }
-                }
-                else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
-                    Parent.MechanicalBoardingDefense -= 1f;
-            }
+            if (beam.Weapon.TroopDamageChance <= 0f)
+                return;
+            Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
         }
 
         private void BeamMassDamage(Beam beam)
         {
-            if (beam.Weapon.MassDamage <= 0f || Parent.IsTethered() || Parent.EnginesKnockedOut)
+            if (beam.Weapon.MassDamage <= 0f)
                 return;
-            Parent.Mass += beam.Weapon.MassDamage;
-            Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-            Parent.Speed = Parent.velocityMaximum;
-            Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
+            Parent.CauseMassDamage(beam.Weapon.MassDamage);
         }
 
         private void BeamRepulsionDamage(Beam beam)
         {
             if (beam.Weapon.RepulsionDamage < 1)
                 return;
-            if (Parent.IsTethered() || Parent.EnginesKnockedOut) return;
-            if (beam.Owner != null && beam.Weapon != null)
-                Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
+            Parent.CauseRepulsionDamage(beam);
         }
 
         private void DebugPerseveranceNoDamage()
@@ -663,19 +649,11 @@ namespace Ship_Game.Ships
 
         private void CauseSiphonDamage(Beam beam)
         {
-            float shieldPower = ShieldPower;
-            if (beam.Weapon.SiphonDamage > 0f)
-            {
-                shieldPower -= beam.Weapon.SiphonDamage;
-                if (shieldPower < 1f)
-                    shieldPower = 0f;
-
-                beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
-                if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
-                    beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
-            }
-
-            ShieldPower = shieldPower;
+            if (beam.Weapon.SiphonDamage <= 0f)
+                return;
+            ShieldPower -= beam.Weapon.SiphonDamage;
+            ShieldPower.Clamp(0, shield_power_max);
+            beam.Owner?.AddPowerFromSiphon(beam.Weapon.SiphonDamage);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)

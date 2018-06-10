@@ -248,6 +248,10 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float EmpTolerance => Size + BonusEMP_Protection;
+
+        public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
+
         public void DebugDamage(float percent)
         {
             percent = percent.Clamp(0, 1);
@@ -280,6 +284,48 @@ namespace Ship_Game.Ships
 
             return size;
         }
+
+        public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
+
+        public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamp(0, PowerStoreMax);
+
+        public void AddPowerFromSiphon(float siphonPowerAcquired) => PowerCurrent = (PowerCurrent + siphonPowerAcquired).Clamp(0, PowerStoreMax);
+
+        public void CauseTroopDamage(float troopDamageChance)
+        {
+            if (TroopList.Count > 0)
+            {
+                if (UniverseRandom.RandomBetween(0f, 100f) < troopDamageChance)
+                {
+                    TroopList[0].Strength = TroopList[0].Strength - 1;
+                    if (TroopList[0].Strength <= 0)
+                        TroopList.RemoveAt(0);
+                }
+            }
+            else if (MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < troopDamageChance)
+                MechanicalBoardingDefense -= 1f;
+        }
+
+        public void CauseRepulsionDamage(Beam beam)
+        {
+            if (IsTethered() || EnginesKnockedOut)
+                return;
+            if (beam.Owner == null || beam.Weapon == null)
+                return;
+            Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Mass;
+        }
+
+        public void CauseMassDamage(float massDamage)
+        {
+            if (IsTethered() || EnginesKnockedOut)
+                return;
+            Mass += massDamage;
+            velocityMaximum = Thrust / Mass;
+            Speed = velocityMaximum;
+            rotationRadiansPerSecond = Speed / 700f;
+            shipStatusChanged = true; 
+        }
+
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             if (attackerRelationThis.Treaty_NAPact) return false;
@@ -1995,10 +2041,10 @@ namespace Ship_Game.Ships
             updateTimer -= deltaTime;
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
-                --EMPDamage;
+                EMPDamage -= EmpRecovery;
                 EMPDamage = Math.Max(0, EMPDamage);
 
-                EMPdisabled = EMPDamage > Size + BonusEMP_Protection;
+                EMPdisabled = EMPDamage > EmpTolerance;
             }
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
@@ -2177,7 +2223,6 @@ namespace Ship_Game.Ships
                     NeedRecalculate = false;
                 }
             }
-            SetHealthStatus();
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
             if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear 
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
@@ -2201,7 +2246,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < 0.4f)
+            if (InternalSlotsHealthPercent < 0.5f)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
@@ -2458,31 +2503,20 @@ namespace Ship_Game.Ships
             }
         }
 
-
         public ShipStatus HealthStatus
         {
-            get;
-            private set;            
-        }
-        private void SetHealthStatus()
-        {
-            if (engineState == MoveState.Warp
-                || AI.State == AIState.Refit
-                || AI.State == AIState.Resupply)
+            get
             {
-                HealthStatus = ShipStatus.NotApplicable;
-                return;
+                if (engineState == MoveState.Warp
+                    || AI.State == AIState.Refit
+                    || AI.State == AIState.Resupply)
+                        return ShipStatus.NotApplicable;
+                Health = Health.Clamp(0, HealthMax);
+                return ToShipStatus(Health, HealthMax);
             }
-           
-            Health = Health.Clamp(0, HealthMax);
-            HealthStatus = ToShipStatus(Health, HealthMax);
         }
 
-        public void AddShipHealth(float addHealth)
-        {
-            Health = (Health + addHealth).Clamp(0, HealthMax);
-            SetHealthStatus();            
-        }
+        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamp(0, HealthMax);
 
         public void ShipStatusChange()
         {
@@ -2524,7 +2558,7 @@ namespace Ship_Game.Ships
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
                 
-                RepairRate += module.ActualBonusRepairRate;
+                RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
                 if (module.Mass < 0.0 && module.Powered)
                     Mass += module.Mass;
                 else if (module.Mass > 0.0)
@@ -2562,6 +2596,7 @@ namespace Ship_Game.Ships
                     }
                     else
                         ModulePowerDraw += module.PowerDraw;
+
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;

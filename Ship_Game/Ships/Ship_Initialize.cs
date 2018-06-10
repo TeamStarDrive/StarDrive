@@ -324,7 +324,10 @@ namespace Ship_Game.Ships
             }
             //end: ship subclass initializations. 
 
-            InitializeStatus(loadingFromSavegame);
+            // FB: this IF statement so that ships loaded from save wont initialize twice, causing internlslot issues. This is a Workaround
+            // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
+            if (!loadingFromSavegame)
+                InitializeStatus(loadingFromSavegame); 
             
             SetSystem(System);
             InitExternalSlots();
