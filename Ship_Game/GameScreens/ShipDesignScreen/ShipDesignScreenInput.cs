@@ -208,6 +208,11 @@ namespace Ship_Game
                 ShowAllArcs = !ShowAllArcs;
                 ArcsButton.ToggleOn = ShowAllArcs;
             }
+            if (input.DesignMirrorToggled)
+            {
+                HandleSymmetricDesignButton();
+            }
+                
 
             HandleCameraMovement(input);
 
@@ -543,6 +548,12 @@ namespace Ship_Game
             return true;
         }
 
+        public void HandleSymmetricDesignButton()
+        {
+            IsSymmetricDesignMode = !IsSymmetricDesignMode;
+            SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
+        }
+
         private static CombatState CombatStateFromAction(ToggleButton button)
         {
             return (CombatState)Enum.Parse(typeof(CombatState), button.Action);
@@ -730,8 +741,7 @@ namespace Ship_Game
 
             SymmetricDesignButton = ButtonMedium(titleId: 1986, clickSfx: "blip_click", click: b =>
             {
-                IsSymmetricDesignMode = !IsSymmetricDesignMode;
-                SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
+                HandleSymmetricDesignButton();
             });
 
             Vector2 layoutEndV = EndLayout();
