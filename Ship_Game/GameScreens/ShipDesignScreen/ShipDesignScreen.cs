@@ -223,7 +223,7 @@ namespace Ship_Game
 
             if (IsSymmetricDesignMode)
             {
-                GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
+                GetMirrorSlot(slot.PQ.X, slot.PQ.Y, module.XSIZE, orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
                 if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirroredSlot, module))
                 {
                     PlayNegativeSound();
@@ -231,6 +231,8 @@ namespace Ship_Game
                 }
                 ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, GetMirroredFacing(orientation));
                 ModuleGrid.ClearSlots(mirroredSlot, module.XSIZE, module.YSIZE);
+                if (module.ModuleType == ShipModuleType.Hangar)
+                    mirroredModule.hangarShipUID = module.hangarShipUID;
                 ModuleGrid.InstallModule(mirroredSlot, mirroredModule, mirroredOrientation);
             }
             else if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
@@ -238,7 +240,6 @@ namespace Ship_Game
                 PlayNegativeSound();
                 return;
             }
-
             ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
