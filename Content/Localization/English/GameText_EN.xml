@@ -4697,7 +4697,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1984</Index>
-      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adusted to the opposite direction if you change them.</Text>
+      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them.</Text>
     </Token>
     <Token>
       <Index>1985</Index>

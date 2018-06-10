@@ -221,9 +221,19 @@ namespace Ship_Game
         private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
 
-            GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
-            // FB: install the module only if both fit the slots, since ships might be non symmetric
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || (IsSymmetricDesignMode && !ModuleGrid.ModuleFitsAtSlot(mirroredSlot, module)))
+            if (IsSymmetricDesignMode)
+            {
+                GetMirrorSlot(slot.PQ.X, slot.PQ.Y, ActiveModule.XSIZE, orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
+                if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirroredSlot, module))
+                {
+                    PlayNegativeSound();
+                    return;
+                }
+                ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, GetMirroredFacing(orientation));
+                ModuleGrid.ClearSlots(mirroredSlot, module.XSIZE, module.YSIZE);
+                ModuleGrid.InstallModule(mirroredSlot, mirroredModule, mirroredOrientation);
+            }
+            else if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
                 PlayNegativeSound();
                 return;
@@ -231,14 +241,6 @@ namespace Ship_Game
 
             ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
-            if (IsSymmetricDesignMode)
-            {
-                SpawnActiveModule(module.UID, mirroredOrientation, slot.Facing);
-                ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, 360 - slot.Facing);
-                ModuleGrid.ClearSlots(mirroredSlot, module.XSIZE, module.YSIZE);
-                ModuleGrid.InstallModule(mirroredSlot, mirroredModule, mirroredOrientation);
-            }
-
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
             SpawnActiveModule(module.UID, orientation, slot.Facing);

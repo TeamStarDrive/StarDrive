@@ -252,6 +252,18 @@ namespace Ship_Game
             return ModuleGrid.Get(new Point(mirrorX, yPos), out mirroredSlot);
         }
 
+        public float GetMirroredFacing(ModuleOrientation orientation)
+        {
+            if (orientation == ModuleOrientation.Left)
+                return 90;
+            else if (orientation == ModuleOrientation.Right)
+                return 270;
+            else if (orientation == ModuleOrientation.Rear)
+                return 180;
+            else
+                return 0;
+        }
+
         public ShipModule GetMirrorModule(SlotStruct slot)
         {
             SlotStruct root = slot.Parent ?? slot;
@@ -487,11 +499,10 @@ namespace Ship_Game
                     {
                         GetMirrorSlot(root.PQ.X, root.PQ.Y, root.Module.XSIZE, root.Orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
                         SlotStruct mirroredRoot = mirroredSlot.Parent ?? mirroredSlot;
-                        if (IsMirrorModuleValid(root.Module, mirroredRoot?.Module))
+                        if (mirroredRoot != root && IsMirrorModuleValid(root.Module, mirroredRoot?.Module))
                             ModuleGrid.ClearSlots(mirroredRoot, mirroredRoot.Module.XSIZE, mirroredRoot.Module.YSIZE);
                     }
-                    if (root.Module != null)
-                        ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
+                    ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
                     ModuleGrid.RecalculatePower();
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
