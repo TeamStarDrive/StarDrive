@@ -284,6 +284,16 @@ namespace Ship_Game
             return false;
         }
 
+        public void MoveMirroredArcToOpposite(SlotStruct slot, float arc)
+        {
+            if (IsSymmetricDesignMode)
+            {
+                ShipModule mirroredModule = GetMirrorModule(slot);
+                if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
+                    mirroredModule.Facing = (float)Math.Round(360 - arc);
+            }
+        }
+
         private void HandleCameraMovement(InputState input)
         {
             if (input.RightMouseClick)
@@ -428,29 +438,17 @@ namespace Ship_Game
                     Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center());
                     float arc = spaceFromWorldSpace.AngleToTarget(input.CursorPosition);
 
-                    ShipModule mirroredModule;
-
                     if (Input.IsShiftKeyDown)
                     {
                         HighlightedModule.Facing = (float)Math.Round(arc);
-                        if (IsSymmetricDesignMode)
-                        {
-                            mirroredModule = GetMirrorModule(slotStruct);
-                            if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                                mirroredModule.Facing = (float)Math.Round(360 - arc);
-                        }
+                        MoveMirroredArcToOpposite(slotStruct, (float)Math.Round(arc));
                         return;
                     }
 
                     if (!Input.IsAltKeyDown)
                     {
                         HighlightedModule.Facing = (float)Math.Round(arc / 15f) * 15;
-                        if (IsSymmetricDesignMode)
-                        {
-                            mirroredModule = GetMirrorModule(slotStruct);
-                            if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                                mirroredModule.Facing = (float)Math.Round(360 - arc / 15f) * 15;
-                        }
+                        MoveMirroredArcToOpposite(slotStruct, (float)Math.Round(arc / 15f) * 15);
                         return;
                     }
                     float minCompare = float.MinValue;
