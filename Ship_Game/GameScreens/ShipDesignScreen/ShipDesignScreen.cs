@@ -23,7 +23,7 @@ namespace Ship_Game
         private CombatState CombatState = CombatState.AttackRuns;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         private UIButton ToggleOverlayButton;
-        private UIButton SymmetricDesignButton;
+        private UIButton SymmetricDesignButton; // Symmetric Module Placement Feature Created by Fat Bastard
         private UIButton SaveButton;
         private UIButton LoadButton;
         public ModuleSelection ModSel;
