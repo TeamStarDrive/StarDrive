@@ -141,11 +141,19 @@ namespace Ship_Game
                     void DrawArc(Color drawcolor)
                     {
                         var origin = new Vector2(250f, 250f);
-
                         var toDraw = new Rectangle((int)center.X, (int)center.Y, 500, 500);
                         spriteBatch.Draw(arcTexture, toDraw, null, drawcolor
                             , slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
-
+                        if (IsSymmetricDesignMode)
+                        {
+                            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
+                            if (IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+                            {
+                                Vector2 mirroredCenter = mirrored.Slot.Center();
+                                var mirrortoDraw = new Rectangle((int)mirroredCenter.X, (int)mirroredCenter.Y, 500, 500);
+                                spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+                            }
+                        }
                     }
 
                     Weapon w = slot.Module.InstalledWeapon;
@@ -977,6 +985,14 @@ namespace Ship_Game
                 r.Y = r.Y + (int) (transitionOffset * 50f);
             }
             this.ToggleOverlayButton.Draw(ScreenManager.SpriteBatch, r);
+            r = this.SymmetricDesignButton.Rect;
+            if (ScreenState == ScreenState.TransitionOn ||
+                ScreenState == ScreenState.TransitionOff)
+            {
+                r.Y = r.Y + (int)(transitionOffset * 50f);
+            }
+            this.SymmetricDesignButton.Draw(ScreenManager.SpriteBatch, r);
+
             ModSel.Draw(ScreenManager.SpriteBatch);
             
             this.DrawHullSelection();

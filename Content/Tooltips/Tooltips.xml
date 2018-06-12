@@ -1235,5 +1235,10 @@
       <Title>Weapons Peak Power Time during full beam duraion</Title>
       <Data>1987</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>246</TIP_ID>
+      <Title>Symmetric Ship Design Mode</Title>
+      <Data>1984</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
