@@ -249,40 +249,44 @@ namespace Ship_Game
             else
                 mirrorX = center + 8 - mirrorOffset + (center - 8 - xPos);
 
-            if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirroredSlot))
+            if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirrored))
                 return new MirrorSlot();
-            return new MirrorSlot { Slot = mirroredSlot, Orientation = GetMirroredOrientation(orientation) };
+            return new MirrorSlot { Slot = mirrored, Orientation = GetMirroredOrientation(orientation) };
         }
 
         private ModuleOrientation GetMirroredOrientation(ModuleOrientation orientation)
         {
             ModuleOrientation mirroredOrientation;
-            if (orientation == ModuleOrientation.Left)
-                mirroredOrientation = ModuleOrientation.Right;
-            else if (orientation == ModuleOrientation.Right)
-                mirroredOrientation = ModuleOrientation.Left;
-            else
-                mirroredOrientation = orientation;
-            return mirroredOrientation;
+            switch (orientation)
+            {
+                case ModuleOrientation.Left:
+                    return ModuleOrientation.Right;
+                case ModuleOrientation.Right:
+                    return ModuleOrientation.Left;
+                default:
+                    return mirroredOrientation = orientation;
+            }
         }
 
         private float GetMirroredFacing(ModuleOrientation orientation)
         {
-            if (orientation == ModuleOrientation.Left)
-                return 270;
-            else if (orientation == ModuleOrientation.Right)
-                return 90;
-            else if (orientation == ModuleOrientation.Rear)
-                return 180;
-            else
-                return 0;
+            switch (orientation)
+            {
+                case ModuleOrientation.Left:
+                    return 270;
+                case ModuleOrientation.Right:
+                    return 90;
+                case ModuleOrientation.Rear:
+                    return 180;
+                default:
+                    return 0;
+            }
         }
 
         private ShipModule GetMirrorModule(SlotStruct slot)
         {
-            SlotStruct root = slot.Parent ?? slot;
-            MirrorSlot mirroredSlot = GetMirrorSlot(slot, root.Module.XSIZE, root.Orientation);
-            return mirroredSlot.Slot.Parent?.Module ?? mirroredSlot.Slot.Module;
+            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
+            return mirrored.Slot.Root?.Module;
         }
 
         private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
@@ -505,15 +509,13 @@ namespace Ship_Game
             {
                 if (slot.Module != null || slot.Parent != null)
                 {
-                    SlotStruct root = slot.Parent ?? slot;
                     if (IsSymmetricDesignMode)
                     {
-                        MirrorSlot mirroredSlot = GetMirrorSlot(root, root.Module.XSIZE, root.Orientation);
-                        SlotStruct mirroredRoot = mirroredSlot.Slot.Parent ?? mirroredSlot.Slot;
-                        if (mirroredRoot != root && IsMirrorModuleValid(root.Module, mirroredRoot?.Module))
-                            ModuleGrid.ClearSlots(mirroredRoot, mirroredRoot.Module.XSIZE, mirroredRoot.Module.YSIZE);
+                        MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
+                        if (mirrored.Slot.Root != slot.Root && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root?.Module))
+                            ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
                     }
-                    ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
+                    ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
                     ModuleGrid.RecalculatePower();
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }

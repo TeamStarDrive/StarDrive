@@ -236,17 +236,15 @@ namespace Ship_Game
 
             if (IsSymmetricDesignMode)
             {
-                MirrorSlot mirroredSlot = GetMirrorSlot(slot, module.XSIZE, orientation);
-                if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirroredSlot.Slot, module))
+                MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
+                if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
                 {
                     PlayNegativeSound();
                     return;
                 }
-                ShipModule mirroredModule = CreateMirrorModule(mirroredSlot, module);
-                ModuleGrid.ClearSlots(mirroredSlot.Slot, module.XSIZE, module.YSIZE);
-                if (module.ModuleType == ShipModuleType.Hangar)
-                    mirroredModule.hangarShipUID = module.hangarShipUID;
-                ModuleGrid.InstallModule(mirroredSlot.Slot, mirroredModule, mirroredSlot.Orientation);
+                ShipModule mirroredModule = CreateMirrorModule(mirrored, module);
+                ModuleGrid.ClearSlots(mirrored.Slot, module.XSIZE, module.YSIZE);
+                ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
             }
             else if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
