@@ -310,7 +310,7 @@ namespace Ship_Game
             {
                 ShipModule mirroredModule = GetMirrorModule(slot);
                 if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                        mirroredModule.Facing = (float)Math.Round(360 - arc);
+                    mirroredModule.Facing = (float)Math.Round(360 - arc);
             }
         }
 
