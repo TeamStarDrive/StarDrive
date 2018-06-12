@@ -237,7 +237,7 @@ namespace Ship_Game
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
-                if (IsMirrorSlotPresent(mirrored))
+                if (IsMirrorSlotPresent(mirrored, slot))
                 {
                     if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
                     {

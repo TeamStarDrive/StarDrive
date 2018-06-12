@@ -285,7 +285,7 @@ namespace Ship_Game
         private ShipModule GetMirrorModule(SlotStruct slot)
         {
             MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
-            if (!IsMirrorSlotPresent(mirrored))
+            if (!IsMirrorSlotPresent(mirrored, slot))
                 return null;
             return mirrored.Slot.Root.Module;
         }
@@ -298,9 +298,11 @@ namespace Ship_Game
             return false;
         }
 
-        private bool IsMirrorSlotPresent(MirrorSlot mirrored)
+        private bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
         {
-            return mirrored.Slot == null ? false : true;
+            if (mirrored.Slot == null || slot.PQ.X == mirrored.Slot.PQ.X)
+                return false;
+            return true;
         }
 
         private void SetFiringArc(SlotStruct slot, float arc)
@@ -518,7 +520,9 @@ namespace Ship_Game
                     if (IsSymmetricDesignMode)
                     {
                         MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                        if (IsMirrorSlotPresent(mirrored) && mirrored.Slot.Root != slot.Root && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                        if (IsMirrorSlotPresent(mirrored, slot) 
+                            && mirrored.Slot.Root != slot.Root 
+                            && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
                             ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
                     }
                     ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
