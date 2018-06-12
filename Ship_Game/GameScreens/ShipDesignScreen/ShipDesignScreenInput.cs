@@ -248,8 +248,10 @@ namespace Ship_Game
                 mirrorX = center - 8 - mirrorOffset - (xPos - (center + 8));
             else
                 mirrorX = center + 8 - mirrorOffset + (center - 8 - xPos);
-            if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirrored))
-                return new MirrorSlot();
+
+            if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirrored)
+                || Math.Abs(xPos - mirrorX) <= mirrorOffset) // overlapping module width at center
+                    return new MirrorSlot();
             return new MirrorSlot { Slot = mirrored, Orientation = GetMirroredOrientation(orientation) };
         }
 

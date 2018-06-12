@@ -249,7 +249,7 @@ namespace Ship_Game
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
             }
-            else if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
                 PlayNegativeSound();
                 return;
