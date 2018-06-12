@@ -146,13 +146,12 @@ namespace Ship_Game
                             , slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
                         if (IsSymmetricDesignMode)
                         {
-                            MirrorSlot mirroredSlot = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
-                            SlotStruct mirroredRoot = mirroredSlot.Slot.Parent ?? mirroredSlot.Slot;
-                            if (IsMirrorModuleValid(slot.Module, mirroredRoot?.Module))
+                            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
+                            if (IsMirrorModuleValid(slot.Module, mirrored.Slot.Root?.Module))
                             {
-                                Vector2 mirroredCenter = mirroredSlot.Slot.Center();
+                                Vector2 mirroredCenter = mirrored.Slot.Center();
                                 var mirrortoDraw = new Rectangle((int)mirroredCenter.X, (int)mirroredCenter.Y, 500, 500);
-                                spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirroredRoot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+                                spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
                             }
                         }
                     }

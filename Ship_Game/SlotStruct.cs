@@ -133,5 +133,7 @@ namespace Ship_Game
             Parent    = null;
             Orientation     = ModuleOrientation.Normal;
         }
+
+        public SlotStruct Root => Parent ?? this;
     }
 }
