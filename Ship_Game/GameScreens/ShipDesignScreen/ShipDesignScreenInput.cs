@@ -237,46 +237,55 @@ namespace Ship_Game
             return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
         }
 
-        public bool GetMirrorSlot(int xPos, int yPos, int xSize, ModuleOrientation orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation)
+        private MirrorSlot GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation)
         {
             int center = 952;
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
+            int xPos = slot.PQ.X;
+            int yPos = slot.PQ.Y;
             if (xPos > center)
                 mirrorX = center - 8 - mirrorOffset - (xPos - (center + 8));
             else
-                mirrorX = center + 8 - mirrorOffset  + (center - 8 - xPos);
+                mirrorX = center + 8 - mirrorOffset + (center - 8 - xPos);
 
+            if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirroredSlot))
+                return new MirrorSlot();
+            return new MirrorSlot { Slot = mirroredSlot, Orientation = GetMirroredOrientation(orientation) };
+        }
+
+        private ModuleOrientation GetMirroredOrientation(ModuleOrientation orientation)
+        {
+            ModuleOrientation mirroredOrientation;
             if (orientation == ModuleOrientation.Left)
                 mirroredOrientation = ModuleOrientation.Right;
             else if (orientation == ModuleOrientation.Right)
                 mirroredOrientation = ModuleOrientation.Left;
             else
                 mirroredOrientation = orientation;
-
-            return ModuleGrid.Get(new Point(mirrorX, yPos), out mirroredSlot);
+            return mirroredOrientation;
         }
 
-        public float GetMirroredFacing(ModuleOrientation orientation)
+        private float GetMirroredFacing(ModuleOrientation orientation)
         {
             if (orientation == ModuleOrientation.Left)
-                return 90;
-            else if (orientation == ModuleOrientation.Right)
                 return 270;
+            else if (orientation == ModuleOrientation.Right)
+                return 90;
             else if (orientation == ModuleOrientation.Rear)
                 return 180;
             else
                 return 0;
         }
 
-        public ShipModule GetMirrorModule(SlotStruct slot)
+        private ShipModule GetMirrorModule(SlotStruct slot)
         {
             SlotStruct root = slot.Parent ?? slot;
-            GetMirrorSlot(root.PQ.X, root.PQ.Y, root.Module.XSIZE, root.Orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
-            return mirroredSlot.Parent?.Module ?? mirroredSlot.Module;
+            MirrorSlot mirroredSlot = GetMirrorSlot(slot, root.Module.XSIZE, root.Orientation);
+            return mirroredSlot.Slot.Parent?.Module ?? mirroredSlot.Slot.Module;
         }
 
-        public bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
+        private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
         {
             if (mirroredModule == null) return false;
             if (module.UID == mirroredModule.UID)
@@ -284,8 +293,9 @@ namespace Ship_Game
             return false;
         }
 
-        public void MoveMirroredArcToOpposite(SlotStruct slot, float arc)
+        private void SetFiringArc(SlotStruct slot, float arc)
         {
+            HighlightedModule.Facing = arc;
             if (IsSymmetricDesignMode)
             {
                 ShipModule mirroredModule = GetMirrorModule(slot);
@@ -440,15 +450,13 @@ namespace Ship_Game
 
                     if (Input.IsShiftKeyDown)
                     {
-                        HighlightedModule.Facing = (float)Math.Round(arc);
-                        MoveMirroredArcToOpposite(slotStruct, (float)Math.Round(arc));
+                        SetFiringArc(slotStruct, (float)Math.Round(arc));
                         return;
                     }
 
                     if (!Input.IsAltKeyDown)
                     {
-                        HighlightedModule.Facing = (float)Math.Round(arc / 15f) * 15;
-                        MoveMirroredArcToOpposite(slotStruct, (float)Math.Round(arc / 15f) * 15);
+                        SetFiringArc(slotStruct, (float)Math.Round(arc / 15f) * 15);
                         return;
                     }
                     float minCompare = float.MinValue;
@@ -500,8 +508,8 @@ namespace Ship_Game
                     SlotStruct root = slot.Parent ?? slot;
                     if (IsSymmetricDesignMode)
                     {
-                        GetMirrorSlot(root.PQ.X, root.PQ.Y, root.Module.XSIZE, root.Orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
-                        SlotStruct mirroredRoot = mirroredSlot.Parent ?? mirroredSlot;
+                        MirrorSlot mirroredSlot = GetMirrorSlot(root, root.Module.XSIZE, root.Orientation);
+                        SlotStruct mirroredRoot = mirroredSlot.Slot.Parent ?? mirroredSlot.Slot;
                         if (mirroredRoot != root && IsMirrorModuleValid(root.Module, mirroredRoot?.Module))
                             ModuleGrid.ClearSlots(mirroredRoot, mirroredRoot.Module.XSIZE, mirroredRoot.Module.YSIZE);
                     }
