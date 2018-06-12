@@ -268,7 +268,7 @@ namespace Ship_Game
             }
         }
 
-        private float GetMirroredFacing(ModuleOrientation orientation)
+        private float ConvertOrientationToFacing(ModuleOrientation orientation)
         {
             switch (orientation)
             {
