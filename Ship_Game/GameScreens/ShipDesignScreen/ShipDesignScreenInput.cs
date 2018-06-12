@@ -286,7 +286,7 @@ namespace Ship_Game
         private ShipModule GetMirrorModule(SlotStruct slot)
         {
             MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
-            return mirrored.Slot.Root?.Module;
+            return mirrored.Slot.Root.Module;
         }
 
         private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
@@ -512,7 +512,7 @@ namespace Ship_Game
                     if (IsSymmetricDesignMode)
                     {
                         MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                        if (mirrored.Slot.Root != slot.Root && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root?.Module))
+                        if (mirrored.Slot.Root != slot.Root && IsMirrorModuleValid(slot?.Root.Module, mirrored.Slot.Root.Module))
                             ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
                     }
                     ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
