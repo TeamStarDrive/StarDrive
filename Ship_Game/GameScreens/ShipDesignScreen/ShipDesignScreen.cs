@@ -225,7 +225,7 @@ namespace Ship_Game
 
         private ShipModule CreateMirrorModule(MirrorSlot mirrored, ShipModule module)
         {
-            ShipModule m = CreateDesignModule(module.UID, mirrored.Orientation, GetMirroredFacing(mirrored.Orientation));
+            ShipModule m = CreateDesignModule(module.UID, mirrored.Orientation, ConvertOrientationToFacing(mirrored.Orientation));
             m.hangarShipUID = module.hangarShipUID;
             return m;
         }
