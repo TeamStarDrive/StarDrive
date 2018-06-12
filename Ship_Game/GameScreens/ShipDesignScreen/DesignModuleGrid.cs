@@ -150,6 +150,8 @@ namespace Ship_Game
 
         public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module)
         {
+            if (slot == null)
+                return false;
             ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
             if (!IsInBounds(span))
                 return false;

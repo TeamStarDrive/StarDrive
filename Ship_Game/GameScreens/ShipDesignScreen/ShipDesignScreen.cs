@@ -23,6 +23,7 @@ namespace Ship_Game
         private CombatState CombatState = CombatState.AttackRuns;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         private UIButton ToggleOverlayButton;
+        private UIButton SymmetricDesignButton; // Symmetric Module Placement Feature Created by Fat Bastard
         private UIButton SaveButton;
         private UIButton LoadButton;
         public ModuleSelection ModSel;
@@ -67,12 +68,18 @@ namespace Ship_Game
         private ShipData.Category LoadCategory;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
+        public bool IsSymmetricDesignMode = true;
 
 
     #if SHIPYARD
         short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0; //For Gretman's debug shipyard
     #endif
 
+        private struct MirrorSlot
+        {
+            public SlotStruct Slot;
+            public ModuleOrientation Orientation;
+        }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -214,21 +221,43 @@ namespace Ship_Game
 
             HighlightedModule = null;
             HoveredModule     = null;
-        }        
-        
+        }
+
+        private ShipModule CreateMirrorModule(MirrorSlot mirrored, ShipModule module)
+        {
+            ShipModule m = CreateDesignModule(module.UID, mirrored.Orientation, ConvertOrientationToFacing(mirrored.Orientation));
+            m.hangarShipUID = module.hangarShipUID;
+            return m;
+        }
+
+
         private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
+
+            if (IsSymmetricDesignMode)
+            {
+                MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
+                if (IsMirrorSlotPresent(mirrored, slot))
+                {
+                    if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
+                    {
+                        PlayNegativeSound();
+                        return;
+                    }
+                    ShipModule mirroredModule = CreateMirrorModule(mirrored, module);
+                    ModuleGrid.ClearSlots(mirrored.Slot, module.XSIZE, module.YSIZE);
+                    ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
+                }
+            }
             if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
                 PlayNegativeSound();
                 return;
             }
-
             ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
-
             SpawnActiveModule(module.UID, orientation, slot.Facing);
         }
 
