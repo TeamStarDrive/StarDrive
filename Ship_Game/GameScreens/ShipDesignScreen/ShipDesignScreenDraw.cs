@@ -147,7 +147,7 @@ namespace Ship_Game
                         if (IsSymmetricDesignMode)
                         {
                             MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
-                            if (IsMirrorModuleValid(slot.Module, mirrored.Slot.Root?.Module))
+                            if (IsMirrorModuleValid(slot?.Module, mirrored.Slot?.Root.Module))
                             {
                                 Vector2 mirroredCenter = mirrored.Slot.Center();
                                 var mirrortoDraw = new Rectangle((int)mirroredCenter.X, (int)mirroredCenter.Y, 500, 500);
