@@ -68,7 +68,7 @@ namespace Ship_Game
         private ShipData.Category LoadCategory;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
-        public bool IsSymmetricDesignMode;
+        public bool IsSymmetricDesignMode = true;
 
 
     #if SHIPYARD
@@ -237,14 +237,17 @@ namespace Ship_Game
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
-                if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
+                if (IsMirrorSlotPresent(mirrored))
                 {
-                    PlayNegativeSound();
-                    return;
+                    if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
+                    {
+                        PlayNegativeSound();
+                        return;
+                    }
+                    ShipModule mirroredModule = CreateMirrorModule(mirrored, module);
+                    ModuleGrid.ClearSlots(mirrored.Slot, module.XSIZE, module.YSIZE);
+                    ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
-                ShipModule mirroredModule = CreateMirrorModule(mirrored, module);
-                ModuleGrid.ClearSlots(mirrored.Slot, module.XSIZE, module.YSIZE);
-                ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
             }
             else if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {

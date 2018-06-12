@@ -248,7 +248,6 @@ namespace Ship_Game
                 mirrorX = center - 8 - mirrorOffset - (xPos - (center + 8));
             else
                 mirrorX = center + 8 - mirrorOffset + (center - 8 - xPos);
-
             if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirrored))
                 return new MirrorSlot();
             return new MirrorSlot { Slot = mirrored, Orientation = GetMirroredOrientation(orientation) };
@@ -286,6 +285,8 @@ namespace Ship_Game
         private ShipModule GetMirrorModule(SlotStruct slot)
         {
             MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
+            if (!IsMirrorSlotPresent(mirrored))
+                return null;
             return mirrored.Slot.Root.Module;
         }
 
@@ -297,6 +298,11 @@ namespace Ship_Game
             return false;
         }
 
+        private bool IsMirrorSlotPresent(MirrorSlot mirrored)
+        {
+            return mirrored.Slot == null ? false : true;
+        }
+
         private void SetFiringArc(SlotStruct slot, float arc)
         {
             HighlightedModule.Facing = arc;
@@ -304,7 +310,7 @@ namespace Ship_Game
             {
                 ShipModule mirroredModule = GetMirrorModule(slot);
                 if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                    mirroredModule.Facing = (float)Math.Round(360 - arc);
+                        mirroredModule.Facing = (float)Math.Round(360 - arc);
             }
         }
 
@@ -512,7 +518,7 @@ namespace Ship_Game
                     if (IsSymmetricDesignMode)
                     {
                         MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                        if (mirrored.Slot.Root != slot.Root && IsMirrorModuleValid(slot?.Root.Module, mirrored.Slot.Root.Module))
+                        if (IsMirrorSlotPresent(mirrored) && mirrored.Slot.Root != slot.Root && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
                             ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
                     }
                     ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
@@ -747,7 +753,7 @@ namespace Ship_Game
                 ToggleOverlay = !ToggleOverlay;
             });
 
-            SymmetricDesignButton = ButtonMedium(titleId: 1986, clickSfx: "blip_click", click: b =>
+            SymmetricDesignButton = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
             {
                 HandleSymmetricDesignButton();
             });
