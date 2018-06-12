@@ -75,6 +75,11 @@ namespace Ship_Game
         short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0; //For Gretman's debug shipyard
     #endif
 
+        private struct MirrorSlot
+        {
+            public SlotStruct Slot;
+            public ModuleOrientation Orientation;
+        }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -216,24 +221,32 @@ namespace Ship_Game
 
             HighlightedModule = null;
             HoveredModule     = null;
-        }        
-        
+        }
+
+        private ShipModule CreateMirrorModule(MirrorSlot mirrored, ShipModule module)
+        {
+            ShipModule m = CreateDesignModule(module.UID, mirrored.Orientation, GetMirroredFacing(mirrored.Orientation));
+            m.hangarShipUID = module.hangarShipUID;
+            return m;
+        }
+
+
         private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
 
             if (IsSymmetricDesignMode)
             {
-                GetMirrorSlot(slot.PQ.X, slot.PQ.Y, module.XSIZE, orientation, out SlotStruct mirroredSlot, out ModuleOrientation mirroredOrientation);
-                if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirroredSlot, module))
+                MirrorSlot mirroredSlot = GetMirrorSlot(slot, module.XSIZE, orientation);
+                if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirroredSlot.Slot, module))
                 {
                     PlayNegativeSound();
                     return;
                 }
-                ShipModule mirroredModule = CreateDesignModule(module.UID, mirroredOrientation, GetMirroredFacing(orientation));
-                ModuleGrid.ClearSlots(mirroredSlot, module.XSIZE, module.YSIZE);
+                ShipModule mirroredModule = CreateMirrorModule(mirroredSlot, module);
+                ModuleGrid.ClearSlots(mirroredSlot.Slot, module.XSIZE, module.YSIZE);
                 if (module.ModuleType == ShipModuleType.Hangar)
                     mirroredModule.hangarShipUID = module.hangarShipUID;
-                ModuleGrid.InstallModule(mirroredSlot, mirroredModule, mirroredOrientation);
+                ModuleGrid.InstallModule(mirroredSlot.Slot, mirroredModule, mirroredSlot.Orientation);
             }
             else if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
             {
