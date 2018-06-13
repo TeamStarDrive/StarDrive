@@ -230,10 +230,8 @@ namespace Ship_Game
             return m;
         }
 
-
         private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
-
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -254,11 +252,50 @@ namespace Ship_Game
                 PlayNegativeSound();
                 return;
             }
+            GameAudio.PlaySfxAsync("sub_bass_mouseover");
             ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
             SpawnActiveModule(module.UID, orientation, slot.Facing);
+        }
+
+        private void HandleBulkModuleReplacement(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
+        {
+            Log.Info("bulkpossible? " + IsBulkModuleReplacementPossible(slot, module, orientation));
+            if (!IsBulkModuleReplacementPossible(slot, module, orientation))
+            {
+                PlayNegativeSound();
+                return;
+            }
+            DoBulkModuleReplacement(slot.Module, module);
+        }
+
+        private bool IsBulkModuleReplacementPossible(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
+        {
+            if (slot == null || slot.ModuleUID == null)
+                return false;
+            if (slot.Module.XSIZE != module.XSIZE || slot.Module.YSIZE != module.YSIZE || slot.Module.Restrictions != module.Restrictions)
+                return false;
+            return true;
+        }
+
+        private void DoBulkModuleReplacement(ShipModule oldModule, ShipModule templateModule)
+        {
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                if (slot.ModuleUID == oldModule.UID)
+                    ReplaceModule(slot, oldModule, templateModule);
+            }
+            ModuleGrid.RecalculatePower();
+            ShipSaved = false;
+        }
+
+        private void ReplaceModule(SlotStruct oldSlot, ShipModule oldModule, ShipModule templateModule)
+        {
+            ShipModule newModule = CreateDesignModule(templateModule.UID, oldSlot.Orientation, oldSlot.Module.Facing);
+            ModuleGrid.ClearSlots(oldSlot, oldModule.XSIZE, oldModule.YSIZE);
+            ModuleGrid.InstallModule(oldSlot, newModule, oldSlot.Orientation);
         }
 
         private DesignModuleGrid ModuleGrid;

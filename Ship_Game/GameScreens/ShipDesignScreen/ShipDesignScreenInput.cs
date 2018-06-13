@@ -499,14 +499,13 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (GetSlotUnderCursor(input, out SlotStruct slot))
-            {
-                GameAudio.PlaySfxAsync("sub_bass_mouseover");
-                if (slot.ModuleUID != ActiveModule.UID)
-                {
-                    InstallModule(slot, ActiveModule, ActiveModState); 
-                }
-            }
+            if (!GetSlotUnderCursor(input, out SlotStruct slot) || slot.ModuleUID == ActiveModule.UID)
+                return;
+
+            if (!input.IsShiftKeyDown)
+                InstallModule(slot, ActiveModule, ActiveModState);
+            else
+                HandleBulkModuleReplacement(slot, ActiveModule, ActiveModState);
         }
 
         private void HandleDeleteModule(InputState input)
