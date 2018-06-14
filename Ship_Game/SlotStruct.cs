@@ -139,7 +139,7 @@ namespace Ship_Game
         public bool IsModuleReplaceableWith(ShipModule other)
         {
             return Module              != null
-                && ModuleUID      != null
+                && ModuleUID           != null
                 && Module.XSIZE        == other.XSIZE
                 && Module.YSIZE        == other.YSIZE
                 && Module.Restrictions == other.Restrictions;
