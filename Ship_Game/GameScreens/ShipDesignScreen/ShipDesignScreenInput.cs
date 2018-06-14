@@ -509,7 +509,7 @@ namespace Ship_Game
             if (!input.IsShiftKeyDown)
                 InstallModule(slot, ActiveModule, ActiveModState);
             else
-                BulkReplaceModules(slot, ActiveModule, ActiveModState); // Bulk Replace created by Fat Bastard
+                BulkReplaceModules(slot, ActiveModule); // Bulk Replace created by Fat Bastard
         }
 
         private void HandleDeleteModule(InputState input)
