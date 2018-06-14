@@ -135,5 +135,14 @@ namespace Ship_Game
         }
 
         public SlotStruct Root => Parent ?? this;
+
+        public bool IsModuleReplaceableWith(SlotStruct slot, ShipModule other)
+        {
+            return Module              != null
+                && slot.ModuleUID      != null
+                && Module.XSIZE        == other.XSIZE
+                && Module.YSIZE        == other.YSIZE
+                && Module.Restrictions == other.Restrictions;
+        }
     }
 }

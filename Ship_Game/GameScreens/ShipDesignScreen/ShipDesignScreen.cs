@@ -259,26 +259,15 @@ namespace Ship_Game
             SpawnActiveModule(module.UID, orientation, slot.Facing);
         }
 
-        private void HandleBulkModuleReplacement(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
+        private void BulkReplaceModules(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
             //Log.Info("bulkpossible? " + IsBulkModuleReplacementPossible(slot, module));
-            if (!IsBulkModuleReplacementPossible(slot, module))
+            if (!slot.IsModuleReplaceableWith(slot, module))
             {
                 PlayNegativeSound();
                 return;
             }
             DoBulkModuleReplacement(slot.Module, module);
-        }
-
-        private bool IsBulkModuleReplacementPossible(SlotStruct slot, ShipModule module)
-        {
-            if (slot == null || slot.ModuleUID == null)
-                return false;
-            if (slot.Module.XSIZE != module.XSIZE 
-                || slot.Module.YSIZE != module.YSIZE 
-                || slot.Module.Restrictions != module.Restrictions)
-                return false;
-            return true;
         }
 
         private void DoBulkModuleReplacement(ShipModule oldModule, ShipModule templateModule)
