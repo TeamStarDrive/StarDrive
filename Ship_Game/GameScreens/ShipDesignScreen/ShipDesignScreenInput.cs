@@ -294,12 +294,10 @@ namespace Ship_Game
 
         private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
         {
-            if (mirroredModule == null) return false;
-            if (module.UID == mirroredModule.UID
-                && module.XSIZE == mirroredModule.XSIZE
-                && module.YSIZE == mirroredModule.YSIZE)
-                return true;
-            return false;
+            return mirroredModule       != null
+                && mirroredModule.UID   == module.UID
+                && mirroredModule.XSIZE == module.XSIZE
+                && mirroredModule.YSIZE == module.YSIZE;
         }
 
         private bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
@@ -511,7 +509,7 @@ namespace Ship_Game
             if (!input.IsShiftKeyDown)
                 InstallModule(slot, ActiveModule, ActiveModState);
             else
-                HandleBulkModuleReplacement(slot, ActiveModule, ActiveModState);
+                BulkReplaceModules(slot, ActiveModule, ActiveModState);
         }
 
         private void HandleDeleteModule(InputState input)
