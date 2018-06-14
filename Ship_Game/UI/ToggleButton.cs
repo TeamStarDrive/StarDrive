@@ -205,6 +205,11 @@ namespace Ship_Game.UI
 
         public override bool HandleInput(InputState input)
         {
+            return HandleInput(input, ignoreLeftMouseReleased: false);
+        }
+
+        public bool HandleInput(InputState input, bool ignoreLeftMouseReleased)
+        {
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
             {
@@ -216,9 +221,9 @@ namespace Ship_Game.UI
                         ToolTip.TextLast = string.Empty;
                     }
 
-                    ToolTip.TipTimer = 0;                    
+                    ToolTip.TipTimer = 0;
                 }
-                Hover = false;                
+                Hover = false;
                 return false;
             }
             if (!Hover)
@@ -228,7 +233,7 @@ namespace Ship_Game.UI
                     ToolTip.CreateTooltip(WhichToolTip);
             }
             Hover = true;
-            
+
             if (input.LeftMouseClick)
             {
                 OnClick?.Invoke(this);
@@ -237,7 +242,7 @@ namespace Ship_Game.UI
             }
 
             // edge case: capture mouse release events
-            return input.LeftMouseReleased;
+            return input.LeftMouseReleased && !ignoreLeftMouseReleased;
         }
     }
 }
