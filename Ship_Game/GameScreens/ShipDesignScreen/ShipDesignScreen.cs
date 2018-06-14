@@ -259,7 +259,7 @@ namespace Ship_Game
             SpawnActiveModule(module.UID, orientation, slot.Facing);
         }
 
-        private void BulkReplaceModules(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
+        private void BulkReplaceModules(SlotStruct slot, ShipModule module)
         {
             if (!slot.IsModuleReplaceableWith(module))
             {
