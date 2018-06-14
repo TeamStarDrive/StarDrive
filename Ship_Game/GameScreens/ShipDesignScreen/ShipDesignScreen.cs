@@ -261,15 +261,14 @@ namespace Ship_Game
 
         private void BulkReplaceModules(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
-            //Log.Info("bulkpossible? " + IsBulkModuleReplacementPossible(slot, module));
-            if (!slot.IsModuleReplaceableWith(slot, module))
+            if (!slot.IsModuleReplaceableWith(module))
             {
                 PlayNegativeSound();
                 return;
             }
             DoBulkModuleReplacement(slot.Module, module);
         }
-
+        
         private void DoBulkModuleReplacement(ShipModule oldModule, ShipModule templateModule)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
@@ -294,11 +293,7 @@ namespace Ship_Game
         {
             if (!GetSlotUnderCursor(input, out slot))
                 return false;
-            if (slot.ModuleUID == ActiveModule.UID && slot.Module?.hangarShipUID != ActiveModule.hangarShipUID)
-                return true;
-            if (slot.ModuleUID == ActiveModule.UID)
-                return false;
-            return true;
+            return slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID;
         }
 
         private DesignModuleGrid ModuleGrid;
