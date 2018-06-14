@@ -295,7 +295,9 @@ namespace Ship_Game
         private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
         {
             if (mirroredModule == null) return false;
-            if (module.UID == mirroredModule.UID)
+            if (module.UID == mirroredModule.UID
+                && module.XSIZE == mirroredModule.XSIZE
+                && module.YSIZE == mirroredModule.YSIZE)
                 return true;
             return false;
         }
@@ -499,9 +501,13 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (!GetSlotUnderCursor(input, out SlotStruct slot) || slot.ModuleUID == ActiveModule.UID)
+            if (!ShouldTryInstallModule(input, out SlotStruct slot))
+            {
+                PlayNegativeSound();
                 return;
+            }
 
+            GameAudio.PlaySfxAsync("sub_bass_mouseover");
             if (!input.IsShiftKeyDown)
                 InstallModule(slot, ActiveModule, ActiveModState);
             else
