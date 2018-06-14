@@ -1608,8 +1608,8 @@ namespace Ship_Game
         private bool ShouldWeBuildThis(float maintCost, bool acceptLoss = false)
         {
             if (Owner.Money < 0.0 || Owner.MoneyLastTurn <= 0.0) return false;   //You have bad credit!
-            float acceptableLoss = 0.0f;
-            if (acceptLoss) acceptableLoss = Math.Min(0.5f, Math.Min(Owner.Money * 0.01f, Owner.MoneyLastTurn * 0.1f));
+            float acceptableLoss = Owner.data.FlatMoneyBonus * 0.1f;
+            if (acceptLoss) acceptableLoss += Math.Min(0.5f, Math.Min(Owner.Money * 0.01f, Owner.MoneyLastTurn * 0.1f));
 
             if (GrossMoneyPT + acceptableLoss > TotalMaintenanceCostsPerTurn + maintCost) return true;
             else return false;
@@ -1624,6 +1624,15 @@ namespace Ship_Game
                 return second;
             else return first;
         }   //Building bestCost   = Building.SelectGreater(first, second, b => b.Cost);
+
+        private bool EvaluateFlatFood(Building building, float breakpoint)
+        {
+            if (building == null || Owner.data.Traits.Cybernetic > 0) return false;
+
+            //Too few colonists would cause waste                  //Balance of fertility to population is low, otherwise FoodPerColonist is a better option
+            if (MaxPopulation > building.PlusFlatFoodAmount - 0.5f && Fertility + PlusFoodPerColonist < building.PlusFlatFoodAmount * breakpoint) return true;
+            else return false;
+        }
 
         public void DoGoverning()
         {
@@ -1641,7 +1650,7 @@ namespace Ship_Game
             {
                 if (pgs.Habitable)
                 {
-                    openTiles++;
+                    if (pgs.building != null) openTiles++;
                 }
                 else noMoreBiospheres = false;
             }
@@ -1789,8 +1798,8 @@ namespace Ship_Game
 
                     if (leftoverWorkers > 0.0)
                     {
-                        allocateWorkers = Math.Min(leftoverWorkers, 1.0f);  //All the rest
-                        leftoverWorkers -= allocateWorkers;
+                        allocateWorkers = leftoverWorkers;  //All the rest
+                        leftoverWorkers = 0.0f;
 
                         if (littleInQueueToBuild && Population < 2.00f) WorkerPercentage += allocateWorkers;    //Only help build if this is a low pop planet
                         else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
@@ -1805,11 +1814,10 @@ namespace Ship_Game
                     if (openTiles > 0)
                     {
                         if (!lotsInQueueToBuild)
-                        {                                           //How many workers would it take to create this much food         Is that more than [VALUE] percent of the population
-                            if (bestFlatFood != null && bestFlatFood.PlusFlatFoodAmount / (Fertility + PlusFoodPerColonist) + 0.0001f >  MaxPopulation * 0.5f)
-                            {   //Auto-No for Cybernetic
-                                AddBuildingToCQ(bestFlatFood);
-                            }                                   //At minimum worker rate, how much would this generate        Will this feed more than [VALUE] percent of the population
+                        {
+                            if (EvaluateFlatFood(bestFlatFood, 0.5f)) AddBuildingToCQ(bestFlatFood);
+
+                        //At minimum worker rate, how much would this generate        Will this feed more than [VALUE] percent of the population
                             else if (bestFoodPerCol != null && foodMinimum * bestFoodPerCol.PlusFoodPerColonist * MaxPopulation >= MaxPopulation * 0.25f)
                                                              //bestFoodPerCol.PlusFoodPerColonist >= (Fertility + PlusFoodPerColonist) * .025
                             {   //Auto-No for Cybernetic
