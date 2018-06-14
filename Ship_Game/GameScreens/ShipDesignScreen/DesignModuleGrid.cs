@@ -165,11 +165,12 @@ namespace Ship_Game
         
         public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
         {
-            slot.ModuleUID   = newModule.UID;
-            slot.Module      = newModule;
-            slot.Orientation = orientation;
-            slot.Facing      = newModule.Facing;
-            slot.Tex         = newModule.ModuleTexture;
+            slot.ModuleUID            = newModule.UID;
+            slot.Module               = newModule;
+            slot.Orientation          = orientation;
+            slot.Facing               = newModule.Facing;
+            slot.Tex                  = newModule.ModuleTexture;
+            slot.Module.hangarShipUID = newModule.hangarShipUID;
             slot.Module.SetAttributes();
 
             ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);

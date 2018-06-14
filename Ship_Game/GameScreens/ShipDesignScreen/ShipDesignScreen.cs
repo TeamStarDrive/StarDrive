@@ -252,7 +252,6 @@ namespace Ship_Game
                 PlayNegativeSound();
                 return;
             }
-            GameAudio.PlaySfxAsync("sub_bass_mouseover");
             ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
@@ -262,8 +261,8 @@ namespace Ship_Game
 
         private void HandleBulkModuleReplacement(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
-            Log.Info("bulkpossible? " + IsBulkModuleReplacementPossible(slot, module, orientation));
-            if (!IsBulkModuleReplacementPossible(slot, module, orientation))
+            //Log.Info("bulkpossible? " + IsBulkModuleReplacementPossible(slot, module));
+            if (!IsBulkModuleReplacementPossible(slot, module))
             {
                 PlayNegativeSound();
                 return;
@@ -271,11 +270,13 @@ namespace Ship_Game
             DoBulkModuleReplacement(slot.Module, module);
         }
 
-        private bool IsBulkModuleReplacementPossible(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
+        private bool IsBulkModuleReplacementPossible(SlotStruct slot, ShipModule module)
         {
             if (slot == null || slot.ModuleUID == null)
                 return false;
-            if (slot.Module.XSIZE != module.XSIZE || slot.Module.YSIZE != module.YSIZE || slot.Module.Restrictions != module.Restrictions)
+            if (slot.Module.XSIZE != module.XSIZE 
+                || slot.Module.YSIZE != module.YSIZE 
+                || slot.Module.Restrictions != module.Restrictions)
                 return false;
             return true;
         }
@@ -294,8 +295,21 @@ namespace Ship_Game
         private void ReplaceModule(SlotStruct oldSlot, ShipModule oldModule, ShipModule templateModule)
         {
             ShipModule newModule = CreateDesignModule(templateModule.UID, oldSlot.Orientation, oldSlot.Module.Facing);
-            ModuleGrid.ClearSlots(oldSlot, oldModule.XSIZE, oldModule.YSIZE);
-            ModuleGrid.InstallModule(oldSlot, newModule, oldSlot.Orientation);
+            newModule.hangarShipUID = templateModule.hangarShipUID;
+            ModuleOrientation oldOrientation = oldSlot.Orientation;
+            ModuleGrid.ClearSlots(oldSlot, oldSlot.Module.XSIZE, oldSlot.Module.YSIZE);
+            ModuleGrid.InstallModule(oldSlot, newModule, oldOrientation);
+        }
+
+        private bool ShouldTryInstallModule(InputState input, out SlotStruct slot)
+        {
+            if (!GetSlotUnderCursor(input, out slot))
+                return false;
+            if (slot.ModuleUID == ActiveModule.UID && slot.Module?.hangarShipUID != ActiveModule.hangarShipUID)
+                return true;
+            if (slot.ModuleUID == ActiveModule.UID)
+                return false;
+            return true;
         }
 
         private DesignModuleGrid ModuleGrid;
