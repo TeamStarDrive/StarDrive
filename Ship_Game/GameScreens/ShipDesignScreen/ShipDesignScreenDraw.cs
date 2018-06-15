@@ -123,6 +123,15 @@ namespace Ship_Game
                     if (slot.Module.shield_power_max > 0f)
                     {
                         DrawCircle(center, slot.Module.ShieldHitRadius, Color.LightGreen);
+                        if (IsSymmetricDesignMode)
+                        {
+                            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
+                            if (IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+                            {
+                                Vector2 mirroredCenter = mirrored.Slot.Center();
+                                DrawCircle(mirroredCenter, mirrored.Slot.Module.ShieldHitRadius, Color.LightGreen);
+                            }
+                        }
                     }
 
                     if (slot.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
@@ -135,6 +144,7 @@ namespace Ship_Game
 
                         ToolTip.ShipYardArcTip();
                     }
+
                     // @todo Use this to fix the 'original' code below :)))
                     var arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
 
@@ -154,6 +164,15 @@ namespace Ship_Game
                                 spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
                             }
                         }
+                    }
+
+                    if (slot.Module.ModuleType == ShipModuleType.Hangar)
+                    {
+                        Vector2 arcString = center;
+                        Color color = Color.Black;
+                        color.A = 140;
+                        DrawRectangle(slot.ModuleRect, Color.Teal, color);
+                        DrawString(arcString, 0, 0.4f, Color.White, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
                     }
 
                     Weapon w = slot.Module.InstalledWeapon;
