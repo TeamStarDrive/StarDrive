@@ -264,9 +264,8 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(string uid, Empire loyalty, ShipData hull)
+        public static ShipModule CreateNoParent(ShipModule template, Empire loyalty, ShipData hull)
         {
-            ShipModule template = ResourceManager.GetModuleTemplate(uid);
             var module = new ShipModule
             {
                 Flyweight         = template.Flyweight,
@@ -319,7 +318,8 @@ namespace Ship_Game.Ships
         // this is used during Ship creation, Ship template creation or Ship loading from save
         public static ShipModule Create(string uid, Ship parent, ModuleSlotData slot, bool isTemplate, bool fromSave)
         {
-            ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
+            ShipModule template = ResourceManager.GetModuleTemplate(uid);
+            ShipModule module = CreateNoParent(template, parent.loyalty, parent.shipData);
             module.Parent = parent;
             module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
             module.Initialize(slot.Position, isTemplate);

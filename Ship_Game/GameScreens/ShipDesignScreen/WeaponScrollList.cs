@@ -62,7 +62,7 @@ namespace Ship_Game
                         continue;
 
                     var module = (ShipModule)e.item;
-                    Screen.SetActiveModule(module.UID, ModuleOrientation.Normal, 0f);
+                    Screen.SetActiveModule(module, ModuleOrientation.Normal, 0f);
                     return true;
                 }
                 else
@@ -135,7 +135,7 @@ namespace Ship_Game
             if (RestrictedModCheck(Screen.ActiveHull.Role, template))
                 return false;
 
-            tmp = Screen.CreateDesignModule(template.UID);
+            tmp = Screen.CreateDesignModule(template);
             return true;
         }
 
