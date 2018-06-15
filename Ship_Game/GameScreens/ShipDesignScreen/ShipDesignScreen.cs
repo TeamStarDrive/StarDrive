@@ -184,7 +184,8 @@ namespace Ship_Game
 
         public ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, float facing)
         {
-            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
+            ShipModule m = ShipModule.CreateNoParent(ResourceManager.GetModuleTemplate(template.UID),
+                                                     EmpireManager.Player, ActiveHull);
             m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
             m.hangarShipUID = template.hangarShipUID;
             return m;
@@ -271,13 +272,6 @@ namespace Ship_Game
             }
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
-        }
-
-        private bool ShouldTryInstallModule(InputState input, out SlotStruct slot)
-        {
-            if (!GetSlotUnderCursor(input, out slot))
-                return false;
-            return slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID;
         }
 
         private DesignModuleGrid ModuleGrid;
