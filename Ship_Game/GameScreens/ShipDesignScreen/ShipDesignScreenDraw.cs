@@ -24,94 +24,12 @@ namespace Ship_Game
                 SaveStateMode.None, Camera.Transform);
             if (ToggleOverlay)
             {
-                Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
-                foreach (SlotStruct slot in ModuleGrid.SlotsList)
-                {
-                    if (slot.Module != null)
-                    {
-                        slot.Draw(spriteBatch, concreteGlass, Color.Gray);
-                    }
-                    else if (slot.Parent != null)
-                    {
-                        //twiddle thumbs
-                    }
-                    else
-                    {
-                        bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
-                        Color activeColor = valid ? Color.LightGreen : Color.Red;
-                        slot.Draw(spriteBatch, concreteGlass, activeColor);
-                        if (slot.InPowerRadius)
-                        {
-                            var yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
-                            slot.Draw(spriteBatch, concreteGlass, yellow);
-                        }
-                    }
-                    if (slot.Module != null || slot.Parent != null)
-                        continue;
-                    spriteBatch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
-                        slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
-                }
+                DrawEmptySlots(spriteBatch);
+                DrawModules(spriteBatch);
 
-                foreach (SlotStruct slot in ModuleGrid.SlotsList)
-                {
-                    if (slot.ModuleUID == null || slot.Tex == null)
-                    {
-                        continue;
-                    }
-                    if (slot.Orientation != ModuleOrientation.Normal)
-                    {
-                        var r = slot.ModuleRect;
 
-                        // @todo Simplify this
-                        switch (slot.Orientation)
-                        {
-                            case ModuleOrientation.Left:
-                            {
-                                int w = slot.Module.XSIZE * 16;
-                                int h = slot.Module.YSIZE * 16;
-                                r.Width  = h; // swap width & height
-                                r.Height = w;
-                                r.Y += h;
-                                spriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
-                                break;
-                            }
-                            case ModuleOrientation.Right:
-                            {
-                                int w = slot.Module.YSIZE * 16;
-                                int h = slot.Module.XSIZE * 16;
-                                r.Width  = w;
-                                r.Height = h;
-                                r.X += h;
-                                spriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
-                                break;
-                            }
-                            case ModuleOrientation.Rear:
-                            {
-                                spriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
-                                break;
-                            }
-                        }
-                    }
-                    else if (slot.Module.XSIZE <= 1 && slot.Module.YSIZE <= 1)
-                    {
-                        slot.Draw(spriteBatch, slot.Tex, Color.White);
-                    }
-                    else if (slot.SlotReference.Position.X <= 256f)
-                    {
-                        spriteBatch.Draw(slot.Tex, slot.ModuleRect, Color.White);
-                    }
-                    else
-                    {
-                        spriteBatch.Draw(slot.Tex, slot.ModuleRect, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
-                    }
-                    if (slot.Module != HoveredModule )
-                    {
-                        if(!Input.LeftMouseHeld() ||!Input.IsAltKeyDown || slot.Module.ModuleType != ShipModuleType.Turret
-                                ||   (HighlightedModule?.Facing.AlmostEqual(slot.Module.Facing) ?? false))                        
-                            continue;
-                    }
-                    spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
-                }
+
+
                 foreach (SlotStruct slot in ModuleGrid.SlotsList)
                 {
                     if (slot.ModuleUID == null || slot.Tex == null ||
@@ -288,8 +206,106 @@ namespace Ship_Game
         }
 
 
+        private void DrawEmptySlots(SpriteBatch spriteBatch)
+        {
+            Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                if (slot.Module != null)
+                {
+                    slot.Draw(spriteBatch, concreteGlass, Color.Gray);
+                    continue;
+                }
 
-        
+                if (slot.Root.Module != null)
+                    continue;
+
+                bool valid = ActiveModule == null || slot.CanSlotSupportModule(ActiveModule);
+                Color activeColor = valid ? Color.LightGreen : Color.Red;
+                slot.Draw(spriteBatch, concreteGlass, activeColor);
+                if (slot.InPowerRadius)
+                {
+                    Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
+                    slot.Draw(spriteBatch, concreteGlass, yellow);
+                }
+                spriteBatch.DrawString(Fonts.Arial20Bold, " " + slot.Restrictions,
+                    slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
+            }
+        }
+
+        private void DrawModuleTex(SpriteBatch spriteBatch, int w, int h, Rectangle r, float rotation, SpriteEffects spriteEffects)
+        {
+
+        }
+
+        private void DrawModules(SpriteBatch spriteBatch)
+        {
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
+            {
+                if (slot.ModuleUID == null || slot.Tex == null)
+                    continue;
+
+                if (slot.Orientation != ModuleOrientation.Normal)
+                {
+                    Rectangle r = slot.ModuleRect;
+
+                    // @todo Simplify this
+                    switch (slot.Orientation)
+                    {
+                        case ModuleOrientation.Left:
+                            {
+                                int w = slot.Module.XSIZE * 16;
+                                int h = slot.Module.YSIZE * 16;
+                                r.Width = h; // swap width & height
+                                r.Height = w;
+                                r.Y += h;
+                                spriteBatch.Draw(slot.Tex, r, null, Color.White, -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                break;
+                            }
+                        case ModuleOrientation.Right:
+                            {
+                                int w = slot.Module.YSIZE * 16;
+                                int h = slot.Module.XSIZE * 16;
+                                r.Width = w;
+                                r.Height = h;
+                                r.X += h;
+                                spriteBatch.Draw(slot.Tex, r, null, Color.White, 1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
+                                break;
+                            }
+                        case ModuleOrientation.Rear:
+                            {
+                                spriteBatch.Draw(slot.Tex, r, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
+                                break;
+                            }
+                    }
+                }
+                else if (slot.Module.XSIZE <= 1 && slot.Module.YSIZE <= 1)
+                {
+                    slot.Draw(spriteBatch, slot.Tex, Color.White);
+                }
+                else if (slot.SlotReference.Position.X <= 256f)
+                {
+                    spriteBatch.Draw(slot.Tex, slot.ModuleRect, Color.White);
+                }
+                else
+                {
+                    spriteBatch.Draw(slot.Tex, slot.ModuleRect, null, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+                }
+                if (slot.Module != HoveredModule)
+                {
+                    if (!Input.LeftMouseHeld() || !Input.IsAltKeyDown || slot.Module.ModuleType != ShipModuleType.Turret
+                            || (HighlightedModule?.Facing.AlmostEqual(slot.Module.Facing) ?? false))
+                        continue;
+                }
+                spriteBatch.DrawRectangle(slot.ModuleRect, Color.White, 2f);
+            }
+        }
+
+
+
+
+
+
 
         private void DrawHullSelection()
         {
