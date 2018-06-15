@@ -257,7 +257,6 @@ namespace Ship_Game
 
         private ModuleOrientation GetMirroredOrientation(ModuleOrientation orientation)
         {
-            ModuleOrientation mirroredOrientation;
             switch (orientation)
             {
                 case ModuleOrientation.Left:
@@ -265,7 +264,7 @@ namespace Ship_Game
                 case ModuleOrientation.Right:
                     return ModuleOrientation.Left;
                 default:
-                    return mirroredOrientation = orientation;
+                    return orientation;
             }
         }
 
