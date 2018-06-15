@@ -189,6 +189,8 @@ namespace Ship_Game
         
         public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
         {
+            ClearSlots(slot, newModule.XSIZE, newModule.YSIZE);
+
             slot.ModuleUID   = newModule.UID;
             slot.Module      = newModule;
             slot.Orientation = orientation;
