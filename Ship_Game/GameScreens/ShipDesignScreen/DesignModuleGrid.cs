@@ -129,6 +129,10 @@ namespace Ship_Game
                 X1 = pos.X + (moduleWidth  - 1);
                 Y1 = pos.Y + (moduleHeight - 1);
             }
+            public override string ToString()
+            {
+                return $"X:{X0} Y:{Y0} W:{X1-X0+1} H: {Y1-Y0+1}";
+            }
         }
         
         private bool IsInBounds(Point gridPoint)
@@ -148,29 +152,48 @@ namespace Ship_Game
 
         #region Installing and Removing modules
 
-        public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module)
+        public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module, bool logFailure = false)
         {
             if (slot == null)
+            {
+                if (logFailure) Log.Warning("Design slot was null");
                 return false;
+            }
+
             ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
             if (!IsInBounds(span))
+            {
+                if (logFailure) Log.Warning($"Design slot {span} was out of bounds");
                 return false;
+            }
+
             for (int x = span.X0; x <= span.X1; ++x) 
             for (int y = span.Y0; y <= span.Y1; ++y)
-                if (Grid[x + y*Width]?.CanSlotSupportModule(module) != true)
+            {
+                SlotStruct target = Grid[x + y*Width];
+                if (target == null)
+                {
+                    if (logFailure) Log.Warning($"Design slot {{{x},{y}}} does not exist in ship design layout");
                     return false;
+                }
+                if (!target.CanSlotSupportModule(module))
+                {
+                    if (logFailure)
+                        Log.Warning($"Design slot {{{x},{y}}} ({target.Restrictions}) cannot support module {module.UID} ({module.Restrictions})");
+                    return false;
+                }
+            }
             return true;
         }
 
         
         public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
         {
-            slot.ModuleUID            = newModule.UID;
-            slot.Module               = newModule;
-            slot.Orientation          = orientation;
-            slot.Facing               = newModule.Facing;
-            slot.Tex                  = newModule.ModuleTexture;
-            slot.Module.hangarShipUID = newModule.hangarShipUID;
+            slot.ModuleUID   = newModule.UID;
+            slot.Module      = newModule;
+            slot.Orientation = orientation;
+            slot.Facing      = newModule.Facing;
+            slot.Tex         = newModule.ModuleTexture;
             slot.Module.SetAttributes();
 
             ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);
