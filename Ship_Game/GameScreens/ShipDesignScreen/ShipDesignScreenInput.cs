@@ -294,10 +294,10 @@ namespace Ship_Game
 
         private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
         {
-            if (mirroredModule == null) return false;
-            if (module.UID == mirroredModule.UID)
-                return true;
-            return false;
+            return mirroredModule       != null
+                && mirroredModule.UID   == module.UID
+                && mirroredModule.XSIZE == module.XSIZE
+                && mirroredModule.YSIZE == module.YSIZE;
         }
 
         private bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
@@ -421,8 +421,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.Orientation, slot.Facing);
-                    ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                    SetActiveModule(slot.Module, slot.Orientation, slot.Facing);
                     return true;
                 }
             }
@@ -499,14 +498,17 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (GetSlotUnderCursor(input, out SlotStruct slot))
+            if (!ShouldTryInstallModule(input, out SlotStruct slot))
             {
-                GameAudio.PlaySfxAsync("sub_bass_mouseover");
-                if (slot.ModuleUID != ActiveModule.UID)
-                {
-                    InstallModule(slot, ActiveModule, ActiveModState); 
-                }
+                PlayNegativeSound();
+                return;
             }
+
+            GameAudio.PlaySfxAsync("sub_bass_mouseover");
+            if (!input.IsShiftKeyDown)
+                InstallModule(slot, ActiveModule, ActiveModState);
+            else
+                ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
         }
 
         private void HandleDeleteModule(InputState input)
