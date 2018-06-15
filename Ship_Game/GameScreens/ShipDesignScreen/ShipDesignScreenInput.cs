@@ -421,8 +421,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.Orientation, slot.Facing);
-                    ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                    SetActiveModule(slot.Module, slot.Orientation, slot.Facing);
                     return true;
                 }
             }
@@ -509,7 +508,7 @@ namespace Ship_Game
             if (!input.IsShiftKeyDown)
                 InstallModule(slot, ActiveModule, ActiveModState);
             else
-                BulkReplaceModules(slot, ActiveModule); // Bulk Replace created by Fat Bastard
+                ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
         }
 
         private void HandleDeleteModule(InputState input)

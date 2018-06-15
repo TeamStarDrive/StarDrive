@@ -55,8 +55,11 @@ namespace Ship_Game
         public override string ToString()
         {
             if (Parent == null)
-                return $"{Module?.UID} {Position} {Facing} {Restrictions}";
-            return $"{Position} {Facing} {Restrictions}   Parent={{{Parent}}}";
+                return $"{Module?.UID} {Position} F:{Facing} R:{Restrictions}";
+
+            // @note Don't call Parent.ToString(), or we might get a stack overflow
+            string parent = $"{Parent.Position} F:{Parent.Facing} R:{Parent.Restrictions}";
+            return $"{Position} F:{Facing} R:{Restrictions}   Parent={{{parent}}}";
         }
 
 
@@ -127,11 +130,11 @@ namespace Ship_Game
 
         public void Clear()
         {
-            ModuleUID = null;
-            Tex       = null;
-            Module    = null;
-            Parent    = null;
-            Orientation     = ModuleOrientation.Normal;
+            ModuleUID   = null;
+            Tex         = null;
+            Module      = null;
+            Parent      = null;
+            Orientation = ModuleOrientation.Normal;
         }
 
         public SlotStruct Root => Parent ?? this;
