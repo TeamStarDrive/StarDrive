@@ -196,6 +196,8 @@ namespace Ship_Game
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134);
+            if (SymmetricDesignButton.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(246);
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
@@ -206,6 +208,11 @@ namespace Ship_Game
                 ShowAllArcs = !ShowAllArcs;
                 ArcsButton.ToggleOn = ShowAllArcs;
             }
+            if (input.DesignMirrorToggled)
+            {
+                HandleSymmetricDesignButton();
+            }
+                
 
             HandleCameraMovement(input);
 
@@ -228,6 +235,87 @@ namespace Ship_Game
         {
             Vector2 cursor = Camera.GetWorldSpaceFromScreenSpace(input.CursorPosition);
             return ModuleGrid.Get(new Point((int)cursor.X, (int)cursor.Y), out slot);
+        }
+
+        private MirrorSlot GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation)
+        {
+            int center = 952;
+            int mirrorOffset = (xSize - 1) * 16;
+            int mirrorX;
+            int xPos = slot.PQ.X;
+            int yPos = slot.PQ.Y;
+            if (xPos > center)
+                mirrorX = center - 8 - mirrorOffset - (xPos - (center + 8));
+            else
+                mirrorX = center + 8 - mirrorOffset + (center - 8 - xPos);
+
+            if (!ModuleGrid.Get(new Point(mirrorX, yPos), out SlotStruct mirrored)
+                || Math.Abs(xPos - mirrorX) <= mirrorOffset) // overlapping module width at center
+                    return new MirrorSlot();
+            return new MirrorSlot { Slot = mirrored, Orientation = GetMirroredOrientation(orientation) };
+        }
+
+        private ModuleOrientation GetMirroredOrientation(ModuleOrientation orientation)
+        {
+            ModuleOrientation mirroredOrientation;
+            switch (orientation)
+            {
+                case ModuleOrientation.Left:
+                    return ModuleOrientation.Right;
+                case ModuleOrientation.Right:
+                    return ModuleOrientation.Left;
+                default:
+                    return mirroredOrientation = orientation;
+            }
+        }
+
+        private float ConvertOrientationToFacing(ModuleOrientation orientation)
+        {
+            switch (orientation)
+            {
+                case ModuleOrientation.Left:
+                    return 270;
+                case ModuleOrientation.Right:
+                    return 90;
+                case ModuleOrientation.Rear:
+                    return 180;
+                default:
+                    return 0;
+            }
+        }
+
+        private ShipModule GetMirrorModule(SlotStruct slot)
+        {
+            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
+            if (!IsMirrorSlotPresent(mirrored, slot))
+                return null;
+            return mirrored.Slot.Root.Module;
+        }
+
+        private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
+        {
+            return mirroredModule       != null
+                && mirroredModule.UID   == module.UID
+                && mirroredModule.XSIZE == module.XSIZE
+                && mirroredModule.YSIZE == module.YSIZE;
+        }
+
+        private bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
+        {
+            if (mirrored.Slot == null || slot.PQ.X == mirrored.Slot.PQ.X)
+                return false;
+            return true;
+        }
+
+        private void SetFiringArc(SlotStruct slot, float arc)
+        {
+            HighlightedModule.Facing = arc;
+            if (IsSymmetricDesignMode)
+            {
+                ShipModule mirroredModule = GetMirrorModule(slot);
+                if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
+                    mirroredModule.Facing = (float)Math.Round(360 - arc);
+            }
         }
 
         private void HandleCameraMovement(InputState input)
@@ -333,8 +421,7 @@ namespace Ship_Game
                 SlotStruct slot = slotStruct.Parent ?? slotStruct;
                 if (ActiveModule == null && slot.Module != null)
                 {
-                    SetActiveModule(slot.Module.UID, slot.Orientation, slot.Facing);
-                    ActiveModule.hangarShipUID = slot.Module.hangarShipUID;
+                    SetActiveModule(slot.Module, slot.Orientation, slot.Facing);
                     return true;
                 }
             }
@@ -373,16 +460,16 @@ namespace Ship_Game
                 {
                     Vector2 spaceFromWorldSpace = Camera.GetScreenSpaceFromWorldSpace(slotStruct.Center());
                     float arc = spaceFromWorldSpace.AngleToTarget(input.CursorPosition);
-                    
+
                     if (Input.IsShiftKeyDown)
                     {
-                        HighlightedModule.Facing = (float)Math.Round(arc);
+                        SetFiringArc(slotStruct, (float)Math.Round(arc));
                         return;
                     }
 
                     if (!Input.IsAltKeyDown)
                     {
-                        HighlightedModule.Facing = (float)Math.Round(arc / 15f) * 15;
+                        SetFiringArc(slotStruct, (float)Math.Round(arc / 15f) * 15);
                         return;
                     }
                     float minCompare = float.MinValue;
@@ -411,14 +498,17 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (GetSlotUnderCursor(input, out SlotStruct slot))
+            if (!ShouldTryInstallModule(input, out SlotStruct slot))
             {
-                GameAudio.PlaySfxAsync("sub_bass_mouseover");
-                if (slot.ModuleUID != ActiveModule.UID)
-                {
-                    InstallModule(slot, ActiveModule, ActiveModState); 
-                }
+                PlayNegativeSound();
+                return;
             }
+
+            GameAudio.PlaySfxAsync("sub_bass_mouseover");
+            if (!input.IsShiftKeyDown)
+                InstallModule(slot, ActiveModule, ActiveModState);
+            else
+                ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
         }
 
         private void HandleDeleteModule(InputState input)
@@ -431,10 +521,16 @@ namespace Ship_Game
             {
                 if (slot.Module != null || slot.Parent != null)
                 {
-                    SlotStruct root = slot.Parent ?? slot;
-                    ModuleGrid.ClearSlots(root, root.Module.XSIZE, root.Module.YSIZE);
+                    if (IsSymmetricDesignMode)
+                    {
+                        MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
+                        if (IsMirrorSlotPresent(mirrored, slot) 
+                            && mirrored.Slot.Root != slot.Root 
+                            && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                            ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
+                    }
+                    ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
                     ModuleGrid.RecalculatePower();
-
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
             }
@@ -472,6 +568,12 @@ namespace Ship_Game
             if (!input.Undo)
                 return false;
             return true;
+        }
+
+        public void HandleSymmetricDesignButton()
+        {
+            IsSymmetricDesignMode = !IsSymmetricDesignMode;
+            SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
         }
 
         private static CombatState CombatStateFromAction(ToggleButton button)
@@ -657,6 +759,11 @@ namespace Ship_Game
             ToggleOverlayButton = ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
+            });
+
+            SymmetricDesignButton = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
+            {
+                HandleSymmetricDesignButton();
             });
 
             Vector2 layoutEndV = EndLayout();

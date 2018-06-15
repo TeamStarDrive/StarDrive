@@ -4696,6 +4696,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1984</Index>
+      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M).</Text>
+    </Token>
+    <Token>
+      <Index>1985</Index>
+      <Text>Symmetric Design</Text>
+    </Token>
+    <Token>
+      <Index>1986</Index>
+      <Text>Normal Design</Text>
+    </Token>    
+    <Token>
       <Index>1987</Index>
       <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time</Text>
     </Token>
