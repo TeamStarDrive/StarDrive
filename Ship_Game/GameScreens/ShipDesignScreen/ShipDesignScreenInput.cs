@@ -259,12 +259,9 @@ namespace Ship_Game
         {
             switch (orientation)
             {
-                case ModuleOrientation.Left:
-                    return ModuleOrientation.Right;
-                case ModuleOrientation.Right:
-                    return ModuleOrientation.Left;
-                default:
-                    return orientation;
+                default:                      return orientation;
+                case ModuleOrientation.Left:  return ModuleOrientation.Right;
+                case ModuleOrientation.Right: return ModuleOrientation.Left;
             }
         }
 
@@ -272,14 +269,10 @@ namespace Ship_Game
         {
             switch (orientation)
             {
-                case ModuleOrientation.Left:
-                    return 270;
-                case ModuleOrientation.Right:
-                    return 90;
-                case ModuleOrientation.Rear:
-                    return 180;
-                default:
-                    return 0;
+                default:                       return 0;
+                case ModuleOrientation.Left:   return 270;
+                case ModuleOrientation.Right:  return 90;
+                case ModuleOrientation.Rear:   return 180;
             }
         }
 
@@ -497,17 +490,23 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (!ShouldTryInstallModule(input, out SlotStruct slot))
+            if (!GetSlotUnderCursor(input, out SlotStruct slot))
+                return;
+
+            if (!input.IsShiftKeyDown)
+            {
+                GameAudio.PlaySfxAsync("sub_bass_mouseover");
+                InstallModule(slot, ActiveModule, ActiveModState);
+            }
+            else if (slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID)
+            {
+                GameAudio.PlaySfxAsync("sub_bass_mouseover");
+                ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
+            }
+            else
             {
                 PlayNegativeSound();
-                return;
             }
-
-            GameAudio.PlaySfxAsync("sub_bass_mouseover");
-            if (!input.IsShiftKeyDown)
-                InstallModule(slot, ActiveModule, ActiveModState);
-            else
-                ReplaceModulesWith(slot, ActiveModule); // ReplaceModules created by Fat Bastard
         }
 
         private void HandleDeleteModule(InputState input)
