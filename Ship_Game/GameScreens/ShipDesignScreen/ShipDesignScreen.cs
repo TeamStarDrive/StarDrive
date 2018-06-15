@@ -241,12 +241,10 @@ namespace Ship_Game
                     float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
                     ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
                     
-                    ModuleGrid.ClearSlots(mirrored.Slot, module.XSIZE, module.YSIZE);
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
             }
 
-            ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
             
@@ -254,31 +252,25 @@ namespace Ship_Game
             SpawnActiveModule(module, orientation, slot.Facing);
         }
 
-        private void ReplaceModulesWith(SlotStruct slot, ShipModule templateModule)
+        private void ReplaceModulesWith(SlotStruct slot, ShipModule template)
         {
-            if (!slot.IsModuleReplaceableWith(templateModule))
+            if (!slot.IsModuleReplaceableWith(template))
             {
                 PlayNegativeSound();
                 return;
             }
 
             string replacementId = slot.Module.UID;
-            foreach (SlotStruct replaceSlot in ModuleGrid.SlotsList)
+            foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
             {
-                if (replaceSlot.ModuleUID == replacementId)
-                    ReplaceModuleAt(replaceSlot, templateModule);
+                if (replaceAt.ModuleUID == replacementId)
+                {
+                    ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.Facing);
+                    ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
+                }
             }
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
-        }
-
-        private void ReplaceModuleAt(SlotStruct slot, ShipModule template)
-        {
-            ShipModule m = CreateDesignModule(template, slot.Orientation, slot.Module.Facing);
-
-            ModuleOrientation orientation = slot.Orientation;
-            ModuleGrid.ClearSlots(slot, slot.Module.XSIZE, slot.Module.YSIZE);
-            ModuleGrid.InstallModule(slot, m, orientation);
         }
 
         private bool ShouldTryInstallModule(InputState input, out SlotStruct slot)
