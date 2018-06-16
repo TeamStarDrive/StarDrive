@@ -377,7 +377,7 @@ namespace Ship_Game
             float strength                 = 0;
             float targets                  = 0;
             int   fixedTargets             = 0;
-            float totalECM                 = 0f;
+            float totalEcm                 = 0f;
             float beamPeakPowerNeeded      = 0f;
             float beamLongestDuration      = 0f;
             float weaponPowerNeededNoBeams = 0f;
@@ -388,97 +388,68 @@ namespace Ship_Game
             {
                 size += 1f;
                 if (slot.Module == null)
-                {
                     continue;
-                }
-                hitPoints += slot.Module.ActualMaxHealth;
-                if (slot.Module.Mass < 0f && slot.InPowerRadius)
-                {
-                    if (slot.Module.ModuleType == ShipModuleType.Armor)
-                        mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
-                    else
-                        mass += slot.Module.Mass;
-                }
-                else if (slot.Module.Mass > 0f)
-                {
-                    if (slot.Module.ModuleType == ShipModuleType.Armor)
-                        mass += slot.Module.Mass * EmpireManager.Player.data.ArmourMassModifier;
-                    else
-                        mass += slot.Module.Mass;
-                }
+
+                hitPoints     += slot.Module.ActualMaxHealth;
+                mass          += slot.Module.ActualMass(slot.InPowerRadius);
                 troopCount    += slot.Module.TroopCapacity;
                 powerCapacity += slot.Module.ActualPowerStoreMax;
-                ordnanceCap   += (float) slot.Module.OrdinanceCapacity;
+                ordnanceCap   += slot.Module.OrdinanceCapacity;
                 powerFlow     += slot.Module.ActualPowerFlowMax;
+                cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                cargoSpace    += slot.Module.Cargo_Capacity;
 
-                if (slot.Module.Powered)
+                if (!slot.Module.Powered)
+                    continue;
+
+                empResist        += slot.Module.EMP_Protection;
+                warpableMass     += slot.Module.WarpMassCapacity;
+                powerDraw        += slot.Module.PowerDraw;
+                warpDraw         += slot.Module.PowerDrawAtWarp;
+                shieldPower      += slot.Module.ActualShieldPowerMax;
+                thrust           += slot.Module.thrust;
+                warpThrust       += slot.Module.WarpThrust;
+                turnThrust       += slot.Module.TurnThrust;
+                repairRate       += slot.Module.ActualBonusRepairRate;
+                ordnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
+                targets          += slot.Module.TargetTracking;
+                totalEcm          = Math.Max(slot.Module.ECM, totalEcm);
+                sensorRange       = Math.Max(slot.Module.SensorRange, sensorRange);
+                sensorBonus       = Math.Max(slot.Module.SensorBonus, sensorBonus);
+                fixedTargets      = Math.Max(slot.Module.FixedTracking, fixedTargets);
+
+                if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
+                    bEnergyWeapons = true;
+                if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.BeamPowerCostPerSecond > 0)
+                    bEnergyWeapons = true;
+                if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
+                    warpSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
+                if (slot.Module.FTLSpeed > 0f)
                 {
-                    empResist    += slot.Module.EMP_Protection;
-                    warpableMass += slot.Module.WarpMassCapacity;
-                    powerDraw    += slot.Module.PowerDraw;
-                    warpDraw     += slot.Module.PowerDrawAtWarp;
-
-                    if (slot.Module.ECM > totalECM)
-                        totalECM = slot.Module.ECM;
-                    if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
-                        bEnergyWeapons = true;
-                    if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.BeamPowerCostPerSecond > 0)
-                        bEnergyWeapons = true;
-                    if (slot.Module.FTLSpeed > 0f)
-                    {
-                        ftlCount += 1f;
-                        ftlSpeed += slot.Module.FTLSpeed;
-                    }
-                    if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
-                    {
-                        warpSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
-                    }
-
-                    shieldPower      += slot.Module.ActualShieldPowerMax;
-                    thrust           += slot.Module.thrust;
-                    warpThrust       += slot.Module.WarpThrust;
-                    turnThrust       += slot.Module.TurnThrust;
-                    repairRate       += slot.Module.ActualBonusRepairRate;
-                    ordnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
-
-                    if (slot.Module.SensorRange > sensorRange)
-                        sensorRange = slot.Module.SensorRange;
-                    if (slot.Module.SensorBonus > sensorBonus)
-                        sensorBonus = slot.Module.SensorBonus;
-
-                    //added by gremlin collect weapon stats                  
-                    if (slot.Module.isWeapon || slot.Module.BombType != null)
-                    {
-                        Weapon weapon;
-                        if (slot.Module.BombType == null)
-                            weapon = slot.Module.InstalledWeapon;
-                        else
-                            weapon = ResourceManager.WeaponsDict[slot.Module.BombType];
-
-                        ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
-                        weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
-                        if (weapon.isBeam)
-                        {
-                            beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
-                            beamLongestDuration = Math.Max(beamLongestDuration, weapon.BeamDuration);
-                        }
-                        else
-                            weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // need non beam weapons power cost to add to the beam peak power cost
-                    }
-                    //end
-                    if (slot.Module.FixedTracking > fixedTargets)
-                        fixedTargets = slot.Module.FixedTracking;
-
-                    targets += slot.Module.TargetTracking;
+                    ftlCount += 1f;
+                    ftlSpeed += slot.Module.FTLSpeed;
                 }
-                cost        += slot.Module.Cost * UniverseScreen.GamePaceStatic;
-                cargoSpace  += slot.Module.Cargo_Capacity;
+                //added by gremlin collect weapon stats                  
+                if (!slot.Module.isWeapon && slot.Module.BombType == null)
+                    continue;
+
+                Weapon weapon      = slot.Module.BombType == null ? slot.Module.InstalledWeapon : ResourceManager.WeaponsDict[slot.Module.BombType];
+                ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
+                weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
+                // added by Fat Bastard for Energy power calcs
+                if (weapon.isBeam) 
+                {
+                    beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
+                    beamLongestDuration  = Math.Max(beamLongestDuration, weapon.BeamDuration);
+                }
+                else
+                    weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // need non beam weapons power cost to add to the beam peak power cost
             }
 
             empResist += size; // so the player will know the true EMP Tolerance
-            targets += fixedTargets;
-            mass    += (float) (ActiveHull.ModuleSlots.Length / 2f);
-            mass    *= EmpireManager.Player.data.MassModifier;
+            targets   += fixedTargets;
+            mass      += (float) (ActiveHull.ModuleSlots.Length / 2f);
+            mass      *= EmpireManager.Player.data.MassModifier;
 
             if (mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
                 mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
@@ -666,10 +637,10 @@ namespace Ship_Game
                 DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6177), ":"), empResist, 220,
                     Color.Goldenrod);
             }
-            if (totalECM > 0)
+            if (totalEcm > 0)
             {
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
-                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), totalECM, 234,
+                DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), totalEcm, 234,
                     Color.Goldenrod, isPercent: true);
             }
 
