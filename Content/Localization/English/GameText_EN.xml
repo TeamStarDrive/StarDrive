@@ -473,7 +473,7 @@
     </Token>
     <Token>
       <Index>120</Index>
-      <Text>Command Module</Text>
+      <Text>Powered Command</Text>
     </Token>
     <Token>
       <Index>121</Index>
@@ -4696,8 +4696,16 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1982</Index>
+      <Text>In order to complete your design and build it, you must fill all the ship's slots</Text>
+    </Token>
+    <Token>
+      <Index>1983</Index>
+      <Text>A functional ship needs a command module (a cockpit, bridge, or CIC). It also must get power from the ship's reactors</Text>
+    </Token>
+    <Token>
       <Index>1984</Index>
-      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M).</Text>
+      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M)</Text>
     </Token>
     <Token>
       <Index>1985</Index>

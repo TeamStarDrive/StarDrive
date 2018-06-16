@@ -328,19 +328,6 @@ namespace Ship_Game
             }
         }
 
-        private void DrawRequirement(ref Vector2 cursor, string words, bool met, float lineSpacing = 2)
-        {
-            float amount = 165f;
-            if (GlobalStats.IsGermanFrenchOrPolish)
-                amount = amount + 35f;
-            cursor.Y += lineSpacing > 0 ? Fonts.Arial12Bold.LineSpacing + lineSpacing : 0;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, cursor, met ? Color.LightGreen : Color.LightPink);
-            string stats = met ? "OK" : "X";
-            cursor.X    += amount - Fonts.Arial12Bold.MeasureString(stats).X;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stats, cursor, met ? Color.LightGreen : Color.LightPink);
-            cursor.X    -= amount - Fonts.Arial12Bold.MeasureString(stats).X;
-        }
-
         private void DrawShipInfoPanel()
         {
             float hitPoints                = 0f;
@@ -373,7 +360,7 @@ namespace Ship_Game
             float empResist                = 0f;
             bool  bEnergyWeapons           = false;
             float offense                  = 0f;
-            float defense                  = 0;
+            float defense                  = 0f;
             float strength                 = 0;
             float targets                  = 0;
             int   fixedTargets             = 0;
@@ -381,12 +368,16 @@ namespace Ship_Game
             float beamPeakPowerNeeded      = 0f;
             float beamLongestDuration      = 0f;
             float weaponPowerNeededNoBeams = 0f;
-
-            HullBonus bonus = ActiveHull.Bonuses;
+            bool  hasBridge                 = false;
+            bool  emptySlots                = true;
+            HullBonus bonus                 = ActiveHull.Bonuses;
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
+                bool wasOffenseDefenseAdded = false;
                 size += 1f;
+                if (slot.Root.ModuleUID == null)
+                    emptySlots = false;
                 if (slot.Module == null)
                     continue;
 
@@ -399,6 +390,12 @@ namespace Ship_Game
                 cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 
+                if (slot.Module.PowerDraw <= 0) // some modues might not need power to operate
+                {
+                    offense  += slot.Module.CalculateModuleOffense();
+                    defense  += slot.Module.CalculateModuleDefense((int)size);
+                    wasOffenseDefenseAdded = true;
+                }
                 if (!slot.Module.Powered)
                     continue;
 
@@ -418,6 +415,8 @@ namespace Ship_Game
                 sensorBonus       = Math.Max(slot.Module.SensorBonus, sensorBonus);
                 fixedTargets      = Math.Max(slot.Module.FixedTracking, fixedTargets);
 
+                if (slot.Module.IsCommandModule)
+                    hasBridge = true;
                 if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
                     bEnergyWeapons = true;
                 if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.BeamPowerCostPerSecond > 0)
@@ -428,6 +427,11 @@ namespace Ship_Game
                 {
                     ftlCount += 1f;
                     ftlSpeed += slot.Module.FTLSpeed;
+                }
+                if (!wasOffenseDefenseAdded)
+                {
+                    offense += slot.Module.CalculateModuleOffense();
+                    defense += slot.Module.CalculateModuleDefense((int)size);
                 }
                 //added by gremlin collect weapon stats                  
                 if (!slot.Module.isWeapon && slot.Module.BombType == null)
@@ -600,8 +604,6 @@ namespace Ship_Game
                 DrawStatColor(ref Cursor, string.Concat(Localizer.Token(6189), ":"), totalEcm, 234, Color.Goldenrod, isPercent: true);
 
             Cursor.Y += Fonts.Arial12Bold.LineSpacing;
-            
-
             #region HardcoreRule info
 
             if (GlobalStats.HardcoreRuleset)
@@ -667,34 +669,17 @@ namespace Ship_Game
                 DrawStat(ref Cursor, string.Concat(Localizer.Token(6188), ":"), ((targets + 1f)), 232);
 
             Cursor.Y += Fonts.Arial12Bold.LineSpacing ;
-            bool hasBridge = false;
-            bool emptySlots = true;
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
-            {
-                if (slot.ModuleUID == null && slot.Parent == null)
-                    emptySlots = false;
-
-                if (slot.Module != null)
-                {
-                    offense += slot.Module.CalculateModuleOffense();
-                    defense += slot.Module.CalculateModuleDefense((int)size);
-                }
-                if (slot.ModuleUID == null || !ResourceManager.GetModuleTemplate(slot.ModuleUID).IsCommandModule)
-                    continue;
-
-                hasBridge = true;
-            }
             strength = (defense > offense ? offense * 2 : defense + offense);
             if (strength > 0)
                 DrawStat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
             Vector2 cursorReq = new Vector2((float) (StatsSub.Menu.X - 180),
                 (float) (ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing) + 5 ));
             if (ActiveHull.Role != ShipData.RoleName.platform)
-                DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge);
-            DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots);
+                DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
+            DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots, 1982);
         }
 
-       public void DrawStatColor(ref Vector2 cursor, string words, float stat, int Tooltip_ID, Color color
+       public void DrawStatColor(ref Vector2 cursor, string words, float stat, int tooltipId, Color color
             , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2)
         {
             SpriteFont font = Fonts.Arial12Bold;
@@ -714,7 +699,7 @@ namespace Ship_Game
 
             //Cursor = FontBackSpace(Cursor, amount, numbers, font);
 
-            CheckToolTip(Tooltip_ID, cursor, words, numbers, font, MousePos);
+            CheckToolTip(tooltipId, cursor, words, numbers, font, MousePos);
         }
 
         public void DrawStat(ref Vector2 cursor, string words, float stat, int tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing =165, float lineSpacing = 2)
@@ -737,6 +722,21 @@ namespace Ship_Game
             DrawString(statCursor, color, stat, font);
             //Cursor = FontBackSpace(Cursor, amount, stat, font);
             CheckToolTip(tooltipId, cursor, words, stat, font, MousePos);
+        }
+
+        private void DrawRequirement(ref Vector2 cursor, string words, bool met, int tooltipId = 0, float lineSpacing = 2)
+        {
+            float amount = 165f;
+            SpriteFont font = Fonts.Arial12Bold;
+            if (GlobalStats.IsGermanFrenchOrPolish)
+                amount = amount + 35f;
+            cursor.Y += lineSpacing > 0 ? Fonts.Arial12Bold.LineSpacing + lineSpacing : 0;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, cursor, met ? Color.LightGreen : Color.LightPink);
+            string stats = met ? "OK" : "X";
+            cursor.X += amount - Fonts.Arial12Bold.MeasureString(stats).X;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stats, cursor, met ? Color.LightGreen : Color.LightPink);
+            cursor.X -= amount - Fonts.Arial12Bold.MeasureString(stats).X;
+            if (tooltipId > 0) CheckToolTip(tooltipId, cursor, words, stats, font, MousePos);
         }
 
         private void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int tooltipId)
