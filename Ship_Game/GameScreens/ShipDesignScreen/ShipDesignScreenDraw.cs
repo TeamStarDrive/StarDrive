@@ -91,7 +91,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null) 
+        private static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null) 
         {
             SpriteEffects effects = SpriteEffects.None;
             float rotation        = 0f;
@@ -160,7 +160,7 @@ namespace Ship_Game
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
                     DrawHangarShipText(center, slot, mirrored);
 
-                DrawWeaponArcs(center, slot, spriteBatch);
+                DrawWeaponArcs(center, slot, spriteBatch, mirrored);
             }
         }
 
@@ -171,7 +171,9 @@ namespace Ship_Game
                 if (slot.Module == null)
                     continue;
 
-                if (slot.Module == HighlightedModule && Input.LeftMouseHeld() && slot.Module.ModuleType == ShipModuleType.Turret) continue;
+                if (slot.Module == HighlightedModule && Input.LeftMouseHeld() && slot.Module.ModuleType == ShipModuleType.Turret)
+                    continue;
+
                 Vector2 lightOrigin = new Vector2(8f, 8f);
                 if (slot.Module.PowerDraw <= 0f 
                     || slot.Module.Powered 
@@ -226,18 +228,14 @@ namespace Ship_Game
             DrawString(mirroredCenter, 0, 0.4f, Color.White, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
-        private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch)
+        private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Texture2D arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
             Vector2 origin       = new Vector2(250f, 250f);
             Rectangle toDraw     = new Rectangle((int)center.X, (int)center.Y, 500, 500);
 
             spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
-            if (!IsSymmetricDesignMode)
-                return;
-
-            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
-            if (!IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (IsSymmetricDesignMode && IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
@@ -245,16 +243,16 @@ namespace Ship_Game
             spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
         }
 
-        private void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch)
+        private void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Weapon w = slot.Module.InstalledWeapon;
             if (w == null)
                 return;
-            if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(center, slot, new Color(255, 255, 0, 255), spriteBatch);
-            else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(center, slot, new Color(255, 0, 255, 255), spriteBatch);
-            else if (w.Tag_Cannon)                    DrawArc(center, slot, new Color(0, 255, 0, 255), spriteBatch);
-            else if (!w.isBeam)                       DrawArc(center, slot, new Color(255, 0, 0, 255), spriteBatch);
-            else                                      DrawArc(center, slot, new Color(0, 0, 255, 255), spriteBatch);
+            if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(center, slot, new Color(255, 255, 0, 255), spriteBatch, mirrored);
+            else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(center, slot, new Color(255, 0, 255, 255), spriteBatch, mirrored);
+            else if (w.Tag_Cannon)                    DrawArc(center, slot, new Color(0, 255, 0, 255), spriteBatch, mirrored);
+            else if (!w.isBeam)                       DrawArc(center, slot, new Color(255, 0, 0, 255), spriteBatch, mirrored);
+            else                                      DrawArc(center, slot, new Color(0, 0, 255, 255), spriteBatch, mirrored);
         }
 
         private void DrawActiveModule(SpriteBatch spriteBatch)
