@@ -484,9 +484,15 @@ namespace Ship_Game
 
             if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
             {
-                if (bonus.ArmoredBonus != 0 || bonus.ShieldBonus != 0 || bonus.SensorBonus != 0 ||
-                    bonus.SpeedBonus != 0 || bonus.CargoBonus != 0 || bonus.DamageBonus != 0 ||
-                    bonus.FireRateBonus != 0 || bonus.RepairBonus != 0 || bonus.CostBonus != 0)
+                if (bonus.ArmoredBonus     != 0 
+                    || bonus.ShieldBonus   != 0 
+                    || bonus.SensorBonus   != 0 
+                    || bonus.SpeedBonus    != 0 
+                    || bonus.CargoBonus    != 0 
+                    || bonus.DamageBonus   != 0 
+                    || bonus.FireRateBonus != 0 
+                    || bonus.RepairBonus   != 0 
+                    || bonus.CostBonus     != 0)
                 {
                     Label(Localizer.Token(6015), Fonts.Verdana14Bold, Color.Orange);
                 }
@@ -777,22 +783,22 @@ namespace Ship_Game
                 DrawStat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
                 Cursor.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            Vector2 CursorReq = new Vector2((float) (StatsSub.Menu.X - 180),
+            Vector2 cursorReq = new Vector2((float) (StatsSub.Menu.X - 180),
                 (float) (ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
             if (ActiveHull.Role != ShipData.RoleName.platform)
             {
-                DrawRequirement(ref CursorReq, Localizer.Token(120), hasBridge);
-                CursorReq.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
+                DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge);
+                cursorReq.Y += (float) (Fonts.Arial12Bold.LineSpacing + 2);
             }
-            DrawRequirement(ref CursorReq, Localizer.Token(121), emptySlots);
+            DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots);
         }
 
-       public void DrawStatColor(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, Color color
+       public void DrawStatColor(ref Vector2 cursor, string words, float stat, int Tooltip_ID, Color color
             , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
             SpriteFont font = Fonts.Arial12Bold;
             float amount = Spacing(spacing);
-            Vector2 statCursor = new Vector2(Cursor.X + amount , Cursor.Y);
+            Vector2 statCursor = new Vector2(cursor.X + amount , cursor.Y);
             Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
             DrawString(statNameCursor, color, words, font);
             string numbers = "0.0";
@@ -806,22 +812,22 @@ namespace Ship_Game
 
             //Cursor = FontBackSpace(Cursor, amount, numbers, font);
 
-            CheckToolTip(Tooltip_ID, Cursor, words, numbers, font, MousePos);
+            CheckToolTip(Tooltip_ID, cursor, words, numbers, font, MousePos);
         }
 
-        public void DrawStat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID, bool doGoodBadTint = true
+        public void DrawStat(ref Vector2 cursor, string words, float stat, int Tooltip_ID, bool doGoodBadTint = true
             , bool isPercent = false, float spacing =165)
         {
-            DrawStatColor(ref Cursor, words, stat, Tooltip_ID, Color.White, doGoodBadTint, isPercent, spacing);
+            DrawStatColor(ref cursor, words, stat, Tooltip_ID, Color.White, doGoodBadTint, isPercent, spacing);
         }
 
-        public void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID, Color nameColor,
+        public void DrawStat(ref Vector2 cursor, string words, string stat, int Tooltip_ID, Color nameColor,
             Color statColor, float spacing = 165f)
         {
             SpriteFont font = Fonts.Arial12Bold;
             float amount = Spacing(spacing);
             //Vector2 statCursor = FontSpace(Cursor, -40, words, font);
-            Vector2 statCursor = new Vector2(Cursor.X + amount, Cursor.Y);
+            Vector2 statCursor = new Vector2(cursor.X + amount, cursor.Y);
             Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
             Color color = nameColor;
             DrawString(statNameCursor, color, words, font);
@@ -829,43 +835,43 @@ namespace Ship_Game
             color = statColor;
             DrawString(statCursor, color, stat, font);
             //Cursor = FontBackSpace(Cursor, amount, stat, font);
-            CheckToolTip(Tooltip_ID, Cursor, words, stat, font, MousePos);
+            CheckToolTip(Tooltip_ID, cursor, words, stat, font, MousePos);
         }
 
-        private void DrawStatEnergy(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int Tooltip_ID)
         {
-            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.LightSkyBlue, Color.LightGreen);
+            DrawStat(ref cursor, words, stat, Tooltip_ID, Color.LightSkyBlue, Color.LightGreen);
         }
 
-        private void DrawStatPropulsion(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStatPropulsion(ref Vector2 cursor, string words, string stat, int Tooltip_ID)
         {
-            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.DarkSeaGreen, Color.LightGreen);
+            DrawStat(ref cursor, words, stat, Tooltip_ID, Color.DarkSeaGreen, Color.LightGreen);
         }
 
-        private void DrawStatOrdnance(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, int Tooltip_ID)
         {
-            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen);
+            DrawStat(ref cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen);
         }
 
-        private void DrawStatBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStatBad(ref Vector2 cursor, string words, string stat, int Tooltip_ID)
         {
-            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightPink, 165);
+            DrawStat(ref cursor, words, stat, Tooltip_ID, Color.White, Color.LightPink, 165);
         }
 
-        private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStat(ref Vector2 cursor, string words, string stat, int Tooltip_ID)
         {
-            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 165);
+            DrawStat(ref cursor, words, stat, Tooltip_ID, Color.White, Color.LightGreen, 165);
         }
 
-        private void DrawStatEnergyBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
+        private void DrawStatEnergyBad(ref Vector2 cursor, string words, string stat, int Tooltip_ID)
         {
-            DrawStat(ref Cursor, words, stat, Tooltip_ID, Color.LightSkyBlue, Color.LightPink, 165);
+            DrawStat(ref cursor, words, stat, Tooltip_ID, Color.LightSkyBlue, Color.LightPink, 165);
         }
 
         private void DrawUI(GameTime gameTime)
         {
-            this.EmpireUI.Draw(ScreenManager.SpriteBatch);
-            this.DrawShipInfoPanel();
+            EmpireUI.Draw(ScreenManager.SpriteBatch);
+            DrawShipInfoPanel();
 
             //Defaults based on hull types
             //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
@@ -921,58 +927,58 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
             if (Fonts.Arial20Bold.MeasureString(this.ActiveHull.Name).X <= (float) (this.SearchBar.Width - 5))
             {
-                Vector2 Cursor = new Vector2((float) (this.SearchBar.X + 3),
+                Vector2 cursor = new Vector2((float) (this.SearchBar.X + 3),
                     (float) (r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveHull.Name, Cursor, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.ActiveHull.Name, cursor, Color.White);
             }
             else
             {
-                Vector2 Cursor = new Vector2((float) (this.SearchBar.X + 3),
+                Vector2 cursor = new Vector2((float) (SearchBar.X + 3),
                     (float) (r.Y + 14 - Fonts.Arial12Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.ActiveHull.Name, Cursor, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ActiveHull.Name, cursor, Color.White);
             }
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);
             ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
 
             {
-                Vector2 Cursor = new Vector2(r.X + 3,r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(this.Role, EmpireManager.Player), Cursor, Color.White);
+                Vector2 cursor = new Vector2(r.X + 3,r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
             }
-            r = this.SaveButton.Rect;
+            r = SaveButton.Rect;
             if (ScreenState == ScreenState.TransitionOn ||
                 ScreenState == ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int) (transitionOffset * 50f);
             }
-            this.SaveButton.Draw(ScreenManager.SpriteBatch, r);
-            r = this.LoadButton.Rect;
+            SaveButton.Draw(ScreenManager.SpriteBatch, r);
+            r = LoadButton.Rect;
             if (ScreenState == ScreenState.TransitionOn ||
                 ScreenState == ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int) (transitionOffset * 50f);
             }
-            this.LoadButton.Draw(ScreenManager.SpriteBatch, r);
-            r = this.ToggleOverlayButton.Rect;
+            LoadButton.Draw(ScreenManager.SpriteBatch, r);
+            r = ToggleOverlayButton.Rect;
             if (ScreenState == ScreenState.TransitionOn ||
                 ScreenState == ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int) (transitionOffset * 50f);
             }
-            this.ToggleOverlayButton.Draw(ScreenManager.SpriteBatch, r);
-            r = this.SymmetricDesignButton.Rect;
+            ToggleOverlayButton.Draw(ScreenManager.SpriteBatch, r);
+            r = SymmetricDesignButton.Rect;
             if (ScreenState == ScreenState.TransitionOn ||
                 ScreenState == ScreenState.TransitionOff)
             {
                 r.Y = r.Y + (int)(transitionOffset * 50f);
             }
-            this.SymmetricDesignButton.Draw(ScreenManager.SpriteBatch, r);
+            SymmetricDesignButton.Draw(ScreenManager.SpriteBatch, r);
 
             ModSel.Draw(ScreenManager.SpriteBatch);
             
-            this.DrawHullSelection();
+            DrawHullSelection();
  
-            foreach (ToggleButton button in this.CombatStatusButtons)
+            foreach (ToggleButton button in CombatStatusButtons)
             {
                 button.Draw(ScreenManager);
             }
