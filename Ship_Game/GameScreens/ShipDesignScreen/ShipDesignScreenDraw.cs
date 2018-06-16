@@ -213,15 +213,18 @@ namespace Ship_Game
                      continue;
 
                 Vector2 center = slot.Center();
+                MirrorSlot mirrored = new MirrorSlot();
+                if (IsSymmetricDesignMode)
+                    mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
 
                 if (slot.Module.shield_power_max > 0f)
-                    DrawShieldRadius(center, slot, spriteBatch);
+                    DrawShieldRadius(center, slot, spriteBatch, mirrored);
 
                 if (slot.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
-                    DrawFireArcText(center, slot);
+                    DrawFireArcText(center, slot, mirrored);
 
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
-                    DrawHangarShipText(center, slot);
+                    DrawHangarShipText(center, slot, mirrored);
 
                 Weapon w = slot.Module.InstalledWeapon;
                 if (w == null)
@@ -255,32 +258,24 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShieldRadius(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch )
+        private void DrawShieldRadius(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             spriteBatch.DrawCircle(center, slot.Module.ShieldHitRadius, Color.LightGreen);
-            if (!IsSymmetricDesignMode)
-                return;
-
-            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
-            if (!IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
             spriteBatch.DrawCircle(mirroredCenter, mirrored.Slot.Module.ShieldHitRadius, Color.LightGreen);
         }
 
-        private void DrawFireArcText(Vector2 center, SlotStruct slot)
+        private void DrawFireArcText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
             Color color = Color.Black;
             color.A     = 140;
 
             DrawRectangle(slot.ModuleRect, Color.White, color);
             DrawString(center, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode)
-                return;
-
-            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
-            if (!IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
@@ -290,18 +285,14 @@ namespace Ship_Game
             ToolTip.ShipYardArcTip();
         }
 
-        private void DrawHangarShipText(Vector2 center, SlotStruct slot)
+        private void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
             Color color = Color.Black;
             color.A     = 140;
 
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
             DrawString(center, 0, 0.4f, Color.White, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode)
-                return;
-
-            MirrorSlot mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
-            if (!IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
