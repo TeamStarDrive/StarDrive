@@ -890,6 +890,12 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
+        public float ActualMass(bool inPowerRadius)
+        {
+            if (Mass < 0f && inPowerRadius)
+                return ModuleType != ShipModuleType.Armor ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
+            return ModuleType != ShipModuleType.Armor ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+        }
 
         // @note This is called every frame for every module for every ship in the universe
         private void UpdateDamageVisualization(float elapsedTime)
