@@ -543,33 +543,9 @@ namespace Ship_Game
                     DrawStatColor(ref cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue);
             }
 
-            if (bEnergyWeapons)
-            {
-                float powerConsumed = weaponPowerNeeded - powerRecharge;
-                if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
-                {
-                    DrawStatColor(ref cursor, "Wpn Fire Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
-                    float energyDuration = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, "Power Time:", energyDuration, 163, Color.LightSkyBlue);
-                }
-                else
-                    DrawStatEnergy(ref cursor, "Power Time:", "INF", 163);
-            }
-            // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs 
-            // more power than actually needed. Need to find a better way to show accurate numbers to the player in such case
-            if (beamLongestDuration > 0) // show relevant peak power consumption calcs if beams are present
-            {
-                float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
-                if (powerConsumedWithBeams > 0) // There is power drain from ship's reserves when firing its energy weapons + peak beam cost after taking into acount recharge 
-                {
-                    DrawStatColor(ref cursor, "Peak Wpn Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
-                    float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
-                    if (peakEnergyDuration < beamLongestDuration)
-                        DrawStatColor(ref cursor, "Peak Wpn Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
-                    else
-                        DrawStatEnergy(ref cursor, "Peak Wpn Pwr Time:", "INF", 245);
-                }
-            }
+            DrawEnergyStats(bEnergyWeapons, weaponPowerNeeded, powerRecharge, powerCapacity, ref cursor);
+            DrawPeakPowerStats(beamLongestDuration, beamPeakPowerNeeded, weaponPowerNeededNoBeams, powerRecharge, powerCapacity, ref cursor);
+
 
             float fWarpTime = (-powerCapacity / fDrawAtWarp) * 0.9f;
             string sWarpTime = fWarpTime.ToString("0.#");
@@ -666,6 +642,42 @@ namespace Ship_Game
                 DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
 
             DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots, 1982);
+        }
+
+        private void DrawEnergyStats(bool bEnergyWeapons, float weaponPowerNeeded, float powerRecharge, float powerCapacity, ref Vector2 cursor)
+        {
+            if (!bEnergyWeapons)
+                return;
+
+            float powerConsumed = weaponPowerNeeded - powerRecharge;
+            if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
+            {
+                DrawStatColor(ref cursor, "Wpn Fire Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
+                float energyDuration = powerCapacity / powerConsumed;
+                DrawStatColor(ref cursor, "Power Time:", energyDuration, 163, Color.LightSkyBlue);
+            }
+            else
+                DrawStatEnergy(ref cursor, "Power Time:", "INF", 163);
+        }
+
+        private void DrawPeakPowerStats(float beamLongestDuration, float beamPeakPowerNeeded, float weaponPowerNeededNoBeams, float powerRecharge,
+                                        float powerCapacity, ref Vector2 cursor)
+        {
+            // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs 
+            // more power than actually needed. Need to find a better way to show accurate numbers to the player in such case
+            if (!(beamLongestDuration > 0))
+                return;
+
+            float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
+            if (!(powerConsumedWithBeams > 0))
+                return;
+
+            DrawStatColor(ref cursor, "Peak Wpn Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
+            float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
+            if (peakEnergyDuration < beamLongestDuration)
+                DrawStatColor(ref cursor, "Peak Wpn Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
+            else
+                DrawStatEnergy(ref cursor, "Peak Wpn Pwr Time:", "INF", 245);
         }
 
         private void DrawRequirement(ref Vector2 cursor, string words, bool met, int tooltipId = 0, float lineSpacing = 2)
