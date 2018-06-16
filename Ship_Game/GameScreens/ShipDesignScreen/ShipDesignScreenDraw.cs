@@ -20,95 +20,26 @@ namespace Ship_Game
             Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
             ScreenManager.RenderSceneObjects();
 
-            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                SaveStateMode.None, Camera.Transform);
             if (ToggleOverlay)
             {
+                spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
                 DrawEmptySlots(spriteBatch);
                 DrawModules(spriteBatch);
                 DrawTacticalData(spriteBatch);
                 DrawUnpoweredTex(spriteBatch);
+                spriteBatch.End();
             }
-            spriteBatch.End();
-            spriteBatch.Begin();
 
-            //Vector2 mousePos = Input.CursorPosition;
-            if (this.ActiveModule != null &&// !this.ActiveModSubMenu.Menu.HitTest(mousePos) &&
-                !this.ModSel.HitTest(Input) )
-                
-                //&& (this.ActiveModule.ModuleType != ShipModuleType.Hangar ||
-                //                                        this.ActiveModule.IsSupplyBay || this.ActiveModule.IsTroopBay))
-            {
-                ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-                var iconTexturePath = ResourceManager.Texture(moduleTemplate.IconTexturePath);
-                Rectangle r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
-                    (int) ((float) (16 * this.ActiveModule.XSIZE) * this.Camera.Zoom),
-                    (int) ((float) (16 * this.ActiveModule.YSIZE) * this.Camera.Zoom));
-                switch (this.ActiveModState)
-                {
-                    case ModuleOrientation.Normal:
-                    {
-                        spriteBatch.Draw(
-                            iconTexturePath, r, Color.White);
-                        break;
-                    }
-                    case ModuleOrientation.Left:
-                    {
-                        r.Y = r.Y + (int) ((16 * moduleTemplate.XSIZE) * Camera.Zoom);
-                        int h = r.Height;
-                        int w = r.Width;
-                        r.Width = h;
-                        r.Height = w;
-                        spriteBatch.Draw(
-                            iconTexturePath, r, null, Color.White,
-                            -1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
-                        break;
-                    }
-                    case ModuleOrientation.Right:
-                    {
-                        r.X = r.X + (int) ((16 * moduleTemplate.YSIZE) * Camera.Zoom);
-                        int h = r.Height;
-                        int w = r.Width;
-                        r.Width = h;
-                        r.Height = w;
-                        spriteBatch.Draw(
-                            iconTexturePath, r, null, Color.White,
-                            1.57079637f, Vector2.Zero, SpriteEffects.None, 1f);
-                        break;
-                    }
-                    case ModuleOrientation.Rear:
-                    {
-                        spriteBatch.Draw(
-                            iconTexturePath, r, null, Color.White,
-                            0f, Vector2.Zero, SpriteEffects.FlipVertically, 1f);
-                        break;
-                    }
-                }
-                if (ActiveModule.shield_power_max > 0f)
-                {
-                    Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y) +
-                                     new Vector2(moduleTemplate.XSIZE * 16 / 2f,
-                                         moduleTemplate.YSIZE * 16 / 2f);
-                    DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
-                }
-            }
-            this.DrawUI(gameTime);
+            spriteBatch.Begin();
+            if (ActiveModule != null && !ModSel.HitTest(Input))
+                DrawActiveModule(spriteBatch);
+
+            DrawUI(gameTime);
             selector?.Draw(spriteBatch);
             ArcsButton.DrawWithShadowCaps(ScreenManager);
             if (Debug)
-            {
-                float width2 = ScreenWidth / 2f;
-                var pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
-                HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
-                pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
-                HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
-#if SHIPYARD
-                string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
-                                $"IE: {TotalIE}      OE: {TotalOE}      IOE: {TotalIOE}";
-                pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
-                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, pos, Fonts.Arial20Bold);
-#endif
-            }
+                DrawDebug();
+
             Close.Draw(spriteBatch);
             spriteBatch.End();
             ScreenManager.EndFrameRendering();
@@ -160,17 +91,20 @@ namespace Ship_Game
             }
         }
 
-        private static void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r)
+        private void DrawModuleTex(ModuleOrientation orientation, SpriteBatch spriteBatch, SlotStruct slot, Rectangle r, ShipModule template = null) 
         {
             SpriteEffects effects = SpriteEffects.None;
             float rotation        = 0f;
+            Texture2D texture     = template == null ? slot.Tex : ResourceManager.Texture(template.IconTexturePath);
+            int xSize             = template == null ? slot.Module.XSIZE * 16 : r.Width;
+            int ySize             = template == null ? slot.Module.YSIZE * 16 : r.Height;
 
             switch (orientation)
             {
                 case ModuleOrientation.Left:
                 {
-                    int w    = slot.Module.XSIZE * 16;
-                    int h    = slot.Module.YSIZE * 16;
+                    int w    = xSize;
+                    int h    = ySize;
                     r.Width  = h; // swap width & height
                     r.Height = w;
                     rotation = -1.57079637f;
@@ -179,8 +113,8 @@ namespace Ship_Game
                 }
                 case ModuleOrientation.Right:
                 {
-                    int w    = slot.Module.YSIZE * 16;
-                    int h    = slot.Module.XSIZE * 16;
+                    int w    = ySize;
+                    int h    = xSize;
                     r.Width  = w;
                     r.Height = h;
                     rotation = 1.57079637f;
@@ -194,12 +128,12 @@ namespace Ship_Game
                 }
                 case ModuleOrientation.Normal:
                 {
-                    if (slot.SlotReference.Position.X > 256f)
+                    if (slot?.SlotReference.Position.X > 256f)
                         effects = SpriteEffects.FlipHorizontally;
                     break;
                 }
             }
-            spriteBatch.Draw(slot.Tex, r, null, Color.White, rotation, Vector2.Zero, effects, 1f);
+            spriteBatch.Draw(texture, r, null, Color.White, rotation, Vector2.Zero, effects, 1f);
         }
 
         private void DrawTacticalData(SpriteBatch spriteBatch)
@@ -226,14 +160,7 @@ namespace Ship_Game
                 if (slot.Module.ModuleType == ShipModuleType.Hangar)
                     DrawHangarShipText(center, slot, mirrored);
 
-                Weapon w = slot.Module.InstalledWeapon;
-                if (w == null)
-                    continue;
-                if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(center, slot, new Color(255, 255, 0, 255), spriteBatch);
-                else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(center, slot, new Color(255, 0, 255, 255), spriteBatch);
-                else if (w.Tag_Cannon)                    DrawArc(center, slot, new Color(0, 255, 0, 255), spriteBatch);
-                else if (!w.isBeam)                       DrawArc(center, slot, new Color(255, 0, 0, 255), spriteBatch);
-                else                                      DrawArc(center, slot, new Color(0, 0, 255, 255), spriteBatch);
+                DrawWeaponArcs(center, slot, spriteBatch);
             }
         }
 
@@ -292,7 +219,7 @@ namespace Ship_Game
 
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
             DrawString(center, 0, 0.4f, Color.White, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (IsSymmetricDesignMode && IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
@@ -317,6 +244,49 @@ namespace Ship_Game
             Vector2 mirroredCenter = mirrored.Slot.Center();
             Rectangle mirrortoDraw = new Rectangle((int)mirroredCenter.X, (int)mirroredCenter.Y, 500, 500);
             spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+        }
+
+        private void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch)
+        {
+            Weapon w = slot.Module.InstalledWeapon;
+            if (w == null)
+                return;
+            if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(center, slot, new Color(255, 255, 0, 255), spriteBatch);
+            else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(center, slot, new Color(255, 0, 255, 255), spriteBatch);
+            else if (w.Tag_Cannon)                    DrawArc(center, slot, new Color(0, 255, 0, 255), spriteBatch);
+            else if (!w.isBeam)                       DrawArc(center, slot, new Color(255, 0, 0, 255), spriteBatch);
+            else                                      DrawArc(center, slot, new Color(0, 0, 255, 255), spriteBatch);
+        }
+
+        private void DrawActiveModule(SpriteBatch spriteBatch)
+        {
+            ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
+            Rectangle r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
+                (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
+                (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
+            DrawModuleTex(ActiveModState, spriteBatch, null, r, moduleTemplate);
+            if (!(ActiveModule.shield_power_max > 0f))
+                return;
+
+            Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y) +
+                             new Vector2(moduleTemplate.XSIZE * 16 / 2f,
+                                 moduleTemplate.YSIZE * 16 / 2f);
+            DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
+        }
+
+        private void DrawDebug()
+        {
+            float width2 = ScreenWidth / 2f;
+            var pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
+            HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
+            pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
+            HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
+            #if SHIPYARD
+                string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
+                                $"IE: {TotalIE}      OE: {TotalOE}      IOE: {TotalIOE}";
+                pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
+                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, pos, Fonts.Arial20Bold);
+            #endif
         }
 
         private void DrawHullSelection()
