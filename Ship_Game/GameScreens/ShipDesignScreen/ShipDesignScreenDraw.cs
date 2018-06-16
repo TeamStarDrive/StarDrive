@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch) // refactored by Fat Bastard
         {
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
@@ -166,22 +166,21 @@ namespace Ship_Game
 
         private void DrawUnpoweredTex(SpriteBatch spriteBatch)
         {
-            foreach (SlotStruct ss in ModuleGrid.SlotsList)
+            foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
-                if (ss.Module == null)
-                {
+                if (slot.Module == null)
                     continue;
-                }
-                if (ss.Module == HighlightedModule && Input.LeftMouseHeld() && ss.Module.ModuleType == ShipModuleType.Turret) continue;
+
+                if (slot.Module == HighlightedModule && Input.LeftMouseHeld() && slot.Module.ModuleType == ShipModuleType.Turret) continue;
                 Vector2 lightOrigin = new Vector2(8f, 8f);
-                if (ss.Module.PowerDraw <= 0f || ss.Module.Powered ||
-                    ss.Module.ModuleType == ShipModuleType.PowerConduit)
-                {
-                    continue;
-                }
+                if (slot.Module.PowerDraw <= 0f 
+                    || slot.Module.Powered 
+                    || slot.Module.ModuleType == ShipModuleType.PowerConduit)
+                        continue;
+
                 Rectangle? nullable8 = null;
                 spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                    ss.Center(), nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
+                    slot.Center(), nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
             }
         }
 
@@ -262,8 +261,8 @@ namespace Ship_Game
         {
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
             Rectangle r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
-                (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
-                (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
+                          (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
+                          (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
             DrawModuleTex(ActiveModState, spriteBatch, null, r, moduleTemplate);
             if (!(ActiveModule.shield_power_max > 0f))
                 return;
@@ -277,7 +276,7 @@ namespace Ship_Game
         private void DrawDebug()
         {
             float width2 = ScreenWidth / 2f;
-            var pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
+            Vector2 pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
             HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
             pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
             HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
