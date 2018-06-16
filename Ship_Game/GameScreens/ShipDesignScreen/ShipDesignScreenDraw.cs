@@ -220,7 +220,7 @@ namespace Ship_Game
 
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
             DrawString(center, 0, 0.4f, Color.White, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
-            if (IsSymmetricDesignMode && IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
@@ -235,7 +235,7 @@ namespace Ship_Game
             Rectangle toDraw     = new Rectangle((int)center.X, (int)center.Y, 500, 500);
 
             spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
-            if (IsSymmetricDesignMode && IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
             Vector2 mirroredCenter = mirrored.Slot.Center();
@@ -274,9 +274,9 @@ namespace Ship_Game
         private void DrawDebug()
         {
             float width2 = ScreenWidth / 2f;
-            Vector2 pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
+            Vector2 pos  = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
             HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
-            pos = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
+            pos          = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
             HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
             #if SHIPYARD
                 string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
@@ -288,108 +288,98 @@ namespace Ship_Game
 
         private void DrawHullSelection()
         {
-            Rectangle r = this.HullSelectionSub.Menu;
-            r.Y = r.Y + 25;
-            r.Height = r.Height - 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
+            Rectangle  r = this.HullSelectionSub.Menu;
+            r.Y         += 25;
+            r.Height    -= 25;
+            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
-            this.HullSL.Draw(ScreenManager.SpriteBatch);
-            float x = (float) Mouse.GetState().X;
+            HullSL.Draw(ScreenManager.SpriteBatch);
+            float x          = (float) Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float) state.Y);
-            this.HullSelectionSub.Draw();
-            Vector2 bCursor = new Vector2((float) (this.HullSelectionSub.Menu.X + 10),
-                (float) (this.HullSelectionSub.Menu.Y + 45));
-            for (int i = this.HullSL.indexAtTop;
-                i < this.HullSL.Copied.Count && i < this.HullSL.indexAtTop + this.HullSL.entriesToDisplay;
-                i++)
+            HullSelectionSub.Draw();
+            Vector2 bCursor  = new Vector2((float) (HullSelectionSub.Menu.X + 10),
+                (float) (HullSelectionSub.Menu.Y + 45));
+            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < HullSL.indexAtTop + HullSL.entriesToDisplay; i++)
             {
-                bCursor = new Vector2((float) (this.HullSelectionSub.Menu.X + 10),
-                    (float) (this.HullSelectionSub.Menu.Y + 45));
-                ScrollList.Entry e = this.HullSL.Copied[i];
-                bCursor.Y = (float) e.clickRect.Y;
+                bCursor = new Vector2((float) (HullSelectionSub.Menu.X + 10),
+                    (float) (HullSelectionSub.Menu.Y + 45));
+                ScrollList.Entry e = HullSL.Copied[i];
+                bCursor.Y          = (float) e.clickRect.Y;
                 if (e.item is ModuleHeader)
                 {
                     (e.item as ModuleHeader).Draw(ScreenManager, bCursor);
                 }
                 else if (e.item is ShipData ship)
                 {
-                    bCursor.X = bCursor.X + 10f;
-                    ScreenManager.SpriteBatch.Draw(ship.Icon,
-                        new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
+                    bCursor.X       = bCursor.X + 10f;
+                    ScreenManager.SpriteBatch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor,
-                        Color.White);
-                    tCursor.Y = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold,
-                        Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-                    if (e.clickRect.HitTest(MousePos))
-                    {
-                        if (e.clickRectHover == 0)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
-                    }
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                    tCursor.Y       = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
+                    if (!e.clickRect.HitTest(MousePos))
+                        continue;
+
+                    if (e.clickRectHover == 0)
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                    e.clickRectHover = 1;
                 }
             }
         }
 
-        private void DrawRequirement(ref Vector2 Cursor, string words, bool met)
+        private void DrawRequirement(ref Vector2 cursor, string words, bool met)
         {
             float amount = 165f;
             if (GlobalStats.IsGermanFrenchOrPolish)
-            {
                 amount = amount + 35f;
-            }
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor,
-                (met ? Color.LightGreen : Color.LightPink));
-            string stats = (met ? "OK" : "X");
-            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(stats).X);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stats, Cursor,
-                (met ? Color.LightGreen : Color.LightPink));
-            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(stats).X);
+
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, cursor, met ? Color.LightGreen : Color.LightPink);
+            string stats = met ? "OK" : "X";
+            cursor.X    += amount - Fonts.Arial12Bold.MeasureString(stats).X;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stats, cursor, met ? Color.LightGreen : Color.LightPink);
+            cursor.X    -= amount - Fonts.Arial12Bold.MeasureString(stats).X;
         }
 
         private void DrawShipInfoPanel()
         {
-            float hitPoints = 0f;
-            float mass = 0f;
-            float powerDraw = 0f;
-            float powerCapacity = 0f;
-            float ordnanceCap = 0f;
-            float powerFlow = 0f;
-            float shieldPower = 0f;
-            float thrust = 0f;
-            float afterThrust = 0f;
-            float cargoSpace = 0f;
-            int troopCount = 0;
-            float size = 0f;
-            float cost = 0f;
-            float warpThrust = 0f;
-            float turnThrust = 0f;
-            float warpableMass = 0f;
-            float warpDraw = 0f;
-            float ftlCount = 0f;
-            float ftlSpeed = 0f;
-            float repairRate = 0f;
-            float sensorRange = 0f;
-            float sensorBonus = 0f;
-            float ordnanceUsed = 0f;
-            float ordnanceRecoverd = 0f;
-            float weaponPowerNeeded = 0f;
-            float upkeep = 0f;
-            float warpSpoolTimer = 0f;
-            float empResist = 0f;
-            bool bEnergyWeapons = false;
-            float offense = 0f;
-            float defense = 0;
-            float strength = 0;
-            float targets = 0;
-            int fixedTargets = 0;
-            float totalECM = 0f;
-            float beamPeakPowerNeeded = 0f;
-            float beamLongestDuration = 0f;
+            float hitPoints                = 0f;
+            float mass                     = 0f;
+            float powerDraw                = 0f;
+            float powerCapacity            = 0f;
+            float ordnanceCap              = 0f;
+            float powerFlow                = 0f;
+            float shieldPower              = 0f;
+            float thrust                   = 0f;
+            float afterThrust              = 0f;
+            float cargoSpace               = 0f;
+            int   troopCount               = 0;
+            float size                     = 0f;
+            float cost                     = 0f;
+            float warpThrust               = 0f;
+            float turnThrust               = 0f;
+            float warpableMass             = 0f;
+            float warpDraw                 = 0f;
+            float ftlCount                 = 0f;
+            float ftlSpeed                 = 0f;
+            float repairRate               = 0f;
+            float sensorRange              = 0f;
+            float sensorBonus              = 0f;
+            float ordnanceUsed             = 0f;
+            float ordnanceRecoverd         = 0f;
+            float weaponPowerNeeded        = 0f;
+            float upkeep                   = 0f;
+            float warpSpoolTimer           = 0f;
+            float empResist                = 0f;
+            bool  bEnergyWeapons           = false;
+            float offense                  = 0f;
+            float defense                  = 0;
+            float strength                 = 0;
+            float targets                  = 0;
+            int   fixedTargets             = 0;
+            float totalECM                 = 0f;
+            float beamPeakPowerNeeded      = 0f;
+            float beamLongestDuration      = 0f;
             float weaponPowerNeededNoBeams = 0f;
 
             HullBonus bonus = ActiveHull.Bonuses;
