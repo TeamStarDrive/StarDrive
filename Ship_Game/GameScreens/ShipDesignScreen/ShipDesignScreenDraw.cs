@@ -265,9 +265,12 @@ namespace Ship_Game
             if (!(ActiveModule.shield_power_max > 0f))
                 return;
 
-            Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y) +
-                             new Vector2(moduleTemplate.XSIZE * 16 / 2f,
-                                 moduleTemplate.YSIZE * 16 / 2f);
+            Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
+            if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
+                center += new Vector2(moduleTemplate.XSIZE * 16 / 2f, moduleTemplate.YSIZE * 16 / 2f);
+            else
+                center += new Vector2(moduleTemplate.YSIZE * 16 / 2f, moduleTemplate.XSIZE * 16 / 2f);
+
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
         }
 
