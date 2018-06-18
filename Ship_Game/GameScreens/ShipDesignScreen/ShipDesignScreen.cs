@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -69,6 +70,7 @@ namespace Ship_Game
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
         public bool IsSymmetricDesignMode = true;
+        private Stack<StackSlot> DesignStack = new Stack<StackSlot>();
 
 
     #if SHIPYARD
@@ -79,6 +81,18 @@ namespace Ship_Game
         {
             public SlotStruct Slot;
             public ModuleOrientation Orientation;
+        }
+
+        private struct StackSlot
+        {
+            //public int SlotX;
+            //public int SlotY;
+            public Point SlotPos;
+            //public SlotStruct Slot;
+            public string ModuleUid;
+            public ModuleOrientation Orientation;
+            public int ActionId;
+
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -228,6 +242,8 @@ namespace Ship_Game
                 return;
             }
 
+            bool newActionIdNeeded = true;
+
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -241,16 +257,62 @@ namespace Ship_Game
 
                     float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
                     ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
-                    
+                    AddActionToDesignStack(mirrored.Slot);
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
+                    newActionIdNeeded = false;
                 }
             }
 
+            AddActionToDesignStack(slot, newActionIdNeeded);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
             
             ShipSaved = false;
             SpawnActiveModule(module, orientation, slot.Facing);
+        }
+
+        private void AddActionToDesignStack(SlotStruct slot, bool needNewId = true)
+        {
+            int actionId;
+            if (DesignStack.Count == 0)
+                actionId = 1;
+            else if (needNewId)
+                actionId = DesignStack.Peek().ActionId + 1;
+            else actionId = DesignStack.Peek().ActionId;
+            StackSlot stackslot = new StackSlot
+            {
+                ActionId = actionId,
+                ModuleUid = slot.ModuleUID,
+                SlotPos = slot.Position,
+                Orientation = slot.Orientation
+            };
+
+            DesignStack.Push(stackslot);
+        }
+
+        private void PopFromDesignStack()
+        {
+            if (DesignStack.Count == 0)
+                return;
+
+            int baseActionId = DesignStack.Peek().ActionId;
+            int currentActionId = baseActionId;
+            while (currentActionId == baseActionId)
+            {
+                StackSlot poppedAction = DesignStack.Pop();
+                ModuleGrid.Get(poppedAction.SlotPos, out SlotStruct slot);
+                if (poppedAction.ModuleUid == null)
+                    ModuleGrid.ClearSlots(slot, slot.Module.XSIZE, slot.Module.YSIZE);
+                else
+                {
+                    ShipModule module = CreateDesignModule(poppedAction.ModuleUid, poppedAction.Orientation, 0f);
+                    ModuleGrid.InstallModule(slot, module, poppedAction.Orientation);
+                    ModuleGrid.RecalculatePower();
+                }
+                currentActionId = DesignStack.Count > 0 ? DesignStack.Peek().ActionId : 0;
+            }
+            ModuleGrid.RecalculatePower();
+            ShipSaved = false;
         }
 
         private void ReplaceModulesWith(SlotStruct slot, ShipModule template)
