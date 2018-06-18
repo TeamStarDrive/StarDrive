@@ -494,7 +494,7 @@ namespace Ship_Game
                 return;
 
             if (!ShouldTryInstallModule(input, out SlotStruct slot))
-            {
+            { 
                 PlayNegativeSound();
                 return;
             }
@@ -520,7 +520,6 @@ namespace Ship_Game
             if (!input.RightMouseClick)
                 return;
 
-            ActiveModule = null;
             if (GetSlotUnderCursor(input, out SlotStruct slot))
             {
                 if (slot.Module != null || slot.Parent != null)
@@ -538,6 +537,8 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("sub_bass_whoosh");
                 }
             }
+            else
+                ActiveModule = null;
         }
 
         private void HandleInputDebug(InputState input)
