@@ -85,14 +85,10 @@ namespace Ship_Game
 
         private struct StackSlot
         {
-            //public int SlotX;
-            //public int SlotY;
             public Point SlotPos;
-            //public SlotStruct Slot;
             public string ModuleUid;
             public ModuleOrientation Orientation;
             public int ActionId;
-
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -324,12 +320,15 @@ namespace Ship_Game
             }
 
             string replacementId = slot.Module.UID;
+            bool newActionIdNeeded = true;
             foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
             {
                 if (replaceAt.ModuleUID == replacementId)
                 {
                     ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.Facing);
+                    AddActionToDesignStack(replaceAt, newActionIdNeeded);
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
+                    newActionIdNeeded = false;
                 }
             }
             ModuleGrid.RecalculatePower();

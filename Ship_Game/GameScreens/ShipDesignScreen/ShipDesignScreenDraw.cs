@@ -343,7 +343,6 @@ namespace Ship_Game
             float thrust                   = 0f;
             float afterThrust              = 0f;
             float cargoSpace               = 0f;
-            int   troopCount               = 0;
             float size                     = 0f;
             float cost                     = 0f;
             float warpThrust               = 0f;
@@ -361,18 +360,19 @@ namespace Ship_Game
             float upkeep                   = 0f;
             float warpSpoolTimer           = 0f;
             float empResist                = 0f;
-            bool  bEnergyWeapons           = false;
             float offense                  = 0f;
             float defense                  = 0f;
             float strength                 = 0;
             float targets                  = 0;
-            int   fixedTargets             = 0;
             float totalEcm                 = 0f;
             float beamPeakPowerNeeded      = 0f;
             float beamLongestDuration      = 0f;
             float weaponPowerNeededNoBeams = 0f;
-            bool  hasBridge                 = false;
-            bool  emptySlots                = true;
+            bool hasBridge                 = false;
+            bool emptySlots                = true;
+            bool bEnergyWeapons            = false;
+            int troopCount                 = 0;
+            int fixedTargets               = 0;
             HullBonus bonus                 = ActiveHull.Bonuses;
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
@@ -393,7 +393,7 @@ namespace Ship_Game
                 cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 
-                if (slot.Module.PowerDraw <= 0) // some modues might not need power to operate, we still need their offense
+                if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
                 {
                     offense  += slot.Module.CalculateModuleOffense();
                     defense  += slot.Module.CalculateModuleDefense((int)size);
