@@ -89,6 +89,8 @@ namespace Ship_Game
             public string ModuleUid;
             public ModuleOrientation Orientation;
             public int ActionId;
+            public float ModuleFacing;
+            public string HangarShipUID;
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -239,7 +241,6 @@ namespace Ship_Game
             }
 
             bool newActionIdNeeded = true;
-
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -262,9 +263,32 @@ namespace Ship_Game
             AddActionToDesignStack(slot, newActionIdNeeded);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
-            
             ShipSaved = false;
             SpawnActiveModule(module, orientation, slot.Facing);
+        }
+
+        private void DeleleModule(SlotStruct slot)
+        {
+            if (slot.Module == null && slot.Parent == null)
+                return;
+
+            bool newActionIdNeeded = true;
+            if (IsSymmetricDesignMode)
+            {
+                MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
+                if (IsMirrorSlotPresent(mirrored, slot)
+                    && mirrored.Slot.Root != slot.Root
+                    && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                {
+                    AddActionToDesignStack(mirrored.Slot.Root);
+                    ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
+                    newActionIdNeeded = false;
+                }
+            }
+            AddActionToDesignStack(slot.Root, newActionIdNeeded);
+            ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
+            ModuleGrid.RecalculatePower();
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
         }
 
         private void AddActionToDesignStack(SlotStruct slot, bool needNewId = true)
@@ -275,13 +299,17 @@ namespace Ship_Game
             else if (needNewId)
                 actionId = DesignStack.Peek().ActionId + 1;
             else actionId = DesignStack.Peek().ActionId;
+
             StackSlot stackslot = new StackSlot
             {
                 ActionId = actionId,
                 ModuleUid = slot.ModuleUID,
                 SlotPos = slot.Position,
-                Orientation = slot.Orientation
+                Orientation = slot.Orientation,
+                HangarShipUID = slot.Module?.hangarShipUID
             };
+            if (slot.Module != null)
+                stackslot.ModuleFacing = slot.Module.Facing;
 
             DesignStack.Push(stackslot);
         }
@@ -295,14 +323,15 @@ namespace Ship_Game
             int currentActionId = baseActionId;
             while (currentActionId == baseActionId)
             {
-                StackSlot poppedAction = DesignStack.Pop();
-                ModuleGrid.Get(poppedAction.SlotPos, out SlotStruct slot);
-                if (poppedAction.ModuleUid == null)
+                StackSlot poppedSlot = DesignStack.Pop();
+                ModuleGrid.Get(poppedSlot.SlotPos, out SlotStruct slot);
+                if (poppedSlot.ModuleUid == null)
                     ModuleGrid.ClearSlots(slot, slot.Module.XSIZE, slot.Module.YSIZE);
                 else
                 {
-                    ShipModule module = CreateDesignModule(poppedAction.ModuleUid, poppedAction.Orientation, 0f);
-                    ModuleGrid.InstallModule(slot, module, poppedAction.Orientation);
+                    ShipModule module = CreateDesignModule(poppedSlot.ModuleUid, poppedSlot.Orientation, poppedSlot.ModuleFacing);
+                    module.hangarShipUID = poppedSlot.HangarShipUID;
+                    ModuleGrid.InstallModule(slot, module, poppedSlot.Orientation);
                     ModuleGrid.RecalculatePower();
                 }
                 currentActionId = DesignStack.Count > 0 ? DesignStack.Peek().ActionId : 0;
