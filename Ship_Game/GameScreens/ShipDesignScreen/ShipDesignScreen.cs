@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -70,7 +69,6 @@ namespace Ship_Game
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
         public bool IsSymmetricDesignMode = true;
-        private Stack<StackSlot> DesignStack = new Stack<StackSlot>();
 
 
     #if SHIPYARD
@@ -81,16 +79,6 @@ namespace Ship_Game
         {
             public SlotStruct Slot;
             public ModuleOrientation Orientation;
-        }
-
-        private struct StackSlot
-        {
-            public Point SlotPos;
-            public string ModuleUid;
-            public ModuleOrientation Orientation;
-            public int ActionId;
-            public float ModuleFacing;
-            public string HangarShipUID;
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -240,7 +228,6 @@ namespace Ship_Game
                 return;
             }
 
-            bool newActionIdNeeded = true;
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -254,13 +241,10 @@ namespace Ship_Game
 
                     float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
                     ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
-                    AddActionToDesignStack(mirrored.Slot);
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
-                    newActionIdNeeded = false;
                 }
             }
 
-            AddActionToDesignStack(slot, newActionIdNeeded);
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
@@ -272,7 +256,6 @@ namespace Ship_Game
             if (slot.Module == null && slot.Parent == null)
                 return;
 
-            bool newActionIdNeeded = true;
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
@@ -280,64 +263,12 @@ namespace Ship_Game
                     && mirrored.Slot.Root != slot.Root
                     && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
                 {
-                    AddActionToDesignStack(mirrored.Slot.Root);
                     ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
-                    newActionIdNeeded = false;
                 }
             }
-            AddActionToDesignStack(slot.Root, newActionIdNeeded);
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
             ModuleGrid.RecalculatePower();
             GameAudio.PlaySfxAsync("sub_bass_whoosh");
-        }
-
-        private void AddActionToDesignStack(SlotStruct slot, bool needNewId = true)
-        {
-            int actionId;
-            if (DesignStack.Count == 0)
-                actionId = 1;
-            else if (needNewId)
-                actionId = DesignStack.Peek().ActionId + 1;
-            else actionId = DesignStack.Peek().ActionId;
-
-            StackSlot stackslot = new StackSlot
-            {
-                ActionId = actionId,
-                ModuleUid = slot.ModuleUID,
-                SlotPos = slot.Position,
-                Orientation = slot.Orientation,
-                HangarShipUID = slot.Module?.hangarShipUID
-            };
-            if (slot.Module != null)
-                stackslot.ModuleFacing = slot.Module.Facing;
-
-            DesignStack.Push(stackslot);
-        }
-
-        private void PopFromDesignStack()
-        {
-            if (DesignStack.Count == 0)
-                return;
-
-            int baseActionId = DesignStack.Peek().ActionId;
-            int currentActionId = baseActionId;
-            while (currentActionId == baseActionId)
-            {
-                StackSlot poppedSlot = DesignStack.Pop();
-                ModuleGrid.Get(poppedSlot.SlotPos, out SlotStruct slot);
-                if (poppedSlot.ModuleUid == null)
-                    ModuleGrid.ClearSlots(slot, slot.Module.XSIZE, slot.Module.YSIZE);
-                else
-                {
-                    ShipModule module = CreateDesignModule(poppedSlot.ModuleUid, poppedSlot.Orientation, poppedSlot.ModuleFacing);
-                    module.hangarShipUID = poppedSlot.HangarShipUID;
-                    ModuleGrid.InstallModule(slot, module, poppedSlot.Orientation);
-                    ModuleGrid.RecalculatePower();
-                }
-                currentActionId = DesignStack.Count > 0 ? DesignStack.Peek().ActionId : 0;
-            }
-            ModuleGrid.RecalculatePower();
-            ShipSaved = false;
         }
 
         private void ReplaceModulesWith(SlotStruct slot, ShipModule template)
@@ -349,15 +280,12 @@ namespace Ship_Game
             }
 
             string replacementId = slot.Module.UID;
-            bool newActionIdNeeded = true;
             foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
             {
                 if (replaceAt.ModuleUID == replacementId)
                 {
                     ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.Facing);
-                    AddActionToDesignStack(replaceAt, newActionIdNeeded);
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
-                    newActionIdNeeded = false;
                 }
             }
             ModuleGrid.RecalculatePower();

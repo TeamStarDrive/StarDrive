@@ -25,7 +25,6 @@ namespace Ship_Game
         #endif
             if (hull == null) return;
             ModSel.ResetLists();
-            DesignStack.Clear();
             RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
@@ -557,7 +556,6 @@ namespace Ship_Game
         {
             if (!input.Undo)
                 return false;
-            PopFromDesignStack();
             return true;
         }
 
