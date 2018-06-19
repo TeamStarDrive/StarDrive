@@ -172,7 +172,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (HandleInputUndo(input))
+            if (HandleInputUndoRedo(input))
                 return true;
 
             HandleInputZoom(input);
@@ -301,12 +301,12 @@ namespace Ship_Game
 
         private void SetFiringArc(SlotStruct slot, float arc)
         {
-            HighlightedModule.Facing = arc;
+            slot.Module.Facing = arc;
             if (IsSymmetricDesignMode)
             {
                 ShipModule mirroredModule = GetMirrorModule(slot);
-                if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                    mirroredModule.Facing = (float)Math.Round(360 - arc);
+                if (IsMirrorModuleValid(slot.Module, mirroredModule))
+                    mirroredModule.Facing = 360 - arc;
             }
         }
 
@@ -518,19 +518,7 @@ namespace Ship_Game
             if (GetSlotUnderCursor(input, out SlotStruct slot))
             {
                 if (slot.Module != null || slot.Parent != null)
-                {
-                    if (IsSymmetricDesignMode)
-                    {
-                        MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                        if (IsMirrorSlotPresent(mirrored, slot) 
-                            && mirrored.Slot.Root != slot.Root 
-                            && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
-                            ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
-                    }
-                    ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
-                    ModuleGrid.RecalculatePower();
-                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                }
+                    DeleteModuleAtSlot(slot);
             }
         }
 
@@ -561,11 +549,11 @@ namespace Ship_Game
             TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
         }
 
-        private bool HandleInputUndo(InputState input)
+        private bool HandleInputUndoRedo(InputState input)
         {
-            if (!input.Undo)
-                return false;
-            return true;
+            if (input.Undo) { ModuleGrid.Undo(); return true; }
+            if (input.Redo) { ModuleGrid.Redo(); return true; }
+            return false;
         }
 
         public void HandleSymmetricDesignButton()
