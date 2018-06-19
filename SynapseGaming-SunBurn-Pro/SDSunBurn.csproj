@@ -74,7 +74,7 @@
     <Compile Include="Class32.cs" />
     <Compile Include="Class34.cs" />
     <Compile Include="Class35.cs" />
-    <Compile Include="Class36.cs" />
+    <Compile Include="ShadowEffect.cs" />
     <Compile Include="BlockUtil.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\FullFrameQuad.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\TransparencyMode.cs" />

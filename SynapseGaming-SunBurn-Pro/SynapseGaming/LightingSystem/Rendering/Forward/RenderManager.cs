@@ -446,8 +446,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             IShadowMap shadow = shadowGroup_0.Shadow as IShadowMap;
             if (!(shadow.ShadowEffect is IRenderableEffect) || !(shadow.ShadowEffect is ISkinnedEffect))
                 throw new Exception("RenderShadow requires an IRenderableEffect ShadowEffect.");
-            if (shadow.ShadowEffect is Class36)
-                (shadow.ShadowEffect as Class36).EffectDetail = ShadowDetail;
+            if (shadow.ShadowEffect is ShadowEffect effect)
+                effect.EffectDetail = ShadowDetail;
             shadow.BeginRendering(shadowRenderTargetGroup_1.RenderTargetTexture);
             ISkinnedEffect shadowEffect1 = shadow.ShadowEffect as ISkinnedEffect;
             Effect shadowEffect2 = shadow.ShadowEffect;

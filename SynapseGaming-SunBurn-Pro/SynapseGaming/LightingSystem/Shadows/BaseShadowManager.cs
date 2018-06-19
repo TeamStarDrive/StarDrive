@@ -19,7 +19,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     private static ShadowGroup shadowGroup_0 = new ShadowGroup();
     private static ShadowGroup shadowGroup_1 = new ShadowGroup();
     private static Dictionary<IShadowSource, ShadowGroup> dictionary_0 = new Dictionary<IShadowSource, ShadowGroup>(32);
-      private TrackingPool<ShadowGroup> TrackingPool0 = new TrackingPool<ShadowGroup>();
+    private TrackingPool<ShadowGroup> TrackingPool0 = new TrackingPool<ShadowGroup>();
 
       /// <summary>
     /// The current GraphicsDeviceManager used by this object.
