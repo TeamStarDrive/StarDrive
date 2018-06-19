@@ -25,7 +25,6 @@ namespace Ship_Game
         #endif
             if (hull == null) return;
             ModSel.ResetLists();
-
             RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
@@ -239,7 +238,7 @@ namespace Ship_Game
 
         private MirrorSlot GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation)
         {
-            int center = 952;
+            const int center = 952;
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
             int xPos = slot.PQ.X;
@@ -265,7 +264,7 @@ namespace Ship_Game
             }
         }
 
-        private float ConvertOrientationToFacing(ModuleOrientation orientation)
+        private static float ConvertOrientationToFacing(ModuleOrientation orientation)
         {
             switch (orientation)
             {
@@ -279,12 +278,10 @@ namespace Ship_Game
         private ShipModule GetMirrorModule(SlotStruct slot)
         {
             MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
-            if (!IsMirrorSlotPresent(mirrored, slot))
-                return null;
-            return mirrored.Slot.Root.Module;
+            return !IsMirrorSlotPresent(mirrored, slot) ? null : mirrored.Slot.Root.Module;
         }
 
-        private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
+        private static bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
         {
             return mirroredModule       != null
                 && mirroredModule.UID   == module.UID
@@ -292,22 +289,27 @@ namespace Ship_Game
                 && mirroredModule.YSIZE == module.YSIZE;
         }
 
-        private bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
+        private static bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
         {
-            if (mirrored.Slot == null || slot.PQ.X == mirrored.Slot.PQ.X)
-                return false;
-            return true;
+            return mirrored.Slot != null && slot.PQ.X != mirrored.Slot.PQ.X;
+        }
+
+        private bool ShouldTryInstallModule(InputState input, out SlotStruct slot)
+        {
+            if (!GetSlotUnderCursor(input, out slot))
+                    return false;
+            return slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID;
         }
 
         private void SetFiringArc(SlotStruct slot, float arc)
         {
             slot.Module.Facing = arc;
-            if (IsSymmetricDesignMode)
-            {
-                ShipModule mirroredModule = GetMirrorModule(slot);
-                if (IsMirrorModuleValid(slot.Module, mirroredModule))
-                    mirroredModule.Facing = 360 - arc;
-            }
+            if (!IsSymmetricDesignMode)
+                return;
+
+            ShipModule mirroredModule = GetMirrorModule(slot);
+            if (IsMirrorModuleValid(slot.Module, mirroredModule))
+                mirroredModule.Facing = 360 - arc;
         }
 
         private void HandleCameraMovement(InputState input)
@@ -490,8 +492,11 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (!GetSlotUnderCursor(input, out SlotStruct slot))
+            if (!ShouldTryInstallModule(input, out SlotStruct slot))
+            { 
+                PlayNegativeSound();
                 return;
+            }
 
             if (!input.IsShiftKeyDown)
             {
@@ -514,12 +519,11 @@ namespace Ship_Game
             if (!input.RightMouseClick)
                 return;
 
-            ActiveModule = null;
             if (GetSlotUnderCursor(input, out SlotStruct slot))
-            {
-                if (slot.Module != null || slot.Parent != null)
-                    DeleteModuleAtSlot(slot);
-            }
+                DeleteModuleAtSlot(slot);
+            else
+                ActiveModule = null;
+
         }
 
         private void HandleInputDebug(InputState input)

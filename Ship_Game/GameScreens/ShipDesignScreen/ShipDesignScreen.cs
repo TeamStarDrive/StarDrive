@@ -243,14 +243,12 @@ namespace Ship_Game
 
                     float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
                     ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
-                    
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
             }
 
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
-            
             ShipSaved = false;
             SpawnActiveModule(module, orientation, slot.Facing);
         }
@@ -280,6 +278,9 @@ namespace Ship_Game
 
         private void DeleteModuleAtSlot(SlotStruct slot)
         {
+            if (slot.Module == null && slot.Parent == null)
+                return;
+
             ModuleGrid.StartUndoableAction();
 
             if (IsSymmetricDesignMode)
