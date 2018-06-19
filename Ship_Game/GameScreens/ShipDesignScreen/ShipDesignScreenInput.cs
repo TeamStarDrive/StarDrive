@@ -519,10 +519,11 @@ namespace Ship_Game
             if (!input.RightMouseClick)
                 return;
 
-            ActiveModule = null;
-
             if (GetSlotUnderCursor(input, out SlotStruct slot))
                 DeleteModuleAtSlot(slot);
+            else
+                ActiveModule = null;
+
         }
 
         private void HandleInputDebug(InputState input)
