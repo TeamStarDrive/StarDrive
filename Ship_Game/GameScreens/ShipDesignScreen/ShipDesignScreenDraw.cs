@@ -520,7 +520,6 @@ namespace Ship_Game
                 float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
                 DrawStat(ref cursor, string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235);
             }
-            WriteLine(ref cursor);
 
             strength = (defense > offense ? offense * 2 : defense + offense);
             if (strength > 0)   DrawStat(ref cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
@@ -654,12 +653,12 @@ namespace Ship_Game
                 float powerConsumed = weaponPowerNeeded - powerRecharge;
                 if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
                 {
-                    DrawStatColor(ref cursor, "Wpn Fire Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
+                    DrawStatColor(ref cursor, "Excess Wpn Pwr Drain:", -powerConsumed, 243, Color.LightSkyBlue);
                     float energyDuration = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, "Power Time:", energyDuration, 163, Color.LightSkyBlue);
+                    DrawStatColor(ref cursor, "Wpn Fire Power Time:", energyDuration, 163, Color.LightSkyBlue);
                 }
                 else
-                    DrawStatEnergy(ref cursor, "Power Time:", "INF", 163);
+                    DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
 
             }
 
@@ -674,12 +673,12 @@ namespace Ship_Game
                 if (!(powerConsumedWithBeams > 0))
                     return;
 
-                DrawStatColor(ref cursor, "Peak Wpn Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
-                float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
-                if (peakEnergyDuration < beamLongestDuration)
-                    DrawStatColor(ref cursor, "Peak Wpn Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
+                DrawStatColor(ref cursor, "Burst Wpn Pwr Drain:", -powerConsumedWithBeams, 244, Color.LightSkyBlue);
+                float burstEnergyDuration = powerCapacity / powerConsumedWithBeams;
+                if (burstEnergyDuration < beamLongestDuration)
+                    DrawStatColor(ref cursor, "Burst Wpn Pwr Time:", burstEnergyDuration, 245, Color.LightSkyBlue, forceRed: true, doGoodBadTint: false);
                 else
-                    DrawStatEnergy(ref cursor, "Peak Wpn Pwr Time:", "INF", 245);
+                    DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
         }
 
@@ -698,8 +697,9 @@ namespace Ship_Game
         }
 
         public void DrawStatColor(ref Vector2 cursor, string words, float stat, int tooltipId, Color color
-            , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2)
+            , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2, bool forceRed = false)
         {
+            Color forceColor = forceRed ? Color.LightPink : Color.White;
             SpriteFont font        = Fonts.Arial12Bold;
             float amount           = Spacing(spacing);
             cursor.Y              += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
@@ -708,7 +708,7 @@ namespace Ship_Game
             DrawString(statNameCursor, color, words, font);
             string numbers         = "0.0";
             numbers                = isPercent ? stat.ToString("P1") : GetNumberString(stat);
-            color                  = doGoodBadTint ? (stat > 0f ? Color.LightGreen : Color.LightPink) : Color.White;
+            color                  = doGoodBadTint ? (stat > 0f ? Color.LightGreen : Color.LightPink) : forceColor;
             DrawString(statCursor, color, numbers, font);
             CheckToolTip(tooltipId, cursor, words, numbers, font, MousePos);
         }
