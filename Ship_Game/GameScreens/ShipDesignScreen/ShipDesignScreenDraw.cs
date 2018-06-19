@@ -10,9 +10,9 @@ using Ship_Game.UI;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public sealed partial class ShipDesignScreen
+    public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
-        public override void Draw(SpriteBatch spriteBatch) // refactored by Fat Bastard
+        public override void Draw(SpriteBatch spriteBatch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
