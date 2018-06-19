@@ -21,20 +21,20 @@ namespace SynapseGaming.LightingSystem.Shadows
   /// </summary>
   public abstract class BaseShadowMapManager : BaseShadowManager, IUnloadable, IManager, IRenderableManager, IManagerService, IShadowMapVisibility, IShadowMapManager
   {
-    private static List<ShadowGroup> list_0 = new List<ShadowGroup>(128);
+    private static List<ShadowGroup> ShadowGroups = new List<ShadowGroup>(128);
     private static List<Rectangle> list_1 = new List<Rectangle>();
     private static Dictionary<RenderTarget, ShadowRenderTargetGroup> dictionary_1 = new Dictionary<RenderTarget, ShadowRenderTargetGroup>();
-      private bool bool_0 = true;
-    private float float_1 = 1f;
+    private bool shadowsEnabled = true;
+    private float shadowQuality = 1f;
     private Enum9 enum9_0 = Enum9.const_1;
     private float float_2 = 1f;
-    private DisposablePool<ShadowRenderTargetGroup> DisposablePool0 = new DisposablePool<ShadowRenderTargetGroup>();
+    private DisposablePool<ShadowRenderTargetGroup> ShadowRtgPool = new DisposablePool<ShadowRenderTargetGroup>();
     private const int int_0 = 67108864;
     private const int int_1 = 2048;
     private const int int_2 = 32;
     private GraphicsDeviceMonitor GraphicsDeviceMonitor0;
     private ShadowMapCache shadowMapCache_0;
-    private RenderTarget2D renderTarget2D_0;
+    private RenderTarget2D DefaultRenderTarget;
 
     /// <summary>
     /// Gets the manager specific Type used as a unique key for storing and
@@ -182,8 +182,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <param name="preferences"></param>
     public override void ApplyPreferences(ILightingSystemPreferences preferences)
     {
-      this.bool_0 = preferences.ShadowDetail != DetailPreference.Off;
-      this.float_1 = MathHelper.Clamp(preferences.ShadowQuality, 0.05f, 1f);
+      this.shadowsEnabled = preferences.ShadowDetail != DetailPreference.Off;
+      this.shadowQuality = MathHelper.Clamp(preferences.ShadowQuality, 0.05f, 1f);
     }
 
     /// <summary>
@@ -196,94 +196,104 @@ namespace SynapseGaming.LightingSystem.Shadows
     public void BuildShadows(List<ShadowRenderTargetGroup> rendertargetgroups, List<ILight> lights, bool usedefaultgrouping)
     {
       GraphicsDevice graphicsDevice = this.GraphicsDeviceManager.GraphicsDevice;
-      if (this.renderTarget2D_0 == null)
-        this.renderTarget2D_0 = new RenderTarget2D(graphicsDevice, 16, 16, 1, SurfaceFormat.Color);
+      if (DefaultRenderTarget == null)
+        DefaultRenderTarget = new RenderTarget2D(graphicsDevice, 16, 16, 1, SurfaceFormat.Color);
       rendertargetgroups.Clear();
-      list_0.Clear();
+      ShadowGroups.Clear();
       dictionary_1.Clear();
-      this.BuildShadowGroups(list_0, lights, usedefaultgrouping);
-      if (list_0.Count < 1)
+      this.BuildShadowGroups(ShadowGroups, lights, usedefaultgrouping);
+      if (ShadowGroups.Count < 1)
         return;
-      float num1 = this._MaxShadowLOD * this.float_1 * this.float_2;
-      foreach (ShadowGroup shadowgroup in list_0)
+      float num1 = this._MaxShadowLOD * this.shadowQuality * this.float_2;
+      foreach (ShadowGroup shadowgroup in ShadowGroups)
       {
-        RenderTarget2D renderTarget2D = this.renderTarget2D_0;
-        if (this.bool_0 && shadowgroup.ShadowSource.ShadowType != ShadowType.None)
+        RenderTarget2D rt = DefaultRenderTarget;
+        if (this.shadowsEnabled && shadowgroup.ShadowSource.ShadowType != ShadowType.None)
         {
           IShadowMap shadowMap;
           if (shadowgroup.ShadowSource is ISpotSource)
-            shadowMap = this.CreateSpotShadowMap(shadowgroup.ShadowSource);
+              shadowMap = this.CreateSpotShadowMap(shadowgroup.ShadowSource);
           else if (shadowgroup.ShadowSource is IPointSource)
-            shadowMap = this.CreatePointShadowMap(shadowgroup.ShadowSource);
+              shadowMap = this.CreatePointShadowMap(shadowgroup.ShadowSource);
           else if (shadowgroup.ShadowSource is IDirectionalSource)
-            shadowMap = this.CreateDirectionalShadowMap(shadowgroup.ShadowSource);
+              shadowMap = this.CreateDirectionalShadowMap(shadowgroup.ShadowSource);
           else
-            continue;
-          shadowMap.Build(graphicsDevice, this.SceneState, shadowgroup, this, this.float_1);
+              continue;
+
+          shadowMap.Build(graphicsDevice, SceneState, shadowgroup, this, shadowQuality);
           if (shadowMap.CustomRenderTarget is RenderTarget2D)
           {
-            renderTarget2D = shadowMap.CustomRenderTarget as RenderTarget2D;
+            rt = shadowMap.CustomRenderTarget as RenderTarget2D;
           }
           else
           {
-            float num2 = 1f;
-            float num3 = num1 * shadowgroup.ShadowSource.ShadowQuality;
-            Rectangle rectangle = new Rectangle();
-            do
-            {
-              bool flag = true;
-              list_1.Clear();
-              foreach (ShadowMapSurface surface in shadowMap.Surfaces)
-              {
-                int num4 = (int) MathHelper.Clamp((float) Math.Pow(2.0, (float) Math.Floor(CoreUtils.smethod_0(num3 * num2 * surface.LevelOfDetail) * 2.0) * 0.5f), 32f, this._MaxShadowLOD);
-                rectangle.Width = num4;
-                rectangle.Height = num4;
-                list_1.Add(rectangle);
-                if (num4 > 32)
-                  flag = false;
-              }
-              renderTarget2D = this.shadowMapCache_0.ReserveSections(list_1);
-              if (renderTarget2D == null)
-                this.enum9_0 = Enum9.const_0;
-              if (!flag)
-                num2 *= 0.5f;
-              else
-                break;
-            }
-            while (renderTarget2D == null);
-            if (renderTarget2D != null)
-            {
+              rt = RenderTarget2D(num1, shadowgroup, shadowMap);
+              if (rt == null)
+                  continue;
+
               for (int surface = 0; surface < shadowMap.Surfaces.Length; ++surface)
                 shadowMap.SetSurfaceRenderTargetLocation(surface, list_1[surface]);
-            }
-            else
-              continue;
           }
           shadowgroup.Shadow = shadowMap;
         }
-        if (!dictionary_1.ContainsKey(renderTarget2D))
+        if (!dictionary_1.ContainsKey(rt))
         {
-          ShadowRenderTargetGroup renderTargetGroup = this.DisposablePool0.New();
-          renderTargetGroup.ShadowGroups.Clear();
-          renderTargetGroup.ShadowGroups.Add(shadowgroup);
-          dictionary_1.Add(renderTarget2D, renderTargetGroup);
+          ShadowRenderTargetGroup rtg = this.ShadowRtgPool.New();
+          rtg.ShadowGroups.Clear();
+          rtg.ShadowGroups.Add(shadowgroup);
+          dictionary_1.Add(rt, rtg);
         }
         else
-          dictionary_1[renderTarget2D].ShadowGroups.Add(shadowgroup);
+          dictionary_1[rt].ShadowGroups.Add(shadowgroup);
       }
       foreach (KeyValuePair<RenderTarget, ShadowRenderTargetGroup> keyValuePair in dictionary_1)
       {
         ShadowRenderTargetGroup renderTargetGroup = keyValuePair.Value;
-        RenderTarget key = keyValuePair.Key;
-        if (key == this.renderTarget2D_0)
+        RenderTarget rt = keyValuePair.Key;
+        if (rt == DefaultRenderTarget)
           renderTargetGroup.Build(graphicsDevice, null, this.shadowMapCache_0.DepthBuffer);
         else
-          renderTargetGroup.Build(graphicsDevice, key, this.shadowMapCache_0.DepthBuffer);
+          renderTargetGroup.Build(graphicsDevice, rt, this.shadowMapCache_0.DepthBuffer);
         rendertargetgroups.Add(renderTargetGroup);
       }
     }
 
-    /// <summary>
+      private RenderTarget2D RenderTarget2D(float num1, ShadowGroup shadowgroup, IShadowMap shadowMap)
+      {
+          RenderTarget2D renderTarget2D;
+          float num2 = 1f;
+          float num3 = num1 * shadowgroup.ShadowSource.ShadowQuality;
+          Rectangle rectangle = new Rectangle();
+          do
+          {
+              bool flag = true;
+              list_1.Clear();
+              foreach (ShadowMapSurface surface in shadowMap.Surfaces)
+              {
+                  int num4 = (int) MathHelper.Clamp(
+                      (float) Math.Pow(2.0,
+                          (float) Math.Floor(CoreUtils.smethod_0(num3 * num2 * surface.LevelOfDetail) * 2.0) * 0.5f), 32f,
+                      this._MaxShadowLOD);
+                  rectangle.Width = num4;
+                  rectangle.Height = num4;
+                  list_1.Add(rectangle);
+                  if (num4 > 32)
+                      flag = false;
+              }
+
+              renderTarget2D = this.shadowMapCache_0.ReserveSections(list_1);
+              if (renderTarget2D == null)
+                  this.enum9_0 = Enum9.const_0;
+              if (!flag)
+                  num2 *= 0.5f;
+              else
+                  break;
+          } while (renderTarget2D == null);
+
+          return renderTarget2D;
+      }
+
+      /// <summary>
     /// Sets up frame information necessary for scene shadowing.
     /// </summary>
     public override void BeginFrameRendering(ISceneState scenestate)
@@ -309,7 +319,7 @@ namespace SynapseGaming.LightingSystem.Shadows
         this.enum9_0 = Enum9.const_2;
       }
       this.shadowMapCache_0.ClearReserves();
-      this.DisposablePool0.RecycleAllTracked();
+      this.ShadowRtgPool.RecycleAllTracked();
       base.EndFrameRendering();
     }
 
@@ -325,8 +335,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     public override void Unload()
     {
       this.shadowMapCache_0.Unload();
-      this.DisposablePool0.Clear();
-      Disposable.Free(ref renderTarget2D_0);
+      this.ShadowRtgPool.Clear();
+      Disposable.Free(ref DefaultRenderTarget);
     }
 
     private enum Enum9
