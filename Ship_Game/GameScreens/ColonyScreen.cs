@@ -2014,7 +2014,8 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280));
             }
-            if ((input.Right || RightColony.HandleInput(input, ignoreLeftMouseReleased: true))
+            // Changed by MadMudMonster: only respond to mouse press, not release
+            if ((input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
                 && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 try
@@ -2038,7 +2039,8 @@ namespace Ship_Game
                 }
                 return true;
             }
-            if ((input.Left || this.LeftColony.HandleInput(input, ignoreLeftMouseReleased: true)) 
+            // Changed by MadMudMonster: only respond to mouse press, not release
+            if ((input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
                 && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);

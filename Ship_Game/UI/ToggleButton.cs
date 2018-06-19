@@ -205,11 +205,6 @@ namespace Ship_Game.UI
 
         public override bool HandleInput(InputState input)
         {
-            return HandleInput(input, ignoreLeftMouseReleased: false);
-        }
-
-        public bool HandleInput(InputState input, bool ignoreLeftMouseReleased)
-        {
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
             {
@@ -242,7 +237,7 @@ namespace Ship_Game.UI
             }
 
             // edge case: capture mouse release events
-            return input.LeftMouseReleased && !ignoreLeftMouseReleased;
+            return input.LeftMouseReleased;
         }
     }
 }
