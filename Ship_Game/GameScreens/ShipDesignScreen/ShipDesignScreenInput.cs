@@ -171,7 +171,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (HandleInputUndo(input))
+            if (HandleInputUndoRedo(input))
                 return true;
 
             HandleInputZoom(input);
@@ -303,13 +303,13 @@ namespace Ship_Game
 
         private void SetFiringArc(SlotStruct slot, float arc)
         {
-            HighlightedModule.Facing = arc;
+            slot.Module.Facing = arc;
             if (!IsSymmetricDesignMode)
                 return;
 
             ShipModule mirroredModule = GetMirrorModule(slot);
-            if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                mirroredModule.Facing = (float)Math.Round(360 - arc);
+            if (IsMirrorModuleValid(slot.Module, mirroredModule))
+                mirroredModule.Facing = 360 - arc;
         }
 
         private void HandleCameraMovement(InputState input)
@@ -519,10 +519,10 @@ namespace Ship_Game
             if (!input.RightMouseClick)
                 return;
 
+            ActiveModule = null;
+
             if (GetSlotUnderCursor(input, out SlotStruct slot))
-                DeleleModule(slot);
-            else
-                ActiveModule = null;
+                DeleteModuleAtSlot(slot);
         }
 
         private void HandleInputDebug(InputState input)
@@ -552,11 +552,11 @@ namespace Ship_Game
             TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
         }
 
-        private bool HandleInputUndo(InputState input)
+        private bool HandleInputUndoRedo(InputState input)
         {
-            if (!input.Undo)
-                return false;
-            return true;
+            if (input.Undo) { ModuleGrid.Undo(); return true; }
+            if (input.Redo) { ModuleGrid.Redo(); return true; }
+            return false;
         }
 
         public void HandleSymmetricDesignButton()

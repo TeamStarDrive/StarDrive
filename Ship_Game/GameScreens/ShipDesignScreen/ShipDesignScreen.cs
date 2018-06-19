@@ -228,6 +228,8 @@ namespace Ship_Game
                 return;
             }
 
+            ModuleGrid.StartUndoableAction();
+
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -251,26 +253,6 @@ namespace Ship_Game
             SpawnActiveModule(module, orientation, slot.Facing);
         }
 
-        private void DeleleModule(SlotStruct slot)
-        {
-            if (slot.Module == null && slot.Parent == null)
-                return;
-
-            if (IsSymmetricDesignMode)
-            {
-                MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                if (IsMirrorSlotPresent(mirrored, slot)
-                    && mirrored.Slot.Root != slot.Root
-                    && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
-                {
-                    ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
-                }
-            }
-            ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
-            ModuleGrid.RecalculatePower();
-            GameAudio.PlaySfxAsync("sub_bass_whoosh");
-        }
-
         private void ReplaceModulesWith(SlotStruct slot, ShipModule template)
         {
             if (!slot.IsModuleReplaceableWith(template))
@@ -278,6 +260,8 @@ namespace Ship_Game
                 PlayNegativeSound();
                 return;
             }
+
+            ModuleGrid.StartUndoableAction();
 
             string replacementId = slot.Module.UID;
             foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
@@ -290,6 +274,28 @@ namespace Ship_Game
             }
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
+        }
+
+        private void DeleteModuleAtSlot(SlotStruct slot)
+        {
+            if (slot.Module == null && slot.Parent == null)
+                return;
+
+            ModuleGrid.StartUndoableAction();
+
+            if (IsSymmetricDesignMode)
+            {
+                MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
+                if (IsMirrorSlotPresent(mirrored, slot) 
+                    && mirrored.Slot.Root != slot.Root 
+                    && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                {
+                    ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module);
+                }
+            }
+            ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
+            ModuleGrid.RecalculatePower();
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
         }
 
         private DesignModuleGrid ModuleGrid;
