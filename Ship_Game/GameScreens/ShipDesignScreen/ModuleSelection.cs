@@ -415,21 +415,21 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent, lineSpacing: 0);
             WriteLine(ref cursor);
         }
         private void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;            
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f);
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
         private void DrawStatShieldResist(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStatColor(ref cursor, text, stat, toolTipId, Color.LightSkyBlue, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStatColor(ref cursor, text, stat, toolTipId, Color.LightSkyBlue, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent, lineSpacing: 0);
             WriteLine(ref cursor);
         }
         private void DrawString(ref Vector2 cursor, string text, bool valueCheck)
