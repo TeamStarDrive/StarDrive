@@ -100,16 +100,6 @@ namespace Ship_Game
                                          orientation, ShipModule.DefaultFacingFor(orientation));
         }
 
-        private bool FindStructFromOffset(SlotStruct offsetBase, int dx, int dy, out SlotStruct found)
-        {
-            found = null;
-            if (dx == 0 && dy == 0)
-                return false; // ignore self, {0,0} is offsetBase
-
-            var pos = new Point(offsetBase.PQ.X + dx*16, offsetBase.PQ.Y + dy*16);
-            return ModuleGrid.Get(pos, out found);
-        }
-
         private ModuleSlotData FindModuleSlotAtPos(Vector2 slotPos)
         {
             ModuleSlotData[] slots = ActiveHull.ModuleSlots;
@@ -185,24 +175,31 @@ namespace Ship_Game
             return single.ToString("#") + "k"; // 1000k
         }
 
-        public ShipModule CreateDesignModule(string uid)
+        public ShipModule CreateDesignModule(ShipModule template)
         {
-            ShipModule m = ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
+            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
             m.SetAttributes();                    
+            return m;
+        }
+
+        public ShipModule CreateDesignModule(ShipModule template, ModuleOrientation orientation, float facing)
+        {
+            ShipModule m = ShipModule.CreateNoParent(ResourceManager.GetModuleTemplate(template.UID),
+                                                     EmpireManager.Player, ActiveHull);
+            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
+            m.hangarShipUID = template.hangarShipUID;
             return m;
         }
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation orientation, float facing)
         {
-            ShipModule m = ShipModule.CreateNoParent(uid, EmpireManager.Player, ActiveHull);
-            m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
-            return m;
+            return CreateDesignModule(ResourceManager.GetModuleTemplate(uid), orientation, facing);
         }
 
         // spawn a new active module under cursor
-        private void SpawnActiveModule(string uid, ModuleOrientation orientation, float facing)
+        private void SpawnActiveModule(ShipModule template, ModuleOrientation orientation, float facing)
         {
-            ActiveModule = CreateDesignModule(uid, orientation, facing);
+            ActiveModule = CreateDesignModule(template, orientation, facing);
             ActiveModState = orientation;
             ActiveModule.SetAttributes();
         }
@@ -213,52 +210,92 @@ namespace Ship_Game
             ActiveModState = ModuleOrientation.Normal;
         }
         
-        public void SetActiveModule(string uid, ModuleOrientation orientation, float facing)
+        public void SetActiveModule(ShipModule template, ModuleOrientation orientation, float facing)
         {
             GameAudio.PlaySfxAsync("smallservo");
 
-            SpawnActiveModule(uid, orientation, facing);
+            SpawnActiveModule(template, orientation, facing);
 
             HighlightedModule = null;
             HoveredModule     = null;
         }
 
-        private ShipModule CreateMirrorModule(MirrorSlot mirrored, ShipModule module)
-        {
-            ShipModule m = CreateDesignModule(module.UID, mirrored.Orientation, ConvertOrientationToFacing(mirrored.Orientation));
-            m.hangarShipUID = module.hangarShipUID;
-            return m;
-        }
-
-
         private void InstallModule(SlotStruct slot, ShipModule module, ModuleOrientation orientation)
         {
+            if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
+            {
+                PlayNegativeSound();
+                return;
+            }
+
+            ModuleGrid.StartUndoableAction();
 
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
                 if (IsMirrorSlotPresent(mirrored, slot))
                 {
-                    if (!ModuleGrid.ModuleFitsAtSlot(slot, module) || !ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
+                    if (!ModuleGrid.ModuleFitsAtSlot(mirrored.Slot, module))
                     {
                         PlayNegativeSound();
                         return;
                     }
-                    ShipModule mirroredModule = CreateMirrorModule(mirrored, module);
-                    ModuleGrid.ClearSlots(mirrored.Slot, module.XSIZE, module.YSIZE);
+
+                    float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
+                    ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
             }
-            if (!ModuleGrid.ModuleFitsAtSlot(slot, module))
+
+            ModuleGrid.InstallModule(slot, module, orientation);
+            ModuleGrid.RecalculatePower();
+            ShipSaved = false;
+            SpawnActiveModule(module, orientation, slot.Facing);
+        }
+
+        private void ReplaceModulesWith(SlotStruct slot, ShipModule template)
+        {
+            if (!slot.IsModuleReplaceableWith(template))
             {
                 PlayNegativeSound();
                 return;
             }
-            ModuleGrid.ClearSlots(slot, module.XSIZE, module.YSIZE);
-            ModuleGrid.InstallModule(slot, module, orientation);
+
+            ModuleGrid.StartUndoableAction();
+
+            string replacementId = slot.Module.UID;
+            foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
+            {
+                if (replaceAt.ModuleUID == replacementId)
+                {
+                    ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.Facing);
+                    ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
+                }
+            }
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
-            SpawnActiveModule(module.UID, orientation, slot.Facing);
+        }
+
+        private void DeleteModuleAtSlot(SlotStruct slot)
+        {
+            if (slot.Module == null && slot.Parent == null)
+                return;
+
+            ModuleGrid.StartUndoableAction();
+
+            if (IsSymmetricDesignMode)
+            {
+                MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
+                if (IsMirrorSlotPresent(mirrored, slot) 
+                    && mirrored.Slot.Root != slot.Root 
+                    && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                {
+                    ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module);
+                }
+            }
+            ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
+            ModuleGrid.RecalculatePower();
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
         }
 
         private DesignModuleGrid ModuleGrid;
@@ -274,11 +311,8 @@ namespace Ship_Game
                     continue;
 
                 ShipModule newModule = CreateDesignModule(slot.ModuleUID, slot.Orientation, slot.Facing);
-                if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule))
-                {
-                    Log.Warning($"InstallModuleFromLoad failed! {newModule}");
+                if (!ModuleGrid.ModuleFitsAtSlot(slot, newModule, logFailure: true))
                     continue;
-                }
 
                 ModuleGrid.InstallModule(slot, newModule, slot.Orientation);
 
