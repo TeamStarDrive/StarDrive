@@ -392,6 +392,18 @@ namespace Ship_Game
             return item;
         }
 
+        public bool TryPopLast(out T item)
+        {
+            if (Count == 0)
+            {
+                item = default(T);
+                return false;
+            }
+            item         = Items[--Count];
+            Items[Count] = default(T);
+            return true;
+        }
+
         // This is slower than RemoveDuplicateRefs if T is a class
         public int RemoveDuplicates()
         {

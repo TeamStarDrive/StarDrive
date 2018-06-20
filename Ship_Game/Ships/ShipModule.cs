@@ -264,9 +264,8 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(string uid, Empire loyalty, ShipData hull)
+        public static ShipModule CreateNoParent(ShipModule template, Empire loyalty, ShipData hull)
         {
-            ShipModule template = ResourceManager.GetModuleTemplate(uid);
             var module = new ShipModule
             {
                 Flyweight         = template.Flyweight,
@@ -319,7 +318,8 @@ namespace Ship_Game.Ships
         // this is used during Ship creation, Ship template creation or Ship loading from save
         public static ShipModule Create(string uid, Ship parent, ModuleSlotData slot, bool isTemplate, bool fromSave)
         {
-            ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
+            ShipModule template = ResourceManager.GetModuleTemplate(uid);
+            ShipModule module = CreateNoParent(template, parent.loyalty, parent.shipData);
             module.Parent = parent;
             module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
             module.Initialize(slot.Position, isTemplate);
@@ -890,6 +890,12 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
+        public float ActualMass(bool inPowerRadius)
+        {
+            if (Mass < 0f && inPowerRadius)
+                return ModuleType != ShipModuleType.Armor ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
+            return ModuleType != ShipModuleType.Armor ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+        }
 
         // @note This is called every frame for every module for every ship in the universe
         private void UpdateDamageVisualization(float elapsedTime)
@@ -1193,6 +1199,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}  Ship={Parent?.Name}";
+        public override string ToString() => $"{UID}  {Id}  x {Position.X} y {Position.Y}  size {XSIZE}x{YSIZE}  world={Center}  Ship={Parent?.Name}";
     }
 }

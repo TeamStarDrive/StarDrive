@@ -216,9 +216,9 @@ namespace Ship_Game.UI
                         ToolTip.TextLast = string.Empty;
                     }
 
-                    ToolTip.TipTimer = 0;                    
+                    ToolTip.TipTimer = 0;
                 }
-                Hover = false;                
+                Hover = false;
                 return false;
             }
             if (!Hover)
@@ -228,7 +228,7 @@ namespace Ship_Game.UI
                     ToolTip.CreateTooltip(WhichToolTip);
             }
             Hover = true;
-            
+
             if (input.LeftMouseClick)
             {
                 OnClick?.Invoke(this);

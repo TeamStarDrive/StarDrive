@@ -203,7 +203,7 @@ namespace Ship_Game
         //researchScreen
         public bool ResearchExitScreen => KeyPressed(Keys.R);
 
-        public bool ShipDesignExit => KeyPressed(Keys.Y);
+        public bool ShipDesignExit => KeyPressed(Keys.Y) && !IsCtrlKeyDown;
         public bool ShipYardArcMove()
         {
             if (GlobalStats.AltArcControl)
@@ -215,7 +215,8 @@ namespace Ship_Game
 
         public Vector2 CursorPosition { get ; private set; }
 
-        public bool Undo              => KeyPressed(Keys.Z) && IsKeyDown(Keys.LeftControl);
+        public bool Undo              => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
+        public bool Redo              => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
         public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
 
         public bool AButtonDown       => GamepadClicked(Buttons.A);
@@ -247,15 +248,15 @@ namespace Ship_Game
         public bool Left  => KeyPressed(Keys.Left)  || KeyPressed(Keys.A) || GamepadClicked(Buttons.DPadLeft);
         public bool Right => KeyPressed(Keys.Right) || KeyPressed(Keys.D) || GamepadClicked(Buttons.DPadRight);
 
-        public bool WASDUp => KeyPressed(Keys.W);
-        public bool WASDDown => KeyPressed(Keys.S);
-        public bool WASDLeft => KeyPressed(Keys.A);
+        public bool WASDUp    => KeyPressed(Keys.W);
+        public bool WASDDown  => KeyPressed(Keys.S);
+        public bool WASDLeft  => KeyPressed(Keys.A);
         public bool WASDRight => KeyPressed(Keys.D);
 
         public bool ArrowRight => KeyPressed(Keys.Right) || KeyPressed(Keys.NumPad6);
-        public bool ArrowUp => KeyPressed(Keys.Up) || KeyPressed(Keys.NumPad8);
-        public bool ArrowDown => KeyPressed(Keys.Down) || KeyPressed(Keys.NumPad2);
-        public bool ArrowLeft => KeyPressed(Keys.Left) || KeyPressed(Keys.NumPad4);
+        public bool ArrowUp    => KeyPressed(Keys.Up) || KeyPressed(Keys.NumPad8);
+        public bool ArrowDown  => KeyPressed(Keys.Down) || KeyPressed(Keys.NumPad2);
+        public bool ArrowLeft  => KeyPressed(Keys.Left) || KeyPressed(Keys.NumPad4);
 
         public bool ScrollIn  => MouseCurr.ScrollWheelValue > ScrollWheelPrev;
         public bool ScrollOut => MouseCurr.ScrollWheelValue < ScrollWheelPrev;
@@ -263,11 +264,13 @@ namespace Ship_Game
         public bool RightShoulderDown => GamepadClicked(Buttons.RightShoulder);
         public bool StartButtonDown   => GamepadClicked(Buttons.Start);
 
-        public bool Tab => KeyPressed(Keys.Tab);
+        public bool Tab         => KeyPressed(Keys.Tab);
         public bool XButtonDown => GamepadClicked(Buttons.X);
         public bool YButtonDown => GamepadClicked(Buttons.Y);
         public bool XButtonHeld => GamepadHeld(Buttons.X);
         public bool YButtonHeld => GamepadHeld(Buttons.Y);
+
+        public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
 
         private void UpdateTimers(float time)

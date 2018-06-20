@@ -473,7 +473,7 @@
     </Token>
     <Token>
       <Index>120</Index>
-      <Text>Command Module</Text>
+      <Text>Powered Command</Text>
     </Token>
     <Token>
       <Index>121</Index>
@@ -4696,6 +4696,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1982</Index>
+      <Text>In order to complete your design and build it, you must fill all the ship's slots</Text>
+    </Token>
+    <Token>
+      <Index>1983</Index>
+      <Text>A functional ship needs a command module (a cockpit, bridge, or CIC). It also must get power from the ship's reactors</Text>
+    </Token>
+    <Token>
+      <Index>1984</Index>
+      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M)</Text>
+    </Token>
+    <Token>
+      <Index>1985</Index>
+      <Text>Symmetric Design</Text>
+    </Token>
+    <Token>
+      <Index>1986</Index>
+      <Text>Normal Design</Text>
+    </Token>    
+    <Token>
       <Index>1987</Index>
       <Text>The total time the ship can maintain energy weapon fire along with beams at peak power during beam duration time</Text>
     </Token>
@@ -6671,7 +6691,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4043</Index>
-      <Text>Add ship designs to this fleet from the panel on the right. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.
+      <Text>
+        Add ship designs to this fleet from the panel on the right. Use 'Shift' key to place multiple ships of the same type. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.
       </Text>
     </Token>
     <Token>
@@ -8097,7 +8118,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6190</Index>
-      <Text>Total Off</Text>
+      <Text>Ship Offense</Text>
     </Token>
     
   <!-- SD Code Mod, TOOLTIP TEXT -->	
