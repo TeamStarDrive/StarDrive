@@ -165,7 +165,7 @@ namespace Ship_Game
                     shipData.allModulesUnlocakable = true;
                     foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
                     {
-                        if (module.InstalledModuleUID == "Dummy")
+                        if (module.InstalledModuleUID == "Dummy" || module.InstalledModuleUID == null)
                             continue;
                         bool modUnlockable = false;
                         foreach (Technology technology in shipTechs.Keys)
