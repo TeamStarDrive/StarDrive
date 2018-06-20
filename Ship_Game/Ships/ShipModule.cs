@@ -376,7 +376,8 @@ namespace Ship_Game.Ships
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-
+            
+            
             Vector2 offset = XMLPosition; // huge cache miss here
             offset.X       += XSIZE * 8f - 264f;
             offset.Y       += YSIZE * 8f - 264f;
