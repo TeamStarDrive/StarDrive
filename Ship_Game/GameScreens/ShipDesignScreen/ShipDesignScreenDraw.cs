@@ -676,7 +676,7 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, "Burst Wpn Pwr Drain:", -powerConsumedWithBeams, 244, Color.LightSkyBlue);
                 float burstEnergyDuration = powerCapacity / powerConsumedWithBeams;
                 if (burstEnergyDuration < beamLongestDuration)
-                    DrawStatColor(ref cursor, "Burst Wpn Pwr Time:", burstEnergyDuration, 245, Color.LightSkyBlue, forceRed: true, doGoodBadTint: false);
+                    DrawStatColor(ref cursor, "Burst Wpn Pwr Time:", burstEnergyDuration, 245, Color.LightSkyBlue, forceBadTint: true, doGoodBadTint: false);
                 else
                     DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
@@ -697,9 +697,9 @@ namespace Ship_Game
         }
 
         public void DrawStatColor(ref Vector2 cursor, string words, float stat, int tooltipId, Color color
-            , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2, bool forceRed = false)
+            , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2, bool forceBadTint = false)
         {
-            Color forceColor = forceRed ? Color.LightPink : Color.White;
+            Color forceColor = forceBadTint ? Color.LightPink : Color.White;
             SpriteFont font        = Fonts.Arial12Bold;
             float amount           = Spacing(spacing);
             cursor.Y              += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
