@@ -74,10 +74,10 @@ namespace Ship_Game
             ResourceManager.LoadEncounters();
             PlayerEmpire = empire;
             empire.Initialize();
-            empire.data.CurrentAutoColony    = empire.data.DefaultColonyShip;
-            empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
-            empire.data.CurrentAutoScout     = empire.data.StartingScout;
-            empire.data.CurrentConstructor   = empire.data.DefaultConstructor;
+            empire.data.CurrentAutoScout     = empire.data.ScoutShip;
+            empire.data.CurrentAutoColony    = empire.data.ColonyShip;
+            empire.data.CurrentAutoFreighter = empire.data.FreighterShip;
+            empire.data.CurrentConstructor   = empire.data.ConstructorShip;
             Data = new UniverseData
             {
                 FTLSpeedModifier      = GlobalStats.FTLInSystemModifier,

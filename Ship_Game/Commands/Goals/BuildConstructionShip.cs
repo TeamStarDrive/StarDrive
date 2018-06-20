@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -19,6 +20,7 @@ namespace Ship_Game.Commands.Goals
                 WaitMainGoalCompletion,
             };
         }
+
         public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner) : this()
         {
             BuildPosition = buildPosition;
@@ -29,60 +31,48 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep FindPlanetToBuildAt()
         {
-            Array<Planet> list = new Array<Planet>();
-            foreach (Planet planet in this.empire.GetPlanets())
-            {
+            var shipyardPlanets = new Array<Planet>();
+            foreach (Planet planet in empire.GetPlanets())
                 if (planet.HasShipyard)
-                    list.Add(planet);
-            }
-            IOrderedEnumerable<Planet> orderedEnumerable = ((IEnumerable<Planet>)list).OrderBy<Planet, float>((Func<Planet, float>)(planet => planet.ConstructionQueue.Count));
+                    shipyardPlanets.Add(planet);
 
-            int TotalPlanets = (orderedEnumerable).Count<Planet>();
-            if (TotalPlanets <= 0)
+            if (shipyardPlanets.IsEmpty)
                 return GoalStep.TryAgain;
 
-            int leastque = (orderedEnumerable).ElementAt<Planet>(0).ConstructionQueue.Count;
-            float leastdist = float.MaxValue;
-            int bestplanet = 0;
-
-            for (short looper = 0; looper < TotalPlanets; looper++)
+            // pick planet with best chance for quickly completing our production
+            Planet shipyard = shipyardPlanets.FindMin(p =>
             {
-                if ((orderedEnumerable).ElementAt<Planet>(looper).ConstructionQueue.Count > leastque)
-                    break;
-                float currentdist = Vector2.Distance(orderedEnumerable.ElementAt(looper).Center, this.BuildPosition);
-                if (currentdist < leastdist)
-                {
-                    bestplanet = looper;
-                    leastdist = currentdist;
-                }
+                // @todo We should use production based estimation instead
+                float distance = p.Center.Distance(BuildPosition);
+                return distance + distance*p.ConstructionQueue.Count;
+            });
+
+            if (!ResourceManager.GetShipTemplate(ToBuildUID, out Ship toBuild))
+            {
+                Log.Error($"BuildConstructionShip: no ship to build with uid={ToBuildUID ?? "null"}");
+                return GoalStep.GoalFailed;
             }
 
-            PlanetBuildingAt = orderedEnumerable.ElementAt(bestplanet);
-            QueueItem queueItem = new QueueItem();
-            queueItem.isShip = true;
-            queueItem.DisplayName = "Construction Ship";
-            queueItem.QueueNumber = PlanetBuildingAt.ConstructionQueue.Count;
-            queueItem.sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentConstructor].shipData;
-            queueItem.Goal = this;
-            queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
-            queueItem.NotifyOnEmpty = false;
-            if (!string.IsNullOrEmpty(this.empire.data.CurrentConstructor) && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentConstructor))
+            string constructionShip = empire.data.ConstructorShip;
+            if (!ResourceManager.GetShipTemplate(constructionShip, out beingBuilt))
             {
-                this.beingBuilt = ResourceManager.ShipsDict[this.empire.data.CurrentConstructor];
+                Log.Error($"BuildConstructionShip: no construction ship with uid={constructionShip}");
+                return GoalStep.GoalFailed;
             }
-            else
-            {
-                this.beingBuilt = null;
-                string empiredefaultShip = this.empire.data.DefaultConstructor;
-                if (string.IsNullOrEmpty(empiredefaultShip))
-                {
-                    empiredefaultShip = this.empire.data.DefaultSmallTransport;
-                }
-                ResourceManager.ShipsDict.TryGetValue(empiredefaultShip, out this.beingBuilt);
-                this.empire.data.DefaultConstructor = empiredefaultShip;
-            }
-            orderedEnumerable.ElementAt(bestplanet).ConstructionQueue.Add(queueItem); //Gretman
 
+            var queueItem = new QueueItem
+            {
+                isShip        = true,
+                Goal          = this,
+                NotifyOnEmpty = false,
+                DisplayName = "Construction Ship",
+                QueueNumber = shipyard.ConstructionQueue.Count,
+                sData       = beingBuilt.shipData,
+                Cost        = toBuild.GetCost(empire),
+            };
+
+            shipyard.ConstructionQueue.Add(queueItem);
+            PlanetBuildingAt = shipyard;
             return GoalStep.GoToNextStep;
         }
 
