@@ -346,7 +346,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-
+            
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -376,7 +376,8 @@ namespace Ship_Game.Ships
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-
+            
+            
             Vector2 offset = XMLPosition; // huge cache miss here
             offset.X       += XSIZE * 8f - 264f;
             offset.Y       += YSIZE * 8f - 264f;
