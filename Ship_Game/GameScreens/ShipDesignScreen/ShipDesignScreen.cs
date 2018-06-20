@@ -138,6 +138,7 @@ namespace Ship_Game
             base.Destroy();
         }
 
+        /*
         private static float GetMaintCostShipyard(ShipData ship, int size, Empire empire)
         {
             float maint = Ship.GetShipRoleMaintenance(ship.ShipRole, empire);
@@ -157,6 +158,24 @@ namespace Ship_Game
 
             if (GlobalStats.ShipMaintenanceMulti > 1)
                 maint *= GlobalStats.ShipMaintenanceMulti;
+            return maint;
+        }
+        */
+        /*
+        The Original method above is a stripped copy of the code in ship.cs I did the same below, since there is no ship property in here. Any improvement 
+        suggestsions how to solve this are welcomed
+         */
+        private static float GetMaintCostShipyard(ShipData ship, float cost, Empire empire)
+        {
+
+            float maint = cost * 0.004f;
+            if (ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform)
+            {
+                maint *= empire.data.CivMaintMod;
+                if (empire.data.Privatization)
+                    maint *= 0.5f;
+            }
+            maint = (float)Math.Round(maint, 2);
             return maint;
         }
 

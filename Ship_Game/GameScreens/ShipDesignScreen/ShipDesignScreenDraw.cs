@@ -390,7 +390,8 @@ namespace Ship_Game
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += slot.Module.OrdinanceCapacity;
                 powerFlow     += slot.Module.ActualPowerFlowMax;
-                cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                //cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                cost          += slot.Module.Cost;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 
                 if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
@@ -479,7 +480,7 @@ namespace Ship_Game
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep) 
                 upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working 
             else
-                upkeep = GetMaintCostShipyard(ActiveHull, (int)size, EmpireManager.Player);
+                upkeep = GetMaintCostShipyard(ActiveHull, (int)cost, EmpireManager.Player);
 
             DrawStat(ref cursor, "Upkeep Cost:", upkeep, 175);
             DrawStat(ref cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
@@ -563,7 +564,7 @@ namespace Ship_Game
                     HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
                 }
                 cursor = EndLayout();
-                DrawStat(ref cursor, Localizer.Token(109) + ":", ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus), 99); // Added by McShooterz: hull bonus starting cost
+                DrawStat(ref cursor, Localizer.Token(109) + ":", ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * UniverseScreen.GamePaceStatic, 99); // Added by McShooterz: hull bonus starting cost
             }
 
             void HullBonus(float stat, string text)

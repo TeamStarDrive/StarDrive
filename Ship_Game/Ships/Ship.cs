@@ -201,6 +201,7 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
+        public float BaseCost => GetBaseCost();
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -927,6 +928,14 @@ namespace Ship_Game.Ships
             return (Ship)MemberwiseClone();
         }
 
+        private float GetBaseCost()
+        {
+            float cost = 0.0f;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                cost += ModuleSlotList[i].Cost;
+            return cost;
+        }
+
         public float GetCost(Empire empire)
         {
             if (shipData.HasFixedCost)
@@ -1390,7 +1399,7 @@ namespace Ship_Game.Ships
 
         private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
         {
-            return shipData.ShipStyle == "Remnant"
+            return empire.Name == "The Remnant"
                 || empire?.data == null
                 || loyalty.data.PrototypeShip == Name
                 || (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
@@ -1486,6 +1495,44 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost() => GetMaintCost(loyalty);
 
+        /*
+         FB: I commented out the previous method and added this one. This will use the base cost of the ship as a baseline for upkeep. No roles or anything
+         like it. Also, when the ship is damaged, it will cost more to upkeep. So high complexity modules (which take more time to repair) will
+         effectively increase upkeep costs when damaged. Its a basic system, but it removes roles from the calcs
+         */
+        public float GetMaintCost(Empire empire)
+        {
+            ShipData.RoleName role = shipData.HullRole;
+            if (IsFreeUpkeepShip(role, empire))
+                return 0;
+
+            float maint = BaseCost * 0.004f;
+            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
+            {
+                maint *= empire.data.CivMaintMod;
+                if (empire.data.Privatization)
+                    maint *= 0.5f;
+            }
+            // Subspace Projectors do not get any more modifiers
+            if (Name == "Subspace Projector")
+                return maint;
+            //added by gremlin shipyard exploit fix
+            if (IsTethered())
+            {
+                if (role == ShipData.RoleName.platform)
+                    return maint * 0.5f;
+                if (shipData.IsShipyard)
+                {
+                    int numShipYards = GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard);
+                    if (numShipYards > 3)
+                        maint *= numShipYards - 3;
+                }
+            }
+            float repairMainModifier = 2 - Health / HealthMax;
+            maint *= repairMainModifier;
+            return maint;
+        }
+        /*
         public float GetMaintCost(Empire empire)
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -1563,6 +1610,7 @@ namespace Ship_Game.Ships
             }
             return maint;
         }
+        */
 
         public int GetTechScore(out int[] techScores)
         {
