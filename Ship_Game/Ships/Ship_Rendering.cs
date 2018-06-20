@@ -68,7 +68,7 @@ namespace Ship_Game.Ships
 
         private void DrawSparseModuleGrid(UniverseScreen us)
         {
-            if (false && SparseModuleGrid.Length != 0)
+            if (SparseModuleGrid.Length != 0)
             {
                 for (int y = 0; y < GridHeight; ++y)
                 {
@@ -181,8 +181,8 @@ namespace Ship_Game.Ships
                     if (slot.XSIZE == slot.YSIZE)
                     {
                         us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (us.Debug)
-                            us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
+                        //if (us.Debug)
+                        //    us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
                     }
                     else
                     {
@@ -194,8 +194,8 @@ namespace Ship_Game.Ships
                         }
 
                         us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (us.Debug)
-                            us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
+                        //if (us.Debug)
+                        //    us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
                     }
 
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
@@ -232,10 +232,8 @@ namespace Ship_Game.Ships
                     us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
-            if (us.Debug)
-            {
-                DrawSparseModuleGrid(us);
-            }
+            //if (us.Debug)
+            //    DrawSparseModuleGrid(us);
         }
 
 
