@@ -673,16 +673,24 @@ namespace Ship_Game.Debug
             {
                 foreach (var circle in circles)
                 {
-                    Screen.DrawCircleProjected(circle.Center, circle.Radius, circle.C, 3);
+                    try
+                    {
+                        Screen.DrawCircleProjected(circle.Center, circle.Radius, circle.C, 3);
+                    }
+                    catch { };
                 }
                 return;
             }
 
             while (circles.Count > 0)
-            {
+            {                
                 var circle = circles.PopLast();
-                Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0,
-                    circle?.C ?? Color.Black, 3);
+                try
+                {
+                    Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0,
+                        circle?.C ?? Color.Black, 3);
+                }
+                catch { };
             }
         }
         TimeSpan LastHit =TimeSpan.MaxValue;
