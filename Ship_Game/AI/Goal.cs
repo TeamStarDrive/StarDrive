@@ -29,6 +29,7 @@ namespace Ship_Game.AI
         TryAgain,     // goal step failed, so we should try again
         GoalComplete, // entire goal is complete and should be removed!
         RestartGoal,  // restart goal from scratch
+        GoalFailed,   // abort, abort!!
     }
 
     public abstract class Goal
@@ -134,6 +135,7 @@ namespace Ship_Game.AI
                 case GoalStep.GoToNextStep: ++Step; break;
                 case GoalStep.TryAgain: break;
                 case GoalStep.GoalComplete:
+                case GoalStep.GoalFailed:
                     empire?.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
             }            
