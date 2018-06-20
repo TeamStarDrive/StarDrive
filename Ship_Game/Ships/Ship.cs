@@ -3264,8 +3264,8 @@ namespace Ship_Game.Ships
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
             if (valueToCheck >= maxValue)
             {
-                if (valueToCheck > maxValue)
-                    Log.Error($"MaxValue of check as greater than value to check");
+                //if (valueToCheck > maxValue)
+                //    Log.Error($"MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
