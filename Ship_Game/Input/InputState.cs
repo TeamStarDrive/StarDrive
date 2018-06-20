@@ -203,7 +203,7 @@ namespace Ship_Game
         //researchScreen
         public bool ResearchExitScreen => KeyPressed(Keys.R);
 
-        public bool ShipDesignExit => KeyPressed(Keys.Y);
+        public bool ShipDesignExit => KeyPressed(Keys.Y) && !IsCtrlKeyDown;
         public bool ShipYardArcMove()
         {
             if (GlobalStats.AltArcControl)
@@ -215,7 +215,8 @@ namespace Ship_Game
 
         public Vector2 CursorPosition { get ; private set; }
 
-        public bool Undo              => KeyPressed(Keys.Z) && IsKeyDown(Keys.LeftControl);
+        public bool Undo              => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
+        public bool Redo              => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
         public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
 
         public bool AButtonDown       => GamepadClicked(Buttons.A);
