@@ -61,16 +61,17 @@ namespace Ship_Game.Debug
         public Ship ItemToBuild;
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
-        private static DebugModes Mode;
-        private Array<Circle> Circles = new Array<Circle>();
+        public static DebugModes Mode { get; private set; }
+        private Array<DebugCircle> Circles = new Array<DebugCircle>();
         private Array<GameplayObject> GPObjects = new Array<GameplayObject>();
         private int CircleTimer = 0;
         private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
+
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
         {
-            this.IsOpen = true;
-            this.Screen = screen;
-            this.ScreenManager = screenManager;
+            IsOpen = true;
+            Screen = screen;
+            ScreenManager = screenManager;
             Win = new Rectangle(30, 200, 1200, 700);
 
             foreach (Empire empire in EmpireManager.Empires)
@@ -127,8 +128,6 @@ namespace Ship_Game.Debug
             {
                 empireTechs.Add(text);
             }
-
-
         }
 
         public void DebugWarningText(string text, DebugModes mode)
@@ -168,7 +167,8 @@ namespace Ship_Game.Debug
             ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, color);
             NewLine(text.Count(c => c == '\n') + 1);
         }
-        private void NewLine(int lines = 1) => TextCursor.Y += (TextFont == Fonts.Arial12Bold ? TextFont.LineSpacing : TextFont.LineSpacing+2) * lines;
+        private void NewLine(int lines = 1)
+            => TextCursor.Y += (TextFont == Fonts.Arial12Bold ? TextFont.LineSpacing : TextFont.LineSpacing+2) * lines;
 
         public void Draw(GameTime gameTime)
         {
@@ -213,6 +213,7 @@ namespace Ship_Game.Debug
             }
             catch { }
         }
+
         private void Tech()
         {
             TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
@@ -261,9 +262,8 @@ namespace Ship_Game.Debug
                     }
                 ++column;
             }
-
-
         }
+
         private void Targeting()
         {
             for (int i = 0; i < Screen.MasterShipList.Count; ++i)
@@ -296,6 +296,7 @@ namespace Ship_Game.Debug
                 }
             }
         }
+
         private void ShipInfo()
         {
             if (Screen.SelectedFleet != null)
@@ -396,6 +397,7 @@ namespace Ship_Game.Debug
                     }
             }
         }
+
         private void EmpireInfo()
         {
             int column = 0;
@@ -499,8 +501,8 @@ namespace Ship_Game.Debug
                     SetTextCursor(Win.X + 300, 600f, Color.White);
                 }
             }
-
         }
+
         private void DefcoInfo()
         {
             foreach (Empire e in EmpireManager.Empires)
@@ -517,10 +519,9 @@ namespace Ship_Game.Debug
                 
                 foreach(AO ao in e.GetGSAI().AreasOfOperations)                
                     Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);
-                
-
             }
         }
+
         private void ThreatMatrixInfo()
         {
             foreach (Empire e in EmpireManager.Empires)
@@ -539,6 +540,7 @@ namespace Ship_Game.Debug
 
             }
         }
+
         private void PathingInfo()
         {
             foreach (Empire e in EmpireManager.Empires)
@@ -551,6 +553,7 @@ namespace Ship_Game.Debug
                         Screen.DrawCircleProjectedZ(translated, Screen.reducer , e.EmpireColor, 4);
                     }
         }
+
         private void TradeInfo()
         {
             foreach (Empire e in EmpireManager.Empires)
@@ -584,10 +587,12 @@ namespace Ship_Game.Debug
 
             }
         }
+
         private void SpatialManagement()
         {
             UniverseScreen.SpaceManager.DebugVisualize(Screen);
         }
+
         private void InputDebug()
         {
             DrawString($"RightMouseHeld {Screen.Input.RightMouseHeld()}");
@@ -655,42 +660,42 @@ namespace Ship_Game.Debug
             Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius) => DrawCircle(mode, screenPos, radius, Color.Red);
+        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, float lifeTime)
+        {
+            if (mode == Mode)
+                Circles.Add(new DebugCircle(screenPos, radius, Color.Yellow, lifeTime));
+        }
+
+        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color, float lifeTime)
+        {
+            if (mode == Mode)
+                Circles.Add(new DebugCircle(screenPos, radius, color, lifeTime));
+        }
 
         public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color, Ship ship = null)
         {
-            if (mode != Mode) return;
-            if (ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship) return;
-            
-            Circle circle = new Circle(screenPos, radius);
-            circle.C = color;
-            Circles.Add(circle);            
+            if (mode != Mode || ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship)
+                return;
+            Circles.Add(new DebugCircle(screenPos, radius, color, 0f));
         }
+
         private void DrawCircles()
         {
-            var circles = Circles;
-            if (Screen.Paused)
+            for (int i = Circles.Count-1; i >= 0; --i)
             {
-                foreach (var circle in circles)
-                {
-                    try
-                    {
-                        Screen.DrawCircleProjected(circle.Center, circle.Radius, circle.C, 3);
-                    }
-                    catch { };
-                }
-                return;
-            }
+                DebugCircle circle = Circles[i];
+                Screen.DrawCircleProjected(circle.Center, circle.Radius, circle.Color, 2);
 
-            while (circles.Count > 0)
-            {                
-                var circle = circles.PopLast();
-                try
+                if (Screen.Paused)
+                    continue;
+
+                circle.Time -= 0.016f;
+                if (circle.Time <= 0f)
                 {
-                    Screen.DrawCircleProjected(circle?.Center ?? Vector2.Zero, circle?.Radius ?? 0,
-                        circle?.C ?? Color.Black, 3);
+                    Circles.RemoveAtSwapLast(i);
+                    continue;
                 }
-                catch { };
+                Circles[i] = circle; // update circle struct
             }
         }
         TimeSpan LastHit =TimeSpan.MaxValue;
