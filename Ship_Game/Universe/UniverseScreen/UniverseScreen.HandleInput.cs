@@ -2007,17 +2007,5 @@ namespace Ship_Game
                     return true;
             return false;
         }
-
-        private Circle GetSelectionCircles(Vector2 WorldPos, float WorldRadius, float radiusMin = 0, float radiusIncrease = 0 )
-        {
-            ProjectToScreenCoords(WorldPos, WorldRadius, out Vector2 screenPos, out float screenRadius);
-            if (radiusMin > 0)
-                screenRadius = screenRadius < radiusMin ? radiusMin : screenRadius;            
-            return new Circle(screenPos, screenRadius + radiusIncrease);
-
-        }
-
-        private Circle GetSelectionCirclesAroundShip(Ship ship)
-            => GetSelectionCircles(ship.Center, ship.GetSO().WorldBoundingSphere.Radius, 5, 0);
     }
 }

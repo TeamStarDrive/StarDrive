@@ -132,13 +132,13 @@ namespace Ship_Game.Ships
             Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             Texture2D lightningBolt = ResourceManager.Texture("UI/lightningBolt");
                         
-            if (us.DebugWin != null)
+            if (false && us.DebugWin != null)
             {
                 for (int i = 0; i < Projectiles.Count; i++)
                 {
                     Projectile projectile = Projectiles[i];
                     if (projectile == null) continue;
-                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius);
+                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
                     //us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
                 }
             }
@@ -181,8 +181,8 @@ namespace Ship_Game.Ships
                     if (slot.XSIZE == slot.YSIZE)
                     {
                         us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        //if (us.Debug)
-                        //    us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
+                        if (us.Debug && this == us.SelectedShip)
+                            us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
                     }
                     else
                     {
@@ -194,8 +194,8 @@ namespace Ship_Game.Ships
                         }
 
                         us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        //if (us.Debug)
-                        //    us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
+                        if (us.Debug && this == us.SelectedShip)
+                            us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
                     }
 
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
@@ -232,8 +232,8 @@ namespace Ship_Game.Ships
                     us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
-            //if (us.Debug)
-            //    DrawSparseModuleGrid(us);
+            if (us.Debug)
+                DrawSparseModuleGrid(us);
         }
 
 

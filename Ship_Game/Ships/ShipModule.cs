@@ -396,14 +396,13 @@ namespace Ship_Game.Ships
             Rotation = Parent.Rotation;
         }
 
-        // radius multiplier for collision detection
-        // radius of a 1x1 module is 8.0
-        private const float CollisionRadiusMultiplier = 11f;
+        // radius padding for collision detection
+        private const float CollisionRadiusMultiplier = 11.5f;
 
         // this is called once during module creation
         private void UpdateModuleRadius()
         {
-            Radius = CollisionRadiusMultiplier * (XSIZE > YSIZE ? XSIZE : YSIZE);
+            Radius = (XSIZE > YSIZE ? XSIZE : YSIZE) * CollisionRadiusMultiplier;
         }
 
         // Collision test with this ShipModule. Returns TRUE if point is inside this module
@@ -440,8 +439,8 @@ namespace Ship_Game.Ships
             // now for more expensive and accurate capsule-line collision testing
             // since we can have 4x1 modules etc, we construct a capsule
             float smallerOffset = (shorter / longer) * longer * 8.0f;
-
             float longerOffset = longer * 8.0f - smallerOffset;
+
             return new Capsule(
                 Center - longerDir * longerOffset,
                 Center + longerDir * longerOffset,
@@ -471,6 +470,14 @@ namespace Ship_Game.Ships
             return dist > 0f;
         }
 
+        public float RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius)
+        {
+            if (ShieldPower >= 1f)
+                return Center.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos);
+
+            return Center.FindClosestPointOnLine(startPos, endPos).Distance(startPos);
+        }
+
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
             float explodeDist = explosionCenter.Distance(affectedPoint) - moduleRadius;
@@ -492,7 +499,7 @@ namespace Ship_Game.Ships
             if (damage <= 0.001f)
                 return true;
 
-            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius);
+            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
 
             Damage(source, damage, out damageInOut);
             return damageInOut <= 0f;

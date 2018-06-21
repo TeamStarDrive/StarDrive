@@ -440,7 +440,7 @@ namespace Ship_Game.Ships
                 float cx = module.LocalCenter.X;
                 float cy = module.LocalCenter.Y;
                 int powerRadius = module.PowerRadius * 16 + (int)module.Radius ;
-                Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.AO, module.GetParent().Center + module.LocalCenter, powerRadius);
+                Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.AO, Center + module.LocalCenter, powerRadius, 1.5f);
 
                 foreach (ShipModule slot2 in ModuleSlotList)
 

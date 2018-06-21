@@ -14,43 +14,6 @@ namespace Ship_Game
 {
     internal static class HelperFunctions
     {
-        // return number of solutions, false if no solutions or infinite solutions
-        // @note this is optimized quite well
-        public static bool CircleIntersection(Circle ca, Circle cb, out Vector2 intersect1, out Vector2 intersect2)
-        {
-            float dx = ca.Center.X - cb.Center.Y;
-            float dy = ca.Center.Y - cb.Center.Y;
-            float dist = (float)Math.Sqrt(dx * dx + dy * dy);
-            float r0 = ca.Radius;
-            float r1 = cb.Radius;
-            if (dist < 0.0001f || dist > r0 + r1 || dist < Math.Abs(r0 - r1))
-            {
-                intersect1 = Vector2.Zero;
-                intersect2 = Vector2.Zero;
-                return false;
-            }
-
-            // Determine the distance from point 0 to point 2
-            float a = (r0*r0 - r1*r1 + dist*dist) / (2.0f * dist);
-
-            // Determine the coordinates of point 2
-            float aDivDist = a / dist;
-            float x2 = ca.Center.X + dx * aDivDist;
-            float y2 = ca.Center.Y + dy * aDivDist;
-
-            // Determine the distance from point 2 to either of the intersection points.
-            float hDivDist = (float)Math.Sqrt(r0*r0 - a*a) / dist;
-
-            // Now determine the offsets of the intersection points from point 2
-            float rx = -dy * hDivDist;
-            float ry =  dx * hDivDist;
-
-            // Determine the absolute intersection points
-            intersect1 = new Vector2(x2 + rx, y2 + ry);
-            intersect2 = new Vector2(x2 - rx, y2 - ry);
-            return true;
-        }
-
         public static void ClampVectorToInt(ref Vector2 pos)
         {
             pos.X = (int)pos.X;
