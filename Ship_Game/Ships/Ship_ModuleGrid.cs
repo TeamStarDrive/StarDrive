@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
@@ -513,10 +515,19 @@ namespace Ship_Game.Ships
                 Vector2 delta = b - a;
                 Vector2 step = delta.Normalized() * 16f;
                 int n = (int)(delta.Length() / 16f);
+                int max = n;
+
                 for (; n >= 0; --n, pos += step)
-                {                    
+                {
                     Point p = GridLocalToPoint(pos);
-                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, GridLocalPointToWorld(p), 16);
+
+                    if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                    {
+                        Vector2 gridWorldPos = GridLocalPointToWorld(p) + new Vector2(8f);
+                        Color c = Color.Yellow.LerpTo(Color.Green, (float)n / max);
+                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, gridWorldPos, 4.0f, c, 1.5f);
+                    }
+
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
                     if (m != null && m.Active) { module = m; break; }
                 }

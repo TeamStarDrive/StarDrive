@@ -63,6 +63,20 @@ namespace Ship_Game
             return minValue + (maxValue - minValue) * amount;
         }
 
+        public static Vector3 LerpTo(this Vector3 start, Vector3 end, float amount)
+        {
+            return new Vector3( start.X + (end.X - start.X) * amount,
+                                start.Y + (end.Y - start.Y) * amount,
+                                start.Z + (end.Z - start.Z) * amount );
+        }
+
+        public static Color LerpTo(this Color start, Color end, float amount)
+        {
+            return new Color((byte)(start.R + (end.R - start.R) * amount),
+                             (byte)(start.G + (end.G - start.G) * amount),
+                             (byte)(start.B + (end.B - start.B) * amount));
+        }
+
         // This will smoothstep "fromValue" towards "targetValue"
         // @warning "fromValue" WILL CHANGE
         // @return The new "fromValue"
