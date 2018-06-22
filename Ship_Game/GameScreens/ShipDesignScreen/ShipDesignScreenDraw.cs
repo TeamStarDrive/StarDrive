@@ -390,7 +390,6 @@ namespace Ship_Game
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += slot.Module.OrdinanceCapacity;
                 powerFlow     += slot.Module.ActualPowerFlowMax;
-                //cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
                 cost          += slot.Module.Cost;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 

@@ -1,16 +1,15 @@
 ﻿using System;
-using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
 {
     public class ShipMaintenance
     {
         private const float BaseMaintModifier = 0.004f;
-        private ShipData shipData;
+        //private readonly ShipData shipData = new ShipData();
 
         private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
         {
-            return shipData.ShipStyle == "Remnant"
+            return ship.shipData.ShipStyle == "Remnant"
                    || empire?.data == null
                    || ship.loyalty.data.PrototypeShip == ship.Name
                    || (ship.Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
@@ -18,7 +17,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintenanceCost(Empire empire, Ship ship, float shipCost, bool withModifiers = false, int numShipYards = 0)
         {
-            ShipData.RoleName role = shipData.HullRole;
+            ShipData.RoleName role = ship.shipData.HullRole;
             if (IsFreeUpkeepShip(role, empire, ship))
                 return 0;
 
@@ -41,7 +40,7 @@ namespace Ship_Game.Ships
             {
                 if (role == ShipData.RoleName.platform)
                     return maint * 0.5f;
-                if (shipData.IsShipyard)
+                if (ship.shipData.IsShipyard)
                 {
                     if (numShipYards > 3)
                         maint *= numShipYards - 3;
