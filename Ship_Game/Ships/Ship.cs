@@ -202,7 +202,7 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
-        private ShipMaintenance ShipMaint;
+        private readonly ShipMaintenance ShipMaint = new ShipMaintenance();
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -1400,7 +1400,7 @@ namespace Ship_Game.Ships
 
         private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
         {
-            return empire.Name == "The Remnant"
+            return shipData.ShipStyle == "Remnant"
                 || empire?.data == null
                 || loyalty.data.PrototypeShip == Name
                 || (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
