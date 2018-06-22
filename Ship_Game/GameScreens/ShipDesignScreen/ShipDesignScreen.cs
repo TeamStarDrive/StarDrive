@@ -138,47 +138,6 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        /*
-        private static float GetMaintCostShipyard(ShipData ship, int size, Empire empire)
-        {
-            float maint = Ship.GetShipRoleMaintenance(ship.ShipRole, empire);
-
-            if (ship.Role == ShipData.RoleName.freighter)
-                maint *= Ship.GetFreighterSizeCostMultiplier(size);
-
-            if (ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                maint *= empire.data.Privatization ? 0.5f : 1.0f;
-            }
-
-            // Subspace Projectors do not get any more modifiers
-            if (ship.Name == "Subspace Projector")
-                return maint;
-
-            if (GlobalStats.ShipMaintenanceMulti > 1)
-                maint *= GlobalStats.ShipMaintenanceMulti;
-            return maint;
-        }
-        */
-        /*
-        The Original method above is a stripped copy of the code in ship.cs I did the same below, since there is no ship property in here. Any improvement 
-        suggestsions how to solve this are welcomed
-
-        private static float GetMaintCostShipyard(ShipData ship, float cost, Empire empire)
-        {
-
-            float maint = cost * 0.004f;
-            if (ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                if (empire.data.Privatization)
-                    maint *= 0.5f;
-            }
-            maint = (float)Math.Round(maint, 2);
-            return maint;
-        }
-        */
         private static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
         {
             return fCost * Ship.GetMaintenanceModifier(shipData, empire);
