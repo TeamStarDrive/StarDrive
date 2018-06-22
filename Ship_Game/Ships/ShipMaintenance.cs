@@ -6,7 +6,7 @@ namespace Ship_Game.Ships
     {
         private const float BaseMaintModifier = 0.004f;
 
-        private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
+        private static bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
         {
             return ship.shipData.ShipStyle == "Remnant"
                    || empire?.data == null
