@@ -15,6 +15,8 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
+    using static ShipMaintenance;
+
     public sealed partial class Ship : GameplayObject, IDisposable
     {
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
@@ -202,7 +204,6 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
-        private readonly ShipMaintenance ShipMaint = new ShipMaintenance();
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -1501,7 +1502,8 @@ namespace Ship_Game.Ships
         public float GetMaintCost(Empire empire)
         {
             int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
-            return ShipMaint.GetMaintenanceCost(this, empire, numShipYards: numShipYards);
+            return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
+
         }
 
         /*
