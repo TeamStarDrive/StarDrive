@@ -164,7 +164,7 @@ namespace Ship_Game
         /*
         The Original method above is a stripped copy of the code in ship.cs I did the same below, since there is no ship property in here. Any improvement 
         suggestsions how to solve this are welcomed
-         */
+
         private static float GetMaintCostShipyard(ShipData ship, float cost, Empire empire)
         {
 
@@ -178,7 +178,7 @@ namespace Ship_Game
             maint = (float)Math.Round(maint, 2);
             return maint;
         }
-
+        */
         private static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
         {
             return fCost * Ship.GetMaintenanceModifier(shipData, empire);
