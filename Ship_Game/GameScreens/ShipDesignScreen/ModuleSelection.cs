@@ -434,8 +434,8 @@ namespace Ship_Game
         {
             if (!valueCheck)
                 return;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
             WriteLine(ref cursor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
     }
 
         private void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
@@ -527,11 +527,10 @@ namespace Ship_Game
             }
             if (mod.explodes)
             {
+                DrawString(ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
                 DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
-                WriteLine(ref modTitlePos);
             }
-            DrawString(ref modTitlePos, "Explodes",  mod.explodes);
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
             DrawStat(ref modTitlePos, Localizer.Token(6144), mod.GuidedResist, 191,  true);
