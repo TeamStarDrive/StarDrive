@@ -1501,7 +1501,7 @@ namespace Ship_Game.Ships
         public float GetMaintCost(Empire empire)
         {
             int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
-            return ShipMaint.GetMaintenanceCost(empire, this, BaseCost, withModifiers: true, numShipYards: numShipYards);
+            return ShipMaint.GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
         /*
