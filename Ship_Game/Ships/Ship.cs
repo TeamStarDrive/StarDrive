@@ -202,6 +202,7 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
+        private ShipMaintenance ShipMaint;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -1472,6 +1473,7 @@ namespace Ship_Game.Ships
             return shipCost * GetMaintenanceModifier(shipData, empire);
         }
 
+        /* FB: not needed with cost based maintenance
         private float GetFreighterSizeCostMultiplier() => GetFreighterSizeCostMultiplier(Size);
 
         public static float GetFreighterSizeCostMultiplier(int size)
@@ -1484,7 +1486,7 @@ namespace Ship_Game.Ships
                 case 2: case 3: case 4: return 2f;
             }
         }
-        
+
         public static float GetShipRoleMaintenance(ShipRole role, Empire empire)
         {
             for (int i = 0; i < role.RaceList.Count; ++i)
@@ -1492,46 +1494,20 @@ namespace Ship_Game.Ships
                     return role.RaceList[i].Upkeep;
             return role.Upkeep;
         }
+        */
 
         public float GetMaintCost() => GetMaintCost(loyalty);
 
-        /*
-         FB: I commented out the previous method and added this one. This will use the base cost of the ship as a baseline for upkeep. No roles or anything
-         like it. Also, when the ship is damaged, it will cost more to upkeep. So high complexity modules (which take more time to repair) will
-         effectively increase upkeep costs when damaged. Its a basic system, but it removes roles from the calcs
-         */
         public float GetMaintCost(Empire empire)
         {
-            ShipData.RoleName role = shipData.HullRole;
-            if (IsFreeUpkeepShip(role, empire))
-                return 0;
-
-            float maint = BaseCost * 0.004f;
-            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                if (empire.data.Privatization)
-                    maint *= 0.5f;
-            }
-            // Subspace Projectors do not get any more modifiers
-            if (Name == "Subspace Projector")
-                return maint;
-            //added by gremlin shipyard exploit fix
-            if (IsTethered())
-            {
-                if (role == ShipData.RoleName.platform)
-                    return maint * 0.5f;
-                if (shipData.IsShipyard)
-                {
-                    int numShipYards = GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard);
-                    if (numShipYards > 3)
-                        maint *= numShipYards - 3;
-                }
-            }
-            float repairMainModifier = 2 - Health / HealthMax;
-            maint *= repairMainModifier;
-            return maint;
+            int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            return ShipMaint.GetMaintenanceCost(empire, this, BaseCost, withModifiers: true, numShipYards: numShipYards);
         }
+
+        /*
+         FB: I commented out the following method and added the one above. This will use the base cost of the ship as a baseline for upkeep. No roles or anything
+         like it. Also, when the ship is damaged, it will cost more to upkeep. So high complexity modules (which take more time to repair) will
+         effectively increase upkeep costs when damaged. Its a basic system, but it removes roles from the calcs
         /*
         public float GetMaintCost(Empire empire)
         {

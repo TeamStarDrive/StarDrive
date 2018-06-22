@@ -563,7 +563,8 @@ namespace Ship_Game
                     HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
                 }
                 cursor = EndLayout();
-                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(109), ":"), ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * UniverseScreen.GamePaceStatic, 99, Color.White));  
+                cost = ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * UniverseScreen.GamePaceStatic;
+                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(109), ":"), cost, 99, Color.White));  
             }
 
             void HullBonus(float stat, string text)
