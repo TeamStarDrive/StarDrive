@@ -1474,29 +1474,6 @@ namespace Ship_Game.Ships
             return shipCost * GetMaintenanceModifier(shipData, empire);
         }
 
-        /* FB: not needed with cost based maintenance
-        private float GetFreighterSizeCostMultiplier() => GetFreighterSizeCostMultiplier(Size);
-
-        public static float GetFreighterSizeCostMultiplier(int size)
-        {
-            switch (size / 50)
-            {
-                default: return (int)(size / 50);
-                case 0: return 1.0f;
-                case 1: return 1.5f;
-                case 2: case 3: case 4: return 2f;
-            }
-        }
-
-        public static float GetShipRoleMaintenance(ShipRole role, Empire empire)
-        {
-            for (int i = 0; i < role.RaceList.Count; ++i)
-                if (role.RaceList[i].ShipType == empire.data.Traits.ShipType)
-                    return role.RaceList[i].Upkeep;
-            return role.Upkeep;
-        }
-        */
-
         public float GetMaintCost() => GetMaintCost(loyalty);
 
         public float GetMaintCost(Empire empire)
@@ -1505,90 +1482,6 @@ namespace Ship_Game.Ships
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
 
         }
-
-        /*
-         FB: I commented out the following method and added the one above. This will use the base cost of the ship as a baseline for upkeep. No roles or anything
-         like it. Also, when the ship is damaged, it will cost more to upkeep. So high complexity modules (which take more time to repair) will
-         effectively increase upkeep costs when damaged. Its a basic system, but it removes roles from the calcs
-        /*
-        public float GetMaintCost(Empire empire)
-        {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                return GetMaintCostRealism(empire);
-
-            ShipData.RoleName role = shipData.HullRole;
-
-            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-            {
-                Log.Error("ShipRole {0} not found!", role);
-                return 0f;
-            }
-
-            // Free upkeep ships
-            if (shipData.ShipStyle == "Remnant" || empire?.data == null || 
-                (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate))
-                return 0f;
-
-            float maint = GetShipRoleMaintenance(shipRole, empire);
-            if (role == ShipData.RoleName.freighter)
-                maint *= GetFreighterSizeCostMultiplier();
-
-            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                if (empire.data.Privatization)
-                    maint *= 0.5f;
-            }
-
-            // Subspace Projectors do not get any more modifiers
-            if (Name == "Subspace Projector")
-                return maint;
-
-            //added by gremlin shipyard exploit fix
-            if (IsTethered())
-            {
-                if (role == ShipData.RoleName.platform)
-                    return maint * 0.5f;
-                if (shipData.IsShipyard)
-                {
-                    int numShipYards = GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard);
-                    if (numShipYards > 3)
-                        maint *= numShipYards - 3;
-                }
-            }
-
-            // Maintenance fluctuator
-            float maintModReduction = GlobalStats.ShipMaintenanceMulti;
-            if (maintModReduction > 1)
-            {
-                if (IsInFriendlySpace || inborders)
-                {
-                    maintModReduction *= .25f;
-                    if (inborders) maintModReduction *= .75f;
-                }
-                if (IsInNeutralSpace && !IsInFriendlySpace)
-                {
-                    maintModReduction *= .5f;
-                }
-
-                if (IsIndangerousSpace)
-                {
-                    maintModReduction *= 2f;
-                }
-                if (ActiveInternalSlotCount >0 && ActiveInternalSlotCount < InternalSlotCount)
-                {
-                    float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
-                    if (damRepair > 1.5f) damRepair = 1.5f;
-                    if (damRepair < 1) damRepair = 1;
-                    maintModReduction *= damRepair;
-
-                }
-                if (maintModReduction < 1) maintModReduction = 1;
-                maint *= maintModReduction;
-            }
-            return maint;
-        }
-        */
 
         public int GetTechScore(out int[] techScores)
         {
