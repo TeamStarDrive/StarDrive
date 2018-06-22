@@ -138,28 +138,6 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        private static float GetMaintCostShipyard(ShipData ship, int size, Empire empire)
-        {
-            float maint = Ship.GetShipRoleMaintenance(ship.ShipRole, empire);
-
-            if (ship.Role == ShipData.RoleName.freighter)
-                maint *= Ship.GetFreighterSizeCostMultiplier(size);
-
-            if (ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                maint *= empire.data.Privatization ? 0.5f : 1.0f;
-            }
-
-            // Subspace Projectors do not get any more modifiers
-            if (ship.Name == "Subspace Projector")
-                return maint;
-
-            if (GlobalStats.ShipMaintenanceMulti > 1)
-                maint *= GlobalStats.ShipMaintenanceMulti;
-            return maint;
-        }
-
         private static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
         {
             return fCost * Ship.GetMaintenanceModifier(shipData, empire);

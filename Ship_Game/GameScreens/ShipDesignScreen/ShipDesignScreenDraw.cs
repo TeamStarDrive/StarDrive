@@ -10,8 +10,11 @@ using Ship_Game.UI;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
+    using static ShipMaintenance;
+
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
+
         public override void Draw(SpriteBatch spriteBatch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
@@ -390,7 +393,7 @@ namespace Ship_Game
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += slot.Module.OrdinanceCapacity;
                 powerFlow     += slot.Module.ActualPowerFlowMax;
-                cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                cost          += slot.Module.Cost;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 
                 if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
@@ -476,10 +479,10 @@ namespace Ship_Game
 
             DrawHullBonuses();
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep) 
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working 
             else
-                upkeep = GetMaintCostShipyard(ActiveHull, (int)size, EmpireManager.Player);
+                upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
             DrawStatColor(ref cursor, TintedValue("Upkeep Cost:", upkeep, 175, Color.White));
             DrawStatColor(ref cursor, TintedValue("Total Module Slots:", size, 230, Color.White));
@@ -562,7 +565,8 @@ namespace Ship_Game
                     HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
                 }
                 cursor = EndLayout();
-                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(109), ":"), ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus), 99, Color.White));  
+                cost = ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * UniverseScreen.GamePaceStatic;
+                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(109), ":"), cost, 99, Color.White));  
             }
 
             void HullBonus(float stat, string text)
