@@ -12,6 +12,8 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
+        private readonly ShipMaintenance ShipMaint = new ShipMaintenance();
+
         public override void Draw(SpriteBatch spriteBatch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
@@ -476,10 +478,11 @@ namespace Ship_Game
 
             DrawHullBonuses();
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep) 
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working 
             else
-                upkeep = GetMaintCostShipyard(ActiveHull, (int)cost, EmpireManager.Player);
+                //upkeep = GetMaintCostShipyard(ActiveHull, (int)cost, EmpireManager.Player);
+                upkeep = ShipMaint.GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
             DrawStatColor(ref cursor, TintedValue("Upkeep Cost:", upkeep, 175, Color.White));
             DrawStatColor(ref cursor, TintedValue("Total Module Slots:", size, 230, Color.White));
