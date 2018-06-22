@@ -415,8 +415,7 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent, lineSpacing: 0);
-            WriteLine(ref cursor);
+            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
         private void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
@@ -429,8 +428,7 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStatColor(ref cursor, text, stat, toolTipId, Color.LightSkyBlue, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent, lineSpacing: 0);
-            WriteLine(ref cursor);
+            ParentScreen.DrawStat(ref cursor, text, stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
         private void DrawString(ref Vector2 cursor, string text, bool valueCheck)
         {
@@ -531,6 +529,7 @@ namespace Ship_Game
             {
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
                 DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
+                WriteLine(ref modTitlePos);
             }
             DrawString(ref modTitlePos, "Explodes",  mod.explodes);
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
@@ -664,19 +663,14 @@ namespace Ship_Game
 
             if (w.TruePD)
             {
-                //WriteLine(ref cursor, 2);
-                //cursor.X -= 152f;
-                //ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target Ships", cursor, Color.LightCoral);
+                WriteLine(ref cursor);
                 DrawString(ref cursor, "Cannot Target Ships" );
             }
             else 
             if (w.Excludes_Fighters || w.Excludes_Corvettes ||
                 w.Excludes_Capitals || w.Excludes_Stations)
             {
-                //WriteLine(ref cursor, 2);
-                //cursor.X -= 152f;
-                //ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target:", cursor, Color.LightCoral);
-                //cursor.X += 120f;
+                WriteLine(ref cursor);
                 DrawString(ref cursor, "Cannot Target:");
 
                 if (w.Excludes_Fighters)
@@ -696,16 +690,13 @@ namespace Ship_Game
             DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
             WriteLine(ref cursor);
         }
-        private void DrawStatLine(ref Vector2 cursor, string text, float stat, int tooltipId)
-        {
-            ParentScreen.DrawStat(ref cursor, text, stat, tooltipId);
-            WriteLine(ref cursor);
-        }
+
         private void WriteLine(ref Vector2 cursor, string text)
         {          
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
             WriteLine(ref cursor);
         }
+
         private static void WriteLine(ref Vector2 cursor, int lines = 1)
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
