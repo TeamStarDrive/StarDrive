@@ -1480,7 +1480,6 @@ namespace Ship_Game.Ships
         {
             int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
-
         }
 
         public int GetTechScore(out int[] techScores)

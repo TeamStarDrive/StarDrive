@@ -943,8 +943,8 @@ namespace Ship_Game.Ships
                 switch (ModuleType)
                 {
                     case ShipModuleType.Command:      return 0;
-                    case ShipModuleType.PowerPlant:   return 1;
-                    case ShipModuleType.PowerConduit: return 2;
+                    case ShipModuleType.PowerConduit: return 1;
+                    case ShipModuleType.PowerPlant:   return 2;
                     case ShipModuleType.Engine:       return 3;
                     case ShipModuleType.Shield:       return 4;
                     default:                          return 5;
