@@ -69,14 +69,12 @@ namespace Ship_Game
                 e.PortraitName       = e.data.PortraitName;
                 e.dd                 = ResourceManager.DDDict[e.data.DiplomacyDialogPath];
                 e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
-                e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.StartingScout;
-                e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.DefaultSmallTransport;
-                e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.DefaultColonyShip;
-                e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.DefaultConstructor;
-                if (string.IsNullOrEmpty(sdata.empireData.DefaultTroopShip))
-                {
+                e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
+                e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
+                e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
+                e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
+                if (sdata.empireData.DefaultTroopShip.NotEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
-                }              
             }
             foreach(TechEntry tech in sdata.TechTree)
             {
