@@ -2,7 +2,7 @@
 
 namespace Ship_Game.Ships
 {
-    public class ShipMaintenance
+    public static class ShipMaintenance
     {
         private const float BaseMaintModifier = 0.004f;
 
@@ -14,14 +14,14 @@ namespace Ship_Game.Ships
                    || (ship.Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
         }
 
-        public float GetMaintenanceCost(ShipData ship, float cost, Empire empire)
+        public static float GetMaintenanceCost(ShipData ship, float cost, Empire empire)
         {
             ShipData.RoleName role = ship.HullRole;
             float maint = GetBaseMainCost(role, cost, empire);
             return (float)Math.Round(maint, 2);
         }
 
-        public float GetMaintenanceCost(Ship ship, Empire empire, int numShipYards = 0)
+        public static float GetMaintenanceCost(Ship ship, Empire empire, int numShipYards = 0)
         {
             ShipData.RoleName role = ship.shipData.HullRole;
             if (IsFreeUpkeepShip(role, empire, ship))
