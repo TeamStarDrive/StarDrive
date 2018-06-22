@@ -167,12 +167,11 @@ namespace Ship_Game
 
         private static string GetNumberString(float stat)
         {
-            float absStat = Math.Abs(stat);
-            if (absStat < 1000f)  return stat.ToString("#.#"); // 950.7
-            if (absStat < 10000f) return stat.ToString("#");   // 9500
-            float single = absStat / 1000f;
-            if (single < 100f)  return single.ToString("#.##") + "k"; // 57.75k
-            if (single < 1000f) return single.ToString("#.#") + "k";  // 950.7k
+            if (Math.Abs(stat) < 1000f)  return stat.ToString("#.#"); // 950.7
+            if (Math.Abs(stat) < 10000f) return stat.ToString("#");   // 9500
+            float single = stat / 1000f;
+            if (Math.Abs(single) < 100f)  return single.ToString("#.##") + "k"; // 57.75k
+            if (Math.Abs(single) < 1000f) return single.ToString("#.#") + "k";  // 950.7k
             return single.ToString("#") + "k"; // 1000k
         }
 
