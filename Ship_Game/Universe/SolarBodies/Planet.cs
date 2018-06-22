@@ -1539,18 +1539,14 @@ namespace Ship_Game
             return total;
         }
 
-        private float CalculateWorkForce (float minValue, float storageRatio, float breakPoint)
+        private float CalculateFoodWorkers()    //Simply calculates what percentage of workers are needed for farming (between 0 and 1)
         {
-            if (minValue == 0) return 0.0f;
+            if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0) return 0.0f;
 
-            if (storageRatio <= breakPoint)
-                minValue += minValue * (1 - storageRatio);   //Nice smooth changes in output
-            else
-                minValue += minValue * ((1 - storageRatio) * 0.5f); //Much less agressive when higher than breakpoint
-
-            if (minValue > 1.0f) minValue = 1.0f;
-            if (minValue < 0.05f) minValue = 0.05f; //Avoid the crazy small worker percentages
-            return minValue;
+            float workers = (Consumption - FlatFoodAdded) / (MaxPopulation / 1000) / (Fertility + PlusFoodPerColonist);
+            if (workers > 1.0f) return 1.0f;
+            if (workers < 0.0f) return 0.0f;
+            else return workers;
         }
 
         private bool workerFillStorage(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
@@ -1608,7 +1604,7 @@ namespace Ship_Game
         private bool ShouldWeBuildThis(float maintCost, bool acceptLoss = false)
         {
             if (Owner.Money < 0.0 || Owner.MoneyLastTurn <= 0.0) return false;   //You have bad credit!
-            float acceptableLoss = Owner.data.FlatMoneyBonus * 0.1f;
+            float acceptableLoss = Owner.data.FlatMoneyBonus * 0.05f;
             if (acceptLoss) acceptableLoss += Math.Min(0.5f, Math.Min(Owner.Money * 0.01f, Owner.MoneyLastTurn * 0.1f));
 
             if (GrossMoneyPT + acceptableLoss > TotalMaintenanceCostsPerTurn + maintCost) return true;
@@ -1625,13 +1621,229 @@ namespace Ship_Game
             else return first;
         }   //Building bestCost   = Building.SelectGreater(first, second, b => b.Cost);
 
-        private bool EvaluateFlatFood(Building building, float breakpoint)
+        private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
         {
-            if (building == null || Owner.data.Traits.Cybernetic > 0) return false;
+            float finalScore = 0.0f;    //End result score for entire building
+            float score = 0.0f;         //Reused variable for each step
 
-            //Too few colonists would cause waste                  //Balance of fertility to population is low, otherwise FoodPerColonist is a better option
-            if (MaxPopulation > building.PlusFlatFoodAmount - 0.5f && Fertility + PlusFoodPerColonist < building.PlusFlatFoodAmount * breakpoint) return true;
-            else return false;
+            float maxPopulation = MaxPopulation / 1000f;
+            bool doingResearch = !string.IsNullOrEmpty(Owner.ResearchTopic);
+
+            //First things first! How much is it gonna' cost?
+            if (building.Maintenance != 0)
+            {
+                score += (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod) * 2;  //Base of 2x maintenance
+                if (income < building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod)
+                    score += score + (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod);   //Really dont want this if we cant afford it
+                score -= Owner.data.FlatMoneyBonus * 0.03f;      //Acceptible loss (Note what this will do at high Difficulty)
+
+                finalScore -= score;
+            }
+
+            //Flat Food
+            if (building.PlusFlatFoodAmount != 0 && Owner.data.Traits.Cybernetic == 0)
+            {
+                score = 0;
+                if (building.PlusFlatFoodAmount < 0) score = building.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
+                else
+                {
+                    score += building.PlusFlatFoodAmount / maxPopulation;   //Percentage of population this will feed
+                    score += 1.5f - (Fertility + PlusFoodPerColonist);   //Bonus for low Fertility planets
+                    if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
+                    if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
+                }
+                finalScore += score;
+            }
+
+            //Food per Colonist
+            if (building.PlusFoodPerColonist != 0 && Owner.data.Traits.Cybernetic == 0)
+            {
+                score = 0;
+                if (building.PlusFoodPerColonist < 0) score = building.PlusFoodPerColonist * maxPopulation * 2; //for negative value
+                else
+                {
+                    score += building.PlusFoodPerColonist * maxPopulation - FlatFoodAdded;  //How much food could this create (with penalty for FlatFood)
+                    score += Fertility - 0.5f;  //Bonus for high fertility planets
+                    if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
+                    if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist < 1.1f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
+                }
+                finalScore += score;
+            }
+
+            //Flat Prod
+            if (building.PlusFlatProductionAmount != 0)
+            {
+                score = 0;
+                if (building.PlusFlatProductionAmount < 0) score = building.PlusFlatProductionAmount * 2; //for negative value
+                else
+                {
+                    float farmers = CalculateFoodWorkers();
+                    score += farmers;   //Bonus the fewer workers there are available
+                    score += building.PlusFlatProductionAmount - (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation);   //How much more Prod this would produce
+                    if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
+                }
+                finalScore += score;
+            }
+
+            //Prod per Colonist
+            if (building.PlusProdPerColonist != 0)
+            {
+                score = 0;
+                if (building.PlusProdPerColonist < 0) score = building.PlusProdPerColonist * maxPopulation * 2;
+                else
+                {
+                    float farmers = CalculateFoodWorkers();
+                    score += 1 - farmers;   //Bonus the more workers there are available
+                    score += building.PlusProdPerColonist * maxPopulation * farmers;    //Prod this building will add
+                    if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
+                }
+                finalScore += score;
+            }
+
+            //Prod per Richness
+            if (building.PlusProdPerRichness != 0)  //This one can produce a pretty high building value, which is normally offset by its huge maintenance cost and Fertility loss
+            {
+                score = 0;
+                if (building.PlusProdPerRichness < 0) score = building.PlusProdPerRichness * MineralRichness * 2;
+                else
+                {
+                    score += building.PlusProdPerRichness * MineralRichness;        //Production this would generate
+                    if (!HasShipyard) score *= 0.75f;       //Do we have a use for all this production?
+                }
+                finalScore += score;
+            }
+
+            //Storage
+            if (building.StorageAdded != 0)
+            {
+                score = 0;
+
+                float desiredStorage = 50.0f;
+                if (Fertility + PlusFoodPerColonist > 2 || MineralRichness + PlusProductionPerColonist > 2 || PlusFlatProductionPerTurn > 5) desiredStorage += 100.0f;  //Potential high output
+                if (HasShipyard) desiredStorage += 100.0f;      //For buildin' ships 'n shit
+                if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.005f) - (building.Cost * 0.001f);  //If we need more storage, rate this building
+                if (building.Maintenance > 0) score *= 0.25f;       //Prefer free storage
+                if (score < 0.01f) score = 0.01f; //A little storage is always a useful
+
+                finalScore += score;
+            }
+
+            //Plus Population Growth
+            if (building.PlusFlatPopulation != 0)
+            {
+                score = 0;
+                if (building.PlusFlatPopulation < 0) score = building.PlusFlatPopulation * 0.02f;  //Which is sorta like     0.01f * 2
+                else
+                {
+                    score += (maxPopulation * 0.02f - 1.0f) + (building.PlusFlatPopulation * 0.01f);        //More desireable on high pop planets
+                    if (score < building.PlusFlatPopulation * 0.01f) score = building.PlusFlatPopulation * 0.01f;     //A little extra is still good
+                }
+                if (Owner.data.Traits.PhysicalTraitLessFertile) score *= 2;     //These are calculated outside the else, so they will affect negative flatpop too
+                if (Owner.data.Traits.PhysicalTraitFertile) score *= 0.5f;
+                finalScore += score;
+            }
+
+            //Plus Max Population
+            if (building.MaxPopIncrease != 0)
+            {
+                score = 0;
+                if (building.MaxPopIncrease < 0) score = building.MaxPopIncrease * 0.002f;      //Which is sorta like     0.001f * 2
+                else
+                {
+                    //Basically, only add to the score if we would be able to feed the extra people
+                    if ((Fertility + PlusFoodPerColonist + building.PlusFoodPerColonist) * ((MaxPopulation + building.MaxPopIncrease) / 1000)
+                        >= ((MaxPopulation + building.MaxPopIncrease) / 1000) - FlatFoodAdded - building.PlusFlatFoodAmount)
+                        score += building.MaxPopIncrease * 0.001f;
+                }
+                finalScore += score;
+            }
+
+            //Flat Research
+            if (building.PlusFlatResearchAmount != 0 && doingResearch)
+            {
+                score = 0.001f;
+                if (building.PlusFlatResearchAmount < 0)            //Surly no one would make a negative research building
+                {
+                    if (ResearcherPercentage > 0 || PlusFlatResearchPerTurn > 0) score += building.PlusFlatResearchAmount * 2;
+                    else score += building.PlusFlatResearchAmount;
+                }
+                else
+                {                   //Can we easily afford this
+                    if ((building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod) * 1.5 <= income) score += building.PlusFlatResearchAmount * 2;
+                    if (score < building.PlusFlatResearchAmount * 0.1f) score = building.PlusFlatResearchAmount * 0.1f; //A little extra research is always useful
+                }
+                finalScore += score;
+            }
+
+            //Research per Colonist
+            if (building.PlusResearchPerColonist != 0 && doingResearch)
+            {
+                score = 0;
+                if (building.PlusResearchPerColonist < 0)
+                {
+                    if (ResearcherPercentage > 0 || PlusFlatResearchPerTurn > 0) score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation) * 2;
+                    else score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation);
+                }
+                else
+                {
+                    score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation);       //Research this will generate
+                }
+                finalScore += score;
+            }
+
+            //Credits per Colonist
+            if (building.CreditsPerColonist != 0)
+            {
+                score = 0;
+                if (building.CreditsPerColonist < 0) score += building.CreditsPerColonist * maxPopulation * 2;
+                else score += (building.CreditsPerColonist * maxPopulation) / 2;        //Dont want to cause this to have building preference over infrastructure buildings
+                finalScore += score;
+            }
+
+            //Plus Tax Percentage
+            if (building.PlusTaxPercentage != 0)
+            {
+                score = 0;
+                if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * income * 2;
+                else score += (building.PlusTaxPercentage * income) / 2;
+                finalScore += score;
+            }
+
+            //Allow Ship Building
+            if (building.AllowShipBuilding)
+            {
+                score = 0;              //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
+                float farmers = CalculateFoodWorkers();
+                float prodFromLabor = ((1 - farmers) * maxPopulation * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist));
+                float prodFromFlat  = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
+                //Do we have enough production capability to really justify trying to build ships
+                if (prodFromLabor + prodFromFlat > 5.0f) score += 5.0f - prodFromLabor + prodFromFlat;
+                finalScore += score;
+            }
+
+            if (false && building.PlusTerraformPoints != 0)
+            {
+                //Still working on this one...
+            }
+
+            //Fertility loss on build
+            if (building.MinusFertilityOnBuild != 0)
+            {
+                score = 0;
+                if (building.MinusFertilityOnBuild < 0) score += building.MinusFertilityOnBuild * 2;    //Negative loss means positive gain!!
+                else
+                {                                   //How much fertility will actually be lost
+                    float fertLost = Math.Min(Fertility, building.MinusFertilityOnBuild);
+                    float foodFromLabor = maxPopulation * ((Fertility - fertLost) + PlusFoodPerColonist + building.PlusFoodPerColonist);
+                    float foodFromFlat = FlatFoodAdded + building.PlusFlatFoodAmount;
+                                //Will we still be able to feed ourselves?
+                    if (foodFromFlat + foodFromLabor < Consumption) score += fertLost * 10;
+                    else score += fertLost * 4;
+                }
+                finalScore -= score;
+            }
+
+            return finalScore;
         }
 
         public void DoGoverning()
@@ -1650,7 +1862,7 @@ namespace Ship_Game
             {
                 if (pgs.Habitable)
                 {
-                    if (pgs.building != null) openTiles++;
+                    if (pgs.building == null) openTiles++;  //Habitable spot, without a building
                 }
                 else noMoreBiospheres = false;
             }
@@ -1659,78 +1871,20 @@ namespace Ship_Game
             bool biosphereInTheWorks = false;
             foreach (var thingie in ConstructionQueue)
             {
-                if (!thingie.isBuilding) continue;
-                income -= thingie.Building.Maintenance * Owner.data.Traits.MaintMod;
+                if (!thingie.isBuilding) continue;          //Include cuildings in queue in income calculations
+                income -= thingie.Building.Maintenance + thingie.Building.Maintenance * Owner.data.Traits.MaintMod;
                 if (thingie.Building.Name == "Biospheres") biosphereInTheWorks = true;
             }
 
             //Stuff we can build recon
             Building bioSphere = null;
-            Building bestStorage = null;
-            Building bestFlatFood = null;
-            Building bestFoodPerCol = null;
-            Building bestMaxPop = null;
-            Building bestFlatPop = null;
-            Building bestFlatProd = null;
-            Building bestProdPerRich = null;
-            Building bestProdPerCol = null;
-            Building bestResPerCol = null;
-            Building bestFlatRes = null;
-            Building bestTaxPerCol = null;
-            Building bestTaxPercent = null;
-            Building bestShipBuild = null;
-            Building bestTerraform = null;
-
-            float bioSphereCost = 0.0f;
             foreach (var building in BuildingsCanBuild)
             {
                 if (building.Name == "Biospheres")
                 {
                     bioSphere = building;
-                    continue;   //I dont want biospheres coming up as +pop buildings. I will have seperate logic for them
+                    break;
                 }
-
-                if (building.StorageAdded > 0)
-                    bestStorage = WhichIsBetter(bestStorage, building, bldg => bldg.StorageAdded);
-
-                if (building.PlusFlatFoodAmount > 0)
-                    bestFlatFood = WhichIsBetter(bestFlatFood, building, bldg => bldg.PlusFlatFoodAmount);
-
-                if (building.PlusFoodPerColonist > 0)
-                    bestFoodPerCol = WhichIsBetter(bestFoodPerCol, building, bldg => bldg.PlusFoodPerColonist);
-
-                if (building.MaxPopIncrease > 0)
-                    bestMaxPop = WhichIsBetter(bestMaxPop, building, bldg => bldg.MaxPopIncrease);
-
-                if (building.PlusFlatPopulation > 0)
-                    bestFlatPop = WhichIsBetter(bestFlatPop, building, bldg => bldg.PlusFlatPopulation);
-
-                if (building.PlusFlatProductionAmount > 0)
-                    bestFlatProd = WhichIsBetter(bestFlatProd, building, bldg => bldg.PlusFlatProductionAmount);
-
-                if (building.PlusProdPerRichness > 0)
-                    bestProdPerRich = WhichIsBetter(bestProdPerRich, building, bldg => bldg.PlusProdPerRichness);
-
-                if (building.PlusProdPerColonist > 0)
-                    bestProdPerCol = WhichIsBetter(bestProdPerCol, building, bldg => bldg.PlusProdPerColonist);
-
-                if (building.PlusResearchPerColonist > 0)
-                    bestResPerCol = WhichIsBetter(bestResPerCol, building, bldg => bldg.PlusResearchPerColonist);
-
-                if (building.PlusFlatResearchAmount > 0)
-                    bestFlatRes = WhichIsBetter(bestFlatRes, building, bldg => bldg.PlusFlatResearchAmount);
-
-                if (building.CreditsPerColonist > 0)
-                    bestTaxPerCol = WhichIsBetter(bestTaxPerCol, building, bldg => bldg.CreditsPerColonist);
-
-                if (building.PlusTaxPercentage > 0)
-                    bestTaxPercent = WhichIsBetter(bestTaxPercent, building, bldg => bldg.PlusTaxPercentage);
-
-                if (building.AllowShipBuilding)
-                    if (bestShipBuild != null && bestShipBuild.Maintenance > building.Maintenance) bestShipBuild = building;
-
-                if (building.PlusTerraformPoints > 0)
-                    bestTerraform = WhichIsBetter(bestTerraform, building, bldg => bldg.PlusTerraformPoints);
             }
 
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
@@ -1738,7 +1892,7 @@ namespace Ship_Game
             bool littleInQueueToBuild = ConstructionQueue.Count >= 1;
             float storedProductionRatio = ProductionHere / (MaxStorage + 0.0001f);
             float storedFoodRatio = FoodHere / (MaxStorage + 0.00001f);
-            float foodMinimum = CalculateFarmerPercentForSurplus(0);
+            float foodMinimum = CalculateFoodWorkers();
             bool ForgetReseachAndBuild = 
                 notResearching || lotsInQueueToBuild ||
                 (DevelopmentLevel < 3 && (ProductionHere + 1) / (MaxStorage + 1) < .5f);
@@ -1808,30 +1962,31 @@ namespace Ship_Game
 
 
                     //New Build Logic by Gretman
-
                     if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
                     
                     if (openTiles > 0)
                     {
-                        if (!lotsInQueueToBuild)
+                        if (!littleInQueueToBuild)
                         {
-                            if (EvaluateFlatFood(bestFlatFood, 0.5f)) AddBuildingToCQ(bestFlatFood);
-
-                        //At minimum worker rate, how much would this generate        Will this feed more than [VALUE] percent of the population
-                            else if (bestFoodPerCol != null && foodMinimum * bestFoodPerCol.PlusFoodPerColonist * MaxPopulation >= MaxPopulation * 0.25f)
-                                                             //bestFoodPerCol.PlusFoodPerColonist >= (Fertility + PlusFoodPerColonist) * .025
-                            {   //Auto-No for Cybernetic
-                                AddBuildingToCQ(bestFoodPerCol);
+                            Building bestBuilding = null;
+                            float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                            for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                            {
+                                    //Find the building with the highest score
+                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
                             }
+
+                            if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                         }
                     }
                     else
                     {
-                        if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && ShouldWeBuildThis(bioSphereCost, true)) //No habitable tiles, and not too much in debt
+                        if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.5f) //No habitable tiles, and not too much in debt
                         {
                             AddBuildingToCQ(bioSphere);
-                            lotsInQueueToBuild = true;
                         }
+                        //Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
+                        //Log.Info(ConsoleColor.Gray, "bioSphere construction rejected.");
                     }
                     //StorageAdded
 
