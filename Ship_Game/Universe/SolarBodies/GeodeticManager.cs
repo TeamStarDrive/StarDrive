@@ -306,6 +306,8 @@ namespace Ship_Game.Universe.SolarBodies
                     ship.AddPower(ship.PowerStoreMax);
                     ship.ChangeOrdnance(ship.OrdinanceMax);
                 }
+                else if (ship.DesignRoleName == "platform")
+                    ship.ChangeOrdnance(ship.OrdinanceMax);
 
                 //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                 if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
