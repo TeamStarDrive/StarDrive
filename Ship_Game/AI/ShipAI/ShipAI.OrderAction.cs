@@ -617,11 +617,11 @@ namespace Ship_Game.AI {
                 OrderQueue.Clear();
             int troops = Owner.loyalty
                 .GetShips()
-                .Where(troop => troop.TroopList.Count > 0)
+                //.Where(troop => troop.TroopList.Count > 0)
                 .Count(
-                    troopAi => troopAi.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
-
-            if (troops >= p.GetGroundLandingSpots())
+                    troopAi => troopAi.TroopList.Count > 0  && troopAi.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
+            int ptCount = p.GetGroundLandingSpots();
+            if (troops >= ptCount )
             {
                 OrderQueue.Clear();
                 State = AIState.AwaitingOrders;
