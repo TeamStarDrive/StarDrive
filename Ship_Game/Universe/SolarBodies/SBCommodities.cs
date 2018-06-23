@@ -79,7 +79,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
         
         public float HarvestFood()
-        {
+         {
             float unfed = 0.0f;
             if (Owner.data.Traits.Cybernetic > 0)
             {
@@ -104,12 +104,12 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
-                Ground.NetFoodPerTurn -= Ground.Consumption;
+                Ground.NetFoodPerTurn -= Ground.Consumption;            //Why is this modifying the planets netfood variable?!
                 float foodHere = FoodHere + Ground.NetFoodPerTurn;
                  
                 if (foodHere >= Ground.MaxStorage)
                 {
-                    unfed = 0.0f;                    
+                    unfed = 0.0f;
                 }
                 else if (foodHere <= 0)
                 {
