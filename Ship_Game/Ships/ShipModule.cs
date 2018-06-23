@@ -264,9 +264,8 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(string uid, Empire loyalty, ShipData hull)
+        public static ShipModule CreateNoParent(ShipModule template, Empire loyalty, ShipData hull)
         {
-            ShipModule template = ResourceManager.GetModuleTemplate(uid);
             var module = new ShipModule
             {
                 Flyweight         = template.Flyweight,
@@ -319,14 +318,15 @@ namespace Ship_Game.Ships
         // this is used during Ship creation, Ship template creation or Ship loading from save
         public static ShipModule Create(string uid, Ship parent, ModuleSlotData slot, bool isTemplate, bool fromSave)
         {
-            ShipModule module = CreateNoParent(uid, parent.loyalty, parent.shipData);
+            ShipModule template = ResourceManager.GetModuleTemplate(uid);
+            ShipModule module = CreateNoParent(template, parent.loyalty, parent.shipData);
             module.Parent = parent;
             module.SetModuleFacing(module.XSIZE, module.YSIZE, slot.GetOrientation(), slot.Facing);
             module.Initialize(slot.Position, isTemplate);
             if (fromSave)
             {
+                module.SetHealth(slot.Health);
                 module.Active      = slot.Health > 0.01f;
-                module.Health      = slot.Health;
                 module.ShieldPower = slot.ShieldPower;;
             }
             return module;
@@ -346,7 +346,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-
+            
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -376,7 +376,8 @@ namespace Ship_Game.Ships
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-
+            
+            
             Vector2 offset = XMLPosition; // huge cache miss here
             offset.X       += XSIZE * 8f - 264f;
             offset.Y       += YSIZE * 8f - 264f;
@@ -545,7 +546,9 @@ namespace Ship_Game.Ships
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
-                if (modifiedDamage <= damageThreshold)
+                if (proj?.Weapon.EMPDamage >= damageThreshold && !damagingShields)
+                    CauseEmpDamage(proj); // EMP damage can be applied if its above the damage threshold and not hitting shields
+                if (modifiedDamage < damageThreshold)
                     return false; // no damage could be done, the projectile was deflected.
             }
 
@@ -568,11 +571,9 @@ namespace Ship_Game.Ships
             }
             else
             {
-                if (proj != null)
-                {
-                    CauseEmpDamage(proj);
-                    if (beam != null) CauseSpecialBeamDamage(beam);
-                }
+                if (beam != null)
+                    CauseSpecialBeamDamage(beam);
+
                 SetHealth(Health - modifiedDamage);
                 DebugPerseveranceNoDamage();
 
@@ -596,8 +597,9 @@ namespace Ship_Game.Ships
 
         private void CauseEmpDamage(Projectile proj)
         {
-            if (proj.Weapon.EMPDamage > 0f)
-                Parent.EMPDamage += proj.Weapon.EMPDamage;
+            if (proj.Weapon.EMPDamage <= 0f)
+                return;
+            Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
         }
 
         private void CauseSpecialBeamDamage(Beam beam)
@@ -610,45 +612,30 @@ namespace Ship_Game.Ships
 
         private void BeamPowerDamage(Beam beam)
         {
-            Parent.PowerCurrent -= beam.Weapon.PowerDamage;
-            if (Parent.PowerCurrent < 0f)
-                Parent.PowerCurrent = 0f;
+            if (beam.Weapon.PowerDamage <= 0)
+                return;
+            Parent.CausePowerDamage(beam.Weapon.PowerDamage);
         }
+
         private void BeamTroopDamage(Beam beam)
         {
-            if (beam.Weapon.TroopDamageChance > 0f)
-            {
-                if (Parent.TroopList.Count > 0)
-                {
-                    if (UniverseRandom.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
-                    {
-                        Parent.TroopList[0].Strength = Parent.TroopList[0].Strength - 1;
-                        if (Parent.TroopList[0].Strength <= 0)
-                            Parent.TroopList.RemoveAt(0);
-                    }
-                }
-                else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < beam.Weapon.TroopDamageChance)
-                    Parent.MechanicalBoardingDefense -= 1f;
-            }
+            if (beam.Weapon.TroopDamageChance <= 0f)
+                return;
+            Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
         }
 
         private void BeamMassDamage(Beam beam)
         {
-            if (beam.Weapon.MassDamage <= 0f || Parent.IsTethered() || Parent.EnginesKnockedOut)
+            if (beam.Weapon.MassDamage <= 0f)
                 return;
-            Parent.Mass += beam.Weapon.MassDamage;
-            Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-            Parent.Speed = Parent.velocityMaximum;
-            Parent.rotationRadiansPerSecond = Parent.Speed / 700f;
+            Parent.CauseMassDamage(beam.Weapon.MassDamage);
         }
 
         private void BeamRepulsionDamage(Beam beam)
         {
             if (beam.Weapon.RepulsionDamage < 1)
                 return;
-            if (Parent.IsTethered() || Parent.EnginesKnockedOut) return;
-            if (beam.Owner != null && beam.Weapon != null)
-                Parent.Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Parent.Mass;
+            Parent.CauseRepulsionDamage(beam);
         }
 
         private void DebugPerseveranceNoDamage()
@@ -663,19 +650,11 @@ namespace Ship_Game.Ships
 
         private void CauseSiphonDamage(Beam beam)
         {
-            float shieldPower = ShieldPower;
-            if (beam.Weapon.SiphonDamage > 0f)
-            {
-                shieldPower -= beam.Weapon.SiphonDamage;
-                if (shieldPower < 1f)
-                    shieldPower = 0f;
-
-                beam.Owner.PowerCurrent += beam.Weapon.SiphonDamage;
-                if (beam.Owner.PowerCurrent > beam.Owner.PowerStoreMax)
-                    beam.Owner.PowerCurrent = beam.Owner.PowerStoreMax;
-            }
-
-            ShieldPower = shieldPower;
+            if (beam.Weapon.SiphonDamage <= 0f)
+                return;
+            ShieldPower -= beam.Weapon.SiphonDamage;
+            ShieldPower.Clamp(0, shield_power_max);
+            beam.Owner?.AddPowerFromSiphon(beam.Weapon.SiphonDamage);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -912,6 +891,12 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
+        public float ActualMass(bool inPowerRadius)
+        {
+            if (Mass < 0f && inPowerRadius)
+                return ModuleType != ShipModuleType.Armor ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
+            return ModuleType != ShipModuleType.Armor ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+        }
 
         // @note This is called every frame for every module for every ship in the universe
         private void UpdateDamageVisualization(float elapsedTime)
@@ -958,8 +943,8 @@ namespace Ship_Game.Ships
                 switch (ModuleType)
                 {
                     case ShipModuleType.Command:      return 0;
-                    case ShipModuleType.PowerPlant:   return 1;
-                    case ShipModuleType.PowerConduit: return 2;
+                    case ShipModuleType.PowerConduit: return 1;
+                    case ShipModuleType.PowerPlant:   return 2;
                     case ShipModuleType.Engine:       return 3;
                     case ShipModuleType.Shield:       return 4;
                     default:                          return 5;
@@ -1215,6 +1200,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override string ToString() => $"{UID}  {Id}  {Position}  World={Center}  Ship={Parent?.Name}";
+        public override string ToString() => $"{UID}  {Id}  x {Position.X} y {Position.Y}  size {XSIZE}x{YSIZE}  world={Center}  Ship={Parent?.Name}";
     }
 }

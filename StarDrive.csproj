@@ -243,6 +243,7 @@
     <Compile Include="Ship_Game\Ships\EmpireShipBonuses.cs" />
     <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />
+    <Compile Include="Ship_Game\Ships\ShipMaintenance.cs" />
     <Compile Include="Ship_Game\Ships\ShipModuleDamageVisualization.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Cargo.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />

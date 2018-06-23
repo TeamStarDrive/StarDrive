@@ -15,6 +15,8 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
+    using static ShipMaintenance;
+
     public sealed partial class Ship : GameplayObject, IDisposable
     {
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
@@ -201,6 +203,7 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
+        public float BaseCost => GetBaseCost();
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -248,6 +251,10 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float EmpTolerance => Size + BonusEMP_Protection;
+
+        public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
+
         public void DebugDamage(float percent)
         {
             percent = percent.Clamp(0, 1);
@@ -280,6 +287,48 @@ namespace Ship_Game.Ships
 
             return size;
         }
+
+        public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
+
+        public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamp(0, PowerStoreMax);
+
+        public void AddPowerFromSiphon(float siphonPowerAcquired) => PowerCurrent = (PowerCurrent + siphonPowerAcquired).Clamp(0, PowerStoreMax);
+
+        public void CauseTroopDamage(float troopDamageChance)
+        {
+            if (TroopList.Count > 0)
+            {
+                if (UniverseRandom.RandomBetween(0f, 100f) < troopDamageChance)
+                {
+                    TroopList[0].Strength = TroopList[0].Strength - 1;
+                    if (TroopList[0].Strength <= 0)
+                        TroopList.RemoveAt(0);
+                }
+            }
+            else if (MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < troopDamageChance)
+                MechanicalBoardingDefense -= 1f;
+        }
+
+        public void CauseRepulsionDamage(Beam beam)
+        {
+            if (IsTethered() || EnginesKnockedOut)
+                return;
+            if (beam.Owner == null || beam.Weapon == null)
+                return;
+            Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Mass;
+        }
+
+        public void CauseMassDamage(float massDamage)
+        {
+            if (IsTethered() || EnginesKnockedOut)
+                return;
+            Mass += massDamage;
+            velocityMaximum = Thrust / Mass;
+            Speed = velocityMaximum;
+            rotationRadiansPerSecond = Speed / 700f;
+            shipStatusChanged = true; 
+        }
+
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
             if (attackerRelationThis.Treaty_NAPact) return false;
@@ -881,6 +930,14 @@ namespace Ship_Game.Ships
             return (Ship)MemberwiseClone();
         }
 
+        private float GetBaseCost()
+        {
+            float cost = 0.0f;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                cost += ModuleSlotList[i].Cost;
+            return cost;
+        }
+
         public float GetCost(Empire empire)
         {
             if (shipData.HasFixedCost)
@@ -1417,105 +1474,12 @@ namespace Ship_Game.Ships
             return shipCost * GetMaintenanceModifier(shipData, empire);
         }
 
-        private float GetFreighterSizeCostMultiplier() => GetFreighterSizeCostMultiplier(Size);
-
-        public static float GetFreighterSizeCostMultiplier(int size)
-        {
-            switch (size / 50)
-            {
-                default: return (int)(size / 50);
-                case 0: return 1.0f;
-                case 1: return 1.5f;
-                case 2: case 3: case 4: return 2f;
-            }
-        }
-        
-        public static float GetShipRoleMaintenance(ShipRole role, Empire empire)
-        {
-            for (int i = 0; i < role.RaceList.Count; ++i)
-                if (role.RaceList[i].ShipType == empire.data.Traits.ShipType)
-                    return role.RaceList[i].Upkeep;
-            return role.Upkeep;
-        }
-
         public float GetMaintCost() => GetMaintCost(loyalty);
 
         public float GetMaintCost(Empire empire)
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                return GetMaintCostRealism(empire);
-
-            ShipData.RoleName role = shipData.HullRole;
-
-            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-            {
-                Log.Error("ShipRole {0} not found!", role);
-                return 0f;
-            }
-
-            // Free upkeep ships
-            if (shipData.ShipStyle == "Remnant" || empire?.data == null || 
-                (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate))
-                return 0f;
-
-            float maint = GetShipRoleMaintenance(shipRole, empire);
-            if (role == ShipData.RoleName.freighter)
-                maint *= GetFreighterSizeCostMultiplier();
-
-            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                if (empire.data.Privatization)
-                    maint *= 0.5f;
-            }
-
-            // Subspace Projectors do not get any more modifiers
-            if (Name == "Subspace Projector")
-                return maint;
-
-            //added by gremlin shipyard exploit fix
-            if (IsTethered())
-            {
-                if (role == ShipData.RoleName.platform)
-                    return maint * 0.5f;
-                if (shipData.IsShipyard)
-                {
-                    int numShipYards = GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard);
-                    if (numShipYards > 3)
-                        maint *= numShipYards - 3;
-                }
-            }
-
-            // Maintenance fluctuator
-            float maintModReduction = GlobalStats.ShipMaintenanceMulti;
-            if (maintModReduction > 1)
-            {
-                if (IsInFriendlySpace || inborders)
-                {
-                    maintModReduction *= .25f;
-                    if (inborders) maintModReduction *= .75f;
-                }
-                if (IsInNeutralSpace && !IsInFriendlySpace)
-                {
-                    maintModReduction *= .5f;
-                }
-
-                if (IsIndangerousSpace)
-                {
-                    maintModReduction *= 2f;
-                }
-                if (ActiveInternalSlotCount >0 && ActiveInternalSlotCount < InternalSlotCount)
-                {
-                    float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
-                    if (damRepair > 1.5f) damRepair = 1.5f;
-                    if (damRepair < 1) damRepair = 1;
-                    maintModReduction *= damRepair;
-
-                }
-                if (maintModReduction < 1) maintModReduction = 1;
-                maint *= maintModReduction;
-            }
-            return maint;
+            int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
         public int GetTechScore(out int[] techScores)
@@ -1995,10 +1959,10 @@ namespace Ship_Game.Ships
             updateTimer -= deltaTime;
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
-                --EMPDamage;
+                EMPDamage -= EmpRecovery;
                 EMPDamage = Math.Max(0, EMPDamage);
 
-                EMPdisabled = EMPDamage > Size + BonusEMP_Protection;
+                EMPdisabled = EMPDamage > EmpTolerance;
             }
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
             if (Rotation < 0f) Rotation += 6.28318548202515f;
@@ -2177,7 +2141,6 @@ namespace Ship_Game.Ships
                     NeedRecalculate = false;
                 }
             }
-            SetHealthStatus();
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
             if (MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim || AI.BadGuysNear 
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
@@ -2201,7 +2164,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < 0.4f)
+            if (InternalSlotsHealthPercent < 0.5f)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
@@ -2458,31 +2421,20 @@ namespace Ship_Game.Ships
             }
         }
 
-
         public ShipStatus HealthStatus
         {
-            get;
-            private set;            
-        }
-        private void SetHealthStatus()
-        {
-            if (engineState == MoveState.Warp
-                || AI.State == AIState.Refit
-                || AI.State == AIState.Resupply)
+            get
             {
-                HealthStatus = ShipStatus.NotApplicable;
-                return;
+                if (engineState == MoveState.Warp
+                    || AI.State == AIState.Refit
+                    || AI.State == AIState.Resupply)
+                        return ShipStatus.NotApplicable;
+                Health = Health.Clamp(0, HealthMax);
+                return ToShipStatus(Health, HealthMax);
             }
-           
-            Health = Health.Clamp(0, HealthMax);
-            HealthStatus = ToShipStatus(Health, HealthMax);
         }
 
-        public void AddShipHealth(float addHealth)
-        {
-            Health = (Health + addHealth).Clamp(0, HealthMax);
-            SetHealthStatus();            
-        }
+        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamp(0, HealthMax);
 
         public void ShipStatusChange()
         {
@@ -2524,7 +2476,7 @@ namespace Ship_Game.Ships
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
                 
-                RepairRate += module.ActualBonusRepairRate;
+                RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
                 if (module.Mass < 0.0 && module.Powered)
                     Mass += module.Mass;
                 else if (module.Mass > 0.0)
@@ -2562,6 +2514,7 @@ namespace Ship_Game.Ships
                     }
                     else
                         ModulePowerDraw += module.PowerDraw;
+
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
@@ -3229,8 +3182,8 @@ namespace Ship_Game.Ships
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
             if (valueToCheck >= maxValue)
             {
-                if (valueToCheck > maxValue)
-                    Log.Error($"MaxValue of check as greater than value to check");
+                //if (valueToCheck > maxValue)
+                //    Log.Error($"MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
