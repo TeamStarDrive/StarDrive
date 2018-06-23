@@ -18,6 +18,7 @@ namespace Ship_Game
         private readonly Point Offset;
         private int NumPowerChecks;
 
+
         // this constructs a [GridWidth][GridHeight] array of current hull
         // and allows for quick lookup for neighbours
         public DesignModuleGrid(ModuleSlotData[] slotData, Vector2 slotOffset)
@@ -129,6 +130,10 @@ namespace Ship_Game
                 X1 = pos.X + (moduleWidth  - 1);
                 Y1 = pos.Y + (moduleHeight - 1);
             }
+            public override string ToString()
+            {
+                return $"X:{X0} Y:{Y0} W:{X1-X0+1} H: {Y1-Y0+1}";
+            }
         }
         
         private bool IsInBounds(Point gridPoint)
@@ -146,22 +151,121 @@ namespace Ship_Game
         #endregion
 
 
+        #region Undo Redo
+
+        private enum ChangeType { Added, Removed }
+
+        private struct ChangedModule
+        {
+            public SlotStruct At;
+            public ShipModule Module;
+            public ModuleOrientation Orientation;
+            public ChangeType Type;
+        }
+
+        private readonly Array<Array<ChangedModule>> Undoable = new Array<Array<ChangedModule>>();
+        private readonly Array<Array<ChangedModule>> Redoable = new Array<Array<ChangedModule>>();
+
+
+        public void StartUndoableAction()
+        {
+            if (Undoable.IsEmpty || !Undoable.Last.IsEmpty) // only start new if we actually need to
+            {
+                Undoable.Add(new Array<ChangedModule>());
+                Redoable.Clear(); // once we start a new action, we can no longer redo old things
+            }
+        }
+
+        public void Undo()
+        {
+            if (Undoable.IsEmpty)
+                return;
+
+            Array<ChangedModule> changes = Undoable.PopLast();
+
+            // undo actions in reverse order
+            for (int i = changes.Count-1; i >= 0; --i)
+            {
+                ChangedModule change = changes[i];
+                if (change.Type == ChangeType.Added)   RemoveModule(change.At, change.Module);
+                if (change.Type == ChangeType.Removed)  PlaceModule(change.At, change.Module, change.Orientation);
+            }
+            
+            GameAudio.PlaySfxAsync("smallservo");
+            Redoable.Add(changes);
+            RecalculatePower();
+        }
+
+        public void Redo()
+        {
+            if (Redoable.IsEmpty)
+                return;
+            
+            Array<ChangedModule> changes = Redoable.PopLast();
+
+            // redo actions in original order
+            foreach (ChangedModule change in changes)
+            {
+                if (change.Type == ChangeType.Added)   PlaceModule(change.At, change.Module, change.Orientation);
+                if (change.Type == ChangeType.Removed) RemoveModule(change.At, change.Module);
+            }
+            
+            GameAudio.PlaySfxAsync("smallservo");
+            Undoable.Add(changes);
+            RecalculatePower();
+        }
+
+        private void SaveAction(SlotStruct slot, ShipModule module, ModuleOrientation orientation, ChangeType type)
+        {
+            if (Undoable.IsEmpty)
+                return; // do not save unless StartUndoableAction() was called
+
+            Undoable.Last.Add(new ChangedModule
+            {
+                At = slot, Module = module, Orientation = orientation, Type = type
+            });
+        }
+
+
+        #endregion
+
         #region Installing and Removing modules
 
-        public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module)
+        public bool ModuleFitsAtSlot(SlotStruct slot, ShipModule module, bool logFailure = false)
         {
+            if (slot == null)
+            {
+                if (logFailure) Log.Warning("Design slot was null");
+                return false;
+            }
+
             ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
             if (!IsInBounds(span))
+            {
+                if (logFailure) Log.Warning($"Design slot {span} was out of bounds");
                 return false;
+            }
+
             for (int x = span.X0; x <= span.X1; ++x) 
             for (int y = span.Y0; y <= span.Y1; ++y)
-                if (Grid[x + y*Width]?.CanSlotSupportModule(module) != true)
+            {
+                SlotStruct target = Grid[x + y*Width];
+                if (target == null)
+                {
+                    if (logFailure) Log.Warning($"Design slot {{{x},{y}}} does not exist in ship design layout");
                     return false;
+                }
+                if (!target.CanSlotSupportModule(module))
+                {
+                    if (logFailure)
+                        Log.Warning($"Design slot {{{x},{y}}} ({target.Restrictions}) cannot support module {module.UID} ({module.Restrictions})");
+                    return false;
+                }
+            }
             return true;
         }
 
-        
-        public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
+        private void PlaceModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
         {
             slot.ModuleUID   = newModule.UID;
             slot.Module      = newModule;
@@ -170,30 +274,39 @@ namespace Ship_Game
             slot.Tex         = newModule.ModuleTexture;
             slot.Module.SetAttributes();
 
-            ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);
+            ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
                 Grid[x + y*Width].Parent = slot;
         }
-
-        private void ClearOccupiedSlot(SlotStruct slot)
+        
+        public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
         {
-            ModuleRect span = GetModuleSpan(slot, slot.Module.XSIZE, slot.Module.YSIZE);
+            ClearSlots(slot, newModule);
+            PlaceModule(slot, newModule, orientation);
+            SaveAction(slot, newModule, orientation, ChangeType.Added);
+        }
+
+        private void RemoveModule(SlotStruct root, ShipModule module)
+        {
+            ModuleRect span = GetModuleSpan(root, module.XSIZE, module.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x) 
             for (int y = span.Y0; y <= span.Y1; ++y)
                 Grid[x + y*Width].Clear();
         }
 
-        public void ClearSlots(SlotStruct slot, int width, int height)
+        public void ClearSlots(SlotStruct slot, ShipModule forModule)
         {
-            ModuleRect span = GetModuleSpan(slot, width, height);
+            ModuleRect span = GetModuleSpan(slot, forModule.XSIZE, forModule.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
             {
-                SlotStruct dest = Grid[x + y*Width];
-                if (dest.Parent != null)
-                    ClearOccupiedSlot(dest.Parent);
-                dest.Clear();
+                SlotStruct root = Grid[x + y*Width].Parent;
+                if (root?.Module != null) // only clear module roots which have not been cleared yet
+                {
+                    SaveAction(root, root.Module, root.Orientation, ChangeType.Removed);
+                    RemoveModule(root, root.Module);
+                }
             }
         }
 
