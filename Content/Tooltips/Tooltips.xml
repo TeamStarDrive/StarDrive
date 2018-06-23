@@ -1215,5 +1215,40 @@
       <Title>Complexity</Title>
       <Data>1991</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>242</TIP_ID>
+      <Title>Projectiles</Title>
+      <Data>1990</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>243</TIP_ID>
+      <Title>Total Weapons Power Usage per second when firing</Title>
+      <Data>1989</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>244</TIP_ID>
+      <Title>Weapons Peak Power drain during full beam duraion</Title>
+      <Data>1988</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>245</TIP_ID>
+      <Title>Weapons Peak Power Time during full beam duraion</Title>
+      <Data>1987</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>246</TIP_ID>
+      <Title>Symmetric Ship Design Mode</Title>
+      <Data>1984</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>247</TIP_ID>
+      <Title>Powered Command Module</Title>
+      <Data>1983</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>248</TIP_ID>
+      <Title>Empty slots</Title>
+      <Data>1982</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

@@ -183,15 +183,17 @@ namespace Ship_Game.Gameplay
                 return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
             }
         }
-        public static void LoadCorrections(Weapon weapon)
+        public void InitializeTemplate()
         {
-            weapon.BeamDuration = weapon.BeamDuration > 0 ? weapon.BeamDuration : 2f;
-            if (weapon.Tag_Missile)
+            BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
+            fireDelay = Math.Max(0.016f, fireDelay);
+            SalvoTimer = Math.Max(0, SalvoTimer);
+            if (Tag_Missile)
             {
-                if (weapon.WeaponType.IsEmpty()) weapon.WeaponType = "Missile";
-                else if (weapon.WeaponType != "Missile")
+                if (WeaponType.IsEmpty()) WeaponType = "Missile";
+                else if (WeaponType != "Missile")
                 {
-                    Log.Warning($"Weapon '{weapon.UID}' has 'tag_missile' but Weapontype is '{weapon.WeaponType}' instead of missile. This Causes invisible projectiles.");
+                    Log.Warning($"Weapon '{UID}' has 'tag_missile' but Weapontype is '{WeaponType}' instead of missile. This Causes invisible projectiles.");
                 }
             }
         }
@@ -217,6 +219,33 @@ namespace Ship_Game.Gameplay
             wep.Owner            = null;
             wep.drowner          = null;
             return wep;
+        }
+
+        [XmlIgnore][JsonIgnore]
+        public float NetFireDelay
+        {
+            get
+            {
+                return fireDelay + SalvoTimer;
+            }
+        }
+
+        [XmlIgnore][JsonIgnore]
+        public float OrdnanceUsagePerSecond
+        {
+            get
+            { 
+                return OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
+            }
+        }
+
+        [XmlIgnore][JsonIgnore]
+        public float PowerFireUsagePerSecond // only usage during fire, not power maintenance 
+        {
+            get
+            {
+                return (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
+            }
         }
 
         // modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
@@ -329,7 +358,7 @@ namespace Ship_Game.Gameplay
 
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            CooldownTimer = fireDelay + SalvoTimer + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
+            CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
             Owner.InCombatTimer = 15f;
             Owner.Ordinance    -= OrdinanceRequiredToFire;

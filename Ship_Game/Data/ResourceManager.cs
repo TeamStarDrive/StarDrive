@@ -25,7 +25,6 @@ namespace Ship_Game
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename. 
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         public static Map<string, Texture2D> TextureDict          = new Map<string, Texture2D>();
-        public static XmlSerializer WeaponSerializer              = new XmlSerializer(typeof(Weapon));
         public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
         public static Map<string, Technology> TechTree            = new Map<string, Technology>(GlobalStats.CaseControl);
         private static readonly Array<Model> RoidsModels          = new Array<Model>();
@@ -35,18 +34,16 @@ namespace Ship_Game
         public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
         public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
         public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
-        private static Map<string, ShipModule> ShipModulesDict    = new Map<string, ShipModule>(GlobalStats.CaseControl);
+        private static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
         public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
         public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
         public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
-        public static bool Initialized                            = false;
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
-        private static Map<string, Troop> TroopsDict              = new Map<string, Troop>();
+        private static readonly Map<string, Troop> TroopsDict     = new Map<string, Troop>();
         private static Array<string> TroopsDictKeys               = new Array<string>();
         public static IReadOnlyList<string> TroopTypes            => TroopsDictKeys;
         public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
-        public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
 
         public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
@@ -71,8 +68,6 @@ namespace Ship_Game
         public static Map<ShipData.RoleName, ShipRole> ShipRoles  = new Map<ShipData.RoleName, ShipRole>();
         public static Map<string, HullBonus> HullBonuses          = new Map<string, HullBonus>();
         public static Map<string, PlanetEdict> PlanetaryEdicts    = new Map<string, PlanetEdict>();
-        public static XmlSerializer EconSerializer                = new XmlSerializer(typeof(EconomicResearchStrategy));
-
         public static Map<string, EconomicResearchStrategy> EconStrats = new Map<string, EconomicResearchStrategy>();
 
         private static RacialTraits RacialTraits;
@@ -170,7 +165,7 @@ namespace Ship_Game
                     shipData.allModulesUnlocakable = true;
                     foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
                     {
-                        if (module.InstalledModuleUID == "Dummy")
+                        if (module.InstalledModuleUID == "Dummy" || module.InstalledModuleUID == null)
                             continue;
                         bool modUnlockable = false;
                         foreach (Technology technology in shipTechs.Keys)
@@ -920,15 +915,15 @@ namespace Ship_Game
 
         public static float GetModuleCost(string uid)
         {
-            ShipModule template = ShipModulesDict[uid];
+            ShipModule template = ModuleTemplates[uid];
             return template.Cost;
         }
 
-        public static ShipModule GetModuleTemplate(string uid) => ShipModulesDict[uid];
-        public static bool ModuleExists(string uid) => ShipModulesDict.ContainsKey(uid);
-        public static IReadOnlyDictionary<string, ShipModule> ShipModules => ShipModulesDict;
-        public static ICollection<ShipModule> ShipModuleTemplates => ShipModulesDict.Values;
-        public static bool TryGetModule(string uid, out ShipModule mod) => ShipModulesDict.TryGetValue(uid, out mod);
+        public static ShipModule GetModuleTemplate(string uid) => ModuleTemplates[uid];
+        public static bool ModuleExists(string uid) => ModuleTemplates.ContainsKey(uid);
+        public static IReadOnlyDictionary<string, ShipModule> ShipModules => ModuleTemplates;
+        public static ICollection<ShipModule> ShipModuleTemplates => ModuleTemplates.Values;
+        public static bool TryGetModule(string uid, out ShipModule mod) => ModuleTemplates.TryGetValue(uid, out mod);
 
         public static RacialTraits RaceTraits
             => RacialTraits ?? (RacialTraits = TryDeserialize<RacialTraits>("RacialTraits/RacialTraits.xml")); 
@@ -1346,7 +1341,7 @@ namespace Ship_Game
            
                 if (GlobalStats.VerboseLogging)
                 {
-                    if (ShipModulesDict.ContainsKey(data.UID))
+                    if (ModuleTemplates.ContainsKey(data.UID))
                         Log.Info($"ShipModule UID already found. Conflicting name:  {data.UID}");
                     if (!Localizer.Contains(data.NameIndex))
                         Log.Warning($"{data.UID} Nameindex missing. Index: {data.NameIndex}");
@@ -1363,13 +1358,13 @@ namespace Ship_Game
                         || (data.WeaponType.NotEmpty() && data.ModuleType != ShipModuleType.Turret);
                 }
 
-                ShipModulesDict[data.UID] = ShipModule.CreateTemplate(data);
+                ModuleTemplates[data.UID] = ShipModule.CreateTemplate(data);
                 
             }
 
             //Log.Info("Num ShipModuleFlyweight: {0}", ShipModuleFlyweight.TotalNumModules);
 
-            foreach (var entry in ShipModulesDict)
+            foreach (var entry in ModuleTemplates)
                 entry.Value.SetAttributes();
         }
 
@@ -1459,7 +1454,18 @@ namespace Ship_Game
         public static string GetShipHull(string shipName)
         {
             return ShipsDict[shipName].shipData.Hull;
-        }       
+        }
+
+        public static bool TryGetHull(string shipName, out ShipData hull)
+        {
+            if (GetShipTemplate(shipName, out Ship template))
+            {
+                hull = template.shipData;
+                return true;
+            }
+            hull = null;
+            return false; 
+        }
 
         public static bool IsPlayerDesign(string shipName)
         {
@@ -1598,7 +1604,7 @@ namespace Ship_Game
                 {
                     foreach (Technology.UnlockedMod moduleU in tech.ModulesUnlocked)
                     {
-                        if (!ShipModulesDict.TryGetValue(moduleU.ModuleUID, out ShipModule module))
+                        if (!ModuleTemplates.TryGetValue(moduleU.ModuleUID, out ShipModule module))
                         {
                             Log.Warning($"Tech {tech.UID} unlock unavailable : {moduleU.ModuleUID}");
                             continue;
@@ -1822,7 +1828,7 @@ namespace Ship_Game
                 Weapon wep = pair.Entity;
                 wep.UID = String.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
-                Weapon.LoadCorrections(wep);                
+                wep.InitializeTemplate();                
             }
         }
 
@@ -1885,7 +1891,7 @@ namespace Ship_Game
             TroopsDict.Clear();
             TroopsDictKeys.Clear();
             BuildingsDict.Clear();
-            ShipModulesDict.Clear();
+            ModuleTemplates.Clear();
             FlagTextures.Clear();
             TechTree.Clear();
             ArtifactsDict.Clear();

@@ -415,29 +415,27 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
-            WriteLine(ref cursor);
+            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
         private void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;            
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f);
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
         private void DrawStatShieldResist(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStatColor(ref cursor, text, stat, toolTipId, Color.LightSkyBlue, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
-            WriteLine(ref cursor);
+            ParentScreen.DrawStat(ref cursor, text, stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
         private void DrawString(ref Vector2 cursor, string text, bool valueCheck)
         {
             if (!valueCheck)
                 return;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
             WriteLine(ref cursor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
     }
 
         private void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
@@ -529,10 +527,10 @@ namespace Ship_Game
             }
             if (mod.explodes)
             {
+                DrawString(ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
                 DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
             }
-            DrawString(ref modTitlePos, "Explodes",  mod.explodes);
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
             DrawStat(ref modTitlePos, Localizer.Token(6144), mod.GuidedResist, 191,  true);
@@ -619,12 +617,14 @@ namespace Ship_Game
             if (rawDamage > 0f)
             {
                 int salvos = w.SalvoCount > 0 ? w.SalvoCount : 1;
+                int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
                 float dps = isBeam 
                     ? (beamDamage / delay)
                     : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
 
                 DrawStat(ref cursor, "DPS", dps, 86);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
+                if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
 
             
@@ -662,19 +662,14 @@ namespace Ship_Game
 
             if (w.TruePD)
             {
-                //WriteLine(ref cursor, 2);
-                //cursor.X -= 152f;
-                //ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target Ships", cursor, Color.LightCoral);
+                WriteLine(ref cursor);
                 DrawString(ref cursor, "Cannot Target Ships" );
             }
             else 
             if (w.Excludes_Fighters || w.Excludes_Corvettes ||
                 w.Excludes_Capitals || w.Excludes_Stations)
             {
-                //WriteLine(ref cursor, 2);
-                //cursor.X -= 152f;
-                //ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Cannot Target:", cursor, Color.LightCoral);
-                //cursor.X += 120f;
+                WriteLine(ref cursor);
                 DrawString(ref cursor, "Cannot Target:");
 
                 if (w.Excludes_Fighters)
@@ -694,16 +689,13 @@ namespace Ship_Game
             DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
             WriteLine(ref cursor);
         }
-        private void DrawStatLine(ref Vector2 cursor, string text, float stat, int tooltipId)
-        {
-            ParentScreen.DrawStat(ref cursor, text, stat, tooltipId);
-            WriteLine(ref cursor);
-        }
+
         private void WriteLine(ref Vector2 cursor, string text)
         {          
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
             WriteLine(ref cursor);
         }
+
         private static void WriteLine(ref Vector2 cursor, int lines = 1)
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
@@ -721,7 +713,7 @@ namespace Ship_Game
                 case WeaponStat.Damage:    return weapon.DamageAmount;
                 case WeaponStat.Range:     return weapon.Range;
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
-                case WeaponStat.FireDelay: return weapon.fireDelay;
+                case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;
                 case WeaponStat.Shield:    return weapon.EffectVSShields;
                 default: return 0f;
