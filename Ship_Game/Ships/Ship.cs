@@ -288,11 +288,13 @@ namespace Ship_Game.Ships
             return size;
         }
 
+        public void ChangeOrdnance(float ordnance) => (Ordinance += ordnance).Clamp(0, OrdinanceMax);
+
         public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
 
         public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamp(0, PowerStoreMax);
 
-        public void AddPowerFromSiphon(float siphonPowerAcquired) => PowerCurrent = (PowerCurrent + siphonPowerAcquired).Clamp(0, PowerStoreMax);
+        public void AddPower(float powerAcquired) => PowerCurrent = (PowerCurrent + powerAcquired).Clamp(0, PowerStoreMax);
 
         public void CauseTroopDamage(float troopDamageChance)
         {

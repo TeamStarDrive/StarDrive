@@ -927,25 +927,22 @@ namespace Ship_Game.AI {
                         filter: ship => Owner.Center.Distance(ship.Center) <= module.TransporterRange + 500f
                                         && ship.Ordinance < ship.OrdinanceMax && !ship.hasOrdnanceTransporter,
                         selector: ship => ship.Ordinance);
-            if (repairMe != null)
-            {
-                module.TransporterTimer = module.TransporterTimerConstant;
-                float transferAmount = module.TransporterOrdnance > module.GetParent().Ordinance
-                                     ? module.GetParent().Ordinance : module.TransporterOrdnance;
-                //check how much can be given
-                if (transferAmount > repairMe.OrdinanceMax - repairMe.Ordinance)
-                    transferAmount = repairMe.OrdinanceMax - repairMe.Ordinance;
-                //Transfer
-                repairMe.Ordinance += transferAmount;
-                module.GetParent().Ordinance -= transferAmount;
-                module.GetParent().PowerCurrent -= module.TransporterPower *
-                                                   (transferAmount / module.TransporterOrdnance);
+            if (repairMe == null)
+                return;
 
-                if (Owner.InFrustum)
-                {
-                    GameAudio.PlaySfxAsync("transporter", module.GetParent().SoundEmitter);
-                }
-            }
+            module.TransporterTimer = module.TransporterTimerConstant;
+            float transferAmount    = module.TransporterOrdnance > module.GetParent().Ordinance
+                ? module.GetParent().Ordinance : module.TransporterOrdnance;
+            //check how much can be given
+            if (transferAmount > repairMe.OrdinanceMax - repairMe.Ordinance)
+                transferAmount = repairMe.OrdinanceMax - repairMe.Ordinance;
+            //Transfer
+            repairMe.ChangeOrdnance(transferAmount);
+            module.GetParent().ChangeOrdnance(-transferAmount);
+            module.GetParent().AddPower(-module.TransporterPower * (transferAmount / module.TransporterOrdnance));
+
+            if (Owner.InFrustum)
+                GameAudio.PlaySfxAsync("transporter", module.GetParent().SoundEmitter);
         }
 
         private void DoAssaultTransporterLogic(ShipModule module)
