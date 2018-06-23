@@ -93,39 +93,39 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             list_2.Clear();
             renderableMeshes.Clear();
             IObjectManager manager1 = (IObjectManager)ServiceProvider.GetManager(SceneInterface.ObjectManagerType, false);
-            if (manager1 != null)
-                manager1.Find(list_2, SceneState.ViewFrustum, ObjectFilter.DynamicAndStatic);
+            manager1?.Find(list_2, SceneState.ViewFrustum, ObjectFilter.DynamicAndStatic);
             for (int i = 0; i < list_2.Count; ++i)
             {
                 ISceneObject sceneObject = list_2[i];
-                if (sceneObject != null && sceneObject.Visible)
+                if (sceneObject == null || !sceneObject.Visible) continue;
+                float num1 = Vector3.DistanceSquared(viewToWorld.Translation, sceneObject.WorldBoundingSphere.Center);
+                float num2 = SceneState.Environment.VisibleDistance + sceneObject.WorldBoundingSphere.Radius;
+                if (!(num1 <= num2 * num2)) continue;
+                ++class57_0.lightingSystemStatistic_1.AccumulationValue;
+                for (int j = 0; j < sceneObject.RenderableMeshes.Count; ++j)
                 {
-                    float num1 = Vector3.DistanceSquared(viewToWorld.Translation, sceneObject.WorldBoundingSphere.Center);
-                    float num2 = SceneState.Environment.VisibleDistance + sceneObject.WorldBoundingSphere.Radius;
-                    if (num1 <= num2 * (double)num2)
+                    RenderableMesh renderableMesh = sceneObject.RenderableMeshes[j];
+                    switch (renderableMesh.effect) {
+                        case null:
+                            continue;
+                        case BaseSasBindEffect sasBind:
+                            sasBind.GameTime = scenestate.GameTime;
+                            break;
+                    }
+
+                    if (MaxLoadedMipLevelEnabled)
                     {
-                        ++class57_0.lightingSystemStatistic_1.AccumulationValue;
-                        for (int j = 0; j < sceneObject.RenderableMeshes.Count; ++j)
-                        {
-                            RenderableMesh renderableMesh = sceneObject.RenderableMeshes[j];
-                            if (renderableMesh.effect != null)
-                            {
-                                if (renderableMesh.effect is BaseSasBindEffect sasBind)
-                                    sasBind.GameTime = scenestate.GameTime;
-                                if (MaxLoadedMipLevelEnabled)
-                                {
-                                    if (renderableMesh.effect is BasicEffect basicEffect)
-                                        SetTextureLOD(basicEffect.Texture);
-                                    else if (renderableMesh.effect is ITextureAccessEffect textureEffect)
-                                    {
-                                        for (int k = 0; k < textureEffect.TextureCount; ++k)
-                                            SetTextureLOD(textureEffect.GetTexture(k));
-                                    }
-                                }
-                                renderableMeshes.Add(renderableMesh);
-                            }
+                        switch (renderableMesh.effect) {
+                            case BasicEffect basicEffect:
+                                SetTextureLOD(basicEffect.Texture);
+                                break;
+                            case ITextureAccessEffect textureEffect:
+                                for (int k = 0; k < textureEffect.TextureCount; ++k)
+                                    SetTextureLOD(textureEffect.GetTexture(k));
+                                break;
                         }
                     }
+                    renderableMeshes.Add(renderableMesh);
                 }
             }
             renderableMeshes.Sort(class61_0);
