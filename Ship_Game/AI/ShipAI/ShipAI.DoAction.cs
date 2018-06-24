@@ -927,25 +927,19 @@ namespace Ship_Game.AI {
                         filter: ship => Owner.Center.Distance(ship.Center) <= module.TransporterRange + 500f
                                         && ship.Ordinance < ship.OrdinanceMax && !ship.hasOrdnanceTransporter,
                         selector: ship => ship.Ordinance);
-            if (repairMe != null)
-            {
-                module.TransporterTimer = module.TransporterTimerConstant;
-                float transferAmount = module.TransporterOrdnance > module.GetParent().Ordinance
-                                     ? module.GetParent().Ordinance : module.TransporterOrdnance;
-                //check how much can be given
-                if (transferAmount > repairMe.OrdinanceMax - repairMe.Ordinance)
-                    transferAmount = repairMe.OrdinanceMax - repairMe.Ordinance;
-                //Transfer
-                repairMe.Ordinance += transferAmount;
-                module.GetParent().Ordinance -= transferAmount;
-                module.GetParent().PowerCurrent -= module.TransporterPower *
-                                                   (transferAmount / module.TransporterOrdnance);
+            if (repairMe == null)
+                return;
 
-                if (Owner.InFrustum)
-                {
-                    GameAudio.PlaySfxAsync("transporter", module.GetParent().SoundEmitter);
-                }
-            }
+            module.TransporterTimer = module.TransporterTimerConstant;
+
+            float transferAmount    = module.TransporterOrdnance > module.GetParent().Ordinance
+                ? module.GetParent().Ordinance : module.TransporterOrdnance;
+            float ordnanceLeft = repairMe.ChangeOrdnance(transferAmount);
+            module.GetParent().ChangeOrdnance(ordnanceLeft - transferAmount);
+            module.GetParent().AddPower(module.TransporterPower * ((ordnanceLeft - transferAmount) / module.TransporterOrdnance));
+
+            if (Owner.InFrustum)
+                GameAudio.PlaySfxAsync("transporter", module.GetParent().SoundEmitter);
         }
 
         private void DoAssaultTransporterLogic(ShipModule module)
@@ -993,7 +987,7 @@ namespace Ship_Game.AI {
                 if (Owner.Mothership.TroopCapacity > Owner.Mothership.TroopList.Count && Owner.TroopList.Count == 1)
                     Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
                 if (Owner.shipData.Role == ShipData.RoleName.supply) //fbedard: Supply ship return with Ordinance
-                    Owner.Mothership.AlterOrdinance(Owner.Ordinance);
+                    Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
                 Owner.ApplyFighterLaunchCost(false); //fbedard: New spawning cost                
              
                 Owner.QueueTotalRemoval();
@@ -1043,15 +1037,9 @@ namespace Ship_Game.AI {
             ThrustTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                if (EscortTarget.Ordinance + Owner.Ordinance > EscortTarget.OrdinanceMax)
-                    Owner.Ordinance = EscortTarget.OrdinanceMax - EscortTarget.Ordinance;
-                EscortTarget.Ordinance += Owner.Ordinance;
-                Owner.Ordinance -= Owner.Ordinance;
+                Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
                 OrderQueue.Clear();
-                if (Owner.Ordinance > 0)
-                    State = AIState.AwaitingOrders;
-                else
-                    Owner.ReturnToHangar();
+                Owner.ReturnToHangar();
             }
         }
 
