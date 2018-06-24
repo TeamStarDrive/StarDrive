@@ -496,7 +496,7 @@ namespace Ship_Game.AI
                              && State != AIState.HoldPosition)
                     {
                         if (State == AIState.FormationWarp)
-                            Log.Warning($"Fleet formation warp should not be possible with no desitination goal.")
+                            Log.Warning($"Fleet formation warp should not be possible with no desitination goal.");
 
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);

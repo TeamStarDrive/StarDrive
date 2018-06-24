@@ -876,7 +876,9 @@ namespace Ship_Game
             Vector3 vector3 = new Vector3(ray.Position.X + num1 * ray.Direction.X,
                 ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
             Vector2 target = Input.CursorPosition;
+
             factingToTargetR = startDrag.RadiansToTarget(target);
+            
             unitVectorToTarget = Vector2.Normalize(target - startDrag);
             return vector3.ToVec2();
         }
@@ -919,6 +921,7 @@ namespace Ship_Game
                     if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
                     {
                         SelectedSomethingTimer = 3f;
+                        facingToTargetR = SelectedFleet.Position.RadiansToTarget(targetVector);
                         MoveFleetToLocation(shipClicked, planetClicked, targetVector, facingToTargetR, unitVectorToTarget);
                     }
                     else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
