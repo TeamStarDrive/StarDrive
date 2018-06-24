@@ -212,7 +212,7 @@ namespace Ship_Game.Ships
                         us.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
                     }
 
-                    if (us.Debug)
+                    if (us.Debug && (us.DebugWin?.IsOpen ?? false))
                     {
                         // draw blue marker on all active external modules
                         if (slot.isExternal && slot.Active)
