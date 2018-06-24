@@ -2015,7 +2015,9 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280));
             }
-            if ((input.Right || RightColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
+            // Changed by MadMudMonster: only respond to mouse press, not release
+            if ((input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
+                && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 try
                 {
@@ -2038,13 +2040,19 @@ namespace Ship_Game
                 }
                 return true;
             }
-            if ((input.Left || this.LeftColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
+            // Changed by MadMudMonster: only respond to mouse press, not release
+            if ((input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
+                && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
                 thisindex = (thisindex <= 0 ? this.p.Owner.GetPlanets().Count - 1 : thisindex - 1);
                 if (this.p.Owner.GetPlanets()[thisindex] != this.p)
                 {
-                    this.p = this.p.Owner.GetPlanets()[thisindex];
+                    //Console.Write("Switch Colony Screen");
+                    //Console.WriteLine(thisindex);
+                    //System.Threading.Thread.Sleep(1000);
+
+                    p = p.Owner.GetPlanets()[thisindex];
                     Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, p, eui);
                 }
                 if (input.MouseCurr.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)

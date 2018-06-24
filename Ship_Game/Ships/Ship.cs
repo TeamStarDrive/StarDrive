@@ -15,6 +15,8 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
+    using static ShipMaintenance;
+
     public sealed partial class Ship : GameplayObject, IDisposable
     {
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
@@ -201,6 +203,7 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
+        public float BaseCost => GetBaseCost();
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -927,6 +930,14 @@ namespace Ship_Game.Ships
             return (Ship)MemberwiseClone();
         }
 
+        private float GetBaseCost()
+        {
+            float cost = 0.0f;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                cost += ModuleSlotList[i].Cost;
+            return cost;
+        }
+
         public float GetCost(Empire empire)
         {
             if (shipData.HasFixedCost)
@@ -1463,105 +1474,12 @@ namespace Ship_Game.Ships
             return shipCost * GetMaintenanceModifier(shipData, empire);
         }
 
-        private float GetFreighterSizeCostMultiplier() => GetFreighterSizeCostMultiplier(Size);
-
-        public static float GetFreighterSizeCostMultiplier(int size)
-        {
-            switch (size / 50)
-            {
-                default: return (int)(size / 50);
-                case 0: return 1.0f;
-                case 1: return 1.5f;
-                case 2: case 3: case 4: return 2f;
-            }
-        }
-        
-        public static float GetShipRoleMaintenance(ShipRole role, Empire empire)
-        {
-            for (int i = 0; i < role.RaceList.Count; ++i)
-                if (role.RaceList[i].ShipType == empire.data.Traits.ShipType)
-                    return role.RaceList[i].Upkeep;
-            return role.Upkeep;
-        }
-
         public float GetMaintCost() => GetMaintCost(loyalty);
 
         public float GetMaintCost(Empire empire)
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                return GetMaintCostRealism(empire);
-
-            ShipData.RoleName role = shipData.HullRole;
-
-            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-            {
-                Log.Error("ShipRole {0} not found!", role);
-                return 0f;
-            }
-
-            // Free upkeep ships
-            if (shipData.ShipStyle == "Remnant" || empire?.data == null || 
-                (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate))
-                return 0f;
-
-            float maint = GetShipRoleMaintenance(shipRole, empire);
-            if (role == ShipData.RoleName.freighter)
-                maint *= GetFreighterSizeCostMultiplier();
-
-            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                if (empire.data.Privatization)
-                    maint *= 0.5f;
-            }
-
-            // Subspace Projectors do not get any more modifiers
-            if (Name == "Subspace Projector")
-                return maint;
-
-            //added by gremlin shipyard exploit fix
-            if (IsTethered())
-            {
-                if (role == ShipData.RoleName.platform)
-                    return maint * 0.5f;
-                if (shipData.IsShipyard)
-                {
-                    int numShipYards = GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard);
-                    if (numShipYards > 3)
-                        maint *= numShipYards - 3;
-                }
-            }
-
-            // Maintenance fluctuator
-            float maintModReduction = GlobalStats.ShipMaintenanceMulti;
-            if (maintModReduction > 1)
-            {
-                if (IsInFriendlySpace || inborders)
-                {
-                    maintModReduction *= .25f;
-                    if (inborders) maintModReduction *= .75f;
-                }
-                if (IsInNeutralSpace && !IsInFriendlySpace)
-                {
-                    maintModReduction *= .5f;
-                }
-
-                if (IsIndangerousSpace)
-                {
-                    maintModReduction *= 2f;
-                }
-                if (ActiveInternalSlotCount >0 && ActiveInternalSlotCount < InternalSlotCount)
-                {
-                    float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
-                    if (damRepair > 1.5f) damRepair = 1.5f;
-                    if (damRepair < 1) damRepair = 1;
-                    maintModReduction *= damRepair;
-
-                }
-                if (maintModReduction < 1) maintModReduction = 1;
-                maint *= maintModReduction;
-            }
-            return maint;
+            int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
         public int GetTechScore(out int[] techScores)
@@ -3264,8 +3182,8 @@ namespace Ship_Game.Ships
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
             if (valueToCheck >= maxValue)
             {
-                if (valueToCheck > maxValue)
-                    Log.Error($"MaxValue of check as greater than value to check");
+                //if (valueToCheck > maxValue)
+                //    Log.Error($"MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
