@@ -268,7 +268,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (CrippledTurns > 0 || RecentCombat)
                 return;
          
-            float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage); 
+            float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage);   //This is an erroneous calculation. GetMaxProd includes FlatProd, which is not affected by population
             if (maxp < 5)
                 maxp = 5;
             float StorageRatio = 0;
@@ -277,7 +277,7 @@ namespace Ship_Game.Universe.SolarBodies
             take10Turns = maxp * StorageRatio;
 
 
-            if (!PSexport)
+            if (!PSexport)                  //This statement is garbage.   Is this really supposed to be easier to read than some nested if's?
                 take10Turns *= (StorageRatio < .75f ? PS == Planet.GoodState.EXPORT ? .5f : PS == Planet.GoodState.STORE ? .25f : 1 : 1);
             if (!GovernorOn || colonyType == Planet.ColonyType.Colony)
             {
