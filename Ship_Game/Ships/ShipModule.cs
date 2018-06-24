@@ -654,7 +654,7 @@ namespace Ship_Game.Ships
                 return;
             ShieldPower -= beam.Weapon.SiphonDamage;
             ShieldPower.Clamp(0, shield_power_max);
-            beam.Owner?.AddPowerFromSiphon(beam.Weapon.SiphonDamage);
+            beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)

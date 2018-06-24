@@ -4922,7 +4922,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2037</Index>
-      <Text>This technology unlocks a unique "Shipyard" space station that boosts ship production by 25% at the planet where it is constructed.  </Text>
+      <Text>This technology unlocks a unique "Shipyard" space station that boosts ship production by 25% at the planet where it is constructed. Building more than 4 shipyards at the same colony will yield very high upkeep.</Text>
     </Token>
     <Token>
       <Index>2038</Index>
