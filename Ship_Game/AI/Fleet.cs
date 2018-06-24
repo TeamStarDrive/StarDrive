@@ -385,9 +385,9 @@ namespace Ship_Game.AI
                 this.FleetTask.EndTask();
         }
 
-        private void DoExplorePlanet(Tasks.MilitaryTask task) //Mer Gretman Left off here
+        private void DoExplorePlanet(Tasks.MilitaryTask task)
         {
-            Log.Info("DoExplorePlanet called!  " + this.Owner.PortraitName);
+            //Log.Info("DoExplorePlanet called!  " + this.Owner.PortraitName);
             bool eventBuildingFound = true;
             foreach (Building building in task.GetTargetPlanet().BuildingList)
             {
