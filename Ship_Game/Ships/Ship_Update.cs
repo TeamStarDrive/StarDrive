@@ -169,8 +169,7 @@ namespace Ship_Game.Ships
                     ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
                     ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                 }
-                UpdateThrusters();
-                RecalculatePower();
+                UpdateThrusters();                
             }
 
             if (isSpooling)
