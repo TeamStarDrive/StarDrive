@@ -346,7 +346,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-
+            
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -376,7 +376,8 @@ namespace Ship_Game.Ships
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-
+            
+            
             Vector2 offset = XMLPosition; // huge cache miss here
             offset.X       += XSIZE * 8f - 264f;
             offset.Y       += YSIZE * 8f - 264f;
@@ -890,6 +891,12 @@ namespace Ship_Game.Ships
             base.Update(elapsedTime);
         }
 
+        public float ActualMass(bool inPowerRadius)
+        {
+            if (Mass < 0f && inPowerRadius)
+                return ModuleType != ShipModuleType.Armor ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
+            return ModuleType != ShipModuleType.Armor ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+        }
 
         // @note This is called every frame for every module for every ship in the universe
         private void UpdateDamageVisualization(float elapsedTime)
@@ -936,8 +943,8 @@ namespace Ship_Game.Ships
                 switch (ModuleType)
                 {
                     case ShipModuleType.Command:      return 0;
-                    case ShipModuleType.PowerPlant:   return 1;
-                    case ShipModuleType.PowerConduit: return 2;
+                    case ShipModuleType.PowerConduit: return 1;
+                    case ShipModuleType.PowerPlant:   return 2;
                     case ShipModuleType.Engine:       return 3;
                     case ShipModuleType.Shield:       return 4;
                     default:                          return 5;

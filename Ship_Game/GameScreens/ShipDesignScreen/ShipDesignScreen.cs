@@ -138,28 +138,6 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        private static float GetMaintCostShipyard(ShipData ship, int size, Empire empire)
-        {
-            float maint = Ship.GetShipRoleMaintenance(ship.ShipRole, empire);
-
-            if (ship.Role == ShipData.RoleName.freighter)
-                maint *= Ship.GetFreighterSizeCostMultiplier(size);
-
-            if (ship.Role == ShipData.RoleName.freighter || ship.Role == ShipData.RoleName.platform)
-            {
-                maint *= empire.data.CivMaintMod;
-                maint *= empire.data.Privatization ? 0.5f : 1.0f;
-            }
-
-            // Subspace Projectors do not get any more modifiers
-            if (ship.Name == "Subspace Projector")
-                return maint;
-
-            if (GlobalStats.ShipMaintenanceMulti > 1)
-                maint *= GlobalStats.ShipMaintenanceMulti;
-            return maint;
-        }
-
         private static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
         {
             return fCost * Ship.GetMaintenanceModifier(shipData, empire);
@@ -167,11 +145,11 @@ namespace Ship_Game
 
         private static string GetNumberString(float stat)
         {
-            if (stat < 1000f)  return stat.ToString("#.#"); // 950.7
-            if (stat < 10000f) return stat.ToString("#");   // 9500
+            if (Math.Abs(stat) < 1000f)  return stat.ToString("#.#"); // 950.7
+            if (Math.Abs(stat) < 10000f) return stat.ToString("#");   // 9500
             float single = stat / 1000f;
-            if (single < 100f)  return single.ToString("#.##") + "k"; // 57.75k
-            if (single < 1000f) return single.ToString("#.#") + "k";  // 950.7k
+            if (Math.Abs(single) < 100f)  return single.ToString("#.##") + "k"; // 57.75k
+            if (Math.Abs(single) < 1000f) return single.ToString("#.#") + "k";  // 950.7k
             return single.ToString("#") + "k"; // 1000k
         }
 
@@ -228,6 +206,8 @@ namespace Ship_Game
                 return;
             }
 
+            ModuleGrid.StartUndoableAction();
+
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -241,14 +221,12 @@ namespace Ship_Game
 
                     float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
                     ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
-                    
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
             }
 
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();
-            
             ShipSaved = false;
             SpawnActiveModule(module, orientation, slot.Facing);
         }
@@ -261,6 +239,8 @@ namespace Ship_Game
                 return;
             }
 
+            ModuleGrid.StartUndoableAction();
+
             string replacementId = slot.Module.UID;
             foreach (SlotStruct replaceAt in ModuleGrid.SlotsList)
             {
@@ -272,6 +252,28 @@ namespace Ship_Game
             }
             ModuleGrid.RecalculatePower();
             ShipSaved = false;
+        }
+
+        private void DeleteModuleAtSlot(SlotStruct slot)
+        {
+            if (slot.Module == null && slot.Parent == null)
+                return;
+
+            ModuleGrid.StartUndoableAction();
+
+            if (IsSymmetricDesignMode)
+            {
+                MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
+                if (IsMirrorSlotPresent(mirrored, slot) 
+                    && mirrored.Slot.Root != slot.Root 
+                    && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                {
+                    ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module);
+                }
+            }
+            ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
+            ModuleGrid.RecalculatePower();
+            GameAudio.PlaySfxAsync("sub_bass_whoosh");
         }
 
         private DesignModuleGrid ModuleGrid;

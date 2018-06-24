@@ -165,6 +165,27 @@ namespace Ship_Game
         [Serialize(90)] public int   BaseShipLevel    = 0;
         [Serialize(91)] public float PlayerTaxGoal    = .2f;
 
+        [XmlIgnore][JsonIgnore]
+        public string ScoutShip => CurrentAutoScout.NotEmpty() ? CurrentAutoScout
+                                 : StartingScout.NotEmpty()    ? StartingScout
+                                 : "Unarmed Scout";
+
+        [XmlIgnore][JsonIgnore]
+        public string FreighterShip => CurrentAutoFreighter.NotEmpty()  ? CurrentAutoFreighter
+                                     : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
+                                     : "Small Transport";
+        
+        [XmlIgnore][JsonIgnore]
+        public string ColonyShip => CurrentAutoColony.NotEmpty() ? CurrentAutoColony
+                                  : DefaultColonyShip.NotEmpty() ? DefaultColonyShip
+                                  : "Colony Ship";
+                
+        [XmlIgnore][JsonIgnore]
+        public string ConstructorShip => CurrentConstructor.NotEmpty()    ? CurrentConstructor
+                                       : DefaultConstructor.NotEmpty()    ? DefaultConstructor
+                                       : DefaultSmallTransport.NotEmpty() ? DefaultSmallTransport
+                                       : "Small Transport";
+
         public EmpireData()
         {
             // @todo Mapping these by string is a bad idea. Consider using an Enum
