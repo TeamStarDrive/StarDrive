@@ -307,10 +307,10 @@ namespace Ship_Game.AI {
             Target = null;
             HasPriorityTarget = false;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
+            var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
             Vector2.Dot(wantedForward, right);
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
@@ -354,20 +354,20 @@ namespace Ship_Game.AI {
                     };
                     OrderQueue.Enqueue(to1K);
                 }
-                if (i == waypoints.Length - 1)
+
+                if (i != waypoints.Length - 1) continue;
+
+                var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
                 {
-                    var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
-                    {
-                        SpeedLimit = speedLimit
-                    };
-                    OrderQueue.Enqueue(finalApproach);
-                    var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
-                    {
-                        SpeedLimit = speedLimit
-                    };
-                    OrderQueue.Enqueue(slow);
-                    AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
-                }
+                    SpeedLimit = speedLimit
+                };
+                OrderQueue.Enqueue(finalApproach);
+                ShipGoal slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
+                {
+                    SpeedLimit = speedLimit
+                };
+                OrderQueue.Enqueue(slow);
+                AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
             }
         }
 

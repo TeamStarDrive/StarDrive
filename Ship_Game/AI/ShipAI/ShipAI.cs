@@ -483,20 +483,22 @@ namespace Ship_Game.AI
                         Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
                         Vector2 fvec = Vector2.Zero.DirectionToTarget(vector2);
                         Vector2 wantedForward = Vector2.Normalize(fvec);
-                        var forward = new Vector2((float)Math.Sin((double)Owner.Rotation),
-                            -(float)Math.Cos((double)Owner.Rotation));
+                        var forward = new Vector2((float)Math.Sin(Owner.Rotation),
+                            -(float)Math.Cos(Owner.Rotation));
                         var right = new Vector2(-forward.Y, forward.X);
-                        var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        var angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
                             RotateToFacing(elapsedTime, angleDiff, facing);
                     }
-                    else if (State == AIState.Orbit || State == AIState.AwaitingOrders
+                    else if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders
                              || !HasPriorityOrder && !HadPO
                              && State != AIState.HoldPosition)
                     {
+                        if (State == AIState.FormationWarp)
+                            Log.Warning($"Fleet formation warp should not be possible with no desitination goal.")
+
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                            //PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         else
                             lock (WayPointLocker)

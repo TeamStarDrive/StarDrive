@@ -227,45 +227,47 @@ namespace Ship_Game.AI {
         private void MoveToWithin1000(float elapsedTime, ShipGoal goal)
         {
             var distWaypt = 15000f; //fbedard
-            if (ActiveWayPoints.Count > 1)
-                distWaypt = Empire.ProjectorRadius / 2f;
+            lock (WayPointLocker)
+            {
+                if (ActiveWayPoints.Count > 1)
+                    distWaypt = Empire.ProjectorRadius / 2f;
+            }
 
             if (OrderQueue.NotEmpty && OrderQueue[1].Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
-                    ActiveWayPoints.Last().Equals(goal.TargetPlanet.Center);
+                    //ActiveWayPoints.Last() = goal.TargetPlanet.Center;
                     goal.MovePosition = goal.TargetPlanet.Center;
                 }
             float speedLimit = (int) Owner.Speed;
             float distance = Owner.Center.Distance(goal.MovePosition);
-            if (ActiveWayPoints.Count <= 1)
-                if (distance < Owner.Speed)
-                    speedLimit = distance;
+            lock (WayPointLocker)
+            {
+                if (ActiveWayPoints.Count <= 1)
+                    if (distance < Owner.Speed)
+                        speedLimit = distance;
+            }
             ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
-            if (ActiveWayPoints.Count <= 1)
+            lock (WayPointLocker)
             {
-                if (distance <= 1500f)
-                    lock (WayPointLocker)
-                    {
-                        if (ActiveWayPoints.Count > 1)
-                            ActiveWayPoints.Dequeue();
-                        if (OrderQueue.NotEmpty)
-                            OrderQueue.RemoveFirst();
-                    }
-            }
-            else if (Owner.engineState == Ship.MoveState.Warp)
-            {
-                if (distance <= distWaypt)
-                    lock (WayPointLocker)
-                    {
+                if (ActiveWayPoints.Count <= 1)
+                {
+                    if (distance > 1500f) return;
+
+                    if (ActiveWayPoints.Count > 1)
                         ActiveWayPoints.Dequeue();
-                        if (OrderQueue.NotEmpty)
-                            OrderQueue.RemoveFirst();
-                    }
-            }
-            else if (distance <= 1500f)
-            {
-                lock (WayPointLocker)
+                    if (OrderQueue.NotEmpty)
+                        OrderQueue.RemoveFirst();
+                }
+                else if (Owner.engineState == Ship.MoveState.Warp)
+                {
+                    if (distance > distWaypt) return;
+
+                    ActiveWayPoints.Dequeue();
+                    if (OrderQueue.NotEmpty)
+                        OrderQueue.RemoveFirst();
+                }
+                else if (distance <= 1500f)
                 {
                     ActiveWayPoints.Dequeue();
                     if (OrderQueue.NotEmpty)
