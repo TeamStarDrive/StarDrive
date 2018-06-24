@@ -493,7 +493,7 @@ namespace Ship_Game.AI
                     }
                     else if (State == AIState.Orbit || State == AIState.AwaitingOrders
                              || !HasPriorityOrder && !HadPO
-                             && State != AIState.HoldPosition)
+                             && State != AIState.HoldPosition || State == AIState.FormationWarp)
                     {
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                             //PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
