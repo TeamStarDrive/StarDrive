@@ -758,7 +758,7 @@ namespace Ship_Game
             return true; 
         }
 
-        private void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, Vector2 targetVector, ShipGroup fleet = null)
+        private void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, float  facing, Vector2 fvec, ShipGroup fleet = null)
         {            
             fleet = fleet ?? SelectedFleet;            
             fleet?.FleetTargetList.Clear();
@@ -777,21 +777,26 @@ namespace Ship_Game
 
             if (MoveFleetToPlanet(planetClicked, fleet)) return;
 
-            float targetFacingR = fleet.Position.RadiansToTarget(targetVector);
+            //float targetFacingR = fleet.Position.RadiansToTarget(targetVector);
 
-            if (QueueFleetMovement(movePosition, targetFacingR, fleet)) return;
+            if (QueueFleetMovement(movePosition, facing, fleet)) return;
             
             using (fleet.Ships.AcquireReadLock())            
                 foreach (var ship in fleet.Ships)                
                     ship.AI.OrderQueue.Clear();
 
             Vector2 vectorToTarget =
-                Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(targetFacingR, 1f));
+                Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(facing, 1f));
 
             if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
-                fleet.MoveToDirectly(movePosition, targetFacingR, vectorToTarget);
+                MoveShipGroupToLocation(fleet, fleet.Ships);
             else
-                fleet.FormationWarpTo(movePosition, targetFacingR, vectorToTarget);
+                fleet.FormationWarpTo(movePosition, facing, vectorToTarget);
+            
+
+            //FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(position),
+            //    Vector2.Normalize(position - FindAveragePosition()));
+
         }
 
         private void MoveShipToLocation(Vector2 targetVector, float facingToTargetR, Ship ship = null)
@@ -913,7 +918,7 @@ namespace Ship_Game
                     if (SelectedFleet != null && SelectedFleet.Owner.isPlayer)
                     {
                         SelectedSomethingTimer = 3f;
-                        MoveFleetToLocation(shipClicked, planetClicked, targetVector, targetVector);
+                        MoveFleetToLocation(shipClicked, planetClicked, targetVector, facingToTargetR, unitVectorToTarget);
                     }
                     else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
                     {
@@ -997,7 +1002,7 @@ namespace Ship_Game
                 if (SelectedFleet != null && SelectedFleet.Owner == player)
                 {
                     SelectedSomethingTimer = 3f;                        
-                    MoveFleetToLocation(null, null, ProjectedPosition, targetVector);                        
+                    MoveFleetToLocation(null, null, targetVector, facingToTargetR, unitVectorToTarget);                        
                 }
                 else if (SelectedShip != null && SelectedShip?.loyalty == player) 
                 {
