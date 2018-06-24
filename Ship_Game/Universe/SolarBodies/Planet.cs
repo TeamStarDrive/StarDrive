@@ -74,7 +74,6 @@ namespace Ship_Game
    
         //public bool isSelected;
         public float BuildingRoomUsed;
-        public int StorageAdded;        
         
         
         public float NetFoodPerTurn;
@@ -591,7 +590,6 @@ namespace Ship_Game
             GrowPopulation();
             HealTroops();
             CalculateIncomingTrade();
-
         }
 
         public float IncomingFood = 0;
@@ -2683,7 +2681,9 @@ namespace Ship_Game
             }
         }
 
-        public float GetMaxProductionPotential()
+        public float GetMaxProductionPotential() { return MaxProductionPerTurn; }
+
+        private float GetMaxProductionPotentialCalc()
         {
             float bonusProd = 0.0f;
             float baseProd = MineralRichness * Population / 1000;
@@ -2740,7 +2740,7 @@ namespace Ship_Game
             PlusFlatPopulationPerTurn = 0f;
             ShieldStrengthMax = 0f;
             TotalMaintenanceCostsPerTurn = 0f;
-            StorageAdded = 0;
+            float storageAdded = 0;
             AllowInfantry = false;
             TotalDefensiveStrength = 0;
             GrossFood = 0f;
@@ -2790,8 +2790,8 @@ namespace Ship_Game
             MaxPopBonus = 0f;
             PlusTaxPercentage = 0f;
             TerraformToAdd = 0f;
-            bool shipyard =false;
-            float repairPerTurn = 0;
+            bool shipyard = false;
+            RepairPerTurn = 0;
             for (int index = 0; index < BuildingList.Count; ++index)
             {
                 Building building = BuildingList[index];
@@ -2815,7 +2815,7 @@ namespace Ship_Game
                 if (building.AllowInfantry)
                     AllowInfantry = true;
                 if (building.StorageAdded > 0)
-                    StorageAdded += building.StorageAdded;
+                    storageAdded += building.StorageAdded;
                 if (building.PlusFoodPerColonist > 0)
                     PlusFoodPerColonist += building.PlusFoodPerColonist;
                 if (building.PlusResearchPerColonist > 0)
@@ -2832,7 +2832,7 @@ namespace Ship_Game
                 if (building.Maintenance > 0)
                     TotalMaintenanceCostsPerTurn += building.Maintenance * Owner.data.Traits.MaintMod;
                 FlatFoodAdded += building.PlusFlatFoodAmount;
-                repairPerTurn += building.ShipRepair;
+                RepairPerTurn += building.ShipRepair;
                 //Repair if no combat
                 if(!RecentCombat)
                 {
@@ -2840,7 +2840,6 @@ namespace Ship_Game
                     building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
                 }
             }
-            RepairPerTurn = repairPerTurn;
             //Added by Gretman -- This will keep a planet from still having sheilds even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
@@ -2858,7 +2857,7 @@ namespace Ship_Game
             //Production
             NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
-            MaxProductionPerTurn = GetMaxProductionPotential();
+            MaxProductionPerTurn = GetMaxProductionPotentialCalc();
 
             Consumption =  (Population / 1000 + Owner.data.Traits.ConsumptionModifier * Population / 1000);
 
@@ -2891,9 +2890,8 @@ namespace Ship_Game
             GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
             //this.GrossMoneyPT += this.GrossMoneyPT * this.Owner.data.Traits.TaxMod;
             //this.GrossMoneyPT += this.PlusFlatMoneyPerTurn + this.Population / 1000f * this.PlusCreditsPerColonist;
-            MaxStorage = StorageAdded;
-            if (MaxStorage < 10)
-                MaxStorage = 10f;
+            MaxStorage = storageAdded;
+            if (MaxStorage < 10) MaxStorage = 10f;
         }
 
         private void HarvestResources()
@@ -2918,7 +2916,7 @@ namespace Ship_Game
             if (Unfed == 0) Population += adjustedRepRate;  //Unfed is calculated so it is 0 if everyone got food (even if just from storage)
             else        //  ^-- This one increases population if there is enough food to feed everyone
                 Population += Unfed * 10f;      //So this else would only happen if there was not enough food. <-- This reduces population due to starvation.
-            if (Population < 100.0) Population = 100f;
+            if (Population < 100.0) Population = 100f;      //Minimum population. I guess they wont all dire from starvation
         }
 
         public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
