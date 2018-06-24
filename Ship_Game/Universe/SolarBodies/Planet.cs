@@ -501,9 +501,9 @@ namespace Ship_Game
         public void UpdateOwnedPlanet()
         {
             ++TurnsSinceTurnover;
-            --CrippledTurns;
-            if (CrippledTurns < 0)
-                CrippledTurns = 0;
+            if (CrippledTurns > 0) CrippledTurns--;
+            else CrippledTurns = 0;
+
             ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentStatus();
             Description = DevelopmentStatus;
@@ -545,8 +545,7 @@ namespace Ship_Game
                 if (Fertility > 1.0)
                     Fertility = 1f;
             }
-            if (GovernorOn)
-                DoGoverning();
+            DoGoverning();  //Mer
             UpdateIncomes(false);
 
             // notification about empty queue
@@ -1555,6 +1554,7 @@ namespace Ship_Game
             float storedFoodRatio = FoodHere / MaxStorage;
             float storedProdRatio = ProductionHere / MaxStorage;
             if (Fertility + PlusFoodPerColonist <= 0.1 || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
+            if (PlusFlatProductionPerTurn > 0) storedProdRatio += PlusFlatProductionPerTurn * .05f;     //Dont top off if there is flatprod, since we cant turn it off
 
             if (storedFoodRatio < percentage && storedProdRatio < percentage)
             {
@@ -1630,12 +1630,12 @@ namespace Ship_Game
             bool doingResearch = !string.IsNullOrEmpty(Owner.ResearchTopic);
 
             if (Name == "MerVille")
-                { double spotForABreakpoint = Math.PI; }
+                 { double spotForABreakpoint = Math.PI; }
 
             //First things first! How much is it gonna' cost?
             if (building.Maintenance != 0)
             {
-                score += (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod) * 2;  //Base of 2x maintenance
+                score += building.Maintenance * 2;  //Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
                 if (income < building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod)
                     score += score + (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod);   //Really dont want this if we cant afford it
                 score -= Owner.data.FlatMoneyBonus * 0.03f;      //Acceptible loss (Note what this will do at high Difficulty)
@@ -1682,7 +1682,7 @@ namespace Ship_Game
                 {
                     float farmers = CalculateFoodWorkers();
                     score += farmers;   //Bonus the fewer workers there are available
-                    score += Math.Min(0, 1 - (MineralRichness + PlusProductionPerColonist));    //Bonus for low richness planets (this tips the scale for edge cases)
+                    score += Math.Max(0, 1 - (MineralRichness + PlusProductionPerColonist));    //Bonus for low richness planets (this tips the scale for edge cases)
                     score += building.PlusFlatProductionAmount - (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation);   //How much more Prod this would produce
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
@@ -1875,7 +1875,7 @@ namespace Ship_Game
             bool biosphereInTheWorks = false;
             foreach (var thingie in ConstructionQueue)
             {
-                if (!thingie.isBuilding) continue;          //Include cuildings in queue in income calculations
+                if (!thingie.isBuilding) continue;          //Include buildings in queue in income calculations
                 income -= thingie.Building.Maintenance + thingie.Building.Maintenance * Owner.data.Traits.MaintMod;
                 if (thingie.Building.Name == "Biospheres") biosphereInTheWorks = true;
             }
@@ -1894,8 +1894,6 @@ namespace Ship_Game
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
             bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
             bool littleInQueueToBuild = ConstructionQueue.Count >= 1;
-            float storedProductionRatio = ProductionHere / (MaxStorage + 0.0001f);
-            float storedFoodRatio = FoodHere / (MaxStorage + 0.00001f);
             float foodMinimum = CalculateFoodWorkers();
             bool ForgetReseachAndBuild = 
                 notResearching || lotsInQueueToBuild ||
@@ -1910,6 +1908,7 @@ namespace Ship_Game
 
             switch (colonyType)
             {
+                case Planet.ColonyType.TradeHub:
                 case Planet.ColonyType.Core:
 
                 #region Core
@@ -1938,9 +1937,9 @@ namespace Ship_Game
                     {
                         allocateWorkers = Math.Min(leftoverWorkers, 0.15f);
                         leftoverWorkers -= allocateWorkers;
-
+                        
                         if (lotsInQueueToBuild) WorkerPercentage += allocateWorkers;
-                        else if (workerFillStorage(allocateWorkers, 1.00f)) ;
+                        else if (workerFillStorage(allocateWorkers, 1.00f));
                         else ResearcherPercentage += allocateWorkers;
                     }
 
@@ -1964,6 +1963,7 @@ namespace Ship_Game
                         else ResearcherPercentage += allocateWorkers;
                     }
 
+                    if (colonyType == Planet.ColonyType.TradeHub) break;
 
                     //New Build Logic by Gretman
                     if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
@@ -1985,7 +1985,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.5f) //No habitable tiles, and not too much in debt
+                        if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
                         {
                             AddBuildingToCQ(bioSphere);
                         }
@@ -2433,101 +2433,78 @@ namespace Ship_Game
                         if (b != null) AddBuildingToCQ(b);
 
                     }
+
+                    //Added by McShooterz: Colony build troops
+
+                    if (Owner.isPlayer && colonyType == ColonyType.Military)
+                    {
+                        bool addTroop = false;
+                        foreach (PlanetGridSquare planetGridSquare in TilesList)
+                        {
+                            if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
+                            {
+                                addTroop = true;
+                                break;
+                            }
+                        }
+                        if (addTroop && AllowInfantry)
+                        {
+                            foreach (string troopType in ResourceManager.TroopTypes)
+                            {
+                                if (!Owner.WeCanBuildTroop(troopType))
+                                    continue;
+                                QueueItem qi = new QueueItem();
+                                qi.isTroop = true;
+                                qi.troopType = troopType;
+                                qi.Cost = ResourceManager.GetTroopCost(troopType);
+                                qi.productionTowards = 0f;
+                                qi.NotifyOnEmpty = false;
+                                ConstructionQueue.Add(qi);
+                                break;
+                            }
+                        }
+                    }
+
                     break;
 
-                #endregion
+                    #endregion
 
-                case Planet.ColonyType.TradeHub:
-
-                    #region TradeHub
-
-                {
-                        //New resource management by Gretman
-                        FarmerPercentage = foodMinimum;
-                        WorkerPercentage = 0.0f;
+                    //This used to be the TradeHub Governor code. Leaving this here so I can look at it later if I need. -Gretman
+                    if (false)
+                    {
+                        FarmerPercentage = 0.0f;
+                        WorkerPercentage = 1f;
                         ResearcherPercentage = 0.0f;
-
-                        if (FarmerPercentage >= 0.90f) FarmerPercentage = 0.90f;  //Dont let Farming consume all labor
-
-                        float leftoverWorkers = 1 - FarmerPercentage;
-                        float allocateWorkers = 0.0f;
-                        if (leftoverWorkers > 0.0)
+                        PS = ProductionHere >= 20 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
+                        float IndySurplus2 =
+                            (NetFoodPerTurn) *
+                            (1 - (FoodHere + 1) / (MaxStorage + 1));
+                        if (Owner.data.Traits.Cybernetic > 0)
                         {
-                            allocateWorkers  = Math.Min(leftoverWorkers, 0.15f);
-                            leftoverWorkers -= allocateWorkers;
-
-                            if      (littleInQueueToBuild)    WorkerPercentage += allocateWorkers;  //First priority project for this group is build shit
-                            else if (workerFillStorage(allocateWorkers, 0.60f));                    //Second priority is to fill storage up to 60%
-                            else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
-                            else ResearcherPercentage += allocateWorkers;                           //Last priority is research, or top off storage if no research
+                            IndySurplus = GrossProductionPerTurn - Consumption;
+                            IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));
                         }
 
-                        if (leftoverWorkers > 0.0)  //If there are more leftover Workers, then we can divide them into groups with different priorities
                         {
-                            allocateWorkers  = Math.Min(leftoverWorkers, 0.15f);
-                            leftoverWorkers -= allocateWorkers;
-
-                            if      (lotsInQueueToBuild) WorkerPercentage += allocateWorkers;
-                            else if (workerFillStorage(allocateWorkers, 1.00f));
-                            else     ResearcherPercentage += allocateWorkers;
-                        }
-
-                        if (leftoverWorkers > 0.0)
-                        {
-                            allocateWorkers  = Math.Min(leftoverWorkers, 0.20f);
-                            leftoverWorkers -= allocateWorkers;
-
-                            if      (littleInQueueToBuild) WorkerPercentage += allocateWorkers;
-                            else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
-                            else     ResearcherPercentage += allocateWorkers;
-                        }
-
-                        if (leftoverWorkers > 0.0)
-                        {
-                            allocateWorkers  = Math.Min(leftoverWorkers, 1.0f);  //All the rest
-                            leftoverWorkers -= allocateWorkers;
-
-                            if      (littleInQueueToBuild && Population < 2.00f) WorkerPercentage += allocateWorkers;    //Only help build if this is a low pop planet
-                            if      (notResearching) workerFillStorage(allocateWorkers, 1.00f);
-                            else     ResearcherPercentage += allocateWorkers;
-                        }
-
-                        break;
-                            FarmerPercentage = 0.0f;
-                            WorkerPercentage = 1f;
-                            ResearcherPercentage = 0.0f;
-                            PS = ProductionHere >= 20 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
-                            float IndySurplus2 =
-                                (NetFoodPerTurn) *
-                                (1 - (FoodHere + 1) / (MaxStorage + 1));
+                            FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus2);
+                            if (FarmerPercentage == 1 && lotsInQueueToBuild)
+                                FarmerPercentage = CalculateFarmerPercentForSurplus(0);
+                            WorkerPercentage =
+                                (1f - FarmerPercentage)
+                                * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
+                            if (ProductionHere / MaxStorage > .75 && !lotsInQueueToBuild)
+                                WorkerPercentage = 0;
+                            ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
                             if (Owner.data.Traits.Cybernetic > 0)
                             {
-                                IndySurplus = GrossProductionPerTurn - Consumption;
-                                IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));
+                                WorkerPercentage += FarmerPercentage;
+                                FarmerPercentage = 0;
                             }
-
-                            {
-                                FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus2);
-                                if (FarmerPercentage == 1 && lotsInQueueToBuild)
-                                    FarmerPercentage = CalculateFarmerPercentForSurplus(0);
-                                WorkerPercentage =
-                                    (1f - FarmerPercentage)
-                                    * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-                                if (ProductionHere / MaxStorage > .75 && !lotsInQueueToBuild)
-                                    WorkerPercentage = 0;
-                                ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
-                                if (Owner.data.Traits.Cybernetic > 0)
-                                {
-                                    WorkerPercentage += FarmerPercentage;
-                                    FarmerPercentage = 0;
-                                }
-                                SetExportState(colonyType);
-                            }
-                    break;
-                }
-
-                #endregion
-            } //End Switch
+                            SetExportState(colonyType);
+                        }
+                        break;
+                    }
+            } //End Gov type Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
                 colonyType != ColonyType.Research) 
@@ -2535,40 +2512,6 @@ namespace Ship_Game
                 #region Troops and platforms
 
             {
-                //Added by McShooterz: Colony build troops
-
-                #region MyRegion
-
-                if (Owner.isPlayer && colonyType == ColonyType.Military)
-                {
-                    bool addTroop = false;
-                    foreach (PlanetGridSquare planetGridSquare in TilesList)
-                    {
-                        if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
-                        {
-                            addTroop = true;
-                            break;
-                        }
-                    }
-                    if (addTroop && AllowInfantry)
-                    {
-                        foreach (string troopType in ResourceManager.TroopTypes)
-                        {
-                            if (!Owner.WeCanBuildTroop(troopType))
-                                continue;
-                            QueueItem qi = new QueueItem();
-                            qi.isTroop = true;
-                            qi.troopType = troopType;
-                            qi.Cost = ResourceManager.GetTroopCost(troopType);
-                            qi.productionTowards = 0f;
-                            qi.NotifyOnEmpty = false;
-                            ConstructionQueue.Add(qi);
-                            break;
-                        }
-                    }
-                }
-
-                #endregion
 
                 //Added by McShooterz: build defense platforms
 

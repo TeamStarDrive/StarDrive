@@ -115,7 +115,7 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        public bool GovernorOn = true;
+        public bool GovernorOn = true;  //This can be removed...It is set all over the place, but never checked. -Gretman
         public float ObjectRadius
         {
             get => SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius;
