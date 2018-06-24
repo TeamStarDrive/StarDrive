@@ -791,9 +791,10 @@ namespace Ship_Game
             if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                 MoveShipGroupToLocation(fleet, fleet.Ships);
             else
-                fleet.FormationWarpTo(movePosition, facing, vectorToTarget);
-            
+                //fleet.FormationWarpTo(movePosition, fleet.FindAveragePosition().RadiansToTarget(movePosition), Vector2.Normalize(movePosition - fleet.FindAveragePosition()));// vectorToTarget);
+                fleet.FormationWarpTo(movePosition, facing, Vector2.Normalize(movePosition - fleet.FindAveragePosition()));// vectorToTarget);
 
+            //FormationWarpTo(task.AO, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
             //FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(position),
             //    Vector2.Normalize(position - FindAveragePosition()));
 

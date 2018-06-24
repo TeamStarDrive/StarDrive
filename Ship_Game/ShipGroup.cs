@@ -222,7 +222,7 @@ namespace Ship_Game
             GoalStack?.Clear();
             Position = movePosition;
             Facing = facing;
-            AssembleFleet(facing, fvec);
+            AssembleFleet(facing, fvec, true);
             using(Ships.AcquireReadLock())
             foreach (Ship ship in Ships)
             {
