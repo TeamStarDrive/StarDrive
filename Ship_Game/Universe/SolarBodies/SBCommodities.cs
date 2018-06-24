@@ -80,11 +80,11 @@ namespace Ship_Game.Universe.SolarBodies
         
         public float HarvestFood()
          {
-            float unfed = 0.0f;
+            float unfed = 0.0f;     //Pop that did not get any food
             if (Owner.data.Traits.Cybernetic > 0)
             {
-                FoodHereActual = 0.0f;
-                Ground.NetProductionPerTurn -= Ground.Consumption;
+                FoodHereActual = 0.0f;      //Seems unused
+                Ground.NetProductionPerTurn -= Ground.Consumption;  //Reduce production by how much is consumed
 
                 float productionHere = Math.Min(0, ProductionHere + Ground.NetProductionPerTurn);
                 
@@ -104,8 +104,8 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
-                Ground.NetFoodPerTurn -= Ground.Consumption;            //Why is this modifying the planets netfood variable?!
-                float foodHere = FoodHere + Ground.NetFoodPerTurn;
+                Ground.NetFoodPerTurn -= Ground.Consumption;            //Reduce food by how much is consumed
+                float foodHere = FoodHere + Ground.NetFoodPerTurn;      //Add any remaining to storage
                  
                 if (foodHere >= Ground.MaxStorage)
                 {
