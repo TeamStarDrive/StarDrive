@@ -201,11 +201,8 @@ namespace Ship_Game.Ships
 
         public bool Is(ShipModuleType type)
         {
-            if (ModuleType != type)
-            {
-                if (type == ShipModuleType.PowerPlant)
-                    return Flyweight.PowerFlowMax >= 1f;
-            }
+            if (type == ShipModuleType.PowerPlant)
+                return Flyweight.PowerFlowMax >= 1f;
             return ModuleType == type;
         }
 
