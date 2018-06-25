@@ -199,9 +199,18 @@ namespace Ship_Game.Ships
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
 
+        public bool Is(ShipModuleType type)
+        {
+            if (ModuleType != type)
+            {
+                if (type == ShipModuleType.PowerPlant)
+                    return Flyweight.PowerFlowMax >= 1f;
+            }
+            return ModuleType == type;
+        }
+
         // this is the design spec of the module
         private float TemplateMaxHealth;
-
 
         public float HealthPercent => Health / ActualMaxHealth;
 
