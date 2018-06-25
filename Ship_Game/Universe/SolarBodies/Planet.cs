@@ -544,7 +544,7 @@ namespace Ship_Game
                 if (Fertility > 1.0)
                     Fertility = 1f;
             }
-            DoGoverning();  //Mer
+            DoGoverning();
             UpdateIncomes(false);
 
             // notification about empty queue
@@ -1806,8 +1806,9 @@ namespace Ship_Game
             if (building.PlusTaxPercentage != 0)
             {
                 score = 0;
-                if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * income * 2;
-                else score += (building.PlusTaxPercentage * income) / 2;
+
+                if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * GrossMoneyPT * 2;
+                else score += building.PlusTaxPercentage * GrossMoneyPT / 2;
                 finalScore += score;
             }
 
@@ -1990,27 +1991,6 @@ namespace Ship_Game
                         //Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
                         //Log.Info(ConsoleColor.Gray, "bioSphere construction rejected.");
                     }
-                    //StorageAdded
-
-                    //PlusFlatFoodAmount
-                    //PlusFoodPerColonist
-
-                    //PlusFlatPopulation
-                    //MaxPopIncrease
-
-                    //PlusProdPerRichness
-                    //PlusFlatProductionAmount
-                    //PlusProdPerColonist
-
-                    //PlusResearchPerColonist
-                    //PlusFlatResearchAmount
-
-                    //CreditsPerColonist
-                    //PlusTaxPercentage
-                    //AllowShipBuilding
-
-                    //PlusTerraformPoints
-                    //MinusFertilityOnBuild
 
                     break;
 
@@ -2750,7 +2730,6 @@ namespace Ship_Game
             PlusProductionPerColonist = 0f;
             FlatFoodAdded = 0f;
             PlusFoodPerColonist = 0f;
-
             PlusFlatPopulationPerTurn = 0f;
             ShipBuildingModifier = 0f;
             CommoditiesPresent.Clear();
@@ -2783,7 +2762,6 @@ namespace Ship_Game
             ShipBuildingModifier = shipbuildingmodifier;
             foreach (Guid key in list)
             {
-
                 Shipyards.Remove(key);
             }
             PlusCreditsPerColonist = 0f;
@@ -2801,36 +2779,23 @@ namespace Ship_Game
                 if (building.AllowShipBuilding || building.Name == "Space Port" )
                     shipyard= true;
                 
-                if (building.PlusFlatPopulation > 0)
-                    PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
+                PlusFlatPopulationPerTurn += building.PlusFlatPopulation;
                 ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
                 PlusCreditsPerColonist += building.CreditsPerColonist;
-                if (building.PlusTerraformPoints > 0)
-                    TerraformToAdd += building.PlusTerraformPoints;
-                if (building.Strength > 0)
-                    TotalDefensiveStrength += building.CombatStrength;
+                TerraformToAdd += building.PlusTerraformPoints;
+                TotalDefensiveStrength += building.CombatStrength;
                 PlusTaxPercentage += building.PlusTaxPercentage;
-                if (building.IsCommodity)
-                    CommoditiesPresent.Add(building.Name);
-                if (building.AllowInfantry)
-                    AllowInfantry = true;
-                if (building.StorageAdded > 0)
-                    storageAdded += building.StorageAdded;
-                if (building.PlusFoodPerColonist > 0)
-                    PlusFoodPerColonist += building.PlusFoodPerColonist;
-                if (building.PlusResearchPerColonist > 0)
-                    PlusResearchPerColonist += building.PlusResearchPerColonist;
-                if (building.PlusFlatResearchAmount > 0)
-                    PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
-                if (building.PlusProdPerRichness > 0)
-                    PlusFlatProductionPerTurn += building.PlusProdPerRichness * MineralRichness;
+                CommoditiesPresent.Add(building.Name);
+                if (building.AllowInfantry) AllowInfantry = true;
+                storageAdded += building.StorageAdded;
+                PlusFoodPerColonist += building.PlusFoodPerColonist;
+                PlusResearchPerColonist += building.PlusResearchPerColonist;
+                PlusFlatResearchPerTurn += building.PlusFlatResearchAmount;
+                PlusFlatProductionPerTurn += building.PlusProdPerRichness * MineralRichness;
                 PlusFlatProductionPerTurn += building.PlusFlatProductionAmount;
-                if (building.PlusProdPerColonist > 0)
-                    PlusProductionPerColonist += building.PlusProdPerColonist;
-                if (building.MaxPopIncrease > 0)
-                    MaxPopBonus += building.MaxPopIncrease;
-                if (building.Maintenance > 0)
-                    TotalMaintenanceCostsPerTurn += building.Maintenance * Owner.data.Traits.MaintMod;
+                PlusProductionPerColonist += building.PlusProdPerColonist;
+                MaxPopBonus += building.MaxPopIncrease;
+                TotalMaintenanceCostsPerTurn += building.Maintenance;
                 FlatFoodAdded += building.PlusFlatFoodAmount;
                 RepairPerTurn += building.ShipRepair;
                 //Repair if no combat
@@ -2848,14 +2813,14 @@ namespace Ship_Game
             else
                 HasShipyard = false;
             //Research
-            NetResearchPerTurn =  (ResearcherPercentage * Population / 1000) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
+            NetResearchPerTurn = (ResearcherPercentage * Population / 1000) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn + Owner.data.Traits.ResearchMod * NetResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn - Owner.data.TaxRate * NetResearchPerTurn;
             //Food
             NetFoodPerTurn =  (FarmerPercentage * Population / 1000 * (Fertility + PlusFoodPerColonist)) + FlatFoodAdded;
-            GrossFood = NetFoodPerTurn;
+            GrossFood = NetFoodPerTurn;     //NetFoodPerTurn is finished being calculated in another file...
             //Production
-            NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
+            NetProductionPerTurn = (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
             MaxProductionPerTurn = GetMaxProductionPotentialCalc();
 
@@ -2878,13 +2843,6 @@ namespace Ship_Game
                     Station.SetVisibility(true, Empire.Universe.ScreenManager, this);
             }
             
-            if(Owner.data.Traits.Cybernetic >0)
-            {
-                if(Population > 0.1 && NetProductionPerTurn <= 0)
-                {
-
-                }
-            }
             //Money
             GrossMoneyPT = Population / 1000f;
             GrossMoneyPT += PlusTaxPercentage * GrossMoneyPT;
@@ -2897,7 +2855,7 @@ namespace Ship_Game
         private void HarvestResources()
         {
             Unfed = SbCommodities.HarvestFood();
-            SbCommodities.BuildingResources();            
+            SbCommodities.BuildingResources();              //Building resources is unused?
         }
 
         public float GetGoodAmount(string good) => SbCommodities.GetGoodAmount(good);

@@ -156,7 +156,7 @@ namespace Ship_Game.Ships
 
             Position += Velocity * elapsedTime;
             Center   += Velocity * elapsedTime;
-            UpdateShipStatus(elapsedTime); //Mer
+            UpdateShipStatus(elapsedTime);
 
             if (InFrustum)
             {
