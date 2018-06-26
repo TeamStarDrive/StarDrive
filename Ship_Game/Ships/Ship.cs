@@ -1491,7 +1491,7 @@ namespace Ship_Game.Ships
             scores[3] = 0;
             foreach (ShipModule module in ModuleSlotList)
             {
-                switch (module.ModuleType)
+                switch (module.ModuleType) // FB: using main module type since we want the main module funcion here
                 {                    
                     case ShipModuleType.Turret:
                     case ShipModuleType.MainGun:
@@ -2076,6 +2076,9 @@ namespace Ship_Game.Ships
                 }
 
                 //Power draw based on warp
+                // FB: this one breaks ship design since ship design does take shield power draw at warp into consideration, so ships
+                // were desgined with a lot more power reactors than they actually need.
+                // @todo  add shield draw to warp power calcs since you have full shields when you drop out of warp, to align with ship design
                 if (!inborders && engineState == MoveState.Warp)
                 {
                     PowerDraw = (loyalty.data.FTLPowerDrainModifier * ModulePowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
@@ -2481,7 +2484,7 @@ namespace Ship_Game.Ships
                     Mass += module.Mass;
                 else if (module.Mass > 0.0)
                 {
-                    if (module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                    if (module.Is(ShipModuleType.Armor) && loyalty != null)
                     {
                         float armourMassModifier = loyalty.data.ArmourMassModifier;
                         float armourMass = module.Mass * armourMassModifier;
