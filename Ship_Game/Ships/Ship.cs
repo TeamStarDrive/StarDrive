@@ -28,8 +28,7 @@ namespace Ship_Game.Ships
         public float RepairRate = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
-        public float maxBank = 0.5235988f;
-
+        public float maxBank => GetMaxBank(0.5235988f); 
         public Vector2 Acceleration { get; private set; }
 
         public Vector2 projectedPosition;
@@ -286,6 +285,34 @@ namespace Ship_Game.Ships
             }
 
             return size;
+        }
+
+        private float GetMaxBank(float mBank)
+        {
+            switch (shipData.Role)
+            {
+                default:
+                    return mBank;
+                case ShipData.RoleName.drone:
+                case ShipData.RoleName.scout:
+                case ShipData.RoleName.fighter:
+                    return mBank * 2.1f;
+                case ShipData.RoleName.corvette:
+                    return mBank * 1.5f;
+            }
+        }
+
+        private float GetyBankAmount(float yBank)
+        {
+            switch (shipData.Role)
+            {
+                default:
+                    return yBank;
+                case ShipData.RoleName.drone:
+                case ShipData.RoleName.scout:
+                case ShipData.RoleName.fighter:
+                    return yBank * 2f;
+            }
         }
 
         public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
@@ -2199,7 +2226,7 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             rotationRadiansPerSecond += (float)(rotationRadiansPerSecond * Level * 0.0500000007450581);
-            yBankAmount = rotationRadiansPerSecond * deltaTime;// 50f;
+            yBankAmount =  GetyBankAmount(rotationRadiansPerSecond * deltaTime);// 50f;
 
             Vector2 oldVelocity = Velocity;
             if (engineState == MoveState.Warp)
