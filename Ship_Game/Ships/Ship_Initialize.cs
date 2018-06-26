@@ -495,7 +495,7 @@ namespace Ship_Game.Ships
                 HasRepairModule |= module.IsRepairModule;
 
                 float massModifier = 1f;
-                if (module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                if (module.Is(ShipModuleType.Armor) && loyalty != null)
                     massModifier = loyalty.data.ArmourMassModifier;
                 Mass += module.Mass * massModifier;
 
@@ -508,12 +508,12 @@ namespace Ship_Game.Ships
                 PowerCurrent  += module.ActualPowerStoreMax;
                 PowerFlowMax  += module.ActualPowerFlowMax;
                 shield_max    += module.ActualShieldPowerMax;
-                if (module.ModuleType == ShipModuleType.Armor)
+                if (module.Is( ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
                 CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax  += module.OrdinanceCapacity;
-                if (module.ModuleType == ShipModuleType.Shield) ShieldPowerDraw += module.PowerDraw;
+                if (module.ModuleType == ShipModuleType.Shield) ShieldPowerDraw += module.PowerDraw; //FB: we want primary type shield here
                 else                                            ModulePowerDraw += module.PowerDraw;
                 if (module.FTLSpoolTime > FTLSpoolTime)
                     FTLSpoolTime = module.FTLSpoolTime;

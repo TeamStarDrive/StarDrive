@@ -199,9 +199,19 @@ namespace Ship_Game.Ships
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
 
+        // FB: This method was created to deal with modules which have secondary fucntionality. Use this whenever you want to check 
+        // moduletypes for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - shipdesign screen)
+        public bool Is(ShipModuleType type)
+        {
+            if (type == ShipModuleType.PowerPlant)
+                return Flyweight.PowerFlowMax >= 1f;
+            if (type == ShipModuleType.Shield)
+                return Flyweight.shield_power_max >= 1f;
+            return ModuleType == type;
+        }
+
         // this is the design spec of the module
         private float TemplateMaxHealth;
-
 
         public float HealthPercent => Health / ActualMaxHealth;
 
@@ -293,25 +303,25 @@ namespace Ship_Game.Ships
             module.UpdateModuleRadius();
 
             // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Command         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure  ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Drone           ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Engine          ? 2 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell        ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Hangar          ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MainGun         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance        ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant      ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Sensors         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Shield          ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb       ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Special         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Turret          ? 1 : 0;
-            module.TargetValue += module.explodes ? 2 : 0;
-            module.TargetValue += module.isWeapon ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Armor)             ? -1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Bomb)              ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Command)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Countermeasure)    ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Drone)             ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Engine)            ? 2 : 0;
+            module.TargetValue += module.Is(ShipModuleType.FuelCell)          ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Hangar)            ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.MainGun)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.MissileLauncher)   ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Ordnance)          ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.PowerPlant)        ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Sensors)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Shield)            ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Spacebomb)         ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Special)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Turret)            ? 1 : 0;
+            module.TargetValue += module.explodes                             ? 2 : 0;
+            module.TargetValue += module.isWeapon                             ? 1 : 0;
             return module;
         }
 
@@ -894,8 +904,8 @@ namespace Ship_Game.Ships
         public float ActualMass(bool inPowerRadius)
         {
             if (Mass < 0f && inPowerRadius)
-                return ModuleType != ShipModuleType.Armor ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
-            return ModuleType != ShipModuleType.Armor ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+                return !Is(ShipModuleType.Armor) ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
+            return !Is(ShipModuleType.Armor) ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
         }
 
         // @note This is called every frame for every module for every ship in the universe
@@ -935,7 +945,7 @@ namespace Ship_Game.Ships
             return repairLeft;
         }
 
-        // Used for picking best repair candidate
+        // Used for picking best repair candidate based on main  moduletype (disregard secondary module fucntions)
         public int ModulePriority
         {
             get
@@ -997,7 +1007,7 @@ namespace Ship_Game.Ships
 
             float def = 0f;
 
-            def += ActualMaxHealth * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
+            def += ActualMaxHealth * ((Is(ShipModuleType.Armor) ? (XSIZE) : 1f) / (slotCount * 4));
 
             // FB: Added Shield related calcs
             float shieldsMax = ActualShieldPowerMax;

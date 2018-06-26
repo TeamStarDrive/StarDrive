@@ -423,7 +423,7 @@ namespace Ship_Game.Ships
                     continue;
                 }                
                 //Filter by powerplants. 
-                if (module.ModuleType != ShipModuleType.PowerPlant || !module.Active) continue;
+                if (!module.Is(ShipModuleType.PowerPlant) || !module.Active) continue;
                 //This is a change. powerplants are now marked powered 
                 module.Powered = true;
                 Vector2 moduleCenter = module.LocalCenter;
