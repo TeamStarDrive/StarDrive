@@ -340,7 +340,7 @@ namespace Ship_Game
                 DistributePowerFrom(powerSource);
 
                 // only PowerPlants can power conduits
-                if (module.ModuleType == ShipModuleType.PowerPlant)
+                if (module.Is(ShipModuleType.PowerPlant))
                     ConnectPowerConduits(powerSource);
             }
 
