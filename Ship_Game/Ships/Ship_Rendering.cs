@@ -411,7 +411,7 @@ namespace Ship_Game.Ships
             screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             foreach (ShipModule slot in ModuleSlotList)
             {
-                if (slot.Active && slot.ModuleType == ShipModuleType.Shield && slot.ShieldPower >= 1f)
+                if (slot.Active && slot.Is(ShipModuleType.Shield) && slot.ShieldPower >= 1f)
                 {
                     screen.ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
