@@ -227,45 +227,47 @@ namespace Ship_Game.AI {
         private void MoveToWithin1000(float elapsedTime, ShipGoal goal)
         {
             var distWaypt = 15000f; //fbedard
-            if (ActiveWayPoints.Count > 1)
-                distWaypt = Empire.ProjectorRadius / 2f;
+            lock (WayPointLocker)
+            {
+                if (ActiveWayPoints.Count > 1)
+                    distWaypt = Empire.ProjectorRadius / 2f;
+            }
 
             if (OrderQueue.NotEmpty && OrderQueue[1].Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
-                    ActiveWayPoints.Last().Equals(goal.TargetPlanet.Center);
+                    //ActiveWayPoints.Last() = goal.TargetPlanet.Center;
                     goal.MovePosition = goal.TargetPlanet.Center;
                 }
             float speedLimit = (int) Owner.Speed;
             float distance = Owner.Center.Distance(goal.MovePosition);
-            if (ActiveWayPoints.Count <= 1)
-                if (distance < Owner.Speed)
-                    speedLimit = distance;
+            lock (WayPointLocker)
+            {
+                if (ActiveWayPoints.Count <= 1)
+                    if (distance < Owner.Speed)
+                        speedLimit = distance;
+            }
             ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
-            if (ActiveWayPoints.Count <= 1)
+            lock (WayPointLocker)
             {
-                if (distance <= 1500f)
-                    lock (WayPointLocker)
-                    {
-                        if (ActiveWayPoints.Count > 1)
-                            ActiveWayPoints.Dequeue();
-                        if (OrderQueue.NotEmpty)
-                            OrderQueue.RemoveFirst();
-                    }
-            }
-            else if (Owner.engineState == Ship.MoveState.Warp)
-            {
-                if (distance <= distWaypt)
-                    lock (WayPointLocker)
-                    {
+                if (ActiveWayPoints.Count <= 1)
+                {
+                    if (distance > 1500f) return;
+
+                    if (ActiveWayPoints.Count > 1)
                         ActiveWayPoints.Dequeue();
-                        if (OrderQueue.NotEmpty)
-                            OrderQueue.RemoveFirst();
-                    }
-            }
-            else if (distance <= 1500f)
-            {
-                lock (WayPointLocker)
+                    if (OrderQueue.NotEmpty)
+                        OrderQueue.RemoveFirst();
+                }
+                else if (Owner.engineState == Ship.MoveState.Warp)
+                {
+                    if (distance > distWaypt) return;
+
+                    ActiveWayPoints.Dequeue();
+                    if (OrderQueue.NotEmpty)
+                        OrderQueue.RemoveFirst();
+                }
+                else if (distance <= 1500f)
                 {
                     ActiveWayPoints.Dequeue();
                     if (OrderQueue.NotEmpty)
@@ -332,7 +334,22 @@ namespace Ship_Game.AI {
         {
             if (!Owner.loyalty.PathCache.TryGetValue(startp, out Map<Point, Empire.PatchCacheEntry> pathstart)
                 || !pathstart.TryGetValue(endp, out Empire.PatchCacheEntry pathend))
+            {
+                foreach (var paths in Owner.loyalty.PathCache.Values)
+                {
+                    if (!paths.TryGetValue(endp, out Empire.PatchCacheEntry path))
+                        continue;
+                    foreach(var wayPoint in path.Path)
+                    {
+                        if (wayPoint.X.AlmostEqual(startp.X,1000) && wayPoint.Y.AlmostEqual(startp.Y,1000))
+                        {
+                            Log.Info("could have used existing path");
+                        }
+                    }
+                }
+
                 return false;
+            }
 
             lock (WayPointLocker)
             {
@@ -397,53 +414,57 @@ namespace Ship_Game.AI {
                 var pathpoints = path.FindPath(startp, endp);
                 lock (WayPointLocker)
                 {
-                    if (pathpoints != null)
+                    if (pathpoints == null)
                     {
-                        var cacheAdd = new Array<Vector2>();
-                        //byte lastValue =0;
-                        int y = pathpoints.Count() - 1;
-                        for (int x = y; x >= 0; x -= 2)
-                        {
-                            PathFinderNode pnode = pathpoints[x];
+                        ActiveWayPoints.Enqueue(endPos);
+                        return;
+                    }
 
-                            var translated = new Vector2((pnode.X - granularity) * reducer,
-                                (pnode.Y - granularity) * reducer);
-                            if (translated == Vector2.Zero)
-                                continue;
-                            cacheAdd.Add(translated);
+                    var cacheAdd = new Array<Vector2>();
+                    //byte lastValue =0;
+                    int y = pathpoints.Count - 1;
+                    for (int x = y; x >= 0; x -= 2)
+                    {
+                        PathFinderNode pnode = pathpoints[x];
 
-                            if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius * 2
-                                && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius * 2)
-                                ActiveWayPoints.Enqueue(translated);
-                        }
+                        var worldPosition = new Vector2((pnode.X - granularity) * reducer,
+                            (pnode.Y - granularity) * reducer);
+                        if (worldPosition == Vector2.Zero)
+                            continue;
+                        cacheAdd.Add(worldPosition);
 
-                        var cache = Owner.loyalty.PathCache;
-                        if (!cache.ContainsKey(startp))
+                        if (Vector2.Distance(worldPosition, endPos) > Empire.ProjectorRadius * 2
+                            && Vector2.Distance(worldPosition, startPos) > Empire.ProjectorRadius * 2)
+                            ActiveWayPoints.Enqueue(worldPosition);
+                    }
+
+                    var cache = Owner.loyalty.PathCache;
+                    if (!cache.ContainsKey(startp))
+                    {
+                        using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
                         {
-                            using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
-                            {
-                                var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                                cache[startp] = new Map<Point, Empire.PatchCacheEntry> {{endp, endValue}};
-                                Owner.loyalty.pathcacheMiss++;
-                            }
-                        }
-                        else if (!cache[startp].ContainsKey(endp))
-                        {
-                            using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
-                            {
-                                var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                                cache[startp].Add(endp, endValue);
-                                Owner.loyalty.pathcacheMiss++;
-                            }
-                        }
-                        else
-                        {
-                            using (Owner.loyalty.LockPatchCache.AcquireReadLock())
-                            {
-                                PathCacheLookup(startp, endp, startPos, endPos);
-                            }
+                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                            cache[startp] = new Map<Point, Empire.PatchCacheEntry> {{endp, endValue}};
+                            Owner.loyalty.pathcacheMiss++;
                         }
                     }
+                    else if (!cache[startp].ContainsKey(endp))
+                    {
+                        using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
+                        {
+                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                            cache[startp].Add(endp, endValue);
+                            Owner.loyalty.pathcacheMiss++;
+                        }
+                    }
+                    else
+                    {
+                        using (Owner.loyalty.LockPatchCache.AcquireReadLock())
+                        {
+                            PathCacheLookup(startp, endp, startPos, endPos);
+                        }
+                    }
+
                     ActiveWayPoints.Enqueue(endPos);
                     return;
                 }

@@ -20,23 +20,28 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
 
-        public void AlterOrdinance(float amount)
+        public float ChangeOrdnance(float ordnance)
         {
-            Ordinance += amount;
-            Ordinance = Ordinance > OrdinanceMax ? OrdinanceMax : Ordinance < 0 ? 0 : Ordinance;            
+            float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamp(0, ordnance);
+            Ordinance = (Ordinance += ordnance).Clamp(0, OrdinanceMax);
+            return ordnanceLeft;
         }
+
         public float FighterLaunchCost => Mass / 5f;
+
         public bool ApplyFighterLaunchCost(bool pay = true)
         {
             float cost = FighterLaunchCost;
             if (!pay)
             {
-                Mothership.AlterOrdinance(cost);
+                Mothership.ChangeOrdnance(cost);
                 return true;
             }
 
-            if (!(Mothership.Ordinance - cost > 0)) return false;
-            Mothership.AlterOrdinance(-cost);
+            if (!(Mothership.Ordinance - cost > 0))
+                return false;
+
+            Mothership.ChangeOrdnance(-cost);
             return true;
         }
         private sealed class CargoContainer
