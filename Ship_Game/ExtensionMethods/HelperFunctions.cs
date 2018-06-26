@@ -324,7 +324,7 @@ namespace Ship_Game
             return rounded;
         }
 
-        // Added by McShooterz: module repair priority list
+        // Added by McShooterz: module repair priority list, main moduletype (disregard secondary module fucntions)
         public static int ModulePriority(ShipModule shipModule)
         {
             switch (shipModule.ModuleType)
