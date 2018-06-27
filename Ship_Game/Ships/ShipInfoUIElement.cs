@@ -650,7 +650,7 @@ namespace Ship_Game.Ships
                     {
                         ValueToModify = new Ref<bool>(() => Ship.FightersOut, (bool x) =>
                         {
-                            Ship.FightersOut = x;
+                            Ship.FightersOut = !Ship.FightersOut;
                         })
                     };
                     Orders.Add(ob);

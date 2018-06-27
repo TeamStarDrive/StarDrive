@@ -751,13 +751,19 @@ namespace Ship_Game.Ships
                 return;
             if (hangarShip != null && hangarShip.Active)
             {
-                if (hangarShip.AI.State == AIState.ReturnToHangar
+                if (hangarShip.AI.HasPriorityTarget
+                    || hangarShip.AI.IgnoreCombat
+                    || hangarShip.AI.Target != null
+                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar)
+                )
+                    /*
+                    if (hangarShip.AI.State == AIState.ReturnToHangar
                     || hangarShip.AI.HasPriorityOrder
                     || hangarShip.AI.HasPriorityTarget
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
                     || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
-                )
+                )*/
                     return;
                 hangarShip.DoEscort(Parent);
                 return;
@@ -1206,7 +1212,8 @@ namespace Ship_Game.Ships
             {
                 if (IsTroopBay || IsSupplyBay) return false;
 
-                return hangarShip?.Active == true && hangarTimer <= 0;
+                //return hangarShip?.Active == true && hangarTimer <= 0;
+                return hangarShip?.Active == true;
             }
         }
 

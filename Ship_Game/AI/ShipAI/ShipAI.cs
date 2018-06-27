@@ -367,7 +367,10 @@ namespace Ship_Game.AI
                             || hangar.GetHangarShip().AI.HasPriorityOrder
                         )
                             continue;
-                        hangar.GetHangarShip().DoEscort(Owner);
+                        if (Owner.FightersOut)
+                            hangar.GetHangarShip().DoEscort(Owner);
+                        else
+                            hangar.GetHangarShip().AI.OrderReturnToHangar();
                     }
                 }
             }
