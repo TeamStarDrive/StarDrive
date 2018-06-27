@@ -1541,9 +1541,117 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0) return 0.0f;
 
             float workers = (Consumption - FlatFoodAdded) / (Population / 1000) / (Fertility + PlusFoodPerColonist);
-            if (workers > 1.0f) return 1.0f;
-            if (workers < 0.0f) return 0.0f;
-            else return workers;
+            if (workers > 1.0f) workers = 1.0f;
+            if (workers < 0.0f) workers = 0.0f;
+            return workers;
+        }
+
+        //This will calculate a smooth transition to maintain [percent]% of stored food. It will under-farm if over
+        //[percent]% of storage, or over-farm if under it, as to maintain [percentage]% of storage.
+        private float FarmToPercentage(float percent)
+        {
+            if (MaxStorage == 0 || percent == 0) return 1;
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return 1; //No farming here, so nevermind
+            float storedFoodRatio = FoodHere / MaxStorage;      //Percentage of Food Storage currently filled
+            float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
+
+            float modFarmers = percent - storedFoodRatio;       //Amount currently over or under desired storage
+            if (modFarmers > 0 && modFarmers < 0.1)  modFarmers =  0.1f;    //Avoid crazy small percentage
+            if (modFarmers < 0 && modFarmers > -0.1) modFarmers =  0;       //Avoid bounce (stop if slightly over)
+            if (modFarmers > 0.5)  modFarmers =  0.5f;          //Also avoid too large of a deviation from min
+            if (modFarmers < -0.5) modFarmers = -0.5f;
+
+            minFarmers += minFarmers * modFarmers;              //modify nominal farmers by overage or underage as decrease or increase in nominal farmers
+            if (minFarmers > 0.9f) minFarmers = 0.9f;           //Tame resulting value, dont let farming completely consume all labor
+            if (minFarmers < 0.0f) minFarmers = 0.0f;
+            FarmerPercentage = minFarmers;                      //Assign Farmers
+            return 1 - minFarmers;                              //Return leftover labor %
+        }
+
+        private float WorkToPercentage(float percent)  //Maintain [percentage] stored production, allocate more or less as needed
+        {
+            if (MaxStorage == 0 || percent == 0) return percent;
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return percent; //No farming here, so skip it
+            float storedFoodRatio = FoodHere / MaxStorage;      //Percent of Food Storage filled
+            float minFarmers = 0;
+
+            minFarmers += percent - storedFoodRatio;
+            if (minFarmers > 0 && minFarmers < 0.1) minFarmers = 0.1f;      //Avoid crazy small percentage of workers
+            if (minFarmers < 0 && minFarmers > -0.1) minFarmers = -0.1f;        
+            return minFarmers;
+        }
+
+        private void workerFillOrResearch(float labor)
+        {
+            if (MaxStorage == 0 || labor == 0) return;
+            float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+            float storedFoodRatio = FoodHere / MaxStorage;      //Storage filled
+            float storedProdRatio = ProductionHere / MaxStorage;
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1; //No farming here, so skip it
+
+            if (Owner.data.Traits.Cybernetic > 0)       //Stop producing early, since the flat food/production will continue to pile up
+            {
+                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.5f * (PlusFlatProductionPerTurn - maxPop);
+            }
+            else
+            {
+                if (FlatFoodAdded > maxPop) storedFoodRatio += 0.5f * (FlatFoodAdded - maxPop);
+                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.5f * PlusFlatProductionPerTurn;
+            }
+
+            if (storedFoodRatio > 1) storedFoodRatio = 1;
+            if (storedProdRatio > 1) storedProdRatio = 1;
+
+            float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
+            float workers = 1 - storedProdRatio;
+            if (farmers > 0.5f) farmers = 0.5f;    //Dont allocate more than 50% of labor to each
+            if (workers > 0.5f) workers = 0.5f;
+            farmers = 0.5f - farmers;               //Determine ratio of labor to allocate
+            workers = 0.5f - workers;
+            if (farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
+            if (workers < 0.1f) workers = 0.1f;
+            FarmerPercentage += farmers * labor;    //Allocate labor
+            WorkerPercentage += workers * labor;
+            ResearcherPercentage += (1 - farmers - workers) * labor;        //Leftovers go to Research
+        }
+
+        private float workerFoodOrResearch (float labor) //Make return unused labor?
+        {
+            if (MaxStorage == 0 || labor == 0) return 0;
+            if (Owner.data.Traits.Cybernetic > 0) return workerProdOrResearch(labor);  //Hand off to Prod instead;
+            float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+            float storedFoodRatio = FoodHere / MaxStorage;      //How much of Storage is filled
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1; //No farming here, so skip it
+
+                   //Stop producing food early, since the flat food will continue to pile up
+            if (FlatFoodAdded > maxPop) storedFoodRatio += 0.5f * (FlatFoodAdded - maxPop);
+
+            if (storedFoodRatio > 1) storedFoodRatio = 1;
+            float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
+            if (farmers < 0.5f) farmers *= 2;
+            else farmers = 1;                       //Taper allocation if over half
+            FarmerPercentage += farmers;
+            return 1 - farmers;
+
+        }
+
+        private float workerProdOrResearch(float labor)
+        {
+            if (MaxStorage == 0 || labor == 0) return 0;
+            float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+            float storedProdRatio = ProductionHere / MaxStorage;    //How much of Storage is filled
+
+            if (Owner.data.Traits.Cybernetic > 0)       //Stop producing early, since the flat production will continue to pile up
+            {
+                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.5f * (PlusFlatProductionPerTurn - maxPop);
+            }
+            else
+            {
+                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.5f * PlusFlatProductionPerTurn;
+            }
+
+            if (storedProdRatio > 1) storedProdRatio = 1;
+            return 1;
         }
 
         private bool workerFillStorage(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
@@ -1551,7 +1659,7 @@ namespace Ship_Game
             if (MaxStorage == 0) return false;
             float storedFoodRatio = FoodHere / MaxStorage;
             float storedProdRatio = ProductionHere / MaxStorage;
-            if (Fertility + PlusFoodPerColonist <= 0.1 || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
             if (PlusFlatProductionPerTurn > 0) storedProdRatio += PlusFlatProductionPerTurn * .05f;     //Dont top off if there is flatprod, since we cant turn it off
 
             if (storedFoodRatio < percentage && storedProdRatio < percentage)
@@ -1574,51 +1682,6 @@ namespace Ship_Game
             return false;
         }
 
-        private bool workerFillStorageFood(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
-        {
-            float storedFoodRatio = FoodHere / (MaxStorage + 0.0001f);
-            if (Fertility + PlusFoodPerColonist <= 0.1 || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
-
-            if (storedFoodRatio < percentage)
-            {
-                FarmerPercentage += workers;
-                return true;
-            }
-            else return false;
-        }
-
-        private bool workerFillStorageProd(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
-        {
-            float storedProdRatio = ProductionHere / (MaxStorage + 0.0001f);
-
-            if (storedProdRatio < percentage)
-            {
-                WorkerPercentage += workers;
-                return true;
-            }
-            else return false;
-        }
-
-        private bool ShouldWeBuildThis(float maintCost, bool acceptLoss = false)
-        {
-            if (Owner.Money < 0.0 || Owner.MoneyLastTurn <= 0.0) return false;   //You have bad credit!
-            float acceptableLoss = Owner.data.FlatMoneyBonus * 0.05f;
-            if (acceptLoss) acceptableLoss += Math.Min(0.5f, Math.Min(Owner.Money * 0.01f, Owner.MoneyLastTurn * 0.1f));
-
-            if (GrossMoneyPT + acceptableLoss > TotalMaintenanceCostsPerTurn + maintCost) return true;
-            else return false;
-        }
-
-        private Building WhichIsBetter(Building first, Building second, Func<Building, float> property)
-        {
-            if (first == null) return second;
-
-            //Resource provided / maintenance gives a good simple way to look at efficiency
-            if (second.PlusFlatFoodAmount / (second.Maintenance + 0.0001f) > first.PlusFlatFoodAmount / (first.Maintenance + 0.0001f))
-                return second;
-            else return first;
-        }   //Building bestCost   = Building.SelectGreater(first, second, b => b.Cost);
-
         private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
         {
             float finalScore = 0.0f;    //End result score for entire building
@@ -1636,7 +1699,7 @@ namespace Ship_Game
                 score += building.Maintenance * 2;  //Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
                 if (income < building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod)
                     score += score + (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod);   //Really dont want this if we cant afford it
-                score -= Owner.data.FlatMoneyBonus * 0.03f;      //Acceptible loss (Note what this will do at high Difficulty)
+                score -= Owner.data.FlatMoneyBonus * 0.015f;      //Acceptible loss (Note what this will do at high Difficulty)
 
                 finalScore -= score;
             }
@@ -1912,6 +1975,7 @@ namespace Ship_Game
 
                 #region Core
                 {
+                    
                     //New resource management by Gretman
                     FarmerPercentage = foodMinimum;
                     WorkerPercentage = 0.0f;
@@ -1927,8 +1991,7 @@ namespace Ship_Game
                         leftoverWorkers -= allocateWorkers;
 
                         if (littleInQueueToBuild) WorkerPercentage += allocateWorkers;          //First priority project for this group is build shit
-                        else if (workerFillStorage(allocateWorkers, 0.60f)) ;                   //Second priority is to fill storage up to 60%
-                        else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                        else if (workerFillStorage(allocateWorkers, 1));                           //Second priority is to fill storage up to 60%
                         else ResearcherPercentage += allocateWorkers;                           //Last priority is research, or top off storage if no research
                     }
 
@@ -1938,7 +2001,7 @@ namespace Ship_Game
                         leftoverWorkers -= allocateWorkers;
                         
                         if (lotsInQueueToBuild) WorkerPercentage += allocateWorkers;
-                        else if (workerFillStorage(allocateWorkers, 1.00f));
+                        else if (workerFillStorage(allocateWorkers, 1));
                         else ResearcherPercentage += allocateWorkers;
                     }
 
@@ -1948,7 +2011,7 @@ namespace Ship_Game
                         leftoverWorkers -= allocateWorkers;
 
                         if (littleInQueueToBuild) WorkerPercentage += allocateWorkers;
-                        else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                        else if (notResearching) workerFillStorage(allocateWorkers, 1);
                         else ResearcherPercentage += allocateWorkers;
                     }
 
@@ -1958,7 +2021,7 @@ namespace Ship_Game
                         leftoverWorkers = 0.0f;
 
                         if (littleInQueueToBuild && Population < 2000) WorkerPercentage += allocateWorkers;    //Only help build if this is a low pop planet
-                        else if (notResearching) workerFillStorage(allocateWorkers, 1.00f);
+                        else if (notResearching) workerFillStorage(allocateWorkers, 1);
                         else ResearcherPercentage += allocateWorkers;
                     }
 
