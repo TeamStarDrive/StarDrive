@@ -889,7 +889,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>218</Index>
-      <Text>Toggles whether this ship's fighters should be launched or recovered to hangars</Text>
+      <Text>When active, all avaialble fighters will launch and escort the carrier. If not active, fighters will launch only for combat and return to their hangars for resupply when combat ends.</Text>
     </Token>
     <Token>
       <Index>219</Index>

@@ -203,6 +203,7 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
+        private bool TempRecallFightersForWarp = false;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -602,19 +603,11 @@ namespace Ship_Game.Ships
 
         public bool FightersOut
         {
-            get
-            {
-                bool flag = false;
-                if (Hangars.Count <= 0)
-                    return false;
-                for (int index = 0; index < Hangars.Count; ++index)
-                    flag |= Hangars[index]?.FighterOut ?? false;
-                return flag;
-            }
+            get => fightersOut;
             set
             {
                 fightersOut = value;
-                if (fightersOut && engineState != Ship.MoveState.Warp)
+                if (fightersOut)
                     ScrambleFighters();
                 else
                     RecoverFighters();
@@ -1626,23 +1619,33 @@ namespace Ship_Game.Ships
                     if (hangarShip.Speed < slowestFighter) slowestFighter = hangarShip.Speed;
 
                     float rangeTocarrier = hangarShip.Center.Distance(Center);
-                    if (rangeTocarrier > SensorRange)
+                    if (hangarShip.EMPdisabled 
+                        || !hangarShip.hasCommand 
+                        || hangarShip.dying 
+                        || hangarShip.EnginesKnockedOut
+                        || rangeTocarrier > SensorRange
+                        || rangeTocarrier > 25000f && hangarShip.WarpThrust < 1f) // scuttle non warp capable ships if they are too far
                     {
                         recallFighters = false;
-                        continue;
-                    }
-                    if (hangarShip.EMPdisabled || !hangarShip.hasCommand || hangarShip.dying || hangarShip.EnginesKnockedOut)
-                    {
-                        recallFighters = false;
+                        // FB: this will scuttle hanger ships if they cant reach the mothership
                         if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f;
                         continue;
+                    }
+                    if (fightersOut) // FB: if fighters out button is on, turn it off to allow recover till jump starts
+                    {
+                        TempRecallFightersForWarp = fightersOut;  // FB: remember the original state
+                        fightersOut = false;
                     }
                     recallFighters = true;
                     break;
                 }
             }
             if (!recallFighters)
+            {
+                fightersOut = TempRecallFightersForWarp;
+                TempRecallFightersForWarp = false;
                 return false;
+            }
             RecoverAssaultShips();
             RecoverFighters();
             if (DoneRecovering())
@@ -1731,6 +1734,9 @@ namespace Ship_Game.Ships
 
         public void ScrambleFighters()
         {
+            if (engineState == Ship.MoveState.Warp || isSpooling)
+                return;
+
             for (int i = 0; i < Hangars.Count; ++i)
                 Hangars[i].ScrambleFighters();
         }
@@ -2189,6 +2195,9 @@ namespace Ship_Game.Ships
                     }
                 }
             }
+
+            if (fightersOut) // for ships with hangars and with fighters out button on.
+                ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
 
             SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
