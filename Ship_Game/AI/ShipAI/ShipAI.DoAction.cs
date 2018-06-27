@@ -323,7 +323,9 @@ namespace Ship_Game.AI {
             {
                 if (Owner.engineState != Ship.MoveState.Warp && Owner.GetHangars().Count > 0 &&
                     !Owner.ManualHangarOverride)
-                    if (!Owner.FightersOut) Owner.FightersOut = true;
+                    //if (!Owner.FightersOut) Owner.FightersOut = true;
+                    if (Owner.GetHangars().Count > 0) Owner.ScrambleFighters();
+
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
