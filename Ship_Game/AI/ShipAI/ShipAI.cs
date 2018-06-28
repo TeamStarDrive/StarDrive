@@ -319,7 +319,7 @@ namespace Ship_Game.AI
                 using (OrderQueue.AcquireWriteLock())
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0 || Owner.Transporters.Count > 0)
+                    if (Owner.Weapons.Count > 0 || Owner.HasHangars || Owner.Transporters.Count > 0)
                     {
                         if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
                             (OrderQueue.IsEmpty ||
@@ -353,7 +353,7 @@ namespace Ship_Game.AI
                         hangar.GetHangarShip().AI.OrderReturnToHangar();
                     }
                 }
-                else if (Owner.GetHangars().Count > 0)
+                else if (Owner.HasHangars)
                 {
                     Array<ShipModule> array = Owner.GetHangars();
                     for (int x = 0; x < array.Count; x++)

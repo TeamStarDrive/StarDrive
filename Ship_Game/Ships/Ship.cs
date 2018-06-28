@@ -203,7 +203,8 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
-        private bool TempRecallFightersForWarp = false;
+        private bool TempRecallFightersForWarp;
+        public bool HasHangars => GetHangars().Count > 0;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -611,6 +612,22 @@ namespace Ship_Game.Ships
                     ScrambleFighters();
                 else
                     RecoverFighters();
+            }
+        }
+
+        public void HangarsStatus(out int activeShips, out int timerShips, out int readyShips)
+        {
+            activeShips = 0;
+            timerShips = 0;
+            readyShips = 0;
+            for (int index = 0; index < Hangars.Count; ++index)
+            {
+                if (Hangars[index].FighterOut)
+                    activeShips += 1;
+                else if (Hangars[index].hangarTimer > 0)
+                    timerShips += 1;
+                else
+                    readyShips += 1;
             }
         }
 

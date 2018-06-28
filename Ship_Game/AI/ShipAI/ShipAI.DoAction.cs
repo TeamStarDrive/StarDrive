@@ -36,8 +36,8 @@ namespace Ship_Game.AI {
             if (Owner.isSpooling)
                 return;
             DoNonFleetArtillery(elapsedTime);
-            if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role < ShipData.RoleName.drone ||
-                Owner.GetHangars().Count == 0)
+            if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role < ShipData.RoleName.drone
+                || !Owner.HasHangars)
                 return;
             var OurTroopStrength = 0f;
             var OurOutStrength = 0f;
@@ -267,7 +267,7 @@ namespace Ship_Game.AI {
                     return;
                 }
             
-            if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && Owner.GetHangars().Count == 0)
+            if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.HasHangars)
                 CombatState = CombatState.Evade;
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.TroopsOut == false &&
                 Owner.GetHangars().Any(troops => troops.IsTroopBay) || Owner.hasTransporter)
@@ -321,8 +321,7 @@ namespace Ship_Game.AI {
 
             if (Target?.Center.InRadius(Owner.Center, 10000) ?? false)
             {
-                if (Owner.engineState != Ship.MoveState.Warp && Owner.GetHangars().Count > 0 &&
-                    !Owner.ManualHangarOverride)
+                if (Owner.engineState != Ship.MoveState.Warp && Owner.HasHangars && !Owner.ManualHangarOverride)
                     //if (!Owner.FightersOut) Owner.FightersOut = true;
                     if (Owner.GetHangars().Count > 0) Owner.ScrambleFighters();
 
