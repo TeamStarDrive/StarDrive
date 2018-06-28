@@ -614,22 +614,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void HangarsStatus(out int activeShips, out int timerShips, out int readyShips)
-        {
-            activeShips = 0;
-            timerShips = 0;
-            readyShips = 0;
-            for (int index = 0; index < Hangars.Count; ++index)
-            {
-                if (Hangars[index].FighterOut)
-                    activeShips += 1;
-                else if (Hangars[index].hangarTimer > 0)
-                    timerShips += 1;
-                else
-                    readyShips += 1;
-            }
-        }
-
         public struct HangarInfo
         {
             public int Launched;
