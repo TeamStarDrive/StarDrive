@@ -1536,150 +1536,115 @@ namespace Ship_Game
             return total;
         }
 
-        private float CalculateFoodWorkers()    //Simply calculates what percentage of workers are needed for farming (between 0 and 1)
+        private float CalculateFoodWorkers()    //Simply calculates what percentage of workers are needed for farming (between 0.0 and 0.9)
         {
             if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0) return 0.0f;
 
             float workers = (Consumption - FlatFoodAdded) / (Population / 1000) / (Fertility + PlusFoodPerColonist);
-            if (workers > 1.0f) workers = 1.0f;
+            if (workers > 0.9f) workers = 0.9f;     //Dont allow farmers to consume all labor
             if (workers < 0.0f) workers = 0.0f;
             return workers;
         }
 
         //This will calculate a smooth transition to maintain [percent]% of stored food. It will under-farm if over
-        //[percent]% of storage, or over-farm if under it, as to maintain [percentage]% of storage.
-        private float FarmToPercentage(float percent)
+        //[percent]% of storage, or over-farm if under it. Returns labor needed
+        private float FarmToPercentage(float percent)   //Production and Research
         {
-            if (MaxStorage == 0 || percent == 0) return 1;
-            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return 1; //No farming here, so nevermind
+            if (MaxStorage == 0 || percent == 0) return 0;
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return 0; //No farming here, so nevermind
             float storedFoodRatio = FoodHere / MaxStorage;      //Percentage of Food Storage currently filled
             float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
 
-            float modFarmers = percent - storedFoodRatio;       //Amount currently over or under desired storage
+            float modFarmers = percent - storedFoodRatio;       //Percentage currently over or under desired storage
             if (modFarmers > 0 && modFarmers < 0.1)  modFarmers =  0.1f;    //Avoid crazy small percentage
             if (modFarmers < 0 && modFarmers > -0.1) modFarmers =  0;       //Avoid bounce (stop if slightly over)
             if (modFarmers > 0.5)  modFarmers =  0.5f;          //Also avoid too large of a deviation from min
             if (modFarmers < -0.5) modFarmers = -0.5f;
 
-            minFarmers += minFarmers * modFarmers;              //modify nominal farmers by overage or underage as decrease or increase in nominal farmers
+            minFarmers += minFarmers * modFarmers;              //modify nominal farmers by overage or underage
             if (minFarmers > 0.9f) minFarmers = 0.9f;           //Tame resulting value, dont let farming completely consume all labor
             if (minFarmers < 0.0f) minFarmers = 0.0f;
-            FarmerPercentage = minFarmers;                      //Assign Farmers
-            return 1 - minFarmers;                              //Return leftover labor %
+            return minFarmers;                                  //Return labor % of farmers to progress toward goal
         }
 
-        private float WorkToPercentage(float percent)  //Maintain [percentage] stored production, allocate more or less as needed
+        private float WorkToPercentage(float percent)   //Agreculture and Research
         {
-            if (MaxStorage == 0 || percent == 0) return percent;
-            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return percent; //No farming here, so skip it
-            float storedFoodRatio = FoodHere / MaxStorage;      //Percent of Food Storage filled
-            float minFarmers = 0;
+            if (MaxStorage == 0 || percent == 0) return 0;
+            float storedProdRatio = ProductionHere / MaxStorage;      //Percent of Prod Storage filled
+            float minWorkers = 0;
+            if (Owner.data.Traits.Cybernetic != 0)
+            {
+                minWorkers = (Consumption - PlusFlatProductionPerTurn) / (Population / 1000) / (MineralRichness + PlusProductionPerColonist);
+                if (minWorkers > 1.0f) minWorkers = 1.0f;
+                if (minWorkers < 0.0f) minWorkers = 0.0f;
+            }
 
-            minFarmers += percent - storedFoodRatio;
-            if (minFarmers > 0 && minFarmers < 0.1) minFarmers = 0.1f;      //Avoid crazy small percentage of workers
-            if (minFarmers < 0 && minFarmers > -0.1) minFarmers = -0.1f;        
-            return minFarmers;
+            float modWorkers = percent - storedProdRatio;        //Percentage currently over or under desired storage
+            if (modWorkers > 0 && modWorkers < 0.1) modWorkers = 0.1f;      //Avoid crazy small percentage of workers
+            if (modWorkers < 0 && modWorkers > -0.1) modWorkers = -0.1f;
+
+            minWorkers += minWorkers * modWorkers;
+            if (minWorkers > 1.0f) minWorkers = 1.0f;
+            if (minWorkers < 0.0f) minWorkers = 0.0f;
+            return minWorkers;
         }
 
-        private void workerFillOrResearch(float labor)
+        private void FillOrResearch(float labor)    //Core and TradeHub
+        {
+            FarmOrResearch(labor / 2);
+            WorkOrResearch(labor / 2);
+        }
+
+        private void FarmOrResearch (float labor)   //Agreculture
         {
             if (MaxStorage == 0 || labor == 0) return;
-            float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
-            float storedFoodRatio = FoodHere / MaxStorage;      //Storage filled
-            float storedProdRatio = ProductionHere / MaxStorage;
-            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1; //No farming here, so skip it
-
-            if (Owner.data.Traits.Cybernetic > 0)       //Stop producing early, since the flat food/production will continue to pile up
-            {
-                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.5f * (PlusFlatProductionPerTurn - maxPop);
-            }
-            else
-            {
-                if (FlatFoodAdded > maxPop) storedFoodRatio += 0.5f * (FlatFoodAdded - maxPop);
-                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.5f * PlusFlatProductionPerTurn;
-            }
-
-            if (storedFoodRatio > 1) storedFoodRatio = 1;
-            if (storedProdRatio > 1) storedProdRatio = 1;
-
-            float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
-            float workers = 1 - storedProdRatio;
-            if (farmers > 0.5f) farmers = 0.5f;    //Dont allocate more than 50% of labor to each
-            if (workers > 0.5f) workers = 0.5f;
-            farmers = 0.5f - farmers;               //Determine ratio of labor to allocate
-            workers = 0.5f - workers;
-            if (farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
-            if (workers < 0.1f) workers = 0.1f;
-            FarmerPercentage += farmers * labor;    //Allocate labor
-            WorkerPercentage += workers * labor;
-            ResearcherPercentage += (1 - farmers - workers) * labor;        //Leftovers go to Research
-        }
-
-        private float workerFoodOrResearch (float labor) //Make return unused labor?
-        {
-            if (MaxStorage == 0 || labor == 0) return 0;
-            if (Owner.data.Traits.Cybernetic > 0) return workerProdOrResearch(labor);  //Hand off to Prod instead;
+            if (Owner.data.Traits.Cybernetic > 0)
+			{
+                WorkOrResearch(labor);  //Hand off to Prod instead;
+				return;
+			}
             float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
             float storedFoodRatio = FoodHere / MaxStorage;      //How much of Storage is filled
-            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1; //No farming here, so skip it
+            if (Fertility + PlusFoodPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
 
-                   //Stop producing food early, since the flat food will continue to pile up
-            if (FlatFoodAdded > maxPop) storedFoodRatio += 0.5f * (FlatFoodAdded - maxPop);
-
+                   //Stop producing food a little early, since the flat food will continue to pile up
+            if (FlatFoodAdded > maxPop) storedFoodRatio += 0.2f * (FlatFoodAdded - maxPop);
             if (storedFoodRatio > 1) storedFoodRatio = 1;
+			
             float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
-            if (farmers < 0.5f) farmers *= 2;
-            else farmers = 1;                       //Taper allocation if over half
-            FarmerPercentage += farmers;
-            return 1 - farmers;
-
+            if (farmers >= 0.5f) farmers = 1;		//Work out percentage of [labor] to allocate
+			else farmers = farmers * 2;
+			if (farmers > 0 && farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
+			
+            FarmerPercentage += farmers * labor;	//Assign Farmers
+			ResearcherPercentage += labor - (farmers * labor);//Leftovers go to Research
         }
-
-        private float workerProdOrResearch(float labor)
+		
+		private void WorkOrResearch(float labor)    //Industrial
         {
-            if (MaxStorage == 0 || labor == 0) return 0;
-            float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
-            float storedProdRatio = ProductionHere / MaxStorage;    //How much of Storage is filled
+            if (MaxStorage == 0 || labor == 0) return;
+			float storedProdRatio = ProductionHere / MaxStorage;      //How much of Storage is filled
 
-            if (Owner.data.Traits.Cybernetic > 0)       //Stop producing early, since the flat production will continue to pile up
+            if (Owner.data.Traits.Cybernetic > 0)       //Stop production early, since the flat production will continue to pile up
             {
-                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.5f * (PlusFlatProductionPerTurn - maxPop);
+				float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.2f * (PlusFlatProductionPerTurn - maxPop);
             }
             else
             {
-                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.5f * PlusFlatProductionPerTurn;
+                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.2f * PlusFlatProductionPerTurn;
             }
+			if (storedProdRatio > 1) storedProdRatio = 1;
 
-            if (storedProdRatio > 1) storedProdRatio = 1;
-            return 1;
-        }
+            float workers = 1 - storedProdRatio;    //How much storage is left to fill
+            if (workers >= 0.5f) workers = 1;		//Work out percentage of [labor] to allocate
+			else workers = workers * 2;
+			if (workers > 0 && workers < 0.1f) workers = 0.1f;    //Avoid crazy small percentage of labor
 
-        private bool workerFillStorage(float workers, float percentage) //Returns true if workers were assigned, or false if they werent
-        {
-            if (MaxStorage == 0) return false;
-            float storedFoodRatio = FoodHere / MaxStorage;
-            float storedProdRatio = ProductionHere / MaxStorage;
-            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) storedFoodRatio = 1.0f; //No farming here, so skip it
-            if (PlusFlatProductionPerTurn > 0) storedProdRatio += PlusFlatProductionPerTurn * .05f;     //Dont top off if there is flatprod, since we cant turn it off
+            if (ConstructionQueue.Count > 1 && workers < 0.75f) workers = 0.75f;  //Minimum value if construction is going on
 
-            if (storedFoodRatio < percentage && storedProdRatio < percentage)
-            {
-                FarmerPercentage += workers * 0.5f;
-                WorkerPercentage += workers * 0.5f;
-                return true;
-            }
-            else if (storedFoodRatio < percentage)
-            {
-                FarmerPercentage += workers;
-                return true;
-            }
-            else if (storedProdRatio < percentage)
-            {
-                WorkerPercentage += workers;
-                return true;
-            }
-
-            return false;
+            WorkerPercentage += workers * labor;	//Assign workers
+			ResearcherPercentage += labor - (workers * labor);//Leftovers go to Research
         }
 
         private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
@@ -1968,516 +1933,223 @@ namespace Ship_Game
             //Get biosphere biased count of the buildings in the production queue
             int buildingsInQueue = BiasedCountQueue();
 
+            if (Name == "MerVille")
+            { double spotForABreakpoint = Math.PI; }
+
             switch (colonyType)
             {
                 case Planet.ColonyType.TradeHub:
                 case Planet.ColonyType.Core:
-
-                #region Core
-                {
-                    
-                    //New resource management by Gretman
-                    FarmerPercentage = foodMinimum;
-                    WorkerPercentage = 0.0f;
-                    ResearcherPercentage = 0.0f;
-
-                    if (FarmerPercentage >= 0.90f) FarmerPercentage = 0.90f;  //Dont let Farming consume all labor
-
-                    float leftoverWorkers = 1 - FarmerPercentage;
-                    float allocateWorkers = 0.0f;
-                    if (leftoverWorkers > 0.0)
                     {
-                        allocateWorkers = Math.Min(leftoverWorkers, 0.15f);
-                        leftoverWorkers -= allocateWorkers;
+                        //New resource management by Gretman
+                        FarmerPercentage = CalculateFoodWorkers();
+                        WorkerPercentage = 0.0f;
+                        ResearcherPercentage = 0.0f;
 
-                        if (littleInQueueToBuild) WorkerPercentage += allocateWorkers;          //First priority project for this group is build shit
-                        else if (workerFillStorage(allocateWorkers, 1));                           //Second priority is to fill storage up to 60%
-                        else ResearcherPercentage += allocateWorkers;                           //Last priority is research, or top off storage if no research
-                    }
+                        FillOrResearch(1 - FarmerPercentage);
 
-                    if (leftoverWorkers > 0.0)  //If there are more workers, then we can divide them into groups with different priorities
-                    {
-                        allocateWorkers = Math.Min(leftoverWorkers, 0.15f);
-                        leftoverWorkers -= allocateWorkers;
-                        
-                        if (lotsInQueueToBuild) WorkerPercentage += allocateWorkers;
-                        else if (workerFillStorage(allocateWorkers, 1));
-                        else ResearcherPercentage += allocateWorkers;
-                    }
+                        if (colonyType == Planet.ColonyType.TradeHub) break;
 
-                    if (leftoverWorkers > 0.0)
-                    {
-                        allocateWorkers = Math.Min(leftoverWorkers, 0.20f);
-                        leftoverWorkers -= allocateWorkers;
 
-                        if (littleInQueueToBuild) WorkerPercentage += allocateWorkers;
-                        else if (notResearching) workerFillStorage(allocateWorkers, 1);
-                        else ResearcherPercentage += allocateWorkers;
-                    }
 
-                    if (leftoverWorkers > 0.0)
-                    {
-                        allocateWorkers = leftoverWorkers;  //All the rest
-                        leftoverWorkers = 0.0f;
 
-                        if (littleInQueueToBuild && Population < 2000) WorkerPercentage += allocateWorkers;    //Only help build if this is a low pop planet
-                        else if (notResearching) workerFillStorage(allocateWorkers, 1);
-                        else ResearcherPercentage += allocateWorkers;
-                    }
 
-                    if (colonyType == Planet.ColonyType.TradeHub) break;
 
-                    //New Build Logic by Gretman
-                    if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
-                    
-                    if (openTiles > 0)
-                    {
-                        if (!littleInQueueToBuild)
+                        //New Build Logic by Gretman
+                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+
+                        if (openTiles > 0)
                         {
-                            Building bestBuilding = null;
-                            float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-                            for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                            if (!littleInQueueToBuild)
                             {
+                                Building bestBuilding = null;
+                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                                {
                                     //Find the building with the highest score
                                     if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
-                            }
+                                }
 
-                            if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
-                        }
-                    }
-                    else
-                    {
-                        if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
-                        {
-                            AddBuildingToCQ(bioSphere);
-                        }
-                        //Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
-                        //Log.Info(ConsoleColor.Gray, "bioSphere construction rejected.");
-                    }
-
-                    break;
-
-
-                    float surplus = 0;
-
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        surplus = GrossProductionPerTurn - Consumption;
-                        surplus = surplus * (notResearching ? 1 : .5f) *
-                                    (1 - (ProductionHere + 1) / (MaxStorage + 1));
-                    }
-                    else
-                    {
-                        surplus = (NetFoodPerTurn * (notResearching ? 1 : .5f)) *
-                                                                (1 - (FoodHere + 1) / (MaxStorage + 1));
-                    }
-
-                    //Try and work out a surplus
-                    FarmerPercentage = CalculateFarmerPercentForSurplus(surplus);
-                    //If that requires too much, then try again without the surplus
-                    if (FarmerPercentage == 1 && lotsInQueueToBuild)
-                        FarmerPercentage = CalculateFarmerPercentForSurplus(0);
-                    //If it still needs all of the workers, reserve a small amount for other tasks.
-                    if (FarmerPercentage == 1 && lotsInQueueToBuild)
-                        FarmerPercentage = .9f;
-
-                    WorkerPercentage =
-                        (1f - FarmerPercentage) *
-                        (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-
-                    float Remainder = 1f - FarmerPercentage;
-                    //Research is happening
-                    WorkerPercentage = (Remainder * (notResearching
-                                            ? 1
-                                            : (1 - (ProductionHere) / (MaxStorage))));
-                    if (ProductionHere / MaxStorage > .9 && !lotsInQueueToBuild)
-                        WorkerPercentage = 0;
-                    ResearcherPercentage = Remainder - WorkerPercentage;
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
-
-                    SetExportState(colonyType);
-
-                    //If we can build a shipyard, but dont have one, build it
-                    BuildShipywardifAble();
-
-                    bool haveTerraformer = false;   //Why the special interest in the terraformer?
-                    foreach (Building building in BuildingList)
-                    {
-                        if (building.Name == "Terraformer")
-                        {
-                            haveTerraformer = true;
-                            break;
-                        }
-                    }
-
-                    //Try and build some basic infrastructure
-                    if (buildingsInQueue < 2)
-                    {
-                        if (BuildBasicInfrastructure()) buildingsInQueue++;
-                    }
-
-                    if (buildingsInQueue < 2)
-                    {
-                        float coreCost = 99999f;
-                        Building b = null;
-                        foreach (Building building in BuildingsCanBuild)
-                        {
-                            if (!WeCanAffordThis(building, colonyType))
-                                continue;
-                            //if you dont want it to be built put it here.
-                            //this first if is the low pri build spot. 
-                            //the second if will override items that make it through this if. 
-                            if (((building.MinusFertilityOnBuild <= 0.0f || Owner.data.Traits.Cybernetic > 0) &&
-                                 !(building.Name == "Biospheres"))
-                                && (building.PlusTerraformPoints < 0 ||
-                                    !haveTerraformer && (Fertility < 1.0 && Owner.data.Traits.Cybernetic <= 0))
-                                    
-                            )
-                            {
-                                b = building;
-                                coreCost = b.Cost;
-                                break;
-                            }
-                            else if (building.Cost < coreCost &&
-                                     ((building.Name != "Biospheres" && building.PlusTerraformPoints <= 0) ||
-                                      Population / MaxPopulation <= 0.25 && DevelopmentLevel > 2 && !noMoreBiospheres))
-                            {
-                                b = building;
-                                coreCost = b.Cost;
+                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
-                        //if you want it to be built with priority put it here.
-                        if (b != null && 
-                            ( b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0 || b.PlusProdPerColonist > 0
-                                || b.PlusFoodPerColonist > 0 || b.PlusFlatFoodAmount > 0
-                                || b.CreditsPerColonist > 0 || b.PlusTaxPercentage > 0
-                            )) 
+                        else
                         {
-                                AddBuildingToCQ(b, false);
+                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                                AddBuildingToCQ(bioSphere);
                         }
-                        //if it must be built with high pri put it here. 
-                        else if (b != null)
-                        {
-                                AddBuildingToCQ(b);
-                        }
-                        else if (Owner.GetBDict()["Biospheres"] && MineralRichness >= 1.0f &&
-                                 ((Owner.data.Traits.Cybernetic > 0 && GrossProductionPerTurn > Consumption) ||
-                                  Owner.data.Traits.Cybernetic <= 0 && Fertility >= 1.0))
-                        {
-                            if (Owner == Empire.Universe.PlayerEmpire)
-                            {
-                                if (Population / (MaxPopulation + MaxPopBonus) > 0.94999f &&
-                                    (Owner.EstimateIncomeAtTaxRate(Owner.data.TaxRate) -
-                                     ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0f ||
-                                     Owner.Money > Owner.GrossTaxes * 3))
-                                    TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
-                            }
-                            else if (Population / (MaxPopulation + MaxPopBonus) > 0.94999f &&
-                                     (Owner.EstimateIncomeAtTaxRate(0.5f) -
-                                      ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0f ||
-                                      Owner.Money > Owner.GrossTaxes * 3))
-                                TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
-                        }
+
+                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+
+                        break;
                     }
-                    break;
-                }
-                #endregion
 
                 case Planet.ColonyType.Industrial:
-
-                    #region Industrial
-                    FarmerPercentage = 0.0f;
-                    WorkerPercentage = 1f;
-                    ResearcherPercentage = 0.0f;
-                    float IndySurplus =
-                        (NetFoodPerTurn) * (1 - (FoodHere + 1) / (MaxStorage + 1));
-                    if (Owner.data.Traits.Cybernetic > 0)
                     {
-                        IndySurplus = GrossProductionPerTurn - Consumption;
-                        IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));                        
-                    }                    
-                {
-                    FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
-                    FarmerPercentage *= (FoodHere / MaxStorage) > .25 ? .5f : 1;
-                    if (FarmerPercentage == 1 && lotsInQueueToBuild)
-                        FarmerPercentage = CalculateFarmerPercentForSurplus(0);
-                    WorkerPercentage =
-                        (1f - FarmerPercentage) 
-                        * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-                    if (ProductionHere / MaxStorage > .75 && !lotsInQueueToBuild)
-                        WorkerPercentage = 0;
+                        FarmerPercentage = FarmToPercentage(0.333f);
+                        WorkerPercentage = WorkToPercentage(1);
+                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
 
-                    ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
-                }
-                SetExportState(colonyType);
+                        //Farm to 33% storage (above), then devote the rest to Work, then to research when that starts to fill up
 
-                //Try and build some basic infrastructure
-                if (buildingsInQueue < 2)
-                {
-                    if (BuildBasicInfrastructure()) buildingsInQueue++;
-                }
+                        
 
-                if (buildingsInQueue < 2f)
-                {
-                    float indycost = 99999f;
-                    Building b = null;
-                    foreach (Building building in BuildingsCanBuild) //.OrderBy(cost=> cost.Cost))
-                    {
-                        if (!WeCanAffordThis(building, colonyType))
-                            continue;
-                        if (building.PlusFlatProductionAmount > 0.0f
-                            || building.PlusProdPerColonist > 0.0f
-                            || building.PlusProdPerRichness > 0.0f ) 
+
+
+
+
+                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+
+                        if (openTiles > 0)
                         {
-                            indycost = building.Cost;
-                            b = building;
-                            break;
-                        }
-                        else if (indycost > building.Cost) //building.Name!="Biospheres" || developmentLevel >2 )
-                            indycost = building.Cost;
-                        b = building;
-                    }
-                    if (b != null)
-                    {
-                        AddBuildingToCQ(b);
-                        ++buildingsInQueue;
-                    }
-                }
-                break;
+                            if (!littleInQueueToBuild)
+                            {
+                                Building bestBuilding = null;
+                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                                {
+                                    //Find the building with the highest score
+                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                }
 
-                #endregion
+                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+                            }
+                        }
+                        else
+                        {
+                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                                AddBuildingToCQ(bioSphere);
+                        }
+
+                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+
+                        break;
+                    }
 
                 case Planet.ColonyType.Research:
-
-                    #region Research
-                    
-                    FarmerPercentage = 0.0f;
-                    WorkerPercentage = 0.0f;
-                    ResearcherPercentage = 1f;
-                  
-                    ForgetReseachAndBuild = notResearching; 
-                    IndySurplus = (NetFoodPerTurn) * ((MaxStorage - FoodHere * 2f) / MaxStorage);
-                    
-                    FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
-
-                    WorkerPercentage = (1f - FarmerPercentage);
-
-                    if (lotsInQueueToBuild)
-                        WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage) / DevelopmentLevel;
-                    else
-                        WorkerPercentage = 0;
-
-                    ResearcherPercentage = 1f - FarmerPercentage - WorkerPercentage;
-
-                    if (Owner.data.Traits.Cybernetic > 0)
                     {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
+                        //This governor will rely on imports, focusing on research as long as no one is starving
+                        FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
+                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
+                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
 
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
-                    SetExportState(colonyType);
 
-                    //Try and build some basic infrastructure
-                    if (buildingsInQueue < 2)
-                    {
-                        if (BuildBasicInfrastructure()) buildingsInQueue++;
-                    }
 
-                    if (buildingsInQueue < 2.0)
-                    {
-                        Building b = null;
-                        float currentBestCost = 99999f;
-                        foreach (Building building in BuildingsCanBuild)    //This will basically build anything?!
+
+
+                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+
+                        if (openTiles > 0)
                         {
-                            if (!WeCanAffordThis(building, colonyType))
-                                continue;
-
-                            if (buildingsInQueue < 2 && building.Cost < currentBestCost &&
-                                     (building.Name != "Biospheres" ||
-                                      (buildingsInQueue == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
-                        
+                            if (!littleInQueueToBuild)
                             {
-                                currentBestCost = building.Cost;
-                                b = building;
-                                buildingsInQueue++;
-                            }
+                                Building bestBuilding = null;
+                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                                {
+                                    //Find the building with the highest score
+                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                }
 
-                            if (b != null && buildingsInQueue < 2) 
-                            {
-                                AddBuildingToCQ(b);
-                                buildingsInQueue++;
+                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
-                    }
-                    break;
+                        else
+                        {
+                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                                AddBuildingToCQ(bioSphere);
+                        }
 
-                #endregion
+                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+
+                        break;
+                    }
 
                 case Planet.ColonyType.Agricultural:
-
-                    #region Agricultural
-
-
-                    FarmerPercentage = 1f;
-                    WorkerPercentage = 0.0f;
-                    ResearcherPercentage = 0.0f;
-
-                    SetExportState(colonyType);
-                    lotsInQueueToBuild = ConstructionQueue.Where(building =>
-                                                  building.isBuilding || (building.Cost > NetProductionPerTurn * 10))
-                                              .Count() > 0;
-                    ForgetReseachAndBuild = notResearching; //? 1 : .5f;
-                    IndySurplus = (NetFoodPerTurn) * ((MaxStorage - FoodHere) / MaxStorage);
-
-                    FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus);
-
-                    WorkerPercentage = (1f - FarmerPercentage);
-
-                    if (lotsInQueueToBuild)
-                        WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage);
-                    else
-                        WorkerPercentage = 0;
-
-                    ResearcherPercentage = 1f - FarmerPercentage - WorkerPercentage;
-
-                    if (Owner.data.Traits.Cybernetic > 0)
                     {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
+                        FarmerPercentage = FarmToPercentage(1);     //Farm all you can
+                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
+                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                    //Try and build some basic infrastructure
-                    if (buildingsInQueue < 2)
-                    {
-                        if (BuildBasicInfrastructure()) buildingsInQueue++;
-                    }
+                        
 
-                    if (buildingsInQueue < 2.0f)
-                    {
-                        Building b = null;
-                        float num1 = 99999f;
-                        foreach (Building building in BuildingsCanBuild.OrderBy(cost => cost.Cost))
+
+
+
+
+
+                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+
+                        if (openTiles > 0)
                         {
-                            if (!WeCanAffordThis(building, colonyType))
-                                continue;
-
-                            if (building.Cost < num1 && (building.Name == "Biospheres" && !noMoreBiospheres))
+                            if (!littleInQueueToBuild)
                             {
-                                num1 = building.Cost;
-                                b = building;
-                            }
-                            else if (building.Cost < num1 &&
-                                     (building.Name != "Biospheres" ||
-                                      (buildingsInQueue == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
+                                Building bestBuilding = null;
+                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                                {
+                                    //Find the building with the highest score
+                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                }
 
-                            {
-                                num1 = building.Cost;
-                                b = building;
+                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
-                        if (b != null) AddBuildingToCQ(b);
-                    }
-                    break;
-
-                #endregion
-
-                case Planet.ColonyType.Military:
-
-                    #region Military                        
-
-                    FarmerPercentage = 0.0f;
-                    WorkerPercentage = 1f;
-                    ResearcherPercentage = 0.0f;
-                    if (FoodHere <= Consumption)
-                    {
-                        FarmerPercentage = CalculateFarmerPercentForSurplus(0.01f);
-                        WorkerPercentage = 1f - FarmerPercentage;
-                    }
-
-                    WorkerPercentage = (1f - FarmerPercentage);
-
-                    if (lotsInQueueToBuild)
-                        WorkerPercentage *= ((MaxStorage - ProductionHere) / MaxStorage);
-                    else
-                        WorkerPercentage = 0;
-
-                    ResearcherPercentage = 1f - FarmerPercentage - WorkerPercentage;
-
-                    if (Owner.data.Traits.Cybernetic > 0)
-                    {
-                        WorkerPercentage += FarmerPercentage;
-                        FarmerPercentage = 0;
-                    }
-
-                    if (!Owner.isPlayer && FS == GoodState.STORE)
-                    {
-                        FS = GoodState.IMPORT;
-                        PS = GoodState.IMPORT;
-                    }
-                    SetExportState(colonyType);                    
-                    float buildingCount = 0.0f;
-                    foreach (QueueItem queueItem in ConstructionQueue)
-                    {
-                        if (queueItem.isBuilding)
+                        else
                         {
-                            ++buildingCount;
-                            if (queueItem.Building.Name == "Biospheres")
-                                ++buildingCount;
+                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                                AddBuildingToCQ(bioSphere);
                         }
+
+                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+
+                        break;
                     }
 
-                    //If we can build a shipyard, but dont have one, build it
-                    BuildShipywardifAble();
-
-                    //Try and build some basic infrastructure
-                    if (buildingCount < 2)
+                case Planet.ColonyType.Military:    //This on is incomplete
                     {
-                        if (BuildBasicInfrastructure()) buildingCount++;
-                    }
+                        FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, and dont be desperate for imports
+                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
+                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
-                    {
-                        Building b = null;
-                        float num1 = 99999f;
-                        foreach (Building building in BuildingsCanBuild.OrderBy(cost => cost.Cost))
+                        
+
+
+
+
+
+                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+
+                        if (openTiles > 0)
                         {
-                            if (!WeCanAffordThis(building, colonyType))
-                                continue;
+                            if (!littleInQueueToBuild)
+                            {
+                                Building bestBuilding = null;
+                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
+                                {
+                                    //Find the building with the highest score
+                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                }
 
-                            if (building.Cost < num1 && (building.Name == "Biospheres" && !noMoreBiospheres))
-                            {
-                                num1 = building.Cost;
-                                b = building;
-                            }
-                            else if (building.Cost < num1 &&
-                                     (building.Name != "Biospheres" ||
-                                      (buildingCount == 0 && DevelopmentLevel > 2 && !noMoreBiospheres)))
-                            {
-                                num1 = building.Cost;
-                                b = building;
+                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
-                        if (b != null) AddBuildingToCQ(b);
+                        else
+                        {
+                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                                AddBuildingToCQ(bioSphere);
+                        }
 
+                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+
+                        break;
                     }
 
+                    //Leaving there here for reference -Gretman
                     //Added by McShooterz: Colony build troops
-
-                    if (Owner.isPlayer && colonyType == ColonyType.Military)
+                    if (false && Owner.isPlayer && colonyType == ColonyType.Military)
                     {
                         bool addTroop = false;
                         foreach (PlanetGridSquare planetGridSquare in TilesList)
@@ -2506,45 +2178,6 @@ namespace Ship_Game
                         }
                     }
 
-                    break;
-
-                    #endregion
-
-                    //This used to be the TradeHub Governor code. Leaving this here so I can look at it later if I need. -Gretman
-                    if (false)
-                    {
-                        FarmerPercentage = 0.0f;
-                        WorkerPercentage = 1f;
-                        ResearcherPercentage = 0.0f;
-                        PS = ProductionHere >= 20 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
-                        float IndySurplus2 =
-                            (NetFoodPerTurn) *
-                            (1 - (FoodHere + 1) / (MaxStorage + 1));
-                        if (Owner.data.Traits.Cybernetic > 0)
-                        {
-                            IndySurplus = GrossProductionPerTurn - Consumption;
-                            IndySurplus = IndySurplus * (1 - (FoodHere + 1) / (MaxStorage + 1));
-                        }
-
-                        {
-                            FarmerPercentage = CalculateFarmerPercentForSurplus(IndySurplus2);
-                            if (FarmerPercentage == 1 && lotsInQueueToBuild)
-                                FarmerPercentage = CalculateFarmerPercentForSurplus(0);
-                            WorkerPercentage =
-                                (1f - FarmerPercentage)
-                                * (ForgetReseachAndBuild ? 1 : (1 - (ProductionHere + 1) / (MaxStorage + 1)));
-                            if (ProductionHere / MaxStorage > .75 && !lotsInQueueToBuild)
-                                WorkerPercentage = 0;
-                            ResearcherPercentage = 1 - FarmerPercentage - WorkerPercentage; // 0.0f;
-                            if (Owner.data.Traits.Cybernetic > 0)
-                            {
-                                WorkerPercentage += FarmerPercentage;
-                                FarmerPercentage = 0;
-                            }
-                            SetExportState(colonyType);
-                        }
-                        break;
-                    }
             } //End Gov type Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
