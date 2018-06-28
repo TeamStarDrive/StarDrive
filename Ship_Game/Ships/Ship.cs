@@ -203,8 +203,9 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
-        private bool TempRecallFightersForWarp;
-        public bool HasHangars => GetHangars().Count > 0;
+        //private bool TempRecallFightersForWarp;
+        //public bool HasHangars => GetHangars().Count > 0;
+        public bool HasHangars => Hangars.Count > 0;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -628,6 +629,26 @@ namespace Ship_Game.Ships
                     timerShips += 1;
                 else
                     readyShips += 1;
+            }
+        }
+
+        public struct HangarInfo
+        {
+            public int Launched;
+            public int Refitting;     
+            public int ReadyToLaunch; 
+        }
+
+        public HangarInfo HangarStatus
+        {
+            get
+            {
+                var info = new HangarInfo();
+                foreach (ShipModule hangar in Hangars)
+                    if (hangar.FighterOut)           ++info.Launched;
+                    else if (hangar.hangarTimer > 0) ++info.Refitting;
+                    else                             ++info.ReadyToLaunch;
+                return info;
             }
         }
 
@@ -1650,7 +1671,7 @@ namespace Ship_Game.Ships
                     }
                     if (fightersOut) // FB: if fighters out button is on, turn it off to allow recover till jump starts
                     {
-                        TempRecallFightersForWarp = fightersOut;  // FB: remember the original state
+                        shipData.TempRecallFightersForWarp = fightersOut;  // FB: remember the original state
                         fightersOut = false;
                     }
                     recallFighters = true;
@@ -1659,8 +1680,8 @@ namespace Ship_Game.Ships
             }
             if (!recallFighters)
             {
-                fightersOut = TempRecallFightersForWarp;
-                TempRecallFightersForWarp = false;
+                fightersOut = shipData.TempRecallFightersForWarp;
+                shipData.TempRecallFightersForWarp = false;
                 return false;
             }
             RecoverAssaultShips();
