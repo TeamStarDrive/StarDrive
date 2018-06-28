@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -368,8 +369,19 @@ namespace Ship_Game.Ships
 
             if (Ship.HasHangars)
             {
-                Ship.HangarsStatus(out int activeShips, out int timerShips, out int readyShips);
+                Ship.HangarInfo currentHangarStatus = Ship.HangarStatus;
                 // draw hangar status  WIP
+                Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
+                if (hangarRect.HitTest(mousePos))
+                    ToolTip.CreateTooltip(Localizer.Token(1981));
+
+                Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, currentHangarStatus.Launched.ToString(), hangarTextPos, Color.Green);
+                hangarTextPos.X += currentHangarStatus.Launched.ToString().Length * 6 + 2;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/" + currentHangarStatus.ReadyToLaunch + "/", hangarTextPos, Color.White);
+                hangarTextPos.X += currentHangarStatus.ReadyToLaunch.ToString().Length * 6 + 14;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, currentHangarStatus.Refitting.ToString(), hangarTextPos, Color.Red);
             }
 
             if (Ship.CargoSpaceUsed > 0f)
