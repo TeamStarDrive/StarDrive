@@ -203,8 +203,6 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost => GetBaseCost();
-        //private bool TempRecallFightersForWarp;
-        //public bool HasHangars => GetHangars().Count > 0;
         public bool HasHangars => Hangars.Count > 0;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
