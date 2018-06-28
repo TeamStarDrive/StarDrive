@@ -366,6 +366,12 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (Ship.HasHangars)
+            {
+                Ship.HangarsStatus(out int activeShips, out int timerShips, out int readyShips);
+                // draw hangar status  WIP
+            }
+
             if (Ship.CargoSpaceUsed > 0f)
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
@@ -625,7 +631,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.GetHangars().Count > 0 && Ship.Mothership == null)
+            if (Ship.HasHangars && Ship.Mothership == null)
             {
                 bool hasTroops = false;
                 bool hasFighters = false;

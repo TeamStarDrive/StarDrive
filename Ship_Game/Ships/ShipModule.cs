@@ -754,17 +754,8 @@ namespace Ship_Game.Ships
                 if (hangarShip.AI.HasPriorityTarget
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
-                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar)
-                )
-                    /*
-                    if (hangarShip.AI.State == AIState.ReturnToHangar
-                    || hangarShip.AI.HasPriorityOrder
-                    || hangarShip.AI.HasPriorityTarget
-                    || hangarShip.AI.IgnoreCombat
-                    || hangarShip.AI.Target != null
-                    || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
-                )*/
-                    return;
+                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
+                        return;
                 hangarShip.DoEscort(Parent);
                 return;
             }

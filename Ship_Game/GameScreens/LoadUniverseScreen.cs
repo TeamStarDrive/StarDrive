@@ -884,7 +884,7 @@ namespace Ship_Game
                 foreach (Ship ship in data.MasterShipList)
                 {                    
                     ship.InitializeShip(loadingFromSavegame: true);
-                    if (ship.GetHangars().Count > 0)
+                    if (ship.HasHangars)
                     {
                         foreach (ShipModule hangar in ship.GetHangars())
                         {
