@@ -319,7 +319,7 @@ namespace Ship_Game.AI
                 using (OrderQueue.AcquireWriteLock())
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    if (Owner.Weapons.Count > 0 || Owner.HasHangars || Owner.Transporters.Count > 0)
+                    if (Owner.Weapons.Count > 0 || Owner.HasActiveHangars || Owner.Transporters.Count > 0)
                     {
                         if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
                             (OrderQueue.IsEmpty ||
@@ -341,36 +341,30 @@ namespace Ship_Game.AI
                 foreach (Weapon purge in Owner.Weapons)
                     purge.ClearFireTarget();
 
-                if (Owner.GetHangars().Count > 0 && Owner.loyalty != UniverseScreen.player)
+                if (Owner.HasHangars && Owner.loyalty != UniverseScreen.player)
                 {
-                    Array<ShipModule> array = Owner.GetHangars();
-                    for (int x = 0; x < array.Count; x++)
+                    foreach (ShipModule hangar in Owner.AllFighterHangars)
                     {
-                        ShipModule hangar = array[x];
-                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
-                            || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar)
-                            continue;
-                        hangar.GetHangarShip().AI.OrderReturnToHangar();
+                        Ship hangarShip = hangar.GetHangarShip();
+                        if (hangarShip != null && hangarShip.Active)
+                            hangarShip.AI.OrderReturnToHangar();
                     }
                 }
                 else if (Owner.HasHangars)
                 {
-                    Array<ShipModule> array = Owner.GetHangars();
-                    for (int x = 0; x < array.Count; x++)
+                    foreach (ShipModule hangar in Owner.AllFighterHangars)
                     {
-                        ShipModule hangar = array[x];
-                        if (hangar.IsTroopBay
-                            || hangar.IsSupplyBay
-                            || hangar.GetHangarShip() == null
-                            || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar
-                            || hangar.GetHangarShip().AI.HasPriorityTarget
-                            || hangar.GetHangarShip().AI.HasPriorityOrder
-                        )
-                            continue;
+                        Ship hangarShip = hangar.GetHangarShip();
+                        if (hangarShip == null
+                            || hangarShip.AI.State == AIState.ReturnToHangar
+                            || hangarShip.AI.HasPriorityTarget
+                            || hangarShip.AI.HasPriorityOrder)
+                                continue;
+
                         if (Owner.FightersOut)
-                            hangar.GetHangarShip().DoEscort(Owner);
+                            hangarShip.DoEscort(Owner);
                         else
-                            hangar.GetHangarShip().AI.OrderReturnToHangar();
+                            hangarShip.AI.OrderReturnToHangar();
                     }
                 }
             }

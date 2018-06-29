@@ -52,8 +52,9 @@ namespace Ship_Game.Ships
         public Vector2 RelativeFleetOffset;
 
         private ShipModule[] Shields;
-        private Array<ShipModule> Hangars = new Array<ShipModule>();
-        public Array<ShipModule> BombBays = new Array<ShipModule>();
+        private Array<ShipModule> Hangars          = new Array<ShipModule>();
+        public Array<ShipModule> BombBays          = new Array<ShipModule>();
+        public Array<ShipModule> AllFighterHangars = new Array<ShipModule>();
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
@@ -204,6 +205,7 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost;
         public bool HasHangars;
+        public bool HasActiveHangars => GetHangars().Count > 0;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -631,14 +633,11 @@ namespace Ship_Game.Ships
             get
             {
                 var info = new HangarInfo();
-                for (int i = 0; i < ModuleSlotList.Length; ++i)
+                foreach (ShipModule hangar in AllFighterHangars)
                 {
-                    if (!ModuleSlotList[i].Is(ShipModuleType.Hangar) || ModuleSlotList[i].IsTroopBay)
-                        continue;
-
-                    if (ModuleSlotList[i].FighterOut)           ++info.Launched;
-                    else if (ModuleSlotList[i].hangarTimer > 0) ++info.Refitting;
-                    else if (ModuleSlotList[i].Active)          ++info.ReadyToLaunch;
+                    if (hangar.FighterOut)           ++info.Launched;
+                    else if (hangar.hangarTimer > 0) ++info.Refitting;
+                    else if (hangar.Active)          ++info.ReadyToLaunch;
                 }
                 return info;
             }
@@ -978,14 +977,6 @@ namespace Ship_Game.Ships
         public Ship Clone()
         {
             return (Ship)MemberwiseClone();
-        }
-
-        private float GetBaseCost()
-        {
-            float cost = 0.0f;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-                cost += ModuleSlotList[i].Cost;
-            return cost;
         }
 
         public float GetCost(Empire empire)
@@ -1773,13 +1764,13 @@ namespace Ship_Game.Ships
 
         public void RecoverFighters()
         {
-            for (int i = 0; i < Hangars.Count; ++i)
+            foreach (ShipModule hangar in AllFighterHangars)
             {
-                ShipModule shipModule = Hangars[i];
-                if (shipModule.GetHangarShip() == null || !shipModule.GetHangarShip().Active) continue;
-                if (shipModule.IsTroopBay) continue;
+                Ship hangarShip = hangar.GetHangarShip();
+                if (hangarShip == null || !hangarShip.Active)
+                    continue;
 
-                shipModule.GetHangarShip().ReturnToHangar();
+                hangarShip.AI.OrderReturnToHangar();
             }
         }
 
@@ -1787,13 +1778,11 @@ namespace Ship_Game.Ships
         {
             if (!HasHangars)
                 return;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            foreach (ShipModule hangar in AllFighterHangars)
             {
-                if (!ModuleSlotList[i].Is(ShipModuleType.Hangar) || ModuleSlotList[i].IsTroopBay)
-                    continue;
-                Ship hangarShip = ModuleSlotList[i].GetHangarShip();
-                if (hangarShip != null && hangarShip.Active && hangarShip.WarpThrust < 1f)
-                    hangarShip.ScuttleTimer = 120f;
+                Ship hangarShip = hangar.GetHangarShip();
+                if (hangarShip != null && hangarShip.WarpThrust < 1f)
+                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
             }
         }
 
