@@ -202,8 +202,8 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost => GetBaseCost();
-        public bool HasHangars => Hangars.Count > 0;
+        public float BaseCost;
+        public bool HasHangars;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -606,6 +606,11 @@ namespace Ship_Game.Ships
             get => fightersOut;
             set
             {
+                if (engineState == MoveState.Warp || isSpooling)
+                {
+                    GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
+                    return;
+                }
                 fightersOut = value;
                 if (fightersOut)
                     ScrambleFighters();
@@ -621,15 +626,20 @@ namespace Ship_Game.Ships
             public int ReadyToLaunch; 
         }
 
-        public HangarInfo HangarStatus
+        public HangarInfo GrossHangarStatus
         {
             get
             {
                 var info = new HangarInfo();
-                foreach (ShipModule hangar in Hangars)
-                    if (hangar.FighterOut)           ++info.Launched;
-                    else if (hangar.hangarTimer > 0) ++info.Refitting;
-                    else                             ++info.ReadyToLaunch;
+                for (int i = 0; i < ModuleSlotList.Length; ++i)
+                {
+                    if (!ModuleSlotList[i].Is(ShipModuleType.Hangar) || ModuleSlotList[i].IsTroopBay)
+                        continue;
+
+                    if (ModuleSlotList[i].FighterOut)           ++info.Launched;
+                    else if (ModuleSlotList[i].hangarTimer > 0) ++info.Refitting;
+                    else if (ModuleSlotList[i].Active)          ++info.ReadyToLaunch;
+                }
                 return info;
             }
         }
@@ -1773,6 +1783,20 @@ namespace Ship_Game.Ships
             }
         }
 
+        private void ScuttleNonWarpHangarShips() // FB: get rid of no warp capable hangar ships to prevent them from crawling around
+        {
+            if (!HasHangars)
+                return;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                if (!ModuleSlotList[i].Is(ShipModuleType.Hangar) || ModuleSlotList[i].IsTroopBay)
+                    continue;
+                Ship hangarShip = ModuleSlotList[i].GetHangarShip();
+                if (hangarShip != null && hangarShip.Active && hangarShip.WarpThrust < 1f)
+                    hangarShip.ScuttleTimer = 120f;
+            }
+        }
+
         public ShipData ToShipData()
         {
             var data                       = new ShipData();
@@ -2129,15 +2153,12 @@ namespace Ship_Game.Ships
                 }
 
                 //Power draw based on warp
-                // FB: this one breaks ship design since ship design does take shield power draw at warp into consideration, so ships
-                // were desgined with a lot more power reactors than they actually need.
-                // @todo  add shield draw to warp power calcs since you have full shields when you drop out of warp, to align with ship design
                 if (!inborders && engineState == MoveState.Warp)
                 {
-                    PowerDraw = (loyalty.data.FTLPowerDrainModifier * ModulePowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
+                    PowerDraw = (loyalty.data.FTLPowerDrainModifier * (ModulePowerDraw + ShieldPowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2));
                 }
                 else if (engineState != MoveState.Warp && ShieldsUp)
-                    PowerDraw = ModulePowerDraw + ShieldPowerDraw;
+                    PowerDraw = ModulePowerDraw + ShieldPowerDraw + WarpDraw;
                 else
                     PowerDraw = ModulePowerDraw;
              
@@ -2741,7 +2762,7 @@ namespace Ship_Game.Ships
                 beam.Die(this, true);
                 beams.RemoveRef(beam);
             }
-            
+
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
@@ -2782,12 +2803,11 @@ namespace Ship_Game.Ships
             {
                 EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);                 
             }
-
+            ScuttleNonWarpHangarShips();
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
             NumExternalSlots   = 0;
-
             BorderCheck.Clear();
             ThrusterList.Clear();
             AI.PotentialTargets.Clear();

@@ -369,7 +369,7 @@ namespace Ship_Game.Ships
 
             if (Ship.HasHangars)
             {
-                Ship.HangarInfo currentHangarStatus = Ship.HangarStatus;
+                Ship.HangarInfo currentHangarStatus = Ship.GrossHangarStatus;
                 // draw hangar status  WIP
                 Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
                 if (hangarRect.HitTest(mousePos))
