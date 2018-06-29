@@ -412,6 +412,7 @@ namespace Ship_Game.Ships
             FTLSpoolTime              = 0f;
             RangeForOverlay           = 0f;
             Size                      = Calculatesize();
+            BaseCost                  = GetBaseCost();
 
             foreach (Weapon w in Weapons)
             {
@@ -472,6 +473,7 @@ namespace Ship_Game.Ships
                 {
                     Hangars.Add(module);
                     HasTroopBay |= module.IsTroopBay;
+                    HasHangars |= !module.IsTroopBay;
                 }
                 else if (module.ModuleType == ShipModuleType.Transporter)
                 {
