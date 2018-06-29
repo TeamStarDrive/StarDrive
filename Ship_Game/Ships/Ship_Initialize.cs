@@ -441,6 +441,8 @@ namespace Ship_Game.Ships
             Hangars.Clear();
             Transporters.Clear();
             RepairBeams.Clear();
+            AllFighterHangars.Clear();
+            //AllFighterHangars = GetAllFighterHangars();
 
             float sensorBonus = 0f;
         
@@ -449,16 +451,18 @@ namespace Ship_Game.Ships
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
-                if (!fromSave && module.TroopsSupplied > 0)
-                    SpawnTroopsForNewShip(module);
-                TroopCapacity += module.TroopCapacity;
+                if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
+                TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
-                if (MechanicalBoardingDefense < 1f)
-                    MechanicalBoardingDefense = 1f;
+                if (module.Is(ShipModuleType.Hangar)
+                    && !module.IsTroopBay
+                    && !module.IsSupplyBay)
+                        AllFighterHangars.Add(module); // FB: add fighter hangars to list
 
-                if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
-                if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
-                if (module.ECM > ECMValue) ECMValue = module.ECM.Clamp(0f, 1f);
+                if (MechanicalBoardingDefense < 1f) MechanicalBoardingDefense = 1f;
+                if (module.SensorRange > SensorRange) SensorRange             = module.SensorRange;
+                if (module.SensorBonus > sensorBonus) sensorBonus             = module.SensorBonus;
+                if (module.ECM > ECMValue) ECMValue                           = module.ECM.Clamp(0f, 1f);
 
                 if (module.ModuleType == ShipModuleType.Construction)
                 {
@@ -539,6 +543,14 @@ namespace Ship_Game.Ships
             // @todo Do we need to recalculate this every time? This whole thing looks fishy
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
+        }
+
+        private float GetBaseCost()
+        {
+            float cost = 0.0f;
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                cost += ModuleSlotList[i].Cost;
+            return cost;
         }
     }
 }

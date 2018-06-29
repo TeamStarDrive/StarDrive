@@ -256,7 +256,7 @@ namespace Ship_Game.AI
             if (sortedList2.Any())
                 targetShip = sortedList2.ElementAt(0).Ship;
 
-            if (Owner.Weapons.Count > 0 || Owner.HasHangars)
+            if (Owner.Weapons.Count > 0 || Owner.HasActiveHangars)
                 return targetShip;
             return null;
         }
