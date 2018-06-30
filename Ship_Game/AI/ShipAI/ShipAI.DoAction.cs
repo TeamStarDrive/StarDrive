@@ -646,7 +646,6 @@ namespace Ship_Game.AI {
             }
             else if (distCenter < 7500f) // FB: distance to launch assault shuttles for a troopship
             {
-                //HasPriorityOrder = true;
                 Owner.ScrambleAssaultShips(0);
                 foreach (ShipModule bay in Owner.AllTroopBays)
                 {
@@ -655,6 +654,8 @@ namespace Ship_Game.AI {
                         hangarShip.AI.OrderAssaultPlanet(goal.TargetPlanet);
                 }
                 Owner.DoOrbit(goal.TargetPlanet);
+
+                // FB: all the code below is not really needed. I think it is relacted to STSA. Should check it out and add as an option i guess
                     //Get limit of troops to land
                     /*
                     var toRemove = new Array<Troop>();
