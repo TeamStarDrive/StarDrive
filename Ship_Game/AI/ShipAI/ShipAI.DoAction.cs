@@ -36,8 +36,7 @@ namespace Ship_Game.AI {
             if (Owner.isSpooling)
                 return;
             DoNonFleetArtillery(elapsedTime);
-            if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role < ShipData.RoleName.drone
-                || !Owner.HasActiveHangars)
+            if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role <= ShipData.RoleName.drone)
                 return;
             var OurTroopStrength = 0f;
             var OurOutStrength = 0f;
@@ -235,14 +234,10 @@ namespace Ship_Game.AI {
             if (Owner.Mothership?.Active == true)
                 if (Owner.shipData.Role != ShipData.RoleName.troop
                     &&
-                    (Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] ||
-                     (Owner.shield_max > 0 && Owner.shield_percent <= 0))
+                    (Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] 
                     || (Owner.OrdinanceMax > 0 && Owner.Ordinance / Owner.OrdinanceMax <= .1f)
-                    || (Owner.PowerCurrent <= 1f && Owner.PowerDraw / Owner.PowerFlowMax <= .1f)
-                )
-                {
-                    OrderReturnToHangar();
-                }
+                    || (Owner.PowerCurrent <= 1f && Owner.PowerFlowMax < Owner.PowerDraw))) // FB:  reactors damaged and cannot produce power to maintain combat
+                        OrderReturnToHangar();
 
             if (State != AIState.Resupply && Owner.OrdinanceMax > 0f && Owner.OrdinanceMax * 0.05 > Owner.Ordinance &&
                 !HasPriorityTarget)
@@ -269,6 +264,7 @@ namespace Ship_Game.AI {
             
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.HasActiveHangars)
                 CombatState = CombatState.Evade;
+
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.TroopsOut == false &&
                 Owner.GetHangars().Any(troops => troops.IsTroopBay) || Owner.hasTransporter)
                 if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
@@ -296,7 +292,7 @@ namespace Ship_Game.AI {
                                     .Select(ship => ship.GetHangarShip()))
                                 troop.AI.OrderAssaultPlanet(invadeThis);
                         }
-                        else if (shipTarget?.shipData.Role >= ShipData.RoleName.drone)
+                        else if (shipTarget?.shipData.Role > ShipData.RoleName.drone)
                         {
                             if (Owner.GetHangars().Count(troop => troop.IsTroopBay) * 60 >=
                                 shipTarget.MechanicalBoardingDefense)

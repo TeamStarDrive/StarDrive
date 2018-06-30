@@ -1080,7 +1080,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>266</Index>
-      <Text>Toggles whether this ship's shuttles should be launched or recovered to hangars</Text>
+      <Text>Toggles whether this ship's assault shuttles should be launched and escort the troop ship or recovered to hangars</Text>
     </Token>
 
     <!-- Gameplay Main Menu -->
