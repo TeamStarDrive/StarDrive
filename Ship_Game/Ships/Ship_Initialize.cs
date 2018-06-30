@@ -464,31 +464,29 @@ namespace Ship_Game.Ships
                 if (module.SensorBonus > sensorBonus) sensorBonus             = module.SensorBonus;
                 if (module.ECM > ECMValue) ECMValue                           = module.ECM.Clamp(0f, 1f);
 
-                if (module.ModuleType == ShipModuleType.Construction)
+                switch (module.ModuleType)
                 {
-                    isConstructor = true;
-                    shipData.Role = ShipData.RoleName.construction;
-                }
-                else if (module.ModuleType == ShipModuleType.PowerConduit)
-                {
-                    module.IconTexturePath = GetConduitGraphic(module);
-                }
-                else if (module.ModuleType == ShipModuleType.Hangar)
-                {
-                    Hangars.Add(module);
-                    HasTroopBay |= module.IsTroopBay;
-                    HasHangars |= !module.IsTroopBay;
-                }
-                else if (module.ModuleType == ShipModuleType.Transporter)
-                {
-                    Transporters.Add(module);
-                    hasTransporter = true;
-                    hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
-                    hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
-                }
-                else if (module.ModuleType == ShipModuleType.Colony)
-                {
-                    isColonyShip = true;
+                    case ShipModuleType.Construction:
+                        isConstructor = true;
+                        shipData.Role = ShipData.RoleName.construction;
+                        break;
+                    case ShipModuleType.PowerConduit:
+                        module.IconTexturePath = GetConduitGraphic(module);
+                        break;
+                    case ShipModuleType.Hangar:
+                        Hangars.Add(module);
+                        HasTroopBay |= module.IsTroopBay;
+                        if (!HasHangars) HasHangars = true;
+                        break;
+                    case ShipModuleType.Transporter:
+                        Transporters.Add(module);
+                        hasTransporter = true;
+                        hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
+                        hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
+                        break;
+                    case ShipModuleType.Colony:
+                        isColonyShip = true;
+                        break;
                 }
 
                 if (module.InstalledWeapon?.isRepairBeam == true)

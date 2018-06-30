@@ -789,7 +789,7 @@ namespace Ship_Game.Ships
             }
         }
         //added by gremlin : troops out property        
-        public bool TroopsOut
+        public bool TroopsOutold
         {
             get
             {
@@ -837,14 +837,16 @@ namespace Ship_Game.Ships
                 RecoverAssaultShips();
             }
         }
-        public bool TroopsOutold
+        public bool TroopsOut
         {
-            get
-            {
-                return troopsOut;
-            }
+            get => troopsOut;
             set
             {
+                if (engineState == MoveState.Warp || isSpooling)
+                {
+                    GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
+                    return;
+                }
                 troopsOut = value;
                 if (troopsOut)
                     ScrambleAssaultShips(0);
@@ -1720,12 +1722,14 @@ namespace Ship_Game.Ships
         //added by gremlin deveksmod scramble assault ships
         public void ScrambleAssaultShips(float strengthNeeded)
         {
+            if (TroopList.Count <= 0)
+                return;
+
             bool flag = strengthNeeded > 0;
             
             foreach (ShipModule hangar in Hangars)
             {
-                if (!hangar.IsTroopBay || hangar.hangarTimer > 0 || TroopList.Count < 1 
-                    || hangar.GetHangarShip() != null)
+                if (hangar.IsTroopBay && hangar.hangarTimer <= 0 && TroopList.Count > 0)
                 {
                     if (flag && strengthNeeded < 0)
                         break;
@@ -2228,6 +2232,8 @@ namespace Ship_Game.Ships
 
             if (fightersOut) // for ships with hangars and with fighters out button on.
                 ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
+            if (troopsOut)
+                ScrambleAssaultShips(0); // FB: if the troops out button is on, launch every availble assualt shuttle
 
             SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
