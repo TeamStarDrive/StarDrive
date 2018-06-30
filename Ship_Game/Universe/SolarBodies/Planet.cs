@@ -1551,42 +1551,67 @@ namespace Ship_Game
         private float FarmToPercentage(float percent)   //Production and Research
         {
             if (MaxStorage == 0 || percent == 0) return 0;
-            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return 0; //No farming here, so nevermind
-            float storedFoodRatio = FoodHere / MaxStorage;      //Percentage of Food Storage currently filled
+            if (Fertility + PlusFoodPerColonist <= 0.5f || Owner.data.Traits.Cybernetic > 0) return 0; //No farming here, so never mind
             float minFarmers = CalculateFoodWorkers();          //Nominal Farmers needed to neither gain nor lose storage
+            float storedFoodRatio = FoodHere / MaxStorage;      //Percentage of Food Storage currently filled
 
-            float modFarmers = percent - storedFoodRatio;       //Percentage currently over or under desired storage
-            if (modFarmers > 0 && modFarmers < 0.1)  modFarmers =  0.1f;    //Avoid crazy small percentage
-            if (modFarmers < 0 && modFarmers > -0.1) modFarmers =  0;       //Avoid bounce (stop if slightly over)
-            if (modFarmers > 0.5)  modFarmers =  0.5f;          //Also avoid too large of a deviation from min
-            if (modFarmers < -0.5) modFarmers = -0.5f;
+            if (FlatFoodAdded > 0)
+            {
+                //Stop producing food a little early, since the flat food will continue to pile up
+                float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
+                if (storedFoodRatio > 1) storedFoodRatio = 1;
+            }
 
-            minFarmers += minFarmers * modFarmers;              //modify nominal farmers by overage or underage
-            if (minFarmers > 0.9f) minFarmers = 0.9f;           //Tame resulting value, dont let farming completely consume all labor
+            float modFarmers = (percent - storedFoodRatio) * 2;             //Percentage currently over or under desired storage
+            if (modFarmers >  0 && modFarmers <   0.05) modFarmers = 0.05f;	//Avoid crazy small percentage
+            if (modFarmers <  0 && modFarmers >  -0.05) modFarmers = 0.00f;	//Avoid bounce (stop if slightly over)
+            if (modFarmers >  0.50) modFarmers =  0.50f;					//Also avoid large percentages
+            if (modFarmers < -0.35) modFarmers = -0.35f;
+
+            minFarmers += modFarmers;             //modify nominal farmers by overage or underage
+            if (minFarmers > 0.9f) minFarmers = 0.9f;	//Tame resulting value, dont let farming completely consume all labor
             if (minFarmers < 0.0f) minFarmers = 0.0f;
-            return minFarmers;                                  //Return labor % of farmers to progress toward goal
+            return minFarmers;                          //Return labor % of farmers to progress toward goal
         }
 
-        private float WorkToPercentage(float percent)   //Agreculture and Research
+        private float WorkToPercentage(float percent)   //Production and Research
         {
             if (MaxStorage == 0 || percent == 0) return 0;
-            float storedProdRatio = ProductionHere / MaxStorage;      //Percent of Prod Storage filled
             float minWorkers = 0;
-            if (Owner.data.Traits.Cybernetic != 0)
-            {
+            if (Owner.data.Traits.Cybernetic > 0)
+            {											//Nominal workers needed to feed all of the the filthy Opteris
                 minWorkers = (Consumption - PlusFlatProductionPerTurn) / (Population / 1000) / (MineralRichness + PlusProductionPerColonist);
                 if (minWorkers > 1.0f) minWorkers = 1.0f;
                 if (minWorkers < 0.0f) minWorkers = 0.0f;
             }
 
-            float modWorkers = percent - storedProdRatio;        //Percentage currently over or under desired storage
-            if (modWorkers > 0 && modWorkers < 0.1) modWorkers = 0.1f;      //Avoid crazy small percentage of workers
-            if (modWorkers < 0 && modWorkers > -0.1) modWorkers = -0.1f;
+            float storedProdRatio = ProductionHere / MaxStorage;      //Percentage of Prod Storage currently filled
 
-            minWorkers += minWorkers * modWorkers;
-            if (minWorkers > 1.0f) minWorkers = 1.0f;
+            if (PlusFlatProductionPerTurn > 0)      //Stop production early, since the flat production will continue to pile up
+            {
+                if (Owner.data.Traits.Cybernetic > 0)
+                {
+                    float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                    if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
+                }
+                else
+                {
+                    storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
+                }
+                if (storedProdRatio > 1) storedProdRatio = 1;
+            }
+
+            float modWorkers = (percent - storedProdRatio) * 2;             //Percentage currently over or under desired storage
+            if (modWorkers >  0 && modWorkers <   0.05) modWorkers = 0.05f; //Avoid crazy small percentage
+            if (modWorkers <  0 && modWorkers >  -0.05) modWorkers = 0.00f; //Avoid bounce (stop if slightly over)
+            if (modWorkers >  1.00) modWorkers =  1.00f;
+            if (modWorkers < -0.35) modWorkers = -0.35f;
+
+            minWorkers += modWorkers;             //modify nominal workers by overage or underage
             if (minWorkers < 0.0f) minWorkers = 0.0f;
-            return minWorkers;
+            if (minWorkers > 1) minWorkers = 1;
+            return minWorkers;                          //Return labor % to progress toward goal
         }
 
         private void FillOrResearch(float labor)    //Core and TradeHub
@@ -1608,7 +1633,7 @@ namespace Ship_Game
             if (Fertility + PlusFoodPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
 
                    //Stop producing food a little early, since the flat food will continue to pile up
-            if (FlatFoodAdded > maxPop) storedFoodRatio += 0.2f * (FlatFoodAdded - maxPop);
+            if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
             if (storedFoodRatio > 1) storedFoodRatio = 1;
 			
             float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
@@ -1628,11 +1653,11 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic > 0)       //Stop production early, since the flat production will continue to pile up
             {
 				float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
-                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.2f * (PlusFlatProductionPerTurn - maxPop);
+                if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
             }
             else
             {
-                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.2f * PlusFlatProductionPerTurn;
+                if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
             }
 			if (storedProdRatio > 1) storedProdRatio = 1;
 
@@ -1655,8 +1680,8 @@ namespace Ship_Game
             float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
             bool doingResearch = !string.IsNullOrEmpty(Owner.ResearchTopic);
 
-            if (Name == "MerVille")
-                 { double spotForABreakpoint = Math.PI; }
+            if (Name == "MerVilleI")
+                { double spotForABreakPoint = Math.PI; }
 
             //First things first! How much is it gonna' cost?
             if (building.Maintenance != 0)
@@ -1667,6 +1692,7 @@ namespace Ship_Game
                 score -= Owner.data.FlatMoneyBonus * 0.015f;      //Acceptible loss (Note what this will do at high Difficulty)
 
                 finalScore -= score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} Maintenance : Score was {-score}");
             }
 
             //Flat Food
@@ -1676,12 +1702,14 @@ namespace Ship_Game
                 if (building.PlusFlatFoodAmount < 0) score = building.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
                 else
                 {
+                    float farmers = CalculateFoodWorkers();
                     score += building.PlusFlatFoodAmount / maxPopulation;   //Percentage of population this will feed
                     score += 1.5f - (Fertility + PlusFoodPerColonist);   //Bonus for low Fertility planets
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatFood : Score was {score}");
             }
 
             //Food per Colonist
@@ -1697,6 +1725,7 @@ namespace Ship_Game
                     if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist < 1.1f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
             }
 
             //Flat Prod
@@ -1706,13 +1735,16 @@ namespace Ship_Game
                 if (building.PlusFlatProductionAmount < 0) score = building.PlusFlatProductionAmount * 2; //for negative value
                 else
                 {
+                    if (Owner.data.Traits.Cybernetic > 0)
+                        score += building.PlusFlatProductionAmount / maxPopulation;   //Percentage of the filthy Opteris population this will feed
                     float farmers = CalculateFoodWorkers();
                     score += farmers;   //Bonus the fewer workers there are available
-                    score += Math.Max(0, 1 - (MineralRichness + PlusProductionPerColonist));    //Bonus for low richness planets (this tips the scale for edge cases)
-                    score += building.PlusFlatProductionAmount - (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation);   //How much more Prod this would produce
+                    score += 1.5f - (MineralRichness + PlusProductionPerColonist);     //Bonus for low richness planets
+                    score += (building.PlusFlatProductionAmount - PlusFlatProductionPerTurn) - ((MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation));   //How much flat Prod compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatProd : Score was {score}");
             }
 
             //Prod per Colonist
@@ -1728,6 +1760,7 @@ namespace Ship_Game
                     if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
             }
 
             //Prod per Richness
@@ -1741,6 +1774,7 @@ namespace Ship_Game
                     if (!HasShipyard) score *= 0.75f;       //Do we have a use for all this production?
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ProdPerRich : Score was {score}");
             }
 
             //Storage
@@ -1756,6 +1790,7 @@ namespace Ship_Game
                 if (score < 0.01f) score = 0.01f; //A little storage is always a useful
 
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} StorageAdd : Score was {score}");
             }
 
             //Plus Population Growth
@@ -1771,6 +1806,7 @@ namespace Ship_Game
                 if (Owner.data.Traits.PhysicalTraitLessFertile) score *= 2;     //These are calculated outside the else, so they will affect negative flatpop too
                 if (Owner.data.Traits.PhysicalTraitFertile) score *= 0.5f;
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} PopGrowth : Score was {score}");
             }
 
             //Plus Max Population
@@ -1786,6 +1822,7 @@ namespace Ship_Game
                         score += building.MaxPopIncrease * 0.001f;
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} MaxPop : Score was {score}");
             }
 
             //Flat Research
@@ -1803,6 +1840,7 @@ namespace Ship_Game
                     if (score < building.PlusFlatResearchAmount * 0.1f) score = building.PlusFlatResearchAmount * 0.1f; //A little extra research is always useful
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatResearch : Score was {score}");
             }
 
             //Research per Colonist
@@ -1819,6 +1857,7 @@ namespace Ship_Game
                     score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation);       //Research this will generate
                 }
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
             }
 
             //Credits per Colonist
@@ -1828,6 +1867,7 @@ namespace Ship_Game
                 if (building.CreditsPerColonist < 0) score += building.CreditsPerColonist * maxPopulation * 2;
                 else score += (building.CreditsPerColonist * maxPopulation) / 2;        //Dont want to cause this to have building preference over infrastructure buildings
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} CredsPerCol : Score was {score}");
             }
 
             //Plus Tax Percentage
@@ -1838,27 +1878,31 @@ namespace Ship_Game
                 if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * GrossMoneyPT * 2;
                 else score += building.PlusTaxPercentage * GrossMoneyPT / 2;
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} PlusTaxPercent : Score was {score}");
             }
 
             //Allow Ship Building
-            if (building.AllowShipBuilding)
+            if (building.AllowShipBuilding || building.Name == "Space Port")        //Had to also add the name, because some parts of the code look at the name instead of the 'AllowShipBuilding' tag
             {
                 score = 0;              //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
                 float farmers = CalculateFoodWorkers();
                 float prodFromLabor = ((1 - farmers) * maxPopulation * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist));
                 float prodFromFlat  = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
-                if (prodFromLabor + prodFromFlat > 5.0f) score += 5.0f - prodFromLabor + prodFromFlat;
+                if (prodFromLabor + prodFromFlat > 5.0f) score += prodFromLabor + prodFromFlat - 5.0f;
                 finalScore += score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
             }
 
             if (false && building.PlusTerraformPoints != 0)
             {
+                score = 0;
                 //Still working on this one...
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} Terraform : Score was {score}");
             }
 
             //Fertility loss on build
-            if (building.MinusFertilityOnBuild != 0)
+            if (building.MinusFertilityOnBuild != 0 && Owner.data.Traits.Cybernetic == 0)       //Cybernetic dont care.
             {
                 score = 0;
                 if (building.MinusFertilityOnBuild < 0) score += building.MinusFertilityOnBuild * 2;    //Negative loss means positive gain!!
@@ -1872,8 +1916,10 @@ namespace Ship_Game
                     else score += fertLost * 4;
                 }
                 finalScore -= score;
+                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FertLossOnBuild : Score was {score}");
             }
 
+            if (Name == "MerVille") Log.Info(ConsoleColor.Cyan, $"Evaluated {building.Name} Final Score was : {finalScore}");
             return finalScore;
         }
 
@@ -1888,22 +1934,25 @@ namespace Ship_Game
 
             //Do some existing bulding recon
             int openTiles = 0;
-            bool noMoreBiospheres = true;
+            int totalbuildings = 0; //To account for buildings that can be build anywhere
             foreach (PlanetGridSquare pgs in TilesList)
             {
                 if (pgs.Habitable)
                 {
                     if (pgs.building == null) openTiles++;  //Habitable spot, without a building
                 }
-                else noMoreBiospheres = false;
+
+                if (pgs.building != null && pgs.building.Name != "Biospheres") totalbuildings++;
             }
 
             //Construction queue recon
             bool biosphereInTheWorks = false;
+            bool buildingInTheWorks = false;
             foreach (var thingie in ConstructionQueue)
             {
                 if (!thingie.isBuilding) continue;          //Include buildings in queue in income calculations
                 income -= thingie.Building.Maintenance + thingie.Building.Maintenance * Owner.data.Traits.MaintMod;
+                buildingInTheWorks = true;
                 if (thingie.Building.Name == "Biospheres") biosphereInTheWorks = true;
             }
 
@@ -1922,9 +1971,6 @@ namespace Ship_Game
             bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
             bool littleInQueueToBuild = ConstructionQueue.Count >= 1;
             float foodMinimum = CalculateFoodWorkers();
-            bool ForgetReseachAndBuild = 
-                notResearching || lotsInQueueToBuild ||
-                (DevelopmentLevel < 3 && (ProductionHere + 1) / (MaxStorage + 1) < .5f);
 
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
             if (colonyType == ColonyType.Research && notResearching)
@@ -1933,7 +1979,7 @@ namespace Ship_Game
             //Get biosphere biased count of the buildings in the production queue
             int buildingsInQueue = BiasedCountQueue();
 
-            if (Name == "MerVille")
+            if (Name == "MerVilleII")
             { double spotForABreakpoint = Math.PI; }
 
             switch (colonyType)
@@ -1960,22 +2006,27 @@ namespace Ship_Game
 
                         if (openTiles > 0)
                         {
-                            if (!littleInQueueToBuild)
+                            if (!buildingInTheWorks)
                             {
                                 Building bestBuilding = null;
                                 float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                float buildingScore = 0.0f;
                                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                                 {
                                     //Find the building with the highest score
-                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                                    if (buildingScore > bestValue)
+                                    {
+                                        bestBuilding = BuildingsCanBuild[i];
+                                        bestValue = buildingScore;
+                                    }
                                 }
-
                                 if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
                         else
                         {
-                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
                                 AddBuildingToCQ(bioSphere);
                         }
 
@@ -1986,11 +2037,11 @@ namespace Ship_Game
 
                 case Planet.ColonyType.Industrial:
                     {
+                        //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
                         FarmerPercentage = FarmToPercentage(0.333f);
-                        WorkerPercentage = WorkToPercentage(1);
+                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(1));
+                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
-
-                        //Farm to 33% storage (above), then devote the rest to Work, then to research when that starts to fill up
 
                         
 
@@ -2002,22 +2053,27 @@ namespace Ship_Game
 
                         if (openTiles > 0)
                         {
-                            if (!littleInQueueToBuild)
+                            if (!buildingInTheWorks)
                             {
                                 Building bestBuilding = null;
                                 float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                float buildingScore = 0.0f;
                                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                                 {
                                     //Find the building with the highest score
-                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                                    if (buildingScore > bestValue)
+                                    {
+                                        bestBuilding = BuildingsCanBuild[i];
+                                        bestValue = buildingScore;
+                                    }
                                 }
-
                                 if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
                         else
                         {
-                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
                                 AddBuildingToCQ(bioSphere);
                         }
 
@@ -2031,6 +2087,7 @@ namespace Ship_Game
                         //This governor will rely on imports, focusing on research as long as no one is starving
                         FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
+                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
 
@@ -2042,22 +2099,27 @@ namespace Ship_Game
 
                         if (openTiles > 0)
                         {
-                            if (!littleInQueueToBuild)
+                            if (!buildingInTheWorks)
                             {
                                 Building bestBuilding = null;
                                 float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                float buildingScore = 0.0f;
                                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                                 {
                                     //Find the building with the highest score
-                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                                    if (buildingScore > bestValue)
+                                    {
+                                        bestBuilding = BuildingsCanBuild[i];
+                                        bestValue = buildingScore;
+                                    }
                                 }
-
                                 if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
                         else
                         {
-                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
                                 AddBuildingToCQ(bioSphere);
                         }
 
@@ -2070,6 +2132,7 @@ namespace Ship_Game
                     {
                         FarmerPercentage = FarmToPercentage(1);     //Farm all you can
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
+                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
                         
@@ -2083,22 +2146,27 @@ namespace Ship_Game
 
                         if (openTiles > 0)
                         {
-                            if (!littleInQueueToBuild)
+                            if (!buildingInTheWorks)
                             {
                                 Building bestBuilding = null;
                                 float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                float buildingScore = 0.0f;
                                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                                 {
                                     //Find the building with the highest score
-                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                                    if (buildingScore > bestValue)
+                                    {
+                                        bestBuilding = BuildingsCanBuild[i];
+                                        bestValue = buildingScore;
+                                    }
                                 }
-
                                 if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
                         else
                         {
-                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
                                 AddBuildingToCQ(bioSphere);
                         }
 
@@ -2109,8 +2177,9 @@ namespace Ship_Game
 
                 case Planet.ColonyType.Military:    //This on is incomplete
                     {
-                        FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, and dont be desperate for imports
+                        FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
+                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
                         
@@ -2123,22 +2192,27 @@ namespace Ship_Game
 
                         if (openTiles > 0)
                         {
-                            if (!littleInQueueToBuild)
+                            if (!buildingInTheWorks)
                             {
                                 Building bestBuilding = null;
                                 float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+                                float buildingScore = 0.0f;
                                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                                 {
                                     //Find the building with the highest score
-                                    if (EvaluateBuilding(BuildingsCanBuild[i], income) > bestValue) bestBuilding = BuildingsCanBuild[i];
+                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                                    if (buildingScore > bestValue)
+                                    {
+                                        bestBuilding = BuildingsCanBuild[i];
+                                        bestValue = buildingScore;
+                                    }
                                 }
-
                                 if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
                             }
                         }
                         else
                         {
-                            if (bioSphere != null && !biosphereInTheWorks && BuildingList.Count < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
                                 AddBuildingToCQ(bioSphere);
                         }
 
