@@ -315,6 +315,13 @@ namespace Ship_Game.Ships
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             Vector2 troopPos                = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Ship.TroopList.Count, "/", Ship.TroopCapacity), troopPos, Color.White);
+            if (Ship.HasTroopBay)
+            {
+                troopPos.X += string.Concat(Ship.TroopList.Count, "/", Ship.TroopCapacity).Length * 6 - 1;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/", troopPos, Color.White);
+                troopPos.X += 6;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.AvailableAssaultShuttles().ToString(), troopPos, Color.CadetBlue);
+            }
             if (Ship.loyalty == EmpireManager.Player)
             {
                 foreach (ToggleButton button in CombatStatusButtons)
@@ -367,7 +374,7 @@ namespace Ship_Game.Ships
                 }
             }
             // Added by Fat Bastard - display hanger status
-            if (Ship.HasHangars)
+            if (Ship.AllFighterHangars.Count > 0)
             {
                 Ship.HangarInfo currentHangarStatus = Ship.GrossHangarStatus;
                 Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
@@ -377,9 +384,9 @@ namespace Ship_Game.Ships
                 Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, currentHangarStatus.Launched.ToString(), hangarTextPos, Color.Green);
-                hangarTextPos.X += currentHangarStatus.Launched.ToString().Length * 6 + 2;
+                hangarTextPos.X += currentHangarStatus.Launched.ToString().Length * 6 + 1;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/" + currentHangarStatus.ReadyToLaunch + "/", hangarTextPos, Color.White);
-                hangarTextPos.X += currentHangarStatus.ReadyToLaunch.ToString().Length * 6 + 14;
+                hangarTextPos.X += currentHangarStatus.ReadyToLaunch.ToString().Length * 6 + 12;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, currentHangarStatus.Refitting.ToString(), hangarTextPos, Color.Red);
             }
 

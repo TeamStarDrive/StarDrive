@@ -483,11 +483,19 @@ namespace Ship_Game.Ships
         {
             get
             {
-                int assaultSpots = Hangars.Count(sm => sm.IsTroopBay);
-                assaultSpots += Transporters.Sum(sm => sm.TransporterTroopLanding);
+                if (AllTroopBays.Count <= 0)
+                    return false;
 
-                int troops = Math.Min(TroopList.Count, assaultSpots);
-                return assaultSpots != 0 && (troops / (float)assaultSpots) < 0.5f;
+                int i = 0;
+                foreach (ShipModule hangar in AllTroopBays)
+                {
+                    Ship hangarship = hangar.GetHangarShip();
+                    if (hangarship != null && hangarship.Active)
+                        i += 1;
+                }
+                int assaultSpots = Transporters.Sum(sm => sm.TransporterTroopLanding); // FB: for STSA
+                //float ratio = (TroopList.Count + i) / TroopCapacity;  FB: debug
+                return (float)(TroopList.Count + i + assaultSpots) / TroopCapacity < 0.5f; 
             }
         }
         public int ReadyPlanetAssaulttTroops
@@ -642,6 +650,17 @@ namespace Ship_Game.Ships
                 }
                 return info;
             }
+        }
+
+        public int AvailableAssaultShuttles()
+        {
+            int i = 0;
+            foreach (ShipModule hangar in AllTroopBays)
+            {
+                if (hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null)
+                    i += 1;
+            }
+            return i;
         }
 
         public bool DoingTransport

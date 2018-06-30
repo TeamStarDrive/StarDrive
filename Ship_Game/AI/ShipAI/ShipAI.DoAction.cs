@@ -91,6 +91,7 @@ namespace Ship_Game.AI {
                     boarding = true;
                 }
             }
+            /*  FB: disabled and maybe add here the auto invade
             if (!boarding && (ourOutStrength > 0 || ourTroopStrength > 0))
             {
                 if (Owner.System?.OwnerList.Count > 0)
@@ -102,7 +103,7 @@ namespace Ship_Game.AI {
                     Owner.ScrambleAssaultShips(0);
                     OrderAssaultPlanet(x);
                 }
-            }
+            }*/
         }
         
         private void DebugTargetCircle(Vector2 center, float radius)
@@ -228,10 +229,7 @@ namespace Ship_Game.AI {
                     return;
                 }
             }
-            
-            
-            
-            
+
             AwaitClosest = null;
             State = AIState.Combat;
             Owner.InCombat = true;
@@ -251,15 +249,9 @@ namespace Ship_Game.AI {
                     OrderResupplyNearest(false);
                     return;
                 }
-            if (State != AIState.Resupply 
-                && !Owner.loyalty.isFaction 
-                && State == AIState.AwaitingOrders 
-                && Owner.TroopCapacity > 0
-                && Owner.TroopList.Count < Owner.AllTroopBays.Count * .5f)
-            {
-                OrderResupplyNearest(false);
-                return;
-            }
+
+            // FB: maybe add here resuppply troops check
+
             if (State != AIState.Resupply && Owner.Health > 0 &&
                 Owner.HealthMax * DmgLevel[(int) Owner.shipData.ShipCategory] > Owner.Health
                 && Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: repair level
@@ -274,7 +266,7 @@ namespace Ship_Game.AI {
 
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.HasTroopBay) //|| Owner.hasTransporter)
                 DoAssaultShipCombat(elapsedTime);
-            /*
+            /*  //FB: this is the auto invade feature. Thinking about moving it to DoAssaultShipCombat
                 if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
                 {
                     Planet invadeThis =
@@ -300,6 +292,7 @@ namespace Ship_Game.AI {
                                     .Select(ship => ship.GetHangarShip()))
                                 troop.AI.OrderAssaultPlanet(invadeThis);
                         }
+                        // FB: using the assualtship code now. Duplication is not needed.
                         else if (shipTarget?.shipData.Role > ShipData.RoleName.drone)
                         {
                             if (Owner.GetHangars().Count(troop => troop.IsTroopBay) * 60 >=
