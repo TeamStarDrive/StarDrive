@@ -644,11 +644,20 @@ namespace Ship_Game.AI {
                 OrderQueue.Clear();
                 Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
             }
-            else if (distCenter < radius)
+            else if (distCenter < 7500f) // FB: distance to launch assault shuttles for a troopship
             {
-                var toRemove = new Array<Troop>();
+                //HasPriorityOrder = true;
+                Owner.ScrambleAssaultShips(0);
+                foreach (ShipModule bay in Owner.AllTroopBays)
                 {
+                    Ship hangarShip = bay.GetHangarShip();
+                    if (hangarShip != null && hangarShip.Active)
+                        hangarShip.AI.OrderAssaultPlanet(goal.TargetPlanet);
+                }
+                Owner.DoOrbit(goal.TargetPlanet);
                     //Get limit of troops to land
+                    /*
+                    var toRemove = new Array<Troop>();
                     int landLimit = Owner.GetHangars().Count(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0);
                     foreach (ShipModule module in Owner.Transporters.Where(module => module.TransporterTimer <= 1f))
                         landLimit += module.TransporterTroopLanding;
@@ -669,7 +678,9 @@ namespace Ship_Game.AI {
                             break;
                         }
                     }
+                    */
                     //Clear out Troops
+                    /*
                     if (toRemove.Count > 0)
                     {
                         bool flag; // = false;                        
@@ -693,7 +704,7 @@ namespace Ship_Game.AI {
                             Owner.TroopList.Remove(to);
                         }
                     }
-                }
+                    */
             }
         }
 
