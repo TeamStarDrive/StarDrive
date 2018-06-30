@@ -31,7 +31,7 @@ namespace Ship_Game.Ships
             
             float modelZ = module.GetParent().BaseHull.ModelZ;
             modelZ = modelZ.Clamp(0, 200) * -1;
-            switch (type) // other special effects based on some module types.
+            switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
                 case ShipModuleType.Shield:
                     Lightning = Empire.Universe.sparks.NewEmitter(40f, center.ToVec2(), -10f + modelZ);
