@@ -954,7 +954,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>235</Index>
-      <Text>Indicates the number of troops stationed on this ship and this ship's maximum troop capacity</Text>
+      <Text>Indicates the number of troops stationed on this ship and this ship's maximum troop capacity. If the Ship has Assault bays, you will see the number of available assault shuttles in Blue.</Text>
     </Token>
     <Token>
       <Index>236</Index>
