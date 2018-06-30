@@ -55,6 +55,7 @@ namespace Ship_Game.Ships
         private Array<ShipModule> Hangars          = new Array<ShipModule>();
         public Array<ShipModule> BombBays          = new Array<ShipModule>();
         public Array<ShipModule> AllFighterHangars = new Array<ShipModule>();
+        public Array<ShipModule> AllTroopBays      = new Array<ShipModule>();
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
@@ -788,8 +789,9 @@ namespace Ship_Game.Ships
                 AI.State = AIState.SystemDefender;
             }
         }
+        /*
         //added by gremlin : troops out property        
-        public bool TroopsOutold
+        public bool TroopsOut
         {
             get
             {
@@ -836,7 +838,7 @@ namespace Ship_Game.Ships
                 }
                 RecoverAssaultShips();
             }
-        }
+        }*/
         public bool TroopsOut
         {
             get => troopsOut;
@@ -1743,17 +1745,14 @@ namespace Ship_Game.Ships
 
         public void RecoverAssaultShips()
         {
-            for (int i = 0; i < Hangars.Count; ++i)
+            foreach (ShipModule hangar in AllTroopBays)
             {
-                ShipModule shipModule = Hangars[i];
-                if (shipModule.GetHangarShip() != null && shipModule.GetHangarShip().Active)
-                {
-                    if (shipModule.IsTroopBay)
-                    {
-                        if (shipModule.GetHangarShip().TroopList.Count != 0)
-                            shipModule.GetHangarShip().ReturnToHangar();
-                    }
-                }
+                Ship hangarship = hangar.GetHangarShip();
+                if (hangarship == null || !hangarship.Active)
+                    continue;
+
+                if (hangarship.TroopList.Count != 0)
+                    hangarship.AI.OrderReturnToHangar();
             }
         }
 
@@ -2699,7 +2698,7 @@ namespace Ship_Game.Ships
 
             if (role != null)
             {
-                for (int i = 0; i < role.RaceList.Count(); i++)
+                for (int i = 0; i < role.RaceList.Count; i++)
                 {
                     if (role.RaceList[i].ShipType == loyalty.data.Traits.ShipType)
                     {
@@ -3172,8 +3171,8 @@ namespace Ship_Game.Ships
                 shield_power += shieldrepair;
             else
                 shield_power = shield_max;
-
         }
+
         public void ApplyAllRepair(float repairAmount, int repairLevel, bool repairShields = false)
         {
             float currentRepair;

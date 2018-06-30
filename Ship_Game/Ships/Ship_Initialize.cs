@@ -374,7 +374,7 @@ namespace Ship_Game.Ships
 
             for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
             {
-                int numTroopHangars = ModuleSlotList.Count(hangarbay => hangarbay.IsTroopBay);
+                int numTroopHangars = AllTroopBays.Count;
 
                 string type = redshirtType;
                 if (numTroopHangars < TroopList.Count)
@@ -454,11 +454,6 @@ namespace Ship_Game.Ships
                 if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
                 TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
-                if (module.Is(ShipModuleType.Hangar)
-                    && !module.IsTroopBay
-                    && !module.IsSupplyBay)
-                        AllFighterHangars.Add(module); // FB: add fighter hangars to list
-
                 if (MechanicalBoardingDefense < 1f) MechanicalBoardingDefense = 1f;
                 if (module.SensorRange > SensorRange) SensorRange             = module.SensorRange;
                 if (module.SensorBonus > sensorBonus) sensorBonus             = module.SensorBonus;
@@ -474,9 +469,15 @@ namespace Ship_Game.Ships
                         module.IconTexturePath = GetConduitGraphic(module);
                         break;
                     case ShipModuleType.Hangar:
-                        Hangars.Add(module);
-                        HasTroopBay |= module.IsTroopBay;
+                        Hangars.Add(module); // dynamic list of all hangars
                         if (!HasHangars) HasHangars = true;
+                        if (module.IsTroopBay) 
+                        {
+                            AllTroopBays.Add(module); // FB: add troopbays to list
+                            HasTroopBay |= module.IsTroopBay;
+                        }
+                        else if (!module.IsSupplyBay)
+                            AllFighterHangars.Add(module); // FB: add fighter hangars to list
                         break;
                     case ShipModuleType.Transporter:
                         Transporters.Add(module);
