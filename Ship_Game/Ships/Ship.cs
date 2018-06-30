@@ -1629,6 +1629,7 @@ namespace Ship_Game.Ships
             bool recallFighters = false;
             float jumpDistance = Center.Distance(AI.MovePosition);
             float slowestFighter = Speed * 2;
+            bool fightersOutBeforeRecall = fightersOut; // FB: remember the original state
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
@@ -1657,18 +1658,15 @@ namespace Ship_Game.Ships
                         continue;
                     }
                     if (fightersOut) // FB: if fighters out button is on, turn it off to allow recover till jump starts
-                    {
-                        shipData.TempRecallFightersForWarp = fightersOut;  // FB: remember the original state
                         fightersOut = false;
-                    }
+
                     recallFighters = true;
                     break;
                 }
             }
             if (!recallFighters)
             {
-                fightersOut = shipData.TempRecallFightersForWarp;
-                shipData.TempRecallFightersForWarp = false;
+                fightersOut = fightersOutBeforeRecall;
                 return false;
             }
             RecoverAssaultShips();
