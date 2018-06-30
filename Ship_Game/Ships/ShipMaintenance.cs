@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
         public static float GetMaintenanceCost(ShipData ship, float cost, Empire empire)
         {
             ShipData.RoleName role = ship.HullRole;
-            float maint = GetBaseMainCost(role, cost, empire);
+            float maint = GetBaseMainCost(role, ship.FixedCost > 0 ? ship.FixedCost : cost, empire);
             return (float)Math.Round(maint, 2);
         }
 
@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(role, empire, ship))
                 return 0;
 
-            float maint = GetBaseMainCost(role, ship.BaseCost, empire);
+            float maint = GetBaseMainCost(role, ship.shipData.FixedCost > 0 ? ship.shipData.FixedCost : ship.BaseCost, empire);
 
             // Subspace Projectors do not get any more modifiers
             if (ship.Name == "Subspace Projector")
@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
                         maint *= numShipYards - 3;
                 }
             }
-            float repairMaintModifier = 2 - ship.Health / ship.HealthMax;
+            float repairMaintModifier =  ship.HealthMax > 0 ?  2 - ship.Health / ship.HealthMax : 1;
             maint *= repairMaintModifier;
             return maint;
         }

@@ -271,7 +271,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Ship ship = ParentSystem.ShipList[i];
                 if (ship != null && ship.loyalty.isFaction)
                 {
-                    ship.Ordinance = ship.OrdinanceMax;
+                    ship.ChangeOrdnance(ship.OrdinanceMax);
                     if (ship.HasTroopBay)
                     {
                         if (Population > 0)
@@ -300,9 +300,15 @@ namespace Ship_Game.Universe.SolarBodies
 
                 if (ship == null || ship.loyalty != Owner || !HasShipyard ||
                     !ship.Position.InRadius(Center, 5000f)) continue;
-                ship.PowerCurrent = ship.PowerStoreMax;
-                ship.Ordinance = ship.OrdinanceMax;
-                    
+
+                if (!ship.InCombat)
+                {
+                    ship.AddPower(ship.PowerStoreMax);
+                    ship.ChangeOrdnance(ship.OrdinanceMax);
+                }
+                else if (ship.shipData.Role == ShipData.RoleName.platform)
+                    ship.ChangeOrdnance(ship.OrdinanceMax);
+
                 //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                 if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
                 {

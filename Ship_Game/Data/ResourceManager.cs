@@ -1611,12 +1611,12 @@ namespace Ship_Game
                         }
 
                         if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
-                            || module.ModuleType == ShipModuleType.Hangar)
+                            || module.Is(ShipModuleType.Hangar))
                             tech.TechnologyType = TechnologyType.ShipWeapons;
                         else if (module.ShieldPower >= 1f 
-                                 || module.ModuleType == ShipModuleType.Armor
-                                 || module.ModuleType == ShipModuleType.Countermeasure
-                                 || module.ModuleType == ShipModuleType.Shield)
+                                 || module.Is(ShipModuleType.Armor)
+                                 || module.Is(ShipModuleType.Countermeasure)
+                                 || module.Is(ShipModuleType.Shield))
                             tech.TechnologyType = TechnologyType.ShipDefense;
                         else
                             tech.TechnologyType = TechnologyType.ShipGeneral;
