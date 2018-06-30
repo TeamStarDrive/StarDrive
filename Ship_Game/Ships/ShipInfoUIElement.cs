@@ -683,58 +683,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob2);
             }
-                /*
-                if (Ship.HasHangars && Ship.Mothership == null)
-                {
-                    bool hasTroops = false;
-                    bool hasFighters = false;
-                    foreach (ShipModule hangar in Ship.GetHangars())
-                    {
-                        if (hangar.IsTroopBay)
-                        {
-                            hasTroops = true;
-                        }
-                        else if (!hangar.IsSupplyBay)
-                        {
-                            hasFighters = true;
-                        }
-                    }
-                    if (hasFighters)
-                    {
-                        OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
-                        {
-                            ValueToModify = new Ref<bool>(() => Ship.FightersOut, (bool x) =>
-                            {
-                                Ship.FightersOut = !Ship.FightersOut;
-                            })
-                        };
-                        Orders.Add(ob);
 
-                    }
-                    if (hasTroops)
-                    {
-                        OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
-                        {
-                            ValueToModify = new Ref<bool>(() => Ship.TroopsOut, (bool x) => {
-                                Ship.TroopsOut = !Ship.TroopsOut;
-                            })
-                        };
-                        Orders.Add(ob);
-                    }
-                    //if (ship.shipData.Role != ShipData.RoleName.station)
-                    {
-                        OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
-                        {
-                            ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, (bool x) =>
-                            {
-                                Ship.RecallFightersBeforeFTL = x;
-                                Ship.ManualHangarOverride = !x;
-                            }
-                                )
-                        };
-                        Orders.Add(ob2);
-                    }
-                }*/
             if (Ship.shipData.Role >= ShipData.RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
                 var exp = new OrdersButton(Ship, Vector2.Zero, OrderType.Explore, 136)
