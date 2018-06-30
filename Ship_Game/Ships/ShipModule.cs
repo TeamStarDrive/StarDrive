@@ -1201,9 +1201,9 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (IsTroopBay || IsSupplyBay) return false;
+                if (IsTroopBay || IsSupplyBay)
+                    return false;
 
-                //return hangarShip?.Active == true && hangarTimer <= 0;
                 return hangarShip?.Active == true;
             }
         }

@@ -165,7 +165,7 @@ namespace Ship_Game
             ShipModule m = ShipModule.CreateNoParent(ResourceManager.GetModuleTemplate(template.UID),
                                                      EmpireManager.Player, ActiveHull);
             m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
-            m.hangarShipUID = template.hangarShipUID;
+            m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.data.DefaultTroopShip : template.hangarShipUID;
             return m;
         }
 
