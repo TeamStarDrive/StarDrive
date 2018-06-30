@@ -33,7 +33,6 @@ namespace Ship_Game.Ships
         public string IconPath;
         public CombatState CombatState = CombatState.AttackRuns;
         public float MechanicalBoardingDefense;
-        public bool TempRecallFightersForWarp;
 
         public string Hull;
         public RoleName Role = RoleName.fighter;
