@@ -859,14 +859,13 @@ namespace Ship_Game.Gameplay
         public float GetArmorDamageMod(ShipModule module)
         {
             float damageModifier = 1f;
-            ShipModuleType type = module.ModuleType;
-            if (type == ShipModuleType.Armor) damageModifier *= EffectVsArmor;
-            if (Tag_Explosive)                damageModifier *= (1f - module.ExplosiveResist);
-            if (Tag_Kinetic)                  damageModifier *= (1f - module.KineticResist);
-            else if (Tag_Beam)                damageModifier *= (1f - module.BeamResist);
-            else if (Tag_Energy)              damageModifier *= (1f - module.EnergyResist);
-            else if (Tag_Missile)             damageModifier *= (1f - module.MissileResist);
-            else if (Tag_Torpedo)             damageModifier *= (1f - module.TorpedoResist);
+            if (module.Is(ShipModuleType.Armor)) damageModifier *= EffectVsArmor;
+            if (Tag_Explosive)                   damageModifier *= (1f - module.ExplosiveResist);
+            if (Tag_Kinetic)                     damageModifier *= (1f - module.KineticResist);
+            else if (Tag_Beam)                   damageModifier *= (1f - module.BeamResist);
+            else if (Tag_Energy)                 damageModifier *= (1f - module.EnergyResist);
+            else if (Tag_Missile)                damageModifier *= (1f - module.MissileResist);
+            else if (Tag_Torpedo)                damageModifier *= (1f - module.TorpedoResist);
             return damageModifier;
         }
 
