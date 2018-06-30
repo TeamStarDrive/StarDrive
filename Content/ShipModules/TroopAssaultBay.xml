@@ -47,7 +47,6 @@
   <hangarShipUID>Vulcan Scout</hangarShipUID>
   <hangarTimerConstant>30</hangarTimerConstant>
   <IsTroopBay>true</IsTroopBay>
-  <TroopCapacity>1</TroopCapacity>
   
   <!-- for shield items -->
   <shield_power>0</shield_power>
