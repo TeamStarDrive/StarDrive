@@ -194,7 +194,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int FixedTrackingPower;
         public Ship lastAttacker = null;
-        private bool LowHealth; //fbedard: recalculate strength after repair
+        //private bool LowHealth; //fbedard: recalculate strength after repair - FB: commented since its not used.
         public float TradeTimer;
         public bool ShipInitialized;
         public float maxFTLSpeed;
@@ -1536,7 +1536,7 @@ namespace Ship_Game.Ships
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
-        public int GetTechScore(out int[] techScores)
+        public int GetTechScore(out int[] techScores) // FB: move this to ship init - its a constant thing which can be calculated onces.
         {
             int [] scores = new int[4];
             scores[0] = 0;
@@ -2922,6 +2922,8 @@ namespace Ship_Game.Ships
             NumExternalSlots   = 0;
             Shields            = Empty<ShipModule>.Array;
 
+            AllFighterHangars.Clear();
+            AllTroopBays.Clear();
             Hangars.Clear();
             BombBays.Clear();
             TroopList.Clear();
