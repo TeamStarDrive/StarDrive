@@ -28,7 +28,7 @@ namespace Ship_Game.Ships
         public float RepairRate = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
-        public float maxBank => GetMaxBank(0.5235988f); 
+        public float maxBank =0.5235988f; 
         public Vector2 Acceleration { get; private set; }
 
         public Vector2 projectedPosition;
@@ -291,21 +291,6 @@ namespace Ship_Game.Ships
             return size;
         }
 
-        private float GetMaxBank(float mBank)
-        {
-            switch (shipData.Role)
-            {
-                default:
-                    return mBank;
-                case ShipData.RoleName.drone:
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
-                    return mBank * 2.1f;
-                case ShipData.RoleName.corvette:
-                    return mBank * 1.5f;
-            }
-        }
-
         private float GetyBankAmount(float yBank)
         {
             switch (shipData.Role)
@@ -483,19 +468,9 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (AllTroopBays.Count <= 0)
-                    return false;
-
-                int i = 0;
-                foreach (ShipModule hangar in AllTroopBays)
-                {
-                    Ship hangarship = hangar.GetHangarShip();
-                    if (hangarship != null && hangarship.Active)
-                        i += 1;
-                }
-                int assaultSpots = Transporters.Sum(sm => sm.TransporterTroopLanding); // FB: for STSA
-                //float ratio = (TroopList.Count + i) / TroopCapacity;  FB: debug
-                return (float)(TroopList.Count + i + assaultSpots) / TroopCapacity < 0.5f; 
+                int i = LaunchedAssaultShuttles();
+                i    += Transporters.Sum(sm => sm.TransporterTroopLanding); // FB: for STSA
+                return (float)(TroopList.Count + i) / TroopCapacity < 0.5f; 
             }
         }
         public int ReadyPlanetAssaulttTroops
@@ -658,6 +633,21 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllTroopBays)
             {
                 if (hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null)
+                    i += 1;
+            }
+            return i;
+        }
+
+        public int LaunchedAssaultShuttles()
+        {
+            if (AllTroopBays.Count <= 0)
+                return 0;
+
+            int i = 0;
+            foreach (ShipModule hangar in AllTroopBays)
+            {
+                Ship hangarship = hangar.GetHangarShip();
+                if (hangarship != null && hangarship.Active)
                     i += 1;
             }
             return i;
