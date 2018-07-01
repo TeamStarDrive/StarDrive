@@ -79,7 +79,7 @@ namespace Ship_Game.AI {
                 if (ourTroopStrength + ourOutStrength > enemyStrength &&
                     (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
                 {
-                    if (ourOutStrength < enemyStrength)
+                    if (ourOutStrength < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
                         Owner.ScrambleAssaultShips(enemyStrength);
                     for (var i = 0; i < Owner.GetHangars().Count; i++)
                     {
