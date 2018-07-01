@@ -413,6 +413,7 @@ namespace Ship_Game.Ships
             RangeForOverlay           = 0f;
             Size                      = Calculatesize();
             BaseCost                  = GetBaseCost();
+            maxBank                   = GetMaxBank(maxBank);
 
             foreach (Weapon w in Weapons)
             {
@@ -442,7 +443,7 @@ namespace Ship_Game.Ships
             Transporters.Clear();
             RepairBeams.Clear();
             AllFighterHangars.Clear();
-            //AllFighterHangars = GetAllFighterHangars();
+            AllTroopBays.Clear();
 
             float sensorBonus = 0f;
         
@@ -550,6 +551,20 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 cost += ModuleSlotList[i].Cost;
             return cost;
+        }
+        private float GetMaxBank(float mBank)
+        {
+            switch (shipData.Role)
+            {
+                default:
+                    return mBank;
+                case ShipData.RoleName.drone:
+                case ShipData.RoleName.scout:
+                case ShipData.RoleName.fighter:
+                    return mBank * 2.1f;
+                case ShipData.RoleName.corvette:
+                    return mBank * 1.5f;
+            }
         }
     }
 }
