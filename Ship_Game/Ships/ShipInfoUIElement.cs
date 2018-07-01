@@ -314,14 +314,11 @@ namespace Ship_Game.Ships
             spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(Fmt), defPos, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             Vector2 troopPos                = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Ship.TroopList.Count, "/", Ship.TroopCapacity), troopPos, Color.White);
+            DrawHorizontalValues(string.Concat(Ship.TroopList.Count), Color.White, ref troopPos, withSlash: false);
+            DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
             if (Ship.HasTroopBay)
-            {
-                troopPos.X += string.Concat(Ship.TroopList.Count, "/", Ship.TroopCapacity).Length * 6 - 1;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/", troopPos, Color.White);
-                troopPos.X += 6;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.AvailableAssaultShuttles().ToString(), troopPos, Color.CadetBlue);
-            }
+                DrawHorizontalValues(Ship.AvailableAssaultShuttles().ToString(), Color.CadetBlue, ref troopPos);
+
             if (Ship.loyalty == EmpireManager.Player)
             {
                 foreach (ToggleButton button in CombatStatusButtons)
@@ -383,11 +380,9 @@ namespace Ship_Game.Ships
 
                 Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, currentHangarStatus.Launched.ToString(), hangarTextPos, Color.Green);
-                hangarTextPos.X += currentHangarStatus.Launched.ToString().Length * 6 + 1;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/" + currentHangarStatus.ReadyToLaunch + "/", hangarTextPos, Color.White);
-                hangarTextPos.X += currentHangarStatus.ReadyToLaunch.ToString().Length * 6 + 12;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, currentHangarStatus.Refitting.ToString(), hangarTextPos, Color.Red);
+                DrawHorizontalValues(currentHangarStatus.Launched.ToString(), Color.Green, ref hangarTextPos, withSlash: false);
+                DrawHorizontalValues(currentHangarStatus.ReadyToLaunch.ToString(), Color.White, ref hangarTextPos);
+                DrawHorizontalValues(currentHangarStatus.Refitting.ToString(), Color.Red, ref hangarTextPos);
             }
 
             if (Ship.CargoSpaceUsed > 0f)
@@ -493,6 +488,17 @@ namespace Ship_Game.Ships
                     ToolTip.CreateTooltip(116);
                 }
                 numStatus++;
+            }
+
+            void DrawHorizontalValues(string value, Color color, ref Vector2 textVector, bool withSlash = true)
+            {
+                if (withSlash)
+                {
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/", textVector, Color.White);
+                    textVector.X += "/".Length * 4 + 1;
+                }
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value, textVector, color);
+                textVector.X += value.Length * 7;
             }
         }
 
