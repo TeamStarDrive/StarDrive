@@ -25,17 +25,17 @@ namespace Ship_Game.Ships
         public bool RecallFightersBeforeFTL = true;
 
         //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory
-        public float RepairRate = 1f;
+        public float RepairRate  = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
-        public float maxBank =0.5235988f; 
+        public float maxBank     = 0.5235988f; 
         public Vector2 Acceleration { get; private set; }
 
         public Vector2 projectedPosition;
         private Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
         public bool TradingProd = true;
-        public bool ShieldsUp = true;
+        public bool ShieldsUp   = true;
         //public float AfterBurnerAmount = 20.5f;    //Not referenced in code, removing to save memory
         //protected Color CloakColor = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);    //Not referenced in code, removing to save memory
         //public float CloakTime = 5f;    //Not referenced in code, removing to save memory
@@ -1536,7 +1536,7 @@ namespace Ship_Game.Ships
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
-        public int GetTechScore(out int[] techScores) // FB: move this to ship init - its a constant thing which can be calculated onces.
+        public int GetTechScore(out int[] techScores) // FB: move this to ship init if possible - its a constant thing which can be calculated one time.
         {
             int [] scores = new int[4];
             scores[0] = 0;

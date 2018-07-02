@@ -91,7 +91,31 @@ namespace Ship_Game.AI {
                     boarding = true;
                 }
             }
-            /*  FB: disabled and maybe add here the auto invade
+
+            //FB: this is the auto invade feature. Thinking about moving it to DoAssaultShipCombat
+            //if (boarding || (ourOutStrength <= 0 && ourTroopStrength <= 0))
+            /*
+            if (ourOutStrength <= 0 && ourTroopStrength <= 0)
+                    return;
+            if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) != Owner.TroopList.Count)
+                return;
+
+            Planet invadeThis = Owner.System.PlanetList.FindMinFiltered(
+                                owner => owner.Owner != null && owner.Owner != Owner.loyalty 
+                                                             && Owner.loyalty.GetRelations(owner.Owner).AtWar,
+                                troops => troops.TroopsHere.Count);
+            //Ship shipTarget = Target as Ship;
+            if (invadeThis != null)
+            {
+                Owner.ScrambleAssaultShips(0);
+                foreach (ShipModule troopBay in Owner.AllTroopBays)
+                {
+                    Ship troopShip = troopBay.GetHangarShip();
+                    if (troopShip != null && troopShip.Active)
+                        troopShip.AI.OrderAssaultPlanet(invadeThis);
+                }
+            }
+              FB: disabled and maybe add here the auto invade
             if (!boarding && (ourOutStrength > 0 || ourTroopStrength > 0))
             {
                 if (Owner.System?.OwnerList.Count > 0)
@@ -105,7 +129,7 @@ namespace Ship_Game.AI {
                 }
             }*/
         }
-        
+
         private void DebugTargetCircle(Vector2 center, float radius)
         {
             Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, center, radius, Owner.loyalty.EmpireColor, Owner);
