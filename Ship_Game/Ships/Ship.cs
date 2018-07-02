@@ -28,7 +28,7 @@ namespace Ship_Game.Ships
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
-        public float maxBank     = 0.5235988f; 
+        public float MaxBank     = 0.5235988f; 
         public Vector2 Acceleration { get; private set; }
 
         public Vector2 projectedPosition;
@@ -154,7 +154,7 @@ namespace Ship_Game.Ships
         public bool Deleted;
         //public float CargoMass;    //Not referenced in code, removing to save memory
         public bool inborders;
-        private bool fightersOut;
+        private bool FightersLaunched;
         private bool troopsOut;
         public bool Inhibited;
         private float BonusEMP_Protection;
@@ -206,7 +206,7 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost;
         public bool HasHangars;
-        public bool HasActiveHangars => GetHangars().Count > 0;
+        public bool HasActiveHangars => Hangars.Count > 0;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -589,7 +589,7 @@ namespace Ship_Game.Ships
 
         public bool FightersOut
         {
-            get => fightersOut;
+            get => FightersLaunched;
             set
             {
                 if (engineState == MoveState.Warp || isSpooling)
@@ -597,8 +597,8 @@ namespace Ship_Game.Ships
                     GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
                     return;
                 }
-                fightersOut = value;
-                if (fightersOut)
+                FightersLaunched = value;
+                if (FightersLaunched)
                     ScrambleFighters();
                 else
                     RecoverFighters();
@@ -1063,7 +1063,7 @@ namespace Ship_Game.Ships
                         isTurning = true;
                         if (RotationalVelocity > rotationRadiansPerSecond)
                             RotationalVelocity = rotationRadiansPerSecond;
-                        if (yRotation > -maxBank)
+                        if (yRotation > -MaxBank)
                             yRotation -= yBankAmount;
                     }
                     else if (currentKeyBoardState.IsKeyDown(Keys.A))
@@ -1073,7 +1073,7 @@ namespace Ship_Game.Ships
                         isTurning = true;
                         if (Math.Abs(RotationalVelocity) > rotationRadiansPerSecond)
                             RotationalVelocity = -rotationRadiansPerSecond;
-                        if (yRotation < maxBank)
+                        if (yRotation < MaxBank)
                             yRotation += yBankAmount;
                     }
                     else if (engineState == Ship.MoveState.Warp)
@@ -1638,7 +1638,7 @@ namespace Ship_Game.Ships
             bool recallFighters = false;
             float jumpDistance = Center.Distance(AI.MovePosition);
             float slowestFighter = Speed * 2;
-            bool fightersOutBeforeRecall = fightersOut; // FB: remember the original state
+            bool fightersLaunchedBeforeRecall = FightersLaunched; // FB: remember the original state
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
@@ -1666,8 +1666,8 @@ namespace Ship_Game.Ships
                         if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f;
                         continue;
                     }
-                    if (fightersOut) // FB: if fighters out button is on, turn it off to allow recover till jump starts
-                        fightersOut = false;
+                    if (FightersLaunched) // FB: if fighters out button is on, turn it off to allow recover till jump starts
+                        FightersLaunched = false;
 
                     recallFighters = true;
                     break;
@@ -1675,7 +1675,7 @@ namespace Ship_Game.Ships
             }
             if (!recallFighters)
             {
-                fightersOut = fightersOutBeforeRecall;
+                FightersLaunched = fightersLaunchedBeforeRecall;
                 return false;
             }
             RecoverAssaultShips();
@@ -2236,7 +2236,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (fightersOut) // for ships with hangars and with fighters out button on.
+            if (FightersLaunched) // for ships with hangars and with fighters out button on.
                 ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
             if (troopsOut)
                 ScrambleAssaultShips(0); // FB: if the troops out button is on, launch every availble assualt shuttle

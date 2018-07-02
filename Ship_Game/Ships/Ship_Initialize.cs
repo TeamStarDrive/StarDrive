@@ -413,7 +413,7 @@ namespace Ship_Game.Ships
             RangeForOverlay           = 0f;
             Size                      = Calculatesize();
             BaseCost                  = GetBaseCost();
-            maxBank                   = GetMaxBank(maxBank);
+            MaxBank                   = GetMaxBank(MaxBank);
 
             foreach (Weapon w in Weapons)
             {
@@ -471,7 +471,7 @@ namespace Ship_Game.Ships
                         break;
                     case ShipModuleType.Hangar:
                         Hangars.Add(module); // dynamic list of all hangars
-                        if (!HasHangars) HasHangars = true;
+                        HasHangars = true;
                         if (module.IsTroopBay) 
                         {
                             AllTroopBays.Add(module); // FB: add troopbays to list
