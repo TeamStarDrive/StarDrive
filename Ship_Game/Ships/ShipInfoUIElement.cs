@@ -659,7 +659,7 @@ namespace Ship_Game.Ships
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.FightersOut, (bool x) =>
+                    ValueToModify = new Ref<bool>(() => Ship.FightersOut, x =>
                     {
                         Ship.FightersOut = !Ship.FightersOut;
                     })
