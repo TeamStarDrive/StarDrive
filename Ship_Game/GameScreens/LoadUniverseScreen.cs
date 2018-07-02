@@ -772,21 +772,23 @@ namespace Ship_Game
             if (ship == null) // happens if module creation failed
                 return;
 
-            ship.guid          = shipSave.guid;
-            ship.Position      = shipSave.Position;
-            ship.PlayerShip    = shipSave.IsPlayerShip;
-            ship.experience    = shipSave.experience;
-            ship.kills         = shipSave.kills;
-            ship.PowerCurrent  = shipSave.Power;
-            ship.yRotation     = shipSave.yRotation;
-            ship.Ordinance     = shipSave.Ordnance;
-            ship.Rotation      = shipSave.Rotation;
-            ship.Velocity      = shipSave.Velocity;
-            ship.isSpooling    = shipSave.AfterBurnerOn;
-            ship.InCombatTimer = shipSave.InCombatTimer;
-            ship.TetherGuid   = shipSave.TetheredTo;
-            ship.TetherOffset = shipSave.TetherOffset;
-            ship.InCombat     = ship.InCombatTimer > 0f;
+            ship.guid             = shipSave.guid;
+            ship.Position         = shipSave.Position;
+            ship.PlayerShip       = shipSave.IsPlayerShip;
+            ship.experience       = shipSave.experience;
+            ship.kills            = shipSave.kills;
+            ship.PowerCurrent     = shipSave.Power;
+            ship.yRotation        = shipSave.yRotation;
+            ship.Ordinance        = shipSave.Ordnance;
+            ship.Rotation         = shipSave.Rotation;
+            ship.Velocity         = shipSave.Velocity;
+            ship.isSpooling       = shipSave.AfterBurnerOn;
+            ship.InCombatTimer    = shipSave.InCombatTimer;
+            ship.TetherGuid       = shipSave.TetheredTo;
+            ship.TetherOffset     = shipSave.TetherOffset;
+            ship.InCombat         = ship.InCombatTimer > 0f;
+            ship.FightersLaunched = shipSave.FightersLaunched;
+            ship.TroopsLaunched   = shipSave.TroopsLaunched;
 
             ship.VanityName = ship.shipData.Role == ShipData.RoleName.troop && shipSave.TroopList.NotEmpty 
                             ? shipSave.TroopList[0].Name : shipSave.Name;
