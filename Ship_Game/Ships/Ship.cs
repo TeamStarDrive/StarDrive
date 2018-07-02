@@ -154,8 +154,8 @@ namespace Ship_Game.Ships
         public bool Deleted;
         //public float CargoMass;    //Not referenced in code, removing to save memory
         public bool inborders;
-        private bool FightersLaunched;
-        private bool troopsOut;
+        public bool FightersLaunched;
+        public bool TroopsLaunched;
         public bool Inhibited;
         private float BonusEMP_Protection;
         public bool inSensorRange;
@@ -850,7 +850,7 @@ namespace Ship_Game.Ships
         }*/
         public bool TroopsOut
         {
-            get => troopsOut;
+            get => TroopsLaunched;
             set
             {
                 if (engineState == MoveState.Warp || isSpooling)
@@ -858,8 +858,8 @@ namespace Ship_Game.Ships
                     GameAudio.PlaySfxAsync("UI_Misc20"); // dont allow changing button state if the ship is spooling or at warp
                     return;
                 }
-                troopsOut = value;
-                if (troopsOut)
+                TroopsLaunched = value;
+                if (TroopsLaunched)
                     ScrambleAssaultShips(0);
                 else
                     RecoverAssaultShips();
@@ -2238,7 +2238,7 @@ namespace Ship_Game.Ships
 
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
                 ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
-            if (troopsOut)
+            if (TroopsLaunched)
                 ScrambleAssaultShips(0); // FB: if the troops out button is on, launch every availble assualt shuttle
 
             SetmaxFTLSpeed();
