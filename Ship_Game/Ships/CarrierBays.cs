@@ -37,7 +37,7 @@ namespace Ship_Game.Ships
             HasTroopBays      = AllTroopBays.Any();
         }
 
-        public static CarrierBays None { get; } = new CarrierBays() // Returns NIL object
+        public static CarrierBays None { get; } = new CarrierBays(Empty<ShipModule>.Array) // Returns NIL object
         {
             AllHangars = Empty<ShipModule>.Array,
         };
@@ -51,6 +51,8 @@ namespace Ship_Game.Ships
         public ShipModule[] AllActiveHangars => AllHangars.FilterBy(module => module.Active);
 
         public bool HasActiveHangars         => AllActiveHangars.Any(); // FB: this changes dynamically
+
+        public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
 
         public int AvailableAssaultShuttles
         {
@@ -95,6 +97,70 @@ namespace Ship_Game.Ships
             public int Launched;
             public int Refitting;
             public int ReadyToLaunch;
+        }
+
+        public void ScrambleFighters(Ship ship)
+        {
+            if (ship.engineState == Ship.MoveState.Warp || ship.isSpooling)
+                return;
+
+            for (int i = 0; i < AllActiveHangars.Length; ++i)
+                AllActiveHangars[i].ScrambleFighters();
+        }
+
+        public void RecoverFighters()
+        {
+            foreach (ShipModule hangar in AllFighterHangars)
+            {
+                Ship hangarShip = hangar.GetHangarShip();
+                if (hangarShip == null || !hangarShip.Active)
+                    continue;
+
+                hangarShip.AI.OrderReturnToHangar();
+            }
+        }
+
+        public void ScuttleNonWarpHangarShips() // FB: get rid of no warp capable hangar ships to prevent them from crawling around
+        {
+            foreach (ShipModule hangar in AllFighterHangars)
+            {
+                Ship hangarShip = hangar.GetHangarShip();
+                if (hangarShip != null && hangarShip.WarpThrust < 1f)
+                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
+            }
+        }
+        public void ScrambleAssaultShips(Ship ship, float strengthNeeded)
+        {
+            if (ship.TroopList.Count <= 0)
+                return;
+
+            bool flag = strengthNeeded > 0;
+
+            foreach (ShipModule hangar in AllActiveTroopBays)
+            {
+                if (hangar.hangarTimer <= 0 && ship.TroopList.Count > 0)
+                {
+                    if (flag && strengthNeeded < 0)
+                        break;
+                    strengthNeeded -= ship.TroopList[0].Strength;
+                    hangar.LaunchBoardingParty(ship.TroopList[0]);
+                    ship.TroopList.RemoveAt(0);
+
+                }
+            }
+        }
+
+        public void RecoverAssaultShips()
+        {
+            foreach (ShipModule hangar in AllTroopBays)
+            {
+                Ship hangarship = hangar.GetHangarShip();
+                if (hangarship == null || !hangarship.Active)
+                    continue;
+
+                if (hangarship.TroopList.Count != 0)
+                    hangarship.AI.OrderReturnToHangar();
+            }
         }
     }
 }

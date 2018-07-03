@@ -319,7 +319,8 @@ namespace Ship_Game.AI
                 using (OrderQueue.AcquireWriteLock())
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    if (Owner.Weapons.Count > 0 || Owner.HasActiveHangars || Owner.Transporters.Count > 0)
+                    //if (Owner.Weapons.Count > 0 || Owner.HasActiveHangars || Owner.Transporters.Count > 0)
+                    if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Transporters.Count > 0)
                     {
                         if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
                             (OrderQueue.IsEmpty ||
@@ -341,18 +342,22 @@ namespace Ship_Game.AI
                 foreach (Weapon purge in Owner.Weapons)
                     purge.ClearFireTarget();
 
-                if (Owner.HasHangars && Owner.loyalty != UniverseScreen.player)
+                //if (Owner.HasHangars && Owner.loyalty != UniverseScreen.player)
+                if (Owner.Carrier.HasHangars && Owner.loyalty != UniverseScreen.player)
                 {
-                    foreach (ShipModule hangar in Owner.AllFighterHangars)
+                    //foreach (ShipModule hangar in Owner.AllFighterHangars)
+                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
                         if (hangarShip != null && hangarShip.Active)
                             hangarShip.AI.OrderReturnToHangar();
                     }
                 }
-                else if (Owner.HasHangars)
+                //else if (Owner.HasHangars)
+                else if (Owner.Carrier.HasHangars)
                 {
-                    foreach (ShipModule hangar in Owner.AllFighterHangars)
+                    //foreach (ShipModule hangar in Owner.AllFighterHangars)
+                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
                         if (hangarShip == null
@@ -901,7 +906,11 @@ namespace Ship_Game.AI
 
             if (Owner.OrdnanceStatus > ShipStatus.Average)
                 return;
+            /*
             if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
+                return;
+            */
+            if (FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
             var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
             if (resupplyPlanet == null)

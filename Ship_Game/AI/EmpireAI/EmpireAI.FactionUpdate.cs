@@ -99,8 +99,9 @@ namespace Ship_Game.AI {
                                     .Where(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null)
                                     .FirstOrDefault();
                                 if (target != null && (assimilate.HasTroopBay || assimilate.hasAssaultTransporter))
-                                    if (assimilate.TroopList.Count > assimilate.GetHangars().Count)
-                                        assimilate.AI.OrderAssaultPlanet(target);
+                                //if (assimilate.TroopList.Count > assimilate.GetHangars().Count)
+                                    if (assimilate.TroopList.Count > assimilate.Carrier.AllActiveHangars.Length)
+                                            assimilate.AI.OrderAssaultPlanet(target);
                             }
                         }
                     }

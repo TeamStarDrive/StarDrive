@@ -374,7 +374,8 @@ namespace Ship_Game.Ships
 
             for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
             {
-                int numTroopHangars = AllTroopBays.Count;
+                //int numTroopHangars = AllTroopBays.Count;
+                int numTroopHangars = Carrier.AllTroopBays.Length;
 
                 string type = redshirtType;
                 if (numTroopHangars < TroopList.Count)
@@ -421,7 +422,7 @@ namespace Ship_Game.Ships
                 if (weaponRange > RangeForOverlay)
                     RangeForOverlay = weaponRange;
             }
-
+            Carrier = CarrierBays.Create(ModuleSlotList);
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             ActiveInternalSlotCount  = InternalSlotCount;
@@ -439,11 +440,11 @@ namespace Ship_Game.Ships
         {
             if (!fromSave)
                 TroopList.Clear();
-            Hangars.Clear();
+            //Hangars.Clear();
             Transporters.Clear();
             RepairBeams.Clear();
-            AllFighterHangars.Clear();
-            AllTroopBays.Clear();
+            //AllFighterHangars.Clear();
+            //AllTroopBays.Clear();
 
             float sensorBonus = 0f;
         
@@ -469,6 +470,7 @@ namespace Ship_Game.Ships
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = GetConduitGraphic(module);
                         break;
+                    /*
                     case ShipModuleType.Hangar:
                         Hangars.Add(module); // dynamic list of all hangars
                         HasHangars = true;
@@ -481,6 +483,7 @@ namespace Ship_Game.Ships
                             AllFighterHangars.Add(module); // FB: add fighter hangars to list
 
                         break;
+                     */
                     case ShipModuleType.Transporter:
                         Transporters.Add(module);
                         hasTransporter = true;
@@ -530,7 +533,6 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
-            Carrier = CarrierBays.Create(ModuleSlotList);
             shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
