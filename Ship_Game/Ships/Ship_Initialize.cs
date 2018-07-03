@@ -530,7 +530,7 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
-            Carrier = Carrier.Create(this, ModuleSlotList);
+            Carrier = CarrierBays.Create(ModuleSlotList);
             shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();

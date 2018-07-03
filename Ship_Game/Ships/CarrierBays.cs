@@ -1,40 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Ship_Game.Ships
 {
-    public class CarrierBays
+    public class CarrierBays  // Created by Fat Bastard in to better deal with hangars
     {
         public ShipModule[] AllHangars { get; private set; }
-        //public ShipModule[] AllFigherBays { get; private set; }
-        //public ShipModule[] AllTroopBays { get; private set; }
-        //private Array<ShipModule> AllHangars = new Array<ShipModule>();
+        public ShipModule[] AllTroopBays { get; }
+        public ShipModule[] AllSupplyBays { get; }
+        public ShipModule[] AllFighterHangars { get; }
+        public bool HasHangars;
+        public bool HasSupplyBays;
+        public bool HasFighterBays;
+        public bool HasTroopBays;
 
-
-        public static CarrierBays None { get; } = new CarrierBays
+        private CarrierBays(ShipModule[] slots) // this is a constructor, initialize everything in here
         {
-            AllHangars = Empty<ShipModule>.Array,
-        };
-
-        //FB:  this is not the best coding, im not familiar with syntax or how to code this
-        public CarrierBays Create(Ship ship, ShipModule[] moduleSlotList) 
-        {
-            if (!ship.HasHangars)
-                return None;
-            CarrierBays carrierBays = new CarrierBays();
-            InitCarrier(moduleSlotList);
-            return carrierBays; // FB: this doesnt work and i dont know why :( probably my lack of experience
-        }
-
-        private void InitCarrier(ShipModule[] moduleSlotList)
-        {
-            int hangarsNum = moduleSlotList.Count(module => module.Is(ShipModuleType.Hangar));
-            AllHangars = new ShipModule[hangarsNum];
-            int i = 0;
-            foreach (ShipModule module in moduleSlotList)
+            int hangarsCount = slots.Count(module => module.Is(ShipModuleType.Hangar));
+            AllHangars       = new ShipModule[hangarsCount];
+            int i            = 0;
+            foreach (ShipModule module in slots)
             {
                 if (module.Is(ShipModuleType.Hangar))
                 {
@@ -42,27 +26,31 @@ namespace Ship_Game.Ships
                     ++i;
                 }
             }
+            AllTroopBays      = AllHangars.FilterBy(module => module.IsTroopBay);
+            AllSupplyBays     = AllHangars.FilterBy(module => module.IsSupplyBay);
+            AllFighterHangars = AllHangars.FilterBy(module => !module.IsTroopBay 
+                                                              && !module.IsSupplyBay 
+                                                              && module.ModuleType != ShipModuleType.Transporter);
+            HasHangars        = AllHangars.Any();
+            HasSupplyBays     = AllSupplyBays.Any();
+            HasFighterBays    = AllFighterHangars.Any();
+            HasTroopBays      = AllTroopBays.Any();
         }
 
-        public bool HasHangars       => AllHangars.Any();
-        public bool HasActiveHangars => AllActiveHangars.Any();
-        public bool HasSupplyBays    => AllSupplyBays.Any();
-        public bool HasFighterBays   => AllFighterHangars.Any();
-        public bool HasTroopBays     => AllTroopBays.Any();
+        public static CarrierBays None { get; } = new CarrierBays() // Returns NIL object
+        {
+            AllHangars = Empty<ShipModule>.Array,
+        };
 
-        public ShipModule[] AllTroopBays => AllHangars.FilterBy(module => module.IsTroopBay);
+        public static CarrierBays Create(ShipModule[] slots)
+        {
+            return slots.Any(m => m.ModuleType == ShipModuleType.Hangar) ? new CarrierBays(slots) : None;
+        }
 
-        public ShipModule[] AllSupplyBays => AllHangars.FilterBy(module => module.IsSupplyBay);
 
         public ShipModule[] AllActiveHangars => AllHangars.FilterBy(module => module.Active);
 
-        public ShipModule[] AllFighterHangars
-        {
-            get
-            {
-                return AllHangars.FilterBy(module => !module.IsTroopBay && !module.IsSupplyBay && module.ModuleType != ShipModuleType.Transporter);
-            }
-        }
+        public bool HasActiveHangars         => AllActiveHangars.Any(); // FB: this changes dynamically
 
         public int AvailableAssaultShuttles
         {
@@ -87,14 +75,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public struct HangarInfo
-        {
-            public int Launched;
-            public int Refitting;
-            public int ReadyToLaunch;
-        }
-
-        public HangarInfo GrossHangarStatus
+        public HangarInfo GrossHangarStatus // FB: needed to display hangar status to the player
         {
             get
             {
@@ -107,6 +88,13 @@ namespace Ship_Game.Ships
                 }
                 return info;
             }
+        }
+
+        public struct HangarInfo
+        {
+            public int Launched;
+            public int Refitting;
+            public int ReadyToLaunch;
         }
     }
 }
