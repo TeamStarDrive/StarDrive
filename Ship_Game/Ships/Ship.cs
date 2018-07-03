@@ -56,6 +56,7 @@ namespace Ship_Game.Ships
         public Array<ShipModule> BombBays          = new Array<ShipModule>();
         public Array<ShipModule> AllFighterHangars = new Array<ShipModule>();
         public Array<ShipModule> AllTroopBays      = new Array<ShipModule>();
+        public CarrierBays Carrier                 = CarrierBays.None;
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
