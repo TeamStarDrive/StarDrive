@@ -886,9 +886,11 @@ namespace Ship_Game
                 foreach (Ship ship in data.MasterShipList)
                 {                    
                     ship.InitializeShip(loadingFromSavegame: true);
-                    if (ship.HasHangars)
+                    //if (ship.HasHangars)
+                    if (ship.Carrier.HasHangars)
                     {
-                        foreach (ShipModule hangar in ship.GetHangars())
+                        //foreach (ShipModule hangar in ship.GetHangars())
+                        foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                         {
                             foreach (Ship othership in ship.loyalty.GetShips())
                             {

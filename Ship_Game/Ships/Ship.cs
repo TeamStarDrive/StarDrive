@@ -52,10 +52,10 @@ namespace Ship_Game.Ships
         public Vector2 RelativeFleetOffset;
 
         private ShipModule[] Shields;
-        private Array<ShipModule> Hangars          = new Array<ShipModule>();
+        //private Array<ShipModule> Hangars          = new Array<ShipModule>();
         public Array<ShipModule> BombBays          = new Array<ShipModule>();
-        public Array<ShipModule> AllFighterHangars = new Array<ShipModule>();
-        public Array<ShipModule> AllTroopBays      = new Array<ShipModule>();
+        //public Array<ShipModule> AllFighterHangars = new Array<ShipModule>();
+        //public Array<ShipModule> AllTroopBays      = new Array<ShipModule>();
         public CarrierBays Carrier;
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
@@ -206,8 +206,8 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost;
-        public bool HasHangars;
-        public bool HasActiveHangars => Hangars.Count > 0;
+        //public bool HasHangars;
+        //public bool HasActiveHangars => Hangars.Count > 0;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -423,10 +423,12 @@ namespace Ship_Game.Ships
             }
             projectiles.Add(projectile);
         }
-
-        public bool SupplyShipReady => HasSupplyBays && OrdnanceStatus > ShipStatus.Critical 
+        /*
+        public bool SupplyShipReady =>  HasSupplyBays && OrdnanceStatus > ShipStatus.Critical 
                                                        && OrdnanceStatus != ShipStatus.NotApplicable;
-
+        */
+        public bool SupplyShipReady => Carrier.HasSupplyBays && OrdnanceStatus > ShipStatus.Critical
+                                                     && OrdnanceStatus != ShipStatus.NotApplicable;
         public bool NeedResupplyOrdnance
         {
             get
@@ -465,28 +467,30 @@ namespace Ship_Game.Ships
             }
 
         }
-        public bool NeedResupplyTroops
+        public bool NeedResupplyTroops  // move to carrier
         {
             get
             {
-                int i = LaunchedAssaultShuttles();
+                //int i = LaunchedAssaultShuttles();
+                int i = Carrier.LaunchedAssaultShuttles;
                 i    += Transporters.Sum(sm => sm.TransporterTroopLanding); // FB: for STSA
                 return (float)(TroopList.Count + i) / TroopCapacity < 0.5f; 
             }
         }
-        public int ReadyPlanetAssaulttTroops
+        public int ReadyPlanetAssaulttTroops // move to Carrier bays
         {
             get
             {
                 if (TroopList.IsEmpty)
                     return 0;
-                int assaultSpots = Hangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
+                //int assaultSpots = Hangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
+                int assaultSpots = Carrier.AllActiveHangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
                 assaultSpots += Transporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
                 assaultSpots += shipData.Role == ShipData.RoleName.troop ? 1 : 0;
                 return Math.Min(TroopList.Count, assaultSpots);
             }
         }
-        public float PlanetAssaultStrength
+        public float PlanetAssaultStrength // move to Carrier bays
         {
             get
             {
@@ -494,14 +498,15 @@ namespace Ship_Game.Ships
                     return 0.0f;
 
                 int assaultSpots =( DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troopShip) ? TroopList.Count : 0;
-                assaultSpots += Hangars.FilterBy(sm => sm.IsTroopBay).Length;
+                //assaultSpots += Hangars.FilterBy(sm => sm.IsTroopBay).Length;
+                assaultSpots += Carrier.AllActiveHangars.FilterBy(sm => sm.IsTroopBay).Length;
                 assaultSpots += Transporters.Sum(sm => sm.TransporterTroopLanding);
 
                 int troops = Math.Min(TroopList.Count, assaultSpots);
                 return TroopList.SubRange(0, troops).Sum(troop => troop.Strength);
             }
         }
-        public int PlanetAssaultCount
+        public int PlanetAssaultCount // move to carrier bays
         {
             get
             {
@@ -514,9 +519,11 @@ namespace Ship_Game.Ships
 
                     }
                     if (HasTroopBay)
-                        for (int index = 0; index < Hangars.Count; index++)
+                        //for (int index = 0; index < Hangars.Count; index++)
+                        for (int index = 0; index < Carrier.AllActiveHangars.Length; index++)
                         {
-                            ShipModule sm = Hangars[index];
+                            //ShipModule sm = Hangars[index];
+                            ShipModule sm = Carrier.AllActiveHangars[index];
                             if (sm.IsTroopBay)
                                 assaultSpots++;
                         }
@@ -541,6 +548,7 @@ namespace Ship_Game.Ships
 
             }
         }
+        /*
         public bool HasSupplyBays
         {
             get
@@ -559,6 +567,7 @@ namespace Ship_Game.Ships
                 return false;
             }
         }
+        */
         public int BombCount
         {
             get
@@ -600,12 +609,12 @@ namespace Ship_Game.Ships
                 }
                 FightersLaunched = value;
                 if (FightersLaunched)
-                    ScrambleFighters();
+                    Carrier.ScrambleFighters(this);
                 else
-                    RecoverFighters();
+                    Carrier.RecoverFighters();
             }
         }
-
+        /*
         public struct HangarInfo
         {
             public int Launched;
@@ -653,7 +662,7 @@ namespace Ship_Game.Ships
             }
             return i;
         }
-
+        */
         public bool DoingTransport
         {
             get
@@ -861,9 +870,9 @@ namespace Ship_Game.Ships
                 }
                 TroopsLaunched = value;
                 if (TroopsLaunched)
-                    ScrambleAssaultShips(0);
+                    Carrier.ScrambleAssaultShips(this, 0);
                 else
-                    RecoverAssaultShips();
+                    Carrier.RecoverAssaultShips();
             }
         }
 
@@ -899,7 +908,8 @@ namespace Ship_Game.Ships
 
             if (Mothership != null)
             {
-                foreach (ShipModule shipModule in Mothership.Hangars)
+                //foreach (ShipModule shipModule in Mothership.Hangars)
+                foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
                 {
                     if (shipModule.GetHangarShip() == this)
                         shipModule.SetHangarShip(null);
@@ -1632,9 +1642,10 @@ namespace Ship_Game.Ships
             }
         }
 
-        private bool RecallingFighters()
+        private bool RecallingFighters() // move to carrierbays
         {
-            if (!RecallFightersBeforeFTL || Hangars.Count <= 0)
+            //if (!RecallFightersBeforeFTL || Hangars.Count <= 0)
+            if (!RecallFightersBeforeFTL || Carrier.AllActiveHangars.Length <= 0)
                 return false;
             bool recallFighters = false;
             float jumpDistance = Center.Distance(AI.MovePosition);
@@ -1644,7 +1655,8 @@ namespace Ship_Game.Ships
             {
                 recallFighters = true;
 
-                foreach (ShipModule hangar in Hangars)
+                //foreach (ShipModule hangar in Hangars)
+                foreach (ShipModule hangar in Carrier.AllActiveHangars)
                 {
                     Ship hangarShip = hangar.GetHangarShip();
                     if (hangar.IsSupplyBay || hangarShip == null)
@@ -1679,8 +1691,8 @@ namespace Ship_Game.Ships
                 FightersLaunched = fightersLaunchedBeforeRecall;
                 return false;
             }
-            RecoverAssaultShips();
-            RecoverFighters();
+            Carrier.RecoverAssaultShips();
+            Carrier.RecoverFighters();
             if (DoneRecovering())
                 return false;
             if (Speed * 2 > slowestFighter)
@@ -1728,7 +1740,7 @@ namespace Ship_Game.Ships
             Speed = velocityMaximum;
         }
 
-
+        /*
         //added by gremlin deveksmod scramble assault ships
         public void ScrambleAssaultShips(float strengthNeeded)
         {
@@ -1784,6 +1796,7 @@ namespace Ship_Game.Ships
                 hangarShip.AI.OrderReturnToHangar();
             }
         }
+        /
 
         private void ScuttleNonWarpHangarShips() // FB: get rid of no warp capable hangar ships to prevent them from crawling around
         {
@@ -1796,7 +1809,7 @@ namespace Ship_Game.Ships
                     hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
             }
         }
-
+        */
         public ShipData ToShipData()
         {
             var data                       = new ShipData();
@@ -1913,11 +1926,12 @@ namespace Ship_Game.Ships
                 return "Conduits/conduit_intersection";
             }
         }
-
+        /*
         public Array<ShipModule> GetHangars()
         {
             return Hangars;
         }
+        */
 
         public void DamageShieldInvisible(Ship damageSource, float damageAmount)
         {
@@ -1929,18 +1943,21 @@ namespace Ship_Game.Ships
             }
         }
 
-        public Array<ShipModule> GetTroopHangars()
+        public Array<ShipModule> GetTroopHangars() //move toCarrierBays
         {
             var returnList = new Array<ShipModule>();
-            foreach (ShipModule s in Hangars)
+            //foreach (ShipModule s in Hangars)
+            foreach (ShipModule s in Carrier.AllActiveHangars)
                 if (s.IsTroopBay) returnList.Add(s);
             return returnList;
         }
-        public bool DoneRecovering()
+        public bool DoneRecovering() //move toCarrierBays
         {
-            for (int i = 0; i < Hangars.Count; ++i)
+            //for (int i = 0; i < Hangars.Count; ++i)
+            for (int i = 0; i < Carrier.AllActiveHangars.Length; ++i)
             {
-                bool? hangarShipActive = Hangars[i]?.GetHangarShip()?.Active;
+                //bool? hangarShipActive = Hangars[i]?.GetHangarShip()?.Active;
+                bool? hangarShipActive = Carrier.AllActiveHangars[i]?.GetHangarShip()?.Active;
                 if (hangarShipActive.HasValue && hangarShipActive.Value)
                     return false;
             }
@@ -2238,9 +2255,9 @@ namespace Ship_Game.Ships
             }
 
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
-                ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
+                Carrier.ScrambleFighters(this); // FB: If new fighters are ready in hangars, scramble them
             if (TroopsLaunched)
-                ScrambleAssaultShips(0); // FB: if the troops out button is on, launch every availble assualt shuttle
+                Carrier.ScrambleAssaultShips(this,0); // FB: if the troops out button is on, launch every availble assualt shuttle
 
             SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
@@ -2522,7 +2539,7 @@ namespace Ship_Game.Ships
         {
             shipStatusChanged = false;            
             float sensorBonus = 0f;
-            Hangars.Clear();
+            //Hangars.Clear();
             Transporters.Clear();
             Thrust                      = 0f;
             Mass                        = Size;
@@ -2607,7 +2624,7 @@ namespace Ship_Game.Ships
                     PowerStoreMax       += module.ActualPowerStoreMax;
                     PowerFlowMax        += module.ActualPowerFlowMax;      
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
-                    if (module.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars))
+                    //if (module.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars)) // non need for this. carrierbays takes care of it.
                         HasTroopBay |= module.IsTroopBay;
                     module.AddModuleTypeToList(ShipModuleType.Transporter, addToList: Transporters);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
@@ -2805,7 +2822,8 @@ namespace Ship_Game.Ships
             {
                 EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);                 
             }
-            ScuttleNonWarpHangarShips();
+            //ScuttleNonWarpHangarShips();
+            Carrier.ScuttleNonWarpHangarShips();
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
@@ -2892,11 +2910,13 @@ namespace Ship_Game.Ships
 
             if (Mothership != null)
             {
-                foreach (ShipModule shipModule in Mothership.Hangars)
+                //foreach (ShipModule shipModule in Mothership.Hangars)
+                foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
                     if (shipModule.GetHangarShip() == this)
                         shipModule.SetHangarShip(null);
             }
-            foreach (ShipModule hanger in Hangars)
+            //foreach (ShipModule hanger in Hangars)
+            foreach (ShipModule hanger in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
             {
                 if (hanger.GetHangarShip() != null)
                     hanger.GetHangarShip().Mothership = null;
@@ -2923,9 +2943,9 @@ namespace Ship_Game.Ships
             NumExternalSlots   = 0;
             Shields            = Empty<ShipModule>.Array;
 
-            AllFighterHangars.Clear();
-            AllTroopBays.Clear();
-            Hangars.Clear();
+            //AllFighterHangars.Clear();
+            //AllTroopBays.Clear();
+            //Hangars.Clear();
             BombBays.Clear();
             TroopList.Clear();
             ClearFleet();
