@@ -479,6 +479,7 @@ namespace Ship_Game.Ships
                         }
                         else if (!module.IsSupplyBay)
                             AllFighterHangars.Add(module); // FB: add fighter hangars to list
+
                         break;
                     case ShipModuleType.Transporter:
                         Transporters.Add(module);
@@ -529,6 +530,7 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
+            Carrier = Carrier.Create(this, ModuleSlotList);
             shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
