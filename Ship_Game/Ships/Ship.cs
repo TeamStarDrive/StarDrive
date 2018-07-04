@@ -201,7 +201,7 @@ namespace Ship_Game.Ships
         public Array<Empire> BorderCheck  = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
-        public float BaseCost;
+        public float BaseCost { get; private set; }
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -490,7 +490,7 @@ namespace Ship_Game.Ships
                 }
                 FightersLaunched = value;
                 if (FightersLaunched)
-                    Carrier.ScrambleFighters(this);
+                    Carrier.ScrambleFighters();
                 else
                     Carrier.RecoverFighters();
             }
@@ -625,7 +625,7 @@ namespace Ship_Game.Ships
                 }
                 TroopsLaunched = value;
                 if (TroopsLaunched)
-                    Carrier.ScrambleAssaultShips(this, 0);
+                    Carrier.ScrambleAssaultShips(0);
                 else
                     Carrier.RecoverAssaultShips();
             }
@@ -1373,7 +1373,7 @@ namespace Ship_Game.Ships
         {
             if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
                 return;
-            if (Carrier.RecallingFighters(this))
+            if (Carrier.RecallingFighters())
                 return;
             if (EnginesKnockedOut)
             {
@@ -1611,27 +1611,15 @@ namespace Ship_Game.Ships
                     shield.Damage(damageSource, damageAmount);
             }
         }
-
+        /*
         public Array<ShipModule> GetTroopHangars() //move toCarrierBays
         {
             var returnList = new Array<ShipModule>();
-            //foreach (ShipModule s in Hangars)
             foreach (ShipModule s in Carrier.AllActiveHangars)
                 if (s.IsTroopBay) returnList.Add(s);
             return returnList;
         }
-        public bool DoneRecovering() //move toCarrierBays
-        {
-            //for (int i = 0; i < Hangars.Count; ++i)
-            for (int i = 0; i < Carrier.AllActiveHangars.Length; ++i)
-            {
-                //bool? hangarShipActive = Hangars[i]?.GetHangarShip()?.Active;
-                bool? hangarShipActive = Carrier.AllActiveHangars[i]?.GetHangarShip()?.Active;
-                if (hangarShipActive.HasValue && hangarShipActive.Value)
-                    return false;
-            }
-            return true;
-        }
+        */
 
         struct Ranger
         {
@@ -1924,9 +1912,9 @@ namespace Ship_Game.Ships
             }
 
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
-                Carrier.ScrambleFighters(this); // FB: If new fighters are ready in hangars, scramble them
+                Carrier.ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
             if (TroopsLaunched)
-                Carrier.ScrambleAssaultShips(this,0); // FB: if the troops out button is on, launch every availble assualt shuttle
+                Carrier.ScrambleAssaultShips(0); // FB: if the troops out button is on, launch every availble assualt shuttle
 
             SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
@@ -2629,7 +2617,7 @@ namespace Ship_Game.Ships
             if (AI.State != AIState.FormationWarp ) return true;
             if (!isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) < 0.2f) return false;
             if (engineState == MoveState.Warp) return true;
-            return !Carrier.RecallingFighters(this);
+            return !Carrier.RecallingFighters();
         }
         public void Dispose()
         {
