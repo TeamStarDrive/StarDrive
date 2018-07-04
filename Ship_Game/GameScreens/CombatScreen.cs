@@ -117,7 +117,7 @@ namespace Ship_Game
                 }
                 if (ship.shipData.Role != ShipData.RoleName.troop)
                 {
-                    if (ship.TroopList.Count <= 0 || (!ship.HasTroopBay && !ship.hasTransporter && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
+                    if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
                         continue;
                     int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                     foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
@@ -1033,7 +1033,7 @@ namespace Ship_Game
                     {
                         this.OrbitSL.AddItem(ship);
                     }
-                    else if (ship.HasTroopBay || ship.hasTransporter)
+                    else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
                     {
                         int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                         foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))

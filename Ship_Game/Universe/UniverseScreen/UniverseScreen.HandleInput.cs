@@ -1412,7 +1412,7 @@ namespace Ship_Game
                 }
                 else if (ship.DesignRole == ShipData.RoleName.troop || (ship.TroopList.Count > 0 && ship.DesignRole == ShipData.RoleName.troopShip))
                 {
-                    if (planet.Owner != null && planet.Owner == player && (!ship.HasTroopBay && !ship.hasTransporter))
+                    if (planet.Owner != null && planet.Owner == player && !ship.Carrier.HasTroopBays && !ship.Carrier.HasTransporters)
                     {
                         if (Input.IsShiftKeyDown)
                             ship.AI.OrderToOrbit(planet, true);
