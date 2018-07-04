@@ -26,8 +26,8 @@ namespace Ship_Game.Universe.SolarBodies
         private float Fertility                                    => Ground.Fertility;
         private SpaceStation Station                               => Ground.Station;        
         private Planet.GoodState PS                                => Ground.PS;
-        //private Planet.GoodState FS                              => Ground.FS;
-        private bool PSexport                                      => Ground.PSexport;
+        private Planet.GoodState FS                                => Ground.FS;
+        //private bool PSexport                                      => Ground.PSexport;
         private Planet.ColonyType colonyType                       => Ground.colonyType;
         private float NetProductionPerTurn                         => Ground.NetProductionPerTurn;
         private bool GovernorOn                                    => Ground.GovernorOn;
@@ -277,8 +277,9 @@ namespace Ship_Game.Universe.SolarBodies
             take10Turns = maxp * StorageRatio;
 
 
-            if (!PSexport)                  //This statement is garbage.   Is this really supposed to be easier to read than some nested if's?
+            if (PS != Planet.GoodState.EXPORT)                  //This statement is garbage.   Is this really supposed to be easier to read than some nested if's?
                 take10Turns *= (StorageRatio < .75f ? PS == Planet.GoodState.EXPORT ? .5f : PS == Planet.GoodState.STORE ? .25f : 1 : 1);
+
             if (!GovernorOn || colonyType == Planet.ColonyType.Colony)
             {
                 take10Turns = NetProductionPerTurn; ;
