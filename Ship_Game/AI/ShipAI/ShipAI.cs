@@ -724,7 +724,7 @@ namespace Ship_Game.AI
             {
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
-                if (Owner.hasTransporter)
+                if (Owner.Carrier.HasTransporters)
                     for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++) // FB:change to foreach
                     {
                         ShipModule module = Owner.Carrier.AllTransporters[x];

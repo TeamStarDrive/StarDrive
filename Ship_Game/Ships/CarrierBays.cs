@@ -5,12 +5,12 @@ namespace Ship_Game.Ships
 {
     public class CarrierBays  // Created by Fat Bastard in to better deal with hangars
     {
-        public Ship Owner { get; }
         public ShipModule[] AllHangars { get; }
         public ShipModule[] AllTroopBays { get; }
         public ShipModule[] AllSupplyBays { get; }
         public ShipModule[] AllFighterHangars { get; }
         public ShipModule[] AllTransporters { get; }
+        private Ship Owner;
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
@@ -100,6 +100,9 @@ namespace Ship_Game.Ships
 
         public void ScrambleFighters()
         {
+            if (Owner == null)
+                return;
+
             if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling)
                 return;
 
@@ -130,7 +133,7 @@ namespace Ship_Game.Ships
         }
         public void ScrambleAssaultShips(float strengthNeeded)
         {
-            if (Owner.TroopList.Count <= 0)
+            if (Owner == null || Owner.TroopList.Count <= 0)
                 return;
 
             bool limitAssaultSize = strengthNeeded > 0; // if Strendthneeded is 0,  this will be false and the ship will launch all troops
@@ -165,8 +168,11 @@ namespace Ship_Game.Ships
         {
             get
             {
+                if (Owner == null)
+                    return false;
+
                 int i = LaunchedAssaultShuttles;
-                i += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
+                i    += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
                 return (float)(Owner.TroopList.Count + i) / Owner.TroopCapacity < 0.5f;
             }
         }
@@ -175,12 +181,12 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner.TroopList.IsEmpty)
+                if (Owner == null || Owner.TroopList.IsEmpty)
                     return 0;
 
                 int assaultSpots = AllActiveHangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
-                assaultSpots += AllTransporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
-                assaultSpots += Owner.shipData.Role == ShipData.RoleName.troop ? 1 : 0;
+                assaultSpots    += AllTransporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
+                assaultSpots    += Owner.shipData.Role == ShipData.RoleName.troop ? 1 : 0;
                 return Math.Min(Owner.TroopList.Count, assaultSpots);
             }
         }
@@ -189,7 +195,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner.TroopList.IsEmpty)
+                if (Owner == null || Owner.TroopList.IsEmpty)
                     return 0.0f;
 
                 int assaultSpots = Owner.DesignRole == ShipData.RoleName.troop
@@ -208,6 +214,8 @@ namespace Ship_Game.Ships
         {
             get
             {
+                if (Owner == null)
+                    return 0;
                 int assaultSpots = 0;
                 if (Owner.shipData.Role == ShipData.RoleName.troop)
                 {
@@ -227,7 +235,7 @@ namespace Ship_Game.Ships
 
         public bool RecallingFighters() 
         {
-            if (!Owner.RecallFightersBeforeFTL || !HasActiveHangars)
+            if (Owner == null || !Owner.RecallFightersBeforeFTL || !HasActiveHangars)
                 return false;
 
             bool recallFighters               = false;
@@ -260,14 +268,14 @@ namespace Ship_Game.Ships
                         if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
-                    Owner.FightersLaunched = false;  // FB: if fighters out button is on, turn it off to allow recover till jump starts
+                    //Owner.FightersLaunched = false;  // FB: if fighters out button is on, turn it off to allow recover till jump starts
                     recallFighters = true;
                     break;
                 }
             }
             if (!recallFighters)
             {
-                Owner.FightersLaunched = fightersLaunchedBeforeRecall;
+                //Owner.FightersLaunched = fightersLaunchedBeforeRecall;
                 return false;
             }
             RecoverAssaultShips();

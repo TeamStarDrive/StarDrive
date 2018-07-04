@@ -244,8 +244,8 @@ namespace Ship_Game.AI.Tasks {
                             Ship ship = ships[index];
                             if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= minimumEscortStrength ||
                                 ship.GetStrength() <= 0f
-                                || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter ||
-                                ship.HasTroopBay
+                                || ship.shipData.Role == ShipData.RoleName.troop || ship.Carrier.HasAssaultTransporters ||
+                                ship.Carrier.HasTroopBays
                                 || ship.Mothership != null
                             )
                                 continue;
@@ -310,7 +310,7 @@ namespace Ship_Game.AI.Tasks {
                 if (strAdded < enemyShipStr * 1.65f)
                     break;
 
-                if (ship.HasTroopBay) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
+                if (ship.Carrier.HasTroopBays) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
                     troopStr    += ship.Carrier.NumActiveHangars * 10;
                     numOfTroops += ship.Carrier.NumActiveHangars;                    
@@ -326,7 +326,7 @@ namespace Ship_Game.AI.Tasks {
                 if (numBombs >= 20 || bombTaskForce.Contains(ship))
                     continue;
 
-                if (ship.HasTroopBay) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
+                if (ship.Carrier.HasTroopBays) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
                     troopStr += ship.Carrier.NumActiveHangars * 10;
                     numOfTroops += ship.Carrier.NumActiveHangars;

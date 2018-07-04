@@ -286,7 +286,7 @@ namespace Ship_Game.AI {
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
-            if (!Owner.loyalty.isFaction && Owner.System != null && Owner.HasTroopBay) //|| Owner.hasTransporter)
+            if (!Owner.loyalty.isFaction && Owner.System != null && Owner.Carrier.HasTroopBays) //|| Owner.hasTransporter)
                 DoAssaultShipCombat(elapsedTime);
             /*  //FB: this is the auto invade feature. Thinking about moving it to DoAssaultShipCombat
                 if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
@@ -955,7 +955,7 @@ namespace Ship_Game.AI {
                     .loyalty.GetShips()
                     .FindMinFiltered(
                         filter: ship => Owner.Center.Distance(ship.Center) <= module.TransporterRange + 500f
-                                        && ship.Ordinance < ship.OrdinanceMax && !ship.hasOrdnanceTransporter,
+                                        && ship.Ordinance < ship.OrdinanceMax && !ship.Carrier.HasOrdnanceTransporters,
                         selector: ship => ship.Ordinance);
             if (repairMe == null)
                 return;
