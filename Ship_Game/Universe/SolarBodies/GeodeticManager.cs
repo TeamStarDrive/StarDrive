@@ -310,7 +310,7 @@ namespace Ship_Game.Universe.SolarBodies
                     foreach (var pgs in TilesList)
                     {
                         // FB: I added here a minimum threshold of 5 troops to stay as garrison so the auto load wont clean the colony
-                        // But this should be made at a button for the player to decide how many troops he wants to leve as a garrison in ship colony screen
+                        // But this should be made at a button for the player to decide how many troops he wants to leave as a garrison in ship colony screen
                         if (ship.TroopCapacity == 0 || ship.TroopList.Count >= ship.TroopCapacity || TroopsHere.Count < 5)
                             break;
 
