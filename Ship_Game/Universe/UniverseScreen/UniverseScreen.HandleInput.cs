@@ -1023,13 +1023,12 @@ namespace Ship_Game
                         ShipPieMenu(SelectedShip);
                     }
                 }
-                ProjectingPosition = false;
                 return;
             }
 
             if (Input.RightMouseWasHeld)
-            {
-               ProjectingPosition = true;
+            {                
+                ProjectingPosition = false;
                 if (SelectedFleet != null && SelectedFleet.Owner == player)
                 {
                     SelectedSomethingTimer = 3f;
