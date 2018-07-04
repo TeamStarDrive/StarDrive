@@ -1315,11 +1315,11 @@ namespace Ship_Game.Ships
             return scores[1] + scores[3] + scores[0] + scores[2];
         }        
 
-        public void DoEscort(Ship EscortTarget)
+        public void DoEscort(Ship escortTarget)
         {
             AI.OrderQueue.Clear();
-            AI.State = AIState.Escort;
-            AI.EscortTarget = EscortTarget;
+            AI.State        = AIState.Escort;
+            AI.EscortTarget = escortTarget;
         }
 
         public void DoDefense()
@@ -1384,63 +1384,7 @@ namespace Ship_Game.Ships
                 ResetJumpTimer();
             }
         }
-        /*
-        private bool RecallingFighters() // move to carrierbays
-        {
-            if (!RecallFightersBeforeFTL || Carrier.AllActiveHangars.Length <= 0)
-                return false;
-            bool recallFighters = false;
-            float jumpDistance = Center.Distance(AI.MovePosition);
-            float slowestFighter = Speed * 2;
-            bool fightersLaunchedBeforeRecall = FightersLaunched; // FB: remember the original state
-            if (jumpDistance > 7500f)
-            {
-                recallFighters = true;
 
-                foreach (ShipModule hangar in Carrier.AllActiveHangars)
-                {
-                    Ship hangarShip = hangar.GetHangarShip();
-                    if (hangar.IsSupplyBay || hangarShip == null)
-                    {
-                        recallFighters = false;
-                        continue;
-                    }
-                    if (hangarShip.Speed < slowestFighter) slowestFighter = hangarShip.Speed;
-
-                    float rangeTocarrier = hangarShip.Center.Distance(Center);
-                    if (hangarShip.EMPdisabled 
-                        || !hangarShip.hasCommand 
-                        || hangarShip.dying 
-                        || hangarShip.EnginesKnockedOut
-                        || rangeTocarrier > SensorRange
-                        || rangeTocarrier > 25000f && hangarShip.WarpThrust < 1f) // scuttle non warp capable ships if they are too far
-                    {
-                        recallFighters = false;
-                        // FB: this will scuttle hanger ships if they cant reach the mothership
-                        if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f;
-                        continue;
-                    }
-                    if (FightersLaunched) // FB: if fighters out button is on, turn it off to allow recover till jump starts
-                        FightersLaunched = false;
-
-                    recallFighters = true;
-                    break;
-                }
-            }
-            if (!recallFighters)
-            {
-                FightersLaunched = fightersLaunchedBeforeRecall;
-                return false;
-            }
-            Carrier.RecoverAssaultShips();
-            Carrier.RecoverFighters();
-            if (DoneRecovering())
-                return false;
-            if (Speed * 2 > slowestFighter)
-                Speed = slowestFighter * .25f;
-            return true;
-        }
-        */
         private string GetStartWarpCue()
         {
             if (loyalty.data.WarpStart != null)
@@ -1540,7 +1484,6 @@ namespace Ship_Game.Ships
             return slots;
         }
 
-
         private string GetConduitGraphic(ShipModule forModule)
         {
             var conduit = new ConduitGraphic();
@@ -1607,15 +1550,6 @@ namespace Ship_Game.Ships
                     shield.Damage(damageSource, damageAmount);
             }
         }
-        /*
-        public Array<ShipModule> GetTroopHangars() //move toCarrierBays
-        {
-            var returnList = new Array<ShipModule>();
-            foreach (ShipModule s in Carrier.AllActiveHangars)
-                if (s.IsTroopBay) returnList.Add(s);
-            return returnList;
-        }
-        */
 
         struct Ranger
         {
@@ -2192,8 +2126,6 @@ namespace Ship_Game.Ships
         {
             shipStatusChanged = false;            
             float sensorBonus = 0f;
-            //Hangars.Clear();
-            //Transporters.Clear();
             Thrust                      = 0f;
             Mass                        = Size;
             shield_max                  = 0f;
@@ -2471,7 +2403,6 @@ namespace Ship_Game.Ships
             {
                 EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);                 
             }
-            //ScuttleNonWarpHangarShips();
             Carrier.ScuttleNonWarpHangarShips();
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
