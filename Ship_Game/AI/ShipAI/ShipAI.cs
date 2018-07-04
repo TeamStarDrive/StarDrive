@@ -303,7 +303,7 @@ namespace Ship_Game.AI
                 Owner.DesignRole >= ShipData.RoleName.supply) //fbedard: ships will go for repair
                 if (Owner.fleet == null || Owner.fleet != null && !Owner.fleet.HasRepair)
                     OrderResupplyNearest(false);
-            if (State == AIState.AwaitingOrders && Owner.Carrier.NeedResupplyTroops(Owner))
+            if (State == AIState.AwaitingOrders && Owner.Carrier.NeedResupplyTroops)
                 OrderResupplyNearest(false);
             if (Owner.NeedResupplyOrdnance)
                 OrderResupplyNearest(false);

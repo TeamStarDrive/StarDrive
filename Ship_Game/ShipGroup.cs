@@ -300,7 +300,7 @@ namespace Ship_Game
                 Ship ship = this.Ships[index];
                 if (ship.Active && ship.GetStrength() > 0)
                     num++;
-                troops += ship.Carrier.PlanetAssaultCount(ship);
+                troops += ship.Carrier.PlanetAssaultCount;
             }
             return num;
         }

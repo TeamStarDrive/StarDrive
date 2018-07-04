@@ -77,7 +77,7 @@ namespace Ship_Game.AI {
                     (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
                 {
                     if (ourOutStrength < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
-                        Owner.Carrier.ScrambleAssaultShips(Owner, enemyStrength);
+                        Owner.Carrier.ScrambleAssaultShips(enemyStrength);
                     for (var i = 0; i < Owner.Carrier.AllActiveTroopBays.Length; i++) // FB: move to foreach
                     {
                         ShipModule hangar = Owner.Carrier.AllActiveTroopBays[i];
@@ -343,7 +343,7 @@ namespace Ship_Game.AI {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
                 if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
-                    Owner.Carrier.ScrambleFighters(Owner);
+                    Owner.Carrier.ScrambleFighters();
             }
             else if (FleetNode != null && Owner.fleet != null)
             {
@@ -661,7 +661,7 @@ namespace Ship_Game.AI {
             }
             else if (distCenter < 7500f) // FB: distance to launch assault shuttles for a troopship
             {
-                Owner.Carrier.ScrambleAssaultShips(Owner, 0);
+                Owner.Carrier.ScrambleAssaultShips(0);
                 foreach (ShipModule bay in Owner.Carrier.AllTroopBays)
                 {
                     Ship hangarShip = bay.GetHangarShip();
