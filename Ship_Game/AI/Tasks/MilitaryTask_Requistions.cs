@@ -135,7 +135,7 @@ namespace Ship_Game.AI.Tasks {
                     break;
 
                 newFleet.AddShip(ship);
-                ForceStrength += ship.Carrier.PlanetAssaultStrength(ship);
+                ForceStrength += ship.Carrier.PlanetAssaultStrength;
             }
 
             foreach (Troop t in potentialTroops.Where(planet=> planet.GetPlanet() != null).OrderBy(troop => troop.GetPlanet().RecentCombat ? 1 :0)
@@ -312,8 +312,8 @@ namespace Ship_Game.AI.Tasks {
 
                 if (ship.HasTroopBay) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    troopStr    += ship.Carrier.AllActiveHangars.Length * 10;
-                    numOfTroops += ship.Carrier.AllActiveHangars.Length;                    
+                    troopStr    += ship.Carrier.NumActiveHangars * 10;
+                    numOfTroops += ship.Carrier.NumActiveHangars;                    
                 }
                 ships.Add(ship);
                 strAdded += ship.GetStrength();
@@ -328,8 +328,8 @@ namespace Ship_Game.AI.Tasks {
 
                 if (ship.HasTroopBay) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    troopStr += ship.Carrier.AllActiveHangars.Length * 10;
-                    numOfTroops += ship.Carrier.AllActiveHangars.Length;
+                    troopStr += ship.Carrier.NumActiveHangars * 10;
+                    numOfTroops += ship.Carrier.NumActiveHangars;
                 }
                 bombTaskForce.Add(ship);
                 numBombs += ship.BombBays.Count;
