@@ -46,7 +46,7 @@ namespace Ship_Game
         }
 
 
-        public GoodState FS = GoodState.STORE;
+        public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
         public GoodState GetGoodState(string good)
         {
@@ -148,10 +148,10 @@ namespace Ship_Game
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn = 0;        
-        public bool PSexport { get; private set; }
+        //public bool PSexport { get; private set; }
 
-        public float ExportPSWeight =0;
-        public float ExportFSWeight = 0;
+        //public float ExportPSWeight =0;       //Removed by Gretman, these were only used for legacy debug visualization
+        //public float ExportFSWeight = 0;
 
 
         public float TradeIncomingColonists = 0;
@@ -169,6 +169,7 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public void HealTroops()                                          => TroopManager.HealTroops();
 
+        /*      //Removed by Gretman, these were only used for legacy debug visualization
         public void SetExportWeight(string goodType, float weight)
         {
             switch (goodType)
@@ -193,7 +194,7 @@ namespace Ship_Game
                     return ExportPSWeight;                    
             }
             return 0;
-        }
+        }*/
 
         public Planet()
         {
@@ -1235,183 +1236,74 @@ namespace Ship_Game
 
         }
 
-        private void SetExportState(ColonyType colonyType)
+        private void DeterminFoodState(float importThreshold, float exportThreshold)
         {
+            if (Owner.data.Traits.Cybernetic != 0) return;
 
-            bool FSexport = false;
-            bool PSexport = false;
-            int pc = Owner.GetPlanets().Count;
-
-
-
-
-            bool exportPSFlag = true;
-            bool exportFSFlag = true;
-            float exportPTrack = Owner.exportPTrack;
-            float exportFTrack = Owner.exportFTrack;
-
-            if (pc == 1)
+            if (Owner.NumPlanets == 1)
             {
-                FSexport = false;
-                PSexport = false;
+                FS = GoodState.STORE;       //Easy out for solo planets
+                return;
             }
-            exportFSFlag = exportFTrack / pc * 2 >= ExportFSWeight;
-            exportPSFlag = exportPTrack / pc * 2 >= ExportPSWeight;
 
-            if (!exportFSFlag || Owner.averagePLanetStorage >= MaxStorage)
-                FSexport = true;
-
-            if (!exportPSFlag || Owner.averagePLanetStorage >= MaxStorage)
-                PSexport = true;
-            float PRatio = ProductionHere / MaxStorage;
-            float FRatio = FoodHere / MaxStorage;
-
-            int queueCount = ConstructionQueue.Count;
-            switch (colonyType)
+            if (FlatFoodAdded > Population / 1000)     //Account for possible overproduction from FlatFood
             {
-
-                case ColonyType.Colony:
-                case ColonyType.Industrial:
-                    if (Population >= 1000 && MaxPopulation >= Population)
-                    {
-                        if (PRatio < .9 && queueCount > 0) 
-                            PS = GoodState.IMPORT;
-                        else if (queueCount == 0)
-                        {
-                            PS = GoodState.EXPORT;
-                        }
-                        else
-                            PS = GoodState.STORE;
-
-                    }
-                    else if (queueCount > 0 || Owner.data.Traits.Cybernetic > 0)
-                    {
-                        if (PRatio < .5f)
-                            PS = GoodState.IMPORT;
-                        else if (!PSexport && PRatio > .5)
-                            PS = GoodState.EXPORT;
-                        else
-                            PS = GoodState.STORE;
-                    }
-                    else
-                    {
-                        if (PRatio > .5f && !PSexport)
-                            PS = GoodState.EXPORT;
-                        else if (PRatio > .5f && PSexport)
-                            PS = GoodState.STORE;
-                        else PS = GoodState.EXPORT;
-
-                    }
-
-                    if (NetFoodPerTurn < 0)
-                        FS = Planet.GoodState.IMPORT;
-                    else if (FRatio > .75f)
-                        FS = Planet.GoodState.STORE;
-                    else
-                        FS = Planet.GoodState.IMPORT;
-                    break;
-
-
-                case ColonyType.Agricultural:
-                    if (PRatio > .75 && !PSexport)
-                        PS = Planet.GoodState.EXPORT;
-                    else if (PRatio < .5 && PSexport)
-                        PS = Planet.GoodState.IMPORT;
-                    else
-                        PS = GoodState.STORE;
-
-
-                    if (NetFoodPerTurn > 0)
-                        FS = Planet.GoodState.EXPORT;
-                    else if (NetFoodPerTurn < 0)
-                        FS = Planet.GoodState.IMPORT;
-                    else if (FRatio > .75f)
-                        FS = Planet.GoodState.STORE;
-                    else
-                        FS = Planet.GoodState.IMPORT;
-
-                    break;
-
-                case ColonyType.Research:
-
-                    {
-                        if (PRatio > .75f && !PSexport)
-                            PS = Planet.GoodState.EXPORT;
-                        else if (PRatio < .5f) //&& PSexport
-                            PS = Planet.GoodState.IMPORT;
-                        else
-                            PS = GoodState.STORE;
-
-                        if (NetFoodPerTurn < 0)
-                            FS = Planet.GoodState.IMPORT;
-                        else if (NetFoodPerTurn < 0)
-                            FS = Planet.GoodState.IMPORT;
-                        else
-                        if (FRatio > .75f && !FSexport)
-                            FS = Planet.GoodState.EXPORT;
-                        else if (FRatio < .75) //FSexport &&
-                            FS = Planet.GoodState.IMPORT;
-                        else
-                            FS = GoodState.STORE;
-
-                        break;
-                    }
-
-                case ColonyType.Core:
-                    if (MaxPopulation > Population * .75f && Population > DevelopmentLevel * 1000)
-                    {
-
-                        if (PRatio > .33f)
-                            PS = GoodState.EXPORT;
-                        else if (PRatio < .33)
-                            PS = GoodState.STORE;
-                        else
-                            PS = GoodState.IMPORT;
-                    }
-                    else
-                    {
-                        if (PRatio > .75 && !FSexport)
-                            PS = GoodState.EXPORT;
-                        else if (PRatio < .5) //&& FSexport
-                            PS = GoodState.IMPORT;
-                        else PS = GoodState.STORE;
-                    }
-
-                    if (NetFoodPerTurn < 0)
-                        FS = Planet.GoodState.IMPORT;
-                    else if (FRatio > .25)
-                        FS = GoodState.EXPORT;
-                    else if (NetFoodPerTurn > DevelopmentLevel * .5)
-                        FS = GoodState.STORE;
-                    else
-                        FS = GoodState.IMPORT;
-
-
-                    break;
-                case ColonyType.Military:
-                case ColonyType.TradeHub:
-                    if (FS != GoodState.STORE)
-                        if (FRatio > .50)
-                            FS = GoodState.EXPORT;
-                        else
-                            FS = GoodState.IMPORT;
-                    if (PS != GoodState.STORE)
-                        if (PRatio > .50)
-                            PS = GoodState.EXPORT;
-                        else
-                            PS = GoodState.IMPORT;
-
-                    break;
-
-                default:
-                    break;
+                float offestAmount = (FlatFoodAdded - (Population / 1000)) * 0.05f; //5% of excess FlatFood
+                offestAmount.Clamp(0.00f, 0.15f);       //Tame offset to prevent huge change
+                importThreshold -= offestAmount;
+                importThreshold.Clamp(0.10f, 1.00f);
+                exportThreshold -= offestAmount;        //Note that overproduction is the only way for a planet with an ExportThreshold of 1 to ever decide to export
+                exportThreshold.Clamp(0.10f, 1.00f);
             }
-            if (!PSexport)
-                this.PSexport = true;
-            else
+
+            float ratio = FoodHere / MaxStorage;
+
+            //This will allow a buffer for import / export, so they dont constantly switch between them
+            if      (ratio < importThreshold) FS = GoodState.IMPORT;                                //if below importThreshold, its time to import.
+            else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  //until you reach 2x importThreshold, then switch to Store
+            else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  //If we were exporing, and drop below half exportThreshold, stop exporting
+            else if (ratio > exportThreshold) FS = GoodState.EXPORT;                                //until we get back to the Threshold, then export
+        }
+
+        private void DeterminProdState(float importThreshold, float exportThreshold)
+        {
+            if (Owner.NumPlanets == 1)
             {
-                this.PSexport = false;
+                PS = GoodState.STORE;       //Easy out for solo planets
+                return;
             }
+
+            if (PlusFlatProductionPerTurn > 0)
+            {
+                if (Owner.data.Traits.Cybernetic != 0)  //Account for excess food for the filthy Opteris
+                {
+                    if (PlusFlatProductionPerTurn > Population / 1000)
+                    {
+                        float offestAmount = (PlusFlatProductionPerTurn - (Population / 1000)) * 0.05f;
+                        offestAmount.Clamp(0.00f, 0.15f);
+                        importThreshold -= offestAmount;
+                        importThreshold.Clamp(0.10f, 1.00f);
+                        exportThreshold -= offestAmount;
+                        exportThreshold.Clamp(0.10f, 1.00f);
+                    }
+                }
+                else
+                {
+                    float offestAmount = PlusFlatProductionPerTurn * 0.05f;
+                    offestAmount.Clamp(0.00f, 0.15f);
+                    importThreshold -= offestAmount;
+                    importThreshold.Clamp(0.10f, 1.00f);        //Account for FlatProd, which will pile up
+                    exportThreshold -= offestAmount;            //This will allow a planet that normally wouldn't export prod to do so if it is full,
+                    exportThreshold.Clamp(0.10f, 1.00f);        //since the Production still being produced would otherwise be wasted
+                }
+            }
+
+            float ratio = ProductionHere / MaxStorage;
+
+            if (ratio < importThreshold) PS = GoodState.IMPORT;
+            else if (PS == GoodState.IMPORT && ratio >= importThreshold * 2) PS = GoodState.STORE;
+            else if (PS == GoodState.EXPORT && ratio <= exportThreshold / 2) PS = GoodState.STORE;
+            else if (ratio > exportThreshold) PS = GoodState.EXPORT;
         }
 
         private void BuildShipywardifAble()
@@ -1938,7 +1830,12 @@ namespace Ship_Game
 
                         FillOrResearch(1 - FarmerPercentage);
 
-                        if (colonyType == Planet.ColonyType.TradeHub) break;
+                        if (colonyType == Planet.ColonyType.TradeHub)
+                        {
+                            DeterminFoodState(0.15f, 1.0f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                            DeterminProdState(0.15f, 1.0f);
+                            break;
+                        }
 
 
 
@@ -1974,7 +1871,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+                        DeterminFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
+                        DeterminProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
 
                         break;
                     }
@@ -2021,7 +1919,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+                        DeterminFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                        DeterminProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
 
                         break;
                     }
@@ -2067,7 +1966,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+                        DeterminFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
+                        DeterminProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
 
                         break;
                     }
@@ -2114,7 +2014,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+                        DeterminFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                        DeterminProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
 
                         break;
                     }
@@ -2160,7 +2061,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        SetExportState(colonyType); //Still need to refactor / rewrite this...
+                        DeterminFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
+                        DeterminProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
 
                         break;
                     }
