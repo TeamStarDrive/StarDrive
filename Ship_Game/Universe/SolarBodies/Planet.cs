@@ -1412,8 +1412,6 @@ namespace Ship_Game
             {
                 this.PSexport = false;
             }
-
-
         }
 
         private void BuildShipywardifAble()
@@ -1492,57 +1490,12 @@ namespace Ship_Game
             }
         }
 
-        private bool BuildBasicInfrastructure() //A Gretman function to support DoGoverning()
-        {
-            //Figure out the cheapest buildings for each category
-            Building cheapestFlatprod = BuildingsCanBuild.Where(flat => flat.PlusFlatProductionAmount > 0)
-                    .OrderByDescending(cost => cost.Cost).FirstOrDefault();
-
-            Building cheapestFlatfood;
-            if (Owner.data.Traits.Cybernetic > 0)
-            {
-                cheapestFlatfood = cheapestFlatprod;
-            }
-            else
-            {
-                cheapestFlatfood = BuildingsCanBuild.Where(flatfood => flatfood.PlusFlatFoodAmount > 0)
-                            .OrderByDescending(cost => cost.Cost).FirstOrDefault();
-            }
-
-            Building cheapestFlatResearch = BuildingsCanBuild.Where(flat => flat.PlusFlatResearchAmount > 0)
-                .OrderByDescending(cost => cost.Cost).FirstOrDefault();
-
-            Building buildthis = null;
-            buildthis = cheapestFlatprod ?? cheapestFlatfood ?? cheapestFlatResearch;
-
-            if (buildthis == null) return false;
-
-            AddBuildingToCQ(buildthis);
-            return true;
-        }
-
-        private int BiasedCountQueue()
-        {
-            //I have no idea why the Biospheres are double counted in the original code, but they are. ConstructionQueue.Count would be so much easier.
-            int total = 0;
-            foreach (QueueItem queueItem in ConstructionQueue)
-            {
-                if (queueItem.isBuilding)
-                {
-                    ++total;
-                    if (queueItem.Building.Name == "Biospheres") ++total;
-                }
-            }
-            return total;
-        }
-
         private float CalculateFoodWorkers()    //Simply calculates what percentage of workers are needed for farming (between 0.0 and 0.9)
         {
-            if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0) return 0.0f;
+            if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0.5) return 0.0f;
 
             float workers = (Consumption - FlatFoodAdded) / (Population / 1000) / (Fertility + PlusFoodPerColonist);
             if (workers > 0.9f) workers = 0.9f;     //Dont allow farmers to consume all labor
-            if (workers < 0.0f) workers = 0.0f;
             return workers;
         }
 
@@ -1560,18 +1513,16 @@ namespace Ship_Game
                 //Stop producing food a little early, since the flat food will continue to pile up
                 float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
                 if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
-                if (storedFoodRatio > 1) storedFoodRatio = 1;
+                storedFoodRatio.Clamp(0, 1);
             }
 
             float modFarmers = (percent - storedFoodRatio) * 2;             //Percentage currently over or under desired storage
             if (modFarmers >  0 && modFarmers <   0.05) modFarmers = 0.05f;	//Avoid crazy small percentage
             if (modFarmers <  0 && modFarmers >  -0.05) modFarmers = 0.00f;	//Avoid bounce (stop if slightly over)
-            if (modFarmers >  0.50) modFarmers =  0.50f;					//Also avoid large percentages
-            if (modFarmers < -0.35) modFarmers = -0.35f;
+            modFarmers.Clamp(-0.35f, 0.50f);                                //Also avoid large percentages
 
             minFarmers += modFarmers;             //modify nominal farmers by overage or underage
-            if (minFarmers > 0.9f) minFarmers = 0.9f;	//Tame resulting value, dont let farming completely consume all labor
-            if (minFarmers < 0.0f) minFarmers = 0.0f;
+            minFarmers.Clamp(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
             return minFarmers;                          //Return labor % of farmers to progress toward goal
         }
 
@@ -1582,8 +1533,7 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic > 0)
             {											//Nominal workers needed to feed all of the the filthy Opteris
                 minWorkers = (Consumption - PlusFlatProductionPerTurn) / (Population / 1000) / (MineralRichness + PlusProductionPerColonist);
-                if (minWorkers > 1.0f) minWorkers = 1.0f;
-                if (minWorkers < 0.0f) minWorkers = 0.0f;
+                minWorkers.Clamp(0, 1);
             }
 
             float storedProdRatio = ProductionHere / MaxStorage;      //Percentage of Prod Storage currently filled
@@ -1599,18 +1549,16 @@ namespace Ship_Game
                 {
                     storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
                 }
-                if (storedProdRatio > 1) storedProdRatio = 1;
+                storedProdRatio.Clamp(0, 1);
             }
 
-            float modWorkers = (percent - storedProdRatio) * 2;             //Percentage currently over or under desired storage
+            float modWorkers = (percent - storedProdRatio) * 2;             //Percentage currently over or under desired storage used as mod
             if (modWorkers >  0 && modWorkers <   0.05) modWorkers = 0.05f; //Avoid crazy small percentage
             if (modWorkers <  0 && modWorkers >  -0.05) modWorkers = 0.00f; //Avoid bounce (stop if slightly over)
-            if (modWorkers >  1.00) modWorkers =  1.00f;
-            if (modWorkers < -0.35) modWorkers = -0.35f;
+            minWorkers.Clamp(-0.35f,1);
 
             minWorkers += modWorkers;             //modify nominal workers by overage or underage
-            if (minWorkers < 0.0f) minWorkers = 0.0f;
-            if (minWorkers > 1) minWorkers = 1;
+            minWorkers.Clamp(0, 1);
             return minWorkers;                          //Return labor % to progress toward goal
         }
 
@@ -1681,7 +1629,7 @@ namespace Ship_Game
             bool doingResearch = !string.IsNullOrEmpty(Owner.ResearchTopic);
 
             if (Name == "MerVilleI")
-                { double spotForABreakPoint = Math.PI; }
+                  { double spotForABreakPoint = Math.PI; }
 
             //First things first! How much is it gonna' cost?
             if (building.Maintenance != 0)
@@ -1722,7 +1670,7 @@ namespace Ship_Game
                     score += building.PlusFoodPerColonist * maxPopulation - FlatFoodAdded;  //How much food could this create (with penalty for FlatFood)
                     score += Fertility - 0.5f;  //Bonus for high fertility planets
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
-                    if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist < 1.1f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
+                    if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
                 }
                 finalScore += score;
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
@@ -1787,7 +1735,6 @@ namespace Ship_Game
                 if (HasShipyard) desiredStorage += 100.0f;      //For buildin' ships 'n shit
                 if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.002f) - (building.Cost * 0.001f);  //If we need more storage, rate this building
                 if (building.Maintenance > 0) score *= 0.25f;       //Prefer free storage
-                if (score < 0.01f) score = 0.01f; //A little storage is always a useful
 
                 finalScore += score;
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} StorageAdd : Score was {score}");
@@ -1817,8 +1764,8 @@ namespace Ship_Game
                 else
                 {
                     //Basically, only add to the score if we would be able to feed the extra people
-                    if ((Fertility + PlusFoodPerColonist + building.PlusFoodPerColonist) * ((maxPopulation + building.MaxPopIncrease) / 1000)
-                        >= ((maxPopulation + building.MaxPopIncrease) / 1000) - FlatFoodAdded - building.PlusFlatFoodAmount)
+                    if ((Fertility + PlusFoodPerColonist + building.PlusFoodPerColonist) * (maxPopulation + (building.MaxPopIncrease / 1000))
+                        >= (maxPopulation + (building.MaxPopIncrease / 1000) - FlatFoodAdded - building.PlusFlatFoodAmount)   )
                         score += building.MaxPopIncrease * 0.001f;
                 }
                 finalScore += score;
@@ -1975,9 +1922,6 @@ namespace Ship_Game
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
             if (colonyType == ColonyType.Research && notResearching)
                 colonyType = ColonyType.Industrial;
-
-            //Get biosphere biased count of the buildings in the production queue
-            int buildingsInQueue = BiasedCountQueue();
 
             if (Name == "MerVilleII")
             { double spotForABreakpoint = Math.PI; }
