@@ -366,12 +366,6 @@ namespace Ship_Game.AI
                 if (!(planet.ParentSystem.combatTimer <= 0)) continue;
                 float distanceWeight = TradeSort(Owner, planet, goodType, Owner.CargoSpaceMax, false);
 
-                var exportWeight = planet.GetExportWeight(goodType);
-                
-                planet.SetExportWeight(goodType, distanceWeight < exportWeight
-                    ? distanceWeight
-                    : exportWeight);
-
                 if (planet.GetGoodState(goodType) == goodState && InsideAreaOfOperation(planet))
                     planets.Planets.Add(planet);
                 else if (planet.MaxStorage - planet.GetGoodHere(goodType) > 0)
