@@ -106,9 +106,9 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
-        public float exportPTrack;
-        public float exportFTrack;
-        public float averagePLanetStorage;
+        //public float exportPTrack;
+        //public float exportFTrack;        //Removed by Gretman, these were only used for legacy debug visualization
+        //public float averagePLanetStorage;
         [XmlIgnore][JsonIgnore] public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
         [XmlIgnore][JsonIgnore] public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
         [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
@@ -1402,17 +1402,6 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
             {
                 float newBuildM = 0f;
-                int planetcount = GetPlanets().Count;
-                exportFTrack = 0;
-                exportPTrack = 0;
-                averagePLanetStorage = 0;
-                foreach (Planet planet in OwnedPlanets)
-                {
-                    exportFTrack += planet.ExportFSWeight;
-                    exportPTrack += planet.ExportPSWeight;
-                    averagePLanetStorage += (int)planet.MaxStorage;
-                }
-                averagePLanetStorage /= planetcount;
                 
                 foreach (Planet planet in OwnedPlanets)
                 {

@@ -555,12 +555,6 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                foreach (Planet planet in e.GetPlanets())
-                {                    
-                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
-                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
-                }
-
                 foreach (Ship ship in e.GetShips())
                 {
                     ShipAI ai = ship.AI;
