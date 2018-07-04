@@ -374,7 +374,6 @@ namespace Ship_Game.Ships
 
             for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
             {
-                //int numTroopHangars = AllTroopBays.Count;
                 int numTroopHangars = Carrier.AllTroopBays.Length;
 
                 string type = redshirtType;
@@ -440,11 +439,7 @@ namespace Ship_Game.Ships
         {
             if (!fromSave)
                 TroopList.Clear();
-            //Hangars.Clear();
-            //Transporters.Clear();
             RepairBeams.Clear();
-            //AllFighterHangars.Clear();
-            //AllTroopBays.Clear();
 
             float sensorBonus = 0f;
         
@@ -470,26 +465,6 @@ namespace Ship_Game.Ships
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = GetConduitGraphic(module);
                         break;
-                    /*
-                    case ShipModuleType.Hangar:
-                        Hangars.Add(module); // dynamic list of all hangars
-                        HasHangars = true;
-                        if (module.IsTroopBay) 
-                        {
-                            AllTroopBays.Add(module); // FB: add troopbays to list
-                            HasTroopBay |= module.IsTroopBay;
-                        }
-                        else if (!module.IsSupplyBay)
-                            AllFighterHangars.Add(module); // FB: add fighter hangars to list
-
-                        break;
-                     */
-                    //case ShipModuleType.Transporter:
-                        //Transporters.Add(module);
-                        //hasTransporter = true;
-                        //hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
-                        //hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
-                        //break;
                     case ShipModuleType.Colony:
                         isColonyShip = true;
                         break;

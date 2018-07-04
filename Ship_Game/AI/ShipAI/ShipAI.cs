@@ -303,7 +303,6 @@ namespace Ship_Game.AI
                 Owner.DesignRole >= ShipData.RoleName.supply) //fbedard: ships will go for repair
                 if (Owner.fleet == null || Owner.fleet != null && !Owner.fleet.HasRepair)
                     OrderResupplyNearest(false);
-            //if (State == AIState.AwaitingOrders && Owner.NeedResupplyTroops)
             if (State == AIState.AwaitingOrders && Owner.Carrier.NeedResupplyTroops(Owner))
                 OrderResupplyNearest(false);
             if (Owner.NeedResupplyOrdnance)
@@ -320,7 +319,6 @@ namespace Ship_Game.AI
                 using (OrderQueue.AcquireWriteLock())
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    //if (Owner.Weapons.Count > 0 || Owner.HasActiveHangars || Owner.Transporters.Count > 0)
                     if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                     {
                         if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
@@ -343,10 +341,8 @@ namespace Ship_Game.AI
                 foreach (Weapon purge in Owner.Weapons)
                     purge.ClearFireTarget();
 
-                //if (Owner.HasHangars && Owner.loyalty != UniverseScreen.player)
                 if (Owner.Carrier.HasHangars && Owner.loyalty != UniverseScreen.player)
                 {
-                    //foreach (ShipModule hangar in Owner.AllFighterHangars)
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
@@ -354,10 +350,8 @@ namespace Ship_Game.AI
                             hangarShip.AI.OrderReturnToHangar();
                     }
                 }
-                //else if (Owner.HasHangars)
                 else if (Owner.Carrier.HasHangars)
                 {
-                    //foreach (ShipModule hangar in Owner.AllFighterHangars)
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
@@ -731,10 +725,8 @@ namespace Ship_Game.AI
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
                 if (Owner.hasTransporter)
-                    //for (int x = 0; x < Owner.Transporters.Count; x++)
                     for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++) // FB:change to foreach
                     {
-                        //ShipModule module = Owner.Transporters[x];
                         ShipModule module = Owner.Carrier.AllTransporters[x];
                         if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
                             module.TransporterPower >= Owner.PowerCurrent) continue;
@@ -909,10 +901,6 @@ namespace Ship_Game.AI
 
             if (Owner.OrdnanceStatus > ShipStatus.Average)
                 return;
-            /*
-            if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
-                return;
-            */
             if (FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
             var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);

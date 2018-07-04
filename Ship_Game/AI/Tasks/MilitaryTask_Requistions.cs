@@ -135,7 +135,6 @@ namespace Ship_Game.AI.Tasks {
                     break;
 
                 newFleet.AddShip(ship);
-                //ForceStrength += ship.PlanetAssaultStrength;
                 ForceStrength += ship.Carrier.PlanetAssaultStrength(ship);
             }
 
@@ -313,8 +312,6 @@ namespace Ship_Game.AI.Tasks {
 
                 if (ship.HasTroopBay) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    //troopStr += ship.GetHangars().Count * 10;
-                    //numOfTroops += ship.GetHangars().Count;
                     troopStr    += ship.Carrier.AllActiveHangars.Length * 10;
                     numOfTroops += ship.Carrier.AllActiveHangars.Length;                    
                 }
