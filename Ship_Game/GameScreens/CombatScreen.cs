@@ -69,38 +69,40 @@ namespace Ship_Game
 
         private float[] anglesByColumn = { (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0) };
         private float[] distancesByRow = { 437f, 379f, 311f, 229f, 128f, 0f };
-        private float[] widthByRow = { 110f, 120f, 132f, 144f, 162f, 183f };
-        private float[] startXByRow =  { 254f, 222f, 181f, 133f, 74f, 0f };
+        private float[] widthByRow     = { 110f, 120f, 132f, 144f, 162f, 183f };
+        private float[] startXByRow    =  { 254f, 222f, 181f, 133f, 74f, 0f };
 
 
         private static bool popup = false;  //fbedard
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {            
-            this.p = p;            
-            int screenWidth = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            this.GridRect = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
-            Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
-            this.TitleBar = new Menu2(titleRect);
-            this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            this.SelectedItemRect = new Rectangle(screenWidth - 240, 100, 225, 205);
-            this.AssetsRect = new Rectangle(10, 48, 225, 200);
-            this.HoveredItemRect = new Rectangle(10, 248, 225, 200);
-            this.assetsUI = new OrbitalAssetsUIElement(this.AssetsRect, this.ScreenManager, Empire.Universe, p);
-            this.tInfo = new TroopInfoUIElement(this.SelectedItemRect, this.ScreenManager, Empire.Universe);
-            this.hInfo = new TroopInfoUIElement(this.HoveredItemRect, this.ScreenManager, Empire.Universe);
-            Rectangle ColonyGrid = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
-            this.CombatField = new Menu2(ColonyGrid);
+            this.p                = p;            
+            int screenWidth       = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            GridRect              = new Rectangle(screenWidth / 2 - 639, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
+            Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
+            TitleBar              = new Menu2(titleRect);
+            TitlePos              = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            SelectedItemRect      = new Rectangle(screenWidth - 240, 100, 225, 205);
+            AssetsRect            = new Rectangle(10, 48, 225, 200);
+            HoveredItemRect       = new Rectangle(10, 248, 225, 200);
+            assetsUI              = new OrbitalAssetsUIElement(this.AssetsRect, this.ScreenManager, Empire.Universe, p);
+            tInfo                 = new TroopInfoUIElement(this.SelectedItemRect, this.ScreenManager, Empire.Universe);
+            hInfo                 = new TroopInfoUIElement(this.HoveredItemRect, this.ScreenManager, Empire.Universe);
+            Rectangle ColonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
+            CombatField           = new Menu2(ColonyGrid);
             Rectangle OrbitalRect = new Rectangle(5, ColonyGrid.Y, (screenWidth - ColonyGrid.Width) / 2 - 20, ColonyGrid.Height+20);
-            this.OrbitalResources = new Menu1(OrbitalRect);
-            Rectangle psubRect = new Rectangle(this.AssetsRect.X + 225, this.AssetsRect.Y+23, 185, this.AssetsRect.Height);
-            this.orbitalResourcesSub = new Submenu(psubRect);
-            this.orbitalResourcesSub.AddTab("In Orbit");
-            this.OrbitSL = new ScrollList(this.orbitalResourcesSub);
-            Empire.Universe.ShipsInCombat.Visible = false;
+            OrbitalResources      = new Menu1(OrbitalRect);
+            Rectangle psubRect    = new Rectangle(this.AssetsRect.X + 225, this.AssetsRect.Y+23, 185, this.AssetsRect.Height);
+            orbitalResourcesSub   = new Submenu(psubRect);
+            OrbitSL               = new ScrollList(this.orbitalResourcesSub);
+
+            orbitalResourcesSub.AddTab("In Orbit");
+
+            Empire.Universe.ShipsInCombat.Visible   = false;
             Empire.Universe.PlanetsInCombat.Visible = false;
 
-            LandAll = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land", "Land All");
+            LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land", "Land All");
             LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "LaunchAll", "Launch All");
 
             using (Empire.Universe.MasterShipList.AcquireReadLock())
@@ -117,18 +119,16 @@ namespace Ship_Game
                 {
                     if (ship.TroopList.Count <= 0 || (!ship.HasTroopBay && !ship.hasTransporter && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
                         continue;
-                    //int LandingLimit = ship.GetHangars().Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    int LandingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    //foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
+                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                     foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
-                        LandingLimit += module.TransporterTroopLanding;
-                    if (p.HasShipyard && p.Owner == ship.loyalty) LandingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
-                    for (int i = 0; i < ship.TroopList.Count() && LandingLimit > 0; i++)
+                        landingLimit += module.TransporterTroopLanding;
+                    if (p.HasShipyard && p.Owner == ship.loyalty) landingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
+                    for (int i = 0; i < ship.TroopList.Count() && landingLimit > 0; i++)
                     {
                         if (ship.TroopList[i] != null && ship.TroopList[i].GetOwner() == ship.loyalty)
                         {
                             this.OrbitSL.AddItem(ship.TroopList[i]);
-                            LandingLimit--;
+                            landingLimit--;
                         }
                     }
                 }
@@ -1035,9 +1035,7 @@ namespace Ship_Game
                     }
                     else if (ship.HasTroopBay || ship.hasTransporter)
                     {
-                        //int LandingLimit = ship.GetHangars().Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                         int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                        //foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1f))
                         foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
                             landingLimit += module.TransporterTroopLanding;
                         for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)

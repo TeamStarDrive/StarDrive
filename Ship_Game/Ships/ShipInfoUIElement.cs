@@ -317,7 +317,6 @@ namespace Ship_Game.Ships
             DrawHorizontalValues(string.Concat(Ship.TroopList.Count), Color.White, ref troopPos, withSlash: false);
             DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
             if (Ship.HasTroopBay)
-                //DrawHorizontalValues(Ship.AvailableAssaultShuttles().ToString(), Color.CadetBlue, ref troopPos);
                 DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles.ToString(), Color.CadetBlue, ref troopPos);
 
             if (Ship.loyalty == EmpireManager.Player)
@@ -372,10 +371,8 @@ namespace Ship_Game.Ships
                 }
             }
             // Added by Fat Bastard - display hanger status
-            //if (Ship.AllFighterHangars.Count > 0)
             if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
-                //Ship.HangarInfo currentHangarStatus = Ship.GrossHangarStatus;
                 CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
                 Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
                 if (hangarRect.HitTest(mousePos))
@@ -658,7 +655,6 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            //if (Ship.AllFighterHangars.Count > 0)
             if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
@@ -680,7 +676,6 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            //            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.HasTroopBay || Ship.AllFighterHangars.Count > 0))
             if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.HasTroopBay || Ship.Carrier.AllFighterHangars.Length > 0))
             {
                 OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)

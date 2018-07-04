@@ -869,7 +869,6 @@ namespace Ship_Game.AI
 
             float planetAssaultStrength = 0.0f;
             foreach (Ship ship in RearShips)
-                //planetAssaultStrength += ship.PlanetAssaultStrength;
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength(ship);
             
             planetAssaultStrength += ourGroundStrength;
