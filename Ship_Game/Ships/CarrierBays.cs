@@ -242,5 +242,60 @@ namespace Ship_Game.Ships
             { }
             return 0;
         }
+
+        public bool RecallingFighters(Ship ship) 
+        {
+            if (!ship.RecallFightersBeforeFTL || AllActiveHangars.Length <= 0)
+                return false;
+
+            bool recallFighters               = false;
+            float jumpDistance                = ship.Center.Distance(ship.AI.MovePosition);
+            float slowestFighter              = ship.Speed * 2;
+            bool fightersLaunchedBeforeRecall = ship.FightersLaunched; // FB: remember the original state
+
+            if (jumpDistance > 7500f)
+            {
+                recallFighters = true;
+                foreach (ShipModule hangar in AllActiveHangars)
+                {
+                    Ship hangarShip = hangar.GetHangarShip();
+                    if (hangar.IsSupplyBay || hangarShip == null)
+                    {
+                        recallFighters = false;
+                        continue;
+                    }
+                    if (hangarShip.Speed < slowestFighter) slowestFighter = hangarShip.Speed;
+
+                    float rangeTocarrier = hangarShip.Center.Distance(ship.Center);
+                    if (hangarShip.EMPdisabled
+                        || !hangarShip.hasCommand
+                        || hangarShip.dying
+                        || hangarShip.EnginesKnockedOut
+                        || rangeTocarrier > ship.SensorRange
+                        || rangeTocarrier > 25000f && hangarShip.WarpThrust < 1f) // scuttle non warp capable ships if they are too far
+                    {
+                        recallFighters = false;
+                        // FB: this will scuttle hanger ships if they cant reach the mothership
+                        if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f;
+                        continue;
+                    }
+                    ship.FightersLaunched = false;  // FB: if fighters out button is on, turn it off to allow recover till jump starts
+                    recallFighters = true;
+                    break;
+                }
+            }
+            if (!recallFighters)
+            {
+                ship.FightersLaunched = fightersLaunchedBeforeRecall;
+                return false;
+            }
+            RecoverAssaultShips();
+            RecoverFighters();
+            if (ship.DoneRecovering())
+                return false;
+            if (ship.Speed * 2 > slowestFighter)
+                ship.Speed = slowestFighter * .25f;
+            return true;
+        }
     }
 }
