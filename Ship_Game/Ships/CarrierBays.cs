@@ -18,6 +18,7 @@ namespace Ship_Game.Ships
         public readonly bool HasTransporters;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
+        private bool RecallingShipsBeforeWarp;
 
         private CarrierBays(ShipModule[] slots) // this is a constructor, initialize everything in here
         {
@@ -103,7 +104,7 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return;
 
-            if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling)
+            if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
                 return;
 
             for (int i = 0; i < AllActiveHangars.Length; ++i)
@@ -134,6 +135,9 @@ namespace Ship_Game.Ships
         public void ScrambleAssaultShips(float strengthNeeded)
         {
             if (Owner == null || Owner.TroopList.Count <= 0)
+                return;
+
+            if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
                 return;
 
             bool limitAssaultSize = strengthNeeded > 0; // if Strendthneeded is 0,  this will be false and the ship will launch all troops
@@ -241,8 +245,8 @@ namespace Ship_Game.Ships
             bool recallFighters               = false;
             float jumpDistance                = Owner.Center.Distance(Owner.AI.MovePosition);
             float slowestFighterSpeed         = Owner.Speed * 2;
-            bool fightersLaunchedBeforeRecall = Owner.FightersLaunched; // FB: remember the original state
 
+            RecallingShipsBeforeWarp          = true; 
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
@@ -276,12 +280,16 @@ namespace Ship_Game.Ships
             if (!recallFighters)
             {
                 //Owner.FightersLaunched = fightersLaunchedBeforeRecall;
+                RecallingShipsBeforeWarp = false;
                 return false;
             }
             RecoverAssaultShips();
             RecoverFighters();
             if (DoneRecovering)
+            {
+                RecallingShipsBeforeWarp = false;
                 return false;
+            }
             if (Owner.Speed * 2 > slowestFighterSpeed)
                 Owner.Speed = slowestFighterSpeed * .25f;
             return true;
