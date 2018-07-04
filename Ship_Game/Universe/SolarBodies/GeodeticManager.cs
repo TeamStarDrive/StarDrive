@@ -272,7 +272,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (ship != null && ship.loyalty.isFaction)
                 {
                     ship.ChangeOrdnance(ship.OrdinanceMax);
-                    if (ship.HasTroopBay)
+                    if (ship.Carrier.HasTroopBays)
                     {
                         if (Population > 0)
                         {
