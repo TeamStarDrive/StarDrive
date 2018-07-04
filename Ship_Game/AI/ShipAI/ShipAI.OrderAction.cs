@@ -205,7 +205,7 @@ namespace Ship_Game.AI {
 
         public void OrderLandAllTroops(Planet target)
         {
-            if ((Owner.shipData.Role == ShipData.RoleName.troop || Owner.HasTroopBay || Owner.hasTransporter) &&
+            if ((Owner.shipData.Role == ShipData.RoleName.troop || Owner.Carrier.HasTroopBays || Owner.Carrier.HasTransporters) &&
                 Owner.TroopList.Count > 0 && target.GetGroundLandingSpots() > 0)
             {
                 HasPriorityOrder = true;

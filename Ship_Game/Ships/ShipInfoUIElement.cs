@@ -316,7 +316,7 @@ namespace Ship_Game.Ships
             Vector2 troopPos                = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             DrawHorizontalValues(string.Concat(Ship.TroopList.Count), Color.White, ref troopPos, withSlash: false);
             DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
-            if (Ship.HasTroopBay)
+            if (Ship.Carrier.HasTroopBays)
                 DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles.ToString(), Color.CadetBlue, ref troopPos);
 
             if (Ship.loyalty == EmpireManager.Player)
@@ -666,7 +666,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.HasTroopBay)
+            if (Ship.Carrier.HasTroopBays)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                 {
@@ -676,7 +676,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.HasTroopBay || Ship.Carrier.AllFighterHangars.Length > 0))
+            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.AllFighterHangars.Length > 0))
             {
                 OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {

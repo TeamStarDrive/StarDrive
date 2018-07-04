@@ -136,7 +136,6 @@ namespace Ship_Game.Ships
         public float ShipMass;
         public int TroopCapacity;
         public float OrdAddedPerSecond;
-        public bool HasTroopBay;
         //public bool WeaponCentered;    //Not referenced in code, removing to save memory
         private AudioHandle DroneSfx;
         public float ShieldRechargeTimer;
@@ -179,9 +178,6 @@ namespace Ship_Game.Ships
         public bool FTLSlowTurnBoost;
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
-        public bool hasTransporter;
-        public bool hasOrdnanceTransporter;
-        public bool hasAssaultTransporter;
         public bool hasRepairBeam;
         public bool hasCommand;
 
@@ -2211,7 +2207,6 @@ namespace Ship_Game.Ships
             RepairRate                  = 0f;
             CargoSpaceMax               = 0f;
             SensorRange                 = 1000f;
-            HasTroopBay                 = false;
             WarpThrust                  = 0f;
             TurnThrust                  = 0f;
             NormalWarpThrust            = 0f;
@@ -2281,9 +2276,6 @@ namespace Ship_Game.Ships
                     PowerStoreMax       += module.ActualPowerStoreMax;
                     PowerFlowMax        += module.ActualPowerFlowMax;      
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
-                    //if (module.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars)) // non need for this. carrierbays takes care of it.
-                        HasTroopBay |= module.IsTroopBay;
-                    //module.AddModuleTypeToList(ShipModuleType.Transporter, addToList: Transporters);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
