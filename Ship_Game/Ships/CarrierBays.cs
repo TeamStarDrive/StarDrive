@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Ship_Game.Ships
 {
@@ -8,10 +9,14 @@ namespace Ship_Game.Ships
         public ShipModule[] AllTroopBays { get; }
         public ShipModule[] AllSupplyBays { get; }
         public ShipModule[] AllFighterHangars { get; }
+        public ShipModule[] AllTransporters { get; }
         public bool HasHangars;
         public bool HasSupplyBays;
         public bool HasFighterBays;
         public bool HasTroopBays;
+        public bool HasTransporters;
+        public bool HasOrdnanceTransporters;
+        public bool HasAssaultTransporters;
 
         private CarrierBays(ShipModule[] slots) // this is a constructor, initialize everything in here
         {
@@ -28,6 +33,7 @@ namespace Ship_Game.Ships
             }
             AllTroopBays      = AllHangars.FilterBy(module => module.IsTroopBay);
             AllSupplyBays     = AllHangars.FilterBy(module => module.IsSupplyBay);
+            AllTransporters   = AllHangars.FilterBy(module => module.TransporterOrdnance > 0 || module.TransporterTroopAssault > 0);
             AllFighterHangars = AllHangars.FilterBy(module => !module.IsTroopBay 
                                                               && !module.IsSupplyBay 
                                                               && module.ModuleType != ShipModuleType.Transporter);
@@ -35,6 +41,10 @@ namespace Ship_Game.Ships
             HasSupplyBays     = AllSupplyBays.Any();
             HasFighterBays    = AllFighterHangars.Any();
             HasTroopBays      = AllTroopBays.Any();
+            HasTransporters   = AllTransporters.Any();
+            HasAssaultTransporters = AllTransporters.Count(transporter => transporter.TransporterTroopAssault > 0) > 0;
+            HasOrdnanceTransporters = AllTransporters.Count(transporter => transporter.TransporterOrdnance > 0) > 0;
+
         }
 
         public static CarrierBays None { get; } = new CarrierBays(Empty<ShipModule>.Array) // Returns NIL object
@@ -48,9 +58,9 @@ namespace Ship_Game.Ships
         }
 
 
-        public ShipModule[] AllActiveHangars => AllHangars.FilterBy(module => module.Active);
+        public ShipModule[] AllActiveHangars   => AllHangars.FilterBy(module => module.Active);
 
-        public bool HasActiveHangars         => AllActiveHangars.Any(); // FB: this changes dynamically
+        public bool HasActiveHangars           => AllActiveHangars.Any(); // FB: this changes dynamically
 
         public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
 
@@ -161,6 +171,76 @@ namespace Ship_Game.Ships
                 if (hangarship.TroopList.Count != 0)
                     hangarship.AI.OrderReturnToHangar();
             }
+        }
+
+        public bool NeedResupplyTroops(Ship ship)
+        {
+            int i = LaunchedAssaultShuttles;
+            i += AllTransporters.Sum(sm => sm.TransporterTroopLanding); 
+            return (float)(ship.TroopList.Count + i) / ship.TroopCapacity < 0.5f;
+        }
+
+        public int ReadyPlanetAssaulttTroops(Ship ship)
+        {
+            if (ship.TroopList.IsEmpty)
+                return 0;
+
+            int assaultSpots = AllActiveHangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
+            assaultSpots += AllTransporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
+            assaultSpots += ship.shipData.Role == ShipData.RoleName.troop ? 1 : 0;
+            return Math.Min(ship.TroopList.Count, assaultSpots);
+        }
+
+        public float PlanetAssaultStrength(Ship ship) 
+        {
+            if (ship.TroopList.IsEmpty)
+                return 0.0f;
+
+            int assaultSpots = ship.DesignRole == ShipData.RoleName.troop 
+                               || ship.DesignRole == ShipData.RoleName.troopShip 
+                                    ? ship.TroopList.Count : 0;
+
+            assaultSpots += AllActiveHangars.FilterBy(sm => sm.IsTroopBay).Length;  // FB: inspect this
+            assaultSpots += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
+
+            int troops = Math.Min(ship.TroopList.Count, assaultSpots);
+            return ship.TroopList.SubRange(0, troops).Sum(troop => troop.Strength);
+
+        }
+        public int PlanetAssaultCount(Ship ship) // move to carrier bays)
+        {
+            try
+            {
+                int assaultSpots = 0;
+                if (ship.shipData.Role == ShipData.RoleName.troop)
+                {
+                    assaultSpots += ship.TroopList.Count;
+
+                }
+                if (HasTroopBays)
+                    for (int index = 0; index < AllActiveHangars.Length; index++)  // FB: move to for each
+                    {
+                        ShipModule sm = AllActiveHangars[index];
+                        if (sm.IsTroopBay)
+                            assaultSpots++;
+                    }
+                if (HasAssaultTransporters)
+                    for (int index = 0; index < AllTransporters.Length; index++)
+                    {
+                        ShipModule at = AllTransporters[index];
+                        assaultSpots += at.TransporterTroopLanding;
+                    }
+
+                if (assaultSpots > 0)
+                {
+                    int temp = assaultSpots - ship.TroopList.Count;
+                    assaultSpots -= temp < 0 ? 0 : temp;
+                }
+                return assaultSpots;
+            }
+            catch
+            { }
+            return 0;
         }
     }
 }

@@ -119,7 +119,8 @@ namespace Ship_Game
                         continue;
                     //int LandingLimit = ship.GetHangars().Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                     int LandingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                    foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
+                    //foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
+                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1))
                         LandingLimit += module.TransporterTroopLanding;
                     if (p.HasShipyard && p.Owner == ship.loyalty) LandingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
                     for (int i = 0; i < ship.TroopList.Count() && LandingLimit > 0; i++)
@@ -1035,15 +1036,16 @@ namespace Ship_Game
                     else if (ship.HasTroopBay || ship.hasTransporter)
                     {
                         //int LandingLimit = ship.GetHangars().Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                        int LandingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                        foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1f))
-                            LandingLimit += module.TransporterTroopLanding;
-                        for (int x = 0; x < ship.TroopList.Count && LandingLimit > 0; x++)
+                        int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
+                        //foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1f))
+                        foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
+                            landingLimit += module.TransporterTroopLanding;
+                        for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
                         {
                             if (ship.TroopList[x].GetOwner() == ship.loyalty)
                             {
                                 this.OrbitSL.AddItem(ship.TroopList[x]);
-                                LandingLimit--;
+                                landingLimit--;
                             }
                         }
                     }
