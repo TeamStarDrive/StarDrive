@@ -135,7 +135,8 @@ namespace Ship_Game.AI.Tasks {
                     break;
 
                 newFleet.AddShip(ship);
-                ForceStrength += ship.PlanetAssaultStrength;
+                //ForceStrength += ship.PlanetAssaultStrength;
+                ForceStrength += ship.Carrier.PlanetAssaultStrength(ship);
             }
 
             foreach (Troop t in potentialTroops.Where(planet=> planet.GetPlanet() != null).OrderBy(troop => troop.GetPlanet().RecentCombat ? 1 :0)

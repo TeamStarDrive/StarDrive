@@ -441,7 +441,7 @@ namespace Ship_Game.Ships
             if (!fromSave)
                 TroopList.Clear();
             //Hangars.Clear();
-            Transporters.Clear();
+            //Transporters.Clear();
             RepairBeams.Clear();
             //AllFighterHangars.Clear();
             //AllTroopBays.Clear();
@@ -484,12 +484,12 @@ namespace Ship_Game.Ships
 
                         break;
                      */
-                    case ShipModuleType.Transporter:
-                        Transporters.Add(module);
-                        hasTransporter = true;
-                        hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
-                        hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
-                        break;
+                    //case ShipModuleType.Transporter:
+                        //Transporters.Add(module);
+                        //hasTransporter = true;
+                        //hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
+                        //hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
+                        //break;
                     case ShipModuleType.Colony:
                         isColonyShip = true;
                         break;
@@ -551,11 +551,9 @@ namespace Ship_Game.Ships
 
         private float GetBaseCost()
         {
-            float cost = 0.0f;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-                cost += ModuleSlotList[i].Cost;
-            return cost;
+            return ModuleSlotList.Sum(t => t.Cost);
         }
+
         private float GetMaxBank(float mBank)
         {
             switch (shipData.Role)

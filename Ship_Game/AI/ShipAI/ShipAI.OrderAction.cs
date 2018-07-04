@@ -751,8 +751,9 @@ namespace Ship_Game.AI {
             }            
             if (Owner.loyalty.isFaction)
                 return;
- 
-            if (Owner.NeedResupplyTroops)
+
+            //if (Owner.NeedResupplyTroops)
+            if (Owner.Carrier.NeedResupplyTroops(Owner))
             {
                 var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
                 OrderResupply(troopRallyPoints, ClearOrders);                

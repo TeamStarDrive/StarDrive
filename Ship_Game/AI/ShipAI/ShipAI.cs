@@ -303,7 +303,8 @@ namespace Ship_Game.AI
                 Owner.DesignRole >= ShipData.RoleName.supply) //fbedard: ships will go for repair
                 if (Owner.fleet == null || Owner.fleet != null && !Owner.fleet.HasRepair)
                     OrderResupplyNearest(false);
-            if (State == AIState.AwaitingOrders && Owner.NeedResupplyTroops)
+            //if (State == AIState.AwaitingOrders && Owner.NeedResupplyTroops)
+            if (State == AIState.AwaitingOrders && Owner.Carrier.NeedResupplyTroops(Owner))
                 OrderResupplyNearest(false);
             if (Owner.NeedResupplyOrdnance)
                 OrderResupplyNearest(false);
@@ -320,7 +321,7 @@ namespace Ship_Game.AI
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
                     //if (Owner.Weapons.Count > 0 || Owner.HasActiveHangars || Owner.Transporters.Count > 0)
-                    if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Transporters.Count > 0)
+                    if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                     {
                         if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
                             (OrderQueue.IsEmpty ||
@@ -730,9 +731,11 @@ namespace Ship_Game.AI
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
                 if (Owner.hasTransporter)
-                    for (int x = 0; x < Owner.Transporters.Count; x++)
+                    //for (int x = 0; x < Owner.Transporters.Count; x++)
+                    for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++) // FB:change to foreach
                     {
-                        ShipModule module = Owner.Transporters[x];
+                        //ShipModule module = Owner.Transporters[x];
+                        ShipModule module = Owner.Carrier.AllTransporters[x];
                         if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
                             module.TransporterPower >= Owner.PowerCurrent) continue;
                         if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
