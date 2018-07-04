@@ -181,7 +181,7 @@ namespace Ship_Game.Ships
         public float FTLSpoolTime;
         public bool FTLSlowTurnBoost;
 
-        public Array<ShipModule> Transporters = new Array<ShipModule>();
+        //public Array<ShipModule> Transporters = new Array<ShipModule>();
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasTransporter;
         public bool hasOrdnanceTransporter;
@@ -393,9 +393,6 @@ namespace Ship_Game.Ships
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;        
       
-
-
-
         public IReadOnlyList<Projectile> Projectiles => projectiles;
         public IReadOnlyList<Beam> Beams => beams;
 
@@ -467,6 +464,7 @@ namespace Ship_Game.Ships
             }
 
         }
+        /*
         public bool NeedResupplyTroops  // move to carrier
         {
             get
@@ -506,6 +504,7 @@ namespace Ship_Game.Ships
                 return TroopList.SubRange(0, troops).Sum(troop => troop.Strength);
             }
         }
+
         public int PlanetAssaultCount // move to carrier bays
         {
             get
@@ -544,10 +543,9 @@ namespace Ship_Game.Ships
                 catch
                 { }
                 return 0;
-
-
             }
         }
+        */
         /*
         public bool HasSupplyBays
         {
@@ -665,10 +663,7 @@ namespace Ship_Game.Ships
         */
         public bool DoingTransport
         {
-            get
-            {
-                return AI.State == AIState.SystemTrader;
-            }
+            get => AI.State == AIState.SystemTrader;
             set
             {
                 TransportingProduction = value;
@@ -690,10 +685,7 @@ namespace Ship_Game.Ships
 
         public bool DoingPassTransport
         {
-            get
-            {
-                return AI.State == AIState.PassengerTransport;
-            }
+            get => AI.State == AIState.PassengerTransport;
             set
             {
                 AI.start = null;
@@ -704,10 +696,7 @@ namespace Ship_Game.Ships
         private bool TFood = false;
         public bool TransportingFood
         {
-            get
-            {
-                return AI.State != AIState.SystemTrader || TFood; ;
-            }
+            get => AI.State != AIState.SystemTrader || TFood;
             set
             {
                 TFood = value;
@@ -733,10 +722,7 @@ namespace Ship_Game.Ships
         private bool TProd = false;
         public bool TransportingProduction
         {
-            get
-            {
-                return AI.State != AIState.SystemTrader || TProd;
-            }
+            get => AI.State != AIState.SystemTrader || TProd;
             set
             {
                 TProd = value;
@@ -762,34 +748,19 @@ namespace Ship_Game.Ships
 
         public bool DoingExplore
         {
-            get
-            {
-                return AI.State == AIState.Explore;
-            }
-            set
-            {
-                AI.OrderExplore();
-            }
+            get => AI.State == AIState.Explore;
+            set => AI.OrderExplore();
         }
 
         public bool DoingResupply
         {
-            get
-            {
-                return AI.State == AIState.Resupply;
-            }
-            set
-            {
-                AI.OrderResupplyNearest(true);
-            }
+            get => AI.State == AIState.Resupply;
+            set => AI.OrderResupplyNearest(true);
         }
 
         public bool DoingSystemDefense
         {
-            get
-            {
-                return loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
-            }
+            get => loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
             set
             {
                 //added by gremlin Toggle Ship System Defense.
@@ -2540,7 +2511,7 @@ namespace Ship_Game.Ships
             shipStatusChanged = false;            
             float sensorBonus = 0f;
             //Hangars.Clear();
-            Transporters.Clear();
+            //Transporters.Clear();
             Thrust                      = 0f;
             Mass                        = Size;
             shield_max                  = 0f;
@@ -2626,7 +2597,7 @@ namespace Ship_Game.Ships
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
                     //if (module.AddModuleTypeToList(ShipModuleType.Hangar, addToList: Hangars)) // non need for this. carrierbays takes care of it.
                         HasTroopBay |= module.IsTroopBay;
-                    module.AddModuleTypeToList(ShipModuleType.Transporter, addToList: Transporters);
+                    //module.AddModuleTypeToList(ShipModuleType.Transporter, addToList: Transporters);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
@@ -2954,7 +2925,7 @@ namespace Ship_Game.Ships
             loyalty.RemoveShip(this);
             SetSystem(null);
             TetheredTo = null;
-            Transporters.Clear();
+            //Transporters.Clear();
             RepairBeams.Clear();
             Empire.Universe.MasterShipList.QueuePendingRemoval(this);
         }
