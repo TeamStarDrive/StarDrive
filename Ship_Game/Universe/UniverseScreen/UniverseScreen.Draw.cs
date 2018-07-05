@@ -817,6 +817,8 @@ namespace Ship_Game
                         fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
 
                     bool inCombat = false;
+                    if (fleetButton.Fleet.Ships == null)
+                        return;
                     for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
                     {
                         try

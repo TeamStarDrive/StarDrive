@@ -543,6 +543,7 @@ namespace Ship_Game
 
                 AddSelectedShipsToFleet(fleet);
                 player.GetFleetsDict()[index] = fleet;
+                RecomputeFleetButtons(true);
             }
             //added by gremlin add ships to exiting fleet
             else if (input.AddToFleet)
@@ -565,6 +566,7 @@ namespace Ship_Game
                 }
                 AddSelectedShipsToFleet(fleet);
                 player.GetFleetsDict()[index] = fleet;
+                RecomputeFleetButtons(true);
             }
             //end of added by
             else //populate ship info UI with ships in fleet
@@ -723,7 +725,7 @@ namespace Ship_Game
         {
             if (planetClicked == null || fleet == null) return false;
             fleet.Position = planetClicked.Center; //fbedard: center fleet on planet
-            using (fleet)
+            using (fleet.Ships.AcquireReadLock())
                 foreach (Ship ship2 in fleet.Ships)
                     RightClickOnPlanet(ship2, planetClicked, false);
             return true;
@@ -1827,7 +1829,7 @@ namespace Ship_Game
                 SelectedShipList.Add(ship);
                 ship.fleet = fleet;
             }
-            RecomputeFleetButtons(true);
+            
             shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI            
         }
 
@@ -1844,7 +1846,7 @@ namespace Ship_Game
                 {
                     if (kv.Value.Ships.Count <= 0) continue;
 
-                    FleetButtons.Add(new FleetButton()
+                    FleetButtons.Add(new FleetButton
                     {
                         ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
                         Fleet = kv.Value,
