@@ -795,38 +795,7 @@ namespace Ship_Game.AI {
             }
             else //In a fleet
             {
-                if (Distance > 7500) //Not near destination
-                {
-                    float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove;
-                    speedLimit = Owner.fleet.Speed;
-
-                    #region FleetGrouping
-
-#if true
-                    if (Distance <= distanceFleetCenterToDistance)
-                    {
-                        float speedreduction = distanceFleetCenterToDistance - Distance;
-                        speedLimit = Owner.fleet.Speed - speedreduction;
-
-                        if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
-                    }
-                    else if (Distance > distanceFleetCenterToDistance && Distance > Owner.Speed)
-                    {
-                        float speedIncrease = Distance - distanceFleetCenterToDistance;
-                        speedLimit = Owner.fleet.Speed + speedIncrease;
-                    }
-#endif
-
-                    #endregion
-
-                    if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
-                    else if (Owner.engineState == Ship.MoveState.Warp)
-                        Owner.HyperspaceReturn(); //Fleet is not ready for warp
-                }
-                else if (Owner.engineState == Ship.MoveState.Warp)
-                {
-                    Owner.HyperspaceReturn(); //Near Destination
-                }
+                speedLimit = FleetGrouping(Distance);
             }
 
             if (speedLimit > Owner.velocityMaximum) speedLimit = Owner.velocityMaximum;
@@ -835,7 +804,48 @@ namespace Ship_Game.AI {
             Owner.Velocity = Owner.Velocity + Vector2.Normalize(forward) * (elapsedTime * speedLimit);
             if (Owner.Velocity.Length() > speedLimit) Owner.Velocity = Vector2.Normalize(Owner.Velocity) * speedLimit;
         }
-        
+
+        private float FleetGrouping(float Distance)
+        {
+            float speedLimit = Owner.fleet.Speed;
+            float distance = (Owner.Center + Owner.FleetOffset).Distance(Owner.fleet.Position + Owner.FleetOffset);
+            if (distance > 7500) //Not near destination
+            {
+                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
+                speedLimit = Owner.fleet.Speed;
+
+                #region FleetGrouping
+
+#if true
+                if (distance <= distanceFleetCenterToDistance)
+                {
+                    float speedreduction = distanceFleetCenterToDistance - Distance;
+                    speedLimit = Owner.fleet.Speed - speedreduction;
+
+                    if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
+                }
+                else if (distance > distanceFleetCenterToDistance)// && distance > 1000 )
+                {
+                    float speedIncrease = distance - distanceFleetCenterToDistance;
+                    speedLimit = Owner.fleet.Speed + speedIncrease;
+                }
+#endif
+
+                #endregion
+
+                if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                else if (Owner.engineState == Ship.MoveState.Warp)
+                    Owner.HyperspaceReturn(); //Fleet is not ready for warp
+            }
+            else if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                Owner.HyperspaceReturn(); //Near Destination
+                HasPriorityOrder = false;
+            }
+
+            return speedLimit;
+        }
+
 
         public class WayPoints
         {

@@ -816,7 +816,7 @@ namespace Ship_Game
                     var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
                         fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
 
-                    bool inCombat = false;
+                    bool inCombat = false;                   
                     for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
                     {
                         try
