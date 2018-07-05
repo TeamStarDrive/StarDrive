@@ -661,7 +661,7 @@ namespace Ship_Game.AI {
             }
             else if (distCenter < 7500f) // FB: distance to launch assault shuttles for a troopship
             {
-                Owner.Carrier.ScrambleAssaultShips(0);
+                Owner.Carrier.ScrambleAllAssaultShips();
                 foreach (ShipModule bay in Owner.Carrier.AllTroopBays)
                 {
                     Ship hangarShip = bay.GetHangarShip();
