@@ -73,7 +73,7 @@ namespace Ship_Game
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
                 e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
-                if (!sdata.empireData.DefaultTroopShip.NotEmpty())
+                if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
             }
             foreach(TechEntry tech in sdata.TechTree)

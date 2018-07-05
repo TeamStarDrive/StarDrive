@@ -621,7 +621,7 @@ namespace Ship_Game.Ships
                 }
                 TroopsLaunched = value;
                 if (TroopsLaunched)
-                    Carrier.ScrambleAssaultShips(0);
+                    Carrier.ScrambleAllAssaultShips();
                 else
                     Carrier.RecoverAssaultShips();
             }
@@ -1844,7 +1844,7 @@ namespace Ship_Game.Ships
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
                 Carrier.ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
             if (TroopsLaunched)
-                Carrier.ScrambleAssaultShips(0); // FB: if the troops out button is on, launch every availble assualt shuttle
+                Carrier.ScrambleAllAssaultShips(); // FB: if the troops out button is on, launch every availble assualt shuttle
 
             SetmaxFTLSpeed();
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
