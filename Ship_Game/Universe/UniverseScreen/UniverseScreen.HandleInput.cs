@@ -743,7 +743,7 @@ namespace Ship_Game
 
         private bool QueueFleetMovement(Vector2 movePosition, float facing, ShipGroup fleet)
         {
-            if (!Input.QueueAction) return false;
+            if (!Input.QueueAction || fleet.Ships[0].AI.ActiveWayPoints.Count == 0) return false;
 
             Vector2 vectorToTarget =
                 Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(facing, 1f));
@@ -766,7 +766,7 @@ namespace Ship_Game
                 foreach (var ship in fleet.Ships)
                 {
                     ship.AI.Target = null;
-                    ship.AI.SetPriorityOrder();
+                    ship.AI.SetPriorityOrder(!Input.QueueAction);
                 }
             PlayerEmpire.GetGSAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
 
@@ -777,9 +777,9 @@ namespace Ship_Game
             //float targetFacingR = fleet.Position.RadiansToTarget(targetVector);
 
             if (QueueFleetMovement(movePosition, facing, fleet)) return;
-            
-            using (fleet.Ships.AcquireReadLock())            
-                foreach (var ship in fleet.Ships)                
+
+            using (fleet.Ships.AcquireReadLock())
+                foreach (var ship in fleet.Ships)
                     ship.AI.OrderQueue.Clear();
 
             Vector2 vectorToTarget =
@@ -789,7 +789,7 @@ namespace Ship_Game
                 MoveShipGroupToLocation(fleet, fleet.Ships);
             else
                 //fleet.FormationWarpTo(movePosition, fleet.FindAveragePosition().RadiansToTarget(movePosition), Vector2.Normalize(movePosition - fleet.FindAveragePosition()));// vectorToTarget);
-                fleet.FormationWarpTo(movePosition, facing, vectorToTarget);
+                fleet.FormationWarpTo(movePosition, facing, vectorToTarget, Input.QueueAction);
 
             //FormationWarpTo(task.AO, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
             //FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(position),
@@ -1010,19 +1010,14 @@ namespace Ship_Game
                     }
                 }
 
-                if (SelectedFleet == null && SelectedItem == null &&
-                    SelectedShip == null && SelectedPlanet == null && SelectedShipList.Count == 0)
-                {
-                    if (shipClicked != null && shipClicked.Mothership == null &&
-                        !shipClicked.isConstructor) //fbedard: prevent hangar ship and constructor
-                    {
-                        if (SelectedShip != null && previousSelection != SelectedShip &&
-                            SelectedShip != shipClicked) //fbedard
-                            previousSelection = SelectedShip;
-                        SelectedShip = shipClicked;
-                        ShipPieMenu(SelectedShip);
-                    }
-                }
+                if (SelectedFleet != null || SelectedItem != null || SelectedShip != null || SelectedPlanet != null ||
+                    SelectedShipList.Count != 0) return;
+                if (shipClicked == null || shipClicked.Mothership != null || shipClicked.isConstructor) return;
+                if (SelectedShip != null && previousSelection != SelectedShip &&
+                    SelectedShip != shipClicked) //fbedard
+                    previousSelection = SelectedShip;
+                SelectedShip = shipClicked;
+                ShipPieMenu(SelectedShip);
                 return;
             }
 
