@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
         public ShipModule[] AllSupplyBays { get; }
         public ShipModule[] AllFighterHangars { get; }
         public ShipModule[] AllTransporters { get; }
-        private Ship Owner;
+        private readonly Ship Owner;
         public readonly bool HasHangars;
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
@@ -54,28 +54,11 @@ namespace Ship_Game.Ships
 
         public int NumActiveHangars => AllHangars.Count(hangar => hangar.Active);
 
-        public int AvailableAssaultShuttles
-        {
-            get
-            {
-                return AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null);
-            }
-        }
+        // this will return the number of assault shuttles ready to launch (regardless of troopcount)
+        public int AvailableAssaultShuttles => AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null);
 
-        public int LaunchedAssaultShuttles
-        {
-            get
-            {
-                int i = 0;
-                foreach (ShipModule hangar in AllTroopBays)
-                {
-                    Ship hangarship = hangar.GetHangarShip();
-                    if (hangarship != null && hangarship.Active)
-                        i += 1;
-                }
-                return i;
-            }
-        }
+        // this will return the number of assault shuttles in space
+        public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
         public HangarInfo GrossHangarStatus // FB: needed to display hangar status to the player
         {
@@ -101,10 +84,7 @@ namespace Ship_Game.Ships
 
         public void ScrambleFighters()
         {
-            if (Owner == null)
-                return;
-
-            if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
+            if (Owner == null || Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
                 return;
 
             for (int i = 0; i < AllActiveHangars.Length; ++i)
@@ -132,7 +112,11 @@ namespace Ship_Game.Ships
                     hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
             }
         }
+
+        public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
+
         public void ScrambleAssaultShips(float strengthNeeded)
+
         {
             if (Owner == null || Owner.TroopList.Count <= 0)
                 return;
@@ -175,9 +159,10 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return false;
 
-                int i = LaunchedAssaultShuttles;
-                i    += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
-                return (float)(Owner.TroopList.Count + i) / Owner.TroopCapacity < 0.5f;
+                int troopsNotInTroopListCount = LaunchedAssaultShuttles;
+                troopsNotInTroopListCount += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
+                float troopsPresentRatio = (float)(Owner.TroopList.Count + troopsNotInTroopListCount) / Owner.TroopCapacity;
+                return troopsPresentRatio < 0.5f;
             }
         }
 
@@ -203,8 +188,7 @@ namespace Ship_Game.Ships
                     return 0.0f;
 
                 int assaultSpots = Owner.DesignRole == ShipData.RoleName.troop
-                                   || Owner.DesignRole == ShipData.RoleName.troopShip
-                                        ? Owner.TroopList.Count : 0;
+                                   || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopList.Count : 0;
 
                 assaultSpots += AllActiveHangars.FilterBy(sm => sm.IsTroopBay).Length;  // FB: inspect this
                 assaultSpots += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
@@ -272,14 +256,12 @@ namespace Ship_Game.Ships
                         if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
-                    //Owner.FightersLaunched = false;  // FB: if fighters out button is on, turn it off to allow recover till jump starts
                     recallFighters = true;
                     break;
                 }
             }
             if (!recallFighters)
             {
-                //Owner.FightersLaunched = fightersLaunchedBeforeRecall;
                 RecallingShipsBeforeWarp = false;
                 return false;
             }
@@ -301,7 +283,7 @@ namespace Ship_Game.Ships
             {
                 return AllHangars.FilterBy(hangar => hangar.Active)
                        .Select(hangar => hangar.GetHangarShip())
-                        .All(hangarShip => hangarShip != null && !hangarShip.Active);
+                       .All(hangarShip => hangarShip != null && !hangarShip.Active);
             }
         }
     }

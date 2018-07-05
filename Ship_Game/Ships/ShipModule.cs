@@ -729,8 +729,7 @@ namespace Ship_Game.Ships
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
                 {
-                    hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.BoardingShuttle.Name, Parent.loyalty, Center, troop);
-                    hangarShip.VanityName = "Assault Shuttle";
+                    hangarShip = Ship.CreateTroopShipAtPoint(GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
                     hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
@@ -742,6 +741,19 @@ namespace Ship_Game.Ships
                     Parent.Ordinance -= hangarShip.Mass / 5f;
                 }
             }
+        }
+
+        public string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one
+        {
+            string assaultShuttleName;
+            if (empire.data.DefaultAssaultShuttle.IsEmpty())
+            {
+                assaultShuttleName = empire.BoardingShuttle.Name; // this is the deafult one in case nothing is found in empire data
+                Log.Info("Race specific assault Shuttle not found. Using default one");
+            }
+            else
+                assaultShuttleName = empire.data.DefaultAssaultShuttle;
+            return assaultShuttleName;
         }
 
         //added by gremlin fighter rearm fix
