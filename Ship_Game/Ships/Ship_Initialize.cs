@@ -375,14 +375,18 @@ namespace Ship_Game.Ships
 
             for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
             {
-                int numTroopHangars = Carrier.AllTroopBays.Length;
+                int numHangarsBays = Carrier.AllTroopBays.Length;
 
-                string type = redshirtType;
-                if (numTroopHangars < TroopList.Count)
+                string type = troopType;
+                if (numHangarsBays  < TroopList.Count + 1) //FB: if you have more troop_capcacity than hangars, consider adding some tanks
                 {
                     type = troopType; // ex: "Space Marine"
-                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numTroopHangars / 2)
-                        type = tankType;
+                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numHangarsBays)
+                        type = tankType; 
+                    // number of tanks will be up to number of hangars bays you have. If you have 8 barracks and 8 hangar bays
+                    // you will get 8 infentry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
+                    // If you have  16 barracks and 4 bays, you'll still get 4 tanks and 12 infantry. 
+                    // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
                 }
                 TroopList.Add(ResourceManager.CreateTroop(type, loyalty));
             }
