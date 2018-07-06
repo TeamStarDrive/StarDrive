@@ -1964,145 +1964,185 @@ namespace Ship_Game.Ships
 
         public int NumAiTroopsOnShip => TroopList.Count(troop => troop.GetOwner() != EmpireManager.Player);
 
-        private void UpdateTroops()
+        private void UpdateTroops() //FB: this is the weirdest implemetations i've ever seen. Anyway i refactored it a bit
         {
-            Array<Troop> ownTroops = new Array<Troop>();
-            Array<Troop> enemyTroops = new Array<Troop>();
-            foreach (Troop troop in TroopList)
+            Array<Troop> ownTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() == loyalty));
+            Array<Troop> enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
+
+            HealTroops();
+
+            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > TroopCapacity)
+                DisengageExcessTroops(ownTroops.Count - TroopCapacity);
+
+            if (enemyTroops.Count <= 0)
+                return; // Boarding is over or never started
+
+            float mechanicalDefenseRoll = GetMechanicalDefenseRoll();
+            ResolveMachanicalDefenseVersusEnemy();
+
+            float defendingTroopsRoll = mechanicalDefenseRoll; // since mechanicalDefenseRoll might beaten by enemy troops to be negative.
+
+            enemyTroops.Clear();
+            enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
+
+            ResolveOwnVersusEnemy();
+
+            enemyTroops.Clear();
+            enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
+
+            ResolveEnemyVersusOwn();
+
+            ownTroops.Clear();
+            ownTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() == loyalty));
+
+            if (ownTroops.Count > 0 || MechanicalBoardingDefense > 0.0)
+                return;
+
+            ChangeLoyalty(changeTo: enemyTroops[0].GetOwner());
+            RefreshMechanicalBoardingDefense();
+
+            if (!AI.BadGuysNear)
+            ShieldManager.RemoveShieldLights(Shields);
+
+            // local methods
+            void HealTroops()
             {
-                if (troop.GetOwner() == loyalty)
-                    ownTroops.Add(troop);
-                else
-                    enemyTroops.Add(troop);
-            }
-            if (HealPerTurn > 0)
-            {
+                if (!(HealPerTurn > 0))
+                    return;
+
                 foreach (Troop troop in ownTroops)
                     troop.Strength = (troop.Strength += HealPerTurn).Clamp(0, troop.GetStrengthMax());
             }
-            if (enemyTroops.Count > 0)
+
+            float GetMechanicalDefenseRoll()
             {
-                float num1 = 0;
+                float mechanicalDefResult =0f;
                 for (int index = 0; index < MechanicalBoardingDefense; ++index)
-                {
                     if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
-                        ++num1;
-                }
+                        ++mechanicalDefResult;
+
+                return mechanicalDefResult;
+            }
+
+            void ResolveMachanicalDefenseVersusEnemy()
+            {
                 foreach (Troop troop in enemyTroops)
                 {
-                    float num2 = num1;
-                    if (num1 > 0)
+                    if (mechanicalDefenseRoll > 0)
                     {
-                        if (num1 > troop.Strength)
-                        {
-                            float num3 = troop.Strength;
-                            troop.Strength = 0;
-                            num1 -= num3;
-                        }
-                        else
-                        {
-                            troop.Strength -= num1;
-                            num1 -= num2;
-                        }
+                        mechanicalDefenseRoll -= troop.Strength;
+                        troop.Strength -= mechanicalDefenseRoll + troop.Strength;
                         if (troop.Strength <= 0)
                             TroopList.Remove(troop);
                     }
                     else
                         break;
                 }
-                enemyTroops.Clear();
-                foreach (Troop troop in TroopList)
-                    enemyTroops.Add(troop);
-                if (ownTroops.Count > 0 && enemyTroops.Count > 0)
-                {
-                    foreach (Troop troop in ownTroops)
-                    {
-                        for (int index = 0; index < troop.Strength; ++index)
-                        {
-                            if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
-                                ++num1;
-                        }
-                    }
-                    foreach (Troop troop in enemyTroops)
-                    {
-                        float num2 = num1;
-                        if (num1 > 0)
-                        {
-                            if (num1 > troop.Strength)
-                            {
-                                float num3 = troop.Strength;
-                                troop.Strength = 0;
-                                num1 -= num3;
-                            }
-                            else
-                            {
-                                troop.Strength -= num1;
-                                num1 -= num2;
-                            }
-                            if (troop.Strength <= 0)
-                                TroopList.Remove(troop);
-                            if (num1 <= 0)
-                                break;
-                        }
-                        else
-                            break;
-                    }
-                }
-                enemyTroops.Clear();
-                foreach (Troop troop in TroopList)
-                    enemyTroops.Add(troop);
-                if (enemyTroops.Count > 0)
-                {
-                    float num2 = 0;
-                    foreach (Troop troop in enemyTroops)
-                    {
-                        for (int index = 0; index < troop.Strength; ++index)
-                        {
-                            if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
-                                ++num2;
-                        }
-                    }
-                    foreach (Troop troop in ownTroops)
-                    {
-                        float num3 = num2;
-                        if (num2 > 0)
-                        {
-                            if (num2 > troop.Strength)
-                            {
-                                float num4 = troop.Strength;
-                                troop.Strength = 0;
-                                num2 -= num4;
-                            }
-                            else
-                            {
-                                troop.Strength -= num2;
-                                num2 -= num3;
-                            }
-                            if (troop.Strength <= 0)
-                                TroopList.Remove(troop);
-                        }
-                        else
-                            break;
-                    }
-                    if (num2 > 0)
-                    {
-                        MechanicalBoardingDefense -= (float) num2;
-                        if (MechanicalBoardingDefense < 0.0)
-                            MechanicalBoardingDefense = 0.0f;
-                    }
-                }
-                ownTroops.Clear();
-                foreach (Troop troop in TroopList)
-                {
-                    if (troop.GetOwner() == loyalty)
-                        ownTroops.Add(troop);
-                }
-                if (ownTroops.Count != 0 || !(MechanicalBoardingDefense <= 0.0)) return;
-                ChangeLoyalty(changeTo: enemyTroops[0].GetOwner());
-
-                if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Shields);
             }
+
+            void ResolveOwnVersusEnemy()
+            {
+                if (ownTroops.Count <= 0 || enemyTroops.Count <= 0)
+                    return;
+
+                foreach (Troop troop in ownTroops)
+                {
+                    for (int index = 0; index < troop.Strength; ++index)
+                        if (UniverseRandom.IntBetween(0, 100) <= troop.BoardingStrength)
+                            ++defendingTroopsRoll;
+                }
+                foreach (Troop troop in enemyTroops)
+                {
+                    if (defendingTroopsRoll > 0)
+                    {
+                        defendingTroopsRoll -= troop.Strength;
+                        troop.Strength -= defendingTroopsRoll + troop.Strength;
+                        if (troop.Strength <= 0)
+                            TroopList.Remove(troop);
+
+                        if (defendingTroopsRoll <= 0)
+                            break;
+                    }
+                    else
+                        break;
+                }
+            }
+
+            void ResolveEnemyVersusOwn()
+            {
+                if (enemyTroops.Count <= 0)
+                    return;
+
+                float attackingTroopsRoll = 0;
+                foreach (Troop troop in enemyTroops)
+                {
+                    for (int index = 0; index < troop.Strength; ++index)
+                    {
+                        if (UniverseRandom.IntBetween(0, 100) < troop.BoardingStrength)
+                            ++attackingTroopsRoll;
+                    }
+                }
+                foreach (Troop troop in ownTroops)
+                {
+                    if (attackingTroopsRoll > 0)
+                    {
+                        attackingTroopsRoll = -troop.Strength;
+                        troop.Strength -= attackingTroopsRoll + troop.Strength;
+                        if (troop.Strength <= 0)
+                            TroopList.Remove(troop);
+                    }
+                    else
+                        break;
+                }
+                if (attackingTroopsRoll > 0)
+                    MechanicalBoardingDefense = Math.Max(MechanicalBoardingDefense - attackingTroopsRoll, 0);
+            }
+
+        }
+
+        private void RefreshMechanicalBoardingDefense()
+        {
+            MechanicalBoardingDefense =  ModuleSlotList.Sum(module => module.MechanicalBoardingDefense);
+        }
+
+        private void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
+        {
+            for (int i = 0; i < troopsToRemove; i++)
+            {
+                Ship assaultShip     = CreateTroopShipAtPoint(GetAssaultShuttleName(loyalty), loyalty, Center, TroopList[0]);
+                assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.Speed + Velocity;
+                TroopList.Remove(TroopList[0]);
+                if (assaultShip.Velocity.Length() > assaultShip.velocityMaximum)
+                    assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
+
+                assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to fill friendlies near by
+                foreach (Ship friendlyTroopShiptoRebase in assaultShip.AI.FriendliesNearby.FilterBy(ship => ship.TroopList.Count < ship.TroopCapacity 
+                                                                                             && ship.Carrier.HasTroopBays))
+                {
+                    assaultShip.Mothership = friendlyTroopShiptoRebase;
+                    ShipModule hangar = friendlyTroopShiptoRebase.Carrier.AllTroopBays.First();
+                    hangar.SetHangarShip(assaultShip);
+                    assaultShip.AI.OrderReturnToHangar();
+                    break;
+                }
+                if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
+                    assaultShip.AI.OrderRebaseToNearest();
+                if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
+                    assaultShip.DoEscort(this);
+            }
+        }
+
+        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one
+        {
+            string assaultShuttleName;
+            if (empire.data.DefaultAssaultShuttle.IsEmpty())
+            {
+                assaultShuttleName = empire.BoardingShuttle.Name; // this is the deafult one in case nothing is found in empire data
+                Log.Info("Race specific assault Shuttle not found. Using default one");
+            }
+            else
+                assaultShuttleName = empire.data.DefaultAssaultShuttle;
+            return assaultShuttleName;
         }
 
         public ShipStatus HealthStatus
@@ -2150,7 +2190,7 @@ namespace Ship_Game.Ships
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
-         
+
             foreach (ShipModule module in ModuleSlotList)
             {
                 //Get total internal slots
