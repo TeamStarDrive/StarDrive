@@ -33,11 +33,13 @@ namespace Ship_Game.AI {
 
         private void DoAssaultShipCombat(float elapsedTime)
         {
-            if (Owner.isSpooling)
+            if (Owner.isSpooling || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
+
             DoNonFleetArtillery(elapsedTime);
             if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role <= ShipData.RoleName.drone)
                 return;
+
             float ourTroopStrength = 0f;
             float ourOutStrength = 0f;
             int tcount = 0;
@@ -112,7 +114,7 @@ namespace Ship_Game.AI {
                         troopShip.AI.OrderAssaultPlanet(invadeThis);
                 }
             }
-              FB: disabled and maybe add here the auto invade
+            // FB: disabled and maybe add here the auto invade
             if (!boarding && (ourOutStrength > 0 || ourTroopStrength > 0))
             {
                 if (Owner.System?.OwnerList.Count > 0)
@@ -272,8 +274,6 @@ namespace Ship_Game.AI {
                     return;
                 }
 
-            // FB: maybe add here resuppply troops check
-
             if (State != AIState.Resupply && Owner.Health > 0 &&
                 Owner.HealthMax * DmgLevel[(int) Owner.shipData.ShipCategory] > Owner.Health
                 && Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: repair level
@@ -287,56 +287,7 @@ namespace Ship_Game.AI {
                 CombatState = CombatState.Evade;
 
             if (!Owner.loyalty.isFaction && Owner.System != null && Owner.Carrier.HasTroopBays) //|| Owner.hasTransporter)
-                DoAssaultShipCombat(elapsedTime);
-            /*  //FB: this is the auto invade feature. Thinking about moving it to DoAssaultShipCombat
-                if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
-                {
-                    Planet invadeThis =
-                        Owner.System.PlanetList.FindMinFiltered(
-                            owner =>
-                                owner.Owner != null && owner.Owner != Owner.loyalty &&
-                                Owner.loyalty.GetRelations(owner.Owner).AtWar,
-                            troops => troops.TroopsHere.Count);
-
-                    if (!Owner.TroopsOut && !Owner.hasTransporter)
-                    {
-                        Ship shipTarget = Target as Ship;
-                        if (invadeThis != null)
-                        {
-                            Owner.TroopsOut = true;
-                            foreach (
-                                Ship troop in
-                                Owner.GetHangars()
-                                    .Where(
-                                        troop =>
-                                            troop.IsTroopBay && troop.GetHangarShip() != null &&
-                                            troop.GetHangarShip().Active)
-                                    .Select(ship => ship.GetHangarShip()))
-                                troop.AI.OrderAssaultPlanet(invadeThis);
-                        }
-                        // FB: using the assualtship code now. Duplication is not needed.
-                        else if (shipTarget?.shipData.Role > ShipData.RoleName.drone)
-                        {
-                            if (Owner.GetHangars().Count(troop => troop.IsTroopBay) * 60 >=
-                                shipTarget.MechanicalBoardingDefense)
-                            {
-                                //Owner.TroopsOut = true;
-                                foreach (ShipModule hangar in Owner.GetHangars())
-                                {
-                                    if (hangar.GetHangarShip() == null || Target == null ||
-                                        hangar.GetHangarShip().shipData.Role != ShipData.RoleName.troop ||
-                                        shipTarget.shipData.Role < ShipData.RoleName.drone)
-                                        continue;
-                                    hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Owner.TroopsOut = false;
-                        }
-                    }
-                }*/
+                CombatState = CombatState.AssaultShip;
 
             if (Target?.Center.InRadius(Owner.Center, 10000) ?? false)
             {
@@ -647,10 +598,7 @@ namespace Ship_Game.AI {
                 return;
             }
             if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
-                || Owner.TroopList.Count <= 0)
-                //||( Owner.shipData.Role != ShipData.RoleName.troop
-                //     && Owner.HasTroopBay !Owner.GetHangars().Any(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
-                //     && !Owner.hasTransporter))
+                || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
             {
                 if (Owner.loyalty.isPlayer)
                     HadPO = true;
@@ -670,7 +618,7 @@ namespace Ship_Game.AI {
                 }
                 Owner.DoOrbit(goal.TargetPlanet);
 
-                // FB: all the code below is not really needed. I think it is relacted to STSA. Should check it out and add as an option i guess
+                // FB: all the code below is relacted to STSA. Should check it out and add as an option i guess
                     //Get limit of troops to land
                     /*
                     var toRemove = new Array<Troop>();
