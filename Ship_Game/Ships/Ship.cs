@@ -1958,31 +1958,29 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool TroopsAreBoardingShip => TroopList.Count(troop => troop.GetOwner() == loyalty) != TroopList.Count;
+
+        public int NumPlayerTroopsOnShip => TroopList.Count(troop => troop.GetOwner() == EmpireManager.Player);
+
+        public int NumAiTroopsOnShip => TroopList.Count(troop => troop.GetOwner() != EmpireManager.Player);
 
         private void UpdateTroops()
         {
             Array<Troop> ownTroops = new Array<Troop>();
-            Array<Troop> EnemyTroops = new Array<Troop>();
+            Array<Troop> enemyTroops = new Array<Troop>();
             foreach (Troop troop in TroopList)
             {
                 if (troop.GetOwner() == loyalty)
                     ownTroops.Add(troop);
                 else
-                    EnemyTroops.Add(troop);
+                    enemyTroops.Add(troop);
             }
             if (HealPerTurn > 0)
             {
                 foreach (Troop troop in ownTroops)
-                {
-                    if (troop.Strength < troop.GetStrengthMax())
-                    {
-                        troop.Strength += HealPerTurn;
-                    }
-                    else
-                        troop.Strength = troop.GetStrengthMax();
-                }
+                    troop.Strength = (troop.Strength += HealPerTurn).Clamp(0, troop.GetStrengthMax());
             }
-            if (EnemyTroops.Count > 0)
+            if (enemyTroops.Count > 0)
             {
                 float num1 = 0;
                 for (int index = 0; index < MechanicalBoardingDefense; ++index)
@@ -1990,7 +1988,7 @@ namespace Ship_Game.Ships
                     if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
                         ++num1;
                 }
-                foreach (Troop troop in EnemyTroops)
+                foreach (Troop troop in enemyTroops)
                 {
                     float num2 = num1;
                     if (num1 > 0)
@@ -2012,10 +2010,10 @@ namespace Ship_Game.Ships
                     else
                         break;
                 }
-                EnemyTroops.Clear();
+                enemyTroops.Clear();
                 foreach (Troop troop in TroopList)
-                    EnemyTroops.Add(troop);
-                if (ownTroops.Count > 0 && EnemyTroops.Count > 0)
+                    enemyTroops.Add(troop);
+                if (ownTroops.Count > 0 && enemyTroops.Count > 0)
                 {
                     foreach (Troop troop in ownTroops)
                     {
@@ -2025,7 +2023,7 @@ namespace Ship_Game.Ships
                                 ++num1;
                         }
                     }
-                    foreach (Troop troop in EnemyTroops)
+                    foreach (Troop troop in enemyTroops)
                     {
                         float num2 = num1;
                         if (num1 > 0)
@@ -2050,13 +2048,13 @@ namespace Ship_Game.Ships
                             break;
                     }
                 }
-                EnemyTroops.Clear();
+                enemyTroops.Clear();
                 foreach (Troop troop in TroopList)
-                    EnemyTroops.Add(troop);
-                if (EnemyTroops.Count > 0)
+                    enemyTroops.Add(troop);
+                if (enemyTroops.Count > 0)
                 {
                     float num2 = 0;
-                    foreach (Troop troop in EnemyTroops)
+                    foreach (Troop troop in enemyTroops)
                     {
                         for (int index = 0; index < troop.Strength; ++index)
                         {
@@ -2100,7 +2098,7 @@ namespace Ship_Game.Ships
                         ownTroops.Add(troop);
                 }
                 if (ownTroops.Count != 0 || !(MechanicalBoardingDefense <= 0.0)) return;
-                ChangeLoyalty(changeTo: EnemyTroops[0].GetOwner());
+                ChangeLoyalty(changeTo: enemyTroops[0].GetOwner());
 
                 if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
@@ -2245,6 +2243,7 @@ namespace Ship_Game.Ships
             maxWeaponsRange = CalculatMaxWeaponsRange();
             
         }
+
         public bool IsTethered()
         {
             return TetheredTo != null;

@@ -62,6 +62,37 @@ namespace Ship_Game.Ships
 
         public int NumTroopsInShipAndInSpace => Owner.TroopList.Count + LaunchedAssaultShuttles;
 
+        public float MaxTroopStrengthInShipToCommit
+        {
+            get
+            {
+                if (Owner == null || Owner.TroopList.Count <= 0)
+                    return 0f;
+
+                float troopStrentgh = 0f;
+                int maxTroopsForLaunch = Math.Min(Owner.TroopList.Count, AvailableAssaultShuttles);
+                for (int i = 0; i < maxTroopsForLaunch; ++i)
+                {
+                    troopStrentgh += Owner.TroopList[i].Strength;    
+                }
+                return troopStrentgh;
+            }
+        }
+
+        public float MaxTroopStrengthInSpaceToCommit
+        {
+            get
+            {
+                if (Owner == null)
+                    return 0f;
+
+                float troopStrength =  AllTroopBays.FilterBy(hangar => hangar.GetHangarShip()?.Active == true)
+                                         .Select(hangar => hangar.GetHangarShip())
+                                         .Select(hangarShip => hangarShip.TroopList[0].Strength).Sum();
+                return troopStrength;
+            }
+        }
+
         public HangarInfo GrossHangarStatus // FB: needed to display hangar status to the player
         {
             get
