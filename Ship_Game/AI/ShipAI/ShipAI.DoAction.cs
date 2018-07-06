@@ -52,7 +52,7 @@ namespace Ship_Game.AI {
                     (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
                 {
                     if (Owner.Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
-                        Owner.Carrier.ScrambleAssaultShips(enemyStrength);
+                        Owner.Carrier.ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
 
                     for (int i = 0; i < Owner.Carrier.AllTroopBays.Length; i++)
                     {
