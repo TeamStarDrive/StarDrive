@@ -313,11 +313,7 @@ namespace Ship_Game.Ships
             float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
             spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(Fmt), defPos, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
-            Vector2 troopPos                = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            DrawHorizontalValues(string.Concat(Ship.TroopList.Count), Color.White, ref troopPos, withSlash: false);
-            DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
-            if (Ship.Carrier.HasTroopBays)
-                DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles.ToString(), Color.CadetBlue, ref troopPos);
+            DrawTroopStatus();
 
             if (Ship.loyalty == EmpireManager.Player)
             {
@@ -370,21 +366,8 @@ namespace Ship_Game.Ships
                     ToolTip.CreateTooltip(Localizer.Token(2245));
                 }
             }
-            // Added by Fat Bastard - display hanger status
-            if (Ship.Carrier.AllFighterHangars.Length > 0)
-            {
-                CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
-                Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
-                if (hangarRect.HitTest(mousePos))
-                    ToolTip.CreateTooltip(Localizer.Token(1981));
 
-                Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
-                DrawHorizontalValues(currentHangarStatus.Launched.ToString(), Color.Green, ref hangarTextPos, withSlash: false);
-                DrawHorizontalValues(currentHangarStatus.ReadyToLaunch.ToString(), Color.White, ref hangarTextPos);
-                DrawHorizontalValues(currentHangarStatus.Refitting.ToString(), Color.Red, ref hangarTextPos);
-            }
-
+            DrawCarrierStatus();
             if (Ship.CargoSpaceUsed > 0f)
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
@@ -488,6 +471,49 @@ namespace Ship_Game.Ships
                     ToolTip.CreateTooltip(116);
                 }
                 numStatus++;
+            }
+
+            void DrawTroopStatus() // Expanded  by Fat Bastard
+            {
+                Vector2 troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+                if (Ship.TroopsAreBoardingShip)
+                {
+                    if (Ship.NumPlayerTroopsOnShip > 0)
+                    {
+                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
+                        DrawHorizontalValues(Ship.NumPlayerTroopsOnShip.ToString(), Color.LightGreen, ref troopPos);
+                    }
+                    else
+                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
+                }
+                else
+                {
+                    if (Ship.NumPlayerTroopsOnShip >= 0)
+                        DrawHorizontalValues(Ship.NumPlayerTroopsOnShip.ToString(), Color.LightGreen, ref troopPos, withSlash: false);
+                    else
+                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
+                }
+
+                DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
+                if (Ship.Carrier.HasTroopBays)
+                    DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles.ToString(), Color.CadetBlue, ref troopPos);
+            }
+
+            void DrawCarrierStatus()  // Added by Fat Bastard - display hanger status
+            {
+                if (Ship.Carrier.AllFighterHangars.Length > 0)
+                {
+                    CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
+                    Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
+                    if (hangarRect.HitTest(mousePos))
+                        ToolTip.CreateTooltip(Localizer.Token(1981));
+
+                    Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
+                    DrawHorizontalValues(currentHangarStatus.Launched.ToString(), Color.Green, ref hangarTextPos, withSlash: false);
+                    DrawHorizontalValues(currentHangarStatus.ReadyToLaunch.ToString(), Color.White, ref hangarTextPos);
+                    DrawHorizontalValues(currentHangarStatus.Refitting.ToString(), Color.Red, ref hangarTextPos);
+                }
             }
 
             void DrawHorizontalValues(string value, Color color, ref Vector2 textVector, bool withSlash = true)

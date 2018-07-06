@@ -20,7 +20,6 @@ namespace Ship_Game.AI {
                 if (Owner.yRotation < 0f)
                 {
                     Owner.yRotation = 0f;
-                    return;
                 }
             }
             else if (Owner.yRotation < 0f)
@@ -40,49 +39,24 @@ namespace Ship_Game.AI {
             if (!Owner.loyalty.isFaction && (Target as Ship).shipData.Role <= ShipData.RoleName.drone)
                 return;
 
-            float ourTroopStrength = 0f;
-            float ourOutStrength = 0f;
-            int tcount = 0;
-            for (int i = 0; i < Owner.Carrier.AllActiveTroopBays.Length; i++) // FB: change this to foreach
-            {
-                ShipModule s = Owner.Carrier.AllActiveTroopBays[i];
-                if (s.GetHangarShip() != null)
-                    foreach (Troop st in s.GetHangarShip().TroopList)
-                    {
-                        ourTroopStrength += st.Strength;
-                        Ship escShip = s.GetHangarShip().AI.EscortTarget;
-                        if (escShip != null && escShip != Target && escShip != Owner)
-                            continue;
-
-                        ourOutStrength += st.Strength;
-                    }
-                if (s.hangarTimer <= 0)
-                    tcount++;
-            }
-            for (int i = 0; i < Owner.TroopList.Count; i++)
-            {
-                Troop t = Owner.TroopList[i];
-                if (tcount <= 0)
-                    break;
-                ourTroopStrength = ourTroopStrength + t.Strength;
-                tcount--;
-            }
-
-            if (ourTroopStrength <= 0) return;
+            float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;
+            if (totalTroopStrengthToCommit <= 0)
+                return;
 
             bool boarding = false;
             if (Target is Ship shipTarget)
             {
                 float enemyStrength = shipTarget.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
 
-                if (ourTroopStrength + ourOutStrength > enemyStrength &&
+                if (totalTroopStrengthToCommit > enemyStrength &&
                     (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
                 {
-                    if (ourOutStrength < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
+                    if (Owner.Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength && Target.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
                         Owner.Carrier.ScrambleAssaultShips(enemyStrength);
-                    for (var i = 0; i < Owner.Carrier.AllActiveTroopBays.Length; i++) // FB: move to foreach
+
+                    for (int i = 0; i < Owner.Carrier.AllTroopBays.Length; i++)
                     {
-                        ShipModule hangar = Owner.Carrier.AllActiveTroopBays[i];
+                        ShipModule hangar = Owner.Carrier.AllTroopBays[i];
                         if (hangar.GetHangarShip() == null)
                             continue;
                         hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
@@ -90,43 +64,25 @@ namespace Ship_Game.AI {
                     boarding = true;
                 }
             }
+            //This is the auto invade feature. FB: this should be expanded to check for building stength and compare troops in ship vs planet
+            if (boarding || totalTroopStrengthToCommit <= 0)
 
-            //FB: this is the auto invade feature. Thinking about moving it to DoAssaultShipCombat
-            //if (boarding || (ourOutStrength <= 0 && ourTroopStrength <= 0))
-            /*
-            if (ourOutStrength <= 0 && ourTroopStrength <= 0)
-                    return;
-            if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) != Owner.TroopList.Count)
+            if (Owner.TroopsAreBoardingShip)
                 return;
 
             Planet invadeThis = Owner.System.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.loyalty 
-                                                             && Owner.loyalty.GetRelations(owner.Owner).AtWar,
+                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
                                 troops => troops.TroopsHere.Count);
-            //Ship shipTarget = Target as Ship;
             if (invadeThis != null)
             {
-                Owner.ScrambleAssaultShips(0);
-                foreach (ShipModule troopBay in Owner.AllTroopBays)
+                Owner.Carrier.ScrambleAllAssaultShips();
+                foreach (ShipModule troopBay in Owner.Carrier.AllTroopBays)
                 {
                     Ship troopShip = troopBay.GetHangarShip();
                     if (troopShip != null && troopShip.Active)
                         troopShip.AI.OrderAssaultPlanet(invadeThis);
                 }
             }
-            // FB: disabled and maybe add here the auto invade
-            if (!boarding && (ourOutStrength > 0 || ourTroopStrength > 0))
-            {
-                if (Owner.System?.OwnerList.Count > 0)
-                {
-                    Planet x = Owner.System.PlanetList.FindMinFiltered(
-                        filter: p => p.Owner != null && p.Owner != Owner.loyalty || p.RecentCombat,
-                        selector: p => Owner.Center.SqDist(p.Center));
-                    if (x == null) return;
-                    Owner.ScrambleAssaultShips(0);
-                    OrderAssaultPlanet(x);
-                }
-            }*/
         }
 
         private void DebugTargetCircle(Vector2 center, float radius)
