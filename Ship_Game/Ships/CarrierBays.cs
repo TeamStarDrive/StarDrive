@@ -60,6 +60,8 @@ namespace Ship_Game.Ships
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
+        public int NumTroopsInShipAndInSpace => Owner.TroopList.Count + LaunchedAssaultShuttles;
+
         public HangarInfo GrossHangarStatus // FB: needed to display hangar status to the player
         {
             get
