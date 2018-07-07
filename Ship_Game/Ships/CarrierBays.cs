@@ -254,6 +254,17 @@ namespace Ship_Game.Ships
             }
         }
 
+        public void AssaultPlanet(Planet planet)
+        {
+            ScrambleAllAssaultShips();
+            foreach (ShipModule bay in AllTroopBays)
+            {
+                Ship hangarShip = bay.GetHangarShip();
+                if (hangarShip != null && hangarShip.Active)
+                    hangarShip.AI.OrderAssaultPlanet(planet);
+            }
+        }
+
         public bool RecallingFighters() 
         {
             if (Owner == null || !Owner.RecallFightersBeforeFTL || !HasActiveHangars)
