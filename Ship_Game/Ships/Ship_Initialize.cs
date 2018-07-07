@@ -135,8 +135,8 @@ namespace Ship_Game.Ships
             TetherGuid       = save.TetheredTo;
             TetherOffset     = save.TetherOffset;
             InCombat         = InCombatTimer > 0f;
-            SetTroopsOut     = save.TroopsLaunched;
-            SetFightersOut   = save.FightersLaunched;
+            TroopsLaunched   = save.TroopsLaunched;
+            FightersLaunched = save.FightersLaunched;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty 
                             ? save.TroopList[0].Name : save.Name;
