@@ -256,7 +256,7 @@ namespace Ship_Game.AI
             if (sortedList2.Any())
                 targetShip = sortedList2.ElementAt(0).Ship;
 
-            if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0)
+            if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
                 return targetShip;
             return null;
         }
@@ -308,12 +308,12 @@ namespace Ship_Game.AI
             //fbedard: for launch only
             //CG Omergawd. yes i tried getting rid of the orderby and cleaning this up
             //but im not willing to test that change here. I think i did some of this a long while back.  
-            if (Owner.engineState == Ship.MoveState.Warp ||!Owner.HasSupplyBays ) return;
+            if (Owner.engineState == Ship.MoveState.Warp ||!Owner.Carrier.HasSupplyBays ) return;
 
             Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
                                                                   && ship.OrdnanceStatus < ShipStatus.Good
-                                                                  && ship!= Owner 
-                                                                  && (!ship.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
+                                                                  && ship != Owner
+                                                                  && (!ship.Carrier.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
                 .OrderBy(ship =>
                 {
                     var distance = Owner.Center.Distance(ship.Center);
@@ -326,7 +326,7 @@ namespace Ship_Game.AI
             var skip = 0;
             var inboundOrdinance = 0f;
             //oh crap this is really messed up. 
-            foreach (ShipModule hangar in Owner.GetHangars().FilterBy(hangar => hangar.IsSupplyBay))
+            foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.FilterBy(hangar => hangar.IsSupplyBay)) //FB: maybe addd active supplybays to carrierbays
             {
                 if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
                 {
