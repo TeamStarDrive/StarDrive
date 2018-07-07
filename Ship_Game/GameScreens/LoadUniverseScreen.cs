@@ -787,8 +787,8 @@ namespace Ship_Game
             ship.TetherGuid       = shipSave.TetheredTo;
             ship.TetherOffset     = shipSave.TetherOffset;
             ship.InCombat         = ship.InCombatTimer > 0f;
-            ship.FightersLaunched = shipSave.FightersLaunched;
-            ship.TroopsLaunched   = shipSave.TroopsLaunched;
+            ship.SetTroopsOut     = shipSave.TroopsLaunched;
+            ship.SetFightersOut   = shipSave.FightersLaunched;
 
             ship.VanityName = ship.shipData.Role == ShipData.RoleName.troop && shipSave.TroopList.NotEmpty 
                             ? shipSave.TroopList[0].Name : shipSave.Name;
