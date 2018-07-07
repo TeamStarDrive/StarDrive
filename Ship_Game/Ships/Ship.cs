@@ -151,8 +151,8 @@ namespace Ship_Game.Ships
         public bool Deleted;
         //public float CargoMass;    //Not referenced in code, removing to save memory
         public bool inborders;
-        public bool FightersLaunched;
-        public bool TroopsLaunched;
+        public bool FightersLaunched { get; private set; }
+        public bool TroopsLaunched { get; private set; }
         public bool Inhibited;
         private float BonusEMP_Protection;
         public bool inSensorRange;
@@ -492,6 +492,12 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool SetFightersOut
+        {
+            get => FightersLaunched;
+            set => FightersLaunched = value;
+        }
+
         public bool DoingTransport
         {
             get => AI.State == AIState.SystemTrader;
@@ -625,6 +631,12 @@ namespace Ship_Game.Ships
                 else
                     Carrier.RecoverAssaultShips();
             }
+        }
+
+        public bool SetTroopsOut
+        {
+            get => TroopsLaunched;
+            set => TroopsLaunched = value;
         }
 
         public bool doingScrap
@@ -1971,8 +1983,8 @@ namespace Ship_Game.Ships
 
             HealTroops();
 
-            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > TroopCapacity)
-                DisengageExcessTroops(ownTroops.Count - TroopCapacity);
+            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > TroopCapacity + 1) //  +1 to leave a garrison on the captured ship
+                DisengageExcessTroops(ownTroops.Count - (TroopCapacity + 1));
 
             if (enemyTroops.Count <= 0)
                 return; // Boarding is over or never started
