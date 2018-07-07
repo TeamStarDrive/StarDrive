@@ -1371,7 +1371,7 @@ namespace Ship_Game.Ships
                 return;
             if (Carrier.RecallingFighters())
                 return;
-            if (EnginesKnockedOut)
+            if (EnginesKnockedOut || Inhibited)
             {
                 HyperspaceReturn();
                 return;
