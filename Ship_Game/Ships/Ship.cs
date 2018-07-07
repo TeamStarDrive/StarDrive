@@ -492,12 +492,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool SetFightersOut
-        {
-            get => FightersLaunched;
-            set => FightersLaunched = value;
-        }
-
         public bool DoingTransport
         {
             get => AI.State == AIState.SystemTrader;
@@ -631,12 +625,6 @@ namespace Ship_Game.Ships
                 else
                     Carrier.RecoverAssaultShips();
             }
-        }
-
-        public bool SetTroopsOut
-        {
-            get => TroopsLaunched;
-            set => TroopsLaunched = value;
         }
 
         public bool doingScrap
