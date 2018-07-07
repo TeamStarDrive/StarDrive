@@ -1176,12 +1176,10 @@ namespace Ship_Game
 
             if (FlatFoodAdded > Population / 1000)     //Account for possible overproduction from FlatFood
             {
-                float offestAmount = (FlatFoodAdded - (Population / 1000)) * 0.05f; //5% of excess FlatFood
-                offestAmount = offestAmount.Clamp(0.00f, 0.15f);       //Tame offset to prevent huge change
-                importThreshold -= offestAmount;
-                importThreshold = importThreshold.Clamp(0.10f, 1.00f);
-                exportThreshold -= offestAmount;        //Note that overproduction is the only way for a planet with an ExportThreshold of 1 to ever decide to export
-                exportThreshold = exportThreshold.Clamp(0.10f, 1.00f);
+                float offsetAmount = (FlatFoodAdded - (Population / 1000)) * 0.05f;
+                offsetAmount = offsetAmount.Clamp(0.00f, 0.15f);
+                importThreshold = (importThreshold - offsetAmount).Clamp(0.10f, 1.00f);
+                exportThreshold = (exportThreshold - offsetAmount).Clamp(0.10f, 1.00f);
             }
 
             float ratio = FoodHere / MaxStorage;
@@ -1207,22 +1205,18 @@ namespace Ship_Game
                 {
                     if (PlusFlatProductionPerTurn > Population / 1000)
                     {
-                        float offestAmount = (PlusFlatProductionPerTurn - (Population / 1000)) * 0.05f;
-                        offestAmount = offestAmount.Clamp(0.00f, 0.15f);
-                        importThreshold -= offestAmount;
-                        importThreshold = importThreshold.Clamp(0.10f, 1.00f);
-                        exportThreshold -= offestAmount;
-                        exportThreshold = exportThreshold.Clamp(0.10f, 1.00f);
+                        float offsetAmount = (PlusFlatProductionPerTurn - (Population / 1000)) * 0.05f;
+                        offsetAmount = offsetAmount.Clamp(0.00f, 0.15f);
+                        importThreshold = (importThreshold - offsetAmount).Clamp(0.10f, 1.00f);
+                        exportThreshold = (exportThreshold - offsetAmount).Clamp(0.10f, 1.00f);
                     }
                 }
                 else
                 {
-                    float offestAmount = PlusFlatProductionPerTurn * 0.05f;
-                    offestAmount = offestAmount.Clamp(0.00f, 0.15f);
-                    importThreshold -= offestAmount;
-                    importThreshold = importThreshold.Clamp(0.10f, 1.00f);        //Account for FlatProd, which will pile up
-                    exportThreshold -= offestAmount;            //This will allow a planet that normally wouldn't export prod to do so if it is full,
-                    exportThreshold = exportThreshold.Clamp(0.10f, 1.00f);        //since the Production still being produced would otherwise be wasted
+                    float offsetAmount = PlusFlatProductionPerTurn * 0.05f;
+                    offsetAmount = offsetAmount.Clamp(0.00f, 0.15f);
+                    importThreshold = (importThreshold - offsetAmount).Clamp(0.10f, 1.00f);
+                    exportThreshold = (exportThreshold - offsetAmount).Clamp(0.10f, 1.00f);
                 }
             }
 
@@ -1261,33 +1255,34 @@ namespace Ship_Game
             }
         }
 
-        private void BuildOutpostifAble() //A Gretman function to support DoGoverning()
+        private bool FindOutpost()
         {
-            bool foundOutpost = false;
-
             //First check the existing buildings
             foreach (Building building in BuildingList)
             {
                 if (building.Name == "Outpost" || building.Name == "Capital City")
                 {
-                    foundOutpost = true;
-                    break;
+                    return true;
                 }
             }
-            if (foundOutpost) return;
 
             //Then check the queue
             foreach (QueueItem queueItem in ConstructionQueue)
             {
                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                 {
-                    foundOutpost = true;
-                    break;
+                    return true;
                 }
             }
-            if (foundOutpost) return;
+            return false;
+        }
 
-            //Still no? Build it!
+        private void BuildOutpostifAble() //A Gretman function to support DoGoverning()
+        {
+            //Check Existing Buildings and the queue
+            if (FindOutpost()) return;
+
+            //Build it!
             AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"), false);
 
             //Move Outpost to the top of the list, and rush production
@@ -1393,10 +1388,10 @@ namespace Ship_Game
         {
             if (MaxStorage == 0 || labor == 0) return;
             if (Owner.data.Traits.Cybernetic > 0)
-			{
+            {
                 WorkOrResearch(labor);  //Hand off to Prod instead;
-				return;
-			}
+                return;
+            }
             float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
             float storedFoodRatio = FoodHere / MaxStorage;      //How much of Storage is filled
             if (Fertility + PlusFoodPerColonist <= 0.5f) storedFoodRatio = 1; //No farming here, so skip it
@@ -1404,55 +1399,46 @@ namespace Ship_Game
                    //Stop producing food a little early, since the flat food will continue to pile up
             if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
             if (storedFoodRatio > 1) storedFoodRatio = 1;
-			
+            
             float farmers = 1 - storedFoodRatio;    //How much storage is left to fill
             if (farmers >= 0.5f) farmers = 1;		//Work out percentage of [labor] to allocate
-			else farmers = farmers * 2;
-			if (farmers > 0 && farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
-			
+            else farmers = farmers * 2;
+            if (farmers > 0 && farmers < 0.1f) farmers = 0.1f;    //Avoid crazy small percentage of labor
+            
             FarmerPercentage += farmers * labor;	//Assign Farmers
-			ResearcherPercentage += labor - (farmers * labor);//Leftovers go to Research
+            ResearcherPercentage += labor - (farmers * labor);//Leftovers go to Research
         }
-		
-		private void WorkOrResearch(float labor)    //Industrial
+        
+        private void WorkOrResearch(float labor)    //Industrial
         {
             if (MaxStorage == 0 || labor == 0) return;
-			float storedProdRatio = ProductionHere / MaxStorage;      //How much of Storage is filled
+            float storedProdRatio = ProductionHere / MaxStorage;      //How much of Storage is filled
 
             if (Owner.data.Traits.Cybernetic > 0)       //Stop production early, since the flat production will continue to pile up
             {
-				float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
+                float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
                 if (PlusFlatProductionPerTurn > maxPop) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn - maxPop, 3);
             }
             else
             {
                 if (PlusFlatProductionPerTurn > 0) storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
             }
-			if (storedProdRatio > 1) storedProdRatio = 1;
+            if (storedProdRatio > 1) storedProdRatio = 1;
 
             float workers = 1 - storedProdRatio;    //How much storage is left to fill
             if (workers >= 0.5f) workers = 1;		//Work out percentage of [labor] to allocate
-			else workers = workers * 2;
-			if (workers > 0 && workers < 0.1f) workers = 0.1f;    //Avoid crazy small percentage of labor
+            else workers = workers * 2;
+            if (workers > 0 && workers < 0.1f) workers = 0.1f;    //Avoid crazy small percentage of labor
 
             if (ConstructionQueue.Count > 1 && workers < 0.75f) workers = 0.75f;  //Minimum value if construction is going on
 
             WorkerPercentage += workers * labor;	//Assign workers
-			ResearcherPercentage += labor - (workers * labor);//Leftovers go to Research
+            ResearcherPercentage += labor - (workers * labor);//Leftovers go to Research
         }
 
-        private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
+        private float EvaluateBuildingMaintenance(Building building, float income)
         {
-            float finalScore = 0.0f;    //End result score for entire building
-            float score = 0.0f;         //Reused variable for each step
-
-            float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
-            bool doingResearch = !string.IsNullOrEmpty(Owner.ResearchTopic);
-
-            if (Name == "MerVilleI")
-                  { double spotForABreakPoint = Math.PI; }
-
-            //First things first! How much is it gonna' cost?
+            float score = 0;
             if (building.Maintenance != 0)
             {
                 score += building.Maintenance * 2;  //Base of 2x maintenance -- Also, I realize I am not calculating MaintMod here. It throws the algorithm off too much
@@ -1460,14 +1446,17 @@ namespace Ship_Game
                     score += score + (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod);   //Really dont want this if we cant afford it
                 score -= Owner.data.FlatMoneyBonus * 0.015f;      //Acceptible loss (Note what this will do at high Difficulty)
 
-                finalScore -= score;
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} Maintenance : Score was {-score}");
             }
 
-            //Flat Food
+            return score;
+        }
+
+        private float EvaluateBuildingFlatFood(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.PlusFlatFoodAmount != 0 && Owner.data.Traits.Cybernetic == 0)
             {
-                score = 0;
                 if (building.PlusFlatFoodAmount < 0) score = building.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
                 else
                 {
@@ -1477,11 +1466,16 @@ namespace Ship_Game
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
                 }
-                finalScore += score;
+
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatFood : Score was {score}");
             }
 
-            //Food per Colonist
+            return score;
+        }
+
+        private float EvaluateBuildingFoodPerCol(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.PlusFoodPerColonist != 0 && Owner.data.Traits.Cybernetic == 0)
             {
                 score = 0;
@@ -1493,14 +1487,18 @@ namespace Ship_Game
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
                     if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
                 }
-                finalScore += score;
+
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
             }
 
-            //Flat Prod
+            return score;
+        }
+
+        private float EvaluateBuildingFlatProd(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.PlusFlatProductionAmount != 0)
             {
-                score = 0;
                 if (building.PlusFlatProductionAmount < 0) score = building.PlusFlatProductionAmount * 2; //for negative value
                 else
                 {
@@ -1512,14 +1510,18 @@ namespace Ship_Game
                     score += (building.PlusFlatProductionAmount - PlusFlatProductionPerTurn) - ((MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation));   //How much flat Prod compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatProd : Score was {score}");
             }
 
-            //Prod per Colonist
+            return score;
+        }
+
+        private float EvaluateBuildingProdPerCol(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.PlusProdPerColonist != 0)
             {
-                score = 0;
                 if (building.PlusProdPerColonist < 0) score = building.PlusProdPerColonist * maxPopulation * 2;
                 else
                 {
@@ -1528,43 +1530,53 @@ namespace Ship_Game
                     score += building.PlusProdPerColonist * maxPopulation * farmers;    //Prod this building will add
                     if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
                 }
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
             }
 
-            //Prod per Richness
+            return score;
+        }
+
+        private float EvaluateBuildingProdPerRichness(Building building)
+        {
+            float score = 0;
             if (building.PlusProdPerRichness != 0)  //This one can produce a pretty high building value, which is normally offset by its huge maintenance cost and Fertility loss
             {
-                score = 0;
                 if (building.PlusProdPerRichness < 0) score = building.PlusProdPerRichness * MineralRichness * 2;
                 else
                 {
                     score += building.PlusProdPerRichness * MineralRichness;        //Production this would generate
                     if (!HasShipyard) score *= 0.75f;       //Do we have a use for all this production?
                 }
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ProdPerRich : Score was {score}");
             }
 
-            //Storage
+            return score;
+        }
+
+        private float EvaluateBuildingStorage(Building building)
+        {
+            float score = 0;
             if (building.StorageAdded != 0)
             {
-                score = 0;
-
                 float desiredStorage = 50.0f;
                 if (Fertility + PlusFoodPerColonist > 2.5f || MineralRichness + PlusProductionPerColonist > 2.5f || PlusFlatProductionPerTurn > 5) desiredStorage += 100.0f;  //Potential high output
                 if (HasShipyard) desiredStorage += 100.0f;      //For buildin' ships 'n shit
                 if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.002f) - (building.Cost * 0.001f);  //If we need more storage, rate this building
                 if (building.Maintenance > 0) score *= 0.25f;       //Prefer free storage
 
-                finalScore += score;
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} StorageAdd : Score was {score}");
             }
 
-            //Plus Population Growth
+            return score;
+        }
+
+        private float EvaluateBuildingPopulationGrowth(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.PlusFlatPopulation != 0)
             {
-                score = 0;
                 if (building.PlusFlatPopulation < 0) score = building.PlusFlatPopulation * 0.02f;  //Which is sorta like     0.01f * 2
                 else
                 {
@@ -1573,30 +1585,38 @@ namespace Ship_Game
                 }
                 if (Owner.data.Traits.PhysicalTraitLessFertile) score *= 2;     //These are calculated outside the else, so they will affect negative flatpop too
                 if (Owner.data.Traits.PhysicalTraitFertile) score *= 0.5f;
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} PopGrowth : Score was {score}");
             }
 
-            //Plus Max Population
+            return score;
+        }
+
+        private float EvaluateBuildingPlusMaxPopulation(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.MaxPopIncrease != 0)
             {
-                score = 0;
                 if (building.MaxPopIncrease < 0) score = building.MaxPopIncrease * 0.002f;      //Which is sorta like     0.001f * 2
                 else
                 {
                     //Basically, only add to the score if we would be able to feed the extra people
                     if ((Fertility + PlusFoodPerColonist + building.PlusFoodPerColonist) * (maxPopulation + (building.MaxPopIncrease / 1000))
-                        >= (maxPopulation + (building.MaxPopIncrease / 1000) - FlatFoodAdded - building.PlusFlatFoodAmount)   )
+                        >= (maxPopulation + (building.MaxPopIncrease / 1000) - FlatFoodAdded - building.PlusFlatFoodAmount))
                         score += building.MaxPopIncrease * 0.001f;
                 }
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} MaxPop : Score was {score}");
             }
 
-            //Flat Research
-            if (building.PlusFlatResearchAmount != 0 && doingResearch)
+            return score;
+        }
+
+        private float EvaluateBuildingFlatResearch(Building building, float income)
+        {
+            float score = 0.001f;
+            if (building.PlusFlatResearchAmount != 0)
             {
-                score = 0.001f;
                 if (building.PlusFlatResearchAmount < 0)            //Surly no one would make a negative research building
                 {
                     if (ResearcherPercentage > 0 || PlusFlatResearchPerTurn > 0) score += building.PlusFlatResearchAmount * 2;
@@ -1607,14 +1627,18 @@ namespace Ship_Game
                     if ((building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod) * 1.5 <= income) score += building.PlusFlatResearchAmount * 2;
                     if (score < building.PlusFlatResearchAmount * 0.1f) score = building.PlusFlatResearchAmount * 0.1f; //A little extra research is always useful
                 }
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatResearch : Score was {score}");
             }
 
-            //Research per Colonist
-            if (building.PlusResearchPerColonist != 0 && doingResearch)
+            return score;
+        }
+
+        private float EvaluateBuildingResearchPerCol(Building building, float maxPopulation)
+        {
+            float score = 0;
+            if (building.PlusResearchPerColonist != 0)
             {
-                score = 0;
                 if (building.PlusResearchPerColonist < 0)
                 {
                     if (ResearcherPercentage > 0 || PlusFlatResearchPerTurn > 0) score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation) * 2;
@@ -1624,71 +1648,117 @@ namespace Ship_Game
                 {
                     score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation);       //Research this will generate
                 }
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
             }
 
-            //Credits per Colonist
+            return score;
+        }
+
+        private float EvaluateBuildingCreditsPerCol(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.CreditsPerColonist != 0)
             {
-                score = 0;
                 if (building.CreditsPerColonist < 0) score += building.CreditsPerColonist * maxPopulation * 2;
                 else score += (building.CreditsPerColonist * maxPopulation) / 2;        //Dont want to cause this to have building preference over infrastructure buildings
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} CredsPerCol : Score was {score}");
             }
 
-            //Plus Tax Percentage
+            return score;
+        }
+
+        private float EvaluateBuildingPlusTaxPercent(Building building)
+        {
+            float score = 0;
             if (building.PlusTaxPercentage != 0)
             {
-                score = 0;
-
                 if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * GrossMoneyPT * 2;
                 else score += building.PlusTaxPercentage * GrossMoneyPT / 2;
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} PlusTaxPercent : Score was {score}");
             }
 
-            //Allow Ship Building
+            return score;
+        }
+
+        private float EvaluateBuildingAllowShipBuilding(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.AllowShipBuilding || building.Name == "Space Port")        //Had to also add the name, because some parts of the code look at the name instead of the 'AllowShipBuilding' tag
             {
-                score = 0;              //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
+                                  //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
                 float farmers = CalculateFoodWorkers();
                 float prodFromLabor = ((1 - farmers) * maxPopulation * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist));
-                float prodFromFlat  = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
+                float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
                 if (prodFromLabor + prodFromFlat > 5.0f) score += prodFromLabor + prodFromFlat - 5.0f;
-                finalScore += score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
             }
 
-            if (false && building.PlusTerraformPoints != 0)
+            return score;
+        }
+
+        private float EvaluateBuildingTerraforming(Building building)
+        {
+            float score = 0;
+            if (building.PlusTerraformPoints != 0)
             {
-                score = 0;
                 //Still working on this one...
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} Terraform : Score was {score}");
             }
 
-            //Fertility loss on build
+            return score;
+        }
+
+        private float EvaluateBuildingFertilityLoss(Building building, float maxPopulation)
+        {
+            float score = 0;
             if (building.MinusFertilityOnBuild != 0 && Owner.data.Traits.Cybernetic == 0)       //Cybernetic dont care.
             {
-                score = 0;
                 if (building.MinusFertilityOnBuild < 0) score += building.MinusFertilityOnBuild * 2;    //Negative loss means positive gain!!
                 else
                 {                                   //How much fertility will actually be lost
                     float fertLost = Math.Min(Fertility, building.MinusFertilityOnBuild);
                     float foodFromLabor = maxPopulation * ((Fertility - fertLost) + PlusFoodPerColonist + building.PlusFoodPerColonist);
                     float foodFromFlat = FlatFoodAdded + building.PlusFlatFoodAmount;
-                                //Will we still be able to feed ourselves?
+                    //Will we still be able to feed ourselves?
                     if (foodFromFlat + foodFromLabor < Consumption) score += fertLost * 10;
                     else score += fertLost * 4;
                 }
-                finalScore -= score;
+                
                 if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FertLossOnBuild : Score was {score}");
             }
 
-            if (Name == "MerVille") Log.Info(ConsoleColor.Cyan, $"Evaluated {building.Name} Final Score was : {finalScore}");
-            return finalScore;
+            return score;
+        }
+
+        private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
+        {
+            float buildingValue = 0.0f;    //End result value for entire building
+            float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
+
+            buildingValue -= EvaluateBuildingMaintenance(building, income);
+            buildingValue += EvaluateBuildingFlatFood(building, maxPopulation);
+            buildingValue += EvaluateBuildingFoodPerCol(building, maxPopulation);
+            buildingValue += EvaluateBuildingFlatProd(building, maxPopulation);
+            buildingValue += EvaluateBuildingProdPerCol(building, maxPopulation);
+            buildingValue += EvaluateBuildingProdPerRichness(building);
+            buildingValue += EvaluateBuildingStorage(building);
+            buildingValue += EvaluateBuildingPopulationGrowth(building, maxPopulation);
+            buildingValue += EvaluateBuildingPlusMaxPopulation(building, maxPopulation);
+            buildingValue += EvaluateBuildingFlatResearch(building, income);
+            buildingValue += EvaluateBuildingResearchPerCol(building, maxPopulation);
+            buildingValue += EvaluateBuildingCreditsPerCol(building, maxPopulation);
+            buildingValue += EvaluateBuildingPlusTaxPercent(building);
+            buildingValue += EvaluateBuildingAllowShipBuilding(building, maxPopulation);
+            buildingValue += EvaluateBuildingTerraforming(building);
+            buildingValue -= EvaluateBuildingFertilityLoss(building, maxPopulation);
+
+            if (Name == "MerVille") Log.Info(ConsoleColor.Cyan, $"Evaluated {building.Name} Final Score was : {buildingValue}");
+            return buildingValue;
         }
 
         public void DoGoverning()
@@ -1761,8 +1831,8 @@ namespace Ship_Game
 
                         if (colonyType == Planet.ColonyType.TradeHub)
                         {
-                            DetermineFoodState(0.15f, 1.0f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                            DetermineProdState(0.15f, 1.0f);
+                            DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                            DetermineProdState(0.15f, 0.95f);
                             break;
                         }
 
