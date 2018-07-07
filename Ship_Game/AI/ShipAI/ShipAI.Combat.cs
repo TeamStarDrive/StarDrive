@@ -312,8 +312,7 @@ namespace Ship_Game.AI
 
             Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
                                                                   && ship.OrdnanceStatus < ShipStatus.Good
-                                                                  && ship!= Owner
-                                                                  //&& (!ship.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor))
+                                                                  && ship != Owner
                                                                   && (!ship.Carrier.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
                 .OrderBy(ship =>
                 {
