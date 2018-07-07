@@ -209,7 +209,7 @@ namespace Ship_Game.Gameplay
                     {
                         float rotationImpulse = damageRadius / (float)Math.Pow(otherShip.Mass, 1.3);
                         otherShip.yRotation = otherShip.yRotation > 0.0f ? rotationImpulse : -rotationImpulse;
-                        otherShip.yRotation = otherShip.yRotation.Clamp(-otherShip.maxBank, otherShip.maxBank);
+                        otherShip.yRotation = otherShip.yRotation.Clamp(-otherShip.MaxBank, otherShip.MaxBank);
                     }
 
                     // apply some impulse from the explosion

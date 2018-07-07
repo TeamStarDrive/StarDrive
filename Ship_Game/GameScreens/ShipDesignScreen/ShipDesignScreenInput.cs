@@ -238,7 +238,8 @@ namespace Ship_Game
 
         private MirrorSlot GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation)
         {
-            const int center = 952;
+            int resoltionOffset = (int)slot.SlotReference.Position.X - 256;
+            int center = slot.PQ.X - resoltionOffset;
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
             int xPos = slot.PQ.X;
