@@ -45,7 +45,6 @@ namespace Ship_Game
             set => SbCommodities.Population = value;
         }
 
-
         public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
         public GoodState GetGoodState(string good)
@@ -61,7 +60,6 @@ namespace Ship_Game
         }        
         public SpaceStation Station = new SpaceStation();        
         
-        
         public float FarmerPercentage = 0.34f;
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;        
@@ -70,11 +68,7 @@ namespace Ship_Game
         public bool ProdLocked;
         public bool ResLocked;
         
-        public int CrippledTurns;
-   
-        //public bool isSelected;
-        public float BuildingRoomUsed;
-        
+        public int CrippledTurns;        
         
         public float NetFoodPerTurn;
         public float GetNetGoodProd(string good)
@@ -148,11 +142,6 @@ namespace Ship_Game
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn = 0;        
-        //public bool PSexport { get; private set; }
-
-        //public float ExportPSWeight =0;       //Removed by Gretman, these were only used for legacy debug visualization
-        //public float ExportFSWeight = 0;
-
 
         public float TradeIncomingColonists = 0;
 
@@ -168,33 +157,6 @@ namespace Ship_Game
         public int GetGroundLandingSpots()                                => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public void HealTroops()                                          => TroopManager.HealTroops();
-
-        /*      //Removed by Gretman, these were only used for legacy debug visualization
-        public void SetExportWeight(string goodType, float weight)
-        {
-            switch (goodType)
-            {
-                case "Food":
-                    ExportFSWeight = weight;
-                    break;
-                case "Production":
-                    ExportPSWeight = weight;
-                    break;
-
-            }   
-        }
-
-        public float GetExportWeight(string goodType)
-        {
-            switch (goodType)
-            {
-                case "Food":
-                    return ExportFSWeight;
-                case "Production":
-                    return ExportPSWeight;                    
-            }
-            return 0;
-        }*/
 
         public Planet()
         {
@@ -729,39 +691,7 @@ namespace Ship_Game
                     if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
                 }
             }
-        }
-
-        private float CalculateFarmerPercentForSurplus(float desiredSurplus)
-        {
-            if (Fertility + PlusFoodPerColonist <= 0.1) return 0.0f; //Easy out for crap-planets
-
-            float Surplus = 0.0f;
-            if (Owner.data.Traits.Cybernetic > 0)
-            {
-                float totalConsumption = Consumption + desiredSurplus - PlusFlatProductionPerTurn;
-                float totalPopulation = (Population / 1000);
-                float totalProductionRate = (1 - Owner.data.TaxRate);
-
-                if (totalConsumption == 0 || totalPopulation == 0 || totalProductionRate == 0) return 0.0f; //No divide by 0
-
-                Surplus = totalConsumption / totalPopulation / totalProductionRate;
-            }
-            else
-            {                         //'Consumption' = Amount of food consumed after race modifier (Gluttonous, Efficient Metabolism, etc)
-                float totalConsumption = Consumption + desiredSurplus - FlatFoodAdded;
-                float totalPopulation = Population / 1000;
-                float totalProductionRate = Fertility + PlusFoodPerColonist;
-
-                if (totalConsumption == 0 || totalPopulation == 0 || totalProductionRate == 0) return 0.0f; //No divide by 0
-
-                Surplus = totalConsumption / totalPopulation / totalProductionRate;
-            }
-
-            if      (Surplus <= 0) return 0.0f;
-            else if (Surplus >= 1) return 1.0f;
-            else return Surplus;
-            
-        }     
+        }  
 
         public void RefreshBuildingsWeCanBuildHere()
         {
@@ -882,8 +812,6 @@ namespace Ship_Game
             }
             return false;
         }
-
-        public bool BuildingExists(Building exactInstance) => BuildingList.Contains(exactInstance);
 
         public bool BuildingExists(string buildingName)
         {
@@ -1236,7 +1164,7 @@ namespace Ship_Game
 
         }
 
-        private void DeterminFoodState(float importThreshold, float exportThreshold)
+        private void DetermineFoodState(float importThreshold, float exportThreshold)
         {
             if (Owner.data.Traits.Cybernetic != 0) return;
 
@@ -1249,11 +1177,11 @@ namespace Ship_Game
             if (FlatFoodAdded > Population / 1000)     //Account for possible overproduction from FlatFood
             {
                 float offestAmount = (FlatFoodAdded - (Population / 1000)) * 0.05f; //5% of excess FlatFood
-                offestAmount.Clamp(0.00f, 0.15f);       //Tame offset to prevent huge change
+                offestAmount = offestAmount.Clamp(0.00f, 0.15f);       //Tame offset to prevent huge change
                 importThreshold -= offestAmount;
-                importThreshold.Clamp(0.10f, 1.00f);
+                importThreshold = importThreshold.Clamp(0.10f, 1.00f);
                 exportThreshold -= offestAmount;        //Note that overproduction is the only way for a planet with an ExportThreshold of 1 to ever decide to export
-                exportThreshold.Clamp(0.10f, 1.00f);
+                exportThreshold = exportThreshold.Clamp(0.10f, 1.00f);
             }
 
             float ratio = FoodHere / MaxStorage;
@@ -1265,7 +1193,7 @@ namespace Ship_Game
             else if (ratio > exportThreshold) FS = GoodState.EXPORT;                                //until we get back to the Threshold, then export
         }
 
-        private void DeterminProdState(float importThreshold, float exportThreshold)
+        private void DetermineProdState(float importThreshold, float exportThreshold)
         {
             if (Owner.NumPlanets == 1)
             {
@@ -1280,21 +1208,21 @@ namespace Ship_Game
                     if (PlusFlatProductionPerTurn > Population / 1000)
                     {
                         float offestAmount = (PlusFlatProductionPerTurn - (Population / 1000)) * 0.05f;
-                        offestAmount.Clamp(0.00f, 0.15f);
+                        offestAmount = offestAmount.Clamp(0.00f, 0.15f);
                         importThreshold -= offestAmount;
-                        importThreshold.Clamp(0.10f, 1.00f);
+                        importThreshold = importThreshold.Clamp(0.10f, 1.00f);
                         exportThreshold -= offestAmount;
-                        exportThreshold.Clamp(0.10f, 1.00f);
+                        exportThreshold = exportThreshold.Clamp(0.10f, 1.00f);
                     }
                 }
                 else
                 {
                     float offestAmount = PlusFlatProductionPerTurn * 0.05f;
-                    offestAmount.Clamp(0.00f, 0.15f);
+                    offestAmount = offestAmount.Clamp(0.00f, 0.15f);
                     importThreshold -= offestAmount;
-                    importThreshold.Clamp(0.10f, 1.00f);        //Account for FlatProd, which will pile up
+                    importThreshold = importThreshold.Clamp(0.10f, 1.00f);        //Account for FlatProd, which will pile up
                     exportThreshold -= offestAmount;            //This will allow a planet that normally wouldn't export prod to do so if it is full,
-                    exportThreshold.Clamp(0.10f, 1.00f);        //since the Production still being produced would otherwise be wasted
+                    exportThreshold = exportThreshold.Clamp(0.10f, 1.00f);        //since the Production still being produced would otherwise be wasted
                 }
             }
 
@@ -1306,8 +1234,9 @@ namespace Ship_Game
             else if (ratio > exportThreshold) PS = GoodState.EXPORT;
         }
 
-        private void BuildShipywardifAble()
+        private void BuildShipyardifAble()
         {
+            if (RecentCombat)
             if (Owner != Empire.Universe.PlayerEmpire
                 && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
                 && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
@@ -1405,16 +1334,16 @@ namespace Ship_Game
                 //Stop producing food a little early, since the flat food will continue to pile up
                 float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
                 if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
-                storedFoodRatio.Clamp(0, 1);
+                storedFoodRatio = storedFoodRatio.Clamp(0, 1);
             }
 
             float modFarmers = (percent - storedFoodRatio) * 2;             //Percentage currently over or under desired storage
             if (modFarmers >  0 && modFarmers <   0.05) modFarmers = 0.05f;	//Avoid crazy small percentage
             if (modFarmers <  0 && modFarmers >  -0.05) modFarmers = 0.00f;	//Avoid bounce (stop if slightly over)
-            modFarmers.Clamp(-0.35f, 0.50f);                                //Also avoid large percentages
+            modFarmers = modFarmers.Clamp(-0.35f, 0.50f);                                //Also avoid large percentages
 
             minFarmers += modFarmers;             //modify nominal farmers by overage or underage
-            minFarmers.Clamp(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
+            minFarmers = minFarmers.Clamp(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
             return minFarmers;                          //Return labor % of farmers to progress toward goal
         }
 
@@ -1425,7 +1354,7 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic > 0)
             {											//Nominal workers needed to feed all of the the filthy Opteris
                 minWorkers = (Consumption - PlusFlatProductionPerTurn) / (Population / 1000) / (MineralRichness + PlusProductionPerColonist);
-                minWorkers.Clamp(0, 1);
+                minWorkers = minWorkers.Clamp(0, 1);
             }
 
             float storedProdRatio = ProductionHere / MaxStorage;      //Percentage of Prod Storage currently filled
@@ -1441,16 +1370,16 @@ namespace Ship_Game
                 {
                     storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
                 }
-                storedProdRatio.Clamp(0, 1);
+                storedProdRatio = storedProdRatio.Clamp(0, 1);
             }
 
             float modWorkers = (percent - storedProdRatio) * 2;             //Percentage currently over or under desired storage used as mod
             if (modWorkers >  0 && modWorkers <   0.05) modWorkers = 0.05f; //Avoid crazy small percentage
             if (modWorkers <  0 && modWorkers >  -0.05) modWorkers = 0.00f; //Avoid bounce (stop if slightly over)
-            minWorkers.Clamp(-0.35f,1);
+            minWorkers = minWorkers.Clamp(-0.35f,1);
 
             minWorkers += modWorkers;             //modify nominal workers by overage or underage
-            minWorkers.Clamp(0, 1);
+            minWorkers = minWorkers.Clamp(0, 1);
             return minWorkers;                          //Return labor % to progress toward goal
         }
 
@@ -1832,8 +1761,8 @@ namespace Ship_Game
 
                         if (colonyType == Planet.ColonyType.TradeHub)
                         {
-                            DeterminFoodState(0.15f, 1.0f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                            DeterminProdState(0.15f, 1.0f);
+                            DetermineFoodState(0.15f, 1.0f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                            DetermineProdState(0.15f, 1.0f);
                             break;
                         }
 
@@ -1843,7 +1772,7 @@ namespace Ship_Game
 
 
                         //New Build Logic by Gretman
-                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
@@ -1871,8 +1800,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        DeterminFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
-                        DeterminProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
+                        DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
+                        DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
 
                         break;
                     }
@@ -1891,7 +1820,7 @@ namespace Ship_Game
 
 
 
-                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
@@ -1919,8 +1848,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        DeterminFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
-                        DeterminProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                        DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                        DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
 
                         break;
                     }
@@ -1938,7 +1867,7 @@ namespace Ship_Game
 
 
 
-                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
@@ -1966,8 +1895,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        DeterminFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
-                        DeterminProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
+                        DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
+                        DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
 
                         break;
                     }
@@ -1986,7 +1915,7 @@ namespace Ship_Game
 
 
 
-                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
@@ -2014,8 +1943,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        DeterminFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
-                        DeterminProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
+                        DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                        DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
 
                         break;
                     }
@@ -2033,7 +1962,7 @@ namespace Ship_Game
 
 
 
-                        if (!lotsInQueueToBuild) BuildShipywardifAble(); //If we can build a shipyard but dont have one, build it
+                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
@@ -2061,8 +1990,8 @@ namespace Ship_Game
                                 AddBuildingToCQ(bioSphere);
                         }
 
-                        DeterminFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
-                        DeterminProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
+                        DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
+                        DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
 
                         break;
                     }
