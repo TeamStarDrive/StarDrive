@@ -92,14 +92,11 @@ namespace Ship_Game.AI {
                         }
                         else
                         {
-                            Planet target = null;
                             if (assimilate.System != null && assimilate.AI.State == AIState.AwaitingOrders)
                             {
-                                target = assimilate.System.PlanetList
-                                    .Where(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null)
-                                    .FirstOrDefault();
+                                Planet target = assimilate.System.PlanetList.Find(owner => owner.Owner != OwnerEmpire && owner.Owner != null);
                                 if (target != null && (assimilate.Carrier.HasTroopBays || assimilate.Carrier.HasAssaultTransporters))
-                                    if (assimilate.TroopList.Count > assimilate.Carrier.NumActiveHangars)
+                                        if (assimilate.TroopList.Count > assimilate.Carrier.NumActiveHangars)
                                             assimilate.AI.OrderAssaultPlanet(target);
                             }
                         }

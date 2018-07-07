@@ -65,9 +65,7 @@ namespace Ship_Game.AI {
                 }
             }
             //This is the auto invade feature. FB: this should be expanded to check for building stength and compare troops in ship vs planet
-            if (boarding || totalTroopStrengthToCommit <= 0)
-
-            if (Owner.TroopsAreBoardingShip)
+            if (boarding || Owner.TroopsAreBoardingShip)
                 return;
 
             Planet invadeThis = Owner.System.PlanetList.FindMinFiltered(
@@ -563,8 +561,11 @@ namespace Ship_Game.AI {
                 OrderQueue.Clear();
                 Log.Info($"Do Land Troop: Troop Assault Canceled with {Owner.TroopList.Count} troops and {goal.TargetPlanet.GetGroundLandingSpots()} Landing Spots ");
             }
-            else if (distCenter < 7500f) // FB: distance to launch assault shuttles for a troopship
+            else if (!Owner.Carrier.HasTransporters) // FB: use regular invade
             {
+                if (distCenter > 7500f)
+                    return;
+
                 Owner.Carrier.ScrambleAllAssaultShips();
                 foreach (ShipModule bay in Owner.Carrier.AllTroopBays)
                 {
@@ -573,58 +574,52 @@ namespace Ship_Game.AI {
                         hangarShip.AI.OrderAssaultPlanet(goal.TargetPlanet);
                 }
                 Owner.DoOrbit(goal.TargetPlanet);
-
-                // FB: all the code below is relacted to STSA. Should check it out and add as an option i guess
-                    //Get limit of troops to land
-                    /*
-                    var toRemove = new Array<Troop>();
-                    int landLimit = Owner.GetHangars().Count(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0);
-                    foreach (ShipModule module in Owner.Transporters.Where(module => module.TransporterTimer <= 1f))
-                        landLimit += module.TransporterTroopLanding;
-                    //Land troops
-                    foreach (Troop troop in Owner.TroopList)
+            }
+            else if (distCenter < radius)  // STSA with transpoters - this should be checked wit STSA active
+            {
+                //Get limit of troops to land
+                var toRemove = new Array<Troop>();
+                int landLimit = Owner.Carrier.AllActiveTroopBays.Count(hangar => hangar.hangarTimer <= 0);
+                foreach (ShipModule module in Owner.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
+                    landLimit += module.TransporterTroopLanding;
+                //Land troops
+                foreach (Troop troop in Owner.TroopList)
+                {
+                    if (troop == null || troop.GetOwner() != Owner.loyalty)
+                        continue;
+                    if (troop.AssignTroopToTile(goal.TargetPlanet))
                     {
-                        if (troop == null || troop.GetOwner() != Owner.loyalty)
-                            continue;
-                        if (troop.AssignTroopToTile(goal.TargetPlanet))
+                        toRemove.Add(troop);
+                        landLimit--;
+                        if (landLimit < 1)
+                            break;
+                    }
+                    else
+                        break;
+                }
+                //Clear out Troops
+                if (toRemove.Count <= 0)
+                    return;
+
+                foreach (Troop to in toRemove)  //FB: not sure what this flag is for. Should be tested with STSA
+                {
+                    bool flag = false; // = false;                        
+                    foreach (ShipModule module in Owner.Carrier.AllActiveTroopBays)
+                        if (module.hangarTimer < module.hangarTimerConstant)
                         {
-                            toRemove.Add(troop);
-                            landLimit--;
-                            if (landLimit < 1)
-                                break;
-                        }
-                        else
-                        {
+                            module.hangarTimer = module.hangarTimerConstant;
+                            flag = true;
                             break;
                         }
-                    }
-                    */
-                    //Clear out Troops
-                    /*
-                    if (toRemove.Count > 0)
-                    {
-                        bool flag; // = false;                        
-                        foreach (Troop to in toRemove)
-                        {
-                            flag = false;
-                            foreach (ShipModule module in Owner.GetHangars())
-                                if (module.hangarTimer < module.hangarTimerConstant)
-                                {
-                                    module.hangarTimer = module.hangarTimerConstant;
-                                    flag = true;
-                                    break;
-                                }
-                            if (!flag)
-                                foreach (ShipModule module in Owner.Transporters)
-                                    if (module.TransporterTimer < module.TransporterTimerConstant)
-                                    {
-                                        module.TransporterTimer = module.TransporterTimerConstant;
-                                        break;
-                                    }
-                            Owner.TroopList.Remove(to);
-                        }
-                    }
-                    */
+                    if (!flag)
+                        foreach (ShipModule module in Owner.Carrier.AllTransporters)
+                            if (module.TransporterTimer < module.TransporterTimerConstant)
+                            {
+                                module.TransporterTimer = module.TransporterTimerConstant;
+                                break;
+                            }
+                    Owner.TroopList.Remove(to);
+                }
             }
         }
 
