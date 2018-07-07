@@ -72,15 +72,7 @@ namespace Ship_Game.AI {
                                 owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
                                 troops => troops.TroopsHere.Count);
             if (invadeThis != null)
-            {
-                Owner.Carrier.ScrambleAllAssaultShips();
-                foreach (ShipModule troopBay in Owner.Carrier.AllTroopBays)
-                {
-                    Ship troopShip = troopBay.GetHangarShip();
-                    if (troopShip != null && troopShip.Active)
-                        troopShip.AI.OrderAssaultPlanet(invadeThis);
-                }
-            }
+                Owner.Carrier.AssaultPlanet(invadeThis);
         }
 
         private void DebugTargetCircle(Vector2 center, float radius)
@@ -565,14 +557,7 @@ namespace Ship_Game.AI {
             {
                 if (distCenter > 7500f)
                     return;
-
-                Owner.Carrier.ScrambleAllAssaultShips();
-                foreach (ShipModule bay in Owner.Carrier.AllTroopBays)
-                {
-                    Ship hangarShip = bay.GetHangarShip();
-                    if (hangarShip != null && hangarShip.Active)
-                        hangarShip.AI.OrderAssaultPlanet(goal.TargetPlanet);
-                }
+                Owner.Carrier.AssaultPlanet(goal.TargetPlanet);
                 Owner.DoOrbit(goal.TargetPlanet);
             }
             else if (distCenter < radius)  // STSA with transpoters - this should be checked wit STSA active
