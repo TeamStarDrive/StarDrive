@@ -239,7 +239,7 @@ namespace Ship_Game.Ships
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, point);
-            ship.VanityName = shipName;
+            ship.VanityName = troop.DisplayName;
             ship.TroopList.Add(ResourceManager.CopyTroop(troop));
             ship.TroopCapacity += 1; // avoid excess troops on creation because of trooplist.add
             if (ship.shipData.Role == ShipData.RoleName.troop)
