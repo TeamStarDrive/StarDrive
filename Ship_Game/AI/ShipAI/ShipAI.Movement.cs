@@ -90,13 +90,13 @@ namespace Ship_Game.AI {
                         rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
                     if (rotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (rotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -150,13 +150,13 @@ namespace Ship_Game.AI {
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -199,13 +199,13 @@ namespace Ship_Game.AI {
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -558,13 +558,13 @@ namespace Ship_Game.AI {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
             if (rotAmount > 0f)
             {
-                if (Owner.yRotation > -Owner.maxBank)
+                if (Owner.yRotation > -Owner.MaxBank)
                 {
                     Ship owner = Owner;
                     owner.yRotation = owner.yRotation - Owner.yBankAmount;
                 }
             }
-            else if (rotAmount < 0f && Owner.yRotation < Owner.maxBank)
+            else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
             {
                 Ship ship = Owner;
                 ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -779,9 +779,9 @@ namespace Ship_Game.AI {
             if (angleDiff > 0.025f) //Stuff for the ship visually banking on the Y axis when turning
             {
                 float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
-                if (RotAmount > 0f && Owner.yRotation > -Owner.maxBank)
+                if (RotAmount > 0f && Owner.yRotation > -Owner.MaxBank)
                     Owner.yRotation = Owner.yRotation - Owner.yBankAmount;
-                else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     Owner.yRotation = Owner.yRotation + Owner.yBankAmount;
                 Owner.isTurning = true;
                 Owner.Rotation = Owner.Rotation + (RotAmount > angleDiff ? angleDiff : RotAmount);
@@ -795,38 +795,7 @@ namespace Ship_Game.AI {
             }
             else //In a fleet
             {
-                if (Distance > 7500) //Not near destination
-                {
-                    float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove;
-                    speedLimit = Owner.fleet.Speed;
-
-                    #region FleetGrouping
-
-#if true
-                    if (Distance <= distanceFleetCenterToDistance)
-                    {
-                        float speedreduction = distanceFleetCenterToDistance - Distance;
-                        speedLimit = Owner.fleet.Speed - speedreduction;
-
-                        if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
-                    }
-                    else if (Distance > distanceFleetCenterToDistance && Distance > Owner.Speed)
-                    {
-                        float speedIncrease = Distance - distanceFleetCenterToDistance;
-                        speedLimit = Owner.fleet.Speed + speedIncrease;
-                    }
-#endif
-
-                    #endregion
-
-                    if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
-                    else if (Owner.engineState == Ship.MoveState.Warp)
-                        Owner.HyperspaceReturn(); //Fleet is not ready for warp
-                }
-                else if (Owner.engineState == Ship.MoveState.Warp)
-                {
-                    Owner.HyperspaceReturn(); //Near Destination
-                }
+                speedLimit = FleetGrouping(Distance);
             }
 
             if (speedLimit > Owner.velocityMaximum) speedLimit = Owner.velocityMaximum;
@@ -835,7 +804,48 @@ namespace Ship_Game.AI {
             Owner.Velocity = Owner.Velocity + Vector2.Normalize(forward) * (elapsedTime * speedLimit);
             if (Owner.Velocity.Length() > speedLimit) Owner.Velocity = Vector2.Normalize(Owner.Velocity) * speedLimit;
         }
-        
+
+        private float FleetGrouping(float Distance)
+        {
+            float speedLimit = Owner.fleet.Speed;
+            float distance = (Owner.Center + Owner.FleetOffset).Distance(Owner.fleet.Position + Owner.FleetOffset);
+            if (distance > 7500) //Not near destination
+            {
+                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
+                speedLimit = Owner.fleet.Speed;
+
+                #region FleetGrouping
+
+#if true
+                if (distance <= distanceFleetCenterToDistance)
+                {
+                    float speedreduction = distanceFleetCenterToDistance - Distance;
+                    speedLimit = Owner.fleet.Speed - speedreduction;
+
+                    if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
+                }
+                else if (distance > distanceFleetCenterToDistance)// && distance > 1000 )
+                {
+                    float speedIncrease = distance - distanceFleetCenterToDistance;
+                    speedLimit = Owner.fleet.Speed + speedIncrease;
+                }
+#endif
+
+                #endregion
+
+                if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                else if (Owner.engineState == Ship.MoveState.Warp)
+                    Owner.HyperspaceReturn(); //Fleet is not ready for warp
+            }
+            else if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                Owner.HyperspaceReturn(); //Near Destination
+                HasPriorityOrder = false;
+            }
+
+            return speedLimit;
+        }
+
 
         public class WayPoints
         {
