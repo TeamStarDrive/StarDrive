@@ -561,51 +561,7 @@ namespace Ship_Game.AI {
                 Owner.DoOrbit(goal.TargetPlanet);
             }
             else if (distCenter < radius)  // STSA with transpoters - this should be checked wit STSA active
-            {
-                //Get limit of troops to land
-                var toRemove = new Array<Troop>();
-                int landLimit = Owner.Carrier.AllActiveTroopBays.Count(hangar => hangar.hangarTimer <= 0);
-                foreach (ShipModule module in Owner.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
-                    landLimit += module.TransporterTroopLanding;
-                //Land troops
-                foreach (Troop troop in Owner.TroopList)
-                {
-                    if (troop == null || troop.GetOwner() != Owner.loyalty)
-                        continue;
-                    if (troop.AssignTroopToTile(goal.TargetPlanet))
-                    {
-                        toRemove.Add(troop);
-                        landLimit--;
-                        if (landLimit < 1)
-                            break;
-                    }
-                    else
-                        break;
-                }
-                //Clear out Troops
-                if (toRemove.Count <= 0)
-                    return;
-
-                foreach (Troop to in toRemove)  //FB: not sure what this flag is for. Should be tested with STSA
-                {
-                    bool flag = false; // = false;                        
-                    foreach (ShipModule module in Owner.Carrier.AllActiveTroopBays)
-                        if (module.hangarTimer < module.hangarTimerConstant)
-                        {
-                            module.hangarTimer = module.hangarTimerConstant;
-                            flag = true;
-                            break;
-                        }
-                    if (!flag)
-                        foreach (ShipModule module in Owner.Carrier.AllTransporters)
-                            if (module.TransporterTimer < module.TransporterTimerConstant)
-                            {
-                                module.TransporterTimer = module.TransporterTimerConstant;
-                                break;
-                            }
-                    Owner.TroopList.Remove(to);
-                }
-            }
+                Owner.Carrier.AssaultPlanetWithTransporters(goal.TargetPlanet);
         }
 
         private void DoNonFleetArtillery(float elapsedTime)
