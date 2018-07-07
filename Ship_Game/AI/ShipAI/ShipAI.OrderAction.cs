@@ -205,7 +205,7 @@ namespace Ship_Game.AI {
 
         public void OrderLandAllTroops(Planet target)
         {
-            if ((Owner.shipData.Role == ShipData.RoleName.troop || Owner.HasTroopBay || Owner.hasTransporter) &&
+            if ((Owner.shipData.Role == ShipData.RoleName.troop || Owner.Carrier.HasTroopBays || Owner.Carrier.HasTransporters) &&
                 Owner.TroopList.Count > 0 && target.GetGroundLandingSpots() > 0)
             {
                 HasPriorityOrder = true;
@@ -233,7 +233,7 @@ namespace Ship_Game.AI {
             bool clearOrders) => OrderMoveDirectlyTowardsPosition(position, desiredFacing, Vector2.Zero, clearOrders);
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
-            bool ClearOrders)
+            bool clearOrders)
         {
             Target = null;
             HasPriorityTarget = false;
@@ -246,7 +246,7 @@ namespace Ship_Game.AI {
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
             OrderQueue.Clear();
-            if (ClearOrders)
+            if (clearOrders)
                 lock (WayPointLocker)
                 {
                     ActiveWayPoints.Clear();
@@ -302,7 +302,7 @@ namespace Ship_Game.AI {
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
-            bool ClearOrders, float speedLimit)
+            bool clearOrders, float speedLimit)
         {
             Target = null;
             HasPriorityTarget = false;
@@ -315,7 +315,7 @@ namespace Ship_Game.AI {
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
             OrderQueue.Clear();
-            if (ClearOrders)
+            if (clearOrders)
                 lock (WayPointLocker)
                 {
                     ActiveWayPoints.Clear();
@@ -751,8 +751,8 @@ namespace Ship_Game.AI {
             }            
             if (Owner.loyalty.isFaction)
                 return;
- 
-            if (Owner.NeedResupplyTroops)
+
+            if (Owner.Carrier.NeedResupplyTroops)
             {
                 var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
                 OrderResupply(troopRallyPoints, ClearOrders);                
@@ -1066,9 +1066,10 @@ namespace Ship_Game.AI {
         public bool HasPriorityOrder;
         public bool HadPO;
 
-        public void SetPriorityOrder()
+        public void SetPriorityOrder(bool clearOrders)
         {
-            OrderQueue.Clear();
+            if (clearOrders)
+                OrderQueue.Clear();
             HasPriorityOrder = true;
             Intercepting = false;
             HasPriorityTarget = false;

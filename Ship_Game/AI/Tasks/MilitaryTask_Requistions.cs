@@ -39,7 +39,7 @@ namespace Ship_Game.AI.Tasks {
             foreach (Ship ship in potentialAssaultShips)
             {
                 int hangars = 0;
-                foreach (ShipModule hangar in ship.GetHangars())
+                foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                 {
                     if (hangar.IsTroopBay)
                         hangars++;
@@ -135,7 +135,7 @@ namespace Ship_Game.AI.Tasks {
                     break;
 
                 newFleet.AddShip(ship);
-                ForceStrength += ship.PlanetAssaultStrength;
+                ForceStrength += ship.Carrier.PlanetAssaultStrength;
             }
 
             foreach (Troop t in potentialTroops.Where(planet=> planet.GetPlanet() != null).OrderBy(troop => troop.GetPlanet().RecentCombat ? 1 :0)
@@ -244,8 +244,8 @@ namespace Ship_Game.AI.Tasks {
                             Ship ship = ships[index];
                             if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= minimumEscortStrength ||
                                 ship.GetStrength() <= 0f
-                                || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter ||
-                                ship.HasTroopBay
+                                || ship.shipData.Role == ShipData.RoleName.troop || ship.Carrier.HasAssaultTransporters ||
+                                ship.Carrier.HasTroopBays
                                 || ship.Mothership != null
                             )
                                 continue;
@@ -310,10 +310,10 @@ namespace Ship_Game.AI.Tasks {
                 if (strAdded < enemyShipStr * 1.65f)
                     break;
 
-                if (ship.HasTroopBay)
+                if (ship.Carrier.HasTroopBays) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    troopStr    += ship.GetHangars().Count * 10;
-                    numOfTroops += ship.GetHangars().Count;                    
+                    troopStr    += ship.Carrier.NumActiveHangars * 10;
+                    numOfTroops += ship.Carrier.NumActiveHangars;                    
                 }
                 ships.Add(ship);
                 strAdded += ship.GetStrength();
@@ -326,10 +326,10 @@ namespace Ship_Game.AI.Tasks {
                 if (numBombs >= 20 || bombTaskForce.Contains(ship))
                     continue;
 
-                if (ship.HasTroopBay)
+                if (ship.Carrier.HasTroopBays) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    troopStr += ship.GetHangars().Count * 10;
-                    numOfTroops += ship.GetHangars().Count;
+                    troopStr += ship.Carrier.NumActiveHangars * 10;
+                    numOfTroops += ship.Carrier.NumActiveHangars;
                 }
                 bombTaskForce.Add(ship);
                 numBombs += ship.BombBays.Count;
