@@ -90,13 +90,13 @@ namespace Ship_Game.AI {
                         rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
                     if (rotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (rotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -150,13 +150,13 @@ namespace Ship_Game.AI {
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -199,13 +199,13 @@ namespace Ship_Game.AI {
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -558,13 +558,13 @@ namespace Ship_Game.AI {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
             if (rotAmount > 0f)
             {
-                if (Owner.yRotation > -Owner.maxBank)
+                if (Owner.yRotation > -Owner.MaxBank)
                 {
                     Ship owner = Owner;
                     owner.yRotation = owner.yRotation - Owner.yBankAmount;
                 }
             }
-            else if (rotAmount < 0f && Owner.yRotation < Owner.maxBank)
+            else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
             {
                 Ship ship = Owner;
                 ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -779,9 +779,9 @@ namespace Ship_Game.AI {
             if (angleDiff > 0.025f) //Stuff for the ship visually banking on the Y axis when turning
             {
                 float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
-                if (RotAmount > 0f && Owner.yRotation > -Owner.maxBank)
+                if (RotAmount > 0f && Owner.yRotation > -Owner.MaxBank)
                     Owner.yRotation = Owner.yRotation - Owner.yBankAmount;
-                else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     Owner.yRotation = Owner.yRotation + Owner.yBankAmount;
                 Owner.isTurning = true;
                 Owner.Rotation = Owner.Rotation + (RotAmount > angleDiff ? angleDiff : RotAmount);

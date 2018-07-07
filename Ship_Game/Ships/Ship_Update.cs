@@ -172,8 +172,6 @@ namespace Ship_Game.Ships
                 UpdateThrusters();                
             }
 
-            if (isSpooling)
-                fightersOut = false;
             if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500)
             {
                 JumpTimer -= elapsedTime;
