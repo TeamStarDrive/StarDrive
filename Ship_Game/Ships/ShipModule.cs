@@ -729,8 +729,7 @@ namespace Ship_Game.Ships
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
                 {
-                    hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.BoardingShuttle.Name, Parent.loyalty, Center, troop);
-                    hangarShip.VanityName = "Assault Shuttle";
+                    hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
                     hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
@@ -751,14 +750,11 @@ namespace Ship_Game.Ships
                 return;
             if (hangarShip != null && hangarShip.Active)
             {
-                if (hangarShip.AI.State == AIState.ReturnToHangar
-                    || hangarShip.AI.HasPriorityOrder
-                    || hangarShip.AI.HasPriorityTarget
+                if (hangarShip.AI.HasPriorityTarget
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
-                    || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
-                )
-                    return;
+                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
+                        return;
                 hangarShip.DoEscort(Parent);
                 return;
             }
@@ -1204,9 +1200,10 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (IsTroopBay || IsSupplyBay) return false;
+                if (IsTroopBay || IsSupplyBay)
+                    return false;
 
-                return hangarShip?.Active == true && hangarTimer <= 0;
+                return hangarShip?.Active == true;
             }
         }
 
