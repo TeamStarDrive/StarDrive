@@ -165,6 +165,9 @@ namespace Ship_Game
         [Serialize(90)] public int   BaseShipLevel    = 0;
         [Serialize(91)] public float PlayerTaxGoal    = .2f;
 
+        //FB: default assault shuttle - it is not mandatory since we have a default boarding shuttle in the game
+        [Serialize(92)] public string DefaultAssaultShuttle;
+
         [XmlIgnore][JsonIgnore]
         public string ScoutShip => CurrentAutoScout.NotEmpty() ? CurrentAutoScout
                                  : StartingScout.NotEmpty()    ? StartingScout

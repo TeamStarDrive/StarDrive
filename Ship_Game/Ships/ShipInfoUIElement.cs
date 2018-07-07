@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -312,8 +313,8 @@ namespace Ship_Game.Ships
             float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
             spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(Fmt), defPos, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
-            Vector2 troopPos                = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Ship.TroopList.Count, "/", Ship.TroopCapacity), troopPos, Color.White);
+            DrawTroopStatus();
+
             if (Ship.loyalty == EmpireManager.Player)
             {
                 foreach (ToggleButton button in CombatStatusButtons)
@@ -366,6 +367,7 @@ namespace Ship_Game.Ships
                 }
             }
 
+            DrawCarrierStatus();
             if (Ship.CargoSpaceUsed > 0f)
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
@@ -469,6 +471,60 @@ namespace Ship_Game.Ships
                     ToolTip.CreateTooltip(116);
                 }
                 numStatus++;
+            }
+
+            void DrawTroopStatus() // Expanded  by Fat Bastard
+            {
+                Vector2 troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+                if (Ship.TroopsAreBoardingShip)
+                {
+                    if (Ship.NumPlayerTroopsOnShip > 0)
+                    {
+                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
+                        DrawHorizontalValues(Ship.NumPlayerTroopsOnShip.ToString(), Color.LightGreen, ref troopPos);
+                    }
+                    else
+                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
+                }
+                else
+                {
+                    if (Ship.NumPlayerTroopsOnShip >= 0)
+                        DrawHorizontalValues(Ship.NumPlayerTroopsOnShip.ToString(), Color.LightGreen, ref troopPos, withSlash: false);
+                    else
+                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
+                }
+
+                DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
+                if (Ship.Carrier.HasTroopBays)
+                    DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles.ToString(), Color.CadetBlue, ref troopPos);
+            }
+
+            void DrawCarrierStatus()  // Added by Fat Bastard - display hanger status
+            {
+                if (Ship.Carrier.AllFighterHangars.Length > 0)
+                {
+                    CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
+                    Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
+                    if (hangarRect.HitTest(mousePos))
+                        ToolTip.CreateTooltip(Localizer.Token(1981));
+
+                    Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
+                    DrawHorizontalValues(currentHangarStatus.Launched.ToString(), Color.Green, ref hangarTextPos, withSlash: false);
+                    DrawHorizontalValues(currentHangarStatus.ReadyToLaunch.ToString(), Color.White, ref hangarTextPos);
+                    DrawHorizontalValues(currentHangarStatus.Refitting.ToString(), Color.Red, ref hangarTextPos);
+                }
+            }
+
+            void DrawHorizontalValues(string value, Color color, ref Vector2 textVector, bool withSlash = true)
+            {
+                if (withSlash)
+                {
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/", textVector, Color.White);
+                    textVector.X += "/".Length * 4 + 1;
+                }
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value, textVector, color);
+                textVector.X += value.Length * 7;
             }
         }
 
@@ -625,62 +681,41 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
-            if (Ship.GetHangars().Count > 0 && Ship.Mothership == null)
+            if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
-                bool hasTroops = false;
-                bool hasFighters = false;
-                foreach (ShipModule hangar in Ship.GetHangars())
+                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                 {
-                    if (hangar.TroopCapacity != 0 || hangar.IsSupplyBay)
+                    ValueToModify = new Ref<bool>(() => Ship.FightersOut, x =>
                     {
-                        if (!hangar.IsTroopBay)
-                        {
-                            continue;
-                        }
-                        hasTroops = true;
-                    }
-                    else
-                    {
-                        hasFighters = true;
-                    }
-                }
-                if (hasFighters)
+                        Ship.FightersOut = !Ship.FightersOut;
+                    })
+                };
+                Orders.Add(ob);
+            }
+            if (Ship.Carrier.HasTroopBays)
+            {
+                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                 {
-                    OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
-                    {
-                        ValueToModify = new Ref<bool>(() => Ship.FightersOut, (bool x) =>
-                        {
-                            Ship.FightersOut = x;
-                        })
-                    };
-                    Orders.Add(ob);
-               
-                }
-                if (hasTroops)
+                    ValueToModify = new Ref<bool>(() => Ship.TroopsOut, (bool x) => {
+                        Ship.TroopsOut = !Ship.TroopsOut;
+                    })
+                };
+                Orders.Add(ob);
+            }
+            if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.AllFighterHangars.Length > 0))
+            {
+                OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {
-                    OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
-                    {
-                        ValueToModify = new Ref<bool>(() => Ship.TroopsOut, (bool x) => {
-                            Ship.TroopsOut = x;
-                            //ship.ManualHangarOverride = true;
-                        })
-                    };
-                    Orders.Add(ob);
-                }
-                //if (ship.shipData.Role != ShipData.RoleName.station)
-                {
-                    OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
-                    {
-                        ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, (bool x) =>
+                    ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, (bool x) =>
                         {
                             Ship.RecallFightersBeforeFTL = x;
                             Ship.ManualHangarOverride = !x;
                         }
-                            )
-                    };
-                    Orders.Add(ob2);
-                }
+                    )
+                };
+                Orders.Add(ob2);
             }
+
             if (Ship.shipData.Role >= ShipData.RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
                 var exp = new OrdersButton(Ship, Vector2.Zero, OrderType.Explore, 136)

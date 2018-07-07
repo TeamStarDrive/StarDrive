@@ -81,7 +81,7 @@ namespace Ship_Game.Commands.Goals
                     ship.RelativeFleetOffset = current.FleetOffset;
                     current.GoalGUID = Guid.Empty;
                     fleet.AddShip(ship);
-                    ship.AI.SetPriorityOrder();
+                    ship.AI.SetPriorityOrder(false);
                     ship.AI.OrderMoveToFleetPosition(
                         fleet.Position + ship.FleetOffset, ship.fleet.Facing, 
                         new Vector2(0.0f, -1f), true, fleet.Speed, fleet);

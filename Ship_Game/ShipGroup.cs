@@ -208,7 +208,7 @@ namespace Ship_Game
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
-                    ship.AI.SetPriorityOrder();
+                    ship.AI.SetPriorityOrder(true);
                     ship.AI.OrderMoveDirectlyTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true);
                 }
             }
@@ -221,12 +221,12 @@ namespace Ship_Game
         {
             GoalStack?.Clear();
             Position = movePosition;
-            Facing = facing;
-            AssembleFleet(facing, fvec, true);
+            Facing = facing;            
+            AssembleFleet(facing, fvec, !queueOrder);
             using(Ships.AcquireReadLock())
             foreach (Ship ship in Ships)
             {
-                ship.AI.SetPriorityOrder();
+                ship.AI.SetPriorityOrder(!queueOrder);
                 if (queueOrder) ship.AI.OrderFormationWarpQ(movePosition + ship.FleetOffset, facing, fvec);
                 else ship.AI.OrderFormationWarp(movePosition + ship.FleetOffset, facing, fvec);
             }
@@ -248,7 +248,7 @@ namespace Ship_Game
             this.AssembleFleet(facing, fVec);
             foreach (Ship ship in this.Ships)
             {
-                ship.AI.SetPriorityOrder();
+                ship.AI.SetPriorityOrder(true);
                 ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
@@ -300,7 +300,7 @@ namespace Ship_Game
                 Ship ship = this.Ships[index];
                 if (ship.Active && ship.GetStrength() > 0)
                     num++;
-                troops += ship.PlanetAssaultCount;
+                troops += ship.Carrier.PlanetAssaultCount;
             }
             return num;
         }
