@@ -100,8 +100,6 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-    
-
         public override bool HandleInput(InputState input)
         {
             this.ShipSL.HandleInput(input);
