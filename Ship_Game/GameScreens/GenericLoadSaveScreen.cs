@@ -293,7 +293,7 @@ namespace Ship_Game
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.AllSaves = new Submenu(scrollList);
             this.AllSaves.AddTab(this.TabText);
-            this.SavesSL = new ScrollList(this.AllSaves, this.eHeight, true, false, false, false);
+            this.SavesSL = new ScrollList(AllSaves, eHeight, true, false, false, false);
 
             this.SetSavesSL();
 
