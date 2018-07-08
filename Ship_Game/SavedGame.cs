@@ -249,8 +249,7 @@ namespace Ship_Game
                     }
                 }
                 SaveData.SolarSystemDataList.Add(sysSave);
-            }
-            
+            }            
             foreach (Empire e in EmpireManager.Empires)
             {
                 var empireToSave = new EmpireSaveData
