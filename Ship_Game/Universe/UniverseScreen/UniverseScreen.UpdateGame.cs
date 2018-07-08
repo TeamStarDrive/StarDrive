@@ -140,9 +140,9 @@ namespace Ship_Game
                     (float) (ocy * this.reducer));
                 if (Vector2.Distance(upscale, node.Position) < node.Radius)
                     grid[cx, cy] = weight;
-                if (weight > 1 || weight == 0 || node.Radius > Empire.ProjectorRadius)
+                if (weight > 1 || weight == 0 || node.Radius > SubSpaceProjectors.Radius)
                 {
-                    float test = node.Radius > Empire.ProjectorRadius ? 1 : 2;
+                    float test = node.Radius > SubSpaceProjectors.Radius ? 1 : 2;
                     int rad = (int) (Math.Ceiling((double) (node.Radius / ((float) reducer) * test)));
                     //rad--;
 
@@ -523,7 +523,7 @@ namespace Ship_Game
 
         private void DoPathingMapRebuild()
         {
-            reducer = (int) (Empire.ProjectorRadius * .75f);
+            reducer = (int) (SubSpaceProjectors.Radius * .75f);
             int granularity = (int) (UniverseSize / reducer);
             int elegran = granularity * 2;
             int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
