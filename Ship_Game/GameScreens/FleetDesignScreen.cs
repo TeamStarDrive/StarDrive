@@ -958,7 +958,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            Vector2 mousePos = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
             if (SelectedNodeList.Count != 1 && FleetToEdit != -1)
             {
                 if (!FleetNameEntry.ClickableArea.HitTest(input.CursorPosition))
@@ -994,7 +993,7 @@ namespace Ship_Game
             
             foreach (KeyValuePair<int, Rectangle> rect in FleetsRects)
             {
-                if (!rect.Value.HitTest(mousePos) || !input.LeftMouseClick)
+                if (!rect.Value.HitTest(input.CursorPosition) || !input.LeftMouseClick)
                 {
                     continue;
                 }
@@ -1013,7 +1012,7 @@ namespace Ship_Game
             {
                 SelectedNodeList.Clear();
             }
-            if (HandleSingleNodeSelection(input, mousePos)) return false;
+            if (HandleSingleNodeSelection(input, input.CursorPosition)) return false;
             if (SelectedNodeList.Count > 1)
             {
                 SliderDps.HandleInput(input);
@@ -1031,23 +1030,23 @@ namespace Ship_Game
                     node.AssistWeight = SliderAssist.amount;
                     node.SizeWeight = SliderSize.amount;
                 }
-                if (OperationsRect.HitTest(mousePos))
+                if (OperationsRect.HitTest(input.CursorPosition))
                 {
                     //DragTimer = 0f;
                     return true;
                 }
-                if (PrioritiesRect.HitTest(mousePos))
+                if (PrioritiesRect.HitTest(input.CursorPosition))
                 {
                     //DragTimer = 0f;
                     OperationalRadius.HandleInput(input);
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
-                if (SelectedStuffRect.HitTest(mousePos))
+                if (SelectedStuffRect.HitTest(input.CursorPosition))
                 {                    
                     foreach (ToggleButton button in OrdersButtons)
                     {
-                        if (!button.Rect.HitTest(mousePos))
+                        if (!button.Rect.HitTest(input.CursorPosition))
                         {
                             button.Hover = false;
                         }
@@ -1112,7 +1111,7 @@ namespace Ship_Game
                 }
                 
             }
-            else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 && SelectedStuffRect.HitTest(mousePos))
+            else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 && SelectedStuffRect.HitTest(input.CursorPosition))
             {
                 if (RequisitionForces.HandleInput(input))
                 {
@@ -1132,9 +1131,9 @@ namespace Ship_Game
                 if (input.LeftMouseClick)
                 {
                     Viewport viewport = Viewport;
-                    Vector3 nearPoint = viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 0f), Projection, View, Matrix.Identity);
+                    Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, Matrix.Identity);
                     Viewport viewport1 = Viewport;
-                    Vector3 farPoint = viewport1.Unproject(new Vector3(mousePos.X, mousePos.Y, 1f), Projection, View, Matrix.Identity);
+                    Vector3 farPoint = viewport1.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, Matrix.Identity);
                     Vector3 direction = farPoint - nearPoint;
                     direction.Normalize();
                     Ray pickRay = new Ray(nearPoint, direction);
@@ -1195,22 +1194,21 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                foreach (ScrollList.Entry e in ShipSL.Copied)
+                ScrollList.Entry[] items = ShipSL.Copied.AtomicCopy();
+                foreach (ScrollList.Entry e in items)
                 {
-                    if (!(e.item is ModuleHeader))
+                    if (e.item is ModuleHeader header)
                     {
-                        if (!e.clickRect.HitTest(mousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed 
-                                                           || input.MousePrev.LeftButton != ButtonState.Released)
-                        {
-                            continue;
-                        }
-                        ActiveShipDesign = e.item as Ship;
-                        SelectedNodeList.Clear();
-                        SelectedSquad = null;
+                        header.HandleInput(input, e);
                     }
                     else
                     {
-                        (e.item as ModuleHeader)?.HandleInput(input, e);
+                        if (!e.WasClicked(input))
+                            continue;
+
+                        ActiveShipDesign = e.item as Ship;
+                        SelectedNodeList.Clear();
+                        SelectedSquad = null;
                     }
                 }
             }
