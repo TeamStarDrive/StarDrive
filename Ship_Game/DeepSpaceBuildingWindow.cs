@@ -60,13 +60,13 @@ namespace Ship_Game
 
        public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-       ~DeepSpaceBuildingWindow() { Dispose(false); }
+       ~DeepSpaceBuildingWindow() { Destroy(); }
 
-       private void Dispose(bool disposing)
+       private void Destroy()
        {
             SL?.Dispose(ref SL);
         }
@@ -84,9 +84,8 @@ namespace Ship_Game
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
-            for (int i = this.SL.indexAtTop; i < this.SL.Entries.Count && i < this.SL.indexAtTop + this.SL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in SL.VisibleEntries)
             {
-                ScrollList.Entry e = this.SL.Entries[i];
                 bCursor.Y = (float)e.clickRect.Y;
                 bCursor.X = (float)e.clickRect.X - 9;
                 var ship = (Ship)e.item;
@@ -94,11 +93,11 @@ namespace Ship_Game
                 {
                     if (ship.Name == "Subspace Projector")
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/subspace_projector"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/subspace_projector"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     else
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     }
                     
 
@@ -113,8 +112,7 @@ namespace Ship_Game
                     
                     string cost = ship.GetCost(EmpireManager.Player).ToString();
 
-                    string upkeep = "Doctor rocks";
-                    upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
+                    string upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
                     
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), prodiconRect, Color.White);

@@ -55,10 +55,9 @@ namespace Ship_Game
             sel.Draw(ScreenManager.SpriteBatch);
             selector?.Draw(ScreenManager.SpriteBatch);
             this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2((float)(this.sub_ships.Menu.X + 5), (float)(this.sub_ships.Menu.Y + 25));
-            for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+            var bCursor = new Vector2(sub_ships.Menu.X + 5, sub_ships.Menu.Y + 25);
+            foreach (ScrollList.Entry e in ShipSL.FlattenedEntries)
             {
-                ScrollList.Entry e = this.ShipSL.Copied[i];
                 Ship ship = ResourceManager.ShipsDict[e.item as string];
                 bCursor.Y = (float)e.clickRect.Y;
                 base.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -109,9 +108,8 @@ namespace Ship_Game
                 return true;
             }
             this.selector = null;
-            for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ShipSL.FlattenedEntries)
             {
-                ScrollList.Entry e = this.ShipSL.Copied[i];
                 if (e.clickRect.HitTest(input.CursorPosition))
                 {
                     this.selector = new Selector(e.clickRect);

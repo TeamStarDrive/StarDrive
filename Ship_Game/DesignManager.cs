@@ -52,10 +52,9 @@ namespace Ship_Game
                 Game1.Instance.GameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             this.subAllDesigns.Draw();
             this.ShipDesigns.Draw(base.ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
-            for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Entries.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
+            var bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
+            foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
-                ScrollList.Entry e = this.ShipDesigns.Entries[i];
                 var ship = (Ship)e.item;
                 bCursor.Y = (float)e.clickRect.Y;                
                 ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   

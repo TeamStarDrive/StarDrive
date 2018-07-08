@@ -298,39 +298,35 @@ namespace Ship_Game
             if (this.assetsUI.LandTroops.Toggled)
             {
                 this.OrbitSL.Draw(this.ScreenManager.SpriteBatch);
-                Vector2 bCursor = new Vector2((float)(this.orbitalResourcesSub.Menu.X + 25), 350f);
-                for (int i = this.OrbitSL.indexAtTop; i < this.OrbitSL.Copied.Count && i < this.OrbitSL.indexAtTop + this.OrbitSL.entriesToDisplay; i++)
+                var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
+                foreach (ScrollList.Entry e in OrbitSL.FlattenedEntries)
                 {
-                    ScrollList.Entry e = this.OrbitSL.Copied[i];
-                    if (e.item is Ship)
+                    if (e.item is Ship ship)
                     {
-                        if ((e.item as Ship).TroopList.Count == 0)
-                        {
+                        if (ship.TroopList.Count == 0)
                             continue;
-                        }
-                        Troop t = (e.item as Ship).TroopList[0];
+                        Troop t = ship.TroopList[0];
                         if (e.clickRectHover != 0)
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
+                            bCursor.Y = e.clickRect.Y;
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
                         }
                         else
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
+                            bCursor.Y = e.clickRect.Y;
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
+                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
                         }
                     }
-                    else if (e.item is Troop)
+                    else if (e.item is Troop t)
                     {
-                        Troop t = e.item as Troop;
                         if (e.clickRectHover != 0)
                         {
                             bCursor.Y = (float)e.clickRect.Y;
@@ -350,7 +346,7 @@ namespace Ship_Game
                             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
                         }
                     }
-                    if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
+                    if (e.clickRect.HitTest(new Vector2(currentMouse.X, currentMouse.Y)))
                     {
                         e.clickRectHover = 1;
                     }
@@ -456,38 +452,35 @@ namespace Ship_Game
             this.OrbitalResources.Draw();
             this.orbitalResourcesSub.Draw();
             this.OrbitSL.Draw(this.ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2((float)(this.orbitalResourcesSub.Menu.X + 20), (float)(this.orbitalResourcesSub.Menu.Y + 45));
-            for (int i = this.OrbitSL.indexAtTop; i < this.OrbitSL.Entries.Count && i < this.OrbitSL.indexAtTop + this.OrbitSL.entriesToDisplay; i++)
+            Vector2 bCursor = new Vector2((orbitalResourcesSub.Menu.X + 20), (orbitalResourcesSub.Menu.Y + 45));
+            foreach (ScrollList.Entry e in OrbitSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.OrbitSL.Entries[i];
-                Troop t = (e.item as Ship).TroopList[0];
+                Troop t = ((Ship)e.item).TroopList[0];
                 if (e.clickRectHover != 0)
                 {
-                    bCursor.Y = (float)e.clickRect.Y;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
+                    bCursor.Y = e.clickRect.Y;
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
                 }
                 else
                 {
-                    bCursor.Y = (float)e.clickRect.Y;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
+                    bCursor.Y = e.clickRect.Y;
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
                 }
-                if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
+                if (e.clickRect.HitTest(new Vector2(currentMouse.X, currentMouse.Y)))
                 {
                     e.clickRectHover = 1;
                 }
             }
-            if (this.selector != null)
-            {
-                this.selector.Draw(ScreenManager.SpriteBatch);
-            }
+
+            selector?.Draw(ScreenManager.SpriteBatch);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, "Ground Combat", this.TitlePos, Color.LightPink);
             Rectangle tilebg = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
             if (this.p.Type != "Terran")

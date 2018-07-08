@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -13,9 +14,9 @@ namespace Ship_Game
         public Rectangle ScrollBarHousing;
         public Rectangle ScrollBar;
 
-        private int entryHeight = 40;
+        private readonly int EntryHeight = 40;
         private int ScrollBarHover;
-        private int startDragPos;
+        private int StartDragPos;
         private bool DraggingScrollBar;
         private float ScrollBarStartDragPos;
         private float ClickTimer;
@@ -52,8 +53,8 @@ namespace Ship_Game
         public ScrollList(Submenu p, int eHeight)
         {
             Parent = p;
-            entryHeight = eHeight;
-            entriesToDisplay = (p.Menu.Height - 25) / entryHeight;
+            EntryHeight = eHeight;
+            entriesToDisplay = (p.Menu.Height - 25) / EntryHeight;
             InitializeRects(p, 30);
         }
 
@@ -68,8 +69,8 @@ namespace Ship_Game
         public ScrollList(Submenu p, int eHeight, bool realRect)
         {
             Parent = p;
-            entryHeight = eHeight;
-            entriesToDisplay = p.Menu.Height / entryHeight;
+            EntryHeight = eHeight;
+            entriesToDisplay = p.Menu.Height / EntryHeight;
             InitializeRects(p, 5);
         }
 
@@ -280,7 +281,7 @@ namespace Ship_Game
                 return false;
             
             ScrollBarHover = 2;
-            startDragPos = (int)input.CursorPosition.Y;
+            StartDragPos = (int)input.CursorPosition.Y;
             ScrollBarStartDragPos = ScrollBar.Y;
             DraggingScrollBar = true;
             return true;
@@ -291,7 +292,7 @@ namespace Ship_Game
             if (!input.LeftMouseDown || !DraggingScrollBar)
                 return false;
 
-            float difference = input.CursorPosition.Y - startDragPos;
+            float difference = input.CursorPosition.Y - StartDragPos;
             if (Math.Abs(difference) > 0f)
             {
                 ScrollBar.Y = (int)(ScrollBarStartDragPos + difference);
@@ -469,6 +470,38 @@ namespace Ship_Game
             return hit;
         }
 
+        public IEnumerable<Entry> VisibleEntries
+        {
+            get
+            {
+                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                    yield return Entries[i];
+            }
+        }
+
+        public IEnumerable<Entry> FlattenedEntries
+        {
+            get
+            {
+                for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+                    yield return Copied[i];
+            }
+        }
+
+        public IEnumerable<T> VisibleItems<T>() where T : class
+        {
+            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                if (Entries[i].item is T item)
+                    yield return item;
+        }
+
+        public IEnumerable<T> FlattenedItems<T>() where T : class
+        {
+            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+                if (Copied[i].item is T item)
+                    yield return item;
+        }
+
         public void Reset()
         {
             Entries.Clear();
@@ -478,7 +511,7 @@ namespace Ship_Game
 
         private void UpdateClickRect(Entry e, Point topLeft, int j)
         {
-            var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * entryHeight, Parent.Menu.Width - 40, entryHeight);
+            var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * EntryHeight, Parent.Menu.Width - 40, EntryHeight);
             e.clickRect = r;
             if (e.Plus != 0) e.addRect  = new Rectangle(r.X + r.Width - 30, r.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
             if (e.Edit != 0) e.editRect = new Rectangle(r.X + r.Width - 60, r.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);

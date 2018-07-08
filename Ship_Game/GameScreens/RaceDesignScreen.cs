@@ -921,30 +921,29 @@ namespace Ship_Game
             this.DescriptionSL.TransitionUpdate(r);
             if (!base.IsExiting)
             {
-                Vector2 raceCursor = new Vector2((float)(r.X + 10), (float)(this.ChooseRaceMenu.Menu.Y + 10));
-                for (int i = this.RaceArchetypeSL.indexAtTop; i < this.RaceArchetypeSL.Entries.Count && i < this.RaceArchetypeSL.indexAtTop + this.RaceArchetypeSL.entriesToDisplay; i++)
+                var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Menu.Y + 10);
+                
+                foreach (ScrollList.Entry e in RaceArchetypeSL.VisibleEntries)
                 {
-                    if (this.LowRes)
+                    var data = e.item as EmpireData;
+                    raceCursor.Y = e.clickRect.Y;
+                    if (LowRes)
                     {
-                        Rectangle Source = new Rectangle(0, 0, 256, 128);
-                        raceCursor.Y = (float)this.RaceArchetypeSL.Entries[i].clickRect.Y;
-                        Rectangle Portrait = new Rectangle(this.RaceArchetypeSL.Entries[i].clickRect.X + this.RaceArchetypeSL.Entries[i].clickRect.Width / 2 - 128, (int)raceCursor.Y, 256, 128);
-                        EmpireData data = this.RaceArchetypeSL.Entries[i].item as EmpireData;
-                        base.ScreenManager.SpriteBatch.Draw(this.TextureDict[data], Portrait, new Rectangle?(Source), Color.White);
-                        if (this.SelectedData == data)
+                        var source = new Rectangle(0, 0, 256, 128);
+                        var portrait = new Rectangle(e.clickRect.X + e.clickRect.Width / 2 - 128, (int)raceCursor.Y, 256, 128);
+                        ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, source, Color.White);
+                        if (SelectedData == data)
                         {
-                            base.ScreenManager.SpriteBatch.DrawRectangle(Portrait, Color.BurlyWood);
+                            ScreenManager.SpriteBatch.DrawRectangle(portrait, Color.BurlyWood);
                         }
                     }
                     else
                     {
-                        raceCursor.Y = (float)this.RaceArchetypeSL.Entries[i].clickRect.Y;
-                        Rectangle Portrait = new Rectangle(this.RaceArchetypeSL.Entries[i].clickRect.X + this.RaceArchetypeSL.Entries[i].clickRect.Width / 2 - 176, (int)raceCursor.Y, 352, 128);
-                        EmpireData data = this.RaceArchetypeSL.Entries[i].item as EmpireData;
-                        base.ScreenManager.SpriteBatch.Draw(this.TextureDict[data], Portrait, Color.White);
-                        if (this.SelectedData == data)
+                        var portrait = new Rectangle(e.clickRect.X + e.clickRect.Width / 2 - 176, (int)raceCursor.Y, 352, 128);
+                        ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, Color.White);
+                        if (SelectedData == data)
                         {
-                            base.ScreenManager.SpriteBatch.DrawRectangle(Portrait, Color.BurlyWood);
+                            ScreenManager.SpriteBatch.DrawRectangle(portrait, Color.BurlyWood);
                         }
                     }
                 }
@@ -1005,74 +1004,72 @@ namespace Ship_Game
             {
                 this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
             }
-            this.HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), this.FlagPos, Color.BurlyWood);
-            this.FlagRect = new Rectangle((int)this.FlagPos.X + 16, (int)this.FlagPos.Y + 15, 80, 80);
-            KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[this.FlagIndex];
-            spriteBatch.Draw(item.Value, this.FlagRect, this.currentObjectColor);
-            this.FlagLeft = new Rectangle(this.FlagRect.X - 20, this.FlagRect.Y + 40 - 10, 20, 20);
-            this.FlagRight = new Rectangle(this.FlagRect.X + this.FlagRect.Width, this.FlagRect.Y + 40 - 10, 20, 20);
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], this.FlagLeft, Color.BurlyWood);
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/rightArrow"], this.FlagRight, Color.BurlyWood);
-            r = this.Description.Menu;
-            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
+            FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
+            KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[FlagIndex];
+            spriteBatch.Draw(item.Value, FlagRect, currentObjectColor);
+            FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
+            FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], FlagLeft, Color.BurlyWood);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/rightArrow"], FlagRight, Color.BurlyWood);
+            r = Description.Menu;
+            if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
             {
-                r.X = r.X + (int)(transitionOffset * 400f);
+                r.X += (int)(transitionOffset * 400f);
             }
-            this.Description.Update(r);
-            this.Description.subMenu = null;
-            this.Description.Draw();
-            rpos = new Vector2((float)(r.X + 20), (float)(this.Description.Menu.Y + 20));
-            this.DescriptionSL.Draw(base.ScreenManager.SpriteBatch);
+            Description.Update(r);
+            Description.subMenu = null;
+            Description.Draw();
+            rpos = new Vector2((r.X + 20), (Description.Menu.Y + 20));
+            DescriptionSL.Draw(ScreenManager.SpriteBatch);
             Vector2 drawCurs = rpos;
-            for (int i = this.DescriptionSL.indexAtTop; i < this.DescriptionSL.Entries.Count && i < this.DescriptionSL.indexAtTop + this.DescriptionSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.DescriptionSL.Entries[i];
                 if (e.clickRectHover == 0)
                 {
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
-                    drawCurs.Y = drawCurs.Y + (float)Fonts.Arial12.LineSpacing;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
+                    drawCurs.Y += Fonts.Arial12.LineSpacing;
                 }
             }
             rpos = drawCurs;
-            rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
-            rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 8);
+            rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
+            rpos.Y += (Fonts.Arial14Bold.LineSpacing + 8);
             int numTraits = 0;
-            foreach (TraitEntry t in this.AllTraits)
+            foreach (TraitEntry t in AllTraits)
             {
                 if (numTraits == 9)
                 {
                     rpos = drawCurs;
-                    rpos.X = rpos.X + 145f;
-                    rpos.Y = rpos.Y + (float)(2 + Fonts.Arial14Bold.LineSpacing);
-                    rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+                    rpos.X += 145f;
+                    rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
+                    rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
                 }
                 if (!t.Selected)
                 {
                     continue;
                 }
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
-                rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
                 numTraits++;
             }
-            this.TitleBar.Draw();
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(18), this.TitlePos, c);
-            this.Left.Draw();
-            this.Traits.Draw();
-            this.traitsSL.Draw(base.ScreenManager.SpriteBatch);
-            if (this.Traits.Tabs[0].Selected || this.Traits.Tabs[1].Selected || this.Traits.Tabs[2].Selected)
+            TitleBar.Draw();
+            ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
+            Left.Draw();
+            Traits.Draw();
+            traitsSL.Draw(ScreenManager.SpriteBatch);
+            if (Traits.Tabs[0].Selected || Traits.Tabs[1].Selected || Traits.Tabs[2].Selected)
             {
-                Vector2 bCursor = new Vector2((float)(this.Traits.Menu.X + 20), (float)(this.Traits.Menu.Y + 45));
-                for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
+                var bCursor = new Vector2(Traits.Menu.X + 20, Traits.Menu.Y + 45);
+                foreach (ScrollList.Entry e in traitsSL.VisibleEntries)
                 {
-                    ScrollList.Entry e = this.traitsSL.Entries[i];
                     if (e.clickRectHover != 0)
                     {
-                        bCursor.Y = (float)(e.clickRect.Y - 5);
-                        Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
+                        bCursor.Y = (e.clickRect.Y - 5);
+                        var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
                         string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
-                        Color drawColor = new Color(95, 95, 95, 95);
+                        var drawColor = new Color(95, 95, 95, 95);
                         while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
                         {
                             name = string.Concat(name, " .");
@@ -1450,9 +1447,8 @@ namespace Ship_Game
                     this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text, input);
                 }
                 this.traitsSL.HandleInput(input);
-                for (int i = this.traitsSL.indexAtTop; i < this.traitsSL.Entries.Count && i < this.traitsSL.indexAtTop + this.traitsSL.entriesToDisplay; i++)
+                foreach (ScrollList.Entry f in traitsSL.VisibleEntries)
                 {
-                    ScrollList.Entry f = this.traitsSL.Entries[i];
                     if (!f.clickRect.HitTest(mousePos))
                     {
                         f.clickRectHover = 0;

@@ -351,19 +351,9 @@ namespace Ship_Game
             }
             if (this.ActiveBuildingEntry != null)
             {
-                Rectangle destinationRectangle2;
-                // ISSUE: explicit reference operation
-                // ISSUE: variable of a reference type
-                //Rectangle& local2 = @destinationRectangle2;
                 MouseState state2 = Mouse.GetState();
-                int x = state2.X;
-                //state2 = Mouse.GetState();
-                int y = state2.Y;
-                int width = 48;
-                int height = 48;
-                // ISSUE: explicit reference operation
-                destinationRectangle2 = new Rectangle(state2.X, state2.Y, width, height);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (this.ActiveBuildingEntry.item as Building).Icon + "_48x48"], destinationRectangle2, Color.White);
+                var destinationRectangle2 = new Rectangle(state2.X, state2.Y, 48, 48);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{(ActiveBuildingEntry.item as Building).Icon}_48x48"), destinationRectangle2, Color.White);
             }
             this.pFacilities.Draw();
             if (this.p.Owner == Empire.Universe.player && this.p.TroopsHere.Count > 0)
@@ -398,94 +388,77 @@ namespace Ship_Game
                         buildSL.AddItem(building, 0, 0);
                     Reset = false;
                 }
-                vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
-                for (int index = this.buildSL.indexAtTop; index < this.buildSL.Copied.Count; ++index)
+                vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
+                foreach (ScrollList.Entry entry in buildSL.FlattenedEntries)
                 {
-                    if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
+                    if (!(entry.item is Building building))
+                        continue;
+                    if (entry.clickRectHover == 0)
                     {
-#if !DEBUG
-              try
-              { 
-#endif
-                        ScrollList.Entry entry = this.buildSL.Copied[index];
-                        if (entry != null && entry.item is Building)
+                        bool wontbuild = !p.WeCanAffordThis(building, p.colonyType);
+                        vector2_1.Y = entry.clickRect.Y;
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
+
+                        position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        string maintenance = building.Maintenance.ToString("F2");
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+
+                        // ~~~~
+
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
+                        if (entry.Plus != 0)
                         {
-                            if (entry.clickRectHover == 0)
-                            {
-                                bool wontbuild = !p.WeCanAffordThis(entry.item as Building, p.colonyType);
-                                vector2_1.Y = entry.clickRect.Y;
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
-                                Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
-                                position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
-                                position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                                Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                                this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                                // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
-
-                                position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                string maintenance = (entry.item as Building).Maintenance.ToString("F2");
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
-
-                                // ~~~~
-
-                                position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)(entry.item as Building).Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
-                                if (entry.Plus != 0)
-                                {
-                                    if (entry.PlusHover == 0)
-                                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                                    else
-                                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                }
-                            }
+                            if (entry.PlusHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
                             else
-                            {
-                                vector2_1.Y = (float)entry.clickRect.Y;
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                                Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position, Color.White);
-                                position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
-                                position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                                Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                                this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                                // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
-
-                                position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                float actualMaint = (entry.item as Building).Maintenance + (entry.item as Building).Maintenance * this.p.Owner.data.Traits.MaintMod;
-                                string maintenance = actualMaint.ToString("F2");
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
-
-                                // ~~~
-
-                                position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)(entry.item as Building).Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
-                                if (entry.Plus != 0)
-                                {
-                                    if (entry.PlusHover == 0)
-                                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                                    else
-                                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                }
-                            }
-                            if (entry.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
-                                entry.clickRectHover = 1;
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
                         }
-#if !DEBUG
-                    }
-            catch
-            {
-            }  
-#endif
                     }
                     else
-                        break;
+                    {
+                        vector2_1.Y = (float)entry.clickRect.Y;
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position, Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
+
+                        position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        float actualMaint = building.Maintenance + building.Maintenance * this.p.Owner.data.Traits.MaintMod;
+                        string maintenance = actualMaint.ToString("F2");
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+
+                        // ~~~
+
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
+                        if (entry.Plus != 0)
+                        {
+                            if (entry.PlusHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
+                        }
+                    }
+                    if (entry.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
+                        entry.clickRectHover = 1;
                 }
             }
             else if (this.p.HasShipyard && this.build.Tabs[1].Selected)
@@ -547,133 +520,114 @@ namespace Ship_Game
                     }
                 }
                 vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
-                for (int index = this.buildSL.indexAtTop; index < this.buildSL.Copied.Count; ++index)
+                foreach (ScrollList.Entry entry in buildSL.FlattenedEntries)
                 {
-                    if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
+                    vector2_1.Y = (float)entry.clickRect.Y;
+                    if (entry.item is ModuleHeader header)
+                        header.Draw(this.ScreenManager, vector2_1);
+                    else if (entry.clickRectHover == 0)
                     {
-                        try
+                        var ship = (entry.item as Ship);
+                        ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, 
+                                                        new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
+                            ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
+                        position.Y += Fonts.Arial12Bold.LineSpacing;
+                        
+                        var role = ship.BaseHull.Name;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
+                        position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                        ship.GetTechScore(out int[] scores);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+
+
+                        //Forgive my hacks this code of nightmare must GO!
+                        position.X = (entry.clickRect.X + entry.clickRect.Width - 120);
+                        var iconProd = ResourceManager.Texture("NewUI/icon_production");
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+
+                        position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        // Use correct upkeep method depending on mod settings
+                        string upkeep = "Doctor rocks";
+                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                         {
-                            ScrollList.Entry entry = this.buildSL.Copied[index];
-                            if (entry != null)
-                            {
-                                vector2_1.Y = (float)entry.clickRect.Y;
-                                if (entry.item is ModuleHeader)
-                                    (entry.item as ModuleHeader).Draw(this.ScreenManager, vector2_1);
-                                else if (entry.clickRectHover == 0)
-                                {
-                                    var ship = (entry.item as Ship);
-                                    ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, 
-                                                                    new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                                    var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
-                                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
-                                    position.Y += Fonts.Arial12Bold.LineSpacing;
-                                    
-                                    var role = ship.BaseHull.Name;
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
-                                    position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
-                                    ship.GetTechScore(out int[] scores);
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
-
-
-                                    //Forgive my hacks this code of nightmare must GO!
-                                    position.X = (entry.clickRect.X + entry.clickRect.Width - 120);
-                                    var iconProd = ResourceManager.Texture("NewUI/icon_production");
-                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                                    ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                                    position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    // Use correct upkeep method depending on mod settings
-                                    string upkeep = "Doctor rocks";
-                                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                                    {
-                                        upkeep = ship.GetMaintCostRealism(this.p.Owner).ToString("F2");
-                                    }
-                                    else
-                                    {
-                                        upkeep = ship.GetMaintCost(this.p.Owner).ToString("F2");
-                                    }
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
-
-                                    // ~~~
-
-                                    position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(ship.GetCost(this.p.Owner)*this.p.ShipBuildingModifier)).ToString(), position, Color.White);
-                                }
-                                else
-                                {
-                                    var ship = (entry.item as Ship);
-
-                                    vector2_1.Y = (float)entry.clickRect.Y;
-                                    this.ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
-                                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-
-                                    //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                                    var role = ship.BaseHull.Name;
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
-                                    position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
-                                    ship.GetTechScore(out int[] scores);
-                                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"" +
-                                                                                           $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
-
-
-
-
-                                    //this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).DesignRole, this.p.Owner), position, Color.Orange);
-                                    position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
-                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-
-                                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                                    position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    // Use correct upkeep method depending on mod settings
-                                    string upkeep = "Doctor rocks";
-                                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                                    {
-                                        upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
-                                    }
-                                    else
-                                    {
-                                        upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString("F2");
-                                    }
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
-
-                                    // ~~~
-
-                                    position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)((entry.item as Ship).GetCost(this.p.Owner) * this.p.ShipBuildingModifier)).ToString(), position, Color.White);
-                                    if (entry.Plus != 0)
-                                    {
-                                        if (entry.PlusHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                    }
-                                    if (entry.Edit != 0)
-                                    {
-                                        if (entry.EditHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                                    }
-                                    if (entry.clickRect.Y == 0)   //those checks look broken in either decompiler
-                                    {
-                                        //int num3 = 11 + 1;
-                                    }
-                                }
-                            }
+                            upkeep = ship.GetMaintCostRealism(this.p.Owner).ToString("F2");
                         }
-                        catch
+                        else
                         {
+                            upkeep = ship.GetMaintCost(this.p.Owner).ToString("F2");
                         }
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+
+                        // ~~~
+
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(ship.GetCost(this.p.Owner)*this.p.ShipBuildingModifier)).ToString(), position, Color.White);
                     }
                     else
-                        break;
+                    {
+                        var ship = (entry.item as Ship);
+
+                        vector2_1.Y = (float)entry.clickRect.Y;
+                        this.ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+
+                        //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
+                        var role = ship.BaseHull.Name;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
+                        position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                        ship.GetTechScore(out int[] scores);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+
+                        //this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).DesignRole, this.p.Owner), position, Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+
+                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+
+                        position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        // Use correct upkeep method depending on mod settings
+                        string upkeep = "Doctor rocks";
+                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                        {
+                            upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
+                        }
+                        else
+                        {
+                            upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString("F2");
+                        }
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+
+                        // ~~~
+
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)((entry.item as Ship).GetCost(this.p.Owner) * this.p.ShipBuildingModifier)).ToString(), position, Color.White);
+                        if (entry.Plus != 0)
+                        {
+                            if (entry.PlusHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
+                        }
+                        if (entry.Edit != 0)
+                        {
+                            if (entry.EditHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
+                        }
+                        if (entry.clickRect.Y == 0)   //those checks look broken in either decompiler
+                        {
+                            //int num3 = 11 + 1;
+                        }
+                    }
                 }
                 this.playerDesignsToggle.Draw(this.ScreenManager);
             }
@@ -691,90 +645,75 @@ namespace Ship_Game
                     Reset = false;
                 }
                 vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
-                for (int index = this.buildSL.indexAtTop; index < this.buildSL.Entries.Count; ++index)
+                foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
                 {
-                    if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
+                    vector2_1.Y = (float)entry.clickRect.Y;
+                    if (entry.clickRectHover == 0)
                     {
-                        try
+                        if (entry.item is Troop)
                         {
-                            ScrollList.Entry entry = this.buildSL.Entries[index];
-                            if (entry != null)
+                            (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                            Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                            position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                            position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                            Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                            position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
+                            if (entry.Plus != 0)
                             {
-                                vector2_1.Y = (float)entry.clickRect.Y;
-                                if (entry.clickRectHover == 0)
-                                {
-                                    if (entry.item is Troop)
-                                    {
-                                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
-                                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
-                                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                                        if (entry.Plus != 0)
-                                        {
-                                            if (entry.PlusHover == 0)
-                                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                                            else
-                                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                        }
-                                        if (entry.Edit != 0)
-                                        {
-                                            if (entry.EditHover == 0)
-                                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], entry.editRect, Color.White);
-                                            else
-                                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                                        }
-                                        if (entry.clickRect.Y == 0)
-                                        {
-                                            //int num3 = 11 + 1;
-                                        }
-                                    }
-                                }
+                                if (entry.PlusHover == 0)
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
                                 else
-                                {
-                                    vector2_1.Y = (float)entry.clickRect.Y;
-                                    (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
-                                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
-                                    position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                                    position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                                    if (entry.Plus != 0)
-                                    {
-                                        if (entry.PlusHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                    }
-                                    if (entry.Edit != 0)
-                                    {
-                                        if (entry.EditHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                                    }
-                                    if (entry.clickRect.Y == 0)
-                                    {
-                                        //int num3 = 11 + 1;
-                                    }
-                                }
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
                             }
-                        }
-                        catch
-                        {
+                            if (entry.Edit != 0)
+                            {
+                                if (entry.EditHover == 0)
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], entry.editRect, Color.White);
+                                else
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
+                            }
+                            if (entry.clickRect.Y == 0)
+                            {
+                                //int num3 = 11 + 1;
+                            }
                         }
                     }
                     else
-                        break;
+                    {
+                        vector2_1.Y = (float)entry.clickRect.Y;
+                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
+                        if (entry.Plus != 0)
+                        {
+                            if (entry.PlusHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
+                        }
+                        if (entry.Edit != 0)
+                        {
+                            if (entry.EditHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
+                        }
+                        if (entry.clickRect.Y == 0)
+                        {
+                            //int num3 = 11 + 1;
+                        }
+                    }
                 }
             }
             else if (build.Tabs.Count > 2 && build.Tabs[2].Selected)
@@ -791,183 +730,166 @@ namespace Ship_Game
                     Reset = false;
                 }
                 vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
-                for (int index = buildSL.indexAtTop; index < buildSL.Entries.Count; ++index)
+                foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
                 {
-                    if (index < buildSL.indexAtTop + buildSL.entriesToDisplay)
+                    vector2_1.Y = (float)entry.clickRect.Y;
+                    if (entry.clickRectHover == 0)
                     {
-                        try
+                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
+                        if (entry.Plus != 0)
                         {
-                            ScrollList.Entry entry = this.buildSL.Entries[index];
-                            if (entry != null)
-                            {
-                                vector2_1.Y = (float)entry.clickRect.Y;
-                                if (entry.clickRectHover == 0)
-                                {
-                                    (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
-                                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
-                                    position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                                    position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                                    if (entry.Plus != 0)
-                                    {
-                                        if (entry.PlusHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                    }
-                                    if (entry.Edit != 0)
-                                    {
-                                        if (entry.EditHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], entry.editRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                                    }
-                                    if (entry.clickRect.Y == 0)
-                                    {
-                                        //int num3 = 11 + 1;
-                                    }
-                                }
-                                else
-                                {
-                                    vector2_1.Y = (float)entry.clickRect.Y;
-                                    (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
-                                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
-                                    position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                                    position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                                    if (entry.Plus != 0)
-                                    {
-                                        if (entry.PlusHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                                    }
-                                    if (entry.Edit != 0)
-                                    {
-                                        if (entry.EditHover == 0)
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
-                                        else
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                                    }
-                                    if (entry.clickRect.Y == 0)
-                                    {
-                                        //int num3 = 11 + 1;
-                                    }
-                                }
-                            }
+                            if (entry.PlusHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
                         }
-                        catch
+                        if (entry.Edit != 0)
                         {
+                            if (entry.EditHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], entry.editRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
+                        }
+                        if (entry.clickRect.Y == 0)
+                        {
+                            //int num3 = 11 + 1;
                         }
                     }
                     else
-                        break;
+                    {
+                        vector2_1.Y = (float)entry.clickRect.Y;
+                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
+                        if (entry.Plus != 0)
+                        {
+                            if (entry.PlusHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
+                        }
+                        if (entry.Edit != 0)
+                        {
+                            if (entry.EditHover == 0)
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
+                            else
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
+                        }
+                        if (entry.clickRect.Y == 0)
+                        {
+                            //int num3 = 11 + 1;
+                        }
+                    }
                 }
             }
             this.QSL.Entries.Clear();
-            foreach (object o in (Array<QueueItem>)this.p.ConstructionQueue)
-                this.QSL.AddQItem(o);
-            for (int index = this.QSL.indexAtTop; index < this.QSL.Copied.Count && index < this.QSL.indexAtTop + this.QSL.entriesToDisplay; ++index)
-            {
-                ScrollList.Entry entry = this.QSL.Copied[index];
-                if (entry != null)
-                {
-                    vector2_1.Y = (float)entry.clickRect.Y;
-                    if (entry.clickRect.HitTest(pos))
-                        entry.clickRectHover = 1;
 
-                    var qi = (entry.item as QueueItem);
-                    if (qi.isBuilding)
+            foreach (QueueItem o in p.ConstructionQueue)
+                QSL.AddQItem(o);
+
+            foreach (ScrollList.Entry entry in QSL.FlattenedEntries)
+            {
+                vector2_1.Y = (float)entry.clickRect.Y;
+                if (entry.clickRect.HitTest(pos))
+                    entry.clickRectHover = 1;
+
+                var qi = (entry.item as QueueItem);
+                if (qi.isBuilding)
+                {
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + qi.Building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position, Color.White);
+                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                    Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
+                    if (this.LowRes)
+                        r.Width = 120;
+                    new ProgressBar(r)
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + qi.Building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                        if (this.LowRes)
-                            r.Width = 120;
-                        new ProgressBar(r)
-                        {
-                            Max = qi.Cost,
-                            Progress = qi.productionTowards
-                        }.Draw(this.ScreenManager.SpriteBatch);
-                    }
-                    else if (qi.isShip)
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(qi.sData.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName != null ? qi.DisplayName : qi.sData.Name, position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                        if (this.LowRes)
-                            r.Width = 120;
-                        new ProgressBar(r)
-                        {
-                            Max = (int)(qi.Cost * this.p.ShipBuildingModifier),
-                            Progress = qi.productionTowards
-                        }.Draw(this.ScreenManager.SpriteBatch);
-                    }
-                    else if (qi.isTroop)
-                    {
-                        Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
-                        template.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.troopType, position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                        if (this.LowRes)
-                            r.Width = 120;
-                        new ProgressBar(r)
-                        {
-                            Max = qi.Cost,
-                            Progress = qi.productionTowards
-                        }.Draw(this.ScreenManager.SpriteBatch);
-                    }
-                    if (entry.clickRectHover == 1)
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover1"], entry.up, Color.White);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover1"], entry.down, Color.White);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"], entry.apply, Color.White);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], entry.cancel, Color.White);
-                        if (entry.up.HitTest(pos))
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], entry.up, Color.White);
-                        if (entry.down.HitTest(pos) && Empire.Universe.IsActive)
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover2"], entry.down, Color.White);
-                        if (entry.apply.HitTest(pos) && Empire.Universe.IsActive)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"], entry.apply, Color.White);
-                            ToolTip.CreateTooltip(50);
-                        }
-                        if (entry.cancel.HitTest(pos) && Empire.Universe.IsActive)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], entry.cancel, Color.White);
-                            ToolTip.CreateTooltip(53);
-                        }
-                    }
-                    else
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"], entry.up, Color.White);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down"], entry.down, Color.White);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], entry.apply, Color.White);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], entry.cancel, Color.White);
-                    }
-                    if (this.QSL.DraggedEntry != null && entry.clickRect == this.QSL.DraggedEntry.clickRect)
-                        this.ScreenManager.SpriteBatch.FillRectangle(entry.clickRect, new Color((byte)0, (byte)0, (byte)0, (byte)150));
-                    if (entry.PlusHover == 0)
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                    else
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
+                        Max = qi.Cost,
+                        Progress = qi.productionTowards
+                    }.Draw(this.ScreenManager.SpriteBatch);
                 }
+                else if (qi.isShip)
+                {
+                    this.ScreenManager.SpriteBatch.Draw(qi.sData.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName != null ? qi.DisplayName : qi.sData.Name, position, Color.White);
+                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                    Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
+                    if (this.LowRes)
+                        r.Width = 120;
+                    new ProgressBar(r)
+                    {
+                        Max = (int)(qi.Cost * this.p.ShipBuildingModifier),
+                        Progress = qi.productionTowards
+                    }.Draw(this.ScreenManager.SpriteBatch);
+                }
+                else if (qi.isTroop)
+                {
+                    Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
+                    template.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.troopType, position, Color.White);
+                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                    Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
+                    if (this.LowRes)
+                        r.Width = 120;
+                    new ProgressBar(r)
+                    {
+                        Max = qi.Cost,
+                        Progress = qi.productionTowards
+                    }.Draw(this.ScreenManager.SpriteBatch);
+                }
+                if (entry.clickRectHover == 1)
+                {
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover1"], entry.up, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover1"], entry.down, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"], entry.apply, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], entry.cancel, Color.White);
+                    if (entry.up.HitTest(pos))
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], entry.up, Color.White);
+                    if (entry.down.HitTest(pos) && Empire.Universe.IsActive)
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover2"], entry.down, Color.White);
+                    if (entry.apply.HitTest(pos) && Empire.Universe.IsActive)
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"], entry.apply, Color.White);
+                        ToolTip.CreateTooltip(50);
+                    }
+                    if (entry.cancel.HitTest(pos) && Empire.Universe.IsActive)
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], entry.cancel, Color.White);
+                        ToolTip.CreateTooltip(53);
+                    }
+                }
+                else
+                {
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"], entry.up, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down"], entry.down, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], entry.apply, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], entry.cancel, Color.White);
+                }
+                if (this.QSL.DraggedEntry != null && entry.clickRect == this.QSL.DraggedEntry.clickRect)
+                    this.ScreenManager.SpriteBatch.FillRectangle(entry.clickRect, new Color((byte)0, (byte)0, (byte)0, (byte)150));
+                if (entry.PlusHover == 0)
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
+                else
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
             }
             this.QSL.Draw(this.ScreenManager.SpriteBatch);
             this.buildSL.Draw(this.ScreenManager.SpriteBatch);
@@ -1982,25 +1904,16 @@ namespace Ship_Game
         private void HandleDetailInfo(InputState input)
         {
             this.detailInfo = null;
-            for (int i = this.buildSL.indexAtTop; i < this.buildSL.Copied.Count && i < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in buildSL.FlattenedEntries)
             {
-                ScrollList.Entry e = this.buildSL.Copied[i];
                 if (e.clickRect.HitTest(input.CursorPosition))
                 {
-                    if (e.item is Building)
-                    {
-                        this.detailInfo = e;
-                    }
-                    if (e.item is Troop)
-                    {
-                        this.detailInfo = e.item;
-                    }
+                    if (e.item is Building)   detailInfo = e; // @todo Why are we storing Entry here???
+                    else if (e.item is Troop) detailInfo = e.item;
                 }
             }
-            if (this.detailInfo == null)
-            {
-                this.detailInfo = this.p.Description;
-            }
+            if (detailInfo == null)
+                detailInfo = p.Description;
         }
 
         public override bool HandleInput(InputState input)
@@ -2435,127 +2348,122 @@ namespace Ship_Game
                     b.HandleInput(input, this.ScreenManager);
                 }
             }
-            for (int i = this.QSL.indexAtTop; i < this.QSL.Copied.Count && i < this.QSL.indexAtTop + this.QSL.entriesToDisplay; i++)
+            int i = QSL.indexAtTop;
+            foreach (ScrollList.Entry e in QSL.FlattenedEntries)
             {
-                try
+                if (!e.clickRect.HitTest(MousePos))
                 {
-                    ScrollList.Entry e = this.QSL.Copied[i];
-                    if (!e.clickRect.HitTest(MousePos))
+                    e.clickRectHover = 0;
+                }
+                else
+                {
+                    this.selector = new Selector(e.clickRect);
+                    if (e.clickRectHover == 0)
                     {
-                        e.clickRectHover = 0;
+                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                    }
+                    e.clickRectHover = 1;
+                }
+                if (e.up.HitTest(MousePos))
+                {
+                    ToolTip.CreateTooltip(63);
+                    if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i > 0)
+                        {
+                            object tmp = this.p.ConstructionQueue[i - 1];
+                            this.p.ConstructionQueue[i - 1] = this.p.ConstructionQueue[i];
+                            this.p.ConstructionQueue[i] = tmp as QueueItem;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        }
+                    }
+                    else if (i > 0)
+                    {
+                        var item = p.ConstructionQueue[i];
+                        p.ConstructionQueue.Remove(item);
+                        p.ConstructionQueue.Insert(0, item);
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        break;
+                    }
+                }
+                if (e.down.HitTest(MousePos))
+                {
+                    ToolTip.CreateTooltip(64);
+                    if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i + 1 < this.QSL.Copied.Count)
+                        {
+                            object tmp = this.p.ConstructionQueue[i + 1];
+                            this.p.ConstructionQueue[i + 1] = this.p.ConstructionQueue[i];
+                            this.p.ConstructionQueue[i] = tmp as QueueItem;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        }
+                    }
+                    else if (i + 1 < this.QSL.Copied.Count)
+                    {
+                        var item = p.ConstructionQueue[i];
+                        p.ConstructionQueue.Remove(item);
+                        p.ConstructionQueue.Insert(0, item);
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        break;
+                    }
+                }
+                if (e.apply.HitTest(MousePos) && !this.p.RecentCombat && this.p.CrippledTurns <= 0)
+                {
+                    if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    {
+                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        {
+                            
+                            if (this.p.ApplyStoredProduction(i))
+                            {
+                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                            }
+                            else
+                            {
+                                GameAudio.PlaySfxAsync("UI_Misc20");
+                            }
+                        }
+                    }
+                    //else if (Empire.Universe.Debug)
+                    //{
+                    //    this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
+                    //}
+                    else if (this.p.ProductionHere == 0f)
+                    {
+                        GameAudio.PlaySfxAsync("UI_Misc20");
                     }
                     else
                     {
-                        this.selector = new Selector(e.clickRect);
-                        if (e.clickRectHover == 0)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
-                    }
-                    if (e.up.HitTest(MousePos))
-                    {
-                        ToolTip.CreateTooltip(63);
-                        if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                        {
-                            if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i > 0)
-                            {
-                                object tmp = this.p.ConstructionQueue[i - 1];
-                                this.p.ConstructionQueue[i - 1] = this.p.ConstructionQueue[i];
-                                this.p.ConstructionQueue[i] = tmp as QueueItem;
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            }
-                        }
-                        else if (i > 0)
-                        {
-                            var item = p.ConstructionQueue[i];
-                            p.ConstructionQueue.Remove(item);
-                            p.ConstructionQueue.Insert(0, item);
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            break;
-                        }
-                    }
-                    if (e.down.HitTest(MousePos))
-                    {
-                        ToolTip.CreateTooltip(64);
-                        if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                        {
-                            if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i + 1 < this.QSL.Copied.Count)
-                            {
-                                object tmp = this.p.ConstructionQueue[i + 1];
-                                this.p.ConstructionQueue[i + 1] = this.p.ConstructionQueue[i];
-                                this.p.ConstructionQueue[i] = tmp as QueueItem;
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            }
-                        }
-                        else if (i + 1 < this.QSL.Copied.Count)
-                        {
-                            var item = p.ConstructionQueue[i];
-                            p.ConstructionQueue.Remove(item);
-                            p.ConstructionQueue.Insert(0, item);
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            break;
-                        }
-                    }
-                    if (e.apply.HitTest(MousePos) && !this.p.RecentCombat && this.p.CrippledTurns <= 0)
-                    {
-                        if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                        {
-                            if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-                            {
-                                
-                                if (this.p.ApplyStoredProduction(i))
-                                {
-                                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                                }
-                                else
-                                {
-                                    GameAudio.PlaySfxAsync("UI_Misc20");
-                                }
-                            }
-                        }
-                        //else if (Empire.Universe.Debug)
-                        //{
-                        //    this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
-                        //}
-                        else if (this.p.ProductionHere == 0f)
-                        {
-                            GameAudio.PlaySfxAsync("UI_Misc20");
-                        }
-                        else
-                        {
-                            this.p.ApplyAllStoredProduction(i);
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    if (e.cancel.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
-                    {
-                        Planet productionHere2 = this.p;
-                        productionHere2.ProductionHere = productionHere2.ProductionHere + (e.item as QueueItem).productionTowards;
-                        
-                        QueueItem item = (e.item as QueueItem);
-                        if (item.pgs != null)
-                        {
-                            (e.item as QueueItem).pgs.QItem = null;
-                        }
-                        if (item.Goal !=null)
-                        {
-                            if (item.Goal is Commands.Goals.BuildConstructionShip)
-                            {
-                                p.Owner.GetGSAI().Goals.Remove(item.Goal);
-                                
-                            }
-                            if (item.Goal.GetFleet() !=null)
-                                p.Owner.GetGSAI().Goals.Remove(item.Goal);
-
-                        }
-                        this.p.ConstructionQueue.Remove(e.item as QueueItem);
+                        this.p.ApplyAllStoredProduction(i);
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
                 }
-                catch
+                if (e.cancel.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
+                    Planet productionHere2 = this.p;
+                    productionHere2.ProductionHere = productionHere2.ProductionHere + (e.item as QueueItem).productionTowards;
+                    
+                    QueueItem item = (e.item as QueueItem);
+                    if (item.pgs != null)
+                    {
+                        (e.item as QueueItem).pgs.QItem = null;
+                    }
+                    if (item.Goal !=null)
+                    {
+                        if (item.Goal is Commands.Goals.BuildConstructionShip)
+                        {
+                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                            
+                        }
+                        if (item.Goal.GetFleet() !=null)
+                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
+
+                    }
+                    this.p.ConstructionQueue.Remove(e.item as QueueItem);
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
+                ++i;
             }
             this.QSL.HandleInput(input, this.p);
             if (this.ActiveBuildingEntry != null)
@@ -2628,12 +2536,11 @@ namespace Ship_Game
                     this.ActiveBuildingEntry = null;
                 }
             }
-            for (int i = this.buildSL.indexAtTop; i < this.buildSL.Copied.Count && i < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in buildSL.FlattenedEntries)
             {
-                ScrollList.Entry e = this.buildSL.Copied[i];
-                if (e.item is ModuleHeader)
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).HandleInput(input, e);
+                    header.HandleInput(input, e);
                 }
                 else if (!e.clickRect.HitTest(MousePos))
                 {
@@ -3113,28 +3020,10 @@ namespace Ship_Game
                 foreach (Submenu.Tab tab in this.build.Tabs)
                 {
                     if (tab.Title != Localizer.Token(336))
-                    {
                         continue;
-                    }
                     add = false;
-                    for (int index = this.buildSL.indexAtTop; index < this.buildSL.Entries.Count; ++index)
-                    {
-                        if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
-                        {
-                            try
-                            {
-                                ScrollList.Entry entry = this.buildSL.Entries[index];
-                                if (entry != null)
-                                {
-                                    if (entry.item is Troop troop) troop.Update(elapsedTime);
-                                }
-                            }
-                            catch
-                            { }
-
-                        }
-                    }
-
+                    foreach (Troop troop in buildSL.VisibleItems<Troop>())
+                        troop.Update(elapsedTime);
                 }
                 if (add)
                 {

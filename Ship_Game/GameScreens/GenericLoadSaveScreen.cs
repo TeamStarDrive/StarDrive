@@ -116,51 +116,48 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
-            this.SaveMenu.Draw();
-            this.NameSave.Draw();
-            this.AllSaves.Draw();
-            Vector2 bCursor = new Vector2((float)(this.AllSaves.Menu.X + 20), (float)(this.AllSaves.Menu.Y + 20));
-            for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Entries.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.SpriteBatch.Begin();
+            SaveMenu.Draw();
+            NameSave.Draw();
+            AllSaves.Draw();
+            var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
+            foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.SavesSL.Entries[i];
-                FileData data = e.item as FileData;
+                var data = (FileData)e.item;
                 bCursor.Y = (float)e.clickRect.Y - 7;
-                base.ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
-                tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
-                tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
+                ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
+                tCursor.Y += Fonts.Arial20Bold.LineSpacing;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
+                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
                 if (e.clickRectHover != 1)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
                 }
                 else
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-                    if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
+                    if (e.cancel.HitTest(Mouse.GetState().Pos()))
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
                         ToolTip.CreateTooltip("Delete File");
                     }
                 }
             }
-            this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
-            this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, GameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
-            foreach (UIButton b in this.Buttons)
+            SavesSL.Draw(ScreenManager.SpriteBatch);
+            EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            foreach (UIButton b in Buttons)
             {
-                b.Draw(base.ScreenManager.SpriteBatch);
+                b.Draw(ScreenManager.SpriteBatch);
             }
-            if (this.selector != null)
-            {
-                this.selector.Draw(ScreenManager.SpriteBatch);
-            }
-            this.close.Draw(ScreenManager.SpriteBatch);
+
+            selector?.Draw(ScreenManager.SpriteBatch);
+            close.Draw(ScreenManager.SpriteBatch);
             ToolTip.Draw(ScreenManager.SpriteBatch);
-            base.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
 
         protected virtual void Load()
@@ -180,35 +177,35 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = input.MouseCurr;
-            Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            this.SavesSL.HandleInput(input);
-            this.selector = null;
-            for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Entries.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
+            currentMouse = input.MouseCurr;
+            SavesSL.HandleInput(input);
+            selector = null;
+            foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.SavesSL.Entries[i];
-                if (!e.clickRect.HitTest(MousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
+                if (e.clickRect.HitTest(input.CursorPosition))
                 {
                     if (e.clickRectHover == 0)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_mouseover");
                     }
+
                     e.clickRectHover = 1;
-                    this.selector = new Selector(e.clickRect);
-                    if (e.cancel.HitTest(MousePos) && input.InGameSelect)        // handle file delete
+                    selector = new Selector(e.clickRect);
+                    if (e.cancel.HitTest(MousePos) && input.InGameSelect) // handle file delete
                     {
-                        this.fileToDel = (e.item as FileData).FileLink;
-                        MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                        fileToDel = ((FileData) e.item).FileLink;
+                        var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
                         messageBox.Accepted += DeleteFile;
-                        base.ScreenManager.AddScreen(messageBox);
-                    } else if (input.InGameSelect)
-                    {
-                        this.SwitchFile(e);
+                        ScreenManager.AddScreen(messageBox);
                     }
+                    else if (input.InGameSelect)
+                    {
+                        SwitchFile(e);
+                    }
+                }
+                else
+                {
+                    e.clickRectHover = 0;
                 }
             }
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))

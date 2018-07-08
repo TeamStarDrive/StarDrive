@@ -40,10 +40,8 @@ namespace Ship_Game
                 DestroySelectionBox();
                 return false;
             }
-            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+            foreach (Entry e in FlattenedEntries)
             {
-                Entry e = Copied[i];
-
                 if (e.item is ModuleHeader moduleHeader)
                 {
                     if (moduleHeader.HandleInput(input, e))
@@ -65,8 +63,7 @@ namespace Ship_Game
                     Screen.SetActiveModule(module, ModuleOrientation.Normal, 0f);
                     return true;
                 }
-                else
-                    e.clickRectHover = 0;
+                else e.clickRectHover = 0;
             }
             return false;
         }
@@ -254,10 +251,9 @@ namespace Ship_Game
         private void DrawList(SpriteBatch spriteBatch)
         {
             Vector2 mousePos = Input.CursorPosition;
-            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; i++)
+            foreach (Entry e in FlattenedEntries)
             {
                 var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, Screen.ModSel.Menu.Y + 45);
-                Entry e = Copied[i];
                 bCursor.Y = e.clickRect.Y;
                 if (e.item is ModuleHeader header)
                 {
