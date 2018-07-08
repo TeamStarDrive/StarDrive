@@ -246,7 +246,6 @@ namespace Ship_Game.Ships
         }
 
         public float EmpTolerance => Size + BonusEMP_Protection;
-
         public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
 
         public void DebugDamage(float percent)
@@ -256,6 +255,8 @@ namespace Ship_Game.Ships
                 module.DebugDamage(percent);            
         }
 
+        public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
+
         public ShipData.RoleName DesignRole { get; private set; }
         public string DesignRoleName => ShipData.GetRole(DesignRole);
         public Texture2D GetTacticalIcon()
@@ -264,10 +265,11 @@ namespace Ship_Game.Ships
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
             string roleName = DesignRole.ToString();
-            string iconName = $"TacticalIcons/symbol_";
+            string iconName = "TacticalIcons/symbol_";
             return ResourceManager.Texture(iconName + roleName, "") ??
                 ResourceManager.Texture(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
+
         private int Calculatesize()
         {
             int size = 0;
@@ -674,27 +676,31 @@ namespace Ship_Game.Ships
             TetheredTo = null;
         }
 
+        public bool IsWithinPlanetaryGravityWell
+        {
+            get
+            {
+                if (!Empire.Universe.GravityWells || System == null || IsInFriendlySpace)
+                    return false;
+
+                for (int i = 0; i < System.PlanetList.Count; i++)
+                {
+                    Planet planet = System.PlanetList[i];
+                    if (Position.InRadius(planet.Center, planet.GravityWellRadius))
+                        return true;
+                }
+                return false;
+            }
+        }
+
         //added by gremlin The Generals GetFTL speed
         public void SetmaxFTLSpeed()
         {
             //Added by McShooterz: hull bonus speed 
-            if (InhibitedTimer < -.25f || Inhibited || System != null && engineState == MoveState.Warp)
+            if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
             {
-                if (Empire.Universe.GravityWells && System != null && !IsInFriendlySpace)
-                {
-                    for (int i = 0; i < System.PlanetList.Count; i++)
-                    {
-                        Planet planet = System.PlanetList[i];
-                        if (Position.InRadius(planet.Center,
-                             planet.GravityWellRadius))
-                        {
-                            InhibitedTimer = .3f;
-                            break;
-                        }
-                    }
-                }
-                if (InhibitedTimer < 0)
-                    InhibitedTimer = 0.0f;
+                if (IsWithinPlanetaryGravityWell) InhibitedTimer = 0.3f;
+                else if (InhibitedTimer < 0.0f)   InhibitedTimer = 0.0f;
             }
             //Apply in borders bonus through ftl modifier
             float ftlmodtemp = 1;
