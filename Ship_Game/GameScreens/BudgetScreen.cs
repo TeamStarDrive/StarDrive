@@ -190,11 +190,6 @@ namespace Ship_Game.GameScreens
             base.ScreenManager.SpriteBatch.End();
         }
 
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
         //protected override void Finalize()
         //{
         //    try

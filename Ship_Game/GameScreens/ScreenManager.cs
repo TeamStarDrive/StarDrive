@@ -250,13 +250,13 @@ namespace Ship_Game
 
         public void ExitAll()
         {
-            foreach (GameScreen screen in Screens.ToArray())
+            foreach (GameScreen screen in Screens.ToArray()/*grab an atomic copy*/)
                 screen.ExitScreen();
         }
 
         public void ExitAllExcept(GameScreen except)
         {
-            foreach (GameScreen screen in Screens.ToArray())
+            foreach (GameScreen screen in Screens.ToArray()/*grab an atomic copy*/)
                 if (screen != except)
                     screen.ExitScreen();
         }
