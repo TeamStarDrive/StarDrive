@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
             ShipModuleType type = module.ModuleType;
             
             float modelZ = module.GetParent().BaseHull.ModelZ;
-            modelZ = modelZ.Clamp(0, 200) * -1;
+            modelZ = modelZ.Clamped(0, 200) * -1;
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
                 case ShipModuleType.Shield:
