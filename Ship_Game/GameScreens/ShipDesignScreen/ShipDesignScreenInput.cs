@@ -106,7 +106,6 @@ namespace Ship_Game
         {
             ReallyExit();
         }
-        
 
         public override void ExitScreen()
         {

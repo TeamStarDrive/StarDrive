@@ -746,8 +746,6 @@ namespace Ship_Game
         }
 
         //added by gremlin replace redundant code with method
-
-
         public override void ExitScreen()
         {
             IsExiting = true;

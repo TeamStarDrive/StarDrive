@@ -809,8 +809,11 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            AssignLightRig("example/NewGamelight_rig");
-            Empire.Universe.RecomputeFleetButtons(true);
+            if (!Game1.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
+            {
+                Empire.Universe.AssignLightRig("example/NewGamelight_rig");
+                Empire.Universe.RecomputeFleetButtons(true);
+            }
             Starfield.UnloadContent();
             base.ExitScreen();
         }
