@@ -87,7 +87,6 @@ namespace Ship_Game
 			base.ExitScreen();
 		}
 
-
 		public override bool HandleInput(InputState input)
 		{
 			if (input.InGameSelect && !this.ShowingReplay)
