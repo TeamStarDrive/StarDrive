@@ -80,13 +80,13 @@ namespace Ship_Game
         // @return The new "fromValue"
         public static float SmoothStep(this float fromValue, float targetValue, float amount)
         {
-            float clamped = amount.Clamp(0f, 1f);
+            float clamped = amount.Clamped(0f, 1f);
             return fromValue.LerpTo(targetValue, clamped*clamped * (3f - 2f * clamped));
         }
 
         public static float SmoothStep(ref float fromValue, float targetValue, float amount)
         {
-            float clamped = amount.Clamp(0f, 1f);
+            float clamped = amount.Clamped(0f, 1f);
             fromValue = fromValue.LerpTo(targetValue, clamped * clamped * (3f - 2f * clamped));
             return fromValue;
         }
@@ -574,7 +574,7 @@ namespace Ship_Game
 
             Vector2 v = pnt - start;
             float d = Vector2.Dot(v, line);
-            d = Clamp(d, 0f, len);
+            d = Clamped(d, 0f, len);
             return start + line * d;
         }
 
