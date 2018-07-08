@@ -285,7 +285,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
             float normalAmount = take10Turns;
 
-            normalAmount = ProductionHere.Clamp(0, normalAmount);
+            normalAmount = ProductionHere.Clamped(0, normalAmount);
             ProductionHere -= normalAmount;
 
             ApplyProductiontoQueue(normalAmount, 0);

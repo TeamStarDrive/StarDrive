@@ -75,7 +75,7 @@ namespace Ship_Game
             if (!IsIntersectingScreen(posOnScreen, radius))
                 return; // nothing to do here!
 
-            sides = sides.Clamp(3, 256);
+            sides = sides.Clamped(3, 256);
             float step = 6.28318530717959f / sides;
 
             var start = new Vector2(posOnScreen.X + radius, posOnScreen.Y); // 0 angle is horizontal right
