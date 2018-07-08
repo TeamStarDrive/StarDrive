@@ -33,11 +33,23 @@ namespace Ship_Game
     public static class MathExt
     {
         // clamp a value between [min, max]: min <= value <= max
+        [Obsolete("Extension method float.Clamp has been replaced by float.Clamped")]
         public static float Clamp(this float value, float min, float max)
         {
             return Max(min, Min(value, max));
         }
+        [Obsolete("Extension method int.Clamp has been replaced by int.Clamped")]
         public static int Clamp(this int value, int min, int max)
+        {
+            return Max(min, Min(value, max));
+        }
+
+        // clamp a value between [min, max]: min <= value <= max
+        public static float Clamped(this float value, float min, float max)
+        {
+            return Max(min, Min(value, max));
+        }
+        public static int Clamped(this int value, int min, int max)
         {
             return Max(min, Min(value, max));
         }
