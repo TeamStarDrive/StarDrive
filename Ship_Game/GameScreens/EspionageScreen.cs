@@ -341,13 +341,6 @@ namespace Ship_Game
             Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
         }
 
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
-
-
         private float GetMilitaryStr(Empire e)
         {
             float single;
