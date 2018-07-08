@@ -206,9 +206,6 @@ namespace Ship_Game.Commands.Goals
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
                 empire.GetGSAI().CheckClaim(them, markedPlanet);
             return GoalStep.GoalComplete;
-
-            this.PlanetBuildingAt = (Planet) null;
-            return GoalStep.RestartGoal;
         }
 
         private Ship FindIdleColonyShip()

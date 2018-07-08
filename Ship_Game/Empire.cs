@@ -15,7 +15,7 @@ namespace Ship_Game
 {
     public sealed class Empire : IDisposable
     {
-        public static float ProjectorRadius = 150000f;
+        public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
         public readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
@@ -1812,7 +1812,7 @@ namespace Ship_Game
                 SensorNodes.Add(new InfluenceNode()
                 {
                     Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
-                    Radius = Empire.ProjectorRadius * this.data.SensorModifier,
+                    Radius = ProjectorRadius * this.data.SensorModifier,
                     Known = true
                 });
             this.Inhibitors.Clear();
@@ -1945,8 +1945,8 @@ namespace Ship_Game
                     influenceNode2.Radius = isFaction
                         ? 1f
                         : this == Universe.PlayerEmpire
-                            ? Empire.ProjectorRadius / 5f * empire.data.SensorModifier
-                            : Empire.ProjectorRadius / 3f * empire.data.SensorModifier;
+                            ? ProjectorRadius / 5f * empire.data.SensorModifier
+                            : ProjectorRadius / 3f * empire.data.SensorModifier;
                     foreach (Building building in planet.BuildingList)                    
                         influenceNode2.Radius = Math.Max(influenceNode2.Radius, building.SensorRange * data.SensorModifier);                   
                     

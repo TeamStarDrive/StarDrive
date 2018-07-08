@@ -398,10 +398,8 @@ namespace Ship_Game
             data.Size                  = savedData.Size;
             data.FTLSpeedModifier      = savedData.FTLModifier;
             data.EnemyFTLSpeedModifier = savedData.EnemyFTLModifier;
-            data.GravityWells          = savedData.GravityWells;
-            //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
-            //Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(data.Size.X);            
-
+            data.GravityWells          = savedData.GravityWells;    
+                        
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
@@ -767,75 +765,13 @@ namespace Ship_Game
 
         private void AddShipFromSaveData(SavedGame.ShipSaveData shipSave, Empire e)
         {
-            shipSave.data.Hull = shipSave.Hull;
-            Ship ship = Ship.CreateShipFromShipData(e, shipSave.data, fromSave: true);
+            Ship ship = Ship.CreateShipFromSave(e, shipSave);
             if (ship == null) // happens if module creation failed
                 return;
 
-            ship.guid             = shipSave.guid;
-            ship.Position         = shipSave.Position;
-            ship.PlayerShip       = shipSave.IsPlayerShip;
-            ship.experience       = shipSave.experience;
-            ship.kills            = shipSave.kills;
-            ship.PowerCurrent     = shipSave.Power;
-            ship.yRotation        = shipSave.yRotation;
-            ship.Ordinance        = shipSave.Ordnance;
-            ship.Rotation         = shipSave.Rotation;
-            ship.Velocity         = shipSave.Velocity;
-            ship.isSpooling       = shipSave.AfterBurnerOn;
-            ship.InCombatTimer    = shipSave.InCombatTimer;
-            ship.TetherGuid       = shipSave.TetheredTo;
-            ship.TetherOffset     = shipSave.TetherOffset;
-            ship.InCombat         = ship.InCombatTimer > 0f;
-            ship.SetTroopsOut     = shipSave.TroopsLaunched;
-            ship.SetFightersOut   = shipSave.FightersLaunched;
-
-            ship.VanityName = ship.shipData.Role == ShipData.RoleName.troop && shipSave.TroopList.NotEmpty 
-                            ? shipSave.TroopList[0].Name : shipSave.Name;
-            
+            e.AddShip(ship);
             if (ship.PlayerShip)
                 data.playerShip = ship;
-
-            if (!ResourceManager.ShipTemplateExists(shipSave.Name))
-            {
-                shipSave.data.Hull = shipSave.Hull;
-                ResourceManager.AddShipTemplate(shipSave.data, fromSave: true);
-            }
-
-            if (shipSave.TroopList != null)
-            {
-                foreach (Troop t in shipSave.TroopList)
-                {
-                    t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
-                    ship.TroopList.Add(t);
-                }
-            }
-
-            if (shipSave.AreaOfOperation != null)
-            {
-                foreach (Rectangle aoRect in shipSave.AreaOfOperation)
-                    ship.AreaOfOperation.Add(aoRect);
-            }
-
-            ship.InitializeAIFromAISave(shipSave.AISave);
-            ship.LoadFood(shipSave.FoodCount);
-            ship.LoadProduction(shipSave.ProdCount);
-            ship.LoadColonists(shipSave.PopCount);
-
-            switch (ship.AI.State)
-            {
-                case AIState.SystemTrader:
-                    bool hasCargo = shipSave.FoodCount > 0f || shipSave.ProdCount > 0f;
-                    ship.AI.OrderTradeFromSave(hasCargo, shipSave.AISave.startGuid, shipSave.AISave.endGuid);
-                    break;
-                case AIState.PassengerTransport:
-                    ship.AI.OrderTransportPassengersFromSave();
-                    break;
-            }
-
-            e.AddShip(ship);
-            foreach (SavedGame.ProjectileSaveData pdata in shipSave.Projectiles)
-                Projectile.Create(ship, pdata);
             data.MasterShipList.Add(ship);
         }
 

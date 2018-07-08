@@ -28,7 +28,7 @@ namespace Ship_Game.Gameplay
             float Distance = Vector2.Distance(Origin.Position, Destination.Position) ;
 
             
-            float offset = (Empire.ProjectorRadius * 1.75f);//fbedard: increased from 1.5f
+            float offset = (empire.ProjectorRadius * 1.75f);//fbedard: increased from 1.5f
             offset = offset == 0 ? 1 : offset;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
             offset = Distance / NumberOfProjectors;
@@ -44,12 +44,12 @@ namespace Ship_Game.Gameplay
 				float angle = Origin.Position.AngleToTarget(Destination.Position);
                 node.Position = Origin.Position.PointOnCircle(angle, offset + (i * (float)( Distance / this.NumberOfProjectors) ));
 				bool reallyAdd = true;
-                float extrad = Empire.ProjectorRadius;
+                float extrad = empire.ProjectorRadius;
 
                 using (empire.BorderNodes.AcquireReadLock())
                 foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
                 {
-                    extrad = !(bordernode.SourceObject is Ship) ? Empire.ProjectorRadius : 0;
+                    extrad = !(bordernode.SourceObject is Ship) ? empire.ProjectorRadius : 0;
                   
                     if (Vector2.Distance(node.Position, bordernode.Position) + extrad >= bordernode.Radius)
                         continue;
