@@ -83,7 +83,7 @@ namespace Ship_Game
         public void RemoveAllLights()             => ScreenManager.RemoveAllLights();
         public void AssignLightRig(string rigContentPath)
         {
-            LightRig lightRig = TransientContent.Load<LightRig>(rigContentPath);
+            var lightRig = TransientContent.Load<LightRig>(rigContentPath);
             ScreenManager.AssignLightRig(lightRig);
         }
 
@@ -99,7 +99,6 @@ namespace Ship_Game
             }
             Empire.Universe?.ResetLighting();
             ScreenManager.RemoveScreen(this);
-   
         }
 
         public virtual void LoadContent()

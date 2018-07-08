@@ -90,13 +90,6 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.End();
         }
 
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
-
-
         public override bool HandleInput(InputState input)
         {
             this.currentMouse = input.MouseCurr;
