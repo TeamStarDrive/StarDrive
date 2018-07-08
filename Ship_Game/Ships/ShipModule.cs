@@ -222,7 +222,7 @@ namespace Ship_Game.Ships
         private void SetHealth(float newHealth)
         {
             float maxHealth = ActualMaxHealth;
-            newHealth = newHealth.Clamp(0, maxHealth);
+            newHealth = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
@@ -534,7 +534,7 @@ namespace Ship_Game.Ships
         public void DebugDamage(float percent)
         {
             float health = Health * percent + ShieldPower ;
-            float damage = health.Clamp(0, Health + ShieldPower);
+            float damage = health.Clamped(0, Health + ShieldPower);
             var source   = GetParent();
             Damage(source, damage);            
         }
@@ -566,7 +566,7 @@ namespace Ship_Game.Ships
             //even if the damage is greater than the shield amount. 
             if (damagingShields)
             {
-                ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
+                ShieldPower = (ShieldPower - modifiedDamage).Clamped(0, ShieldPower);
                 if (proj != null)
                 {
                     if (beam != null) CauseSiphonDamage(beam);
@@ -663,7 +663,7 @@ namespace Ship_Game.Ships
             if (beam.Weapon.SiphonDamage <= 0f)
                 return;
             ShieldPower -= beam.Weapon.SiphonDamage;
-            ShieldPower.Clamp(0, shield_power_max);
+            ShieldPower.Clamped(0, shield_power_max);
             beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
         }
 
@@ -936,7 +936,7 @@ namespace Ship_Game.Ships
                 return repairAmount;
 
             repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
-            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
+            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamped(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;
         }

@@ -230,7 +230,7 @@ namespace Ship_Game.AI {
             lock (WayPointLocker)
             {
                 if (ActiveWayPoints.Count > 1)
-                    distWaypt = Empire.ProjectorRadius / 2f;
+                    distWaypt = Owner.loyalty.ProjectorRadius / 2f;
             }
 
             if (OrderQueue.NotEmpty && OrderQueue[1].Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
@@ -373,7 +373,7 @@ namespace Ship_Game.AI {
 
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Empire.ProjectorRadius * 2)
+            if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Owner.loyalty.ProjectorRadius * 2)
             {
                 int reducer = Empire.Universe.reducer; //  (int)(Empire.ProjectorRadius );
                 int granularity = Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
@@ -433,8 +433,8 @@ namespace Ship_Game.AI {
                             continue;
                         cacheAdd.Add(worldPosition);
 
-                        if (Vector2.Distance(worldPosition, endPos) > Empire.ProjectorRadius * 2
-                            && Vector2.Distance(worldPosition, startPos) > Empire.ProjectorRadius * 2)
+                        if (Vector2.Distance(worldPosition, endPos) > Owner.loyalty.ProjectorRadius * 2
+                            && Vector2.Distance(worldPosition, startPos) > Owner.loyalty.ProjectorRadius * 2)
                             ActiveWayPoints.Enqueue(worldPosition);
                     }
 
@@ -720,8 +720,8 @@ namespace Ship_Game.AI {
                                  WarpSpeed + "     Distance = " + Distance);
                     //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
 
-                    if (ActiveWayPoints.Count >= 2 && Distance > Empire.ProjectorRadius / 2 &&
-                        Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Empire.ProjectorRadius * 5)
+                    if (ActiveWayPoints.Count >= 2 && Distance > Owner.loyalty.ProjectorRadius / 2 &&
+                        Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
                     {
                         Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(ActiveWayPoints.ElementAt(1));
                         var angleDiffNext = (float) Math.Acos((double) Vector2.Dot(wantedForwardNext, forward));

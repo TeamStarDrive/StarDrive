@@ -108,6 +108,80 @@ namespace Ship_Game.Ships
             return ship;
         }
 
+        public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
+        {
+            save.data.Hull = save.Hull; // @todo Why is this modified here?
+            Ship ship = CreateShipFromShipData(empire, save.data, fromSave: true);
+            if (ship == null) // happens if module creation failed
+                return null;
+            ship.InitializeFromSaveData(save);
+            return ship;
+        }
+
+        private void InitializeFromSaveData(SavedGame.ShipSaveData save)
+        {
+            guid             = save.guid;
+            Position         = save.Position;
+            PlayerShip       = save.IsPlayerShip;
+            experience       = save.experience;
+            kills            = save.kills;
+            PowerCurrent     = save.Power;
+            yRotation        = save.yRotation;
+            Ordinance        = save.Ordnance;
+            Rotation         = save.Rotation;
+            Velocity         = save.Velocity;
+            isSpooling       = save.AfterBurnerOn;
+            InCombatTimer    = save.InCombatTimer;
+            TetherGuid       = save.TetheredTo;
+            TetherOffset     = save.TetherOffset;
+            InCombat         = InCombatTimer > 0f;
+            TroopsLaunched   = save.TroopsLaunched;
+            FightersLaunched = save.FightersLaunched;
+
+            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty 
+                            ? save.TroopList[0].Name : save.Name;
+            
+            if (!ResourceManager.ShipTemplateExists(save.Name))
+            {
+                save.data.Hull = save.Hull;
+                ResourceManager.AddShipTemplate(save.data, fromSave: true);
+            }
+
+            if (save.TroopList != null)
+            {
+                foreach (Troop t in save.TroopList)
+                {
+                    t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
+                    TroopList.Add(t);
+                }
+            }
+
+            if (save.AreaOfOperation != null)
+            {
+                foreach (Rectangle aoRect in save.AreaOfOperation)
+                    AreaOfOperation.Add(aoRect);
+            }
+
+            InitializeAIFromAISave(save.AISave);
+            LoadFood(save.FoodCount);
+            LoadProduction(save.ProdCount);
+            LoadColonists(save.PopCount);
+
+            switch (AI.State)
+            {
+                case AIState.SystemTrader:
+                    bool hasCargo = save.FoodCount > 0f || save.ProdCount > 0f;
+                    AI.OrderTradeFromSave(hasCargo, save.AISave.startGuid, save.AISave.endGuid);
+                    break;
+                case AIState.PassengerTransport:
+                    AI.OrderTransportPassengersFromSave();
+                    break;
+            }
+
+            foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
+                Projectile.Create(this, pdata);
+        }
+
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
@@ -457,9 +531,10 @@ namespace Ship_Game.Ships
                 TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f) MechanicalBoardingDefense = 1f;
-                if (module.SensorRange > SensorRange) SensorRange             = module.SensorRange;
-                if (module.SensorBonus > sensorBonus) sensorBonus             = module.SensorBonus;
-                if (module.ECM > ECMValue) ECMValue                           = module.ECM.Clamp(0f, 1f);
+
+                if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
+                if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
+                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
 
                 switch (module.ModuleType)
                 {
