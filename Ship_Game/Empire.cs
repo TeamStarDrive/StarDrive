@@ -15,7 +15,7 @@ namespace Ship_Game
 {
     public sealed class Empire : IDisposable
     {
-        public static float ProjectorRadius = 150000f;
+        public static float ProjectorRadius => Empires.SubSpaceProjectors.ProjectorRadius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
         public readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);

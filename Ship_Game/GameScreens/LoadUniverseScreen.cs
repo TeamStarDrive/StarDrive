@@ -401,7 +401,7 @@ namespace Ship_Game
             data.GravityWells          = savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
             //Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(data.Size.X);            
-
+            Empires.SubSpaceProjectors.SetProjectorSize(data.Size.X);
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();
