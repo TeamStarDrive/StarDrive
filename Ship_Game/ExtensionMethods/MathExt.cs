@@ -225,6 +225,8 @@ namespace Ship_Game
             return x > r.X && y > r.Y && x < r.X + r.Width && y < r.Y + r.Height;
         }
 
+        public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
+
         // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
         {

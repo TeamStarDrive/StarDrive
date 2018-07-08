@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -17,7 +16,7 @@ namespace Ship_Game
         private int entryHeight = 40;
         private int ScrollBarHover;
         private int startDragPos;
-        private bool dragging;
+        private bool DraggingScrollBar;
         private float ScrollBarStartDragPos;
         private float ClickTimer;
         private float TimerDelay = 0.05f;
@@ -25,7 +24,7 @@ namespace Ship_Game
         public int entriesToDisplay;
         public int indexAtTop;
         public BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
-        public BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>();
+        public BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>(); // Flattened entries
         public bool IsDraggable;
         public Entry DraggedEntry;
         private Vector2 DraggedOffset;
@@ -95,16 +94,8 @@ namespace Ship_Game
         public void AddItem(object o, int addrect, int addpencil)
         {
             var e = new Entry(o);
-            if (addrect > 0)
-            {
-                e.Plus = 1;
-            }
-            if (addpencil > 0)
-            {
-                e.editRect = new Rectangle();
-                e.Edit = 1;
-            }
-            e.addRect = new Rectangle();
+            if (addrect   > 0) e.Plus = 1;
+            if (addpencil > 0) e.Edit = 1;
             Entries.Add(e);
             Update();
             e.ParentList = this;
@@ -114,12 +105,7 @@ namespace Ship_Game
         {
             var e = new Entry(o)
             {
-                Plus = 0,
-                up = new Rectangle(),
-                down = new Rectangle(),
-                apply = new Rectangle(),
-                cancel = new Rectangle(),
-                clickRect = new Rectangle(),
+                Plus  = 0,
                 QItem = 1
             };
             Entries.Add(e);
@@ -214,13 +200,23 @@ namespace Ship_Game
             }
         }
 
+        private float PercentViewed => entriesToDisplay / (float)Copied.Count;
+        private float StartingPercent => indexAtTop / (float)Copied.Count;
+
+        private void UpdateScrollBar(bool blue = false)
+        {
+            int scrollStart = (int)(StartingPercent * ScrollBarHousing.Height);
+            int scrollEnd = (int)(ScrollBarHousing.Height * PercentViewed);
+            int width = blue ? ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Width : ScrollBarMidMarker.Width;
+
+            ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + scrollStart, width, scrollEnd);
+        }
+
         public void DrawBlue(SpriteBatch spriteBatch)
         {
             if (Copied.Count > entriesToDisplay)
             {
-                float percentViewed = entriesToDisplay / (float)Copied.Count;
-                float startingPercent = indexAtTop / (float)Copied.Count;
-                ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Width, (int)(ScrollBarHousing.Height * percentViewed));
+                UpdateScrollBar(blue: true);
                 int updownsize = (ScrollBar.Height - ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height) / 2;
                 var up = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
                 var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height);
@@ -248,396 +244,227 @@ namespace Ship_Game
             }
         }
 
-        public virtual bool HandleInput(InputState input)
+
+        private bool HandleScrollUpDownButtons(InputState input)
         {
-            bool hit = false;
-            if (ScrollUp.HitTest(input.CursorPosition) && input.InGameSelect)
+            if (!input.InGameSelect)
+                return false;
+            if (ScrollUp.HitTest(input.CursorPosition))
             {
                 if (indexAtTop > 0)
-                {
                     --indexAtTop;
-                }
-                hit = true;
-                float percentViewed = entriesToDisplay / (float)Copied.Count;
-                float startingPercent = indexAtTop / (float)Copied.Count;
-                ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
+                UpdateScrollBar();
+                return true;
             }
-            if (ScrollDown.HitTest(input.CursorPosition) && input.InGameSelect)
+            if (ScrollDown.HitTest(input.CursorPosition))
             {
                 if (indexAtTop + entriesToDisplay < Copied.Count)
-                {
                     ++indexAtTop;
-                }
-                float percentViewed = entriesToDisplay / (float)Copied.Count;
-                float startingPercent = indexAtTop / (float)Copied.Count;
-                ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-                hit = true;
+                UpdateScrollBar();
+                return true;
             }
-            if (ScrollBarHousing.HitTest(input.CursorPosition))
+            return false;
+        }
+
+        private bool HandleScrollDragInput(InputState input)
+        {
+            ScrollBarHover = 0;
+            if (!ScrollBarHousing.HitTest(input.CursorPosition))
+                return false;
+
+            if (!ScrollBar.HitTest(input.CursorPosition))
+                return false;
+            
+            ScrollBarHover = 1;
+            if (!input.LeftMouseClick)
+                return false;
+            
+            ScrollBarHover = 2;
+            startDragPos = (int)input.CursorPosition.Y;
+            ScrollBarStartDragPos = ScrollBar.Y;
+            DraggingScrollBar = true;
+            return true;
+        }
+
+        private bool HandleScrollBarDragging(InputState input)
+        {
+            if (!input.LeftMouseDown || !DraggingScrollBar)
+                return false;
+
+            float difference = input.CursorPosition.Y - startDragPos;
+            if (Math.Abs(difference) > 0f)
             {
-                ScrollBarHover = 1;
-                //upScrollHover = 1;
-                //downScrollHover = 1;
-                if (ScrollBar.HitTest(input.CursorPosition))
+                ScrollBar.Y = (int)(ScrollBarStartDragPos + difference);
+                if (ScrollBar.Y < ScrollBarHousing.Y)
                 {
-                    ScrollBarHover = 2;
-                    if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
-                    {
-                        startDragPos = (int)input.CursorPosition.Y;
-                        ScrollBarStartDragPos = ScrollBar.Y;
-                        dragging = true;
-                        hit = true;
-                    }
+                    ScrollBar.Y = ScrollBarHousing.Y;
+                }
+                else if (ScrollBar.Y + ScrollBar.Height > ScrollBarHousing.Y + ScrollBarHousing.Height)
+                {
+                    ScrollBar.Y = ScrollBarHousing.Y + ScrollBarHousing.Height - ScrollBar.Height;
                 }
             }
-            else if (!dragging)
+
+            float mousePosAsPct = (input.CursorPosition.Y - ScrollBarHousing.Y) / ScrollBarHousing.Height;
+            mousePosAsPct = mousePosAsPct.Clamped(0f, 1f);
+            indexAtTop = (int)(Copied.Count * mousePosAsPct);
+            if (indexAtTop + entriesToDisplay >= Copied.Count)
             {
-                ScrollBarHover = 0;
-                //upScrollHover = 0;
-                //downScrollHover = 0;
+                indexAtTop = Copied.Count - entriesToDisplay;
             }
-            if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && dragging)
+            return true;
+        }
+
+        private bool HandleScrollBar(InputState input)
+        {
+            bool hit = HandleScrollUpDownButtons(input);
+            hit |= HandleScrollDragInput(input);
+            hit |= HandleScrollBarDragging(input);
+            
+            if (DraggingScrollBar && input.LeftMouseUp)
+                DraggingScrollBar = false;
+            return hit;
+        }
+
+        private bool HandleParentMenuOpen(InputState input)
+        {
+            if (!Parent.Menu.HitTest(input.CursorPosition))
+                return false;
+            if (input.ScrollIn)
             {
-                float difference = input.CursorPosition.Y - startDragPos;
-                if (Math.Abs(difference) > 0f)
-                {
-                    ScrollBar.Y = (int)(ScrollBarStartDragPos + difference);
-                    if (ScrollBar.Y < ScrollBarHousing.Y)
-                    {
-                        ScrollBar.Y = ScrollBarHousing.Y;
-                    }
-                    else if (ScrollBar.Y + ScrollBar.Height > ScrollBarHousing.Y + ScrollBarHousing.Height)
-                    {
-                        ScrollBar.Y = ScrollBarHousing.Y + ScrollBarHousing.Height - ScrollBar.Height;
-                    }
-                }
-                float mousePosAsPct = (input.CursorPosition.Y - ScrollBarHousing.Y) / ScrollBarHousing.Height;
-                mousePosAsPct = mousePosAsPct.Clamped(0f, 1f);
-                indexAtTop = (int)(Copied.Count * mousePosAsPct);
-                if (indexAtTop + entriesToDisplay >= Copied.Count)
-                {
-                    indexAtTop = Copied.Count - entriesToDisplay;
-                }
-                hit = true;
+                if (indexAtTop > 0)
+                    --indexAtTop;
+                UpdateScrollBar();
+                return true;
             }
-            if (Parent.Menu.HitTest(input.CursorPosition))
+            if (input.ScrollOut)
             {
-                if (input.MouseCurr.ScrollWheelValue > input.MousePrev.ScrollWheelValue)
-                {
-                    if (indexAtTop > 0)
-                    {
-                        --indexAtTop;
-                    }
-                    hit = true;
-                    float percentViewed = entriesToDisplay / (float)Copied.Count;
-                    float startingPercent = indexAtTop / (float)Copied.Count;
-                    ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-                }
-                if (input.MouseCurr.ScrollWheelValue < input.MousePrev.ScrollWheelValue)
-                {
-                    if (indexAtTop + entriesToDisplay < Copied.Count)
-                    {
-                        ++indexAtTop;
-                    }
-                    hit = true;
-                    float percentViewed = entriesToDisplay / (float)Copied.Count;
-                    float startingPercent = indexAtTop / (float)Copied.Count;
-                    ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-                }
+                if (indexAtTop + entriesToDisplay < Copied.Count)
+                    ++indexAtTop;
+                UpdateScrollBar();
+                return true;
             }
-            if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed && dragging)
-            {
-                dragging = false;
-            }
+            return false;
+        }
+
+        private void HandleDraggable(InputState input)
+        {
             if (IsDraggable && DraggedEntry == null)
             {
-                for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; i++)
+                if (input.LeftMouseUp)
                 {
-                    Entry e = null;
-                    try
-                    {
-                        e = Copied[i];
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                    if (e.clickRect.HitTest(input.CursorPosition))
-                    {
-                        if (input.MouseCurr.LeftButton != ButtonState.Pressed)
-                        {
-                            ClickTimer = 0f;
-                        }
-                        else
-                        {
-                            ScrollList clickTimer = this;
-                            clickTimer.ClickTimer = clickTimer.ClickTimer + 0.0166666675f;
-                            if (ClickTimer > TimerDelay)
-                            {
-                                DraggedEntry = e;
-                                DraggedOffset = new Vector2(e.clickRect.X, e.clickRect.Y) - input.CursorPosition;
-                                break;
-                            }
-                        }
-                    }
+                    ClickTimer = 0f;
                 }
-            }
-            if (input.MouseCurr.LeftButton == ButtonState.Released)
-            {
-                ClickTimer = 0f;
-                DraggedEntry = null;
-            }
-            if (DraggedEntry != null && input.MouseCurr.LeftButton == ButtonState.Pressed)
-            {
-                int dragged = 0;
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
+                else
                 {
-                    Entry e = null;
-                    try
+                    ClickTimer += 0.0166666675f;
+                    if (ClickTimer > TimerDelay)
                     {
-                        e = Entries[i];
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                    if (e.clickRect == DraggedEntry.clickRect)
-                    {
-                        dragged = Entries.IndexOf(e);
-                    }
-                }
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
-                {
-                    Entry e = Entries[i];
-                    if (e.clickRect.HitTest(input.CursorPosition))
-                    {
-                        int newIndex = 0;
-                        try
+                        for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; i++)
                         {
-                            newIndex = Entries.IndexOf(e);
-                        }
-                        catch
-                        {
-                            continue;
-                        }
-                        if (newIndex < dragged)
-                        {
-                            ScrollList.Entry toReplace = e;
-                            Entries[newIndex] = Entries[dragged];
-                            Entries[newIndex].clickRect = toReplace.clickRect;
-                            Entries[dragged] = toReplace;
-                            Entries[dragged].clickRect = DraggedEntry.clickRect;
-                            DraggedEntry = Entries[newIndex];
+                            Entry e = Copied[i];
+                            if (!e.clickRect.HitTest(input.CursorPosition))
+                                continue;
+                            DraggedEntry = e;
+                            DraggedOffset = new Vector2(e.clickRect.X, e.clickRect.Y) - input.CursorPosition;
                             break;
                         }
                     }
                 }
             }
-            if (indexAtTop < 0)
+            if (input.LeftMouseUp)
             {
-                indexAtTop = 0;
+                ClickTimer = 0f;
+                DraggedEntry = null;
             }
+        }
+
+        private void HandleElementDragging(InputState input, Func<int, int, bool> onDragElement)
+        {
+            if (DraggedEntry == null || !input.LeftMouseDown)
+                return;
+
+            int dragged = 0;
+            // WTF?
+            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
+            {
+                Entry e = Entries[i];
+                if (e.clickRect == DraggedEntry.clickRect)
+                {
+                    dragged = i;
+                    break;
+                }
+            }
+            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
+            {
+                Entry e = Entries[i];
+                if (!e.clickRect.HitTest(input.CursorPosition))
+                    continue;
+                if (onDragElement(i, dragged))
+                    break;
+            }
+        }
+
+        public virtual bool HandleInput(InputState input)
+        {
+            bool hit = HandleScrollBar(input);
+            hit |= HandleParentMenuOpen(input);
+            HandleDraggable(input);
+
+            HandleElementDragging(input, (newIndex, dragged) =>
+            {
+                if (newIndex < dragged)
+                {
+                    Entry toReplace = Entries[newIndex];
+                    Entries[newIndex] = Entries[dragged];
+                    Entries[newIndex].clickRect = toReplace.clickRect;
+                    Entries[dragged] = toReplace;
+                    Entries[dragged].clickRect = DraggedEntry.clickRect;
+                    DraggedEntry = Entries[newIndex];
+                    return true;
+                }
+                return false;
+            });
             Update();
             return hit;
         }
 
         public bool HandleInput(InputState input, Planet p)
         {
-            bool hit = false;
-            if (ScrollUp.HitTest(input.CursorPosition) && input.InGameSelect)
+            bool hit = HandleScrollBar(input);
+            hit |= HandleParentMenuOpen(input);
+            HandleDraggable(input);
+
+            HandleElementDragging(input, (newIndex, dragged) =>
             {
-                if (indexAtTop > 0)
+                if (newIndex < dragged)
                 {
-                    ScrollList scrollList = this;
-                    scrollList.indexAtTop = scrollList.indexAtTop - 1;
+                    Entry toReplace = Entries[newIndex];
+                    Entries[newIndex] = Entries[dragged];
+                    Entries[newIndex].clickRect = toReplace.clickRect;
+                    p.ConstructionQueue[newIndex] = p.ConstructionQueue[dragged];
+                    Entries[dragged] = toReplace;
+                    Entries[dragged].clickRect = DraggedEntry.clickRect;
+                    p.ConstructionQueue[dragged] = toReplace.item as QueueItem;
+                    DraggedEntry = Entries[newIndex];
+                    return true;
                 }
-                hit = true;
-                float percentViewed = entriesToDisplay / (float)Copied.Count;
-                float startingPercent = indexAtTop / (float)Copied.Count;
-                ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-            }
-            if (ScrollDown.HitTest(input.CursorPosition) && input.InGameSelect)
-            {
-                if (indexAtTop + entriesToDisplay < Copied.Count)
+                if (newIndex > dragged)
                 {
-                    ScrollList scrollList1 = this;
-                    scrollList1.indexAtTop = scrollList1.indexAtTop + 1;
-                }
-                hit = true;
-                float percentViewed = entriesToDisplay / (float)Copied.Count;
-                float startingPercent = indexAtTop / (float)Copied.Count;
-                ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-            }
-            if (ScrollBarHousing.HitTest(input.CursorPosition))
-            {
-                ScrollBarHover = 1;
-                //upScrollHover = 1;
-                //downScrollHover = 1;
-                if (ScrollBar.HitTest(input.CursorPosition))
-                {
-                    ScrollBarHover = 2;
-                    if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                    Entry toRemove = Entries[dragged];
+                    for (int j = dragged + 1; j <= newIndex; j++)
                     {
-                        startDragPos = (int)input.CursorPosition.Y;
-                        ScrollBarStartDragPos = ScrollBar.Y;
-                        dragging = true;
-                        hit = true;
+                        Entries[j].clickRect = Entries[j - 1].clickRect;
+                        Entries[j - 1] = Entries[j];
+                        p.ConstructionQueue[j - 1] = p.ConstructionQueue[j];
                     }
+                    toRemove.clickRect = Entries[newIndex].clickRect;
+                    Entries[newIndex] = toRemove;
+                    p.ConstructionQueue[newIndex] = toRemove.item as QueueItem;
+                    DraggedEntry = Entries[newIndex];
                 }
-            }
-            else if (!dragging)
-            {
-                ScrollBarHover = 0;
-                //upScrollHover = 0;
-                //downScrollHover = 0;
-            }
-            if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed && dragging)
-            {
-                float difference = input.CursorPosition.Y - startDragPos;
-                if (Math.Abs(difference) > 0f)
-                {
-                    ScrollBar.Y = (int)(ScrollBarStartDragPos + difference);
-                    if (ScrollBar.Y < ScrollBarHousing.Y)
-                    {
-                        ScrollBar.Y = ScrollBarHousing.Y;
-                    }
-                    else if (ScrollBar.Y + ScrollBar.Height > ScrollBarHousing.Y + ScrollBarHousing.Height)
-                    {
-                        ScrollBar.Y = ScrollBarHousing.Y + ScrollBarHousing.Height - ScrollBar.Height;
-                    }
-                }
-                float mousePosAsPct = (input.CursorPosition.Y - ScrollBarHousing.Y) / ScrollBarHousing.Height;
-                if (mousePosAsPct < 0f)
-                {
-                    mousePosAsPct = 0f;
-                }
-                if (mousePosAsPct > 1f)
-                {
-                    mousePosAsPct = 1f;
-                }
-                indexAtTop = (int)(Copied.Count * mousePosAsPct);
-                if (indexAtTop + entriesToDisplay >= Copied.Count)
-                {
-                    indexAtTop = Copied.Count - entriesToDisplay;
-                }
-                hit = true;
-            }
-            if (Parent.Menu.HitTest(input.CursorPosition))
-            {
-                if (input.MouseCurr.ScrollWheelValue > input.MousePrev.ScrollWheelValue)
-                {
-                    if (indexAtTop > 0)
-                    {
-                        --indexAtTop;
-                    }
-                    hit = true;
-                    float percentViewed = entriesToDisplay / (float)Copied.Count;
-                    float startingPercent = indexAtTop / (float)Copied.Count;
-                    ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-                }
-                if (input.MouseCurr.ScrollWheelValue < input.MousePrev.ScrollWheelValue)
-                {
-                    if (indexAtTop + entriesToDisplay < Copied.Count)
-                    {
-                        ++indexAtTop;
-                    }
-                    hit = true;
-                    float percentViewed = entriesToDisplay / (float)Copied.Count;
-                    float startingPercent = indexAtTop / (float)Copied.Count;
-                    ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + (int)(startingPercent * ScrollBarHousing.Height), ScrollBarMidMarker.Width, (int)(ScrollBarHousing.Height * percentViewed));
-                }
-            }
-            if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed && dragging)
-            {
-                dragging = false;
-            }
-            if (IsDraggable && DraggedEntry == null)
-            {
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
-                {
-                    try
-                    {
-                        Entry e = Copied[i];
-                        if (e.clickRect.HitTest(input.CursorPosition))
-                        {
-                            if (input.MouseCurr.LeftButton != ButtonState.Pressed)
-                            {
-                                ClickTimer = 0f;
-                            }
-                            else
-                            {
-                                ClickTimer += 0.0166666675f;
-                                if (ClickTimer > TimerDelay)
-                                {
-                                    DraggedEntry = e;
-                                    DraggedOffset = new Vector2(e.clickRect.X, e.clickRect.Y) - input.CursorPosition;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-            if (input.MouseCurr.LeftButton == ButtonState.Released)
-            {
-                ClickTimer = 0f;
-                DraggedEntry = null;
-            }
-            if (DraggedEntry != null && input.MouseCurr.LeftButton == ButtonState.Pressed)
-            {
-                int dragged = 0;
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
-                {
-                    Entry e = Entries[i];
-                    if (e.clickRect == DraggedEntry.clickRect)
-                    {
-                        dragged = Entries.IndexOf(e);
-                    }
-                }
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
-                {
-                    try
-                    {
-                        Entry e = Entries[i];
-                        if (e.clickRect.HitTest(input.CursorPosition))
-                        {
-                            int newIndex = Entries.IndexOf(e);
-                            if (newIndex < dragged)
-                            {
-                                Entry toReplace = e;
-                                Entries[newIndex] = Entries[dragged];
-                                Entries[newIndex].clickRect = toReplace.clickRect;
-                                p.ConstructionQueue[newIndex] = p.ConstructionQueue[dragged];
-                                Entries[dragged] = toReplace;
-                                Entries[dragged].clickRect = DraggedEntry.clickRect;
-                                p.ConstructionQueue[dragged] = toReplace.item as QueueItem;
-                                DraggedEntry = Entries[newIndex];
-                                break;
-                            }
-                            else if (newIndex > dragged)
-                            {
-                                Entry toRemove = Entries[dragged];
-                                for (int j = dragged + 1; j <= newIndex; j++)
-                                {
-                                    Entries[j].clickRect = Entries[j - 1].clickRect;
-                                    Entries[j - 1] = Entries[j];
-                                    p.ConstructionQueue[j - 1] = p.ConstructionQueue[j];
-                                }
-                                toRemove.clickRect = Entries[newIndex].clickRect;
-                                Entries[newIndex] = toRemove;
-                                p.ConstructionQueue[newIndex] = toRemove.item as QueueItem;
-                                DraggedEntry = Entries[newIndex];
-                            }
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
+                return false;
+            });
             Update();
             return hit;
         }
@@ -649,6 +476,18 @@ namespace Ship_Game
             indexAtTop = 0;
         }
 
+        private void UpdateClickRect(Entry e, Point topLeft, int j)
+        {
+            var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * entryHeight, Parent.Menu.Width - 40, entryHeight);
+            e.clickRect = r;
+            if (e.Plus != 0) e.addRect  = new Rectangle(r.X + r.Width - 30, r.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
+            if (e.Edit != 0) e.editRect = new Rectangle(r.X + r.Width - 60, r.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
+            if (UpCol)     e.up     = new Rectangle(r.X + r.Width -  30, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            if (DownCol)   e.down   = new Rectangle(r.X + r.Width -  60, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            if (ApplyCol)  e.apply  = new Rectangle(r.X + r.Width -  90, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            if (CancelCol) e.cancel = new Rectangle(r.X + r.Width - 120, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+        }
+
         public void TransitionUpdate(Rectangle r)
         {
             ScrollUp = new Rectangle(r.X + r.Width - 20, r.Y + 30, ScrollBarArrowUp.Width, ScrollBarArrowUp.Height);
@@ -657,43 +496,14 @@ namespace Ship_Game
             int j = 0;
             for (int i = 0; i < Entries.Count; i++)
             {
-                if (i < indexAtTop)
+                Entry e = Entries[i];
+                if (i < indexAtTop || i > indexAtTop + entriesToDisplay - 1)
                 {
-                    Entries[i].clickRect = new Rectangle(-500, -500, 0, 0);
-                }
-                else if (i > indexAtTop + entriesToDisplay - 1)
-                {
-                    Entries[i].clickRect = new Rectangle(-500, -500, 0, 0);
+                    e.SetUnclickable();
                 }
                 else
                 {
-                    Entries[i].clickRect = new Rectangle(r.X + 20, r.Y + 35 + j * entryHeight, Parent.Menu.Width - 40, entryHeight);
-                    if (Entries[i].Plus != 0)
-                    {
-                        Entries[i].addRect = new Rectangle(Entries[i].clickRect.X + Entries[i].clickRect.Width - 30, Entries[i].clickRect.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-                    }
-                    if (Entries[i].Edit != 0)
-                    {
-                        Entries[i].editRect = new Rectangle(Entries[i].clickRect.X + Entries[i].clickRect.Width - 60, Entries[i].clickRect.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-                    }
-                    int x = 0;
-                    if (UpCol)
-                    {
-                        Entries[i].up = new Rectangle(Entries[i].clickRect.X + Entries[i].clickRect.Width - (x += 30), Entries[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                    }
-                    if (DownCol)
-                    {
-                        Entries[i].down = new Rectangle(Entries[i].clickRect.X + Entries[i].clickRect.Width - (x += 30), Entries[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                    }
-                    if (ApplyCol)
-                    {
-                        Entries[i].apply = new Rectangle(Entries[i].clickRect.X + Entries[i].clickRect.Width - (x += 30), Entries[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                    }
-                    if (CancelCol)
-                    {
-                        Entries[i].cancel = new Rectangle(Entries[i].clickRect.X + Entries[i].clickRect.Width - (x += 30), Entries[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                    }
-                    j++;
+                    UpdateClickRect(e, r.Pos(), j++);
                 }
             }
             Entries.ApplyPendingRemovals();
@@ -702,75 +512,37 @@ namespace Ship_Game
         public void Update()
         {
             Copied.Clear();
+            Entries.ApplyPendingRemovals();
+
             foreach (Entry e in Entries)
             {
                 Copied.Add(e);
                 if (!e.ShowingSub)
-                {
                     continue;
-                }
                 foreach (Entry sub in e.SubEntries)
                 {
                     Copied.Add(sub);
                     foreach (Entry subsub in sub.SubEntries)
-                    {
                         Copied.Add(subsub);
-                    }
                 }
             }
+            
             int j = 0;
-            Texture2D buildAddIcon = BuildAddIcon;
             for (int i = 0; i < Copied.Count; i++)
             {
-                if (Copied[i] != null)
+                Entry e = Copied[i];
+                if (i >= indexAtTop)
                 {
-                    if (i >= indexAtTop)
-                    {
-                        Copied[i].clickRect = new Rectangle(Parent.Menu.X + 20, Parent.Menu.Y + 35 + j * entryHeight, Parent.Menu.Width - 40, entryHeight);
-                        
-                        if (Copied[i].Plus != 0)
-                        {
-                            var plusRect = new Rectangle(Copied[i].clickRect.X + Copied[i].clickRect.Width - 30, Copied[i].clickRect.Y + 15 - buildAddIcon.Height / 2, buildAddIcon.Width, buildAddIcon.Height);
-                            Copied[i].addRect = plusRect;
-                        }
-                        if (Copied[i].Edit != 0)
-                        {
-                            var plusRect = new Rectangle(Copied[i].clickRect.X + Copied[i].clickRect.Width - 60, Copied[i].clickRect.Y + 15 - buildAddIcon.Height / 2, buildAddIcon.Width, buildAddIcon.Height);
-                            Copied[i].editRect = plusRect;
-                        }
-                        int x = 0;
-                        if (UpCol)
-                        {
-                            Copied[i].up = new Rectangle(Copied[i].clickRect.X + Copied[i].clickRect.Width - (x += 30), Copied[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                        }
-                        if (DownCol)
-                        {
-                            Copied[i].down = new Rectangle(Copied[i].clickRect.X + Copied[i].clickRect.Width - (x += 30), Copied[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                        }
-                        if (ApplyCol)
-                        {
-                            Copied[i].apply = new Rectangle(Copied[i].clickRect.X + Copied[i].clickRect.Width - (x += 30), Copied[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                        }
-                        if (CancelCol)
-                        {
-                            Copied[i].cancel = new Rectangle(Copied[i].clickRect.X + Copied[i].clickRect.Width - (x += 30), Copied[i].clickRect.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-                        }
-                        j++;
-                    }
-                    else
-                    {
-                        Copied[i].clickRect = new Rectangle(-500, -500, 0, 0);
-                    }
+                    UpdateClickRect(e, Parent.Menu.Pos(), j++);
+                }
+                else
+                {
+                    e.SetUnclickable();
                 }
             }
-            float percentViewed = entriesToDisplay / (float)Copied.Count;
-            ScrollBar.Height = (int)(ScrollBarHousing.Height * percentViewed);
-            Entries.ApplyPendingRemovals();
-            Copied.ApplyPendingRemovals();
+            ScrollBar.Height = (int)(ScrollBarHousing.Height * PercentViewed);
             if (indexAtTop < 0)
-            {
                 indexAtTop = 0;
-            }
         }
 
         public void Dispose()
@@ -855,8 +627,11 @@ namespace Ship_Game
             {
                 return input.LeftMouseClick && clickRect.HitTest(input.CursorPosition);
             }
+
+            public void SetUnclickable()
+            {
+                clickRect = new Rectangle(-500, -500, 0, 0);
+            }
         }
     }
-
-
 }
