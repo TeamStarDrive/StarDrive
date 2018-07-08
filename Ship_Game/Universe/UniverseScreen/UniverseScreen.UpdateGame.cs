@@ -812,7 +812,7 @@ namespace Ship_Game
                 bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
-                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamp(speedMin, speedMax);
+                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
             }
         }
 
