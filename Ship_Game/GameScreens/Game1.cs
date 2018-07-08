@@ -16,7 +16,8 @@ namespace Ship_Game
         public static Game1 Instance;
         public ScreenManager ScreenManager;
         public Viewport Viewport { get; private set; }
-        public bool IsLoaded { get; private set; }
+        public bool IsLoaded  { get; private set; }
+        public bool IsExiting { get; private set; }
 
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Instance.Content;
@@ -87,6 +88,7 @@ namespace Ship_Game
 
         private void GameExiting(object sender, EventArgs e)
         {
+            IsExiting = true;
             ScreenManager.ExitAll();
         }
 

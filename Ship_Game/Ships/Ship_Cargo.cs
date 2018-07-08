@@ -22,8 +22,8 @@ namespace Ship_Game.Ships
 
         public float ChangeOrdnance(float ordnance)
         {
-            float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamp(0, ordnance);
-            Ordinance = (Ordinance += ordnance).Clamp(0, OrdinanceMax);
+            float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamped(0, ordnance);
+            Ordinance = (Ordinance + ordnance).Clamped(0, OrdinanceMax);
             return ordnanceLeft;
         }
 
@@ -91,7 +91,7 @@ namespace Ship_Game.Ships
 
             public float UnloadCargoRef(ref float cargo, float maxAmount)
             {
-                float unload = cargo.Clamp(0f, maxAmount);
+                float unload = cargo.Clamped(0f, maxAmount);
                 cargo      -= unload;
                 TotalCargo -= unload;
                 return unload;
@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
 
             public float LoadCargoRef(ref float cargo, float amount)
             {
-                float load = amount.Clamp(0f, MaxCargo - TotalCargo);
+                float load = amount.Clamped(0f, MaxCargo - TotalCargo);
                 cargo      += load;
                 TotalCargo += load;
                 return load;
