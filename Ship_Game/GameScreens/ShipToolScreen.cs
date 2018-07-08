@@ -254,7 +254,6 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-
         private string GetDesignStateText()
         {
             switch (this.DesignState)

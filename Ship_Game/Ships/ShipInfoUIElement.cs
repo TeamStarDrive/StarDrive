@@ -320,10 +320,7 @@ namespace Ship_Game.Ships
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
                     button.Draw(ScreenManager);
-                    if (button.Hover)
-                    {
-                        Ship.DrawWeaponRangeCircles(Screen);
-                    }
+                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen);
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI
@@ -334,12 +331,11 @@ namespace Ship_Game.Ships
                 spriteBatch1.Draw(keyValuePair.Value, flagShip, Ship.loyalty.EmpireColor);
             }
 
-            float x = Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 mousePos = new Vector2(x, (float)state.Y);
+            Vector2 mousePos = Mouse.GetState().Pos();
+
             //Added by McShooterz: new experience level display
-            Rectangle star = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
-            Vector2 levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            var star = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
+            var levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.Level.ToString(), levelPos, Color.White);
             if (star.HitTest(mousePos))
@@ -351,8 +347,30 @@ namespace Ship_Game.Ships
             levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
-            Vector2 statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
+            var statusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             int numStatus = 0;
+
+            void DrawIconWithTooltip(Texture2D icon, Color color, Func<string> tooltip)
+            {
+                var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                ScreenManager.SpriteBatch.Draw(icon, rect, color);
+                if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip());
+                ++numStatus;
+            }
+            void DrawIconWithTooltipId(Texture2D icon, int tooltip)
+            {
+                var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
+                ScreenManager.SpriteBatch.Draw(icon, rect, Color.White);
+                if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(tooltip);
+                ++numStatus;
+            }
+
+            Texture2D iconBoosted  = ResourceManager.Texture("StatusIcons/icon_boosted");
+            Texture2D iconGravwell = ResourceManager.Texture("StatusIcons/icon_gravwell");
+            Texture2D iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
+            Texture2D iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
+            Texture2D iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
+
             if (Ship.loyalty.data.Traits.Pack)
             {
                 var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
@@ -360,14 +378,15 @@ namespace Ship_Game.Ships
                 var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
                 float damageModifier = Ship.DamageModifier * 100f;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
-                numStatus++;
                 if (packRect.HitTest(mousePos))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2245));
                 }
+                numStatus++;
             }
 
-            DrawCarrierStatus();
+            DrawCarrierStatus(mousePos);
+
             if (Ship.CargoSpaceUsed > 0f)
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
@@ -388,146 +407,89 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if(Ship.FTLModifier <1 && !Ship.Inhibited)
+            if (Ship.FTLModifier < 1.0f && !Ship.Inhibited)
             {
-                //if (ship.GetSystem() != null)
-                //{
-                    Rectangle foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_boosted"), foodRect, Color.PaleVioletRed);
-                    if (foodRect.HitTest(mousePos))
-                    {
-                        string eState = Ship.engineState == Ship.MoveState.Warp ? "FTL" : "Sublight";
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6179), $"{1f - Ship.FTLModifier:P0}", "\n\nEngine State: ", eState));
-                    }
-                    numStatus++;
-                //}
-
-            }
-            if (Ship.FTLModifier > 1 && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
-            {
-
-                    var rect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_boosted"), rect, Color.LightGreen);
-                    if (rect.HitTest(mousePos))
-                    {
-
-                        ToolTip.CreateTooltip(string.Concat(Localizer.Token(6180), $"{Ship.FTLModifier - 1f:P0}", "\n\nEngine State: FTL"));
-                    }
-                    numStatus++;
+                DrawIconWithTooltip(iconBoosted, Color.PaleVioletRed, 
+                    () => $"{Localizer.Token(6179)}{1f - Ship.FTLModifier:P0}\n\nEngine State: {Ship.WarpState}");
             }
 
-            if (Ship.Inhibited )
+            if (Ship.FTLModifier >= 1.0f && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
             {
-                bool planet = false;
-                if (Screen.GravityWells && Ship.System!= null)
-                {
-                    foreach (Planet p in Ship.System.PlanetList)
-                    {
-                        if (p.Center.OutsideRadius(Ship.Position, p.GravityWellRadius))
-                        {
-                            continue;
-                        }
-                        planet = true;
-                    }
-                }
-                if (planet)
-                {
-                    var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_gravwell"), foodRect, Color.White);
-                    if (foodRect.HitTest(mousePos))
-                    {
-                        ToolTip.CreateTooltip(Localizer.Token(2287));
-                    }
-                    numStatus++;
-                }
+                DrawIconWithTooltip(iconBoosted, Color.LightGreen, 
+                    () => $"{Localizer.Token(6180)}{Ship.FTLModifier - 1f:P0}\n\nEngine State: FTL");
+            }
 
+            if (Ship.Inhibited)
+            {
+                if (Ship.IsWithinPlanetaryGravityWell)
+                    DrawIconWithTooltipId(iconGravwell, 2287);
                 else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
+                    DrawIconWithTooltipId(iconInhibited, 117);
+                else
+                    DrawIconWithTooltipId(iconFlux, 2285);
+            }
+
+            if (Ship.EMPdisabled)
+            {
+                DrawIconWithTooltip(iconDisabled, Color.White, () => Localizer.Token(116));
+            }
+        }
+        
+        private void DrawTroopStatus() // Expanded  by Fat Bastard
+        {
+            var troopPos     = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            int playerTroops = Ship.NumPlayerTroopsOnShip;
+            int enemyTroops  = Ship.NumAiTroopsOnShip;
+            int allTroops    = playerTroops + enemyTroops;
+            if (Ship.TroopsAreBoardingShip)
+            {
+                if (playerTroops > enemyTroops)
                 {
-                    var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_inhibited"), foodRect, Color.White);
-                    if (foodRect.HitTest(mousePos))
-                    {
-                        ToolTip.CreateTooltip(117);
-                    }
-                    numStatus++;
+                    DrawHorizontalValues(enemyTroops, Color.Red, ref troopPos, withSlash: false);
+                    DrawHorizontalValues(playerTroops, Color.LightGreen, ref troopPos);
                 }
                 else
-                {
-                    var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_flux"), foodRect, Color.White);
-                    if (foodRect.HitTest(mousePos))
-                    {
-                        ToolTip.CreateTooltip(Localizer.Token(2285));
-                    }
-                    numStatus++;
-                }
+                    DrawHorizontalValues(enemyTroops, Color.Red, ref troopPos, withSlash: false);
             }
-            if (!Ship.EMPdisabled) return;
+            else
             {
-                var foodRect = new Rectangle((int)statusArea.X + numStatus * 53, (int)statusArea.Y, 48, 32);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_disabled"), foodRect, Color.White);
-                if (foodRect.HitTest(mousePos))
-                {
-                    ToolTip.CreateTooltip(116);
-                }
-                numStatus++;
+                Color statusColor = Ship.loyalty == EmpireManager.Player ? Color.LightGreen : Color.Red;
+                DrawHorizontalValues(allTroops, statusColor, ref troopPos, withSlash: false);
             }
 
-            void DrawTroopStatus() // Expanded  by Fat Bastard
+            DrawHorizontalValues(Ship.TroopCapacity, Color.White, ref troopPos);
+            if (Ship.Carrier.HasTroopBays)
+                DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles, Color.CadetBlue, ref troopPos);
+        }
+
+        private void DrawCarrierStatus(Vector2 mousePos)  // Added by Fat Bastard - display hangar status
+        {
+            if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
-                Vector2 troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-                if (Ship.TroopsAreBoardingShip)
-                {
-                    if (Ship.NumPlayerTroopsOnShip > 0)
-                    {
-                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
-                        DrawHorizontalValues(Ship.NumPlayerTroopsOnShip.ToString(), Color.LightGreen, ref troopPos);
-                    }
-                    else
-                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
-                }
-                else
-                {
-                    if (Ship.NumPlayerTroopsOnShip >= 0)
-                        DrawHorizontalValues(Ship.NumPlayerTroopsOnShip.ToString(), Color.LightGreen, ref troopPos, withSlash: false);
-                    else
-                        DrawHorizontalValues(Ship.NumAiTroopsOnShip.ToString(), Color.Red, ref troopPos, withSlash: false);
-                }
+                CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
+                var hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
+                if (hangarRect.HitTest(mousePos))
+                    ToolTip.CreateTooltip(Localizer.Token(1981));
 
-                DrawHorizontalValues(Ship.TroopCapacity.ToString(), Color.White, ref troopPos);
-                if (Ship.Carrier.HasTroopBays)
-                    DrawHorizontalValues(Ship.Carrier.AvailableAssaultShuttles.ToString(), Color.CadetBlue, ref troopPos);
-            }
-
-            void DrawCarrierStatus()  // Added by Fat Bastard - display hanger status
-            {
-                if (Ship.Carrier.AllFighterHangars.Length > 0)
-                {
-                    CarrierBays.HangarInfo currentHangarStatus = Ship.Carrier.GrossHangarStatus;
-                    Rectangle hangarRect = new Rectangle(Housing.X + 180, Housing.Y + 210, 26, 20);
-                    if (hangarRect.HitTest(mousePos))
-                        ToolTip.CreateTooltip(Localizer.Token(1981));
-
-                    Vector2 hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
-                    DrawHorizontalValues(currentHangarStatus.Launched.ToString(), Color.Green, ref hangarTextPos, withSlash: false);
-                    DrawHorizontalValues(currentHangarStatus.ReadyToLaunch.ToString(), Color.White, ref hangarTextPos);
-                    DrawHorizontalValues(currentHangarStatus.Refitting.ToString(), Color.Red, ref hangarTextPos);
-                }
-            }
-
-            void DrawHorizontalValues(string value, Color color, ref Vector2 textVector, bool withSlash = true)
-            {
-                if (withSlash)
-                {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/", textVector, Color.White);
-                    textVector.X += "/".Length * 4 + 1;
-                }
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value, textVector, color);
-                textVector.X += value.Length * 7;
+                var hangarTextPos = new Vector2(hangarRect.X + hangarRect.Width + 4, hangarRect.Y + 9 - Fonts.Arial12Bold.LineSpacing / 2);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_hangar"), hangarRect, Color.White);
+                DrawHorizontalValues(currentHangarStatus.Launched, Color.Green, ref hangarTextPos, withSlash: false);
+                DrawHorizontalValues(currentHangarStatus.ReadyToLaunch, Color.White, ref hangarTextPos);
+                DrawHorizontalValues(currentHangarStatus.Refitting, Color.Red, ref hangarTextPos);
             }
         }
 
+        private void DrawHorizontalValues(int value, Color color, ref Vector2 textVector, bool withSlash = true)
+        {
+            if (withSlash)
+            {
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "/", textVector, Color.White);
+                textVector.X += "/".Length * 4 + 1;
+            }
+            string text = value.ToString();
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, textVector, color);
+            textVector.X += text.Length * 7;
+        }
    
         public override bool HandleInput(InputState input)
         {

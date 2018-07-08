@@ -246,15 +246,16 @@ namespace Ship_Game.Ships
         }
 
         public float EmpTolerance => Size + BonusEMP_Protection;
-
         public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
 
         public void DebugDamage(float percent)
         {
-            percent = percent.Clamp(0, 1);
-            foreach (var module in ModuleSlotList)            
+            percent = percent.Clamped(0f, 1f);
+            foreach (ShipModule module in ModuleSlotList)            
                 module.DebugDamage(percent);            
         }
+
+        public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
 
         public ShipData.RoleName DesignRole { get; private set; }
         public string DesignRoleName => ShipData.GetRole(DesignRole);
@@ -264,10 +265,11 @@ namespace Ship_Game.Ships
                 return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
             string roleName = DesignRole.ToString();
-            string iconName = $"TacticalIcons/symbol_";
+            string iconName = "TacticalIcons/symbol_";
             return ResourceManager.Texture(iconName + roleName, "") ??
                 ResourceManager.Texture(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
+
         private int Calculatesize()
         {
             int size = 0;
@@ -297,9 +299,9 @@ namespace Ship_Game.Ships
 
         public void CauseEmpDamage(float empDamage) => EMPDamage += empDamage;
 
-        public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamp(0, PowerStoreMax);
+        public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamped(0, PowerStoreMax);
 
-        public void AddPower(float powerAcquired) => PowerCurrent = (PowerCurrent + powerAcquired).Clamp(0, PowerStoreMax);
+        public void AddPower(float powerAcquired) => PowerCurrent = (PowerCurrent + powerAcquired).Clamped(0, PowerStoreMax);
 
         public void CauseTroopDamage(float troopDamageChance)
         {
@@ -674,27 +676,31 @@ namespace Ship_Game.Ships
             TetheredTo = null;
         }
 
+        public bool IsWithinPlanetaryGravityWell
+        {
+            get
+            {
+                if (!Empire.Universe.GravityWells || System == null || IsInFriendlySpace)
+                    return false;
+
+                for (int i = 0; i < System.PlanetList.Count; i++)
+                {
+                    Planet planet = System.PlanetList[i];
+                    if (Position.InRadius(planet.Center, planet.GravityWellRadius))
+                        return true;
+                }
+                return false;
+            }
+        }
+
         //added by gremlin The Generals GetFTL speed
         public void SetmaxFTLSpeed()
         {
             //Added by McShooterz: hull bonus speed 
-            if (InhibitedTimer < -.25f || Inhibited || System != null && engineState == MoveState.Warp)
+            if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
             {
-                if (Empire.Universe.GravityWells && System != null && !IsInFriendlySpace)
-                {
-                    for (int i = 0; i < System.PlanetList.Count; i++)
-                    {
-                        Planet planet = System.PlanetList[i];
-                        if (Position.InRadius(planet.Center,
-                             planet.GravityWellRadius))
-                        {
-                            InhibitedTimer = .3f;
-                            break;
-                        }
-                    }
-                }
-                if (InhibitedTimer < 0)
-                    InhibitedTimer = 0.0f;
+                if (IsWithinPlanetaryGravityWell) InhibitedTimer = 0.3f;
+                else if (InhibitedTimer < 0.0f)   InhibitedTimer = 0.0f;
             }
             //Apply in borders bonus through ftl modifier
             float ftlmodtemp = 1;
@@ -2011,7 +2017,7 @@ namespace Ship_Game.Ships
                     return;
 
                 foreach (Troop troop in ownTroops)
-                    troop.Strength = (troop.Strength += HealPerTurn).Clamp(0, troop.GetStrengthMax());
+                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.GetStrengthMax());
             }
 
             float GetMechanicalDefenseRoll()
@@ -2153,12 +2159,12 @@ namespace Ship_Game.Ships
                     || AI.State == AIState.Refit
                     || AI.State == AIState.Resupply)
                         return ShipStatus.NotApplicable;
-                Health = Health.Clamp(0, HealthMax);
+                Health = Health.Clamped(0, HealthMax);
                 return ToShipStatus(Health, HealthMax);
             }
         }
 
-        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamp(0, HealthMax);
+        public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamped(0, HealthMax);
 
         public void ShipStatusChange()
         {
@@ -2242,7 +2248,7 @@ namespace Ship_Game.Ships
                     WarpDraw            += module.PowerDrawAtWarp;
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
-                    ECMValue             = 1f.Clamp(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.                    
+                    ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.                    
                     PowerStoreMax       += module.ActualPowerStoreMax;
                     PowerFlowMax        += module.ActualPowerFlowMax;      
                     FTLSpoolTime   = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
@@ -2838,7 +2844,7 @@ namespace Ship_Game.Ships
 
             // RepairSkill Reduces the priority of mostly healed modules. 
             // It allows a ship to become fully functional faster.
-            float repairSkill = 1.0f - (repairLevel * 0.1f).Clamp(0.0f, 0.95f);
+            float repairSkill = 1.0f - (repairLevel * 0.1f).Clamped(0.0f, 0.95f);
 
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
@@ -2904,7 +2910,7 @@ namespace Ship_Game.Ships
             }
 
             var ratio = .5f + ShipStatusCount * valueToCheck / maxValue;
-            ratio = ratio.Clamp(1, ShipStatusCount); 
+            ratio = ratio.Clamped(1, ShipStatusCount); 
             return (ShipStatus)(int)ratio;
         }
         //if the shipstatus enum is added to then "5" will need to be changed.

@@ -163,17 +163,10 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.End();
         }
 
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
-
         protected virtual void Load()
         {
 
         }
-
 
         protected void SwitchFile(ScrollList.Entry e)
         {

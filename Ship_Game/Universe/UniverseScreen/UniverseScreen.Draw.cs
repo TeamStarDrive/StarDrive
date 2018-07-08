@@ -934,7 +934,7 @@ namespace Ship_Game
                         {
                             if (item.UID == "Subspace Projector")
                             {
-                                DrawCircleProjected(item.BuildPos, Empire.ProjectorRadius, Color.Orange, 2f);
+                                DrawCircleProjected(item.BuildPos, SubSpaceProjectors.Radius, Color.Orange, 2f);
                             }
                             else if (buildTemplate.SensorRange > 0f)
                             {
@@ -950,7 +950,7 @@ namespace Ship_Game
                 AdjustCamTimer <= 0f)
             {
                 Vector2 center = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                float screenRadius = ProjectToScreenSize(Empire.ProjectorRadius);
+                float screenRadius = ProjectToScreenSize(SubSpaceProjectors.Radius);
                 DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
             }
         }

@@ -36,7 +36,7 @@ namespace Ship_Game
             get => CamZoom;
             set
             {
-                CamZoom = value.Clamp(0.01f, 10f);
+                CamZoom = value.Clamped(0.01f, 10f);
                 Changed = true;
             }
         }
