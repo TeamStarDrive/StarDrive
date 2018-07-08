@@ -98,10 +98,9 @@ namespace Ship_Game
                 case "TrulyEpic":   size = corners ? 144: 160; Data.Size = new Vector2(33554423); break;
             }
 
-            NumSystems = (int)(size * starNumModifier);
-            Empires.SubSpaceProjectors.SetProjectorSize(Data.Size.X);            
-            Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
-
+            NumSystems = (int)(size * starNumModifier);           
+            //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
+            
             UniverseData.UniverseWidth = Data.Size.X * 2;
             Data.Size *= Scale;
             Data.EmpireList.Add(empire);

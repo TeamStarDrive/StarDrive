@@ -399,8 +399,7 @@ namespace Ship_Game
             data.FTLSpeedModifier      = savedData.FTLModifier;
             data.EnemyFTLSpeedModifier = savedData.EnemyFTLModifier;
             data.GravityWells          = savedData.GravityWells;    
-            
-            Empires.SubSpaceProjectors.SetProjectorSize(data.Size.X);
+                        
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
                 Empire.Universe.MasterShipList.Clear();

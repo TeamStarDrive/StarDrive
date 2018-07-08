@@ -122,7 +122,7 @@ namespace Ship_Game.AI {
                             foreach (Empire.InfluenceNode bordernode in OwnerEmpire.BorderNodes)
                             {
                                 float sizecheck = Vector2.Distance(node.Position, bordernode.Position);
-                                sizecheck += !(bordernode.SourceObject is Ship) ? Empire.ProjectorRadius : 0;
+                                sizecheck += !(bordernode.SourceObject is Ship) ? OwnerEmpire.ProjectorRadius : 0;
                                 if (sizecheck >= bordernode.Radius)
                                     continue;
                                 addNew = false;
