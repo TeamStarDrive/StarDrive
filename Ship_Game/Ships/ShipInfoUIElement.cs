@@ -437,10 +437,10 @@ namespace Ship_Game.Ships
         
         private void DrawTroopStatus() // Expanded  by Fat Bastard
         {
-            var troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+            var troopPos     = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             int playerTroops = Ship.NumPlayerTroopsOnShip;
             int enemyTroops  = Ship.NumAiTroopsOnShip;
-            int allTroops = playerTroops + enemyTroops;
+            int allTroops    = playerTroops + enemyTroops;
             if (Ship.TroopsAreBoardingShip)
             {
                 if (playerTroops > enemyTroops)
