@@ -133,7 +133,7 @@ namespace Ship_Game
 
         public void HitShield(ShipModule module, Beam beam)
         {
-            float intensity = 10f.Clamp(1, beam.DamageAmount / module.ShieldPower);
+            float intensity = 10f.Clamped(1, beam.DamageAmount / module.ShieldPower);
 
             Rotation     = module.Center.RadiansToTarget(beam.ActualHitDestination);
             Radius       = module.ShieldHitRadius;
@@ -153,7 +153,7 @@ namespace Ship_Game
         {
             GameAudio.PlaySfxAsync("sd_impact_shield_01", module.GetParent().SoundEmitter);
 
-            float intensity = 10f.Clamp(1, proj.DamageAmount / module.ShieldPower);
+            float intensity = 10f.Clamped(1, proj.DamageAmount / module.ShieldPower);
 
             Rotation     = module.Center.RadiansToTarget(proj.Center);
             Radius       = module.ShieldHitRadius;

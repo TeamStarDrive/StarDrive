@@ -35,7 +35,7 @@ namespace Ship_Game
             get => Min + RelativeValue * Range;
             set
             {
-                RelativeValue = (value.Clamp(Min, Max) - Min) / Range;
+                RelativeValue = (value.Clamped(Min, Max) - Min) / Range;
                 RequiresLayout = true;
                 PerformLegacyLayout(Pos);
             }
@@ -45,7 +45,7 @@ namespace Ship_Game
             get => Value;
             set
             {
-                Value = value.Clamp(0f, 1f);
+                Value = value.Clamped(0f, 1f);
                 RequiresLayout = true;
                 PerformLegacyLayout(Pos);
             }
@@ -81,7 +81,7 @@ namespace Ship_Game
             Text  = text;
             Min   = min;
             Max   = max;
-            Value = (value.Clamp(Min, Max) - Min) / Range;
+            Value = (value.Clamped(Min, Max) - Min) / Range;
             PerformLegacyLayout(Pos);
         }
 
