@@ -65,8 +65,8 @@ namespace Ship_Game.AI {
             HasPriorityOrder = false;
             var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
             OrderQueue.Enqueue(combat);
-            return;
-            OrderInterceptShip(toAttack);
+            //return;
+            //OrderInterceptShip(toAttack);
         }
 
         public void OrderBombardPlanet(Planet toBombard)

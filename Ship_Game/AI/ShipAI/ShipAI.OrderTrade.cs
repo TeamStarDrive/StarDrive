@@ -554,7 +554,7 @@ namespace Ship_Game.AI
                 start.ProductionHere += Owner.UnloadProduction();
                 start.Population += Owner.UnloadColonists();
 
-                float maxFoodLoad = (start.FoodHere).Clamp(0f, start.MaxStorage * 0.10f);
+                float maxFoodLoad = start.FoodHere.Clamped(0f, start.MaxStorage * 0.10f);
                 start.FoodHere -= Owner.LoadFood(maxFoodLoad);
 
                 OrderQueue.RemoveFirst();
@@ -567,7 +567,7 @@ namespace Ship_Game.AI
                 start.FoodHere += Owner.UnloadFood();
                 start.Population += Owner.UnloadColonists();
 
-                float maxProdLoad = (start.ProductionHere).Clamp(0f, start.MaxStorage * 10f);
+                float maxProdLoad = start.ProductionHere.Clamped(0f, start.MaxStorage * 10f);
                 start.ProductionHere -= Owner.LoadProduction(maxProdLoad);
 
                 OrderQueue.RemoveFirst();

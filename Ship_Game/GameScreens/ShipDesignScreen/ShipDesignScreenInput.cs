@@ -106,7 +106,6 @@ namespace Ship_Game
         {
             ReallyExit();
         }
-        
 
         public override void ExitScreen()
         {
@@ -551,7 +550,7 @@ namespace Ship_Game
                 return;
             if (input.ScrollOut) TransitionZoom -= 0.1f;
             if (input.ScrollIn)  TransitionZoom += 0.1f;
-            TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
+            TransitionZoom = TransitionZoom.Clamped(0.3f, 2.65f);
         }
 
         private bool HandleInputUndoRedo(InputState input)

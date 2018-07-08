@@ -590,7 +590,7 @@ namespace Ship_Game
                 // @todo What is going on here? Is this correct?
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
-                    newB.ProjectorRange = Empire.ProjectorRadius;
+                    newB.ProjectorRange = UniverseScreen.SubSpaceProjectors.Radius;
                     newB.IsProjector = true;
                 }
                 if (!newB.IsSensor && !(newB.SensorRange > 0.0f))

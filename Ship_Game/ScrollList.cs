@@ -105,22 +105,16 @@ namespace Ship_Game
 
         public Entry AddItem(object o)
         {
-            Entry e = new Entry()
-            {
-                item = o
-            };
-            this.Entries.Add(e);
-            this.Update();
+            var e = new Entry(o);
+            Entries.Add(e);
+            Update();
             e.ParentList = this;
             return e;
         }
 
         public void AddItem(object o, int addrect, int addpencil)
         {
-            ScrollList.Entry e = new ScrollList.Entry()
-            {
-                item = o
-            };
+            var e = new Entry(o);
             if (addrect > 0)
             {
                 e.Plus = 1;
@@ -131,16 +125,15 @@ namespace Ship_Game
                 e.Edit = 1;
             }
             e.addRect = new Rectangle();
-            this.Entries.Add(e);
-            this.Update();
+            Entries.Add(e);
+            Update();
             e.ParentList = this;
         }
 
         public void AddQItem(object o)
         {
-            ScrollList.Entry e = new ScrollList.Entry()
+            var e = new Entry(o)
             {
-                item = o,
                 Plus = 0,
                 up = new Rectangle(),
                 down = new Rectangle(),
@@ -149,8 +142,8 @@ namespace Ship_Game
                 clickRect = new Rectangle(),
                 QItem = 1
             };
-            this.Entries.Add(e);
-            this.Update();
+            Entries.Add(e);
+            Update();
             e.ParentList = this;
         }
 
@@ -158,12 +151,10 @@ namespace Ship_Game
         {
             if (this.Copied.Count > this.entriesToDisplay)
             {
-                float count = (float)this.entriesToDisplay / (float)this.Copied.Count;
-                float single = (float)this.indexAtTop / (float)this.Copied.Count;
                 int updownsize = (this.ScrollBar.Height - ScrollBarMidMarker.Height) / 2;
-                Rectangle up = new Rectangle(this.ScrollBar.X, this.ScrollBar.Y, this.ScrollBar.Width, updownsize);
-                Rectangle mid = new Rectangle(this.ScrollBar.X, this.ScrollBar.Y + updownsize, this.ScrollBar.Width, ScrollBarMidMarker.Height);
-                Rectangle bot = new Rectangle(this.ScrollBar.X, mid.Y + mid.Height, this.ScrollBar.Width, updownsize);
+                var up = new Rectangle(this.ScrollBar.X, this.ScrollBar.Y, this.ScrollBar.Width, updownsize);
+                var mid = new Rectangle(this.ScrollBar.X, this.ScrollBar.Y + updownsize, this.ScrollBar.Width, ScrollBarMidMarker.Height);
+                var bot = new Rectangle(this.ScrollBar.X, mid.Y + mid.Height, this.ScrollBar.Width, updownsize);
                 if (this.ScrollBarHover == 0)
                 {
                     spriteBatch.Draw(ResourceManager.TextureDict["NewUI/scrollbar_bar_updown"], up, Color.White);
@@ -347,14 +338,7 @@ namespace Ship_Game
                     }
                 }
                 float mousePosAsPct = (input.CursorPosition.Y - (float)this.ScrollBarHousing.Y) / (float)this.ScrollBarHousing.Height;
-                if (mousePosAsPct < 0f)
-                {
-                    mousePosAsPct = 0f;
-                }
-                if (mousePosAsPct > 1f)
-                {
-                    mousePosAsPct = 1f;
-                }
+                mousePosAsPct = mousePosAsPct.Clamped(0f, 1f);
                 this.indexAtTop = (int)((float)this.Copied.Count * mousePosAsPct);
                 if (this.indexAtTop + this.entriesToDisplay >= this.Copied.Count)
                 {
@@ -366,10 +350,9 @@ namespace Ship_Game
             {
                 if (input.MouseCurr.ScrollWheelValue > input.MousePrev.ScrollWheelValue)
                 {
-                    if (this.indexAtTop > 0)
+                    if (indexAtTop > 0)
                     {
-                        ScrollList scrollList2 = this;
-                        scrollList2.indexAtTop = scrollList2.indexAtTop - 1;
+                        --indexAtTop;
                     }
                     hit = true;
                     float percentViewed = (float)this.entriesToDisplay / (float)this.Copied.Count;
@@ -378,10 +361,9 @@ namespace Ship_Game
                 }
                 if (input.MouseCurr.ScrollWheelValue < input.MousePrev.ScrollWheelValue)
                 {
-                    if (this.indexAtTop + this.entriesToDisplay < this.Copied.Count)
+                    if (indexAtTop + entriesToDisplay < Copied.Count)
                     {
-                        ScrollList scrollList3 = this;
-                        scrollList3.indexAtTop = scrollList3.indexAtTop + 1;
+                        ++indexAtTop;
                     }
                     hit = true;
                     float percentViewed = (float)this.entriesToDisplay / (float)this.Copied.Count;
@@ -870,64 +852,47 @@ namespace Ship_Game
         public class Entry
         {
             public bool ShowingSub;
-
             public Rectangle clickRect;
-
             public object item;
-
             public int Hover;
-
             public int Plus;
-
             public int PlusHover;
-
             public int Edit;
-
             public int EditHover;
 
             public Rectangle editRect;
-
             public Rectangle addRect;
-
             public ScrollList ParentList;
 
             public int clickRectHover;
-
             public int QItem;
 
             public Rectangle up;
-
             public Rectangle down;
-
             public Rectangle cancel;
-
             public Rectangle apply;
 
             public int uh;
-
             public int ch;
-
             public int dh;
-
             public int ah;
-            //moved this here for consistency
+
+            // moved this here for consistency
             public Array<Entry> SubEntries = new Array<Entry>();
 
-            public Entry()
+            public Entry(object item)
             {
+                this.item = item;
             }
 
             public void AddItem(object o)
             {
-                SubEntries.Add(new Entry {item = o});
+                SubEntries.Add(new Entry(o));
             }
 
             public void AddItem(object o, int addrect, int addpencil)
             {
-                Entry e = new Entry()
-                {
-                    item = o
-                };
+                var e = new Entry(o);
                 if (addrect > 0)
                 {
                     e.Plus = 1;
@@ -938,17 +903,19 @@ namespace Ship_Game
                     e.Edit = 1;
                 }
                 e.addRect = new Rectangle();
-                this.SubEntries.Add(e);
+                SubEntries.Add(e);
             }
 
             public void AddItemWithCancel(object o)
             {
-                Entry e = new Entry()
-                {
-                    item = o
-                };
-                this.SubEntries.Add(e);
+                var e = new Entry(o);
+                SubEntries.Add(e);
                 e.cancel = new Rectangle();
+            }
+
+            public bool WasClicked(InputState input)
+            {
+                return input.LeftMouseClick && clickRect.HitTest(input.CursorPosition);
             }
         }
     }
