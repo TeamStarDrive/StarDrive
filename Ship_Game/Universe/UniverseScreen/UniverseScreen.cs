@@ -245,6 +245,7 @@ namespace Ship_Game
         public int lastplanetcombat = 0;
         public int reducer          = 1;
         public float screenDelay    = 0f;
+        public Empires.SubSpaceProjectors SubSpaceProjectors;
 
         // for really specific debuggingD
         public static int FrameId;
@@ -265,8 +266,10 @@ namespace Ship_Game
             PlayerEmpire                = playerShip.loyalty;
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
-            PlayerEmpire.isPlayer       = true;            
+            PlayerEmpire.isPlayer       = true;
+            SubSpaceProjectors          = new Empires.SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
+            
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -284,7 +287,9 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
+            SubSpaceProjectors    = new Empires.SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
+            
         }
 
         public void ResetLighting() => SetLighting(UseRealLights);
