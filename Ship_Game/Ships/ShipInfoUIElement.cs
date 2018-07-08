@@ -440,6 +440,7 @@ namespace Ship_Game.Ships
             var troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             int playerTroops = Ship.NumPlayerTroopsOnShip;
             int enemyTroops  = Ship.NumAiTroopsOnShip;
+            int allTroops = playerTroops + enemyTroops;
             if (Ship.TroopsAreBoardingShip)
             {
                 if (playerTroops > enemyTroops)
@@ -452,8 +453,8 @@ namespace Ship_Game.Ships
             }
             else
             {
-                Color statusColor = playerTroops > enemyTroops ? Color.LightGreen : Color.Red;
-                DrawHorizontalValues(Math.Max(playerTroops, enemyTroops), statusColor, ref troopPos, withSlash: false);
+                Color statusColor = Ship.loyalty == EmpireManager.Player ? Color.LightGreen : Color.Red;
+                DrawHorizontalValues(allTroops, statusColor, ref troopPos, withSlash: false);
             }
 
             DrawHorizontalValues(Ship.TroopCapacity, Color.White, ref troopPos);
