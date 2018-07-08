@@ -300,31 +300,25 @@ namespace Ship_Game
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             HullSL.Draw(ScreenManager.SpriteBatch);
-            float x          = (float) Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float) state.Y);
+            Vector2 mousePos = Mouse.GetState().Pos();
             HullSelectionSub.Draw();
-            Vector2 bCursor  = new Vector2((float) (HullSelectionSub.Menu.X + 10),
-                (float) (HullSelectionSub.Menu.Y + 45));
-            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < HullSL.indexAtTop + HullSL.entriesToDisplay; i++)
+
+            foreach (ScrollList.Entry e in HullSL.FlattenedEntries)
             {
-                bCursor = new Vector2((float) (HullSelectionSub.Menu.X + 10),
-                    (float) (HullSelectionSub.Menu.Y + 45));
-                ScrollList.Entry e = HullSL.Copied[i];
-                bCursor.Y          = (float) e.clickRect.Y;
-                if (e.item is ModuleHeader)
+                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.clickRect.Y);
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).Draw(ScreenManager, bCursor);
+                    header.Draw(ScreenManager, bCursor);
                 }
                 else if (e.item is ShipData ship)
                 {
-                    bCursor.X       = bCursor.X + 10f;
+                    bCursor.X += 10f;
                     ScreenManager.SpriteBatch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                    tCursor.Y       = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-                    if (!e.clickRect.HitTest(MousePos))
+                    if (!e.clickRect.HitTest(mousePos))
                         continue;
 
                     if (e.clickRectHover == 0)

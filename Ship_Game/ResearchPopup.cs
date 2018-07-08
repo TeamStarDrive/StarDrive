@@ -48,19 +48,19 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Begin();
             //draw some scroll bar? never actually seen
             UnlockSL.Draw(ScreenManager.SpriteBatch);
-            Vector2 vector2 = new Vector2((float)UnlocksRect.X, (float)UnlocksRect.Y);
-            for (int index = UnlockSL.indexAtTop; index < UnlockSL.Copied.Count && index < UnlockSL.indexAtTop + UnlockSL.entriesToDisplay; ++index)
+            var vector2 = new Vector2(UnlocksRect.X, UnlocksRect.Y);
+            foreach (ScrollList.Entry entry in UnlockSL.FlattenedEntries)
             {
-                ScrollList.Entry entry = UnlockSL.Copied[index];
-                UnlockItem unlockItem = entry.item as UnlockItem;
+                var unlockItem = entry.item as UnlockItem;
                 vector2.Y = (float)entry.clickRect.Y;
-                switch (unlockItem.Type) {
+                switch (unlockItem.Type)
+                {
                     case UnlockType.SHIPMODULE:
                     {
-                        Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, 16 * (int)unlockItem.module.XSIZE, 16 * (int)unlockItem.module.YSIZE);
+                        var destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, 16 * (int)unlockItem.module.XSIZE, 16 * (int)unlockItem.module.YSIZE);
                         destinationRectangle.X = destinationRectangle.X + 48 - destinationRectangle.Width / 2;
                         destinationRectangle.Y = entry.clickRect.Y + entry.clickRect.Height / 2 - destinationRectangle.Height / 2;
-                        if ((int)unlockItem.module.XSIZE == 1 && (int)unlockItem.module.YSIZE == 1)
+                        if (unlockItem.module.XSIZE == 1 && unlockItem.module.YSIZE == 1)
                         {
                             destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, 64, 64);
                             destinationRectangle.X = destinationRectangle.X + 48 - destinationRectangle.Width / 2;

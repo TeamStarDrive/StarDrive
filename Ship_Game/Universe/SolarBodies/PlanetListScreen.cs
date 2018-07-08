@@ -184,21 +184,22 @@ namespace Ship_Game
                 smallHighlight.A = (byte)(TextColor.A / 2);
 
                 GameTime gameTime = Game1.Instance.GameTime;
-                for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)
+                int i = PlanetSL.indexAtTop;
+                foreach (ScrollList.Entry e in PlanetSL.VisibleEntries)
                 {
-                    PlanetListScreenEntry entry2 = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
-
+                    var entry2 = (PlanetListScreenEntry)e.item;
                     if (i % 2 == 0)
                     {
-                        base.ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, smallHighlight);
+                        ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, smallHighlight);
                     }
-                    if (entry2.planet == this.SelectedPlanet)
+                    if (entry2.planet == SelectedPlanet)
                     {
-                        base.ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, TextColor);
+                        ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, TextColor);
                     }
-                    entry2.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
-                    entry2.Draw(base.ScreenManager, gameTime);
-                    base.ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, TextColor);
+                    entry2.SetNewPos(eRect.X + 22, e.clickRect.Y);
+                    entry2.Draw(ScreenManager, gameTime);
+                    ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, TextColor);
+                    ++i;
                 }                
                 Color lineColor = new Color(118, 102, 67, 255);
                 Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(this.eRect.Y + 35));
@@ -491,21 +492,22 @@ namespace Ship_Game
                 }
             }
             
-            for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in PlanetSL.VisibleEntries)
             {
-                PlanetListScreenEntry entry = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
+                var entry = e.item as PlanetListScreenEntry;
                 entry.HandleInput(input);
-                entry.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
+                entry.SetNewPos(eRect.X + 22, e.clickRect.Y);
                 if (!GlobalStats.TakingInput
-                    && entry.TotalEntrySize.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                    && entry.TotalEntrySize.HitTest(input.CursorPosition)
+                    && input.LeftMouseClick)
                 {
-                    if (this.ClickTimer >= this.ClickDelay)
+                    if (ClickTimer >= ClickDelay)
                     {
-                        this.ClickTimer = 0f;
+                        ClickTimer = 0f;
                     }
                     else 
                     {
-                        this.ExitScreen();
+                        ExitScreen();
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         Empire.Universe.SelectedPlanet = entry.planet;
                         Empire.Universe.ViewingShip = false;
@@ -520,7 +522,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input) )
+            if (input.Escaped || input.RightMouseClick || close.HandleInput(input) )
             {
                 ExitScreen();
                 return true;

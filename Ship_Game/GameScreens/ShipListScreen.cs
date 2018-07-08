@@ -214,23 +214,16 @@ namespace Ship_Game
                     HelperFunctions.ClampVectorToInt(ref TextCursor);
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
                 }
-                Color smallHighlight = TextColor;
-                //smallHighlight.A = (byte)(TextColor.A / 2);
-                smallHighlight = Color.DarkGreen;
-                for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Entries.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+                Color smallHighlight = Color.DarkGreen;
+                foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
                 {
-                    ShipListScreenEntry entry = this.ShipSL.Entries[i].item as ShipListScreenEntry;
-                    //if (i % 2 == 0)
-                    //{
-                    //	Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, smallHighlight);
-                    //}
-                    //if (entry.ship == this.SelectedShip)
+                    var entry = e.item as ShipListScreenEntry;
                     if (entry.Selected)
                     {
                         //Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
-                        base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
+                        ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
                     }
-                    entry.SetNewPos(this.eRect.X + 22, this.ShipSL.Entries[i].clickRect.Y);
+                    entry.SetNewPos(this.eRect.X + 22, e.clickRect.Y);
                     entry.Draw(base.ScreenManager, GameTime);
                     base.ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
                 }
@@ -306,15 +299,16 @@ namespace Ship_Game
                 return true;
             }
             //this.indexLast = this.ShowRoles.ActiveIndex;
-            for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+            int i = ShipSL.indexAtTop;
+            foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
-                ShipListScreenEntry entry = this.ShipSL.Copied[i].item as ShipListScreenEntry;
+                var entry = e.item as ShipListScreenEntry;
                 entry.HandleInput(input);
                 if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                 {
-                    if (this.ClickTimer >= this.ClickDelay)
+                    if (ClickTimer >= ClickDelay)
                     {
-                        this.ClickTimer = 0f;
+                        ClickTimer = 0f;
                     }
                     else
                     {
@@ -337,16 +331,17 @@ namespace Ship_Game
                         if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && this.SelectedShip != null)
                             if (i >= CurrentLine)
                                 for (int l = CurrentLine; l <= i; l++)
-                                    (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+                                    (ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
                             else
                                 for (int l = i; l <= CurrentLine; l++)
-                                    (this.ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+                                    (ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
 
-                        this.SelectedShip = entry.ship;
+                        SelectedShip = entry.ship;
                         entry.Selected = true;
                         CurrentLine = i;
                     }
                 }
+                ++i;
             }
             if (this.SB_FTL.HandleInput(input))  //MathExt.HitTest(this.FTL, input.CursorPosition))
             {
@@ -804,45 +799,37 @@ namespace Ship_Game
             }
         }
 
-        public void ResetListSorted(IOrderedEnumerable<ScrollList.Entry> SortedList)
+        public void ResetListSorted(IOrderedEnumerable<ScrollList.Entry> sortedList)
         {
-            this.ShipSL.Copied.Clear();
-            Array<ShipListScreenEntry> shipslist = new Array<ShipListScreenEntry>();
-            foreach (ScrollList.Entry e in SortedList)
+            ShipSL.Copied.Clear();
+            ShipSL.Entries.Clear();
+            foreach (ScrollList.Entry e in sortedList)
             {
-                shipslist.Add(e.item as ShipListScreenEntry);
+                ShipSL.AddItem(e.item as ShipListScreenEntry);
             }
-            this.ShipSL.Entries.Clear();
-            foreach (ShipListScreenEntry ship in shipslist)
-            {
-                this.ShipSL.AddItem(ship);
-            }
-            //this.SelectedShip = (this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).ship;
-            //(this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry).Selected = true;
         }
 
         private void ResetPos()
         {
-            for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Entries.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
-                ShipListScreenEntry entry = this.ShipSL.Entries[i].item as ShipListScreenEntry;
-                entry.SetNewPos(this.eRect.X + 22, this.ShipSL.Entries[i].clickRect.Y);
+                var entry = (ShipListScreenEntry)e.item;
+                entry.SetNewPos(eRect.X + 22, e.clickRect.Y);
             }
         }
 
         public void ResetStatus()
         {
-            foreach (ScrollList.Entry entry in this.ShipSL.Entries)
+            foreach (ScrollList.Entry e in ShipSL.Entries)
             {
-                (entry.item as ShipListScreenEntry).Status_Text = ShipListScreenEntry.GetStatusText((entry.item as ShipListScreenEntry).ship);
+                var entry = (ShipListScreenEntry)e.item;
+                entry.Status_Text = ShipListScreenEntry.GetStatusText(entry.ship);
             }
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ShipListScreen clickTimer = this;
-            clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
+            ClickTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
     }

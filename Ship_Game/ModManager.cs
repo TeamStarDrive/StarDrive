@@ -51,9 +51,8 @@ namespace Ship_Game
             SaveMenu.Draw();
             NameSave.Draw();
             AllSaves.Draw();
-            for (int i = ModsSL.indexAtTop; i < ModsSL.Entries.Count && i < ModsSL.indexAtTop + ModsSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
             {
-                ScrollList.Entry e = ModsSL.Entries[i];
                 (e.item as ModEntry)?.Draw(ScreenManager, e.clickRect);
             }
             ModsSL.Draw(ScreenManager.SpriteBatch);
