@@ -342,24 +342,14 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y = ArtifactsCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 ArtifactsSL.Draw(base.ScreenManager.SpriteBatch);
-                int i = ArtifactsSL.indexAtTop;
-                while (i < ArtifactsSL.Entries.Count)
+                foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
-                    if (i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay)
+                    ArtifactsCursor.Y = e.clickRect.Y;
+                    var art = (ArtifactEntry)e.item;
+                    art.Update(ArtifactsCursor);
+                    foreach (SkinnableButton button in art.ArtifactButtons)
                     {
-                        ScrollList.Entry e = ArtifactsSL.Entries[i];
-                        ArtifactsCursor.Y = (float)e.clickRect.Y;
-                        ArtifactEntry art = e.item as ArtifactEntry;
-                        art.Update(ArtifactsCursor);
-                        foreach (SkinnableButton button in art.ArtifactButtons)
-                        {
-                            button.Draw(base.ScreenManager);
-                        }
-                        i++;
-                    }
-                    else
-                    {
-                        break;
+                        button.Draw(ScreenManager);
                     }
                 }
             }
@@ -367,8 +357,8 @@ namespace Ship_Game
             {
                 if (SelectedEmpire.data.AbsorbedBy != null)
                 {
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular, " Federation"), TextCursor, Color.White);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular, " Federation"), TextCursor, Color.White);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
             else if (!SelectedEmpire.data.Defeated)
@@ -420,15 +410,14 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y = ArtifactsCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 ArtifactsSL.Draw(base.ScreenManager.SpriteBatch);
-                for (int i = ArtifactsSL.indexAtTop; i < ArtifactsSL.Entries.Count && i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay; i++)
+                foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
-                    ScrollList.Entry e = ArtifactsSL.Entries[i];
-                    ArtifactsCursor.Y = (float)e.clickRect.Y;
-                    ArtifactEntry art = e.item as ArtifactEntry;
+                    ArtifactsCursor.Y = e.clickRect.Y;
+                    var art = (ArtifactEntry)e.item;
                     art.Update(ArtifactsCursor);
                     foreach (SkinnableButton button in art.ArtifactButtons)
                     {
-                        button.Draw(base.ScreenManager);
+                        button.Draw(ScreenManager);
                     }
                 }
                 Array<Empire> Sortlist = new Array<Empire>();
@@ -1039,17 +1028,16 @@ namespace Ship_Game
                     }
                 }
             }
-            for (int i = ArtifactsSL.indexAtTop; i < ArtifactsSL.Entries.Count && i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
             {
-                foreach (SkinnableButton button in (ArtifactsSL.Entries[i].item as ArtifactEntry).ArtifactButtons)
+                var arte = (ArtifactEntry)e.item;
+                foreach (SkinnableButton button in arte.ArtifactButtons)
                 {
                     if (!button.r.HitTest(input.CursorPosition))
-                    {
                         continue;
-                    }
-                    string Text = string.Concat(Localizer.Token((button.ReferenceObject as Artifact).NameIndex), "\n\n");
-                    Text = string.Concat(Text, Localizer.Token((button.ReferenceObject as Artifact).DescriptionIndex));
-                    ToolTip.CreateTooltip(Text);
+                    var art = (Artifact)button.ReferenceObject;
+                    string text = $"{Localizer.Token(art.NameIndex)}\n\n{Localizer.Token(art.DescriptionIndex)}";
+                    ToolTip.CreateTooltip(text);
                 }
             }
             if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)

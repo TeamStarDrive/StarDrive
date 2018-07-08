@@ -388,20 +388,23 @@ namespace Ship_Game
             }
             Color smallHighlight = TextColor;
             smallHighlight.A = (byte)(TextColor.A / 2);
-            for (int i = ColoniesList.indexAtTop; i < ColoniesList.Entries.Count && i < ColoniesList.indexAtTop + ColoniesList.entriesToDisplay; i++)
+
+            int i = ColoniesList.indexAtTop;
+            foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
-                EmpireScreenEntry entry = ColoniesList.Entries[i].item as EmpireScreenEntry;
+                var entry = (EmpireScreenEntry)e.item;
                 if (i % 2 == 0)
                 {
-                    base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
+                    ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
                 }
                 if (entry.p == SelectedPlanet)
                 {
-                    base.ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, TextColor);
+                    ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, TextColor);
                 }
-                entry.SetNewPos(eRect.X + 22, ColoniesList.Entries[i].clickRect.Y);
-                entry.Draw(base.ScreenManager);
-                base.ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
+                entry.SetNewPos(eRect.X + 22, e.clickRect.Y);
+                entry.Draw(ScreenManager);
+                ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
+                ++i;
             }
             Color lineColor = new Color(118, 102, 67, 255);
             Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(eRect.Y + 35));
@@ -667,9 +670,9 @@ namespace Ship_Game
                     money.Ascending = false;
                 }
             }
-            for (int i = ColoniesList.indexAtTop; i < ColoniesList.Entries.Count && i < ColoniesList.indexAtTop + ColoniesList.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
-                EmpireScreenEntry entry = ColoniesList.Entries[i].item as EmpireScreenEntry;
+                var entry = (EmpireScreenEntry)e.item;
                 entry.HandleInput(input, base.ScreenManager);
                 if (entry.TotalEntrySize.HitTest(MousePos) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                 {
@@ -773,10 +776,9 @@ namespace Ship_Game
                     SelectedPlanet.ResLocked = false;
                 }
             }
-            for (int i = ColoniesList.indexAtTop; i < ColoniesList.Entries.Count && i < ColoniesList.indexAtTop + ColoniesList.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
-                EmpireScreenEntry entry = ColoniesList.Entries[i].item as EmpireScreenEntry;
-                entry.SetNewPos(eRect.X + 22, ColoniesList.Entries[i].clickRect.Y);
+                ((EmpireScreenEntry)e.item).SetNewPos(eRect.X + 22, e.clickRect.Y);
             }
         }
 

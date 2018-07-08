@@ -46,21 +46,20 @@ namespace Ship_Game
             base.ScreenManager.SpriteBatch.Begin();
             this.SaveMenu.Draw();
             this.AllSaves.Draw();
-            Vector2 bCursor = new Vector2((float)(this.AllSaves.Menu.X + 20), (float)(this.AllSaves.Menu.Y + 20));
-            for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Copied.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
+            var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
+            foreach (ScrollList.Entry e in SavesSL.FlattenedEntries)
             {
-                ScrollList.Entry e = this.SavesSL.Copied[i];
-                bCursor.Y = (float)e.clickRect.Y;
-                if (!(e.item is ModuleHeader))
+                bCursor.Y = e.clickRect.Y;
+                if (e.item is ModuleHeader header)
                 {
-                    ModelData data = e.item as ModelData;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/Wisp"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
+                    header.Draw(ScreenManager, bCursor);
                 }
-                else
+                else if (e.item is ModelData data)
                 {
-                    (e.item as ModuleHeader).Draw(base.ScreenManager, bCursor);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
+                        new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
                 }
             }
             this.SavesSL.Draw(base.ScreenManager.SpriteBatch);

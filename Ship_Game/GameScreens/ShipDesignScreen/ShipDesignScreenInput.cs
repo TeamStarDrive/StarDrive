@@ -359,10 +359,8 @@ namespace Ship_Game
         private bool HandleShipHullListSelection(InputState input)
         {
             HullSL.HandleInput(input);
-            int max = HullSL.indexAtTop + HullSL.entriesToDisplay;
-            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < max; ++i)
+            foreach (ScrollList.Entry e in HullSL.FlattenedEntries)
             {
-                ScrollList.Entry e = HullSL.Copied[i];
                 if (e.item is ModuleHeader moduleHeader)
                 {
                     if (moduleHeader.HandleInput(input, e))
@@ -386,7 +384,6 @@ namespace Ship_Game
                 }
                 else e.clickRectHover = 0;
             }
-
             return false;
         }
 

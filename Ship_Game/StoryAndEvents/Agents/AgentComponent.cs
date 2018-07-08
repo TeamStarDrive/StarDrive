@@ -88,83 +88,6 @@ namespace Ship_Game
             };
         }
 
-		public void Draworig()
-		{
-			this.ScreenManager.SpriteBatch.FillRectangle(this.SubRect, Color.Black);
-			this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
-			this.RecruitButton.Draw(this.ScreenManager);
-			Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X + 200, this.RecruitButton.r.Y + this.RecruitButton.r.Height / 2 - 10, 21, 20);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
-			Vector2 costPos = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "250", costPos, Color.White);
-			for (int i = this.AgentSL.indexAtTop; i < this.AgentSL.Entries.Count && i < this.AgentSL.indexAtTop + this.AgentSL.entriesToDisplay; i++)
-			{
-				try
-				{
-					ScrollList.Entry e = this.AgentSL.Entries[i];
-					Agent agent = e.item as Agent;
-					Rectangle r = new Rectangle(e.clickRect.X, e.clickRect.Y, 25, 26);
-					this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy"], r, Color.White);
-					Vector2 namecursor = new Vector2((float)(r.X + 30), (float)r.Y);
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
-					namecursor.Y = namecursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-					string missionstring = Localizer.Token(agent.MissionNameIndex);
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, namecursor, Color.Gray);
-					for (int j = 0; j < agent.Level; j++)
-					{
-						Rectangle levelRect = new Rectangle(e.clickRect.X + e.clickRect.Width - 18 - 12 * j, e.clickRect.Y, 12, 11);
-						this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], levelRect, Color.White);
-					}
-					if ((e.item as Agent).Mission != AgentMission.Defending)
-					{
-						if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
-						{
-							Vector2 targetCursor = namecursor;
-							targetCursor.X = targetCursor.X + 75f;
-							missionstring = string.Concat(Localizer.Token(2199), ": ", EmpireManager.GetEmpireByName((e.item as Agent).TargetEmpire).data.Traits.Plural);
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
-						}
-						else if ((e.item as Agent).TargetGUID != Guid.Empty && (e.item as Agent).Mission == AgentMission.Undercover)
-						{
-							Vector2 targetCursor = namecursor;
-							targetCursor.X = targetCursor.X + 75f;
-							missionstring = string.Concat(Localizer.Token(2199), ": ", Empire.Universe.PlanetsDict[(e.item as Agent).TargetGUID].Name);
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
-						}
-						if ((e.item as Agent).Mission != AgentMission.Undercover)
-						{
-							Vector2 turnsCursor = namecursor;
-							turnsCursor.X = turnsCursor.X + 193f;
-							missionstring = string.Concat(Localizer.Token(2200), ": ", (e.item as Agent).TurnsRemaining);
-							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
-						}
-					}
-				}
-				catch
-				{
-				}
-			}
-			if (this.selector != null)
-			{
-				this.selector.Draw(ScreenManager.SpriteBatch);
-			}
-			if (this.SelectedAgent != null)
-			{
-				this.ScreenManager.SpriteBatch.FillRectangle(this.OpsSubRect, Color.Black);
-				this.OpsSL.Draw(this.ScreenManager.SpriteBatch);
-				for (int i = this.OpsSL.indexAtTop; i < this.OpsSL.Entries.Count && i < this.OpsSL.indexAtTop + this.OpsSL.entriesToDisplay; i++)
-				{
-					try
-					{
-						ScrollList.Entry e = this.OpsSL.Entries[i];
-						(e.item as MissionEntry).Draw(this.ScreenManager, e.clickRect);
-					}
-					catch
-					{
-					}
-				}
-			}
-		}
         //added by gremlin deveksmod spy draw
         public void Draw()
         {
@@ -199,54 +122,45 @@ namespace Ship_Game
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
 
-            for (int i = AgentSL.indexAtTop; i < AgentSL.Entries.Count && i < AgentSL.indexAtTop + AgentSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
-                try
-                {
-                    ScrollList.Entry e = AgentSL.Entries[i];
-                    Agent agent = e.item as Agent;
-                    Rectangle r = new Rectangle(e.clickRect.X, e.clickRect.Y, 25, 26);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy"], r, Color.White);
-                    Vector2 namecursor = new Vector2((float)(r.X + 30), (float)r.Y);
-                    //Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
+                var agent = e.item as Agent;
+                var r = new Rectangle(e.clickRect.X, e.clickRect.Y, 25, 26);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy"], r, Color.White);
+                var namecursor = new Vector2(r.X + 30, r.Y);
 
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
-                    namecursor.Y = namecursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                    string missionstring = Localizer.Token(agent.MissionNameIndex);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, namecursor, Color.Gray);
-                    for (int j = 0; j < agent.Level; j++)
-                    {
-                        Rectangle levelRect = new Rectangle(e.clickRect.X + e.clickRect.Width - 18 - 12 * j, e.clickRect.Y, 12, 11);
-                        this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_star"], levelRect, Color.White);
-                    }
-                    if (agent.Mission != AgentMission.Defending)
-                    {
-                        if (!string.IsNullOrEmpty(agent.TargetEmpire) && agent.Mission != AgentMission.Training && agent.Mission != AgentMission.Undercover)
-                        {
-                            Vector2 targetCursor = namecursor;
-                            targetCursor.X += 75f;
-                            missionstring = Localizer.Token(2199) + ": " + EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
-                        }
-                        else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
-                        {
-                            Vector2 targetCursor = namecursor;
-                            targetCursor.X += 75f;
-                            missionstring = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
-                        }
-                        if (agent.Mission != AgentMission.Undercover)
-                        {
-                            Vector2 turnsCursor = namecursor;
-                            turnsCursor.X += 193f;
-                            missionstring = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
-                        }
-                    }
-                }
-                catch (Exception ex)
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
+                namecursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
+                string missionstring = Localizer.Token(agent.MissionNameIndex);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, namecursor, Color.Gray);
+                for (int j = 0; j < agent.Level; j++)
                 {
-                    Log.Error(ex, "AgentComponent Draw crashed at index {0} out of {1}", i, AgentSL.Entries.Count);
+                    var levelRect = new Rectangle(e.clickRect.X + e.clickRect.Width - 18 - 12 * j, e.clickRect.Y, 12, 11);
+                    ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_star"], levelRect, Color.White);
+                }
+                if (agent.Mission != AgentMission.Defending)
+                {
+                    if (!string.IsNullOrEmpty(agent.TargetEmpire) && agent.Mission != AgentMission.Training && agent.Mission != AgentMission.Undercover)
+                    {
+                        Vector2 targetCursor = namecursor;
+                        targetCursor.X += 75f;
+                        missionstring = Localizer.Token(2199) + ": " + EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                    }
+                    else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
+                    {
+                        Vector2 targetCursor = namecursor;
+                        targetCursor.X += 75f;
+                        missionstring = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                    }
+                    if (agent.Mission != AgentMission.Undercover)
+                    {
+                        Vector2 turnsCursor = namecursor;
+                        turnsCursor.X += 193f;
+                        missionstring = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
+                    }
                 }
             }
             selector?.Draw(ScreenManager.SpriteBatch);
@@ -255,17 +169,9 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.FillRectangle(OpsSubRect, Color.Black);
                 OpsSL.Draw(ScreenManager.SpriteBatch);
-                for (int i = OpsSL.indexAtTop; i < OpsSL.Entries.Count && i < OpsSL.indexAtTop + OpsSL.entriesToDisplay; i++)
+                foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
                 {
-                    try
-                    {
-                        ScrollList.Entry e = OpsSL.Entries[i];
-                        (e.item as MissionEntry).Draw(ScreenManager, e.clickRect);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "MissionEntry Draw crashed");
-                    }
+                    ((MissionEntry)e.item).Draw(ScreenManager, e.clickRect);
                 }
             }
         }
@@ -327,52 +233,34 @@ namespace Ship_Game
 					this.AgentSL.AddItem(a);
 				}
 			}
-			this.selector = null;
-			for (int i = this.AgentSL.indexAtTop; i < this.AgentSL.Entries.Count && i < this.AgentSL.indexAtTop + this.AgentSL.entriesToDisplay; i++)
+			selector = null;
+            foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
 			{
-				try
+			    if (!e.clickRect.HitTest(input.CursorPosition))
+			        continue;
+			    
+			    selector = new Selector(e.clickRect);
+			    if (input.InGameSelect)
+			    {
+			        SelectedAgent = e.item as Agent;
+			        foreach (ScrollList.Entry entry in OpsSL.Entries)
+			        {
+			            ((MissionEntry)entry.item).Initialize();
+			        }
+			        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+			    }
+			}
+			if (SelectedAgent != null)
+			{
+                foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
 				{
-					ScrollList.Entry e = this.AgentSL.Entries[i];
+                    var mission = (MissionEntry)e.item;
+				    mission.HandleInput(input);
 					if (e.clickRect.HitTest(input.CursorPosition))
 					{
-						this.selector = new Selector(e.clickRect);
-						if (input.InGameSelect)
-						{
-							this.SelectedAgent = e.item as Agent;
-							foreach (ScrollList.Entry entry in this.OpsSL.Entries)
-							{
-								(entry.item as MissionEntry).Initialize();
-							}
-							GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-						}
-					}
-				}
-				catch
-				{
-				}
-			}
-			if (this.SelectedAgent != null)
-			{
-				for (int i = this.OpsSL.indexAtTop; i < this.OpsSL.Entries.Count && i < this.OpsSL.indexAtTop + this.OpsSL.entriesToDisplay; i++)
-				{
-					try
-					{
-						ScrollList.Entry e = this.OpsSL.Entries[i];
-						(e.item as MissionEntry).HandleInput(input);
-						if (e.clickRect.HitTest(input.CursorPosition))
-						{
-							if (!(e.item as MissionEntry).DoMission.Rect.HitTest(input.CursorPosition))
-							{
-								ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex));
-							}
-							else
-							{
-								ToolTip.CreateTooltip(Localizer.Token(2198));
-							}
-						}
-					}
-					catch
-					{
+					    ToolTip.CreateTooltip(!mission.DoMission.Rect.HitTest(input.CursorPosition)
+					        ? Localizer.Token(mission.DescriptionIndex)
+					        : Localizer.Token(2198));
 					}
 				}
 			}
@@ -414,52 +302,33 @@ namespace Ship_Game
 
                 }
             }
-            this.selector = null;
-            for (int i = this.AgentSL.indexAtTop; i < this.AgentSL.Entries.Count && i < this.AgentSL.indexAtTop + this.AgentSL.entriesToDisplay; i++)
+            selector = null;
+            foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
-                try
+                if (!e.clickRect.HitTest(input.CursorPosition))
+                    continue;
+                selector = new Selector(e.clickRect);
+                if (input.InGameSelect)
                 {
-                    ScrollList.Entry e = this.AgentSL.Entries[i];
-                    if (e.clickRect.HitTest(input.CursorPosition))
+                    SelectedAgent = e.item as Agent;
+                    foreach (ScrollList.Entry entry in OpsSL.Entries)
                     {
-                        this.selector = new Selector(e.clickRect);
-                        if (input.InGameSelect)
-                        {
-                            this.SelectedAgent = e.item as Agent;
-                            foreach (ScrollList.Entry entry in this.OpsSL.Entries)
-                            {
-                                (entry.item as MissionEntry).Initialize();
-                            }
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
+                        ((MissionEntry)entry.item).Initialize();
                     }
-                }
-                catch
-                {
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
             }
-            if (this.SelectedAgent != null)
+            if (SelectedAgent != null)
             {
-                for (int i = this.OpsSL.indexAtTop; i < this.OpsSL.Entries.Count && i < this.OpsSL.indexAtTop + this.OpsSL.entriesToDisplay; i++)
+                foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
                 {
-                    try
+                    var mission = (MissionEntry)e.item;
+                    mission.HandleInput(input);
+                    if (e.clickRect.HitTest(input.CursorPosition))
                     {
-                        ScrollList.Entry e = this.OpsSL.Entries[i];
-                        (e.item as MissionEntry).HandleInput(input);
-                        if (e.clickRect.HitTest(input.CursorPosition))
-                        {
-                            if (!(e.item as MissionEntry).DoMission.Rect.HitTest(input.CursorPosition))
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token((e.item as MissionEntry).DescriptionIndex));
-                            }
-                            else
-                            {
-                                ToolTip.CreateTooltip(Localizer.Token(2198));
-                            }
-                        }
-                    }
-                    catch
-                    {
+                        ToolTip.CreateTooltip(!mission.DoMission.Rect.HitTest(input.CursorPosition)
+                            ? Localizer.Token(mission.DescriptionIndex)
+                            : Localizer.Token(2198));
                     }
                 }
             }
@@ -472,28 +341,21 @@ namespace Ship_Game
 
 		public void Reinitialize()
 		{
-			if (this.SelectedAgent != null)
-			{
-				for (int i = this.AgentSL.indexAtTop; i < this.AgentSL.Entries.Count && i < this.AgentSL.indexAtTop + this.AgentSL.entriesToDisplay; i++)
-				{
-					ScrollList.Entry item = this.AgentSL.Entries[i];
-					foreach (ScrollList.Entry entry in this.OpsSL.Entries)
-					{
-						(entry.item as MissionEntry).Initialize();
-					}
-				}
-			}
+		    if (SelectedAgent == null)
+		        return;
+		    foreach (ScrollList.Entry entry in OpsSL.Entries)
+		        ((MissionEntry)entry.item).Initialize();
 		}
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~AgentComponent() { Dispose(false);  }
+        ~AgentComponent() { Destroy();  }
 
-        private void Dispose(bool disposing)
+        private void Destroy()
         {
             AgentSL?.Dispose(ref AgentSL);
             OpsSL?.Dispose(ref OpsSL);

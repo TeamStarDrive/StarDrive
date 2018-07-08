@@ -559,26 +559,16 @@ namespace Ship_Game
                 }
                 case DiplomacyScreen.DialogState.Discuss:
                 {
-                    Selector selector1 = new Selector(DialogRect, new Color(0, 0, 0, 220));
+                    var selector1 = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     StatementsSL.Draw(base.ScreenManager.SpriteBatch);
                     drawCurs = TextCursor;
-                    int i = StatementsSL.indexAtTop;
-                    while (i < StatementsSL.Entries.Count)
+                    foreach (ScrollList.Entry e in StatementsSL.VisibleEntries)
                     {
-                        if (i < StatementsSL.indexAtTop + StatementsSL.entriesToDisplay)
+                        if (e.clickRectHover == 0 && e.item is DialogOption option)
                         {
-                            ScrollList.Entry e = StatementsSL.Entries[i];
-                            if (e.clickRectHover == 0)
-                            {
-                                (e.item as DialogOption).Update(drawCurs);
-                                (e.item as DialogOption).Draw(base.ScreenManager, Fonts.Consolas18);
-                                drawCurs.Y = drawCurs.Y + (float)(Fonts.Consolas18.LineSpacing + 5);
-                            }
-                            i++;
-                        }
-                        else
-                        {
-                            goto case DiplomacyScreen.DialogState.Choosing;
+                            option.Update(drawCurs);
+                            option.Draw(ScreenManager, Fonts.Consolas18);
+                            drawCurs.Y += (Fonts.Consolas18.LineSpacing + 5);
                         }
                     }
                     goto case DiplomacyScreen.DialogState.Choosing;
@@ -590,9 +580,8 @@ namespace Ship_Game
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
                     OfferTextSL.Entries.Clear();
                     HelperFunctions.parseTextToSL(txt, (float)(DialogRect.Width - 30), Fonts.Consolas18, ref OfferTextSL);
-                    for (int i = OfferTextSL.indexAtTop; i < OfferTextSL.Entries.Count && i < OfferTextSL.indexAtTop + OfferTextSL.entriesToDisplay; i++)
+                    foreach (ScrollList.Entry e in OfferTextSL.VisibleEntries)
                     {
-                        ScrollList.Entry e = OfferTextSL.Entries[i];
                         drawCurs.Y = (float)(e.clickRect.Y - 33);
                         DrawDropShadowText(e.item as string, drawCurs, Fonts.Consolas18);
                     }
@@ -654,14 +643,13 @@ namespace Ship_Game
         private void DrawOurItems()
         {
             OurItemsSL.Draw(base.ScreenManager.SpriteBatch);
-            Vector2 drawCurs = new Vector2((float)(UsRect.X + 10), (float)(UsRect.Y + Fonts.Pirulen12.LineSpacing + 10));
-            for (int i = OurItemsSL.indexAtTop; i < OurItemsSL.Copied.Count && i < OurItemsSL.indexAtTop + OurItemsSL.entriesToDisplay; i++)
+            var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y + Fonts.Pirulen12.LineSpacing + 10));
+            foreach (ScrollList.Entry e in OurItemsSL.FlattenedEntries)
             {
-                ScrollList.Entry e = OurItemsSL.Copied[i];
-                if (e.clickRectHover == 0)
+                if (e.clickRectHover == 0 && e.item is ItemToOffer item)
                 {
-                    (e.item as ItemToOffer).Update(drawCurs);
-                    (e.item as ItemToOffer).Draw(base.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
+                    item.Update(drawCurs);
+                    item.Draw(base.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
                     drawCurs.Y = drawCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
                 }
             }
@@ -678,14 +666,13 @@ namespace Ship_Game
         {
             TheirItemsSL.Draw(base.ScreenManager.SpriteBatch);
             Vector2 drawCurs = new Vector2((float)(ThemRect.X + 10), (float)(ThemRect.Y + Fonts.Pirulen12.LineSpacing + 10));
-            for (int i = TheirItemsSL.indexAtTop; i < TheirItemsSL.Copied.Count && i < TheirItemsSL.indexAtTop + TheirItemsSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in TheirItemsSL.FlattenedEntries)
             {
-                ScrollList.Entry e = TheirItemsSL.Copied[i];
-                if (e.clickRectHover == 0)
+                if (e.clickRectHover == 0 && e.item is ItemToOffer item)
                 {
-                    (e.item as ItemToOffer).Update(drawCurs);
-                    (e.item as ItemToOffer).Draw(base.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
-                    drawCurs.Y = drawCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
+                    item.Update(drawCurs);
+                    item.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold);
+                    drawCurs.Y = drawCurs.Y + (Fonts.Arial12Bold.LineSpacing + 5);
                 }
             }
         }
