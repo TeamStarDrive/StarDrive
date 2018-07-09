@@ -32,7 +32,7 @@ namespace Ship_Game.AI {
 
         private void DoAssaultShipCombat(float elapsedTime)
         {
-            if (Owner.isSpooling || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
+            if (Owner.isSpooling || !Owner.Carrier.HasTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace(Owner.TroopList.Count) <= 0)
                 return;
 
             DoNonFleetArtillery(elapsedTime);
@@ -544,7 +544,7 @@ namespace Ship_Game.AI {
                 return;
             }
             if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
-                || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
+                || Owner.Carrier.NumTroopsInShipAndInSpace(Owner.TroopList.Count) <= 0)
             {
                 if (Owner.loyalty.isPlayer)
                     HadPO = true;

@@ -306,6 +306,7 @@ namespace Ship_Game.Universe.SolarBodies
                 int garrisonSize = SolarSystemBody.Owner.isPlayer ? 5 : 0;
                 if (TroopsHere.Count > garrisonSize && ship.TroopCapacity > 0)
                 {
+                    int troopCount = ship.Carrier.NumTroopsInShipAndInSpace(ship.TroopList.Count);
                     using (TroopsHere.AcquireWriteLock())
                     {
                         if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
@@ -313,7 +314,7 @@ namespace Ship_Game.Universe.SolarBodies
                             continue;
                         foreach (var pgs in TilesList)
                         {
-                            if (ship.TroopList.Count >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
+                            if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
                                 break;
 
                             using (pgs.TroopsHere.AcquireWriteLock())
