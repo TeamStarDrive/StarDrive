@@ -2122,19 +2122,25 @@ namespace Ship_Game.Ships
                     assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
 
                 assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to find friendlies nearby
-                foreach (Ship friendlyTroopShiptoRebase in assaultShip.AI.FriendliesNearby.FilterBy(ship => ship.TroopList.Count < ship.TroopCapacity 
-                                                                                             && ship.Carrier.HasTroopBays))
+                var friendlyTroopShiptoRebase = assaultShip.AI.FriendliesNearby.FindMinFiltered(ship => ship.TroopList.Count < ship.TroopCapacity
+                                                                                                && ship.Carrier.HasTroopBays,
+                                                                                                ship => assaultShip.Center.SqDist(ship.Center));
+
+                if (friendlyTroopShiptoRebase != null)
                 {
                     assaultShip.Mothership = friendlyTroopShiptoRebase;
-                    ShipModule hangar = friendlyTroopShiptoRebase.Carrier.AllTroopBays.First();
-                    hangar.SetHangarShip(assaultShip);
-                    assaultShip.AI.OrderReturnToHangar();
-                    break;
+                    ShipModule hangar = friendlyTroopShiptoRebase.Carrier.AllTroopBays.First(hangarSpot => hangarSpot.GetHangarShip() == null);
+                    if (hangar != null)
+                    {
+                        hangar.SetHangarShip(assaultShip);
+                        assaultShip.Mothership = friendlyTroopShiptoRebase;
+                        assaultShip.AI.OrderReturnToHangar();
+                    }
+                    if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
+                        assaultShip.AI.OrderRebaseToNearest();
+                    if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
+                        assaultShip.DoEscort(this);
                 }
-                if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
-                    assaultShip.AI.OrderRebaseToNearest();
-                if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
-                    assaultShip.DoEscort(this);
             }
         }
 
