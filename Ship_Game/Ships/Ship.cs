@@ -2122,10 +2122,7 @@ namespace Ship_Game.Ships
                     assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
 
                 assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to find friendlies nearby
-                var friendlyTroopShiptoRebase = assaultShip.AI.FriendliesNearby.FindMinFiltered(ship => ship.TroopList.Count < ship.TroopCapacity
-                                                                                                && ship.Carrier.HasTroopBays,
-                                                                                                ship => assaultShip.Center.SqDist(ship.Center));
-
+                Ship friendlyTroopShiptoRebase = FindClosestAllyToRebase(assaultShip);
                 if (friendlyTroopShiptoRebase != null)
                 {
                     assaultShip.Mothership = friendlyTroopShiptoRebase;
@@ -2136,12 +2133,20 @@ namespace Ship_Game.Ships
                         assaultShip.Mothership = friendlyTroopShiptoRebase;
                         assaultShip.AI.OrderReturnToHangar();
                     }
-                    if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
-                        assaultShip.AI.OrderRebaseToNearest();
-                    if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
-                        assaultShip.DoEscort(this);
                 }
+                if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
+                    assaultShip.AI.OrderRebaseToNearest();
+                if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
+                    assaultShip.DoEscort(this);
             }
+        }
+
+        private Ship FindClosestAllyToRebase(Ship ship)
+        {
+            return ship.AI.FriendliesNearby.FindMinFiltered(
+                troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace(troopShip.TroopList.Count) < troopShip.TroopCapacity
+                && troopShip.Carrier.HasTroopBays,
+                troopShip => ship.Center.SqDist(troopShip.Center));
         }
 
         public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one
