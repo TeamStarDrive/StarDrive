@@ -1340,14 +1340,14 @@ namespace Ship_Game.AI
                     MoveToNow(Position, Position.RadiansToTarget(task.GetTargetPlanet().Center), fVec);
                     TaskStep = 1;
                     break;
-                case 1:
+                case 1:                    
                     if (!IsFleetAssembled(5000, out bool endtask))
                         break;                    
                     TaskStep = 2;
                     Position = task.GetTargetPlanet().Center;
-                    FormationWarpTo(Position, FindAveragePosition().RadiansToTarget(Position), Vector2.Normalize(Position - FindAveragePosition()));
                     foreach (Ship ship in Ships)
-                        ship.AI.HasPriorityOrder = true;
+                        ship.AI.SetPriorityOrder(true);
+                    FormationWarpTo(Position, FindAveragePosition().RadiansToTarget(Position), Vector2.Normalize(Position - FindAveragePosition()));                   
                     break;
                 case 2:
                     if (IsFleetAssembled(15000f, out bool incombat) && incombat)
