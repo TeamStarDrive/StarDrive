@@ -359,6 +359,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Ground.TryBiosphereBuild(ResourceManager.CreateBuilding("Biospheres"), qi);
             }
         }
+
         public int EstimatedTurnsTillComplete(QueueItem qItem, float industry = float.MinValue)
         {
             float production = qItem.Cost;
@@ -370,6 +371,7 @@ namespace Ship_Game.Universe.SolarBodies
             int turns = (int)Math.Ceiling(production);
             return industry > 0.0 ? turns : 999;
         }
+
         //public int TotalTurnsInProductionQueue() => ConstructionQueue.Sum(q => EstimatedTurnsTillComplete(q, NetProductionPerTurn));
         public int TotalTurnsInProductionQueue(float industry) => ConstructionQueue.Sum(q=> EstimatedTurnsTillComplete(q,industry));
 
@@ -414,6 +416,17 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
             return false;
+        }
+
+        public float GetTotalConstructionQueueMaintenance()
+        {
+            float count = 0;
+            foreach (QueueItem b in ConstructionQueue)
+            {
+                if (!b.isBuilding) continue;
+                count -= b.Building.Maintenance + b.Building.Maintenance * Owner.data.Traits.MaintMod;
+            }
+            return count;
         }
 
         public void Dispose()
