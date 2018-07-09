@@ -351,23 +351,20 @@ namespace Ship_Game
                         e.clickRectHover = 1;
                     }
                 }
-                if (this.OrbitSL.Entries.Count > 0)
+                if (OrbitSL.NumEntries > 0)
                 {
-                    this.LandAll.Draw(this.ScreenManager.SpriteBatch);
-                    
+                    LandAll.Draw(ScreenManager.SpriteBatch);
                 }
                 if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == EmpireManager.Player && mytroops.Launchtimer <= 0f))
                 {
-                    this.LaunchAll.Draw(this.ScreenManager.SpriteBatch);
+                    LaunchAll.Draw(ScreenManager.SpriteBatch);
                 }
             }
-            foreach (PlanetGridSquare pgs in this.ReversedList)
+            foreach (PlanetGridSquare pgs in ReversedList)
             {
                 if (pgs.building == null)
-                {
                     continue;
-                }
-                Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64"))
                     , bRect, Color.White);
             }
@@ -677,7 +674,7 @@ namespace Ship_Game
                 }
                 this.HoveredSquare = pgs;
             }
-            if (this.OrbitSL.Entries.Count > 0)
+            if (this.OrbitSL.NumEntries > 0)
             {
                 if (!this.LandAll.Rect.HitTest(input.CursorPosition))
                 {
@@ -689,22 +686,20 @@ namespace Ship_Game
                     if (input.InGameSelect)
                     {
                         GameAudio.PlaySfxAsync("sd_troop_land");
-                        for (int i = 0; i < this.OrbitSL.Entries.Count; i++)
+                        foreach (ScrollList.Entry e in OrbitSL.AllEntries)
                         {
-                            ScrollList.Entry e = this.OrbitSL.Entries[i];
-                            if (e.item is Ship)
+                            if (e.item is Ship ship)
                             {
-                                (e.item as Ship).AI.OrderLandAllTroops(this.p);
+                                ship.AI.OrderLandAllTroops(p);
                             }
-                            else if (e.item is Troop)
+                            else if (e.item is Troop troop)
                             {
-                                (e.item as Troop).GetShip().TroopList.Remove(e.item as Troop);
-                                (e.item as Troop).AssignTroopToTile(this.p);
+                                troop.GetShip().TroopList.Remove(troop);
+                                troop.AssignTroopToTile(p);
                             }
                         }
-                        this.OrbitSL.Entries.Clear();
+                        OrbitSL.Reset();
                     }
-                    
                 }
             }
             if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == Empire.Universe.player))
@@ -754,8 +749,8 @@ namespace Ship_Game
                     }
                 }
             }
-            this.OrbitSL.HandleInput(input);
-            foreach (ScrollList.Entry e in this.OrbitSL.Copied)
+            OrbitSL.HandleInput(input);
+            foreach (ScrollList.Entry e in OrbitSL.AllFlattenedEntries)
             {
                 if (!e.clickRect.HitTest(MousePos))
                 {
@@ -763,24 +758,21 @@ namespace Ship_Game
                 }
                 else
                 {
-                    this.selector = new Selector(e.clickRect);
-                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                    {
-                        continue;
-                    }
-                    this.draggedTroop = e;
+                    selector = new Selector(e.clickRect);
+                    if (input.LeftMouseClick)
+                        draggedTroop = e;
                 }
             }
-            if (this.draggedTroop != null && this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+            if (draggedTroop != null && input.LeftMouseClick)
             {
                 bool foundPlace = false;
-                foreach (PlanetGridSquare pgs in this.p.TilesList)
+                foreach (PlanetGridSquare pgs in p.TilesList)
                 {
                     if (!pgs.ClickRect.HitTest(MousePos))
                     {
                         continue;
                     }
-                    if (!(this.draggedTroop.item is Ship) || (this.draggedTroop.item as Ship).TroopList.Count <= 0)
+                    if (!(draggedTroop.item is Ship) || (draggedTroop.item as Ship).TroopList.Count <= 0)
                     {
                         if (!(this.draggedTroop.item is Troop) || (pgs.building != null || pgs.TroopsHere.Count != 0) && (pgs.building == null || pgs.building.CombatStrength != 0 || pgs.TroopsHere.Count != 0))
                         {
@@ -798,7 +790,7 @@ namespace Ship_Game
 
                             this.p.TroopsHere.Add(this.draggedTroop.item as Troop);
                             (this.draggedTroop.item as Troop).SetPlanet(this.p);
-                            this.OrbitSL.Entries.Remove(this.draggedTroop);
+                            this.OrbitSL.Remove(draggedTroop);
                             (this.draggedTroop.item as Troop).GetShip().TroopList.Remove(this.draggedTroop.item as Troop);
                             foundPlace = true;
                             this.draggedTroop = null;
@@ -829,8 +821,7 @@ namespace Ship_Game
                             {
                                 ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, Empire.Universe);
                             }
-                            OrbitSL.Entries.Remove(draggedTroop);
-                            OrbitSL.Copied.Remove(draggedTroop);
+                            OrbitSL.Remove(draggedTroop);
                             (draggedTroop.item as Ship).QueueTotalRemoval();
                             foundPlace = true;
                             draggedTroop = null;
@@ -1014,30 +1005,29 @@ namespace Ship_Game
         
         private void ResetTroopList()
         {
-            this.OrbitSL.Entries.Clear();
-            this.OrbitSL.Copied.Clear();
-            this.OrbitSL.indexAtTop = 0;
-            for (int i = 0; i < this.p.ParentSystem.ShipList.Count; i++)
+            OrbitSL.Reset();
+            for (int i = 0; i < p.ParentSystem.ShipList.Count; i++)
             {
-                Ship ship = this.p.ParentSystem.ShipList[i];
-                if (Vector2.Distance(this.p.Center, ship.Center) < 15000f && ship.loyalty == EmpireManager.Player)
+                Ship ship = p.ParentSystem.ShipList[i];
+                if (p.Center.Distance(ship.Center) >= 15000f || ship.loyalty != EmpireManager.Player)
+                    continue;
+
+                if (ship.shipData.Role == ShipData.RoleName.troop && !Empire.Universe.MasterShipList.IsPendingRemoval(ship))
                 {
-                    if (ship.shipData.Role == ShipData.RoleName.troop && !Empire.Universe.MasterShipList.IsPendingRemoval(ship))
+                    OrbitSL.AddItem(ship);
+                }
+                else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
+                {
+                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
+                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
+                        landingLimit += module.TransporterTroopLanding;
+
+                    for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
                     {
-                        this.OrbitSL.AddItem(ship);
-                    }
-                    else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
-                    {
-                        int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                        foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
-                            landingLimit += module.TransporterTroopLanding;
-                        for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
+                        if (ship.TroopList[x].GetOwner() == ship.loyalty)
                         {
-                            if (ship.TroopList[x].GetOwner() == ship.loyalty)
-                            {
-                                this.OrbitSL.AddItem(ship.TroopList[x]);
-                                landingLimit--;
-                            }
+                            OrbitSL.AddItem(ship.TroopList[x]);
+                            landingLimit--;
                         }
                     }
                 }

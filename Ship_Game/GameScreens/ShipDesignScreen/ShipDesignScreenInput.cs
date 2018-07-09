@@ -782,12 +782,12 @@ namespace Ship_Game
                 HullSL.AddItem(new ModuleHeader(cat, 240));
             }
 
-            foreach (ScrollList.Entry e in HullSL.Entries)
+            foreach (ScrollList.Entry e in HullSL.AllEntries)
             {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
                     if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key] ||
-                        ((ModuleHeader) e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
+                        ((ModuleHeader)e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
                     {
                         continue;
                     }

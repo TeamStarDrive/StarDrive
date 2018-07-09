@@ -893,8 +893,7 @@ namespace Ship_Game
                 RaceDesignScreen raceDesignScreen81 = this;
                 raceDesignScreen81.rd = string.Concat(raceDesignScreen81.rd, this.Plural, Localizer.Token(1380));
             }
-            this.DescriptionSL.Entries.Clear();
-            this.DescriptionSL.Copied.Clear();
+            DescriptionSL.Reset();
             HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
         }
 
@@ -1366,19 +1365,17 @@ namespace Ship_Game
                     }
                 }
             }
-            this.DescriptionSL.HandleInput(input);
-            if (!this.DrawingColorSelector)
+            DescriptionSL.HandleInput(input);
+            if (!DrawingColorSelector)
             {
-                this.selector = null;
-                foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
+                selector = null;
+                foreach (ScrollList.Entry e in RaceArchetypeSL.Entries)
                 {
-                    if (!e.clickRect.HitTest(mousePos) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                    {
+                    if (!e.clickRect.HitTest(mousePos) || input.LeftMouseClick)
                         continue;
-                    }
-                    this.SelectedData = e.item as EmpireData;
+                    SelectedData = e.item as EmpireData;
                     GameAudio.PlaySfxAsync("echo_affirm");
-                    this.SetEmpireData(this.SelectedData.Traits);
+                    SetEmpireData(SelectedData.Traits);
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);
@@ -2011,52 +2008,32 @@ namespace Ship_Game
             }
         }
 
-        private string parseText(string text, float Width)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(new char[] { ' ' });
-            for (int i = 0; i < (int)strArrays.Length; i++)
-            {
-                string word = strArrays[i];
-                if (Fonts.Arial14Bold.MeasureString(string.Concat(line, word)).Length() > Width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
-            }
-            return string.Concat(returnString, line);
-        }
 
         public virtual void ResetLists()
         {
-            this.traitsSL.indexAtTop = 0;
-            if (this.Traits.Tabs[0].Selected)
+            traitsSL.Reset();
+            if (Traits.Tabs[0].Selected)
             {
-                this.traitsSL.Entries.Clear();
-                foreach (TraitEntry t in this.AllTraits)
+                foreach (TraitEntry t in AllTraits)
                 {
-                    if(t.trait.Category == "Physical")
-                        this.traitsSL.AddItem(t);
+                    if (t.trait.Category == "Physical")
+                        traitsSL.AddItem(t);
                 }
             }
-            else if (this.Traits.Tabs[1].Selected)
+            else if (Traits.Tabs[1].Selected)
             {
-                this.traitsSL.Entries.Clear();
-                foreach (TraitEntry t in this.AllTraits)
+                foreach (TraitEntry t in AllTraits)
                 {
                     if (t.trait.Category == "Industry")
-                        this.traitsSL.AddItem(t);
+                        traitsSL.AddItem(t);
                 }
             }
-            else if (this.Traits.Tabs[2].Selected)
+            else if (Traits.Tabs[2].Selected)
             {
-                this.traitsSL.Entries.Clear();
-                foreach (TraitEntry t in this.AllTraits)
+                foreach (TraitEntry t in AllTraits)
                 {
                     if (t.trait.Category == "Special")
-                        this.traitsSL.AddItem(t);
+                        traitsSL.AddItem(t);
                 }
             }
         }
@@ -2074,26 +2051,28 @@ namespace Ship_Game
 
         public void SetCustomEmpireData(RacialTrait Traits)    // Sets the empire data externally, checks for fields that are default so don't overwrite
         {
-            foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
+            foreach (EmpireData origRace in RaceArchetypeSL.AllItems<EmpireData>())
             {
-                EmpireData origRace = e.item as EmpireData;
-                if( origRace.Traits.ShipType == Traits.ShipType)
+                if (origRace.Traits.ShipType == Traits.ShipType)
                 {
                     if (Traits.Name == origRace.Traits.Name)
-                        Traits.Name = this.RaceName.Text;
+                        Traits.Name = RaceName.Text;
                     if (Traits.Singular == origRace.Traits.Singular)
-                        Traits.Singular = this.SingEntry.Text;
+                        Traits.Singular = SingEntry.Text;
                     if (Traits.Plural == origRace.Traits.Plural)
-                        Traits.Plural = this.PlurEntry.Text;
+                        Traits.Plural = PlurEntry.Text;
                     if (Traits.HomeSystemName == origRace.Traits.HomeSystemName)
-                        Traits.HomeSystemName = this.HomeSystemEntry.Text;
+                        Traits.HomeSystemName = HomeSystemEntry.Text;
                     if (Traits.FlagIndex == origRace.Traits.FlagIndex)
-                        Traits.FlagIndex = this.FlagIndex;
-                    if (Traits.R == origRace.Traits.R && Traits.G == origRace.Traits.G && Traits.B == origRace.Traits.B)
+                        Traits.FlagIndex = FlagIndex;
+
+                    if (Traits.R == origRace.Traits.R &&
+                        Traits.G == origRace.Traits.G &&
+                        Traits.B == origRace.Traits.B)
                     {
-                        Traits.R = (float)this.currentObjectColor.R;
-                        Traits.G = (float)this.currentObjectColor.G;
-                        Traits.B = (float)this.currentObjectColor.B;
+                        Traits.R = currentObjectColor.R;
+                        Traits.G = currentObjectColor.G;
+                        Traits.B = currentObjectColor.B;
                     }
                     break;
                 }

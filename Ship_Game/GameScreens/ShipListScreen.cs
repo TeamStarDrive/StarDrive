@@ -169,51 +169,48 @@ namespace Ship_Game
             Color TextColor = new Color(118, 102, 67, 50);
             this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
             this.cb_hide_proj.Draw(ScreenManager.SpriteBatch);
-            if (this.ShipSL.Copied.Count > 0)
+            if (this.ShipSL.NumFlattenedEntries > 0)
             {
-                ShipListScreenEntry e1 = this.ShipSL.Entries[this.ShipSL.indexAtTop].item as ShipListScreenEntry;
-                if (this.ShipSL.Copied.Count > 0)
-                {
-                    ShipListScreenEntry entry = this.ShipSL.Copied[this.ShipSL.indexAtTop].item as ShipListScreenEntry;
-                    Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                    this.SortSystem.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X, Fonts.Arial20Bold.LineSpacing);
-                    
-                    this.SortSystem.Draw(base.ScreenManager, Fonts.Arial20Bold);
-                    TextCursor = new Vector2((float)(entry.ShipNameRect.X + entry.ShipNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                    this.SortName.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X, Fonts.Arial20Bold.LineSpacing);
-                    
-                    this.SortName.Draw(base.ScreenManager, Fonts.Arial20Bold);
-                    
-                    TextCursor = new Vector2((float)(entry.RoleRect.X + entry.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                    this.SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);					
-                    this.SortRole.Draw(base.ScreenManager, Fonts.Arial20Bold);
+                var e1 = ShipSL.ItemAtTop<ShipListScreenEntry>();
+                var TextCursor = new Vector2((float)(e1.SysNameRect.X + e1.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                this.SortSystem.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X, Fonts.Arial20Bold.LineSpacing);
+                
+                this.SortSystem.Draw(base.ScreenManager, Fonts.Arial20Bold);
+                TextCursor = new Vector2((float)(e1.ShipNameRect.X + e1.ShipNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                this.SortName.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X, Fonts.Arial20Bold.LineSpacing);
+                
+                this.SortName.Draw(base.ScreenManager, Fonts.Arial20Bold);
+                
+                TextCursor = new Vector2((float)(e1.RoleRect.X + e1.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                this.SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);					
+                this.SortRole.Draw(base.ScreenManager, Fonts.Arial20Bold);
 
-                    TextCursor = new Vector2((float)(entry.OrdersRect.X + entry.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
-                    this.SortOrder.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X, Fonts.Arial20Bold.LineSpacing);
-                    this.SortOrder.Draw(base.ScreenManager, Fonts.Arial20Bold);
-                    //base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
+                TextCursor = new Vector2((float)(e1.OrdersRect.X + e1.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
+                this.SortOrder.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X, Fonts.Arial20Bold.LineSpacing);
+                this.SortOrder.Draw(base.ScreenManager, Fonts.Arial20Bold);
+                //base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
 
-                    this.STRIconRect = new Rectangle(entry.STRRect.X + entry.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
-                    this.SB_STR.rect = this.STRIconRect;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);                    
-                    this.MaintRect = new Rectangle(entry.MaintRect.X + entry.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
-                    this.Maint.rect = this.MaintRect;
-                    //this.Maint.Draw(base.ScreenManager, null);
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MaintRect, Color.White);
-                    this.TroopRect = new Rectangle(entry.TroopRect.X + entry.TroopRect.Width / 2 - 5, this.eRect.Y - 22 + 30, 18, 22);
-                    this.SB_Troop.rect = this.TroopRect;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
-                    TextCursor = new Vector2((float)(entry.FTLRect.X + entry.FTLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
-                    HelperFunctions.ClampVectorToInt(ref TextCursor);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "FTL", TextCursor, new Color(255, 239, 208));
-                    this.FTL = new Rectangle(entry.FTLRect.X, this.eRect.Y - 20 + 35, entry.FTLRect.Width, 20);
-                    this.SB_FTL.rect = this.FTL;
-                    this.STL = new Rectangle(entry.STLRect.X, this.eRect.Y - 20 + 35, entry.STLRect.Width, 20);
-                    this.SB_STL.rect = this.STL;
-                    TextCursor = new Vector2((float)(entry.STLRect.X + entry.STLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
-                    HelperFunctions.ClampVectorToInt(ref TextCursor);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
-                }
+                this.STRIconRect = new Rectangle(e1.STRRect.X + e1.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
+                this.SB_STR.rect = this.STRIconRect;
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);                    
+                this.MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
+                this.Maint.rect = this.MaintRect;
+                //this.Maint.Draw(base.ScreenManager, null);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MaintRect, Color.White);
+                this.TroopRect = new Rectangle(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, this.eRect.Y - 22 + 30, 18, 22);
+                this.SB_Troop.rect = this.TroopRect;
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
+                TextCursor = new Vector2((float)(e1.FTLRect.X + e1.FTLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
+                HelperFunctions.ClampVectorToInt(ref TextCursor);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "FTL", TextCursor, new Color(255, 239, 208));
+                this.FTL = new Rectangle(e1.FTLRect.X, this.eRect.Y - 20 + 35, e1.FTLRect.Width, 20);
+                this.SB_FTL.rect = this.FTL;
+                this.STL = new Rectangle(e1.STLRect.X, this.eRect.Y - 20 + 35, e1.STLRect.Width, 20);
+                this.SB_STL.rect = this.STL;
+                TextCursor = new Vector2((float)(e1.STLRect.X + e1.STLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
+                HelperFunctions.ClampVectorToInt(ref TextCursor);
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
+            
                 Color smallHighlight = Color.DarkGreen;
                 foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
                 {
@@ -320,21 +317,23 @@ namespace Ship_Game
                         Empire.Universe.ViewToShip(null);
                         Empire.Universe.returnToShip = true;
                     }
-                    if (this.SelectedShip != entry.ship)
+                    if (SelectedShip != entry.ship)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
                         {
-                            foreach (ScrollList.Entry sel in this.ShipSL.Entries)
-                                (sel.item as ShipListScreenEntry).Selected = false;
+                            foreach (ShipListScreenEntry slEntry in ShipSL.AllFlattenedItems<ShipListScreenEntry>())
+                                slEntry.Selected = false;
                         }
-                        if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && this.SelectedShip != null)
+                        if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && SelectedShip != null)
+                        {
                             if (i >= CurrentLine)
                                 for (int l = CurrentLine; l <= i; l++)
-                                    (ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+                                    ShipSL.ItemAt<ShipListScreenEntry>(l).Selected = true;
                             else
                                 for (int l = i; l <= CurrentLine; l++)
-                                    (ShipSL.Copied[l].item as ShipListScreenEntry).Selected = true;
+                                    ShipSL.ItemAt<ShipListScreenEntry>(l).Selected = true;
+                        }
 
                         SelectedShip = entry.ship;
                         entry.Selected = true;
@@ -589,9 +588,8 @@ namespace Ship_Game
                     Empire.Universe.SelectedSystem = null;
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip = false;
-                    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
-                        if ((sel.item as ShipListScreenEntry).Selected)
-                            Empire.Universe.SelectedShipList.AddUnique((sel.item as ShipListScreenEntry).ship);
+                    foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                        if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
                     {
@@ -620,9 +618,8 @@ namespace Ship_Game
                     Empire.Universe.SelectedSystem = null;
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip   = false;
-                    foreach (ScrollList.Entry sel in this.ShipSL.Entries)
-                        if ((sel.item as ShipListScreenEntry).Selected)
-                            Empire.Universe.SelectedShipList.AddUnique((sel.item as ShipListScreenEntry).ship);
+                    foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                        if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
                     {
@@ -640,169 +637,143 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public void ResetList()
-        {
-            this.ShipSL.Copied.Clear();
-            this.ShipSL.Entries.Clear();
-            this.ShipSL.indexAtTop = 0;
-            if (EmpireManager.Player.GetShips().Count > 0)
-            {
-                foreach (Ship ship in EmpireManager.Player.GetShips())
-                {
-                    if (!ship.IsPlayerDesign && this.HidePlatforms)
-                    {
-                        continue;
-                    }
-                    ShipListScreenEntry entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                    this.ShipSL.AddItem(entry);
-                }
-                this.SelectedShip = null;
-                CurrentLine = 0;
-            }
-        }
-
         public void ResetList(int omit)
         {
-            ShipListScreenEntry entry;
-            this.ShipSL.Entries.Clear();
-            this.ShipSL.Copied.Clear();
-            this.ShipSL.indexAtTop = 0;
-            if (EmpireManager.Player.GetShips().Count > 0)
+            ShipSL.Reset();
+            if (EmpireManager.Player.GetShips().Count <= 0)
+                return;
+            foreach (Ship ship in EmpireManager.Player.GetShips())
             {
-                foreach (Ship ship in EmpireManager.Player.GetShips())
+                if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
                 {
-                    if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
+                    continue;
+                }
+                ShipListScreenEntry entry;
+                switch (omit)  //fbedard
+                {
+                    case 1:
+                    {
+                        if (ship.shipData.Role <= ShipData.RoleName.station)
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 2:
+                    {
+                        if ((ship.shipData.Role != ShipData.RoleName.fighter) && (ship.shipData.Role != ShipData.RoleName.scout))
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 3:
+                    {
+                        if ((ship.shipData.Role != ShipData.RoleName.frigate) && (ship.shipData.Role != ShipData.RoleName.destroyer))
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 4:
+                    {
+                        if (ship.shipData.Role != ShipData.RoleName.cruiser)
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 5:
+                    {
+                        if (ship.shipData.Role != ShipData.RoleName.capital && ship.shipData.Role != ShipData.RoleName.carrier)
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 6:
+                    {
+                        if (ship.fleet == null)
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 7:
+                    {
+                        if (!ship.IsPlayerDesign)
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 8:
+                    {
+                        if ((ship.shipData.Role != ShipData.RoleName.freighter) && (!ship.isConstructor) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 9:
+                    {
+                        if ((ship.shipData.Role > ShipData.RoleName.construction))
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 10:
+                    {
+                        if ((ship.shipData.Role != ShipData.RoleName.corvette && ship.shipData.Role != ShipData.RoleName.gunboat))
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    case 11: 
+                    {
+                        if (ship.fleet != null || ship.shipData.Role <= ShipData.RoleName.station)
+                        {
+                            continue;
+                        }
+                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
+                        this.ShipSL.AddItem(entry);
+                        continue;
+                    }
+                    default:
                     {
                         continue;
                     }
-                    //switch (this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value)
-                    switch (omit)  //fbedard
-                    {
-                        case 1:
-                        {
-                            if (ship.shipData.Role <= ShipData.RoleName.station)
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 2:
-                        {
-                            if ((ship.shipData.Role != ShipData.RoleName.fighter) && (ship.shipData.Role != ShipData.RoleName.scout))
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 3:
-                        {
-                            if ((ship.shipData.Role != ShipData.RoleName.frigate) && (ship.shipData.Role != ShipData.RoleName.destroyer))
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 4:
-                        {
-                            if (ship.shipData.Role != ShipData.RoleName.cruiser)
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 5:
-                        {
-                            if (!(ship.shipData.Role == ShipData.RoleName.capital) && !(ship.shipData.Role == ShipData.RoleName.carrier))
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 6:
-                        {
-                            if (ship.fleet == null)
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 7:
-                        {
-                            if (!ship.IsPlayerDesign)
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 8:
-                        {
-                            if ((ship.shipData.Role != ShipData.RoleName.freighter) && (!ship.isConstructor) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 9:
-                        {
-                            if ((ship.shipData.Role > ShipData.RoleName.construction))
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 10:
-                        {
-                            if ((ship.shipData.Role != ShipData.RoleName.corvette && ship.shipData.Role != ShipData.RoleName.gunboat))
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        case 11: 
-                        {
-                            if (ship.fleet != null || ship.shipData.Role <= ShipData.RoleName.station)
-                            {
-                                continue;
-                            }
-                            entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                            this.ShipSL.AddItem(entry);
-                            continue;
-                        }
-                        default:
-                        {
-                            continue;
-                        }
-                    }
                 }
-                this.SelectedShip = null;
-                CurrentLine = 0;
             }
+            this.SelectedShip = null;
+            CurrentLine = 0;
         }
 
         public void ResetListSorted(IOrderedEnumerable<ScrollList.Entry> sortedList)
         {
-            ShipSL.Copied.Clear();
-            ShipSL.Entries.Clear();
+            ShipSL.Reset();
             foreach (ScrollList.Entry e in sortedList)
             {
                 ShipSL.AddItem(e.item as ShipListScreenEntry);
@@ -820,11 +791,8 @@ namespace Ship_Game
 
         public void ResetStatus()
         {
-            foreach (ScrollList.Entry e in ShipSL.Entries)
-            {
-                var entry = (ShipListScreenEntry)e.item;
-                entry.Status_Text = ShipListScreenEntry.GetStatusText(entry.ship);
-            }
+            foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                sel.Status_Text = ShipListScreenEntry.GetStatusText(sel.ship);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)

@@ -39,9 +39,8 @@ namespace Ship_Game
         }
 
         private void Populate()
-        {            
-            Entries.Clear();
-            Copied.Clear();
+        {
+            Reset();
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship fighter)) continue;

@@ -113,7 +113,7 @@ namespace Ship_Game
                 }
             }
             this.SavesSL.HandleInput(input);
-            foreach (ScrollList.Entry e in this.SavesSL.Copied)
+            foreach (ScrollList.Entry e in this.SavesSL.FlattenedEntries)
             {
                 if (!e.clickRect.HitTest(mousePos))
                 {
@@ -144,7 +144,6 @@ namespace Ship_Game
 
         private bool LoadModel(ModelData modelData)
         {
-
             try
             {
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -180,19 +179,11 @@ namespace Ship_Game
             FileInfo[] objModels = ResourceManager.GatherFilesUnified("Model/Ships", "obj");
             foreach (FileInfo file in xnbModels)
             {
-                SavesSL.Entries[0].AddItem(new ModelData
-                {
-                    Name     = file.Name,
-                    FileInfo = file
-                });
+                SavesSL.EntryAt(0).AddItem(new ModelData { Name = file.Name, FileInfo = file });
             }
             foreach (FileInfo file in objModels)
             {
-                SavesSL.Entries[1].AddItem(new ModelData
-                {
-                    Name     = file.Name,
-                    FileInfo = file
-                });
+                SavesSL.EntryAt(1).AddItem(new ModelData { Name = file.Name, FileInfo = file });
             }
             base.LoadContent();
         }

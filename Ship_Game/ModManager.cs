@@ -152,7 +152,7 @@ namespace Ship_Game
                 return false;
             }
             ModsSL.HandleInput(input);
-            foreach (ScrollList.Entry e in ModsSL.Entries)
+            foreach (ScrollList.Entry e in ModsSL.AllEntries)
             {
                 if (!e.clickRect.HitTest(input.CursorPosition))
                 {
@@ -170,7 +170,7 @@ namespace Ship_Game
                         continue;
 
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    SelectedMod = e.item as ModEntry;
+                    SelectedMod = (ModEntry)e.item;
                     EnterNameArea.Text = SelectedMod.ModName;
 
                     foreach (UIButton button in Buttons)

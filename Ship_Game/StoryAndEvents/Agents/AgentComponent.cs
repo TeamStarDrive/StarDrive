@@ -243,10 +243,8 @@ namespace Ship_Game
 			    if (input.InGameSelect)
 			    {
 			        SelectedAgent = e.item as Agent;
-			        foreach (ScrollList.Entry entry in OpsSL.Entries)
-			        {
-			            ((MissionEntry)entry.item).Initialize();
-			        }
+			        foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
+			            mission.Initialize();
 			        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 			    }
 			}
@@ -311,10 +309,8 @@ namespace Ship_Game
                 if (input.InGameSelect)
                 {
                     SelectedAgent = e.item as Agent;
-                    foreach (ScrollList.Entry entry in OpsSL.Entries)
-                    {
-                        ((MissionEntry)entry.item).Initialize();
-                    }
+                    foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
+                        mission.Initialize();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
             }
@@ -343,8 +339,8 @@ namespace Ship_Game
 		{
 		    if (SelectedAgent == null)
 		        return;
-		    foreach (ScrollList.Entry entry in OpsSL.Entries)
-		        ((MissionEntry)entry.item).Initialize();
+		    foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
+		        mission.Initialize();
 		}
 
         public void Dispose()
