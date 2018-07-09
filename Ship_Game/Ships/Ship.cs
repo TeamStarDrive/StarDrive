@@ -1976,9 +1976,9 @@ namespace Ship_Game.Ships
             Array<Troop> enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
 
             HealTroops();
-
-            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > TroopCapacity + 1) //  +1 to leave a garrison on the captured ship
-                DisengageExcessTroops(ownTroops.Count - (TroopCapacity + 1));
+            int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrion of 1 if ship without barracks was boarded
+            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > troopThreshold) 
+                DisengageExcessTroops(ownTroops.Count - troopThreshold);
 
             if (enemyTroops.Count <= 0)
                 return; // Boarding is over or never started
@@ -2022,7 +2022,7 @@ namespace Ship_Game.Ships
 
             float GetMechanicalDefenseRoll()
             {
-                float mechanicalDefResult =0f;
+                float mechanicalDefResult = 0f;
                 for (int index = 0; index < MechanicalBoardingDefense; ++index)
                     if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
                         ++mechanicalDefResult;
@@ -2092,7 +2092,7 @@ namespace Ship_Game.Ships
                 {
                     if (attackingTroopsRoll > 0)
                     {
-                        attackingTroopsRoll = -troop.Strength;
+                        attackingTroopsRoll -= troop.Strength;
                         troop.Strength -= attackingTroopsRoll + troop.Strength;
                         if (troop.Strength <= 0)
                             TroopList.Remove(troop);
@@ -2121,7 +2121,7 @@ namespace Ship_Game.Ships
                 if (assaultShip.Velocity.Length() > assaultShip.velocityMaximum)
                     assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
 
-                assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to fill friendlies near by
+                assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to find friendlies nearby
                 foreach (Ship friendlyTroopShiptoRebase in assaultShip.AI.FriendliesNearby.FilterBy(ship => ship.TroopList.Count < ship.TroopCapacity 
                                                                                              && ship.Carrier.HasTroopBays))
                 {
