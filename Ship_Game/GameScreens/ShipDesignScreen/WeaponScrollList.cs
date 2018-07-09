@@ -32,7 +32,7 @@ namespace Ship_Game
             base.HandleInput(input);
             if (input.ScrollIn && indexAtTop > 0)
                 --indexAtTop;
-            if (input.ScrollOut && indexAtTop + entriesToDisplay < Entries.Count)
+            if (input.ScrollOut && indexAtTop + entriesToDisplay < NumFlattenedEntries)
                 ++indexAtTop;
 
             if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
@@ -109,7 +109,7 @@ namespace Ship_Game
 
             if (ResetOnNextDraw)
             {
-                Entries.Clear();
+                Reset();
                 Categories.Clear();
                 if      (Screen.ModSel.Tabs[0].Selected) AddWeaponCategories();
                 else if (Screen.ModSel.Tabs[1].Selected) AddPowerCategories();

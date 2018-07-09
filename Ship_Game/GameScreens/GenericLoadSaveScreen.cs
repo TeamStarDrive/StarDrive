@@ -283,11 +283,11 @@ namespace Ship_Game
             this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
             this.SaveMenu = new Menu1(this.Window);
             this.close = new CloseButton(this, new Rectangle(this.Window.X + this.Window.Width - 35, this.Window.Y + 10, 20, 20));
-            Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
+            var sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
             this.NameSave = new Submenu(sub);
             this.NameSave.AddTab(this.TitleText);
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-            Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
+            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.AllSaves = new Submenu(scrollList);
             this.AllSaves.AddTab(this.TabText);
             this.SavesSL = new ScrollList(AllSaves, eHeight, true, false, false, false);
@@ -308,31 +308,28 @@ namespace Ship_Game
 
         private void OverWriteAccepted(object sender, EventArgs e)
         {
-            this.DoSave();
+            DoSave();
+        }
+
+        private bool IsSaveOk()
+        {
+            foreach (FileData data in SavesSL.AllItems<FileData>())
+                if (EnterNameArea.Text == data.FileName) // check if item already exists
+                    return false;
+            return true;
         }
 
         private void TrySave()
         {
-            bool SaveOK = true;
-
-            foreach (ScrollList.Entry entry in this.SavesSL.Entries)
+            if (IsSaveOk())
             {
-                if (this.EnterNameArea.Text == (entry.item as FileData).FileName)       // check if item already exists
-                {
-                    SaveOK = false;
-                    break;
-                }
-            }
-
-            if (SaveOK)
-            {
-                this.DoSave();
+                DoSave();
             }
             else
             {
-                MessageBoxScreen messageBox = new MessageBoxScreen(this, OverWriteText);
+                var messageBox = new MessageBoxScreen(this, OverWriteText);
                 messageBox.Accepted += OverWriteAccepted;
-                base.ScreenManager.AddScreen(messageBox);
+                ScreenManager.AddScreen(messageBox);
             }
         }
 

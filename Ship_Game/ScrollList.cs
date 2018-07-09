@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     public class ScrollList : IDisposable
     {
-        private Submenu Parent;
+        private readonly Submenu Parent;
         public Rectangle ScrollUp;
         public Rectangle ScrollDown;
         public Rectangle ScrollBarHousing;
@@ -25,7 +25,7 @@ namespace Ship_Game
         public int entriesToDisplay;
         public int indexAtTop;
         public BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
-        public BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>(); // Flattened entries
+        private BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>(); // Flattened entries
         public bool IsDraggable;
         public Entry DraggedEntry;
         private Vector2 DraggedOffset;
@@ -112,6 +112,81 @@ namespace Ship_Game
             Entries.Add(e);
             Update();
             e.ParentList = this;
+        }
+
+        public void QueueForRemoval(Entry e)
+        {
+            Entries.QueuePendingRemoval(e);
+            Copied.QueuePendingRemoval(e);
+        }
+
+        public void QueueForRemovalIf(Func<Entry, bool> predicate)
+        {
+            foreach (Entry e in Entries)
+            {
+                if (!predicate(e))
+                    continue;
+                Entries.QueuePendingRemoval(e);
+                Copied.QueuePendingRemoval(e);
+            }
+        }
+
+        public void QueueItemForRemoval(object o)
+        {
+            foreach (Entry e in Entries)
+                if (e.item == o) QueueForRemoval(e);
+        }
+
+        public void QueueItemForRemovalIf<T>(Func<T, bool> predicate) where T : class
+        {
+            foreach (Entry e in Entries)
+            {
+                if (!(e.item is T item) || !predicate(item))
+                    continue;
+                Entries.QueuePendingRemoval(e);
+                Copied.QueuePendingRemoval(e);
+            }
+        }
+
+        public void Remove(Entry e)
+        {
+            Entries.Remove(e);
+            Copied.Remove(e);
+        }
+
+        public void RemoveAt(int index)
+        {
+            Entries.RemoveAt(index);
+            Copied.RemoveAt(index);
+        }
+
+        public void ApplyPendingRemovals()
+        {
+            Entries.ApplyPendingRemovals();
+            Copied.ApplyPendingRemovals();
+        }
+
+        public Entry EntryAt(int index) => Entries[index];
+
+        public T ItemAt<T>(int index) where T : class
+        {
+            return (T)Copied[index].item;
+        }
+
+        public T ItemAtTop<T>() where T : class
+        {
+            return (T)Copied[indexAtTop].item;
+        }
+
+        public int IndexOf<T>(Func<T, bool> predicate) where T : class
+        {
+            for (int i = 0; i < Entries.Count; ++i)
+            {
+                Entry e = Entries[i];
+                if (e.item is T item && predicate(item))
+                    return i;
+            }
+            return -1;
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)
@@ -470,6 +545,11 @@ namespace Ship_Game
             return hit;
         }
 
+        public IReadOnlyList<Entry> AllEntries => Entries;
+        public IReadOnlyList<Entry> AllFlattenedEntries => Copied;
+        public int NumEntries => Entries.Count;
+        public int NumFlattenedEntries => Copied.Count;
+
         public IEnumerable<Entry> VisibleEntries
         {
             get
@@ -498,6 +578,20 @@ namespace Ship_Game
         public IEnumerable<T> FlattenedItems<T>() where T : class
         {
             for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+                if (Copied[i].item is T item)
+                    yield return item;
+        }
+
+        public IEnumerable<T> AllItems<T>() where T : class
+        {
+            for (int i = 0; i < Entries.Count; ++i)
+                if (Entries[i].item is T item)
+                    yield return item;
+        }
+
+        public IEnumerable<T> AllFlattenedItems<T>() where T : class
+        {
+            for (int i = 0; i < Copied.Count; ++i)
                 if (Copied[i].item is T item)
                     yield return item;
         }

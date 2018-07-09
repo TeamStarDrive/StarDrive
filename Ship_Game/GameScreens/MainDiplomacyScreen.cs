@@ -973,9 +973,8 @@ namespace Ship_Game
                         continue;
                     }
                     SelectedEmpire = race.e;
-                    ArtifactsSL.Entries.Clear();
-                    ArtifactsSL.indexAtTop = 0;
-                    ArtifactEntry entry = new ArtifactEntry();
+                    ArtifactsSL.Reset();
+                    var entry = new ArtifactEntry();
                     for (int i = 0; i < SelectedEmpire.data.OwnedArtifacts.Count; i++)
                     {
                         Artifact art = SelectedEmpire.data.OwnedArtifacts[i];
@@ -1004,13 +1003,12 @@ namespace Ship_Game
                         continue;
                     }
                     SelectedEmpire = race.e;
-                    ArtifactsSL.Entries.Clear();
-                    ArtifactsSL.indexAtTop = 0;
-                    ArtifactEntry entry = new ArtifactEntry();
+                    ArtifactsSL.Reset();
+                    var entry = new ArtifactEntry();
                     for (int i = 0; i < SelectedEmpire.data.OwnedArtifacts.Count; i++)
                     {
                         Artifact art = SelectedEmpire.data.OwnedArtifacts[i];
-                        SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
+                        var button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
                         {
                             IsToggle = false,
                             ReferenceObject = art,
@@ -1078,13 +1076,12 @@ namespace Ship_Game
                 else
                 {
                     SelectedEmpire = e;
-                    ArtifactsSL.Entries.Clear();
-                    ArtifactsSL.indexAtTop = 0;
-                    ArtifactEntry entry = new ArtifactEntry();
+                    ArtifactsSL.Reset();
+                    var entry = new ArtifactEntry();
                     for (int i = 0; i < e.data.OwnedArtifacts.Count; i++)
                     {
                         Artifact art = e.data.OwnedArtifacts[i];
-                        SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
+                        var button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
                         {
                             IsToggle = false,
                             ReferenceObject = art,

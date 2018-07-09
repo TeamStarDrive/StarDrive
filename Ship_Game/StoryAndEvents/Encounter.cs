@@ -297,11 +297,10 @@ namespace Ship_Game
 
 		private void SetResponses()
 		{
-			this.ResponseSL.Entries.Clear();
-			this.ResponseSL.indexAtTop = 0;
-			foreach (Response r in this.MessageList[this.CurrentMessage].ResponseOptions)
+			ResponseSL.Reset();
+			foreach (Response r in MessageList[CurrentMessage].ResponseOptions)
 			{
-				this.ResponseSL.AddItem(r);
+				ResponseSL.AddItem(r);
 			}
 		}
 

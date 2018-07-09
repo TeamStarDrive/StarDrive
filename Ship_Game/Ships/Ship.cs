@@ -1318,7 +1318,7 @@ namespace Ship_Game.Ships
                 }
             }
             techScores = scores;
-            return scores[1] + scores[3] + scores[0] + scores[2];
+            return scores[0] + scores[1] + scores[3] + scores[2];
         }        
 
         public void DoEscort(Ship escortTarget)

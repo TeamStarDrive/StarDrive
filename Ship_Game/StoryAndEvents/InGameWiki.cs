@@ -173,11 +173,11 @@ namespace Ship_Game
                     }
                 }
             }
-            for (int i = 0; i < HelpCategories.Copied.Count; i++)
+
+            foreach (ScrollList.Entry e in HelpCategories.AllFlattenedEntries)
             {
-                ScrollList.Entry e = HelpCategories.Copied[i];
-                if (e.item is ModuleHeader)                
-                    ((ModuleHeader) e.item).HandleInput(input, e);
+                if (e.item is ModuleHeader header)                
+                    header.HandleInput(input, e);
                 else if (!e.clickRect.HitTest(input.CursorPosition))                
                     e.clickRectHover = 0;                
                 else
@@ -188,9 +188,7 @@ namespace Ship_Game
                     e.clickRectHover = 1;
                     if (input.LeftMouseClick && e.item is HelpTopic)
                     {
-                        HelpEntries.Entries.Clear();
-                        HelpEntries.Copied.Clear();
-                        HelpEntries.indexAtTop = 0;
+                        HelpEntries.Reset();
                         ActiveTopic = (HelpTopic) e.item;                        
                         if (ActiveTopic.Text != null)
                         {
@@ -216,7 +214,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            HelpEntries.Copied.Clear();
+                            HelpEntries.Reset();
                             VideoPlayer = new VideoPlayer();
                             ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
                             VideoPlayer.Play(ActiveVideo);

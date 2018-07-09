@@ -1151,23 +1151,20 @@ namespace Ship_Game
                         if (SubShips.Tabs[1].Selected)
                         {
                             ScrollList.Entry toremove = null;
-                            foreach (ScrollList.Entry e in ShipSL.Copied)
+                            foreach (ScrollList.Entry e in ShipSL.AllFlattenedEntries)
                             {
-                                if (!(e.item is Ship) || e.item as Ship != ActiveShipDesign)
-                                {
+                                if (!(e.item is Ship ship) || ship != ActiveShipDesign)
                                     continue;
-                                }
                                 toremove = e;
                                 break;
                             }
                             if (toremove != null)
                             {
-                                foreach (ScrollList.Entry e in ShipSL.Copied)
+                                foreach (ScrollList.Entry e in ShipSL.AllFlattenedEntries)
                                 {
                                     e.SubEntries.Remove(toremove);
                                 }
-                                ShipSL.Entries.Remove(toremove);
-                                ShipSL.Copied.Remove(toremove);
+                                ShipSL.Remove(toremove);
                                 ShipSL.Update();
                             }
                         }
@@ -1185,7 +1182,7 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                ScrollList.Entry[] items = ShipSL.Copied.AtomicCopy();
+                ScrollList.Entry[] items = ShipSL.AllFlattenedEntries.ToArray();
                 foreach (ScrollList.Entry e in items)
                 {
                     if (e.item is ModuleHeader header)
@@ -1805,11 +1802,10 @@ namespace Ship_Game
                 }
                 AvailableShips.Add(ship);
             }
-            ShipSL.Entries.Clear();
-            ShipSL.indexAtTop = 0;
+            ShipSL.Reset();
             if (SubShips.Tabs[0].Selected)
             {
-                Array<string> roles = new Array<string>();
+                var roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(shipname);
@@ -1819,15 +1815,13 @@ namespace Ship_Game
 
                     ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
-                foreach (ScrollList.Entry e in ShipSL.Entries)
+                foreach (ScrollList.Entry e in ShipSL.AllEntries)
                 {
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
                         if (ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
-                        {
                             continue;
-                        }
                         e.AddItem(ship);
                     }
                 }
@@ -1844,14 +1838,12 @@ namespace Ship_Game
                     roles.Add(ship.DesignRoleName);
                     ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
-                foreach (ScrollList.Entry e in ShipSL.Entries)
+                foreach (ScrollList.Entry e in ShipSL.AllEntries)
                 {
                     foreach (Ship ship in AvailableShips)
                     {
                         if (ship.shipData.Role == ShipData.RoleName.troop || ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
-                        {
                             continue;
-                        }
                         e.AddItem(ship);
                     }
                 }

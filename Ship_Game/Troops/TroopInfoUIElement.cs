@@ -213,16 +213,14 @@ namespace Ship_Game
             }
             if (pgs.TroopsHere.Count != 0)
             {
-                this.DescriptionSL.Entries.Clear();
-                this.DescriptionSL.indexAtTop = 0;
-                HelperFunctions.parseTextToSL(pgs.TroopsHere[0].Description, (float)(this.LeftRect.Width - 15), Fonts.Arial12, ref this.DescriptionSL);
+                DescriptionSL.Reset();
+                HelperFunctions.parseTextToSL(pgs.TroopsHere[0].Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
                 return;
             }
             if (pgs.building != null)
             {
-                this.DescriptionSL.Entries.Clear();
-                this.DescriptionSL.indexAtTop = 0;
-                HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (float)(this.LeftRect.Width - 15), Fonts.Arial12, ref this.DescriptionSL);
+                DescriptionSL.Reset();
+                HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
             }
         }
 
