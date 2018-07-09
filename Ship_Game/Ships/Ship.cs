@@ -2024,7 +2024,7 @@ namespace Ship_Game.Ships
             {
                 float mechanicalDefResult = 0f;
                 for (int index = 0; index < MechanicalBoardingDefense; ++index)
-                    if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
+                    if (UniverseRandom.RandomBetween(0.0f, 100f) <= 50.0f)
                         ++mechanicalDefResult;
 
                 return mechanicalDefResult;
