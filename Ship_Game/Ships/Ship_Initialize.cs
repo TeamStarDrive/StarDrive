@@ -427,9 +427,6 @@ namespace Ship_Game.Ships
                 troopList.SetShip(this);
                 TroopBoardingDefense += troopList.Strength;
             }
-            MechanicalBoardingDefense *= (1 + TroopList.Count / 10);
-            if (MechanicalBoardingDefense < 1f)
-                MechanicalBoardingDefense = 1f;
         }
 
         private void SpawnTroopsForNewShip(ShipModule module)
@@ -530,7 +527,6 @@ namespace Ship_Game.Ships
                 if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
                 TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
-                if (MechanicalBoardingDefense < 1f) MechanicalBoardingDefense = 1f;
 
                 if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
                 if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
@@ -588,6 +584,8 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
+
+            MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
             shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
