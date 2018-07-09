@@ -60,7 +60,10 @@ namespace Ship_Game.Ships
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
-        public int NumTroopsInShipAndInSpace => Owner.TroopList.Count + LaunchedAssaultShuttles;
+        public int NumTroopsInShipAndInSpace(int troopCount)
+        {
+            return Owner == null ? troopCount : troopCount + LaunchedAssaultShuttles;
+        }
 
         public float MaxTroopStrengthInShipToCommit
         {
