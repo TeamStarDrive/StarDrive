@@ -493,7 +493,10 @@ namespace Ship_Game.AI
                              && State != AIState.HoldPosition)
                     {
                         if (State == AIState.FormationWarp)
-                            Log.Warning($"Fleet formation warp should not be possible with no desitination goal.");
+                        {
+                            OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
+                            Log.Warning($"Fleet formation warp should not be possible with nothing in order queue.");
+                        }
 
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
@@ -503,9 +506,11 @@ namespace Ship_Game.AI
                                 ActiveWayPoints.Clear();
                                 ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
                                 //fbedard: set new order for ship returning to fleet
-                                State = AIState.AwaitingOrders;
+                                State = AIState.AwaitingOrders;                                
                                 if (Owner.fleet?.GetStack().Count > 0)
                                     ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                                else
+                                    OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
                             }
                     }
                 }
