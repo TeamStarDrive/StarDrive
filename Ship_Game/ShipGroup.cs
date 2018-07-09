@@ -245,10 +245,10 @@ namespace Ship_Game
         {
             this.Position = movePosition;
             this.Facing = facing;
-            this.AssembleFleet(facing, fVec);
+            this.AssembleFleet(facing, fVec, true);
             foreach (Ship ship in this.Ships)
             {
-                ship.AI.SetPriorityOrder(true);
+                ship.AI.SetPriorityOrder(false);
                 ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
