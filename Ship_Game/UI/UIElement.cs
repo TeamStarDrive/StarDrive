@@ -68,7 +68,7 @@ namespace Ship_Game
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;
-            TransitionPosition = TransitionPosition.Clamp(0f, 1f);
+            TransitionPosition = TransitionPosition.Clamped(0f, 1f);
             return false;
         }
 

@@ -29,7 +29,7 @@ namespace Ship_Game.AI {
                                  OwnerEmpire.data.FlatMoneyBonus; //mmore savings than GDP 
             treasuryGoal *= (OwnerEmpire.data.treasuryGoal * 100);
             treasuryGoal  = Math.Max(1,treasuryGoal);
-            float goalClamped = 1f.Clamp(0,money / treasuryGoal);
+            float goalClamped = 1f.Clamped(0, money / treasuryGoal);
             float treasuryGoalRatio =  1 - goalClamped;
             treasuryGoal *= treasuryGoalRatio;
             float tempTax = FindTaxRateToReturnAmount(treasuryGoal);
