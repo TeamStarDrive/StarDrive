@@ -294,13 +294,6 @@ namespace Ship_Game
             return mirrored.Slot != null && slot.PQ.X != mirrored.Slot.PQ.X;
         }
 
-        private bool ShouldTryInstallModule(InputState input, out SlotStruct slot)
-        {
-            if (!GetSlotUnderCursor(input, out slot))
-                    return false;
-            return slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID;
-        }
-
         private void SetFiringArc(SlotStruct slot, float arc)
         {
             slot.Module.Facing = arc;
@@ -492,7 +485,7 @@ namespace Ship_Game
             if (!(input.LeftMouseClick || input.LeftMouseHeld()) || ActiveModule == null)
                 return;
 
-            if (!ShouldTryInstallModule(input, out SlotStruct slot))
+            if (!GetSlotUnderCursor(input, out SlotStruct slot))
             { 
                 PlayNegativeSound();
                 return;
