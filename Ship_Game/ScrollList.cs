@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Ship_Game
@@ -188,6 +189,81 @@ namespace Ship_Game
             }
             return -1;
         }
+
+        public void Sort<T, TValue>(Func<T, TValue> predicate) where T : class
+        {
+            Entry[] sorted = Entries.OrderBy(e => predicate(e.item as T)).ToArray();
+            Entries.Clear();
+            Entries.AddRange(sorted);
+            Update();
+        }
+
+        public void SortDescending<T, TValue>(Func<T, TValue> predicate) where T : class
+        {
+            Entry[] sorted = Entries.OrderByDescending(e => predicate(e.item as T)).ToArray();
+            Entries.Clear();
+            Entries.AddRange(sorted);
+            Update();
+        }
+
+        public IReadOnlyList<Entry> AllEntries => Entries;
+        public IReadOnlyList<Entry> AllFlattenedEntries => Copied;
+        public int NumEntries => Entries.Count;
+        public int NumFlattenedEntries => Copied.Count;
+
+        public IEnumerable<Entry> VisibleEntries
+        {
+            get
+            {
+                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                    yield return Entries[i];
+            }
+        }
+
+        public IEnumerable<Entry> FlattenedEntries
+        {
+            get
+            {
+                for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+                    yield return Copied[i];
+            }
+        }
+
+        public IEnumerable<T> VisibleItems<T>() where T : class
+        {
+            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                if (Entries[i].item is T item)
+                    yield return item;
+        }
+
+        public IEnumerable<T> FlattenedItems<T>() where T : class
+        {
+            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+                if (Copied[i].item is T item)
+                    yield return item;
+        }
+
+        public IEnumerable<T> AllItems<T>() where T : class
+        {
+            for (int i = 0; i < Entries.Count; ++i)
+                if (Entries[i].item is T item)
+                    yield return item;
+        }
+
+        public IEnumerable<T> AllFlattenedItems<T>() where T : class
+        {
+            for (int i = 0; i < Copied.Count; ++i)
+                if (Copied[i].item is T item)
+                    yield return item;
+        }
+
+        public void Reset()
+        {
+            Entries.Clear();
+            Copied.Clear();
+            indexAtTop = 0;
+        }
+
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
@@ -543,64 +619,6 @@ namespace Ship_Game
             });
             Update();
             return hit;
-        }
-
-        public IReadOnlyList<Entry> AllEntries => Entries;
-        public IReadOnlyList<Entry> AllFlattenedEntries => Copied;
-        public int NumEntries => Entries.Count;
-        public int NumFlattenedEntries => Copied.Count;
-
-        public IEnumerable<Entry> VisibleEntries
-        {
-            get
-            {
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
-                    yield return Entries[i];
-            }
-        }
-
-        public IEnumerable<Entry> FlattenedEntries
-        {
-            get
-            {
-                for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
-                    yield return Copied[i];
-            }
-        }
-
-        public IEnumerable<T> VisibleItems<T>() where T : class
-        {
-            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
-                if (Entries[i].item is T item)
-                    yield return item;
-        }
-
-        public IEnumerable<T> FlattenedItems<T>() where T : class
-        {
-            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
-                if (Copied[i].item is T item)
-                    yield return item;
-        }
-
-        public IEnumerable<T> AllItems<T>() where T : class
-        {
-            for (int i = 0; i < Entries.Count; ++i)
-                if (Entries[i].item is T item)
-                    yield return item;
-        }
-
-        public IEnumerable<T> AllFlattenedItems<T>() where T : class
-        {
-            for (int i = 0; i < Copied.Count; ++i)
-                if (Copied[i].item is T item)
-                    yield return item;
-        }
-
-        public void Reset()
-        {
-            Entries.Clear();
-            Copied.Clear();
-            indexAtTop = 0;
         }
 
         private void UpdateClickRect(Entry e, Point topLeft, int j)

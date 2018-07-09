@@ -282,20 +282,19 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (!base.IsActive)
-            {
+            if (!IsActive)
                 return false;
-            }
-            this.ShipSL.HandleInput(input);
-            this.cb_hide_proj.HandleInput(input);
-            this.ShowRoles.HandleInput(input);
-            if (this.ShowRoles.ActiveIndex != indexLast)
+
+            ShipSL.HandleInput(input);
+            cb_hide_proj.HandleInput(input);
+            ShowRoles.HandleInput(input);
+            if (ShowRoles.ActiveIndex != indexLast)
             {
-                this.ResetList(this.ShowRoles.ActiveValue);
-                indexLast = this.ShowRoles.ActiveIndex;
+                ResetList(ShowRoles.ActiveValue);
+                indexLast = ShowRoles.ActiveIndex;
                 return true;
             }
-            //this.indexLast = this.ShowRoles.ActiveIndex;
+
             int i = ShipSL.indexAtTop;
             foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
@@ -309,7 +308,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        this.ExitScreen();
+                        ExitScreen();
                         if (Empire.Universe.SelectedShip != null && Empire.Universe.previousSelection != Empire.Universe.SelectedShip && Empire.Universe.SelectedShip != entry.ship) //fbedard
                             Empire.Universe.previousSelection = Empire.Universe.SelectedShip;
                         Empire.Universe.SelectedShipList.Clear();
@@ -342,238 +341,46 @@ namespace Ship_Game
                 }
                 ++i;
             }
-            if (this.SB_FTL.HandleInput(input))  //MathExt.HitTest(this.FTL, input.CursorPosition))
+
+            void Sort<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
             {
-                
-                //if (input.InGameSelect)
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    this.SB_FTL.Ascending = !this.SB_FTL.Ascending;
-                    this.StrSorted = this.SB_FTL.Ascending;
-                    if (!this.SB_FTL.Ascending)
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.GetmaxFTLSpeed descending
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                    else
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.GetmaxFTLSpeed
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                }
-            }
-            else if(this.SB_FTL.Hover)
-                ToolTip.CreateTooltip("Faster Than Light Speed of Ship");
-            if (this.SB_STL.HandleInput(input))//MathExt.HitTest(this.STL, input.CursorPosition))
-            {
-                
-                //if (input.InGameSelect)
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    this.SB_STL.Ascending = !this.SB_STL.Ascending;
-                    this.StrSorted = this.SB_STL.Ascending;
-                    if (!this.SB_STL.Ascending)
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.GetSTLSpeed() descending
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                    else
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.GetSTLSpeed()
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                }
-            }
-            else if (this.SB_STL.Hover)
-                ToolTip.CreateTooltip("Sublight Speed of Ship");
-            if (this.Maint.HandleInput(input))//  MathExt.HitTest(this.MaintRect, input.CursorPosition))
-            {
-                
-                //if (input.InGameSelect)
-                {
-                    //reduntant maintenance check no longer needed.
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        this.Maint.Ascending = !this.Maint.Ascending;
-                        this.StrSorted = this.Maint.Ascending;
-                        if (!this.Maint.Ascending)
-                        {
-                            IOrderedEnumerable<ScrollList.Entry> sortedList =
-                                from theship in this.ShipSL.Entries
-                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCost() descending
-                                select theship;
-                            this.ResetListSorted(sortedList);
-                        }
-                        else
-                        {
-                            IOrderedEnumerable<ScrollList.Entry> sortedList =
-                                from theship in this.ShipSL.Entries
-                                orderby (theship.item as ShipListScreenEntry).ship.GetMaintCost()
-                                select theship;
-                            this.ResetListSorted(sortedList);
-                        }
-                    }
-                }
-            }
-            else if (this.Maint.Hover)
-                ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable");
-            if (SB_Troop.HandleInput(input)  )//)MathExt.HitTest(this.TroopRect, input.CursorPosition))
-            {
-                
-                //if (input.InGameSelect)
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    //this.StrSorted = !this.StrSorted;
-                    this.SB_Troop.Ascending = !this.SB_Troop.Ascending;
-                    if (!this.SB_Troop.Ascending)
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.TroopList.Count descending
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                    else
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.TroopList.Count
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                }
-            }
-            else if(this.SB_Troop.Hover)
-                ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable");
-            if (this.SB_STR.HandleInput(input))//MathExt.HitTest(this.STRIconRect, input.CursorPosition))
-            {
-                
-                //if (input.InGameSelect)
-                {
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    this.SB_STR.Ascending = !this.SB_STR.Ascending;
-                    this.StrSorted = this.SB_STR.Ascending ;
-                    if (!this.StrSorted)
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.GetStrength() descending
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                    else
-                    {
-                        IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                            from theship in this.ShipSL.Entries
-                            orderby (theship.item as ShipListScreenEntry).ship.GetStrength()
-                            select theship;
-                        this.ResetListSorted(sortedList);
-                    }
-                }
-            }
-            else if(this.SB_STR.Hover)
-                ToolTip.CreateTooltip("Indicates Ship Strength; sortable");
-            if (this.SortName.HandleInput(input))
-            {
-                GameAudio.PlaySfxAsync("blip_click");
-                this.SortName.Ascending = !this.SortName.Ascending;
-                if (!this.SortName.Ascending)
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                        from theship in this.ShipSL.Entries
-                        orderby (theship.item as ShipListScreenEntry).ship.VanityName descending
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                        from theship in this.ShipSL.Entries
-                        orderby (theship.item as ShipListScreenEntry).ship.VanityName
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                this.ResetPos();
-            }
-            if (this.SortRole.HandleInput(input))
-            {
-                GameAudio.PlaySfxAsync("blip_click");
-                this.SortRole.Ascending = !this.SortRole.Ascending;
-                if (!this.SortRole.Ascending)
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                        from theship in this.ShipSL.Entries
-                        orderby (theship.item as ShipListScreenEntry).ship.shipData.Role descending
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                        from theship in this.ShipSL.Entries
-                        orderby (theship.item as ShipListScreenEntry).ship.shipData.Role
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                this.ResetPos();
-            }
-            if (this.SortOrder.HandleInput(input))  //fbedard
-            {
-                GameAudio.PlaySfxAsync("blip_click");
-                this.SortOrder.Ascending = !this.SortOrder.Ascending;
-                if (!this.SortOrder.Ascending)
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList =
-                        from theship in this.ShipSL.Entries
-                        orderby ShipListScreenEntry.GetStatusText((theship.item as ShipListScreenEntry).ship) descending
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList =
-                        from theship in this.ShipSL.Entries
-                        orderby ShipListScreenEntry.GetStatusText((theship.item as ShipListScreenEntry).ship)
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                this.ResetPos();
-            }
-            if (this.SortSystem.HandleInput(input))
-            {
-                GameAudio.PlaySfxAsync("blip_click");
-                this.SortSystem.Ascending = !this.SortSystem.Ascending;
-                if (!this.SortSystem.Ascending)
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                        from theship in ShipSL.Entries
-                        orderby (theship.item as ShipListScreenEntry)?.ship.SystemName descending
-                        select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                else
-                {
-                    IOrderedEnumerable<ScrollList.Entry> sortedList = 
-                        from theship in this.ShipSL.Entries
-                        orderby (theship.item as ShipListScreenEntry).ship.SystemName						select theship;
-                    this.ResetListSorted(sortedList);
-                }
-                this.ResetPos();
+                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                button.Ascending = !button.Ascending;
+                StrSorted = button.Ascending;
+                if (button.Ascending) ShipSL.Sort(sortPredicate);
+                else ShipSL.SortDescending(sortPredicate);
             }
 
-            if (input.KeysCurr.IsKeyDown(Keys.K) && !input.KeysPrev.IsKeyDown(Keys.K) && !GlobalStats.TakingInput)
+            if (SB_FTL.HandleInput(input)) Sort(SB_FTL, sl => sl.ship.GetmaxFTLSpeed);
+            else if (SB_FTL.Hover) ToolTip.CreateTooltip("Faster Than Light Speed of Ship");
+
+            if (SB_STL.HandleInput(input)) Sort(SB_STL, sl => sl.ship.GetSTLSpeed());
+            else if (SB_STL.Hover) ToolTip.CreateTooltip("Sublight Speed of Ship");
+
+            if (Maint.HandleInput(input)) Sort(Maint, sl => sl.ship.GetMaintCost());
+            else if (Maint.Hover) ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable");
+
+            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.ship.TroopList.Count);
+            else if (SB_Troop.Hover) ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable");
+
+            if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.ship.GetStrength());
+            else if (SB_STR.Hover) ToolTip.CreateTooltip("Indicates Ship Strength; sortable");
+
+            void SortAndReset<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
+            {
+                GameAudio.PlaySfxAsync("blip_click");
+                button.Ascending = !button.Ascending;
+                if (button.Ascending) ShipSL.Sort(sortPredicate);
+                else ShipSL.SortDescending(sortPredicate);
+                ResetPos();
+            }
+
+            if (SortName.HandleInput(input))   SortAndReset(SortName,  sl => sl.ship.VanityName);
+            if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.ship.shipData.Role);
+            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenEntry.GetStatusText(sl.ship));
+            if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.ship.SystemName);
+
+            if (input.WasKeyPressed(Keys.K) && !GlobalStats.TakingInput)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
                 this.ExitScreen();
@@ -769,15 +576,6 @@ namespace Ship_Game
             }
             this.SelectedShip = null;
             CurrentLine = 0;
-        }
-
-        public void ResetListSorted(IOrderedEnumerable<ScrollList.Entry> sortedList)
-        {
-            ShipSL.Reset();
-            foreach (ScrollList.Entry e in sortedList)
-            {
-                ShipSL.AddItem(e.item as ShipListScreenEntry);
-            }
         }
 
         private void ResetPos()
