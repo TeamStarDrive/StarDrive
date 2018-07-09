@@ -1892,8 +1892,8 @@ namespace Ship_Game
             }
             input.Repeat = false;
 
-            CamDestination.X = CamDestination.X.Clamp(-UniverseSize, UniverseSize);
-            CamDestination.Y = CamDestination.Y.Clamp(-UniverseSize, UniverseSize);
+            CamDestination.X = CamDestination.X.Clamped(-UniverseSize, UniverseSize);
+            CamDestination.Y = CamDestination.Y.Clamped(-UniverseSize, UniverseSize);
 
         }
 

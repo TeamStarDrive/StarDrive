@@ -531,9 +531,10 @@ namespace Ship_Game.Ships
                 TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f) MechanicalBoardingDefense = 1f;
-                if (module.SensorRange > SensorRange) SensorRange             = module.SensorRange;
-                if (module.SensorBonus > sensorBonus) sensorBonus             = module.SensorBonus;
-                if (module.ECM > ECMValue) ECMValue                           = module.ECM.Clamp(0f, 1f);
+
+                if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
+                if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
+                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
 
                 switch (module.ModuleType)
                 {

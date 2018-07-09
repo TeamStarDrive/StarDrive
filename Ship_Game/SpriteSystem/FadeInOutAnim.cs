@@ -49,7 +49,7 @@ namespace Ship_Game
             {
                 alpha = 255f - LerpAlpha(frame, FadeOut, End);
             }
-            batch.Draw(Texture, Rect, new Color(Color.White, (byte)alpha.Clamp(0f, 220f)));
+            batch.Draw(Texture, Rect, new Color(Color.White, (byte)alpha.Clamped(0f, 220f)));
         }
     }
 }
