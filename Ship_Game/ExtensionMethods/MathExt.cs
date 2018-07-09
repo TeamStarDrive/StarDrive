@@ -33,11 +33,23 @@ namespace Ship_Game
     public static class MathExt
     {
         // clamp a value between [min, max]: min <= value <= max
+        [Obsolete("Extension method float.Clamp has been replaced by float.Clamped")]
         public static float Clamp(this float value, float min, float max)
         {
             return Max(min, Min(value, max));
         }
+        [Obsolete("Extension method int.Clamp has been replaced by int.Clamped")]
         public static int Clamp(this int value, int min, int max)
+        {
+            return Max(min, Min(value, max));
+        }
+
+        // clamp a value between [min, max]: min <= value <= max
+        public static float Clamped(this float value, float min, float max)
+        {
+            return Max(min, Min(value, max));
+        }
+        public static int Clamped(this int value, int min, int max)
         {
             return Max(min, Min(value, max));
         }
@@ -68,13 +80,13 @@ namespace Ship_Game
         // @return The new "fromValue"
         public static float SmoothStep(this float fromValue, float targetValue, float amount)
         {
-            float clamped = amount.Clamp(0f, 1f);
+            float clamped = amount.Clamped(0f, 1f);
             return fromValue.LerpTo(targetValue, clamped*clamped * (3f - 2f * clamped));
         }
 
         public static float SmoothStep(ref float fromValue, float targetValue, float amount)
         {
-            float clamped = amount.Clamp(0f, 1f);
+            float clamped = amount.Clamped(0f, 1f);
             fromValue = fromValue.LerpTo(targetValue, clamped * clamped * (3f - 2f * clamped));
             return fromValue;
         }
@@ -562,7 +574,7 @@ namespace Ship_Game
 
             Vector2 v = pnt - start;
             float d = Vector2.Dot(v, line);
-            d = Clamp(d, 0f, len);
+            d = Clamped(d, 0f, len);
             return start + line * d;
         }
 

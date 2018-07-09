@@ -246,8 +246,6 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-    
-
         private int FindDeepestY()
         {
             int deepest = 0;
