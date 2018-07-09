@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -489,18 +490,23 @@ namespace Ship_Game
                     }
                     this.buildSL.indexAtTop = 0;
                     this.Reset = false;
-                    foreach(ScrollList.Entry entry in buildSL.Entries)
+
+                    // @todo This sorting looks quite heavy...
+                    IOrderedEnumerable<KeyValuePair<string, Ship>> orderedShips = 
+                        ResourceManager.ShipsDict
+                            .OrderBy(s => !s.Value.IsPlayerDesign)
+                            .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                            .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
+                            .ThenByDescending(kv => kv.Value.GetTechScore(out int[] _))
+                            .ThenBy(kv => kv.Value.Name)
+                            .ThenBy(kv => kv.Key);
+                    KeyValuePair<string, Ship>[] ships = orderedShips.ToArray();
+
+                    foreach(ScrollList.Entry entry in buildSL.AllEntries)
                     {
-                        if (entry == null) continue;
                         string header = (entry.item as ModuleHeader)?.Text;
-                        foreach (var kv in ResourceManager.ShipsDict
-                            .OrderBy(x => true)
-                            .ThenBy(player => !player.Value.IsPlayerDesign)
-                            .ThenBy(empire => empire.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                            .ThenBy(empire => empire.Value.BaseHull.ShipStyle)
-                            .ThenByDescending(tech => tech.Value.GetTechScore(out int[] _))
-                            .ThenBy(name => name.Value.Name)
-                            .ThenBy(name => name.Key))
+
+                        foreach (KeyValuePair<string, Ship> kv in ships)
                         {
                             if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key))
                                 continue;
@@ -511,8 +517,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            var ship = kv.Value;
-                            
+                            Ship ship = kv.Value;
                             if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) &&
                                 Localizer.GetRole(ship.DesignRole, p.Owner) == header)                            
                                 entry.AddItem(ship, 1, 1);                            
@@ -798,32 +803,32 @@ namespace Ship_Game
                     }
                 }
             }
-            this.QSL.Entries.Clear();
 
+            QSL.Reset();
             foreach (QueueItem o in p.ConstructionQueue)
                 QSL.AddQItem(o);
 
             foreach (ScrollList.Entry entry in QSL.FlattenedEntries)
             {
-                vector2_1.Y = (float)entry.clickRect.Y;
+                vector2_1.Y = entry.clickRect.Y;
                 if (entry.clickRect.HitTest(pos))
                     entry.clickRectHover = 1;
 
                 var qi = (entry.item as QueueItem);
                 if (qi.isBuilding)
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + qi.Building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position, Color.White);
-                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                    Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                    if (this.LowRes)
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + qi.Building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                    var position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position, Color.White);
+                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
+                    if (LowRes)
                         r.Width = 120;
                     new ProgressBar(r)
                     {
                         Max = qi.Cost,
                         Progress = qi.productionTowards
-                    }.Draw(this.ScreenManager.SpriteBatch);
+                    }.Draw(ScreenManager.SpriteBatch);
                 }
                 else if (qi.isShip)
                 {
@@ -2389,17 +2394,17 @@ namespace Ship_Game
                 if (e.down.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(64);
-                    if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    if (!input.IsCtrlKeyDown || input.LeftMouseClick || input.LeftMouseReleased) // @todo WTF??
                     {
-                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i + 1 < this.QSL.Copied.Count)
+                        if (input.LeftMouseClick && i + 1 < QSL.NumFlattenedEntries)
                         {
-                            object tmp = this.p.ConstructionQueue[i + 1];
-                            this.p.ConstructionQueue[i + 1] = this.p.ConstructionQueue[i];
-                            this.p.ConstructionQueue[i] = tmp as QueueItem;
+                            object tmp = p.ConstructionQueue[i + 1];
+                            p.ConstructionQueue[i + 1] = p.ConstructionQueue[i];
+                            p.ConstructionQueue[i] = tmp as QueueItem;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
-                    else if (i + 1 < this.QSL.Copied.Count)
+                    else if (i + 1 < this.QSL.NumFlattenedEntries)
                     {
                         var item = p.ConstructionQueue[i];
                         p.ConstructionQueue.Remove(item);

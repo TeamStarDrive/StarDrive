@@ -64,46 +64,31 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-			if (this.bup.HandleInput(input))
+			if (bup.HandleInput(input))
 			{
-				if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
+				if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
 				{
-					int indexOfThis = 0;
-					int i = 0;
-					foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
+					int indexOfThis = screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.tech.UID == Node.tech.UID);
+					if (indexOfThis != -1)
 					{
-						if ((entry.item as ResearchQItem).Node.tech.UID != this.Node.tech.UID)
-						{
-							i++;
-						}
-						else
-						{
-							indexOfThis = i;
-							break;
-						}
-					}
-					if (indexOfThis != 0)
-					{
-						bool AboveisPrereq = false;
+						bool aboveisPrereq = false;
 						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.data.ResearchQueue[indexOfThis - 1]].LeadsTo)
 						{
-							if (dependent.UID != this.Node.tech.UID)
+							if (dependent.UID == Node.tech.UID)
 							{
-								continue;
+							    aboveisPrereq = true;
+                                break;
 							}
-							AboveisPrereq = true;
-							break;
 						}
-						if (!AboveisPrereq)
+						if (!aboveisPrereq)
 						{
-							this.screen.qcomponent.QSL.Entries.Clear();
-							this.screen.qcomponent.QSL.Copied.Clear();
+							screen.qcomponent.QSL.Reset();
 							string toswitch = EmpireManager.Player.data.ResearchQueue[indexOfThis - 1];
-							EmpireManager.Player.data.ResearchQueue[indexOfThis - 1] = this.Node.tech.UID;
+							EmpireManager.Player.data.ResearchQueue[indexOfThis - 1] = Node.tech.UID;
 							EmpireManager.Player.data.ResearchQueue[indexOfThis] = toswitch;
 							foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 							{
-								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
+								screen.qcomponent.LoadQueue(screen.CompleteSubNodeTree[uid] as TreeNode);
 							}
 						}
 						else
@@ -113,32 +98,30 @@ namespace Ship_Game
 					}
 					else
 					{
-						bool CurrentIsPrereq = false;
+						bool currentIsPrereq = false;
 						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.ResearchTopic].LeadsTo)
 						{
-							if (dependent.UID != this.Node.tech.UID)
+							if (dependent.UID == Node.tech.UID)
 							{
-								continue;
+							    currentIsPrereq = true;
+							    break;
 							}
-							CurrentIsPrereq = true;
-							break;
 						}
-						if (!CurrentIsPrereq)
+						if (!currentIsPrereq)
 						{
-							this.screen.qcomponent.QSL.Entries.Clear();
-							this.screen.qcomponent.QSL.Copied.Clear();
-							this.screen.qcomponent.CurrentResearch = null;
+							screen.qcomponent.QSL.Reset();
+							screen.qcomponent.CurrentResearch = null;
 							string toswitch = EmpireManager.Player.ResearchTopic;
-							EmpireManager.Player.ResearchTopic = this.Node.tech.UID;
+							EmpireManager.Player.ResearchTopic = Node.tech.UID;
 							EmpireManager.Player.data.ResearchQueue[0] = toswitch;
 							string resTop = EmpireManager.Player.ResearchTopic;
 							if (!string.IsNullOrEmpty(resTop))
 							{
-								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
+								screen.qcomponent.LoadQueue(screen.CompleteSubNodeTree[resTop] as TreeNode);
 							}
 							foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 							{
-								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
+								screen.qcomponent.LoadQueue(screen.CompleteSubNodeTree[uid] as TreeNode);
 							}
 						}
 						else
@@ -153,95 +136,74 @@ namespace Ship_Game
 				}
 				return true;
 			}
-			if (!this.bdown.HandleInput(input))
+			if (!bdown.HandleInput(input))
 			{
-				if (!this.bcancel.HandleInput(input))
+				if (!bcancel.HandleInput(input))
 				{
 					return false;
 				}
-				string uid = this.Node.tech.UID;
-				if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
+				string uid = Node.tech.UID;
+				if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
 				{
-					foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
-					{
-						if (entry.item != this)
-						{
-							continue;
-						}
-						this.screen.qcomponent.QSL.Entries.QueuePendingRemoval(entry);
-						this.screen.qcomponent.QSL.Copied.QueuePendingRemoval(entry);
-					}
+				    screen.qcomponent.QSL.QueueItemForRemoval(this);
 					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
 					{
-						this.RemoveTech(dependent.UID);
+						RemoveTech(dependent.UID);
 					}
 					EmpireManager.Player.data.ResearchQueue.Remove(uid);
 				}
 				else if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 				{
 					EmpireManager.Player.ResearchTopic = "";
-					this.screen.qcomponent.CurrentResearch = null;
+					screen.qcomponent.CurrentResearch = null;
 				}
 				else
 				{
 					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
 					{
-						this.RemoveTech(dependent.UID);
+						RemoveTech(dependent.UID);
 					}
-					this.screen.qcomponent.QSL.Entries.ApplyPendingRemovals();
-					this.screen.qcomponent.QSL.Copied.ApplyPendingRemovals();
+					screen.qcomponent.QSL.ApplyPendingRemovals();
 					if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 					{
 						EmpireManager.Player.ResearchTopic = "";
-						this.screen.qcomponent.CurrentResearch = null;
+						screen.qcomponent.CurrentResearch = null;
 					}
 					else
 					{
-						EmpireManager.Player.ResearchTopic = (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID;
-						this.screen.qcomponent.CurrentResearch = new ResearchQItem(this.screen.qcomponent.CurrentResearch.pos, (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node, this.screen);
-						EmpireManager.Player.data.ResearchQueue.Remove((this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID);
-						this.screen.qcomponent.QSL.Entries.RemoveAt(0);
-						this.screen.qcomponent.QSL.Copied.RemoveAt(0);
+                        var qItem = screen.qcomponent.QSL.ItemAt<ResearchQItem>(0);
+						EmpireManager.Player.ResearchTopic = qItem.Node.tech.UID;
+						screen.qcomponent.CurrentResearch = new ResearchQItem(screen.qcomponent.CurrentResearch.pos, qItem.Node, screen);
+						EmpireManager.Player.data.ResearchQueue.Remove(qItem.Node.tech.UID);
+						screen.qcomponent.QSL.RemoveAt(0);
 					}
 				}
 				return true;
 			}
-			if (this.Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
+
+			if (Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
 			{
 				GameAudio.PlaySfxAsync("UI_Misc20");
 			}
-			else if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
+			else if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
 			{
-				int indexOfThis = 0;
-				int i = 0;
-				foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
+				int indexOfThis = screen.qcomponent.QSL.IndexOf<ResearchQItem>(r => r.Node.tech.UID == Node.tech.UID);
+
+				if (indexOfThis != -1 && indexOfThis != EmpireManager.Player.data.ResearchQueue.Count - 1)
 				{
-					if ((entry.item as ResearchQItem).Node.tech.UID != this.Node.tech.UID)
-					{
-						i++;
-					}
-					else
-					{
-						indexOfThis = i;
-						break;
-					}
-				}
-				if (indexOfThis != EmpireManager.Player.data.ResearchQueue.Count - 1)
-				{
-					bool ThisIsPreReq = false;
+					bool thisIsPreReq = false;
 					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.data.ResearchQueue[indexOfThis]].LeadsTo)
 					{
 						if (dependent.UID != EmpireManager.Player.data.ResearchQueue[indexOfThis + 1])
 						{
 							continue;
 						}
-						ThisIsPreReq = true;
+						thisIsPreReq = true;
 						break;
 					}
-					if (!ThisIsPreReq)
+					if (!thisIsPreReq)
 					{
-						this.screen.qcomponent.QSL.Entries.Clear();
-						this.screen.qcomponent.QSL.Copied.Clear();
+                        screen.qcomponent.QSL.Reset();
 						string toswitch = EmpireManager.Player.data.ResearchQueue[indexOfThis + 1];
 						EmpireManager.Player.data.ResearchQueue[indexOfThis + 1] = this.Node.tech.UID;
 						EmpireManager.Player.data.ResearchQueue[indexOfThis] = toswitch;
@@ -274,20 +236,19 @@ namespace Ship_Game
 				}
 				if (!ThisIsPreReq)
 				{
-					this.screen.qcomponent.QSL.Entries.Clear();
-					this.screen.qcomponent.QSL.Copied.Clear();
-					this.screen.qcomponent.CurrentResearch = null;
+				    screen.qcomponent.QSL.Reset();
+					screen.qcomponent.CurrentResearch = null;
 					string toswitch = EmpireManager.Player.data.ResearchQueue[0];
 					EmpireManager.Player.data.ResearchQueue[0] = EmpireManager.Player.ResearchTopic;
 					EmpireManager.Player.ResearchTopic = toswitch;
 					string resTop = EmpireManager.Player.ResearchTopic;
 					if (!string.IsNullOrEmpty(resTop))
 					{
-						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
+						screen.qcomponent.LoadQueue(screen.CompleteSubNodeTree[resTop] as TreeNode);
 					}
 					foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 					{
-						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
+						screen.qcomponent.LoadQueue(screen.CompleteSubNodeTree[uid] as TreeNode);
 					}
 				}
 				else
@@ -302,18 +263,10 @@ namespace Ship_Game
 		{
 			foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
 			{
-				this.RemoveTech(dependent.UID);
+				RemoveTech(dependent.UID);
 			}
 			EmpireManager.Player.data.ResearchQueue.Remove(uid);
-			foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
-			{
-				if ((entry.item as ResearchQItem).Node.tech.UID != uid)
-				{
-					continue;
-				}
-				this.screen.qcomponent.QSL.Entries.QueuePendingRemoval(entry);
-				this.screen.qcomponent.QSL.Copied.QueuePendingRemoval(entry);
-			}
+            screen.qcomponent.QSL.QueueItemForRemovalIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
 		}
 	}
 }

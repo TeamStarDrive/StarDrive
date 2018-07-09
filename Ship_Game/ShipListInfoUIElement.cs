@@ -432,7 +432,7 @@ namespace Ship_Game
                 this.SelectedShipsSL.indexAtTop = 0;
             }
             this.ShipList = shipList;
-            this.SelectedShipsSL.Entries.Clear();
+            this.SelectedShipsSL.Reset();
             SelectedShipEntry entry = new SelectedShipEntry();
             bool AllResupply = true;
             this.AllShipsMine = true;

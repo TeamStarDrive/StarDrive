@@ -134,54 +134,53 @@ namespace Ship_Game
             this.TitleBar.Draw();
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(1402), this.TitlePos, new Color(255, 239, 208));
             this.EMenu.Draw();
-            Color TextColor = new Color(118, 102, 67, 50);
+            var textColor = new Color(118, 102, 67, 50);
             this.PlanetSL.Draw(base.ScreenManager.SpriteBatch);
-            if (this.PlanetSL.Entries.Count > 0)
+            if (this.PlanetSL.NumEntries > 0)
             {
-                PlanetListScreenEntry e1 = this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry;
-                PlanetListScreenEntry entry = this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry;
-                Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + entry.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                var e1 = PlanetSL.ItemAtTop<PlanetListScreenEntry>();
+                var textCursor = new Vector2((float)(e1.SysNameRect.X + e1.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 
-                this.sb_Sys.Update(TextCursor);
+                this.sb_Sys.Update(textCursor);
                 this.sb_Sys.Draw(base.ScreenManager);
-                TextCursor = new Vector2((float)(entry.PlanetNameRect.X + entry.PlanetNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(389)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                textCursor = new Vector2((float)(e1.PlanetNameRect.X + e1.PlanetNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(389)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 
-                this.sb_Name.Update(TextCursor);
+                this.sb_Name.Update(textCursor);
                 this.sb_Name.Draw(base.ScreenManager);
-                TextCursor = new Vector2((float)(entry.FertRect.X + entry.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                textCursor = new Vector2((float)(e1.FertRect.X + e1.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 if (GlobalStats.IsGermanOrPolish)
                 {
-                    TextCursor = TextCursor + new Vector2(10f, 10f);
+                    textCursor = textCursor + new Vector2(10f, 10f);
                 }
                 
-                this.sb_Fert.Update(TextCursor);
+                this.sb_Fert.Update(textCursor);
                 this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-                TextCursor = new Vector2((float)(entry.RichRect.X + entry.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                textCursor = new Vector2((float)(e1.RichRect.X + e1.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 if (GlobalStats.IsGermanOrPolish)
                 {
-                    TextCursor = TextCursor + new Vector2(10f, 10f);
+                    textCursor = textCursor + new Vector2(10f, 10f);
                 }
                 
-                this.sb_Rich.Update(TextCursor);
+                this.sb_Rich.Update(textCursor);
                 this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-                TextCursor = new Vector2((float)(entry.PopRect.X + entry.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                textCursor = new Vector2((float)(e1.PopRect.X + e1.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 if (GlobalStats.IsGermanOrPolish)
                 {
-                    TextCursor = TextCursor + new Vector2(15f, 10f);
+                    textCursor = textCursor + new Vector2(15f, 10f);
                 }
                 
-                this.sb_Pop.Update(TextCursor);
+                this.sb_Pop.Update(textCursor);
                 this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-                TextCursor = new Vector2((float)(entry.OwnerRect.X + entry.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                textCursor = new Vector2((float)(e1.OwnerRect.X + e1.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 if (GlobalStats.IsGermanOrPolish)
                 {
-                    TextCursor = TextCursor + new Vector2(10f, 10f);
+                    textCursor = textCursor + new Vector2(10f, 10f);
                 }
                 
-                this.sb_Owned.Update(TextCursor);
+                this.sb_Owned.Update(textCursor);
                 this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
-                Color smallHighlight = TextColor;
-                smallHighlight.A = (byte)(TextColor.A / 2);
+                Color smallHighlight = textColor;
+                smallHighlight.A = (byte)(textColor.A / 2);
 
                 GameTime gameTime = Game1.Instance.GameTime;
                 int i = PlanetSL.indexAtTop;
@@ -194,11 +193,11 @@ namespace Ship_Game
                     }
                     if (entry2.planet == SelectedPlanet)
                     {
-                        ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, TextColor);
+                        ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, textColor);
                     }
                     entry2.SetNewPos(eRect.X + 22, e.clickRect.Y);
                     entry2.Draw(ScreenManager, gameTime);
-                    ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, TextColor);
+                    ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, textColor);
                     ++i;
                 }                
                 Color lineColor = new Color(118, 102, 67, 255);
@@ -246,7 +245,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             //this.LastSorted = empUI.empire.data.PLSort;
-            if (this.PlanetSL.Entries.Count == 0)
+            if (this.PlanetSL.NumEntries == 0)
                 this.ResetList();
             this.PlanetSL.HandleInput(input);
             this.cb_hideOwned.HandleInput(input);
@@ -256,8 +255,7 @@ namespace Ship_Game
                 this.LastSorted = this.sb_Sys;
                 GameAudio.PlaySfxAsync("blip_click");
                 this.sb_Sys.Ascending = !this.sb_Sys.Ascending;
-                this.PlanetSL.Entries.Clear();
-                this.PlanetSL.Copied.Clear();
+                PlanetSL.Reset();
                 if (!this.sb_Sys.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
@@ -296,8 +294,7 @@ namespace Ship_Game
                 this.LastSorted = this.sb_Name;
                 GameAudio.PlaySfxAsync("blip_click");
                 this.sb_Name.Ascending = !this.sb_Name.Ascending;
-                this.PlanetSL.Entries.Clear();
-                this.PlanetSL.Copied.Clear();
+                PlanetSL.Reset();
                 if (!this.sb_Name.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
@@ -336,8 +333,7 @@ namespace Ship_Game
                 this.LastSorted = this.sb_Fert;
                 GameAudio.PlaySfxAsync("blip_click");
                 this.sb_Fert.Ascending = !this.sb_Fert.Ascending;
-                this.PlanetSL.Entries.Clear();
-                this.PlanetSL.Copied.Clear();
+                PlanetSL.Reset();
                 if (!this.sb_Fert.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
@@ -376,8 +372,7 @@ namespace Ship_Game
                 this.LastSorted = this.sb_Rich;
                 GameAudio.PlaySfxAsync("blip_click");
                 this.sb_Rich.Ascending = !this.sb_Rich.Ascending;
-                this.PlanetSL.Entries.Clear();
-                this.PlanetSL.Copied.Clear();
+                PlanetSL.Reset();
                 if (!this.sb_Rich.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
@@ -416,8 +411,7 @@ namespace Ship_Game
                 //this.LastSorted = this.sb_Pop;
                 GameAudio.PlaySfxAsync("blip_click");
                 this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
-                this.PlanetSL.Entries.Clear();
-                this.PlanetSL.Copied.Clear();
+                PlanetSL.Reset();
                 if (!this.sb_Pop.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
@@ -456,8 +450,7 @@ namespace Ship_Game
                 this.LastSorted = this.sb_Owned;
                 GameAudio.PlaySfxAsync("blip_click");
                 this.sb_Owned.Ascending = !this.sb_Owned.Ascending;
-                this.PlanetSL.Entries.Clear();
-                this.PlanetSL.Copied.Clear();
+                PlanetSL.Reset();
                 if (!this.sb_Owned.Ascending)
                 {
                     IOrderedEnumerable<Planet> sortedList = 
@@ -533,80 +526,68 @@ namespace Ship_Game
 
         public void ResetList()
         {
-            
-            Array<Planet> pList = new Array<Planet>();
-            foreach (ScrollList.Entry entry in this.PlanetSL.Entries)
+            PlanetSL.Reset();
+            if (LastSorted == null)
             {
-                pList.Add((entry.item as PlanetListScreenEntry).planet);
-            }
-            this.PlanetSL.Entries.Clear();
-            this.PlanetSL.Copied.Clear();
-            this.PlanetSL.indexAtTop = 0;
-            if (this.LastSorted == null)
-            {
-                foreach (Planet p in this.ExploredPlanets)
+                foreach (Planet p in ExploredPlanets)
                 {
-                    if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
+                    if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     {
                         continue;
                     }
-                    PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-                    this.PlanetSL.AddItem(entry);
+                    var entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
+                    PlanetSL.AddItem(entry);
                 }
             }
             else
             {
-                if (this.LastSorted.Text == this.sb_Sys.Text)   // (this.sb_Sys == this.LastSorted)
+                if (LastSorted.Text == sb_Sys.Text)   // (this.sb_Sys == this.LastSorted)
                 {
-                    if (!this.sb_Sys.Ascending)
+                    if (!sb_Sys.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.ExploredPlanets
+                            from planet in ExploredPlanets
                             orderby planet.ParentSystem.Name descending
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
-                            {
+                            if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                                 continue;
-                            }
-                            PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-                            this.PlanetSL.AddItem(entry);
+                            var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                            PlanetSL.AddItem(entry);
                         }
                     }
                     else
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.ExploredPlanets
+                            from planet in ExploredPlanets
                             orderby planet.ParentSystem.Name
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
+                            if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                             {
                                 continue;
                             }
-                            PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-                            this.PlanetSL.AddItem(entry);
+                            var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                            PlanetSL.AddItem(entry);
                         }
                     }
                 }
-                if (this.sb_Name.Text == this.LastSorted.Text)
+                if (sb_Name.Text == LastSorted.Text)
                 {
-                    if (!this.sb_Name.Ascending)
+                    if (!sb_Name.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
-                            from planet in this.ExploredPlanets
+                            from planet in ExploredPlanets
                             orderby planet.Name descending
                             select planet;
                         foreach (Planet p in sortedList)
                         {
-                            if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.Habitable)
-                            {
+                            if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                                 continue;
-                            }
-                            PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-                            this.PlanetSL.AddItem(entry);
+                            var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                            PlanetSL.AddItem(entry);
                         }
                     }
                     else
@@ -630,8 +611,7 @@ namespace Ship_Game
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     
-                    this.PlanetSL.Entries.Clear();
-                    this.PlanetSL.Copied.Clear();
+                    PlanetSL.Reset();
                     if (!this.sb_Fert.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
@@ -670,8 +650,7 @@ namespace Ship_Game
                     this.LastSorted = this.sb_Rich;
                     GameAudio.PlaySfxAsync("blip_click");
                     //this.sb_Rich.Ascending = !this.sb_Rich.Ascending;
-                    this.PlanetSL.Entries.Clear();
-                    this.PlanetSL.Copied.Clear();
+                    PlanetSL.Reset();
                     if (!this.sb_Rich.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
@@ -710,8 +689,7 @@ namespace Ship_Game
                     this.LastSorted = this.sb_Pop;
                     GameAudio.PlaySfxAsync("blip_click");
                     //this.sb_Pop.Ascending = !this.sb_Pop.Ascending;
-                    this.PlanetSL.Entries.Clear();
-                    this.PlanetSL.Copied.Clear();
+                    PlanetSL.Reset();
                     if (!this.sb_Pop.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
@@ -750,8 +728,7 @@ namespace Ship_Game
                     this.LastSorted = this.sb_Owned;
                     GameAudio.PlaySfxAsync("blip_click");
                     //this.sb_Owned.Ascending = !this.sb_Owned.Ascending;
-                    this.PlanetSL.Entries.Clear();
-                    this.PlanetSL.Copied.Clear();
+                    PlanetSL.Reset();
                     if (!this.sb_Owned.Ascending)
                     {
                         IOrderedEnumerable<Planet> sortedList = 
@@ -786,21 +763,17 @@ namespace Ship_Game
                     }
                 }
             }
-            if (this.PlanetSL.Entries.Count <= 0)
+            if (PlanetSL.NumEntries <= 0)
             {
-                this.SelectedPlanet = null;
+                SelectedPlanet = null;
                 return;
             }
-            this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
-            
-            //this.empUI.empire.data.PLSort = this.LastSorted;
+            SelectedPlanet = PlanetSL.ItemAtTop<PlanetListScreenEntry>().planet;
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            PlanetListScreen clickTimer = this;
-            clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
+            ClickTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }

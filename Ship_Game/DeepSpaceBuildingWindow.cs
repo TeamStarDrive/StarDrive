@@ -261,11 +261,9 @@ namespace Ship_Game
         {
             this.selector = null;
             this.SL.HandleInput(input);
-            Vector2 MousePos = input.CursorPosition;
-            for (int i = 0; i < this.SL.Entries.Count; i++)
+            foreach (ScrollList.Entry e in SL.AllEntries)
             {
-                ScrollList.Entry e = this.SL.Entries[i];
-                if (!e.clickRect.HitTest(MousePos))
+                if (!e.clickRect.HitTest(input.CursorPosition))
                 {
                     e.clickRectHover = 0;
                 }
@@ -284,7 +282,7 @@ namespace Ship_Game
                     }
                 }
             }
-            if (this.itemToBuild == null || this.win.HitTest(MousePos) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
+            if (this.itemToBuild == null || this.win.HitTest(input.CursorPosition) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
             {
                 if (input.RightMouseClick)
                 {

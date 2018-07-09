@@ -96,7 +96,7 @@ namespace Ship_Game
             prod = new SortButton(eui.empire.data.ESSort, "prod");
             res = new SortButton(eui.empire.data.ESSort, "res");
             money = new SortButton(eui.empire.data.ESSort, "money");
-            SelectedPlanet = (ColoniesList.Entries[ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
+            SelectedPlanet = ColoniesList.ItemAtTop<EmpireScreenEntry>().p;
             GovernorDropdown = new DropOptions<int>(this, new Rectangle(0, 0, 100, 18));
             GovernorDropdown.AddOption("--", 1);
             GovernorDropdown.AddOption(Localizer.Token(4064), 0);
@@ -147,7 +147,7 @@ namespace Ship_Game
             EMenu.Draw();
             Color TextColor = new Color(118, 102, 67, 50);
             ColoniesList.Draw(base.ScreenManager.SpriteBatch);
-            EmpireScreenEntry e1 = ColoniesList.Entries[ColoniesList.indexAtTop].item as EmpireScreenEntry;
+            EmpireScreenEntry e1 = ColoniesList.ItemAtTop<EmpireScreenEntry>();
             Rectangle PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.3f), base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - eRect.Y - eRect.Height - 22);
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((float)(PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
             Rectangle PlanetIconRect = new Rectangle(PlanetInfoRect.X + 10, PlanetInfoRect.Y + PlanetInfoRect.Height / 2 - iconSize / 2, iconSize, iconSize);
@@ -362,9 +362,9 @@ namespace Ship_Game
             GovernorDropdown.Reset();
             GovernorDropdown.Draw(ScreenManager.SpriteBatch);
 
-            if (ColoniesList.Entries.Count > 0)
+            if (ColoniesList.NumEntries > 0)
             {
-                EmpireScreenEntry entry = ColoniesList.Entries[ColoniesList.indexAtTop].item as EmpireScreenEntry;
+                EmpireScreenEntry entry = ColoniesList.ItemAtTop<EmpireScreenEntry>();
                 Vector2 TextCursor = new Vector2((float)(entry.SysNameRect.X + 30), (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 33));
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2((float)(entry.PlanetNameRect.X + 30), (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 33));
@@ -749,14 +749,13 @@ namespace Ship_Game
 
         public void ResetListSorted(IOrderedEnumerable<Planet> SortedList)
         {
-            ColoniesList.Entries.Clear();
-            ColoniesList.indexAtTop = 0;
+            ColoniesList.Reset();
             foreach (Planet p in SortedList)
             {
-                EmpireScreenEntry entry = new EmpireScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 80, this);
+                var entry = new EmpireScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 80, this);
                 ColoniesList.AddItem(entry);
             }
-            SelectedPlanet = (ColoniesList.Entries[ColoniesList.indexAtTop].item as EmpireScreenEntry).p;
+            SelectedPlanet = ColoniesList.ItemAtTop<EmpireScreenEntry>().p;
             GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
             if (GovernorDropdown.ActiveValue != (int)SelectedPlanet.colonyType)
             {

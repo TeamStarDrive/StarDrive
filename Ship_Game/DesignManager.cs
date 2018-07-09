@@ -92,7 +92,6 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             this.currentMouse = input.MouseCurr;
-            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
             this.ShipDesigns.HandleInput(input);
             if (input.Escaped || input.RightMouseClick)
             {
@@ -100,10 +99,9 @@ namespace Ship_Game
                 return true;
             }
             this.selector = null;
-            for (int i = 0; i < this.ShipDesigns.Entries.Count; i++)
+            foreach (ScrollList.Entry e in ShipDesigns.AllEntries)
             {
-                ScrollList.Entry e = this.ShipDesigns.Entries[i];
-                if (!e.clickRect.HitTest(mousePos))
+                if (!e.clickRect.HitTest(input.CursorPosition))
                 {
                     e.clickRectHover = 0;
                 }
@@ -124,7 +122,7 @@ namespace Ship_Game
             }
             foreach (UIButton b in this.Buttons)
             {
-                if (!b.Rect.HitTest(mousePos))
+                if (!b.Rect.HitTest(input.CursorPosition))
                 {
                     b.State = UIButton.PressState.Default;
                 }
@@ -155,7 +153,7 @@ namespace Ship_Game
                 }
             }
             this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y, 200, 30);
-            if (!this.EnterNameArea.ClickableArea.HitTest(mousePos))
+            if (!this.EnterNameArea.ClickableArea.HitTest(input.CursorPosition))
             {
                 this.EnterNameArea.Hover = false;
             }

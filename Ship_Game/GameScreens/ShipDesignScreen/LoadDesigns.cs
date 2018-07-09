@@ -345,35 +345,38 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 if (WIPs.Count > 0)
                 {
                     ShipRoles.Add("WIP");
-                    ModuleHeader mh = new ModuleHeader("WIP");
-                    this.ShipDesigns.AddItem(mh);
+                    var mh = new ModuleHeader("WIP");
+                    ShipDesigns.AddItem(mh);
                 }
-                foreach (ScrollList.Entry e in ShipDesigns.Entries)
+
+                KeyValuePair<string, Ship>[] ships = ResourceManager.ShipsDict
+                    .OrderBy(kv => !kv.Value.IsPlayerDesign)
+                    .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                    .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
+                    .ThenByDescending(kv => kv.Value.GetTechScore(out int[] _))
+                    .ThenBy(kv => kv.Value.Name)
+                    .ToArray();
+
+                foreach (ScrollList.Entry e in ShipDesigns.AllEntries)
                 {
-                    foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
-                        .OrderBy(x => true)
-                        .ThenBy(player => !player.Value.IsPlayerDesign)
-                        .ThenBy(empire => empire.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                        .ThenBy(empire => empire.Value.BaseHull.ShipStyle)
-                        .ThenByDescending(tech => tech.Value.GetTechScore(out int[] _))
-                        .ThenBy(name => name.Value.Name))
+                    foreach (KeyValuePair<string, Ship> ship in ships)
                     {
-                        if (Ship.Value.Deleted 
-                            || Ship.Value.shipData.IsShipyard
-                            || !EmpireManager.Player.WeCanBuildThis(Ship.Key)
-                            || Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) != (e.item as ModuleHeader).Text
-                            || (Empire.Universe?.Debug != true && Ship.Value.Name == "Subspace Projector")
-                            || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (ship.Value.Deleted 
+                            || ship.Value.shipData.IsShipyard
+                            || !EmpireManager.Player.WeCanBuildThis(ship.Key)
+                            || Localizer.GetRole(ship.Value.DesignRole, EmpireManager.Player) != (e.item as ModuleHeader).Text
+                            || (Empire.Universe?.Debug != true && ship.Value.Name == "Subspace Projector")
+                            || ResourceManager.ShipRoles[ship.Value.shipData.Role].Protected)
                         {
                             continue;
                         }
-                        if (Ship.Value.IsReadonlyDesign || Ship.Value.FromSave)
+                        if (ship.Value.IsReadonlyDesign || ship.Value.FromSave)
                         {
-                            e.AddItem(Ship.Value);
+                            e.AddItem(ship.Value);
                         }
                         else
                         {
-                            e.AddItemWithCancel(Ship.Value);
+                            e.AddItemWithCancel(ship.Value);
                         }
                     }
                     if ((e.item as ModuleHeader).Text != "WIP")
@@ -418,8 +421,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private void ResetSL()
         {
-            this.ShipDesigns.Entries.Clear();
-            this.ShipDesigns.Copied.Clear();
+            ShipDesigns.Reset();
             string path = Dir.ApplicationData;
             PopulateEntries(path);            
         }
