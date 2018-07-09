@@ -1230,7 +1230,7 @@ namespace Ship_Game
 
         private void BuildShipyardifAble()
         {
-            if (RecentCombat)
+            if (RecentCombat) return;
             if (Owner != Empire.Universe.PlayerEmpire
                 && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
                 && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
@@ -1315,6 +1315,15 @@ namespace Ship_Game
             return workers;
         }
 
+        private float CalculateMod(float desiredPercent, float storageRatio)
+        {
+            float mod = (desiredPercent - storageRatio) * 2;             //Percentage currently over or under desired storage
+            if (mod > 0 && mod < 0.05) mod = 0.05f;	//Avoid crazy small percentage
+            if (mod < 0 && mod > -0.05) mod = 0.00f;	//Avoid bounce (stop if slightly over)
+
+            return mod;
+        }
+
         //This will calculate a smooth transition to maintain [percent]% of stored food. It will under-farm if over
         //[percent]% of storage, or over-farm if under it. Returns labor needed
         private float FarmToPercentage(float percent)   //Production and Research
@@ -1330,14 +1339,9 @@ namespace Ship_Game
                 float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
                 if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
                 storedFoodRatio = storedFoodRatio.Clamp(0, 1);
-            }
+            }                
 
-            float modFarmers = (percent - storedFoodRatio) * 2;             //Percentage currently over or under desired storage
-            if (modFarmers >  0 && modFarmers <   0.05) modFarmers = 0.05f;	//Avoid crazy small percentage
-            if (modFarmers <  0 && modFarmers >  -0.05) modFarmers = 0.00f;	//Avoid bounce (stop if slightly over)
-            modFarmers = modFarmers.Clamp(-0.35f, 0.50f);                                //Also avoid large percentages
-
-            minFarmers += modFarmers;             //modify nominal farmers by overage or underage
+            minFarmers += CalculateMod(percent, storedFoodRatio).Clamp(-0.35f, 0.50f);             //modify nominal farmers by overage or underage
             minFarmers = minFarmers.Clamp(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
             return minFarmers;                          //Return labor % of farmers to progress toward goal
         }
@@ -1368,12 +1372,7 @@ namespace Ship_Game
                 storedProdRatio = storedProdRatio.Clamp(0, 1);
             }
 
-            float modWorkers = (percent - storedProdRatio) * 2;             //Percentage currently over or under desired storage used as mod
-            if (modWorkers >  0 && modWorkers <   0.05) modWorkers = 0.05f; //Avoid crazy small percentage
-            if (modWorkers <  0 && modWorkers >  -0.05) modWorkers = 0.00f; //Avoid bounce (stop if slightly over)
-            minWorkers = minWorkers.Clamp(-0.35f,1);
-
-            minWorkers += modWorkers;             //modify nominal workers by overage or underage
+            minWorkers += CalculateMod(percent, storedProdRatio).Clamp(-0.35f, 1.00f);
             minWorkers = minWorkers.Clamp(0, 1);
             return minWorkers;                          //Return labor % to progress toward goal
         }
@@ -1761,6 +1760,24 @@ namespace Ship_Game
             return buildingValue;
         }
 
+        private void ChooseAndBuild(float income)
+        {
+            Building bestBuilding = null;
+            float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+            float buildingScore = 0.0f;
+            for (int i = 0; i < BuildingsCanBuild.Count; i++)
+            {
+                //Find the building with the highest score
+                buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                if (buildingScore > bestValue)
+                {
+                    bestBuilding = BuildingsCanBuild[i];
+                    bestValue = buildingScore;
+                }
+            }
+            if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+        }
+
         public void DoGoverning()
         {
             BuildOutpostifAble();   //If there is no Outpost or Capital, build it
@@ -1771,39 +1788,16 @@ namespace Ship_Game
             float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
 
             //Do some existing bulding recon
-            int openTiles = 0;
-            int totalbuildings = 0; //To account for buildings that can be build anywhere
-            foreach (PlanetGridSquare pgs in TilesList)
-            {
-                if (pgs.Habitable)
-                {
-                    if (pgs.building == null) openTiles++;  //Habitable spot, without a building
-                }
-
-                if (pgs.building != null && pgs.building.Name != "Biospheres") totalbuildings++;
-            }
+            int openTiles = TilesList.Count(tile => tile.Habitable && tile.building == null);
+            int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
 
             //Construction queue recon
-            bool biosphereInTheWorks = false;
-            bool buildingInTheWorks = false;
-            foreach (var thingie in ConstructionQueue)
-            {
-                if (!thingie.isBuilding) continue;          //Include buildings in queue in income calculations
-                income -= thingie.Building.Maintenance + thingie.Building.Maintenance * Owner.data.Traits.MaintMod;
-                buildingInTheWorks = true;
-                if (thingie.Building.Name == "Biospheres") biosphereInTheWorks = true;
-            }
+            bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(building => building.isBuilding && building.Building.Name == "Biospheres") != null;
+            bool buildingInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
+            income -= SbProduction.GetTotalConstructionQueueMaintenance();
 
             //Stuff we can build recon
-            Building bioSphere = null;
-            foreach (var building in BuildingsCanBuild)
-            {
-                if (building.Name == "Biospheres")
-                {
-                    bioSphere = building;
-                    break;
-                }
-            }
+            Building bioSphere = BuildingsCanBuild.Find(building => building.Name == "Biospheres");
 
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
             bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
@@ -1836,11 +1830,6 @@ namespace Ship_Game
                             break;
                         }
 
-
-
-
-
-
                         //New Build Logic by Gretman
                         if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
@@ -1848,20 +1837,7 @@ namespace Ship_Game
                         {
                             if (!buildingInTheWorks)
                             {
-                                Building bestBuilding = null;
-                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-                                float buildingScore = 0.0f;
-                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
-                                {
-                                    //Find the building with the highest score
-                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
-                                    if (buildingScore > bestValue)
-                                    {
-                                        bestBuilding = BuildingsCanBuild[i];
-                                        bestValue = buildingScore;
-                                    }
-                                }
-                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+                                ChooseAndBuild(income);
                             }
                         }
                         else
@@ -1884,32 +1860,13 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
 
-                        
-
-
-
-
-
                         if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
                             if (!buildingInTheWorks)
                             {
-                                Building bestBuilding = null;
-                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-                                float buildingScore = 0.0f;
-                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
-                                {
-                                    //Find the building with the highest score
-                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
-                                    if (buildingScore > bestValue)
-                                    {
-                                        bestBuilding = BuildingsCanBuild[i];
-                                        bestValue = buildingScore;
-                                    }
-                                }
-                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+                                ChooseAndBuild(income);
                             }
                         }
                         else
@@ -1932,31 +1889,13 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-
-
-
-
-
                         if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
                             if (!buildingInTheWorks)
                             {
-                                Building bestBuilding = null;
-                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-                                float buildingScore = 0.0f;
-                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
-                                {
-                                    //Find the building with the highest score
-                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
-                                    if (buildingScore > bestValue)
-                                    {
-                                        bestBuilding = BuildingsCanBuild[i];
-                                        bestValue = buildingScore;
-                                    }
-                                }
-                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+                                ChooseAndBuild(income);
                             }
                         }
                         else
@@ -1978,33 +1917,13 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        
-
-
-
-
-
-
                         if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
                             if (!buildingInTheWorks)
                             {
-                                Building bestBuilding = null;
-                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-                                float buildingScore = 0.0f;
-                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
-                                {
-                                    //Find the building with the highest score
-                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
-                                    if (buildingScore > bestValue)
-                                    {
-                                        bestBuilding = BuildingsCanBuild[i];
-                                        bestValue = buildingScore;
-                                    }
-                                }
-                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+                                ChooseAndBuild(income);
                             }
                         }
                         else
@@ -2026,32 +1945,13 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
-                        
-
-
-
-
-
                         if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
                         if (openTiles > 0)
                         {
                             if (!buildingInTheWorks)
                             {
-                                Building bestBuilding = null;
-                                float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-                                float buildingScore = 0.0f;
-                                for (int i = 0; i < BuildingsCanBuild.Count; i++)
-                                {
-                                    //Find the building with the highest score
-                                    buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
-                                    if (buildingScore > bestValue)
-                                    {
-                                        bestBuilding = BuildingsCanBuild[i];
-                                        bestValue = buildingScore;
-                                    }
-                                }
-                                if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+                                ChooseAndBuild(income);
                             }
                         }
                         else
