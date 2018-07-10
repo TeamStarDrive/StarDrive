@@ -492,11 +492,12 @@ namespace Ship_Game.AI
                              || !HasPriorityOrder && !HadPO
                              && State != AIState.HoldPosition)
                     {
-                        if (State == AIState.FormationWarp)
-                        {
-                            OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
-                            Log.Warning($"Fleet formation warp should not be possible with nothing in order queue.");
-                        }
+                        //if (State == AIState.FormationWarp)
+                        //{
+                        //    //OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
+                        //    Log.Warning($"Fleet formation warp should not be possible with nothing in order queue.");
+                        //    ClearOrdersNext = true;
+                        //}
 
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
