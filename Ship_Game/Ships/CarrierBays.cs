@@ -43,9 +43,14 @@ namespace Ship_Game.Ships
 
         public static CarrierBays None { get; } = new CarrierBays(Empty<ShipModule>.Array); // Returns NIL object
 
-        public static CarrierBays Create(ShipModule[] slots)
+        public static CarrierBays Create(ShipModule[] slots, ShipData.RoleName roleName)
         {
-            return slots.Any(m => m.ModuleType == ShipModuleType.Hangar) ? new CarrierBays(slots) : None;
+            //return slots.Any(m => m.ModuleType == ShipModuleType.Hangar) ? new CarrierBays(slots) : None;
+            if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar || m.ModuleType == ShipModuleType.Transporter)
+                || roleName == ShipData.RoleName.troop
+                || roleName == ShipData.RoleName.troopShip)
+                    return new CarrierBays(slots);
+            return None;
         }
 
         public ShipModule[] AllActiveHangars   => AllHangars.FilterBy(module => module.Active);
@@ -62,9 +67,15 @@ namespace Ship_Game.Ships
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
-        public int NumTroopsInShipAndInSpace(int initialTroopCount)
+        public int NumTroopsInShipAndInSpace
         {
-            return Owner == null ? initialTroopCount : initialTroopCount + LaunchedAssaultShuttles;
+            get
+            {
+                if (Owner == null || !CanInvadeOrBoard)
+                    return 0;
+
+                return Owner.TroopList.Count + LaunchedAssaultShuttles;
+            }
         }
 
         public float MaxTroopStrengthInShipToCommit
@@ -236,21 +247,24 @@ namespace Ship_Game.Ships
             }
         }
 
-        public int PlanetAssaultCount(int initialTroopCount)
+        public int PlanetAssaultCount
         {
-            if (Owner == null)
-                return CanInvadeOrBoard ? initialTroopCount : 0;
-
-            int assaultSpots = NumTroopsInShipAndInSpace(initialTroopCount);
-            assaultSpots    += AllActiveHangars.Count(sm => sm.IsTroopBay && sm.Active);
-            assaultSpots    += AllTransporters.Sum(at => at.TransporterTroopLanding); 
-
-            if (assaultSpots > 0)
+        get
             {
-                int temp = assaultSpots - Owner.TroopList.Count;
-                assaultSpots -= temp < 0 ? 0 : temp;
+                if (Owner == null || !CanInvadeOrBoard)
+                    return 0;
+
+                int assaultSpots = NumTroopsInShipAndInSpace;
+                assaultSpots += AllActiveHangars.Count(sm => sm.IsTroopBay && sm.Active);
+                assaultSpots += AllTransporters.Sum(at => at.TransporterTroopLanding);
+
+                if (assaultSpots > 0)
+                {
+                    int temp = assaultSpots - Owner.TroopList.Count;
+                    assaultSpots -= temp < 0 ? 0 : temp;
+                }
+                return assaultSpots;
             }
-            return assaultSpots;
         }
 
         public void AssaultPlanet(Planet planet)
@@ -339,7 +353,7 @@ namespace Ship_Game.Ships
             if (hangar == null)
                 return false;
 
-            hangar.ResetHangarShip(assaultShip);
+            hangar.ResetHangarShipWithReturnToHangar(assaultShip);
             return true;
         }
         
