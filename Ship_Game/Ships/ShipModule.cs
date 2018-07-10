@@ -854,6 +854,13 @@ namespace Ship_Game.Ships
                 HangarShipGuid = ship.guid;  //fbedard: save mothership
         }
 
+        public void ResetHangarShip(Ship newShipToLink)
+        {
+            SetHangarShip(newShipToLink);
+            newShipToLink.Mothership = Parent;
+            newShipToLink.AI.OrderReturnToHangar();
+        }
+
         public override void Update(float elapsedTime)
         {
             if (Health > 0f && !Active)
