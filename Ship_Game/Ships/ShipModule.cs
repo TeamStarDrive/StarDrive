@@ -858,6 +858,12 @@ namespace Ship_Game.Ships
         {
             SetHangarShip(newShipToLink);
             newShipToLink.Mothership = Parent;
+        }
+
+        public void ResetHangarShipWithReturnToHangar(Ship newShipToLink)
+        {
+            SetHangarShip(newShipToLink);
+            newShipToLink.Mothership = Parent;
             newShipToLink.AI.OrderReturnToHangar();
         }
 
