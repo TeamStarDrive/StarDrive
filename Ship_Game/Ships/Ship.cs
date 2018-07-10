@@ -2121,21 +2121,15 @@ namespace Ship_Game.Ships
                 if (assaultShip.Velocity.Length() > assaultShip.velocityMaximum)
                     assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
 
-                assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to find friendlies nearby
                 Ship friendlyTroopShiptoRebase = FindClosestAllyToRebase(assaultShip);
+
+                bool rebaseSucceeded = false;
                 if (friendlyTroopShiptoRebase != null)
-                {
-                    assaultShip.Mothership = friendlyTroopShiptoRebase;
-                    ShipModule hangar = friendlyTroopShiptoRebase.Carrier.AllTroopBays.First(hangarSpot => hangarSpot.GetHangarShip() == null);
-                    if (hangar != null)
-                    {
-                        hangar.SetHangarShip(assaultShip);
-                        assaultShip.Mothership = friendlyTroopShiptoRebase;
-                        assaultShip.AI.OrderReturnToHangar();
-                    }
-                }
-                if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
+                    rebaseSucceeded = friendlyTroopShiptoRebase.Carrier.RebaseAssaultShip(assaultShip);
+
+                if (!rebaseSucceeded) // did not found a friendly troopship to rebase to
                     assaultShip.AI.OrderRebaseToNearest();
+
                 if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
                     assaultShip.DoEscort(this);
             }
@@ -2143,6 +2137,7 @@ namespace Ship_Game.Ships
 
         private Ship FindClosestAllyToRebase(Ship ship)
         {
+            ship.AI.ScanForCombatTargets(ship, ship.SensorRange); // to find friendlies nearby
             return ship.AI.FriendliesNearby.FindMinFiltered(
                 troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace(troopShip.TroopList.Count) < troopShip.TroopCapacity
                 && troopShip.Carrier.HasTroopBays,
