@@ -18,6 +18,7 @@ namespace Ship_Game.Ships
         public readonly bool HasTransporters;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
+        public readonly bool CanInvadeOrBoard;
         private bool RecallingShipsBeforeWarp;
 
         private CarrierBays(ShipModule[] slots) // this is a constructor, initialize everything in here
@@ -36,6 +37,7 @@ namespace Ship_Game.Ships
             HasTransporters         = AllTransporters.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
+            CanInvadeOrBoard        = HasTroopBays || HasAssaultTransporters;    
             Owner                   = AllHangars.Length > 0 ? AllHangars[0].GetParent() : null;
         }
 
@@ -237,7 +239,7 @@ namespace Ship_Game.Ships
         public int PlanetAssaultCount(int initialTroopCount)
         {
             if (Owner == null)
-                return initialTroopCount;
+                return CanInvadeOrBoard ? initialTroopCount : 0;
 
             int assaultSpots = NumTroopsInShipAndInSpace(initialTroopCount);
             assaultSpots    += AllActiveHangars.Count(sm => sm.IsTroopBay && sm.Active);
