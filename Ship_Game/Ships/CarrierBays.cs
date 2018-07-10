@@ -15,10 +15,8 @@ namespace Ship_Game.Ships
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
         public readonly bool HasTroopBays;
-        public readonly bool HasTransporters;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
-        public readonly bool CanInvadeOrBoard;
         private bool RecallingShipsBeforeWarp;
 
         private CarrierBays(ShipModule[] slots) // this is a constructor, initialize everything in here
@@ -34,10 +32,8 @@ namespace Ship_Game.Ships
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
             HasTroopBays            = AllTroopBays.Length > 0;
-            HasTransporters         = AllTransporters.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
-            CanInvadeOrBoard        = HasTroopBays || HasAssaultTransporters;    
             Owner                   = AllHangars.Length > 0 ? AllHangars[0].GetParent() : null;
         }
 
@@ -56,6 +52,10 @@ namespace Ship_Game.Ships
         public ShipModule[] AllActiveHangars   => AllHangars.FilterBy(module => module.Active);
 
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
+
+        public bool HasTransporters => AllTransporters.Length > 0;
+
+        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters;
 
         public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
 
