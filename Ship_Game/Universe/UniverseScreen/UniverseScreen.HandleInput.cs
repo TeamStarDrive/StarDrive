@@ -776,8 +776,6 @@ namespace Ship_Game
 
             if (MoveFleetToPlanet(planetClicked, fleet)) return;
 
-            //float targetFacingR = fleet.Position.RadiansToTarget(targetVector);
-
             if (QueueFleetMovement(movePosition, facing, fleet)) return;
 
             using (fleet.Ships.AcquireReadLock())
@@ -787,16 +785,10 @@ namespace Ship_Game
             Vector2 vectorToTarget =
                 Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(facing, 1f));
 
-            if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
-                MoveShipGroupToLocation(fleet, fleet.Ships);
-            else
-                //fleet.FormationWarpTo(movePosition, fleet.FindAveragePosition().RadiansToTarget(movePosition), Vector2.Normalize(movePosition - fleet.FindAveragePosition()));// vectorToTarget);
+            if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))            
+                fleet.MoveToNow(movePosition, facing, vectorToTarget);            
+            else                
                 fleet.FormationWarpTo(movePosition, facing, vectorToTarget, Input.QueueAction);
-
-            //FormationWarpTo(task.AO, FindAveragePosition().RadiansToTarget(task.AO), Vector2.Normalize(task.AO - FindAveragePosition()));
-            //FormationWarpTo(movePosition, FindAveragePosition().RadiansToTarget(position),
-            //    Vector2.Normalize(position - FindAveragePosition()));
-
         }
 
         private void MoveShipToLocation(Vector2 targetVector, float facingToTargetR, Ship ship = null)
