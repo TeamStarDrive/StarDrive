@@ -19,7 +19,7 @@ namespace Ship_Game.Ships
         public readonly bool HasAssaultTransporters;
         private bool RecallingShipsBeforeWarp;
 
-        private CarrierBays(ShipModule[] slots) // this is a constructor, initialize everything in here
+        private CarrierBays(Ship owner, ShipModule[] slots)
         {
             AllHangars        = slots.FilterBy(module => module.Is(ShipModuleType.Hangar));
             AllTroopBays      = AllHangars.FilterBy(module => module.IsTroopBay);
@@ -34,18 +34,19 @@ namespace Ship_Game.Ships
             HasTroopBays            = AllTroopBays.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
-            Owner                   = AllHangars.Length > 0 ? AllHangars[0].GetParent() : null;
+            Owner                   = owner;
         }
 
-        public static CarrierBays None { get; } = new CarrierBays(Empty<ShipModule>.Array); // Returns NIL object
+        private static readonly CarrierBays None = new CarrierBays(null, Empty<ShipModule>.Array); // NIL object pattern
 
-        public static CarrierBays Create(ShipModule[] slots, ShipData.RoleName roleName)
+        public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
-            //return slots.Any(m => m.ModuleType == ShipModuleType.Hangar) ? new CarrierBays(slots) : None;
-            if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar || m.ModuleType == ShipModuleType.Transporter)
-                || roleName == ShipData.RoleName.troop
-                || roleName == ShipData.RoleName.troopShip)
-                    return new CarrierBays(slots);
+            ShipData.RoleName role = owner.shipData.Role;
+            if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
+                            || m.ModuleType == ShipModuleType.Transporter)
+                || role == ShipData.RoleName.troop
+                || role == ShipData.RoleName.troopShip)
+                    return new CarrierBays(owner, slots);
             return None;
         }
 
