@@ -1340,14 +1340,14 @@ namespace Ship_Game.AI
                     MoveToNow(Position, Position.RadiansToTarget(task.GetTargetPlanet().Center), fVec);
                     TaskStep = 1;
                     break;
-                case 1:
+                case 1:                    
                     if (!IsFleetAssembled(5000, out bool endtask))
                         break;                    
                     TaskStep = 2;
                     Position = task.GetTargetPlanet().Center;
-                    FormationWarpTo(Position, FindAveragePosition().RadiansToTarget(Position), Vector2.Normalize(Position - FindAveragePosition()));
                     foreach (Ship ship in Ships)
-                        ship.AI.HasPriorityOrder = true;
+                        ship.AI.SetPriorityOrder(true);
+                    FormationWarpTo(Position, FindAveragePosition().RadiansToTarget(Position), Vector2.Normalize(Position - FindAveragePosition()));                   
                     break;
                 case 2:
                     if (IsFleetAssembled(15000f, out bool incombat) && incombat)
@@ -1982,13 +1982,11 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet?.Name, Name);
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
-                Log.Info("WTF");
+                Log.Info($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}");
             ship.fleet = null;
             RemoveFromAllSquads(ship);
-            if (Ships == null) return true;
-            Log.Info("Ship removed");
             if (Ships.Remove(ship) || !ship.Active) return true;
-            Log.Info("Ship is not in this fleet");
+            Log.Info("Fleet RemoveShip: Ship is not in this fleet");
             return false;
         }
 

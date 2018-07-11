@@ -38,9 +38,16 @@ namespace Ship_Game.AI {
 
         private void MakeFinalApproach(float elapsedTime, ShipGoal Goal)
         {
+            if (ActiveWayPoints.Count <= 0)
+            {
+                Log.Error("Ship Movement: active way points was empty during final approach");
+                ClearOrdersNext = true;
+                return;
+            }
             if (Goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
+
                     ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Center);
                     Goal.MovePosition = Goal.TargetPlanet.Center;
                 }
