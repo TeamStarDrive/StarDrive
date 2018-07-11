@@ -1982,13 +1982,11 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet?.Name, Name);
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
-                Log.Info("WTF");
+                Log.Info($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}");
             ship.fleet = null;
             RemoveFromAllSquads(ship);
-            if (Ships == null) return true;
-            Log.Info("Ship removed");
             if (Ships.Remove(ship) || !ship.Active) return true;
-            Log.Info("Ship is not in this fleet");
+            Log.Info("Fleet RemoveShip: Ship is not in this fleet");
             return false;
         }
 
