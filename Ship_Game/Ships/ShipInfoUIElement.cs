@@ -443,13 +443,8 @@ namespace Ship_Game.Ships
             int allTroops    = playerTroops + enemyTroops;
             if (Ship.TroopsAreBoardingShip)
             {
-                if (playerTroops > enemyTroops)
-                {
-                    DrawHorizontalValues(enemyTroops, Color.Red, ref troopPos, withSlash: false);
-                    DrawHorizontalValues(playerTroops, Color.LightGreen, ref troopPos);
-                }
-                else
-                    DrawHorizontalValues(enemyTroops, Color.Red, ref troopPos, withSlash: false);
+                DrawHorizontalValues(enemyTroops, Color.Red, ref troopPos, withSlash: false);
+                DrawHorizontalValues(playerTroops, Color.LightGreen, ref troopPos);
             }
             else
             {
