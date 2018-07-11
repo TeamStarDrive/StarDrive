@@ -15,7 +15,6 @@ namespace Ship_Game.Ships
         public readonly bool HasSupplyBays;
         public readonly bool HasFighterBays;
         public readonly bool HasTroopBays;
-        public readonly bool HasTransporters;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
         private bool RecallingShipsBeforeWarp;
@@ -33,7 +32,6 @@ namespace Ship_Game.Ships
             HasSupplyBays           = AllSupplyBays.Length > 0;
             HasFighterBays          = AllFighterHangars.Length > 0;
             HasTroopBays            = AllTroopBays.Length > 0;
-            HasTransporters         = AllTransporters.Length > 0;
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
             Owner                   = AllHangars.Length > 0 ? AllHangars[0].GetParent() : null;
@@ -41,14 +39,23 @@ namespace Ship_Game.Ships
 
         public static CarrierBays None { get; } = new CarrierBays(Empty<ShipModule>.Array); // Returns NIL object
 
-        public static CarrierBays Create(ShipModule[] slots)
+        public static CarrierBays Create(ShipModule[] slots, ShipData.RoleName roleName)
         {
-            return slots.Any(m => m.ModuleType == ShipModuleType.Hangar) ? new CarrierBays(slots) : None;
+            //return slots.Any(m => m.ModuleType == ShipModuleType.Hangar) ? new CarrierBays(slots) : None;
+            if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar || m.ModuleType == ShipModuleType.Transporter)
+                || roleName == ShipData.RoleName.troop
+                || roleName == ShipData.RoleName.troopShip)
+                    return new CarrierBays(slots);
+            return None;
         }
 
         public ShipModule[] AllActiveHangars   => AllHangars.FilterBy(module => module.Active);
 
         public bool HasActiveHangars           => AllHangars.Any(module => module.Active); // FB: this changes dynamically
+
+        public bool HasTransporters => AllTransporters.Length > 0;
+
+        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters;
 
         public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
 
@@ -60,7 +67,16 @@ namespace Ship_Game.Ships
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
-        public int NumTroopsInShipAndInSpace => Owner.TroopList.Count + LaunchedAssaultShuttles;
+        public int NumTroopsInShipAndInSpace
+        {
+            get
+            {
+                if (Owner == null || !CanInvadeOrBoard)
+                    return 0;
+
+                return Owner.TroopList.Count + LaunchedAssaultShuttles;
+            }
+        }
 
         public float MaxTroopStrengthInShipToCommit
         {
@@ -233,17 +249,14 @@ namespace Ship_Game.Ships
 
         public int PlanetAssaultCount
         {
-            get
+        get
             {
-                if (Owner == null)
+                if (Owner == null || !CanInvadeOrBoard)
                     return 0;
-                int assaultSpots = 0;
-                if (Owner.shipData.Role == ShipData.RoleName.troop)
-                {
-                    assaultSpots += Owner.TroopList.Count;
-                }
+
+                int assaultSpots = NumTroopsInShipAndInSpace;
                 assaultSpots += AllActiveHangars.Count(sm => sm.IsTroopBay && sm.Active);
-                assaultSpots += AllTransporters.Sum(at => at.TransporterTroopLanding); 
+                assaultSpots += AllTransporters.Sum(at => at.TransporterTroopLanding);
 
                 if (assaultSpots > 0)
                 {
@@ -331,6 +344,19 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool RebaseAssaultShip(Ship assaultShip)
+        {
+            if (Owner == null)
+                return false;
+
+            ShipModule hangar = AllTroopBays.First(hangarSpot => hangarSpot.GetHangarShip() == null);
+            if (hangar == null)
+                return false;
+
+            hangar.ResetHangarShipWithReturnToHangar(assaultShip);
+            return true;
+        }
+        
         public void AssaultPlanetWithTransporters(Planet planet)
         {
             if (Owner == null)
