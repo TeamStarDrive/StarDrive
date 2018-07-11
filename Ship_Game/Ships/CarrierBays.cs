@@ -44,9 +44,8 @@ namespace Ship_Game.Ships
             ShipData.RoleName role = owner.shipData.Role;
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
                             || m.ModuleType == ShipModuleType.Transporter)
-                || role == ShipData.RoleName.troop
-                || role == ShipData.RoleName.troopShip)
-                    return new CarrierBays(owner, slots);
+                || role == ShipData.RoleName.troop)
+                return new CarrierBays(owner, slots);
             return None;
         }
 
@@ -358,36 +357,46 @@ namespace Ship_Game.Ships
             return true;
         }
         
+        private Array<Troop> LandTroops(Planet at, int maxTroopsToLand)
+        {
+            var landedTroops = new Array<Troop>();
+            foreach (Troop troop in Owner.TroopList)
+            {
+                if (maxTroopsToLand <= 0)
+                    break;
+                if (troop == null || troop.GetOwner() != Owner.loyalty)
+                    continue;
+                if (troop.AssignTroopToTile(at))
+                {
+                    landedTroops.Add(troop);
+                    --maxTroopsToLand;
+                }
+                else break;
+            }
+            return landedTroops;
+        }
+
+        private int TroopLandLimit
+        {
+            get
+            {
+                int landLimit = AllActiveTroopBays.Count(hangar => hangar.hangarTimer <= 0);
+                foreach (ShipModule module in AllTransporters.Where(module => module.TransporterTimer <= 1f))
+                    landLimit += module.TransporterTroopLanding;
+                return landLimit;
+            }
+        }
+
         public void AssaultPlanetWithTransporters(Planet planet)
         {
             if (Owner == null)
                 return;
 
-            //Get limit of troops to land
-            var toRemove = new Array<Troop>();
-            int landLimit = AllActiveTroopBays.Count(hangar => hangar.hangarTimer <= 0);
-            foreach (ShipModule module in AllTransporters.Where(module => module.TransporterTimer <= 1f))
-                landLimit += module.TransporterTroopLanding;
-            //Land troops
-            foreach (Troop troop in Owner.TroopList)
-            {
-                if (troop == null || troop.GetOwner() != Owner.loyalty)
-                    continue;
-                if (troop.AssignTroopToTile(planet))
-                {
-                    toRemove.Add(troop);
-                    landLimit--;
-                    if (landLimit < 1)
-                        break;
-                }
-                else
-                    break;
-            }
-            //Clear out Troops
-            if (toRemove.Count <= 0)
+            Array<Troop> landed = LandTroops(planet, TroopLandLimit);
+            if (landed.Count <= 0)
                 return;
 
-            foreach (Troop to in toRemove)  //FB: not sure what this flag is for. Should be tested with STSA
+            foreach (Troop to in landed)  //FB: not sure what this flag is for. Should be tested with STSA
             {
                 bool flag = false; // = false;                        
                 foreach (ShipModule module in AllActiveTroopBays)
