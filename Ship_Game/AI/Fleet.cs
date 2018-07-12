@@ -202,12 +202,12 @@ namespace Ship_Game.AI
             ResetFlankLists();
 
             SetSpeed();
-          
-            SortSquad(CenterShips, CenterFlank, true);
-            SortSquad(LeftShips  , LeftFlank);
-            SortSquad(RightShips , RightFlank);
-            SortSquad(ScreenShips, ScreenFlank);
-            SortSquad(RearShips  , RearFlank);
+
+            CenterFlank = SortSquadBySize(CenterShips);
+            LeftFlank   = SortSquadBySpeed(LeftShips);
+            RightFlank  = SortSquadBySpeed(RightShips);
+            ScreenFlank = SortSquadBySpeed(ScreenShips);
+            RearFlank   = SortSquadBySpeed(RearShips);
 
             Position = FindAveragePosition();
 
@@ -256,24 +256,25 @@ namespace Ship_Game.AI
             ship.AI.FleetNode = fleetDataNode;
         }
 
-        private void SortSquad(Array<Ship> allShips, Array<Squad> destSquad, bool sizeOverSpeed = false)
-        {
-            IOrderedEnumerable<Ship> orderedShips;      //If true, sort by size instead of speed
-            if (sizeOverSpeed) { orderedShips = allShips.OrderByDescending(ship => ship.Size); }
-            else { orderedShips = allShips.OrderByDescending(ship => ship.Speed); }
+        private Array<Squad> SortSquadBySpeed(Array<Ship> allShips) => SortSquad(allShips, false);
+        private Array<Squad> SortSquadBySize(Array<Ship> allShips) => SortSquad(allShips, true);
 
-            Squad squad = new Squad();
-            squad.Fleet = this;
-            for (int index = 0; index < orderedShips.Count(); ++index)
+        private Array<Squad> SortSquad(Array<Ship> allShips, bool sizeOverSpeed)
+        {
+            Ship[] orderedShips = allShips.OrderByDescending(ship => sizeOverSpeed ? ship.Size: ship.Speed).ToArray();
+            var destSquad       = new Array<Squad>();
+            Squad squad         = new Squad { Fleet = this };
+
+            for (int index = 0; index < orderedShips.Length; ++index)
             {
                 if (squad.Ships.Count < 4)
-                    squad.Ships.Add(orderedShips.ElementAt(index));
-                if (squad.Ships.Count == 4 || index == orderedShips.Count() - 1)
-                {
-                    destSquad.Add(squad);
-                    squad = new Squad { Fleet = this };
-                }
+                    squad.Ships.Add(orderedShips[index]);
+                if (squad.Ships.Count != 4 && index != orderedShips.Length - 1) continue;
+
+                squad = new Squad { Fleet = this };
+                destSquad.Add(squad);                
             }
+            return destSquad;
         }
 
         private void ArrangeSquad(Array<Squad> squad, Vector2 squadOffset)
