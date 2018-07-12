@@ -1765,10 +1765,11 @@ namespace Ship_Game.Ships
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                 {
-                    PowerDraw = (loyalty.data.FTLPowerDrainModifier * (ModulePowerDraw + ShieldPowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2));
+                    // FB: shields take no power at warp :/  this is not aligned with ships design and should be fixed after refactor.
+                    PowerDraw = loyalty.data.FTLPowerDrainModifier * ModulePowerDraw + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
                 }
                 else if (engineState != MoveState.Warp && ShieldsUp)
-                    PowerDraw = ModulePowerDraw + ShieldPowerDraw + WarpDraw;
+                    PowerDraw = ModulePowerDraw + ShieldPowerDraw;
                 else
                     PowerDraw = ModulePowerDraw;
              
