@@ -352,7 +352,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                     catch
                     {
-                        Log.Error($"Failed to load ship design {Ship.Key}");
+                        Log.Warning($"Failed to load ship design {Ship.Key}");
                     }
                 }
                 if (WIPs.Count > 0)

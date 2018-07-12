@@ -1765,10 +1765,11 @@ namespace Ship_Game.Ships
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
                 {
-                    PowerDraw = (loyalty.data.FTLPowerDrainModifier * (ModulePowerDraw + ShieldPowerDraw) + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2));
+                    // FB: shields take no power at warp :/  this is not aligned with ships design and should be fixed after refactor.
+                    PowerDraw = loyalty.data.FTLPowerDrainModifier * ModulePowerDraw + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
                 }
                 else if (engineState != MoveState.Warp && ShieldsUp)
-                    PowerDraw = ModulePowerDraw + ShieldPowerDraw + WarpDraw;
+                    PowerDraw = ModulePowerDraw + ShieldPowerDraw;
                 else
                     PowerDraw = ModulePowerDraw;
              
@@ -1976,9 +1977,9 @@ namespace Ship_Game.Ships
             Array<Troop> enemyTroops = new Array<Troop>(TroopList.FilterBy(troop => troop.GetOwner() != loyalty));
 
             HealTroops();
-
-            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > TroopCapacity + 1) //  +1 to leave a garrison on the captured ship
-                DisengageExcessTroops(ownTroops.Count - (TroopCapacity + 1));
+            int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrion of 1 if ship without barracks was boarded
+            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > troopThreshold) 
+                DisengageExcessTroops(ownTroops.Count - troopThreshold);
 
             if (enemyTroops.Count <= 0)
                 return; // Boarding is over or never started
@@ -2022,9 +2023,9 @@ namespace Ship_Game.Ships
 
             float GetMechanicalDefenseRoll()
             {
-                float mechanicalDefResult =0f;
+                float mechanicalDefResult = 0f;
                 for (int index = 0; index < MechanicalBoardingDefense; ++index)
-                    if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
+                    if (UniverseRandom.RandomBetween(0.0f, 100f) <= 50.0f)
                         ++mechanicalDefResult;
 
                 return mechanicalDefResult;
@@ -2092,7 +2093,7 @@ namespace Ship_Game.Ships
                 {
                     if (attackingTroopsRoll > 0)
                     {
-                        attackingTroopsRoll = -troop.Strength;
+                        attackingTroopsRoll -= troop.Strength;
                         troop.Strength -= attackingTroopsRoll + troop.Strength;
                         if (troop.Strength <= 0)
                             TroopList.Remove(troop);
@@ -2121,21 +2122,27 @@ namespace Ship_Game.Ships
                 if (assaultShip.Velocity.Length() > assaultShip.velocityMaximum)
                     assaultShip.Velocity = Vector2.Normalize(assaultShip.Velocity) * assaultShip.Speed;
 
-                assaultShip.AI.ScanForCombatTargets(assaultShip, assaultShip.SensorRange); // to fill friendlies near by
-                foreach (Ship friendlyTroopShiptoRebase in assaultShip.AI.FriendliesNearby.FilterBy(ship => ship.TroopList.Count < ship.TroopCapacity 
-                                                                                             && ship.Carrier.HasTroopBays))
-                {
-                    assaultShip.Mothership = friendlyTroopShiptoRebase;
-                    ShipModule hangar = friendlyTroopShiptoRebase.Carrier.AllTroopBays.First();
-                    hangar.SetHangarShip(assaultShip);
-                    assaultShip.AI.OrderReturnToHangar();
-                    break;
-                }
-                if (assaultShip.Mothership == null) // did not found a friendly troopship to rebase to
+                Ship friendlyTroopShiptoRebase = FindClosestAllyToRebase(assaultShip);
+
+                bool rebaseSucceeded = false;
+                if (friendlyTroopShiptoRebase != null)
+                    rebaseSucceeded = friendlyTroopShiptoRebase.Carrier.RebaseAssaultShip(assaultShip);
+
+                if (!rebaseSucceeded) // did not found a friendly troopship to rebase to
                     assaultShip.AI.OrderRebaseToNearest();
+
                 if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
                     assaultShip.DoEscort(this);
             }
+        }
+
+        private Ship FindClosestAllyToRebase(Ship ship)
+        {
+            ship.AI.ScanForCombatTargets(ship, ship.SensorRange); // to find friendlies nearby
+            return ship.AI.FriendliesNearby.FindMinFiltered(
+                troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity
+                && troopShip.Carrier.HasTroopBays,
+                troopShip => ship.Center.SqDist(troopShip.Center));
         }
 
         public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one

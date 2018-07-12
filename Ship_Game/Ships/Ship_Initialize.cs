@@ -315,7 +315,6 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             ship.TroopList.Add(ResourceManager.CopyTroop(troop));
-            ship.TroopCapacity += 1; // avoid excess troops on creation because of trooplist.add
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Combat;
             return ship;
@@ -427,9 +426,6 @@ namespace Ship_Game.Ships
                 troopList.SetShip(this);
                 TroopBoardingDefense += troopList.Strength;
             }
-            MechanicalBoardingDefense *= (1 + TroopList.Count / 10);
-            if (MechanicalBoardingDefense < 1f)
-                MechanicalBoardingDefense = 1f;
         }
 
         private void SpawnTroopsForNewShip(ShipModule module)
@@ -500,7 +496,7 @@ namespace Ship_Game.Ships
                 if (weaponRange > RangeForOverlay)
                     RangeForOverlay = weaponRange;
             }
-            Carrier = CarrierBays.Create(ModuleSlotList);
+            Carrier = CarrierBays.Create(this, ModuleSlotList);
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             ActiveInternalSlotCount  = InternalSlotCount;
@@ -530,7 +526,6 @@ namespace Ship_Game.Ships
                 if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
                 TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
-                if (MechanicalBoardingDefense < 1f) MechanicalBoardingDefense = 1f;
 
                 if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
                 if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
@@ -588,6 +583,10 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
+
+            if (shipData.Role == ShipData.RoleName.troop)
+                TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity 
+            MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
             shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();

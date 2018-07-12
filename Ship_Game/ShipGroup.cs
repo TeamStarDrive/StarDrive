@@ -54,6 +54,17 @@ namespace Ship_Game
             }
         }
 
+        public void ProjectPosNoOffset(Vector2 projectedPosition, float facing)
+        {
+            ProjectedFacing = facing;
+            foreach (Ship ship in Ships)
+            {
+                //float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                //float distance = ship.RelativeFleetOffset.Length();
+                ship.projectedPosition = projectedPosition + Vector2.Zero.PointFromRadians(facing, 1);
+            }
+        }
+
         public bool ContainsShip(Ship ship)
         {
             using (Ships.AcquireReadLock())
@@ -245,10 +256,10 @@ namespace Ship_Game
         {
             this.Position = movePosition;
             this.Facing = facing;
-            this.AssembleFleet(facing, fVec);
+            this.AssembleFleet(facing, fVec, true);
             foreach (Ship ship in this.Ships)
             {
-                ship.AI.SetPriorityOrder(true);
+                ship.AI.SetPriorityOrder(false);
                 ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
@@ -300,7 +311,7 @@ namespace Ship_Game
                 Ship ship = this.Ships[index];
                 if (ship.Active && ship.GetStrength() > 0)
                     num++;
-                troops += ship.Carrier.PlanetAssaultCount;
+                troops += ship.shipData.Role == ShipData.RoleName.troop ? 1 : ship.Carrier.PlanetAssaultCount;
             }
             return num;
         }
