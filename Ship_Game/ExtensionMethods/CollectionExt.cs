@@ -385,6 +385,25 @@ namespace Ship_Game
             Array.Sort(keys, array, 0, array.Length);
         }
 
+        /// <summary>
+        /// Returns a sorted copy of the original items
+        /// The ordering of elements is decided by the keyPredicate.
+        /// If you want descending, just negate keyPredicate result!
+        /// </summary>
+        public static T[] Sorted<T, TKey>(this IEnumerable<T> items, Func<T, TKey> keyPredicate) where T : class
+        {
+            T[] array = ToArray(items);
+            if (array.Length <= 1)
+                return array;
+
+            var keys = new TKey[array.Length];
+            for (int i = 0; i < array.Length; ++i)
+                keys[i] = keyPredicate(array[i]);
+
+            Array.Sort(keys, array, 0, array.Length);
+            return array;
+        }
+
         public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameplayObject
         {
             if (array.Length <= 1)
