@@ -33,6 +33,11 @@ namespace Ship_Game.AI
         public bool HasPriorityTarget;
         private float TriggerDelay;
 
+        public void SetIntercepting()
+        {
+            Intercepting = true;
+        }
+
         public void FireOnTarget()
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 

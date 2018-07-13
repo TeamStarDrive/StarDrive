@@ -16,6 +16,14 @@ namespace Ship_Game.AI {
         public Planet OrbitTarget;
         private float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
 
+        public void ClearWayPoints()
+        {
+            lock (ActiveWayPoints)
+            {
+                ActiveWayPoints.Clear();
+            }
+        }
+
         public void GoTo(Vector2 movePos, Vector2 facing)
         {
             GotoStep = 0;

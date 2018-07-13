@@ -229,6 +229,21 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool AnyPlanetAssaultAvailable
+        {
+            get
+            {
+                if (Owner == null || Owner.TroopList.IsEmpty)
+                    return false;
+
+                if (Owner.DesignRole == ShipData.RoleName.troop)
+                    return true;
+
+                return AllActiveHangars.Any(sm => sm.IsTroopBay) 
+                       || AllTransporters.Any(sm => sm.TransporterTroopAssault >0);
+            }
+        }
+
         public float PlanetAssaultStrength 
         {
             get
