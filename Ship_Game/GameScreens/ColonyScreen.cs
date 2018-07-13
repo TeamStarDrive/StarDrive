@@ -413,7 +413,7 @@ namespace Ship_Game
                         {
                             if (entry.clickRectHover == 0)
                             {
-                                bool wontbuild = !p.WeCanAffordThis(entry.item as Building, p.colonyType);
+                                bool wontbuild = !p.WeCanAffordThis(entry.item as Building, p.colonyType);  //This WeCanAffordThis() is why the buildings turn gray in the building list.
                                 vector2_1.Y = entry.clickRect.Y;
                                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
                                 Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);

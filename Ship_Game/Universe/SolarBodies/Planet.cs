@@ -833,9 +833,8 @@ namespace Ship_Game
                 return false;
             if (building.IsPlayerAdded)
                 return true;
-            Empire empire = Owner;
-            float buildingMaintenance = empire.GetTotalBuildingMaintenance();
-            float grossTaxes = empire.GrossTaxes;
+            float buildingMaintenance = Owner.GetTotalBuildingMaintenance();
+            float grossTaxes = Owner.GrossTaxes;
 
             bool itsHere = BuildingList.Contains(building);
 
@@ -844,8 +843,7 @@ namespace Ship_Game
                 if (queueItem.isBuilding)
                 {
                     buildingMaintenance += Owner.data.Traits.MaintMod * queueItem.Building.Maintenance;
-                    bool added = queueItem.Building == building;
-                    if (added) itsHere = true;
+                    if (queueItem.Building == building) itsHere = true;
                 }
 
             }

@@ -316,7 +316,8 @@ namespace Ship_Game.Universe.SolarBodies
             qi.Cost              = b.Cost * UniverseScreen.GamePaceStatic;
             qi.productionTowards = 0.0f;
             qi.NotifyOnEmpty     = false;
-            ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer);
+
+            ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer); //Why is all this Terraformer code in this function, of all places?
 
             if (terraformer == null)
             {
@@ -331,11 +332,11 @@ namespace Ship_Game.Universe.SolarBodies
                     terraformer = check;
                 }
             }
+
             if (b.AssignBuildingToTile(qi, Ground))
                 ConstructionQueue.Add(qi);
-
             else if (Owner.data.Traits.Cybernetic <= 0 && Owner.GetBDict()[terraformer.Name] && Fertility < 1.0
-                && Ground.WeCanAffordThis(terraformer, colonyType))
+                && Ground.WeCanAffordThis(terraformer, colonyType)) //So, if we cant build this building, lets try and buld a terraformer instead?! This should not be here...
             {
                 bool flag = true;
                 foreach (QueueItem queueItem in ConstructionQueue)

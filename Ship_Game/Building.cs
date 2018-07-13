@@ -164,28 +164,31 @@ namespace Ship_Game
         public bool AssignBuildingToTile(QueueItem qi, Planet planet)
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-            if (this.Name == "Biospheres") 
+            if (this.Name == "Biospheres") //biospheres are handled specifically, later in the calling function
                 return false;
-            foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
+
+            foreach (PlanetGridSquare planetGridSquare in planet.TilesList) //Check all planet tiles
             {
-                bool flag = true;
-                foreach (QueueItem queueItem in planet.ConstructionQueue)
+                if (!planetGridSquare.Habitable || planetGridSquare.building != null) continue;
+
+                bool spotClaimed = false;
+                foreach (QueueItem queueItem in planet.ConstructionQueue)   //Check the queue to see if this grid square is already claimed
                 {
-                    if (queueItem.pgs == planetGridSquare)
+                    if (queueItem.pgs == planetGridSquare)                  //Isn't the building assigned to the tile already? Why check the queue over and over?
                     {
-                        flag = false;
+                        spotClaimed = true;
                         break;
                     }
                 }
-                if (flag && planetGridSquare.Habitable && planetGridSquare.building == null)
-                    list.Add(planetGridSquare);
+                if (!spotClaimed) list.Add(planetGridSquare);   //Add to list of usable tiles 
             }
+
             if (list.Count > 0)
             {
                 int index = (int)RandomMath.RandomBetween(0.0f, list.Count);
                 PlanetGridSquare planetGridSquare1 = list[index];
-                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
-                {
+                foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)    //What the shit is this doing? Is it seriously itterating the foreach until it finds the random tile picked above?!
+                {                                                                   //There has to be a better way to translate from <list> back to <planet.TilesList>...
                     if (planetGridSquare2 == planetGridSquare1)
                     {
                         planetGridSquare2.QItem = qi;
@@ -194,7 +197,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (this.CanBuildAnywhere)
+            else if (this.CanBuildAnywhere)     //I would like buildings that CanBuildAnywhere to prefer uninhabitable tiles
             {
                 PlanetGridSquare planetGridSquare1 = planet.TilesList[(int)RandomMath.RandomBetween(0.0f, planet.TilesList.Count)];
                 foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
