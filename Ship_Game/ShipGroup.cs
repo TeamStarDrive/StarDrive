@@ -315,6 +315,7 @@ namespace Ship_Game
             }
             return num;
         }
+        public bool IsFleetAssembled(float radius) => IsFleetAssembled(radius, out bool endTask);
         public bool IsFleetAssembled(float radius, out bool endTask, Vector2 position = default(Vector2))
         {
             if (position == default(Vector2)) position = Position;
