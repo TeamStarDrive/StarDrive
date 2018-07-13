@@ -7,6 +7,14 @@ using Ship_Game.Ships;
 namespace Ship_Game.AI {
     public sealed partial class ShipAI
     {
+        public void AddToOrderQueue(ShipGoal goal)
+        {
+            using (OrderQueue.AcquireWriteLock())
+            {
+                OrderQueue.Enqueue(goal);
+            }
+        }
+
         public void OrderAssaultPlanet(Planet p)
         {
             State = AIState.AssaultPlanet;
@@ -205,28 +213,12 @@ namespace Ship_Game.AI {
 
         public void OrderLandAllTroops(Planet target)
         {
-            if ((Owner.shipData.Role == ShipData.RoleName.troop || Owner.Carrier.HasTroopBays || Owner.Carrier.HasTransporters) &&
-                Owner.TroopList.Count > 0 && target.GetGroundLandingSpots() > 0)
-            {
-                HasPriorityOrder = true;
-                State = AIState.AssaultPlanet;
-                OrbitTarget = target;
-                OrderQueue.Clear();
-                lock (ActiveWayPoints)
-                {
-                    ActiveWayPoints.Clear();
-                }
-                var goal = new ShipGoal(Plan.LandTroop, Vector2.Zero, 0f)
-                {
-                    TargetPlanet = target
-                };
-                OrderQueue.Enqueue(goal);
-            }
-            //else if (this.Owner.BombBays.Count > 0 && target.GetGroundStrength(this.Owner.loyalty) ==0)  //universeScreen.player == this.Owner.loyalty && 
-            //{
-            //    this.State = AIState.Bombard;
-            //    this.OrderBombardTroops(target);
-            //}
+            if (!Owner.Carrier.AnyPlanetAssaultAvailable) return;
+            SetPriorityOrderWithClear();
+            ClearWayPoints();
+            State = AIState.AssaultPlanet;
+            OrbitTarget = target;;            
+            AddToOrderQueue(ShipGoal.CreateLandTroopGoal(target));
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing,
@@ -1064,8 +1056,9 @@ namespace Ship_Game.AI {
 
         public bool ClearOrdersNext;
         public bool HasPriorityOrder;
-        public bool HadPO;
+        public bool HadPO;        
 
+        public void SetPriorityOrderWithClear() => SetPriorityOrder(true);
         public void SetPriorityOrder(bool clearOrders)
         {
             if (clearOrders)
