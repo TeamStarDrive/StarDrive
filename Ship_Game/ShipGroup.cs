@@ -302,18 +302,19 @@ namespace Ship_Game
             return num;
         }
 
-        public int CountShipsWithStrength(out int troops)
+        public int CountShipsWithStrength()
         {
-            int num = 0;
-            troops = 0;
-            for (int index = 0; index < this.Ships.Count; index++)
+            using (Ships.AcquireReadLock())
             {
-                Ship ship = this.Ships[index];
-                if (ship.Active && ship.GetStrength() > 0)
-                    num++;
-                troops += ship.shipData.Role == ShipData.RoleName.troop ? 1 : ship.Carrier.PlanetAssaultCount;
+                return Ships.Count(ship => ship.GetStrength() > 0);
             }
-            return num;
+        }
+        public int CountFleetAsaaultTroops()
+        {
+            using (Ships.AcquireReadLock())
+            {
+                return Ships.Sum(ship => ship.Carrier.PlanetAssaultCount);
+            }
         }
         public bool IsFleetAssembled(float radius) => IsFleetAssembled(radius, out bool endTask);
         public bool IsFleetAssembled(float radius, out bool endTask, Vector2 position = default(Vector2))
@@ -331,9 +332,7 @@ namespace Ship_Game
                     assembled = false;
                     continue;
                 }
-
-                if (!ship.InCombat) continue;
-                endTask = true;
+                endTask |= ship.InCombat;
             }
 
             return assembled;

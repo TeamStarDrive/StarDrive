@@ -55,7 +55,7 @@ namespace Ship_Game.Ships
 
         public bool HasTransporters => AllTransporters.Length > 0;
 
-        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters;
+        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
 
         public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
 
