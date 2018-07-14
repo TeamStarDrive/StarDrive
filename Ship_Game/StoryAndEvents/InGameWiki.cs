@@ -41,8 +41,6 @@ namespace Ship_Game
         protected override void Destroy()
         {
             VideoPlayer?.Dispose(ref VideoPlayer);
-            HelpCategories?.Dispose(ref HelpCategories);
-            HelpEntries?.Dispose(ref HelpEntries);
             base.Destroy();
         } 
          

@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
-    public sealed class TroopInfoUIElement : UIElement, IDisposable
+    public sealed class TroopInfoUIElement : UIElement
     {
         private Rectangle SliderRect;
         private Rectangle clickRect;
@@ -227,21 +227,7 @@ namespace Ship_Game
         private struct TippedItem
         {
             public Rectangle r;
-
             public int TIP_ID;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~TroopInfoUIElement() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            DescriptionSL?.Dispose(ref DescriptionSL);
         }
     }
 }

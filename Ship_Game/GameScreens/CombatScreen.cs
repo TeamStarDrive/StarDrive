@@ -1246,9 +1246,6 @@ namespace Ship_Game
         protected override void Destroy()
         {
             Explosions?.Dispose(ref Explosions);
-            OrbitSL?.Dispose(ref OrbitSL);
-            tInfo?.Dispose(ref tInfo);
-            hInfo?.Dispose(ref hInfo);
             base.Destroy();
         }
     }

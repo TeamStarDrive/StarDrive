@@ -409,15 +409,6 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
         }
 
-        protected override void Destroy()
-        {
-            OurItemsSL?.Dispose(ref OurItemsSL);
-            TheirItemsSL?.Dispose(ref TheirItemsSL);
-            StatementsSL?.Dispose(ref StatementsSL);
-            OfferTextSL?.Dispose(ref OfferTextSL);
-            base.Destroy();
-        }
-
         private void DoNegotiationResponse(string answer)
         {
             StatementsSL.Reset();

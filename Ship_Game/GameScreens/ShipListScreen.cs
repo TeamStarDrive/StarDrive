@@ -153,12 +153,6 @@ namespace Ship_Game
             this.ResetList(this.ShowRoles.ActiveValue);
         }
 
-        protected override void Destroy()
-        {
-            ShipSL?.Dispose(ref ShipSL);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);

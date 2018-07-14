@@ -121,12 +121,6 @@ namespace Ship_Game
             
         }
 
-        protected override void Destroy()
-        {
-            PlanetSL?.Dispose(ref PlanetSL);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);

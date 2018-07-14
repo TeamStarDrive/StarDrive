@@ -16,7 +16,6 @@ namespace Ship_Game.GameScreens
         private Rectangle TradeRect;
         private GenericSlider TaxSlider;
         private GenericSlider TreasuryGoal;
-        private SpriteFont Arial12Bold1;
 
         public BudgetScreen(UniverseScreen screen) : base(screen)
         {

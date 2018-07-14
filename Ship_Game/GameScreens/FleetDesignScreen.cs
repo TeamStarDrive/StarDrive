@@ -217,8 +217,6 @@ namespace Ship_Game
                 Starfield?.Dispose(ref Starfield);
                 SelectedFleet = null;
                 AvailableShips?.Dispose(ref AvailableShips);
-                ShipSL?.Dispose(ref ShipSL);
-                FleetSL?.Dispose(ref FleetSL);
             }
             base.Destroy();
         }

@@ -441,14 +441,6 @@ namespace Ship_Game
             return lastKeyboardState.IsKeyDown(theKey) && this.currentKeyboardState.IsKeyUp(theKey);
         }
 
-        protected override void Destroy()
-        {
-            traitsSL?.Dispose(ref traitsSL);
-            RaceArchetypeSL?.Dispose(ref RaceArchetypeSL);
-            DescriptionSL?.Dispose(ref DescriptionSL);
-            base.Destroy();
-        }
-
         protected void DoRaceDescription()
         {
             this.UpdateSummary();
