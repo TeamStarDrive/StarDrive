@@ -1766,7 +1766,7 @@ namespace Ship_Game.Ships
                 if (!inborders && engineState == MoveState.Warp)
                 {
                     // FB: shields take no power at warp :/  this is not aligned with ships design and should be fixed after refactor.
-                    PowerDraw = loyalty.data.FTLPowerDrainModifier * ModulePowerDraw + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
+                    PowerDraw = NetPowerWarpDraw(loyalty);
                 }
                 else if (engineState != MoveState.Warp && ShieldsUp)
                     PowerDraw = ModulePowerDraw + ShieldPowerDraw;
@@ -2252,7 +2252,7 @@ namespace Ship_Game.Ships
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
-                    WarpDraw            += module.PowerDrawAtWarp;
+                    if (module.ModuleType != ShipModuleType.Shield) WarpDraw += module.PowerDrawAtWarp; // FB: shields currently dont draw power at warp
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.                    
@@ -2867,7 +2867,11 @@ namespace Ship_Game.Ships
 
             return moduleToRepair.Repair(repairAmount);
         }
-        
+         private float NetPowerWarpDraw(Empire empire) //FB: this does not calc shield drain at warp
+         {
+            float warpDrainModifier = empire?.data.FTLPowerDrainModifier ?? 1;
+            return ModulePowerDraw * (warpDrainModifier) + WarpDraw * warpDrainModifier / 2;
+         }
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
@@ -2876,8 +2880,8 @@ namespace Ship_Game.Ships
             if (!Active) return false;
             empire = empire ?? loyalty;
             if (!shipData.BaseCanWarp) return false;
-            float powerDraw = ModulePowerDraw * (empire?.data.FTLPowerDrainModifier ?? 1);
-            float goodPowerSupply = PowerFlowMax - powerDraw;
+
+            float goodPowerSupply = PowerFlowMax - NetPowerWarpDraw(empire);
             float powerTime = GlobalStats.MinimumWarpRange;
             if (goodPowerSupply <0)
             {
@@ -2888,7 +2892,7 @@ namespace Ship_Game.Ships
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
             {
-                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
+                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPowerWarpDraw(empire)}/{PowerFlowMax}");
             }
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;

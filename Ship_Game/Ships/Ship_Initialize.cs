@@ -568,7 +568,7 @@ namespace Ship_Game.Ships
                 PowerCurrent  += module.ActualPowerStoreMax;
                 PowerFlowMax  += module.ActualPowerFlowMax;
                 shield_max    += module.ActualShieldPowerMax;
-                if (module.Is( ShipModuleType.Armor))
+                if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
                 CargoSpaceMax += module.Cargo_Capacity;
