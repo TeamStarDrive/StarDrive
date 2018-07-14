@@ -128,12 +128,6 @@ namespace Ship_Game
             //firstSort = true;
         }
 
-        protected override void Destroy()
-        {
-            ColoniesList?.Dispose(ref ColoniesList);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             Rectangle buildingsRect;

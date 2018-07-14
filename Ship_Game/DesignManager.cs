@@ -38,7 +38,6 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            ShipDesigns?.Dispose(ref ShipDesigns);
             base.Destroy();
         }
 

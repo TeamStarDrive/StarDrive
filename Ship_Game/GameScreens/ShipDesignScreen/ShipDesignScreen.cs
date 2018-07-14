@@ -131,13 +131,6 @@ namespace Ship_Game
             ChangeHull(ActiveHull);
         }
 
-        protected override void Destroy()
-        {
-            HullSL?.Dispose(ref HullSL);
-            ModSel?.Dispose();
-            base.Destroy();
-        }
-
         private static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
         {
             return fCost * Ship.GetMaintenanceModifier(shipData, empire);

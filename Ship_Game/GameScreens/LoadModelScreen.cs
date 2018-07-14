@@ -35,12 +35,6 @@ namespace Ship_Game
             base.IsPopup = true;
         }
 
-        protected override void Destroy()
-        {
-            SavesSL?.Dispose(ref SavesSL);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.SpriteBatch.Begin();

@@ -36,12 +36,6 @@ namespace Ship_Game
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Destroy()
-        {
-            ModsSL?.Dispose(ref ModsSL);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (IsExiting)

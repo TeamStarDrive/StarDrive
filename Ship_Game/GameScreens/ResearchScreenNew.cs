@@ -80,12 +80,6 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Destroy()
-        {
-            qcomponent?.Dispose(ref qcomponent);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             double totalSeconds = Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;

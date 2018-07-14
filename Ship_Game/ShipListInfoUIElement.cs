@@ -10,7 +10,7 @@ using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public sealed class ShipListInfoUIElement : UIElement, IDisposable
+    public sealed class ShipListInfoUIElement : UIElement
     {
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
@@ -552,20 +552,6 @@ namespace Ship_Game
             public Rectangle r;
 
             public int TIP_ID;
-        }
-
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~ShipListInfoUIElement() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            SelectedShipsSL?.Dispose(ref SelectedShipsSL);
         }
     }
 }

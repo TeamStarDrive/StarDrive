@@ -772,18 +772,5 @@ namespace Ship_Game
                 return 1f - bonus.FireRateBonus;
             return 1f;
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            ChooseFighterSub = null;
-            WeaponSl?.Dispose(ref WeaponSl);
-            ChooseFighterSL?.Dispose(ref ChooseFighterSL);            
-        }
     }
 }

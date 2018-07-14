@@ -8,7 +8,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class DeepSpaceBuildingWindow : IDisposable
+    public sealed class DeepSpaceBuildingWindow
     {
         private Ship_Game.ScreenManager ScreenManager;
 
@@ -56,19 +56,6 @@ namespace Ship_Game
                     SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
             }
             this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
-        }
-
-       public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-       ~DeepSpaceBuildingWindow() { Destroy(); }
-
-       private void Destroy()
-       {
-            SL?.Dispose(ref SL);
         }
 
         public void Draw(GameTime gameTime)
