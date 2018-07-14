@@ -477,7 +477,7 @@ namespace Ship_Game
                         if (habChance > 0)
                             habitable = RandomMath.RandomBetween(0, 100) < habChance;
 
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitable));
+                        TilesList.Add(new PlanetGridSquare(x, y, null, habitable));
                     }
                 }
             }
@@ -754,8 +754,7 @@ namespace Ship_Game
                     for (int y = 0; y < 5; ++y)
                     {
                         bool habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitableTile));
-
+                        TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                     }
                 }
             }

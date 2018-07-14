@@ -1482,7 +1482,8 @@ namespace Ship_Game
                 if (building.PlusFoodPerColonist < 0) score = building.PlusFoodPerColonist * maxPopulation * 2; //for negative value
                 else
                 {
-                    score += building.PlusFoodPerColonist * maxPopulation - FlatFoodAdded;  //How much food could this create (with penalty for FlatFood)
+                    float adjustedFoodPerCol = (building.PlusFoodPerColonist - PlusFoodPerColonist).Clamped(0.05f, 10);    //Take already existing FoodPerCol into account
+                    score += adjustedFoodPerCol * (1 - CalculateFoodWorkers()) - FlatFoodAdded;  //How much food could this create (with penalty for FlatFood)
                     score += Fertility - 0.5f;  //Bonus for high fertility planets
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
                     if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
@@ -1526,8 +1527,9 @@ namespace Ship_Game
                 else
                 {
                     float farmers = CalculateFoodWorkers();
+                    float adjustedProdPerCol = (building.PlusProdPerColonist - PlusProductionPerColonist).Clamped(0.05f, 10);    //Take already existing ProdPerCol into account
                     score += 1 - farmers;   //Bonus the more workers there are available
-                    score += building.PlusProdPerColonist * maxPopulation * farmers;    //Prod this building will add
+                    score += adjustedProdPerCol * (maxPopulation * (1 - farmers));    //Prod this building will add
                     if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
                 }
 
@@ -1614,9 +1616,10 @@ namespace Ship_Game
 
         private float EvaluateBuildingFlatResearch(Building building, float income)
         {
-            float score = 0.001f;
+            float score = 0;
             if (building.PlusFlatResearchAmount != 0)
             {
+                score = 0.001f;
                 if (building.PlusFlatResearchAmount < 0)            //Surly no one would make a negative research building
                 {
                     if (ResearcherPercentage > 0 || PlusFlatResearchPerTurn > 0) score += building.PlusFlatResearchAmount * 2;
@@ -1740,13 +1743,16 @@ namespace Ship_Game
             //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 1000, it will
             //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman
-            return score *= (1 - (cost / 400)).Clamp(0.001f, 10);
+            return score *= (1 - (cost / 400)).Clamp(0.001f, 1);
         }
 
         private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
         {
             float buildingValue = 0.0f;    //End result value for entire building
             float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
+
+            if (Name == "MerVilleI")
+            { double spotForABreakpoint = Math.PI; }
 
             buildingValue -= EvaluateBuildingMaintenance(building, income);
             buildingValue += EvaluateBuildingFlatFood(building, maxPopulation);
@@ -2029,7 +2035,6 @@ namespace Ship_Game
                     {
                         float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue;
 
-                        float maxProd = GetMaxProductionPotential();
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
                         float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
                         string station = Owner.GetGSAI().GetStarBase();
@@ -2041,8 +2046,7 @@ namespace Ship_Game
                                 continue;
                             if (queueItem.sData.HullRole == ShipData.RoleName.platform)
                             {
-                                if (defBudget - platformUpkeep < -platformUpkeep * .5
-                                ) 
+                                if (defBudget - platformUpkeep < -platformUpkeep * .5) 
                                 {
                                     ConstructionQueue.QueuePendingRemoval(queueItem);
                                     continue;
@@ -2136,56 +2140,43 @@ namespace Ship_Game
             #region Scrap
 
             {
-                Array<Building> list1 = new Array<Building>();
-                if (Fertility >= 1)
-                {
-                    foreach (Building building in BuildingList)
+                using (ConstructionQueue.AcquireReadLock())
+                    foreach (PlanetGridSquare PGS in TilesList)
                     {
-                        if (building.PlusTerraformPoints > 0.0f && building.Maintenance > 0)
-                            list1.Add(building);
-                    }
-                }
-
-
-                {
-                    using (ConstructionQueue.AcquireReadLock())
-                        foreach (PlanetGridSquare PGS in TilesList)
+                        bool qitemTest = PGS.QItem != null;
+                        if (qitemTest && PGS.QItem.IsPlayerAdded)
+                            continue;
+                        if (PGS.building != null && PGS.building.IsPlayerAdded)
+                            continue;
+                        if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") ||
+                            (PGS.building != null && PGS.building.Name == "Biospheres"))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) ||  //Why are these duplicated? Why check the same thing twice?
+                            (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatFoodAmount > 0) ||
+                            (PGS.building != null && PGS.building.PlusFlatFoodAmount > 0))
+                            continue;
+                        if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) ||
+                            (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
+                            continue;
+                        if (PGS.building != null && !qitemTest && PGS.building.Scrappable &&
+                            !WeCanAffordThis(PGS.building, colonyType)
+                        ) 
                         {
-                            bool qitemTest = PGS.QItem != null;
-                            if (qitemTest && PGS.QItem.IsPlayerAdded)
-                                continue;
-                            if (PGS.building != null && PGS.building.IsPlayerAdded)
-                                continue;
-                            if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") ||
-                                (PGS.building != null && PGS.building.Name == "Biospheres"))
-                                continue;
-                            if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) ||
-                                (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))
-                                continue;
-                            if ((PGS.building != null && PGS.building.PlusFlatFoodAmount > 0) ||
-                                (PGS.building != null && PGS.building.PlusFlatFoodAmount > 0))
-                                continue;
-                            if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) ||
-                                (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
-                                continue;
-                            if (PGS.building != null && !qitemTest && PGS.building.Scrappable &&
-                                !WeCanAffordThis(PGS.building, colonyType)
-                            ) 
-                            {
-                                PGS.building.ScrapBuilding(this);
-                            }
-                            if (qitemTest && !WeCanAffordThis(PGS.QItem.Building, colonyType))
-                            {
-                                ProductionHere += PGS.QItem.productionTowards;
-                                ConstructionQueue.QueuePendingRemoval(PGS.QItem);
-                                PGS.QItem = null;
-                            }
+                            PGS.building.ScrapBuilding(this);
                         }
+                        if (qitemTest && !WeCanAffordThis(PGS.QItem.Building, colonyType))
+                        {
+                            ProductionHere += PGS.QItem.productionTowards;
+                            ConstructionQueue.QueuePendingRemoval(PGS.QItem);
+                            PGS.QItem = null;
+                        }
+                    }
 
-                    ConstructionQueue.ApplyPendingRemovals();
-                }
+                ConstructionQueue.ApplyPendingRemovals();
 
-                #endregion
+            #endregion
             }
         }
 
