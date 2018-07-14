@@ -53,7 +53,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
             Vector2 bCursor;
-            foreach (ScrollList.Entry e in HelpCategories.FlattenedEntries)
+            foreach (ScrollList.Entry e in HelpCategories.VisibleExpandedEntries)
             {
                 bCursor = new Vector2(Rect.X + 35, e.clickRect.Y);
                 if (e.item is ModuleHeader header)
@@ -96,7 +96,7 @@ namespace Ship_Game
                 }
             }
             HelpEntries.Draw(ScreenManager.SpriteBatch);
-            foreach (ScrollList.Entry e in HelpEntries.FlattenedEntries)
+            foreach (ScrollList.Entry e in HelpEntries.VisibleExpandedEntries)
             {
                 bCursor.Y = e.clickRect.Y;
                 bCursor.X = (int)bCursor.X;
@@ -172,7 +172,7 @@ namespace Ship_Game
                 }
             }
 
-            foreach (ScrollList.Entry e in HelpCategories.AllFlattenedEntries)
+            foreach (ScrollList.Entry e in HelpCategories.AllExpandedEntries)
             {
                 if (e.item is ModuleHeader header)                
                     header.HandleInput(input, e);

@@ -55,7 +55,7 @@ namespace Ship_Game
                 ActiveModule = activeModule;
                 SetActiveHangarModule(activeModule, ActiveHangarModule);
                 
-                foreach (Entry e in FlattenedEntries)
+                foreach (Entry e in VisibleExpandedEntries)
                 {
                     if (!(e.item is Ship ship))
                         continue;

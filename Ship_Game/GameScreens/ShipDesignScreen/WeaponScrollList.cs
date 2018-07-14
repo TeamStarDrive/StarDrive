@@ -32,7 +32,7 @@ namespace Ship_Game
             base.HandleInput(input);
             if (input.ScrollIn && indexAtTop > 0)
                 --indexAtTop;
-            if (input.ScrollOut && indexAtTop + entriesToDisplay < NumFlattenedEntries)
+            if (input.ScrollOut && indexAtTop + entriesToDisplay < NumExpandedEntries)
                 ++indexAtTop;
 
             if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
@@ -40,7 +40,7 @@ namespace Ship_Game
                 DestroySelectionBox();
                 return false;
             }
-            foreach (Entry e in FlattenedEntries)
+            foreach (Entry e in VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader moduleHeader)
                 {
@@ -251,7 +251,7 @@ namespace Ship_Game
         private void DrawList(SpriteBatch spriteBatch)
         {
             Vector2 mousePos = Input.CursorPosition;
-            foreach (Entry e in FlattenedEntries)
+            foreach (Entry e in VisibleExpandedEntries)
             {
                 var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, Screen.ModSel.Menu.Y + 45);
                 bCursor.Y = e.clickRect.Y;

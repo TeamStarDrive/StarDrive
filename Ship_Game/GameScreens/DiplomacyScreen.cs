@@ -635,7 +635,7 @@ namespace Ship_Game
         {
             OurItemsSL.Draw(base.ScreenManager.SpriteBatch);
             var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y + Fonts.Pirulen12.LineSpacing + 10));
-            foreach (ScrollList.Entry e in OurItemsSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in OurItemsSL.VisibleExpandedEntries)
             {
                 if (e.clickRectHover == 0 && e.item is ItemToOffer item)
                 {
@@ -657,7 +657,7 @@ namespace Ship_Game
         {
             TheirItemsSL.Draw(base.ScreenManager.SpriteBatch);
             Vector2 drawCurs = new Vector2((float)(ThemRect.X + 10), (float)(ThemRect.Y + Fonts.Pirulen12.LineSpacing + 10));
-            foreach (ScrollList.Entry e in TheirItemsSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in TheirItemsSL.VisibleExpandedEntries)
             {
                 if (e.clickRectHover == 0 && e.item is ItemToOffer item)
                 {
@@ -1113,7 +1113,7 @@ namespace Ship_Game
                     }
                     OfferTextSL.HandleInput(input);
                     OurItemsSL.HandleInput(input);
-                    foreach (ScrollList.Entry e in OurItemsSL.AllFlattenedEntries)
+                    foreach (ScrollList.Entry e in OurItemsSL.AllExpandedEntries)
                     {
                         var ourOffer = (ItemToOffer)e.item;
                         switch (ourOffer.HandleInput(input, e))
@@ -1121,7 +1121,7 @@ namespace Ship_Game
                             case "NAPact":
                                 OurOffer.NAPact   = !OurOffer.NAPact;
                                 TheirOffer.NAPact = OurOffer.NAPact;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (theirOffer.Response == "NAPact")
                                         theirOffer.Selected = ourOffer.Selected;
@@ -1130,7 +1130,7 @@ namespace Ship_Game
                             case "We Declare War":
                                 OurOffer.NAPact   = !OurOffer.NAPact;
                                 TheirOffer.NAPact = OurOffer.NAPact;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (theirOffer.Response == "NAPact")
                                         theirOffer.Selected = ourOffer.Selected;
@@ -1139,7 +1139,7 @@ namespace Ship_Game
                             case "Peace Treaty":
                                 OurOffer.PeaceTreaty   = !OurOffer.PeaceTreaty;
                                 TheirOffer.PeaceTreaty = OurOffer.PeaceTreaty;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (theirOffer.Response == "Peace Treaty")
                                         theirOffer.Selected = ourOffer.Selected;
@@ -1148,7 +1148,7 @@ namespace Ship_Game
                             case "OfferAlliance":
                                 OurOffer.Alliance   = !OurOffer.Alliance;
                                 TheirOffer.Alliance = OurOffer.Alliance;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (theirOffer.Response == "OfferAlliance")
                                         theirOffer.Selected = ourOffer.Selected;
@@ -1178,7 +1178,7 @@ namespace Ship_Game
                             case "TradeTreaty":
                                 OurOffer.TradeTreaty   = !OurOffer.TradeTreaty;
                                 TheirOffer.TradeTreaty = OurOffer.TradeTreaty;
-                                foreach (ScrollList.Entry entry in TheirItemsSL.AllFlattenedEntries)
+                                foreach (ScrollList.Entry entry in TheirItemsSL.AllExpandedEntries)
                                 {
                                     if ((entry.item as ItemToOffer).Response == "TradeTreaty")
                                         (entry.item as ItemToOffer).Selected = ourOffer.Selected;
@@ -1188,7 +1188,7 @@ namespace Ship_Game
                     }
                     OurItemsSL.Update();
                     TheirItemsSL.HandleInput(input);
-                    foreach (ScrollList.Entry e in TheirItemsSL.AllFlattenedEntries)
+                    foreach (ScrollList.Entry e in TheirItemsSL.AllExpandedEntries)
                     {
                         var theirOffer = (ItemToOffer)e.item;
                         switch (theirOffer.HandleInput(input, e))
@@ -1196,7 +1196,7 @@ namespace Ship_Game
                             case "NAPact":
                                 TheirOffer.NAPact = !TheirOffer.NAPact;
                                 OurOffer.NAPact   = TheirOffer.NAPact;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (ourOffer.Response == "NAPact")
                                         ourOffer.Selected = theirOffer.Selected;
@@ -1211,7 +1211,7 @@ namespace Ship_Game
                             case "Peace Treaty":
                                 TheirOffer.PeaceTreaty = !TheirOffer.PeaceTreaty;
                                 OurOffer.PeaceTreaty   = TheirOffer.PeaceTreaty;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (ourOffer.Response == "Peace Treaty")
                                         ourOffer.Selected = theirOffer.Selected;
@@ -1220,7 +1220,7 @@ namespace Ship_Game
                             case "OfferAlliance":
                                 TheirOffer.Alliance = !TheirOffer.Alliance;
                                 OurOffer.Alliance   = TheirOffer.Alliance;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (ourOffer.Response == "OfferAlliance")
                                         ourOffer.Selected = theirOffer.Selected;
@@ -1250,7 +1250,7 @@ namespace Ship_Game
                             case "TradeTreaty":
                                 TheirOffer.TradeTreaty = !TheirOffer.TradeTreaty;
                                 OurOffer.TradeTreaty   = TheirOffer.TradeTreaty;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.FlattenedItems<ItemToOffer>())
+                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
                                 {
                                     if (ourOffer.Response == "TradeTreaty")
                                         ourOffer.Selected = theirOffer.Selected;

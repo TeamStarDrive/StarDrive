@@ -163,7 +163,7 @@ namespace Ship_Game
             Color TextColor = new Color(118, 102, 67, 50);
             this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
             this.cb_hide_proj.Draw(ScreenManager.SpriteBatch);
-            if (this.ShipSL.NumFlattenedEntries > 0)
+            if (this.ShipSL.NumExpandedEntries > 0)
             {
                 var e1 = ShipSL.ItemAtTop<ShipListScreenEntry>();
                 var TextCursor = new Vector2((float)(e1.SysNameRect.X + e1.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
@@ -315,7 +315,7 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
                         {
-                            foreach (ShipListScreenEntry slEntry in ShipSL.AllFlattenedItems<ShipListScreenEntry>())
+                            foreach (ShipListScreenEntry slEntry in ShipSL.AllExpandedItems<ShipListScreenEntry>())
                                 slEntry.Selected = false;
                         }
                         if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && SelectedShip != null)
