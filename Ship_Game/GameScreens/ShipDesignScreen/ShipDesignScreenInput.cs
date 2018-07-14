@@ -352,7 +352,7 @@ namespace Ship_Game
         private bool HandleShipHullListSelection(InputState input)
         {
             HullSL.HandleInput(input);
-            foreach (ScrollList.Entry e in HullSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader moduleHeader)
                 {

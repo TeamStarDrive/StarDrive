@@ -8,20 +8,16 @@ namespace Ship_Game.Gameplay
     public sealed class DialogOption
     {
         public object Target;
-
         [XmlElement(ElementName = "number")]
         public int Number;
-
         [XmlElement(ElementName = "words")]
         public string Words;
-
-        private Rectangle _clickRect;
-
+        private Rectangle ClickRect;
         public string SpecialInquiry = string.Empty;
-
         public string Response;
-
         public bool Hover;
+
+        public override string ToString() => $"Words: {Words} Response: {Response}";
 
         public DialogOption()
         {
@@ -32,18 +28,18 @@ namespace Ship_Game.Gameplay
             Number = n;
             Words = w;
             int width = (int)font.MeasureString(w).X;
-            _clickRect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
+            ClickRect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
         }
 
         public void Draw(ScreenManager screenManager, SpriteFont font)
         {
             HelperFunctions.DrawDropShadowText(screenManager, string.Concat(Number.ToString(), ". ", Words),
-                new Vector2(_clickRect.X, _clickRect.Y), font, (Hover ? Color.White : new Color(255, 255, 255, 220)));
+                new Vector2(ClickRect.X, ClickRect.Y), font, (Hover ? Color.White : new Color(255, 255, 255, 220)));
         }
 
         public string HandleInput(InputState input)
         {
-            if (!_clickRect.HitTest(input.CursorPosition))
+            if (!ClickRect.HitTest(input.CursorPosition))
             {
                 Hover = false;
                 return null;
@@ -59,7 +55,7 @@ namespace Ship_Game.Gameplay
 
         public void Update(Vector2 cursor)
         {
-            _clickRect.Y = (int)cursor.Y;
+            ClickRect.Y = (int)cursor.Y;
         }
     }
 }

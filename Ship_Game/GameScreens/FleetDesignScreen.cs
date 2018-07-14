@@ -449,7 +449,7 @@ namespace Ship_Game
                 SubShips.Draw();
                 ShipSL.Draw(spriteBatch);
                 var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
-                foreach (ScrollList.Entry e in ShipSL.FlattenedEntries)
+                foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
                 {
                     bCursor.Y = e.clickRect.Y;
                     if (e.item is ModuleHeader header)
@@ -1149,7 +1149,7 @@ namespace Ship_Game
                         if (SubShips.Tabs[1].Selected)
                         {
                             ScrollList.Entry toremove = null;
-                            foreach (ScrollList.Entry e in ShipSL.AllFlattenedEntries)
+                            foreach (ScrollList.Entry e in ShipSL.AllExpandedEntries)
                             {
                                 if (!(e.item is Ship ship) || ship != ActiveShipDesign)
                                     continue;
@@ -1158,7 +1158,7 @@ namespace Ship_Game
                             }
                             if (toremove != null)
                             {
-                                foreach (ScrollList.Entry e in ShipSL.AllFlattenedEntries)
+                                foreach (ScrollList.Entry e in ShipSL.AllExpandedEntries)
                                 {
                                     e.SubEntries.Remove(toremove);
                                 }
@@ -1180,7 +1180,7 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                ScrollList.Entry[] items = ShipSL.AllFlattenedEntries.ToArray();
+                ScrollList.Entry[] items = ShipSL.AllExpandedEntries.ToArray();
                 foreach (ScrollList.Entry e in items)
                 {
                     if (e.item is ModuleHeader header)

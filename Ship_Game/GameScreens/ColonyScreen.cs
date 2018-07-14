@@ -390,7 +390,7 @@ namespace Ship_Game
                     Reset = false;
                 }
                 vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
-                foreach (ScrollList.Entry entry in buildSL.FlattenedEntries)
+                foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
                 {
                     if (!(entry.item is Building building))
                         continue;
@@ -525,7 +525,7 @@ namespace Ship_Game
                     }
                 }
                 vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
-                foreach (ScrollList.Entry entry in buildSL.FlattenedEntries)
+                foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
                 {
                     vector2_1.Y = (float)entry.clickRect.Y;
                     if (entry.item is ModuleHeader header)
@@ -808,7 +808,7 @@ namespace Ship_Game
             foreach (QueueItem o in p.ConstructionQueue)
                 QSL.AddQItem(o);
 
-            foreach (ScrollList.Entry entry in QSL.FlattenedEntries)
+            foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
             {
                 vector2_1.Y = entry.clickRect.Y;
                 if (entry.clickRect.HitTest(pos))
@@ -1909,7 +1909,7 @@ namespace Ship_Game
         private void HandleDetailInfo(InputState input)
         {
             this.detailInfo = null;
-            foreach (ScrollList.Entry e in buildSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
             {
                 if (e.clickRect.HitTest(input.CursorPosition))
                 {
@@ -2354,7 +2354,7 @@ namespace Ship_Game
                 }
             }
             int i = QSL.indexAtTop;
-            foreach (ScrollList.Entry e in QSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
             {
                 if (!e.clickRect.HitTest(MousePos))
                 {
@@ -2396,7 +2396,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(64);
                     if (!input.IsCtrlKeyDown || input.LeftMouseClick || input.LeftMouseReleased) // @todo WTF??
                     {
-                        if (input.LeftMouseClick && i + 1 < QSL.NumFlattenedEntries)
+                        if (input.LeftMouseClick && i + 1 < QSL.NumExpandedEntries)
                         {
                             object tmp = p.ConstructionQueue[i + 1];
                             p.ConstructionQueue[i + 1] = p.ConstructionQueue[i];
@@ -2404,7 +2404,7 @@ namespace Ship_Game
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
-                    else if (i + 1 < this.QSL.NumFlattenedEntries)
+                    else if (i + 1 < this.QSL.NumExpandedEntries)
                     {
                         var item = p.ConstructionQueue[i];
                         p.ConstructionQueue.Remove(item);
@@ -2541,7 +2541,7 @@ namespace Ship_Game
                     this.ActiveBuildingEntry = null;
                 }
             }
-            foreach (ScrollList.Entry e in buildSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader header)
                 {

@@ -50,14 +50,7 @@ namespace Ship_Game
         public void Expand(bool expanded, ScrollList.Entry e)
         {
             Open = expanded;
-            e.ShowingSub = expanded;
-            if (!expanded)
-            {
-                e.ParentList.indexAtTop = e.ParentList.indexAtTop - e.SubEntries.Count;
-                if (e.ParentList.indexAtTop < 0)
-                    e.ParentList.indexAtTop = 0;
-            }
-            e.ParentList.Update();
+            e.Expand(expanded);
         }
 
 		public bool HandleInput(InputState input, ScrollList.Entry e)

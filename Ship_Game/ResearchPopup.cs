@@ -49,7 +49,7 @@ namespace Ship_Game
             //draw some scroll bar? never actually seen
             UnlockSL.Draw(ScreenManager.SpriteBatch);
             var vector2 = new Vector2(UnlocksRect.X, UnlocksRect.Y);
-            foreach (ScrollList.Entry entry in UnlockSL.FlattenedEntries)
+            foreach (ScrollList.Entry entry in UnlockSL.VisibleExpandedEntries)
             {
                 var unlockItem = entry.item as UnlockItem;
                 vector2.Y = (float)entry.clickRect.Y;
