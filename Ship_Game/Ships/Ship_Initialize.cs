@@ -315,7 +315,6 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             ship.TroopList.Add(ResourceManager.CopyTroop(troop));
-            ship.TroopCapacity += 1; // avoid excess troops on creation because of trooplist.add
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Combat;
             return ship;
@@ -497,7 +496,7 @@ namespace Ship_Game.Ships
                 if (weaponRange > RangeForOverlay)
                     RangeForOverlay = weaponRange;
             }
-            Carrier = CarrierBays.Create(ModuleSlotList, shipData.Role);
+            Carrier = CarrierBays.Create(this, ModuleSlotList);
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             ActiveInternalSlotCount  = InternalSlotCount;
