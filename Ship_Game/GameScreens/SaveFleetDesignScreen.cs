@@ -48,7 +48,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in Dir.GetFiles(Path))
             {
-                this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItemWithCancel(info);
+                this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItem(info);
             }
             foreach (FileInfo info in Dir.GetFiles("Content/FleetDesigns"))
             {

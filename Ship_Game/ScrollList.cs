@@ -82,29 +82,24 @@ namespace Ship_Game
 
         public Entry AddItem(object o)
         {
-            var e = new Entry(this, o);
+            var e = new Entry(this, o, false, false);
             Entries.Add(e);
             Update();
             return e;
         }
 
-        public void AddItem(object o, int addrect, int addpencil)
+        public void AddItem(object o, bool plus, bool edit)
         {
-            var e = new Entry(this, o);
-            if (addrect   > 0) e.Plus = 1;
-            if (addpencil > 0) e.Edit = 1;
-            Entries.Add(e);
+            Entries.Add(new Entry(this, o, plus, edit));
             Update();
         }
 
         public void AddQItem(object o)
         {
-            var e = new Entry(this, o)
+            Entries.Add(new Entry(this, o, false, false)
             {
-                Plus  = 0,
                 QItem = 1
-            };
-            Entries.Add(e);
+            });
             Update();
         }
 
@@ -585,8 +580,8 @@ namespace Ship_Game
             int right = r.X + r.Width;
             int iconY = r.Y + 15;
             e.clickRect = r;
-            if (e.Plus != 0) e.addRect  = new Rectangle(right - 30, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-            if (e.Edit != 0) e.editRect = new Rectangle(right - 60, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
+            if (e.Plus) e.addRect  = new Rectangle(right - 30, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
+            if (e.Edit) e.editRect = new Rectangle(right - 60, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
             
             int offset = 0;
             bool all = Controls == ListControls.All;
@@ -653,14 +648,14 @@ namespace Ship_Game
 
         public class Entry
         {
-            // each entry can be expanded or collapsed via the Plus button
+            // entries with subitems can be expanded or collapsed via category title
             public bool Expanded { get; private set; }
             public Rectangle clickRect;
             public object item;
             public int Hover;
-            public int Plus;
+            public readonly bool Plus;
+            public readonly bool Edit;
             public int PlusHover;
-            public int Edit;
             public int EditHover;
 
             public Rectangle editRect;
@@ -679,28 +674,19 @@ namespace Ship_Game
             // moved this here for consistency
             public Array<Entry> SubEntries = new Array<Entry>();
 
-            public Entry(ScrollList list, object item)
+            public override string ToString() => $"Y:{clickRect.Y} | {item}";
+
+            public Entry(ScrollList list, object item, bool plus, bool edit)
             {
                 List = list;
                 this.item = item;
+                Plus = plus;
+                Edit = edit;
             }
 
-            public void AddItem(object o)
+            public void AddItem(object o, bool addAndEdit = false)
             {
-                SubEntries.Add(new Entry(List, o));
-            }
-
-            public void AddItem(object o, int addrect, int addpencil)
-            {
-                var e = new Entry(List, o);
-                if (addrect   > 0) e.Plus = 1;
-                if (addpencil > 0) e.Edit = 1;
-                SubEntries.Add(e);
-            }
-
-            public void AddItemWithCancel(object o)
-            {
-                SubEntries.Add(new Entry(List, o));
+                SubEntries.Add(new Entry(List, o, addAndEdit, addAndEdit));
             }
 
             public bool WasClicked(InputState input)
@@ -727,7 +713,31 @@ namespace Ship_Game
                 List.Update();
             }
 
-            public override string ToString() => $"{clickRect.Y} {item}";
+            public void DrawPlusEdit(SpriteBatch spriteBatch)
+            {
+                DrawPlus(spriteBatch);
+                DrawEdit(spriteBatch);
+            }
+            public void DrawPlus(SpriteBatch spriteBatch)
+            {
+                if (Plus)
+                {
+                    string plus = PlusHover != 0 ? "NewUI/icon_build_add_hover2"
+                           : clickRectHover != 0 ? "NewUI/icon_build_add_hover1"
+                                                 : "NewUI/icon_build_add";
+                    spriteBatch.Draw(ResourceManager.Texture(plus), addRect, Color.White);
+                }
+            }
+            public void DrawEdit(SpriteBatch spriteBatch)
+            {
+                if (Edit)
+                {
+                    string edit = EditHover != 0 ? "NewUI/icon_build_edit_hover2"
+                           : clickRectHover != 0 ? "NewUI/icon_build_edit_hover1"
+                                                 : "NewUI/icon_build_edit";
+                    spriteBatch.Draw(ResourceManager.Texture(edit), editRect, Color.White);
+                }
+            }
         }
     }
 }

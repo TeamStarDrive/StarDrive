@@ -47,13 +47,13 @@ namespace Ship_Game
             foreach (string s in buildables)
             {
                 if (s != "Subspace Projector") continue;
-                SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                SL.AddItem(ResourceManager.ShipsDict[s], false, false);
                 break;
             }
             foreach (string s in buildables)
             {
                 if (s != "Subspace Projector")
-                    SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                    SL.AddItem(ResourceManager.ShipsDict[s], false, false);
             }
             this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
         }
@@ -70,7 +70,7 @@ namespace Ship_Game
             Vector2 bCursor = new Vector2((float)(this.ConstructionSubMenu.Menu.X + 20), (float)(this.ConstructionSubMenu.Menu.Y + 45));
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            Vector2 mousePos = new Vector2(x, (float)state.Y);
             foreach (ScrollList.Entry e in SL.VisibleEntries)
             {
                 bCursor.Y = (float)e.clickRect.Y;
@@ -98,7 +98,6 @@ namespace Ship_Game
                     // Costs and Upkeeps for the deep space build menu - The Doctor
                     
                     string cost = ship.GetCost(EmpireManager.Player).ToString();
-
                     string upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
                     
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -110,32 +109,7 @@ namespace Ship_Game
                     tCursor = new Vector2((float)(prodiconRect.X + 26), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
 
-
-                    if (e.Plus != 0)
-                    {
-                        if (e.PlusHover != 0)
-                        {
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_build_add_hover2"), e.addRect, Color.White);
-                        }
-                        else
-                        {
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_build_add_hover1"), e.addRect, Color.White);
-                        }
-                    }
-                    if (e.Edit != 0)
-                    {
-                        if (e.EditHover != 0)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], e.editRect, Color.White);
-                        }
-                        else
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], e.editRect, Color.White);
-                        }
-                    }
-                    if (e.clickRect.Y == 0)
-                    {
-                    }
+                    e.DrawPlusEdit(ScreenManager.SpriteBatch);
                 }
                 else
                 {
@@ -157,9 +131,7 @@ namespace Ship_Game
                     // Costs and Upkeeps for the deep space build menu - The Doctor
 
                     string cost = ship.GetCost(EmpireManager.Player).ToString();
-
-                    string upkeep = "Doctor rocks";
-                    upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
+                    string upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], prodiconRect, Color.White);
@@ -170,31 +142,7 @@ namespace Ship_Game
                     tCursor = new Vector2((float)(prodiconRect.X + 26), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost, tCursor, Color.White);
 
-                    if (e.Plus != 0)
-                    {
-                        if (e.PlusHover != 0)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
-                        }
-                        else
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
-                        }
-                    }
-                    if (e.Edit != 0)
-                    {
-                        if (e.EditHover != 0)
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], e.editRect, Color.White);
-                        }
-                        else
-                        {
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
-                        }
-                    }
-                    if (e.clickRect.Y == 0)
-                    {
-                    }
+                    e.DrawPlusEdit(ScreenManager.SpriteBatch);
                 }
             }
             if (this.selector != null)
@@ -215,8 +163,8 @@ namespace Ship_Game
                 {
                     scale = 0.15f;
                 }
-                Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
-                Vector3 farPoint = screen.Viewport.Unproject(new Vector3(MousePos.X, MousePos.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
+                Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 0f), this.screen.projection, this.screen.view, Matrix.Identity);
+                Vector3 farPoint = screen.Viewport.Unproject(new Vector3(mousePos.X, mousePos.Y, 1f), this.screen.projection, this.screen.view, Matrix.Identity);
                 Vector3 direction = farPoint - nearPoint;
                 direction.Normalize();
                 Ray pickRay = new Ray(nearPoint, direction);
@@ -235,12 +183,12 @@ namespace Ship_Game
                         }
                         this.TetherOffset = pp - p.planetToClick.Center;
                         this.TargetPlanet = p.planetToClick.guid;
-                        this.ScreenManager.SpriteBatch.DrawLine(p.ScreenPos, MousePos, new Color(255, 165, 0, 150), 3f);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(MousePos.X, MousePos.Y + 34f), Color.White);
+                        this.ScreenManager.SpriteBatch.DrawLine(p.ScreenPos, mousePos, new Color(255, 165, 0, 150), 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(mousePos.X, mousePos.Y + 34f), Color.White);
                     }
                 }
                 Rectangle? nullable = null;
-                this.ScreenManager.SpriteBatch.Draw(platform, MousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                this.ScreenManager.SpriteBatch.Draw(platform, mousePos, nullable, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
         }
 

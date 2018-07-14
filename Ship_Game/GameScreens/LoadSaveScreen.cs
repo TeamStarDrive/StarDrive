@@ -95,7 +95,7 @@ namespace Ship_Game
                              descending select header;
 
             foreach (FileData data in sortedList)
-                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
+                SavesSL.AddItem(data).AddItem(data.FileLink);
         }
 
     }

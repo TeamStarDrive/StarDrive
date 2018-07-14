@@ -1087,17 +1087,8 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
-                        if (e.Plus != 0)
-                        {
-                            if (e.PlusHover != 0)
-                            {
-                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
-                            }
-                            else
-                            {
-                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], e.addRect, Color.White);
-                            }
-                        }
+                        
+                        e.DrawPlus(ScreenManager.SpriteBatch);
                     }
                     else
                     {
@@ -1131,17 +1122,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
-                        if (e.Plus != 0)
-                        {
-                            if (e.PlusHover != 0)
-                            {
-                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
-                            }
-                            else
-                            {
-                                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
-                            }
-                        }
+                        e.DrawPlus(ScreenManager.SpriteBatch);
                     }
                     if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
                     {
