@@ -319,9 +319,19 @@ namespace Ship_Game
             if (count != 0) Memory.HybridCopy(array, arrayIndex, Items, count);
         }
 
+        // Removes a single occurance of item
         public bool Remove(T item)
         {
             int i = IndexOf(item);
+            if (i < 0) return false;
+            RemoveAt(i);
+            return true;
+        }
+
+        // Removes a single occurance of item matching predicate
+        public bool RemoveFirstIf(Predicate<T> predicate)
+        {
+            int i = FirstIndexOf(predicate);
             if (i < 0) return false;
             RemoveAt(i);
             return true;
@@ -352,6 +362,18 @@ namespace Ship_Game
                 EqualityComparer<T> c = EqualityComparer<T>.Default;
                 for (int i = 0; i < count; ++i)
                     if (c.Equals(items[i], item)) return i;
+                return -1;
+            }
+        }
+
+        public int FirstIndexOf(Predicate<T> predicate)
+        {
+            unchecked
+            {
+                int count = Count;
+                T[] items = Items;
+                for (int i = 0; i < count; ++i)
+                    if (predicate(items[i])) return i;
                 return -1;
             }
         }
