@@ -2252,7 +2252,7 @@ namespace Ship_Game.Ships
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
-                    if (module.ModuleType != ShipModuleType.Shield) WarpDraw += module.PowerDrawAtWarp; // FB: shields currently dont draw power at warp
+                    if (module.Is(ShipModuleType.Shield)) WarpDraw += module.PowerDrawAtWarp; // FB: shields currently dont draw power at warp
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.                    
