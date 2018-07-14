@@ -86,12 +86,6 @@ namespace Ship_Game
             this.eHeight = eHeight;
         }
 
-        protected override void Destroy()
-        {
-            SavesSL?.Dispose(ref SavesSL);
-            base.Destroy();
-        }
-
         public virtual void DoSave()
         {
             //SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);

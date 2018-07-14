@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
-	public sealed class Encounter: IDisposable
+	public sealed class Encounter
 	{
 		public int Step;
 
@@ -313,18 +313,5 @@ namespace Ship_Game
 		{
 			this.empToDiscuss = e;
 		}
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Encounter() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            ResponseSL?.Dispose(ref ResponseSL);
-        }
 	}
 }

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class AgentComponent : IDisposable
+	public sealed class AgentComponent
 	{
 		public Agent SelectedAgent;
 
@@ -342,19 +342,5 @@ namespace Ship_Game
 		    foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
 		        mission.Initialize();
 		}
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        ~AgentComponent() { Destroy();  }
-
-        private void Destroy()
-        {
-            AgentSL?.Dispose(ref AgentSL);
-            OpsSL?.Dispose(ref OpsSL);
-        }
 	}
 }

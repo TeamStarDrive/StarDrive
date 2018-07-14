@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-    public class ScrollList : IDisposable
+    public class ScrollList
     {
         private readonly Submenu Parent;
         public Rectangle ScrollUp;
@@ -25,8 +25,8 @@ namespace Ship_Game
 
         public int entriesToDisplay;
         public int indexAtTop;
-        private BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
-        private BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>(); // Flattened entries
+        private readonly Array<Entry> Entries = new Array<Entry>();
+        private readonly Array<Entry> Copied = new Array<Entry>(); // Flattened entries
         public bool IsDraggable;
         public Entry DraggedEntry;
         private Vector2 DraggedOffset;
@@ -129,15 +129,8 @@ namespace Ship_Game
 
         public void RemoveIf<T>(Func<T, bool> predicate) where T : class
         {
-            foreach (Entry e in Entries)
-            {
-                if (!(e.item is T item) || !predicate(item))
-                    continue;
-                Entries.QueuePendingRemoval(e);
-                Copied.QueuePendingRemoval(e);
-            }
-            Entries.ApplyPendingRemovals();
-            Copied.ApplyPendingRemovals();
+            Entries.RemoveAllIf(e => e.item is T item && predicate(item));
+            Copied.RemoveAllIf(e => e.item is T item && predicate(item));
         }
 
         public void RemoveFirst()
@@ -638,13 +631,11 @@ namespace Ship_Game
                     UpdateClickRect(e, r.Pos(), j++);
                 }
             }
-            Entries.ApplyPendingRemovals();
         }
 
         public void Update()
         {
             Copied.Clear();
-            Entries.ApplyPendingRemovals();
 
             foreach (Entry e in Entries)
             {
@@ -675,20 +666,6 @@ namespace Ship_Game
             ScrollBar.Height = (int)(ScrollBarHousing.Height * PercentViewed);
             if (indexAtTop < 0)
                 indexAtTop = 0;
-        }
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        ~ScrollList() { Destroy(); }
-
-        private void Destroy()
-        {
-            Entries?.Dispose(ref Entries);
-            Copied?.Dispose(ref Copied);
         }
 
         public class Entry

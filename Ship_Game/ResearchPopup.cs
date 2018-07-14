@@ -238,11 +238,5 @@ namespace Ship_Game
                 }
             }
         }
-
-        protected override void Destroy()
-        {
-            UnlockSL?.Dispose(ref UnlockSL);
-            base.Destroy();
-        }
     }
 }

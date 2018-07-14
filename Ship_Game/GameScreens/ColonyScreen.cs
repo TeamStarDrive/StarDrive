@@ -10,7 +10,7 @@ using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public sealed class ColonyScreen : PlanetScreen, IDisposable, IListScreen
+    public sealed class ColonyScreen : PlanetScreen, IListScreen
     {
         public Planet p;
         public ToggleButton playerDesignsToggle;
@@ -3090,11 +3090,8 @@ namespace Ship_Game
         public class Lock
         {
             public Rectangle LockRect;
-
             public bool Locked;
-
             public bool Hover;
-
             public string Path;
 
             public Lock()
@@ -3106,26 +3103,11 @@ namespace Ship_Game
         public class ColonySlider
         {
             public Rectangle sRect;
-
             public float amount;
-
             public Rectangle cursor;
-
-            public Color Color = new Color((byte)72, (byte)61, (byte)38);
+            public Color Color = new Color(72, 61, 38);
             public string state  = "normal";
             public string cState = "normal";
-
-            public ColonySlider()
-            {
-            }
-        }
-
-        protected override void Destroy()
-        {
-            buildSL?.Dispose(ref buildSL);
-            QSL?.Dispose(ref QSL);
-            CommoditiesSL?.Dispose(ref CommoditiesSL);
-            base.Destroy();
         }
     }
 }

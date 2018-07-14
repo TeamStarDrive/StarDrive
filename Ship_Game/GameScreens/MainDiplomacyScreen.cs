@@ -105,12 +105,6 @@ namespace Ship_Game
             Moles = empires;
         }
 
-        protected override void Destroy()
-        {
-            ArtifactsSL?.Dispose(ref ArtifactsSL);
-            base.Destroy();
-        }
-
         private int IntelligenceLevel(Empire e)
         {
             int intelligence = 0;

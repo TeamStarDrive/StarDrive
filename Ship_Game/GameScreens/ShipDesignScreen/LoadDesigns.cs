@@ -88,12 +88,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             this.LoadContent();
         }
 
-        protected override void Destroy()
-        {
-            ShipDesigns?.Dispose(ref ShipDesigns);
-            base.Destroy();
-        }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             GameTime gameTime = Game1.Instance.GameTime;

@@ -31,13 +31,6 @@ namespace Ship_Game
             return   FighterSubMenu.Menu.HitTest(input.CursorPosition) && ActiveModule != null ;
         }
 
-        public new void Dispose()
-        {
-            SelectionBox?.RemoveFromParent();
-            SelectionBox = null;
-            base.Dispose();
-        }
-
         private void Populate()
         {
             Reset();

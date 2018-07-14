@@ -337,6 +337,20 @@ namespace Ship_Game
             return true;
         }
 
+        // Removes all items matching the predicate
+        public bool RemoveAllIf(Predicate<T> predicate)
+        {
+            bool itemsWereRemoved = false;
+            for (int i = Count-1; i >= 0; --i)
+            {
+                if (!predicate(Items[i]))
+                    continue;
+                RemoveAt(i);
+                itemsWereRemoved = true;
+            }
+            return itemsWereRemoved;
+        }
+
         // does a fast removal by swapping the item with the last element in the array
         public bool RemoveSwapLast(T item)
         {

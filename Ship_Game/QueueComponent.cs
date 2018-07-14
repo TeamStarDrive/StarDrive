@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class QueueComponent: IDisposable
+	public sealed class QueueComponent
 	{
 		private Rectangle Current;
 		private Rectangle Queue;
@@ -151,18 +151,5 @@ namespace Ship_Game
 			this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2136));
 			this.Visible = true;
 		}
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~QueueComponent() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            QSL?.Dispose(ref QSL);
-        }
 	}
 }
