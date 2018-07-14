@@ -225,11 +225,8 @@ namespace Ship_Game
                 pgs.Biosphere  = realPgs.Biosphere;
                 pgs.building   = realPgs.building;
                 pgs.ClickRect  = new Rectangle(buildingsRect.X + realPgs.x * xsize, buildingsRect.Y + realPgs.y * ysize, xsize, ysize);
-                pgs.foodbonus  = realPgs.foodbonus;
                 pgs.Habitable  = realPgs.Habitable;
-                pgs.prodbonus  = realPgs.prodbonus;
                 pgs.TroopsHere = realPgs.TroopsHere;
-                pgs.resbonus   = realPgs.resbonus;
                 
 
                 pgs.ClickRect = new Rectangle(buildingsRect.X + pgs.x * xsize, buildingsRect.Y + pgs.y * ysize, xsize, ysize);
