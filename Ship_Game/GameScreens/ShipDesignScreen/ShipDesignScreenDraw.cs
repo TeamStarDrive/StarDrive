@@ -303,7 +303,7 @@ namespace Ship_Game
             Vector2 mousePos = Mouse.GetState().Pos();
             HullSelectionSub.Draw();
 
-            foreach (ScrollList.Entry e in HullSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
                 var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.clickRect.Y);
                 if (e.item is ModuleHeader header)

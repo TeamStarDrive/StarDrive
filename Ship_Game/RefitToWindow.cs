@@ -50,7 +50,7 @@ namespace Ship_Game
             selector?.Draw(ScreenManager.SpriteBatch);
             this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
             var bCursor = new Vector2(sub_ships.Menu.X + 5, sub_ships.Menu.Y + 25);
-            foreach (ScrollList.Entry e in ShipSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
                 Ship ship = ResourceManager.ShipsDict[e.item as string];
                 bCursor.Y = (float)e.clickRect.Y;
@@ -102,7 +102,7 @@ namespace Ship_Game
                 return true;
             }
             this.selector = null;
-            foreach (ScrollList.Entry e in ShipSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
                 if (e.clickRect.HitTest(input.CursorPosition))
                 {

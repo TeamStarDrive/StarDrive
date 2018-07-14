@@ -85,7 +85,7 @@ namespace Ship_Game
 				Cursor.X -= Fonts.Verdana14Bold.MeasureString(text).X;
 				ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold, text, Cursor, new Color(205, 229, 255));
 			}
-            foreach (ScrollList.Entry e in QSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
 			{
 				Rectangle r = e.clickRect;
 				((ResearchQItem)e.item).Draw(r, ScreenManager);
@@ -104,7 +104,7 @@ namespace Ship_Game
 			screen.qcomponent.QSL.HandleInput(input);
 			if (Visible)
 			{
-                foreach (ScrollList.Entry e in QSL.FlattenedEntries)
+                foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
                 {
                     if (((ResearchQItem)e.item).HandleInput(input))
                     {

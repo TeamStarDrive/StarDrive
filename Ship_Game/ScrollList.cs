@@ -7,6 +7,12 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
+    public enum ListControls
+    {
+        All,    // show all list controls
+        Cancel, // only show Cancel control
+    }
+
     public class ScrollList
     {
         private readonly Submenu Parent;
@@ -26,16 +32,13 @@ namespace Ship_Game
         public int entriesToDisplay;
         public int indexAtTop;
         private readonly Array<Entry> Entries = new Array<Entry>();
-        private readonly Array<Entry> Copied = new Array<Entry>(); // Flattened entries
+        private readonly Array<Entry> ExpandedEntries = new Array<Entry>(); // Flattened entries
         public bool IsDraggable;
         public Entry DraggedEntry;
         private Vector2 DraggedOffset;
 
         // Added by EVWeb to not waste space when a list won't use certain buttons
-        private readonly bool CancelCol = true;
-        private readonly bool UpCol = true;
-        private readonly bool DownCol = true;
-        private readonly bool ApplyCol = true;
+        private readonly ListControls Controls = ListControls.All;
         private readonly Texture2D ArrowUpIcon  = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
         private readonly Texture2D BuildAddIcon = ResourceManager.Texture("NewUI/icon_build_add");
 
@@ -51,20 +54,13 @@ namespace Ship_Game
             InitializeRects(p, 30);
         }
 
-        public ScrollList(Submenu p, int eHeight)
+        public ScrollList(Submenu p, int eHeight, ListControls controls = ListControls.All)
         {
             Parent = p;
             EntryHeight = eHeight;
+            Controls = controls;
             entriesToDisplay = (p.Menu.Height - 25) / EntryHeight;
             InitializeRects(p, 30);
-        }
-
-        public ScrollList(Submenu p, int eHeight, bool cc, bool uc, bool dc, bool ac) : this(p, eHeight)
-        {
-            CancelCol = cc;
-            UpCol = uc;
-            DownCol = dc;
-            ApplyCol = ac;
         }
 
         public ScrollList(Submenu p, int eHeight, bool realRect)
@@ -86,51 +82,48 @@ namespace Ship_Game
 
         public Entry AddItem(object o)
         {
-            var e = new Entry(o);
+            var e = new Entry(this, o);
             Entries.Add(e);
             Update();
-            e.ParentList = this;
             return e;
         }
 
         public void AddItem(object o, int addrect, int addpencil)
         {
-            var e = new Entry(o);
+            var e = new Entry(this, o);
             if (addrect   > 0) e.Plus = 1;
             if (addpencil > 0) e.Edit = 1;
             Entries.Add(e);
             Update();
-            e.ParentList = this;
         }
 
         public void AddQItem(object o)
         {
-            var e = new Entry(o)
+            var e = new Entry(this, o)
             {
                 Plus  = 0,
                 QItem = 1
             };
             Entries.Add(e);
             Update();
-            e.ParentList = this;
         }
 
         public void Remove(Entry e)
         {
             Entries.Remove(e);
-            Copied.Remove(e);
+            ExpandedEntries.Remove(e);
         }
 
         public void RemoveItem(object o)
         {
             Entries.RemoveFirstIf(e => e.item == o);
-            Copied.RemoveFirstIf(e => e.item == o);
+            ExpandedEntries.RemoveFirstIf(e => e.item == o);
         }
 
         public void RemoveIf<T>(Func<T, bool> predicate) where T : class
         {
             Entries.RemoveAllIf(e => e.item is T item && predicate(item));
-            Copied.RemoveAllIf(e => e.item is T item && predicate(item));
+            ExpandedEntries.RemoveAllIf(e => e.item is T item && predicate(item));
         }
 
         public void RemoveFirst()
@@ -138,7 +131,7 @@ namespace Ship_Game
             if (Entries.Count > 0)
             {
                 Entries.RemoveAt(0);
-                Copied.RemoveAt(0);
+                ExpandedEntries.RemoveAt(0);
             }
         }
 
@@ -146,17 +139,17 @@ namespace Ship_Game
 
         public T FirstItem<T>() where T : class
         {
-            return (T)Copied[0].item;
+            return (T)ExpandedEntries[0].item;
         }
 
         public T ItemAt<T>(int index) where T : class
         {
-            return (T)Copied[index].item;
+            return (T)ExpandedEntries[index].item;
         }
 
         public T ItemAtTop<T>() where T : class
         {
-            return (T)Copied[indexAtTop].item;
+            return (T)ExpandedEntries[indexAtTop].item;
         }
 
         public int IndexOf<T>(Func<T, bool> predicate) where T : class
@@ -187,9 +180,9 @@ namespace Ship_Game
         }
 
         public IReadOnlyList<Entry> AllEntries => Entries;
-        public IReadOnlyList<Entry> AllFlattenedEntries => Copied;
+        public IReadOnlyList<Entry> AllExpandedEntries => ExpandedEntries;
         public int NumEntries => Entries.Count;
-        public int NumFlattenedEntries => Copied.Count;
+        public int NumExpandedEntries => ExpandedEntries.Count;
 
         public IEnumerable<Entry> VisibleEntries
         {
@@ -200,12 +193,12 @@ namespace Ship_Game
             }
         }
 
-        public IEnumerable<Entry> FlattenedEntries
+        public IEnumerable<Entry> VisibleExpandedEntries
         {
             get
             {
-                for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
-                    yield return Copied[i];
+                for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                    yield return ExpandedEntries[i];
             }
         }
 
@@ -216,10 +209,10 @@ namespace Ship_Game
                     yield return item;
         }
 
-        public IEnumerable<T> FlattenedItems<T>() where T : class
+        public IEnumerable<T> VisibleExpandedItems<T>() where T : class
         {
-            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
-                if (Copied[i].item is T item)
+            for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                if (ExpandedEntries[i].item is T item)
                     yield return item;
         }
 
@@ -230,110 +223,119 @@ namespace Ship_Game
                     yield return item;
         }
 
-        public IEnumerable<T> AllFlattenedItems<T>() where T : class
+        public IEnumerable<T> AllExpandedItems<T>() where T : class
         {
-            for (int i = 0; i < Copied.Count; ++i)
-                if (Copied[i].item is T item)
+            for (int i = 0; i < ExpandedEntries.Count; ++i)
+                if (ExpandedEntries[i].item is T item)
                     yield return item;
         }
 
         public void Reset()
         {
             Entries.Clear();
-            Copied.Clear();
+            ExpandedEntries.Clear();
             indexAtTop = 0;
         }
 
+        private void DrawScrollBar(SpriteBatch spriteBatch)
+        {
+            int updownsize = (ScrollBar.Height - ScrollBarMidMarker.Height) / 2;
+            var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
+            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ScrollBarMidMarker.Height);
+            var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
+            if (ScrollBarHover == 0)
+            {
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown"), up, Color.White);
+                spriteBatch.Draw(ScrollBarMidMarker, mid, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown"), bot, Color.White);
+            }
+            else if (ScrollBarHover == 1)
+            {
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover1"), up, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_mid_hover1"), mid, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover1"), bot, Color.White);
+            }
+            else if (ScrollBarHover == 2)
+            {
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover2"), up, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_mid_hover2"), mid, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover2"), bot, Color.White);
+            }
+            Vector2 mousepos = Mouse.GetState().Pos();
+            spriteBatch.Draw(ScrollUp.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_up_hover1") : ScrollBarArrowUp, ScrollUp, Color.White);
+            spriteBatch.Draw(ScrollDown.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_down_hover1") : ScrollBarArrorDown, ScrollDown, Color.White);
+        }
+
+        private void DrawScrollBarBlue(SpriteBatch spriteBatch)
+        {
+            int updownsize = (ScrollBar.Height - ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height) / 2;
+            var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
+            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height);
+            var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
+            if (ScrollBarHover == 0)
+            {
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown"), up, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid"), mid, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown"), bot, Color.White);
+            }
+            else if (ScrollBarHover == 1)
+            {
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover1"), up, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid_hover1"), mid, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover1"), bot, Color.White);
+            }
+            else if (ScrollBarHover == 2)
+            {
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover2"), up, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid_hover2"), mid, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover2"), bot, Color.White);
+            }
+            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_up"), ScrollUp, Color.White);
+            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_down"), ScrollDown, Color.White);
+        }
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            if (Copied.Count > entriesToDisplay)
-            {
-                int updownsize = (ScrollBar.Height - ScrollBarMidMarker.Height) / 2;
-                var up = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
-                var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ScrollBarMidMarker.Height);
-                var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
-                if (ScrollBarHover == 0)
-                {
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown"), up, Color.White);
-                    spriteBatch.Draw(ScrollBarMidMarker, mid, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown"), bot, Color.White);
-                }
-                else if (ScrollBarHover == 1)
-                {
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover1"), up, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_mid_hover1"), mid, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover1"), bot, Color.White);
-                }
-                else if (ScrollBarHover == 2)
-                {
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover2"), up, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_mid_hover2"), mid, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover2"), bot, Color.White);
-                }
-                Vector2 mousepos = Mouse.GetState().Pos();
-                spriteBatch.Draw(ScrollUp.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_up_hover1") : ScrollBarArrowUp, ScrollUp, Color.White);
-                spriteBatch.Draw(ScrollDown.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_down_hover1") : ScrollBarArrorDown, ScrollDown, Color.White);
-            }
-            if (DraggedEntry != null && DraggedEntry.item is QueueItem)
-            {
-                Vector2 mousepos = Mouse.GetState().Pos();
+            if (ExpandedEntries.Count > entriesToDisplay)
+                DrawScrollBar(spriteBatch);
 
-                var queueItem = DraggedEntry.item as QueueItem;
+            // @todo Why the hell do we need to know the exact type of item??
+            if (DraggedEntry?.item is QueueItem queueItem)
+            {
+                Vector2 bCursor = Mouse.GetState().Pos() + DraggedOffset;
+                var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
+                var r = new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30);
+                var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing, 150, 18);
+                var pb = new ProgressBar(pbRect)
+                {
+                    Max = queueItem.Cost,
+                    Progress = queueItem.productionTowards
+                };
+
                 if (queueItem.isBuilding)
                 {
-                    Vector2 bCursor = mousepos + DraggedOffset;
-                    spriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{queueItem.Building.Icon}_48x48"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
+                    spriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{queueItem.Building.Icon}_48x48"), r, Color.White);
                     spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.Building.Name, tCursor, Color.White);
-                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
-                    var pb = new ProgressBar(pbRect)
-                    {
-                        Max = queueItem.Cost,
-                        Progress = queueItem.productionTowards
-                    };
                     pb.Draw(spriteBatch);
                 }
                 else if (queueItem.isShip)
                 {
-                    Vector2 bCursor = mousepos + DraggedOffset;
-
-                    spriteBatch.Draw(ResourceManager.HullsDict[queueItem.sData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
+                    spriteBatch.Draw(ResourceManager.HullsDict[queueItem.sData.Hull].Icon, r, Color.White);
                     spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, tCursor, Color.White);
-                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
-                    var pb = new ProgressBar(pbRect)
-                    {
-                        Max = queueItem.Cost,
-                        Progress = queueItem.productionTowards
-                    };
                     pb.Draw(spriteBatch);
                 }
                 else if (queueItem.isTroop)
                 {
-                    Vector2 bCursor = mousepos + DraggedOffset;
-
                     Troop template = ResourceManager.GetTroopTemplate(queueItem.troopType);
-                    template.Draw(spriteBatch, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30));
-
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
+                    template.Draw(spriteBatch, r);
                     spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.troopType, tCursor, Color.White);
-                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
-                    var pb = new ProgressBar(pbRect)
-                    {
-                        Max = queueItem.Cost,
-                        Progress = queueItem.productionTowards
-                    };
                     pb.Draw(spriteBatch);
                 }
             }
         }
 
-        private float PercentViewed => entriesToDisplay / (float)Copied.Count;
-        private float StartingPercent => indexAtTop / (float)Copied.Count;
+        private float PercentViewed => entriesToDisplay / (float)ExpandedEntries.Count;
+        private float StartingPercent => indexAtTop / (float)ExpandedEntries.Count;
 
         private void UpdateScrollBar(bool blue = false)
         {
@@ -346,36 +348,12 @@ namespace Ship_Game
 
         public void DrawBlue(SpriteBatch spriteBatch)
         {
-            if (Copied.Count > entriesToDisplay)
+            if (ExpandedEntries.Count > entriesToDisplay)
             {
                 UpdateScrollBar(blue: true);
-                int updownsize = (ScrollBar.Height - ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height) / 2;
-                var up = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
-                var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height);
-                var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
-                if (ScrollBarHover == 0)
-                {
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown"), up, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid"), mid, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown"), bot, Color.White);
-                }
-                else if (ScrollBarHover == 1)
-                {
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover1"), up, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid_hover1"), mid, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover1"), bot, Color.White);
-                }
-                else if (ScrollBarHover == 2)
-                {
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover2"), up, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid_hover2"), mid, Color.White);
-                    spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover2"), bot, Color.White);
-                }
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_up"), ScrollUp, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_down"), ScrollDown, Color.White);
+                DrawScrollBarBlue(spriteBatch);
             }
         }
-
 
         private bool HandleScrollUpDownButtons(InputState input)
         {
@@ -390,7 +368,7 @@ namespace Ship_Game
             }
             if (ScrollDown.HitTest(input.CursorPosition))
             {
-                if (indexAtTop + entriesToDisplay < Copied.Count)
+                if (indexAtTop + entriesToDisplay < ExpandedEntries.Count)
                     ++indexAtTop;
                 UpdateScrollBar();
                 return true;
@@ -439,10 +417,10 @@ namespace Ship_Game
 
             float mousePosAsPct = (input.CursorPosition.Y - ScrollBarHousing.Y) / ScrollBarHousing.Height;
             mousePosAsPct = mousePosAsPct.Clamped(0f, 1f);
-            indexAtTop = (int)(Copied.Count * mousePosAsPct);
-            if (indexAtTop + entriesToDisplay >= Copied.Count)
+            indexAtTop = (int)(ExpandedEntries.Count * mousePosAsPct);
+            if (indexAtTop + entriesToDisplay >= ExpandedEntries.Count)
             {
-                indexAtTop = Copied.Count - entriesToDisplay;
+                indexAtTop = ExpandedEntries.Count - entriesToDisplay;
             }
             return true;
         }
@@ -471,7 +449,7 @@ namespace Ship_Game
             }
             if (input.ScrollOut)
             {
-                if (indexAtTop + entriesToDisplay < Copied.Count)
+                if (indexAtTop + entriesToDisplay < ExpandedEntries.Count)
                     ++indexAtTop;
                 UpdateScrollBar();
                 return true;
@@ -492,9 +470,9 @@ namespace Ship_Game
                     ClickTimer += 0.0166666675f;
                     if (ClickTimer > TimerDelay)
                     {
-                        for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; i++)
+                        for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; i++)
                         {
-                            Entry e = Copied[i];
+                            Entry e = ExpandedEntries[i];
                             if (!e.clickRect.HitTest(input.CursorPosition))
                                 continue;
                             DraggedEntry = e;
@@ -604,13 +582,18 @@ namespace Ship_Game
         private void UpdateClickRect(Entry e, Point topLeft, int j)
         {
             var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * EntryHeight, Parent.Menu.Width - 40, EntryHeight);
+            int right = r.X + r.Width;
+            int iconY = r.Y + 15;
             e.clickRect = r;
-            if (e.Plus != 0) e.addRect  = new Rectangle(r.X + r.Width - 30, r.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-            if (e.Edit != 0) e.editRect = new Rectangle(r.X + r.Width - 60, r.Y + 15 - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-            if (UpCol)     e.up     = new Rectangle(r.X + r.Width -  30, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-            if (DownCol)   e.down   = new Rectangle(r.X + r.Width -  60, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-            if (ApplyCol)  e.apply  = new Rectangle(r.X + r.Width -  90, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-            if (CancelCol) e.cancel = new Rectangle(r.X + r.Width - 120, r.Y + 15 - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            if (e.Plus != 0) e.addRect  = new Rectangle(right - 30, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
+            if (e.Edit != 0) e.editRect = new Rectangle(right - 60, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
+            
+            int offset = 0;
+            bool all = Controls == ListControls.All;
+            if (all) e.up     = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            if (all) e.down   = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            if (all) e.apply  = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
+            e.cancel = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
         }
 
         public void TransitionUpdate(Rectangle r)
@@ -635,25 +618,25 @@ namespace Ship_Game
 
         public void Update()
         {
-            Copied.Clear();
+            ExpandedEntries.Clear();
 
             foreach (Entry e in Entries)
             {
-                Copied.Add(e);
-                if (!e.ShowingSub)
+                ExpandedEntries.Add(e);
+                if (!e.Expanded)
                     continue;
                 foreach (Entry sub in e.SubEntries)
                 {
-                    Copied.Add(sub);
+                    ExpandedEntries.Add(sub);
                     foreach (Entry subsub in sub.SubEntries)
-                        Copied.Add(subsub);
+                        ExpandedEntries.Add(subsub);
                 }
             }
             
             int j = 0;
-            for (int i = 0; i < Copied.Count; i++)
+            for (int i = 0; i < ExpandedEntries.Count; i++)
             {
-                Entry e = Copied[i];
+                Entry e = ExpandedEntries[i];
                 if (i >= indexAtTop)
                 {
                     UpdateClickRect(e, Parent.Menu.Pos(), j++);
@@ -670,7 +653,8 @@ namespace Ship_Game
 
         public class Entry
         {
-            public bool ShowingSub;
+            // each entry can be expanded or collapsed via the Plus button
+            public bool Expanded { get; private set; }
             public Rectangle clickRect;
             public object item;
             public int Hover;
@@ -681,7 +665,7 @@ namespace Ship_Game
 
             public Rectangle editRect;
             public Rectangle addRect;
-            public ScrollList ParentList;
+            private readonly ScrollList List;
 
             public int clickRectHover;
             public int QItem;
@@ -691,45 +675,32 @@ namespace Ship_Game
             public Rectangle cancel;
             public Rectangle apply;
 
-            public int uh;
-            public int ch;
-            public int dh;
-            public int ah;
 
             // moved this here for consistency
             public Array<Entry> SubEntries = new Array<Entry>();
 
-            public Entry(object item)
+            public Entry(ScrollList list, object item)
             {
+                List = list;
                 this.item = item;
             }
 
             public void AddItem(object o)
             {
-                SubEntries.Add(new Entry(o));
+                SubEntries.Add(new Entry(List, o));
             }
 
             public void AddItem(object o, int addrect, int addpencil)
             {
-                var e = new Entry(o);
-                if (addrect > 0)
-                {
-                    e.Plus = 1;
-                }
-                if (addpencil > 0)
-                {
-                    e.editRect = new Rectangle();
-                    e.Edit = 1;
-                }
-                e.addRect = new Rectangle();
+                var e = new Entry(List, o);
+                if (addrect   > 0) e.Plus = 1;
+                if (addpencil > 0) e.Edit = 1;
                 SubEntries.Add(e);
             }
 
             public void AddItemWithCancel(object o)
             {
-                var e = new Entry(o);
-                SubEntries.Add(e);
-                e.cancel = new Rectangle();
+                SubEntries.Add(new Entry(List, o));
             }
 
             public bool WasClicked(InputState input)
@@ -741,6 +712,22 @@ namespace Ship_Game
             {
                 clickRect = new Rectangle(-500, -500, 0, 0);
             }
+
+            public void Expand(bool expanded)
+            {
+                if (Expanded == expanded)
+                    return;
+                Expanded = expanded;
+                if (!expanded)
+                {
+                    List.indexAtTop = List.indexAtTop - SubEntries.Count;
+                    if (List.indexAtTop < 0)
+                        List.indexAtTop = 0;
+                }
+                List.Update();
+            }
+
+            public override string ToString() => $"{clickRect.Y} {item}";
         }
     }
 }

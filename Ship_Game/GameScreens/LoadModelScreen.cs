@@ -41,7 +41,7 @@ namespace Ship_Game
             this.SaveMenu.Draw();
             this.AllSaves.Draw();
             var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
-            foreach (ScrollList.Entry e in SavesSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
                 bCursor.Y = e.clickRect.Y;
                 if (e.item is ModuleHeader header)
@@ -107,7 +107,7 @@ namespace Ship_Game
                 }
             }
             this.SavesSL.HandleInput(input);
-            foreach (ScrollList.Entry e in this.SavesSL.FlattenedEntries)
+            foreach (ScrollList.Entry e in this.SavesSL.VisibleExpandedEntries)
             {
                 if (!e.clickRect.HitTest(mousePos))
                 {

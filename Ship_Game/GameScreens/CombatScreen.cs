@@ -299,7 +299,7 @@ namespace Ship_Game
             {
                 this.OrbitSL.Draw(this.ScreenManager.SpriteBatch);
                 var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
-                foreach (ScrollList.Entry e in OrbitSL.FlattenedEntries)
+                foreach (ScrollList.Entry e in OrbitSL.VisibleExpandedEntries)
                 {
                     if (e.item is Ship ship)
                     {
@@ -750,7 +750,7 @@ namespace Ship_Game
                 }
             }
             OrbitSL.HandleInput(input);
-            foreach (ScrollList.Entry e in OrbitSL.AllFlattenedEntries)
+            foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
                 if (!e.clickRect.HitTest(MousePos))
                 {

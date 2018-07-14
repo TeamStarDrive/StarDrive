@@ -99,7 +99,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             ShipDesigns.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             
-            foreach (ScrollList.Entry e in ShipDesigns.FlattenedEntries)
+            foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
                 var bCursor = new Vector2(SaveShips.Menu.X + 20, SaveShips.Menu.Y + 20);
                 if (e.item == null)
@@ -206,7 +206,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 }
             }
             this.selector = null;
-            foreach (ScrollList.Entry e in ShipDesigns.FlattenedEntries)
+            foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader header)
                 {
