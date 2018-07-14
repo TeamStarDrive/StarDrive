@@ -386,7 +386,7 @@ namespace Ship_Game
                     buildSL.Reset();
                     buildSL.indexAtTop = 0;
                     foreach (Building building in BuildingsCanBuild)
-                        buildSL.AddItem(building, 0, 0);
+                        buildSL.AddItem(building, false, false);
                     Reset = false;
                 }
                 vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
@@ -418,13 +418,8 @@ namespace Ship_Game
 
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
-                        if (entry.Plus != 0)
-                        {
-                            if (entry.PlusHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                        }
+                        
+                        entry.DrawPlus(ScreenManager.SpriteBatch);
                     }
                     else
                     {
@@ -450,15 +445,9 @@ namespace Ship_Game
 
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
-                        if (entry.Plus != 0)
-                        {
-                            if (entry.PlusHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                        }
+                        entry.DrawPlus(ScreenManager.SpriteBatch);
                     }
-                    if (entry.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
+                    if (entry.clickRect.HitTest(new Vector2(currentMouse.X, currentMouse.Y)))
                         entry.clickRectHover = 1;
                 }
             }
@@ -520,7 +509,7 @@ namespace Ship_Game
                             Ship ship = kv.Value;
                             if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) &&
                                 Localizer.GetRole(ship.DesignRole, p.Owner) == header)                            
-                                entry.AddItem(ship, 1, 1);                            
+                                entry.AddItem(ship, addAndEdit:true);                            
                         }
                     }
                 }
@@ -599,14 +588,14 @@ namespace Ship_Game
 
                         position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         // Use correct upkeep method depending on mod settings
-                        string upkeep = "Doctor rocks";
+                        string upkeep;
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                         {
-                            upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
+                            upkeep = (entry.item as Ship).GetMaintCostRealism(p.Owner).ToString("F2");
                         }
                         else
                         {
-                            upkeep = (entry.item as Ship).GetMaintCost(this.p.Owner).ToString("F2");
+                            upkeep = (entry.item as Ship).GetMaintCost(p.Owner).ToString("F2");
                         }
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
@@ -614,24 +603,7 @@ namespace Ship_Game
 
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)((entry.item as Ship).GetCost(this.p.Owner) * this.p.ShipBuildingModifier)).ToString(), position, Color.White);
-                        if (entry.Plus != 0)
-                        {
-                            if (entry.PlusHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                        }
-                        if (entry.Edit != 0)
-                        {
-                            if (entry.EditHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                        }
-                        if (entry.clickRect.Y == 0)   //those checks look broken in either decompiler
-                        {
-                            //int num3 = 11 + 1;
-                        }
+                        entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
                 }
                 this.playerDesignsToggle.Draw(this.ScreenManager);
@@ -645,7 +617,7 @@ namespace Ship_Game
                     foreach (string troopType in ResourceManager.TroopTypes)
                     {
                         if (p.Owner.WeCanBuildTroop(troopType))
-                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), 1, 0);
+                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
                     }
                     Reset = false;
                 }
@@ -653,71 +625,37 @@ namespace Ship_Game
                 foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
                 {
                     vector2_1.Y = (float)entry.clickRect.Y;
+                    var troop = (Troop)entry.item;
                     if (entry.clickRectHover == 0)
                     {
-                        if (entry.item is Troop)
-                        {
-                            (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                            Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
-                            position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
-                            position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                            Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                            position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                            if (entry.Plus != 0)
-                            {
-                                if (entry.PlusHover == 0)
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                                else
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                            }
-                            if (entry.Edit != 0)
-                            {
-                                if (entry.EditHover == 0)
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], entry.editRect, Color.White);
-                                else
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                            }
-                            if (entry.clickRect.Y == 0)
-                            {
-                                //int num3 = 11 + 1;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        vector2_1.Y = (float)entry.clickRect.Y;
-                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
                         position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
                         Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                        if (entry.Plus != 0)
-                        {
-                            if (entry.PlusHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                        }
-                        if (entry.Edit != 0)
-                        {
-                            if (entry.EditHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                        }
-                        if (entry.clickRect.Y == 0)
-                        {
-                            //int num3 = 11 + 1;
-                        }
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
+                        
+                        entry.DrawPlusEdit(ScreenManager.SpriteBatch);
+                    }
+                    else
+                    {
+                        vector2_1.Y = (float)entry.clickRect.Y;
+                        troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
+                        
+                        entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
                 }
             }
@@ -730,7 +668,7 @@ namespace Ship_Game
                     foreach (string troopType in ResourceManager.TroopTypes)
                     {
                         if (p.Owner.WeCanBuildTroop(troopType))
-                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), 1, 0);
+                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
                     }
                     Reset = false;
                 }
@@ -738,68 +676,35 @@ namespace Ship_Game
                 foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
                 {
                     vector2_1.Y = (float)entry.clickRect.Y;
+                    var troop = (Troop)entry.item;
                     if (entry.clickRectHover == 0)
                     {
-                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
                         position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
                         Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                        if (entry.Plus != 0)
-                        {
-                            if (entry.PlusHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                        }
-                        if (entry.Edit != 0)
-                        {
-                            if (entry.EditHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit"], entry.editRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                        }
-                        if (entry.clickRect.Y == 0)
-                        {
-                            //int num3 = 11 + 1;
-                        }
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
+                        entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
                     else
                     {
                         vector2_1.Y = (float)entry.clickRect.Y;
-                        (entry.item as Troop).Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Troop).DisplayNameEmpire(p.Owner), position, Color.White);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, (entry.item as Troop).Class, position, Color.Orange);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
                         position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
                         Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)(entry.item as Troop).GetCost()).ToString(), position, Color.White);
-                        if (entry.Plus != 0)
-                        {
-                            if (entry.PlusHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], entry.addRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
-                        }
-                        if (entry.Edit != 0)
-                        {
-                            if (entry.EditHover == 0)
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], entry.editRect, Color.White);
-                            else
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"], entry.editRect, Color.White);
-                        }
-                        if (entry.clickRect.Y == 0)
-                        {
-                            //int num3 = 11 + 1;
-                        }
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
+                        entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
                 }
             }

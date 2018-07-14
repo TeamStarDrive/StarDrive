@@ -44,48 +44,31 @@ namespace Ship_Game
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
+            spriteBatch.Begin();
             this.SaveMenu.Draw();
             this.SaveShips.Draw();
-            this.EnterNameArea.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, 
+            this.EnterNameArea.Draw(Fonts.Arial20Bold, spriteBatch, this.EnternamePos, 
                 Game1.Instance.GameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             this.subAllDesigns.Draw();
-            this.ShipDesigns.Draw(base.ScreenManager.SpriteBatch);
+            this.ShipDesigns.Draw(spriteBatch);
             var bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
                 var ship = (Ship)e.item;
-                bCursor.Y = (float)e.clickRect.Y;                
-                ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
+                bCursor.Y = (float)e.clickRect.Y;
+                spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                if (e.Plus != 0)
-                {
-                    if (e.PlusHover != 0)
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
-                    }
-                    else
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
-                    }
-                }
-                if (e.Edit != 0)
-                {
-                    ScreenManager.SpriteBatch.Draw(
-                        e.EditHover != 0
-                            ? ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"]
-                            : ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
-                }
+                spriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                e.DrawPlusEdit(spriteBatch);
             }
-            selector?.Draw(ScreenManager.SpriteBatch);
+            selector?.Draw(spriteBatch);
             foreach (UIButton b in this.Buttons)
             {
-                b.Draw(base.ScreenManager.SpriteBatch);
+                b.Draw(spriteBatch);
             }
-            base.ScreenManager.SpriteBatch.End();
+            spriteBatch.End();
         }
 
         public override bool HandleInput(InputState input)

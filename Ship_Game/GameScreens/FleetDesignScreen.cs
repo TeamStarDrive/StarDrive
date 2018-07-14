@@ -465,20 +465,7 @@ namespace Ship_Game
                         spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                         tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                         spriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                        if (e.Plus != 0)
-                        {
-                            spriteBatch.Draw(e.PlusHover != 0
-                                ? ResourceManager.Texture("NewUI/icon_build_add_hover2")
-                                : ResourceManager.Texture("NewUI/icon_build_add_hover1"), e.addRect,
-                                Color.White);
-                        }
-                        if (e.Edit != 0)
-                        {
-                            spriteBatch.Draw(e.EditHover != 0
-                                ? ResourceManager.Texture("NewUI/icon_build_edit_hover2")
-                                : ResourceManager.Texture("NewUI/icon_build_edit_hover1"), e.editRect,
-                                Color.White);
-                        }
+                        e.DrawPlusEdit(spriteBatch);
                     }
                     else
                     {
@@ -499,18 +486,7 @@ namespace Ship_Game
                         {
                             spriteBatch.DrawString(Fonts.Arial12Bold, $"{ship.System.Name} system", tCursor, Color.Orange);
                         }
-                        if (e.Plus != 0)
-                        {
-                            spriteBatch.Draw(e.PlusHover != 0
-                                ? ResourceManager.Texture("NewUI/icon_build_add_hover2")
-                                : ResourceManager.Texture("NewUI/icon_build_add"), e.addRect, Color.White);
-                        }
-                        if (e.Edit != 0)
-                        {
-                            spriteBatch.Draw(e.EditHover != 0
-                                ? ResourceManager.Texture("NewUI/icon_build_edit_hover2")
-                                : ResourceManager.Texture("NewUI/icon_build_edit"), e.editRect, Color.White);
-                        }
+                        e.DrawPlusEdit(spriteBatch);
                     }
                 }
             }

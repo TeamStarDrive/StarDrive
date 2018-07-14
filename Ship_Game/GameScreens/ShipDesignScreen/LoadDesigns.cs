@@ -370,7 +370,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         }
                         else
                         {
-                            e.AddItemWithCancel(ship.Value);
+                            e.AddItem(ship.Value);
                         }
                     }
                     if ((e.item as ModuleHeader).Text != "WIP")
@@ -379,7 +379,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                     foreach (ShipData data in WIPs)
                     {
-                        e.AddItemWithCancel(data);
+                        e.AddItem(data);
                     }
                 }
             }
