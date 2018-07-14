@@ -709,26 +709,15 @@ namespace Ship_Game.AI {
 
         public void OrderResupply(Planet toOrbit, bool ClearOrders)
         {
-            if (ClearOrders)
-            {
-                OrderQueue.Clear();
-                HadPO = true;
-            }
-            else
-            {
-                HadPO = false;
-            }
-            lock (WayPointLocker)
-            {
-                ActiveWayPoints.Clear();
-            }
-            Target = null;
-            OrbitTarget = toOrbit;
-            AwaitClosest = toOrbit;
+            SetPriorityOrder(ClearOrders);
+            HadPO = ClearOrders;
+            ClearWayPoints();
+            
+            Target           = null;
+            OrbitTarget      = toOrbit;
+            AwaitClosest     = toOrbit;
             OrderMoveTowardsPosition(toOrbit.Center, 0f, Vector2.One, ClearOrders, toOrbit);
-            State = AIState.Resupply;
-            HasPriorityOrder = true;
-
+            State            = AIState.Resupply;
         }
 
         public void OrderResupplyNearest(bool ClearOrders)
