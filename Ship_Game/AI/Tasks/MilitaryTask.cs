@@ -40,7 +40,18 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask()
         {
         }
-
+        public static MilitaryTask CreatePostInvasion(Vector2 ao, int fleetID, Empire owner)
+        {
+            var militaryTask = new Tasks.MilitaryTask
+            {
+                AO = ao,
+                AORadius = 10000f,
+                WhichFleet = fleetID
+            };
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.DefendPostInvasion;
+            return militaryTask;
+        }
         public MilitaryTask(AO ao)
         {
             AO = ao.Center;
