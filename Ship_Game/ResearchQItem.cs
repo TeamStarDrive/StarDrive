@@ -7,23 +7,16 @@ namespace Ship_Game
 	public sealed class ResearchQItem
 	{
 		public Rectangle container;
-
 		private Rectangle Up;
-
 		private Rectangle Down;
-
 		private Rectangle Cancel;
 
 		private TexturedButton bup;
-
 		private TexturedButton bdown;
-
 		private TexturedButton bcancel;
 
 		public TreeNode Node;
-
 		private ResearchScreenNew screen;
-
 		public Vector2 pos;
 
 		public ResearchQItem(Vector2 Position, TreeNode Node, ResearchScreenNew screen)
@@ -31,7 +24,7 @@ namespace Ship_Game
 			this.pos = Position;
 			this.screen = screen;
 			this.container = new Rectangle((int)Position.X, (int)Position.Y, 320, 110);
-			this.Node = new TreeNode(new Vector2((float)this.container.X, (float)this.container.Y) + new Vector2(100f, 20f), Node.tech, screen);
+			this.Node = new TreeNode(new Vector2(this.container.X, this.container.Y) + new Vector2(100f, 20f), Node.tech, screen);
 			this.Up = new Rectangle(this.container.X + 15, this.container.Y + this.container.Height / 2 - 33, 30, 30);
 			this.Down = new Rectangle(this.container.X + 15, this.container.Y + this.container.Height / 2 - 33 + 36, 30, 30);
 			this.Cancel = new Rectangle(this.container.X + 15 + 30 + 12, this.container.Y + this.container.Height / 2 - 15, 30, 30);
@@ -40,26 +33,26 @@ namespace Ship_Game
 			this.bcancel = new TexturedButton(this.Cancel, "ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover", "ResearchMenu/button_queue_cancel_press");
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager screenManager)
 		{
-			this.bup.Draw(ScreenManager);
-			this.bdown.Draw(ScreenManager);
-			this.bcancel.Draw(ScreenManager);
-			this.Node.DrawGlow(ScreenManager);
-			this.Node.Draw(ScreenManager);
+			this.bup.Draw(screenManager);
+			this.bdown.Draw(screenManager);
+			this.bcancel.Draw(screenManager);
+			this.Node.DrawGlow(screenManager);
+			this.Node.Draw(screenManager);
 		}
 
-		public void Draw(Rectangle container, Ship_Game.ScreenManager ScreenManager)
+		public void Draw(Rectangle container, ScreenManager screenManager)
 		{
 			this.Node = new TreeNode(new Vector2((float)container.X, (float)container.Y) + new Vector2(100f, 20f), this.Node.tech, this.screen);
 			this.bup.r = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);
 			this.bdown.r = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33 + 36, 30, 30);
 			this.bcancel.r = new Rectangle(container.X + 15 + 30 + 12, container.Y + container.Height / 2 - 15, 30, 30);
-			this.bup.Draw(ScreenManager);
-			this.bdown.Draw(ScreenManager);
-			this.bcancel.Draw(ScreenManager);
-			this.Node.DrawGlow(ScreenManager);
-			this.Node.Draw(ScreenManager);
+			this.bup.Draw(screenManager);
+			this.bdown.Draw(screenManager);
+			this.bcancel.Draw(screenManager);
+			this.Node.DrawGlow(screenManager);
+			this.Node.Draw(screenManager);
 		}
 
 		public bool HandleInput(InputState input)
@@ -145,12 +138,8 @@ namespace Ship_Game
 				string uid = Node.tech.UID;
 				if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
 				{
-				    screen.qcomponent.QSL.QueueItemForRemoval(this);
-					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
-					{
-						RemoveTech(dependent.UID);
-					}
-					EmpireManager.Player.data.ResearchQueue.Remove(uid);
+				    screen.qcomponent.QSL.RemoveItem(this);
+                    RemoveTech(uid);
 				}
 				else if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 				{
@@ -159,11 +148,8 @@ namespace Ship_Game
 				}
 				else
 				{
-					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
-					{
-						RemoveTech(dependent.UID);
-					}
-					screen.qcomponent.QSL.ApplyPendingRemovals();
+				    RemoveTech(uid);
+
 					if (EmpireManager.Player.data.ResearchQueue.Count == 0)
 					{
 						EmpireManager.Player.ResearchTopic = "";
@@ -171,11 +157,11 @@ namespace Ship_Game
 					}
 					else
 					{
-                        var qItem = screen.qcomponent.QSL.ItemAt<ResearchQItem>(0);
+                        var qItem = screen.qcomponent.QSL.FirstItem<ResearchQItem>();
 						EmpireManager.Player.ResearchTopic = qItem.Node.tech.UID;
 						screen.qcomponent.CurrentResearch = new ResearchQItem(screen.qcomponent.CurrentResearch.pos, qItem.Node, screen);
 						EmpireManager.Player.data.ResearchQueue.Remove(qItem.Node.tech.UID);
-						screen.qcomponent.QSL.RemoveAt(0);
+						screen.qcomponent.QSL.RemoveFirst();
 					}
 				}
 				return true;
@@ -224,17 +210,17 @@ namespace Ship_Game
 			}
 			else
 			{
-				bool ThisIsPreReq = false;
+				bool thisIsPreReq = false;
 				foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.ResearchTopic].LeadsTo)
 				{
 					if (dependent.UID != EmpireManager.Player.data.ResearchQueue[0])
 					{
 						continue;
 					}
-					ThisIsPreReq = true;
+					thisIsPreReq = true;
 					break;
 				}
-				if (!ThisIsPreReq)
+				if (!thisIsPreReq)
 				{
 				    screen.qcomponent.QSL.Reset();
 					screen.qcomponent.CurrentResearch = null;
@@ -266,7 +252,7 @@ namespace Ship_Game
 				RemoveTech(dependent.UID);
 			}
 			EmpireManager.Player.data.ResearchQueue.Remove(uid);
-            screen.qcomponent.QSL.QueueItemForRemovalIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
+            screen.qcomponent.QSL.RemoveIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace Ship_Game
 
         public int entriesToDisplay;
         public int indexAtTop;
-        public BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
+        private BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
         private BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>(); // Flattened entries
         public bool IsDraggable;
         public Entry DraggedEntry;
@@ -81,7 +81,7 @@ namespace Ship_Game
             ScrollUp   = new Rectangle(x, p.Menu.Y + yOffset,            ScrollBarArrowUp.Width, ScrollBarArrowUp.Height);
             ScrollDown = new Rectangle(x, p.Menu.Y + p.Menu.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
-            ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, ScrollBarMidMarker.Width, 0);
+            ScrollBar        = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, ScrollBarMidMarker.Width, 0);
         }
 
         public Entry AddItem(object o)
@@ -115,30 +115,19 @@ namespace Ship_Game
             e.ParentList = this;
         }
 
-        public void QueueForRemoval(Entry e)
+        public void Remove(Entry e)
         {
-            Entries.QueuePendingRemoval(e);
-            Copied.QueuePendingRemoval(e);
+            Entries.Remove(e);
+            Copied.Remove(e);
         }
 
-        public void QueueForRemovalIf(Func<Entry, bool> predicate)
+        public void RemoveItem(object o)
         {
-            foreach (Entry e in Entries)
-            {
-                if (!predicate(e))
-                    continue;
-                Entries.QueuePendingRemoval(e);
-                Copied.QueuePendingRemoval(e);
-            }
+            Entries.RemoveFirstIf(e => e.item == o);
+            Copied.RemoveFirstIf(e => e.item == o);
         }
 
-        public void QueueItemForRemoval(object o)
-        {
-            foreach (Entry e in Entries)
-                if (e.item == o) QueueForRemoval(e);
-        }
-
-        public void QueueItemForRemovalIf<T>(Func<T, bool> predicate) where T : class
+        public void RemoveIf<T>(Func<T, bool> predicate) where T : class
         {
             foreach (Entry e in Entries)
             {
@@ -147,27 +136,25 @@ namespace Ship_Game
                 Entries.QueuePendingRemoval(e);
                 Copied.QueuePendingRemoval(e);
             }
-        }
-
-        public void Remove(Entry e)
-        {
-            Entries.Remove(e);
-            Copied.Remove(e);
-        }
-
-        public void RemoveAt(int index)
-        {
-            Entries.RemoveAt(index);
-            Copied.RemoveAt(index);
-        }
-
-        public void ApplyPendingRemovals()
-        {
             Entries.ApplyPendingRemovals();
             Copied.ApplyPendingRemovals();
         }
 
+        public void RemoveFirst()
+        {
+            if (Entries.Count > 0)
+            {
+                Entries.RemoveAt(0);
+                Copied.RemoveAt(0);
+            }
+        }
+
         public Entry EntryAt(int index) => Entries[index];
+
+        public T FirstItem<T>() where T : class
+        {
+            return (T)Copied[0].item;
+        }
 
         public T ItemAt<T>(int index) where T : class
         {

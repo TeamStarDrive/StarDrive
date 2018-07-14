@@ -1369,7 +1369,7 @@ namespace Ship_Game
             if (!DrawingColorSelector)
             {
                 selector = null;
-                foreach (ScrollList.Entry e in RaceArchetypeSL.Entries)
+                foreach (ScrollList.Entry e in RaceArchetypeSL.AllEntries)
                 {
                     if (!e.clickRect.HitTest(mousePos) || input.LeftMouseClick)
                         continue;
