@@ -387,7 +387,7 @@ namespace Ship_Game.Debug
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
-
+                DrawString("Power Recharge: " + (ship.PowerFlowMax - ship.PowerDraw));
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.ShipsDict) {
