@@ -1421,11 +1421,11 @@ namespace Ship_Game
                     if (!f.CheckHover(mousePos))
                         continue;
 
-                    this.selector = new Selector(f.clickRect);
-                    TraitEntry t = f.item as TraitEntry;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    this.selector = f.CreateSelector();
+                    var t = f.Get<TraitEntry>();
+                    if (input.LeftMouseClick)
                     {
-                        if (t.Selected && this.TotalPointsUsed + t.trait.Cost >= 0)
+                        if (t.Selected && TotalPointsUsed + t.trait.Cost >= 0)
                         {
                             t.Selected = !t.Selected;
                             RaceDesignScreen totalPointsUsed = this;
@@ -1441,30 +1441,21 @@ namespace Ship_Game
                         }
                         else
                         {
-                            bool OK = true;
-                            int num = t.trait.Excludes;
-                            foreach (TraitEntry ex in this.AllTraits)
+                            bool ok = true;
+                            foreach (TraitEntry ex in AllTraits)
                             {
-                                if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-                                {
-                                    continue;
-                                }
-                                OK = false;
+                                if (t.trait.Excludes == ex.trait.TraitName && ex.Selected)
+                                    ok = false;
                             }
-                            if (OK)
+                            if (ok)
                             {
                                 t.Selected = true;
-                                RaceDesignScreen raceDesignScreen = this;
-                                raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
+                                TotalPointsUsed -= t.trait.Cost;
                                 GameAudio.PlaySfxAsync("blip_click");
-                                int excludes1 = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.AllTraits)
+                                foreach (TraitEntry ex in AllTraits)
                                 {
-                                    if (t.trait.Excludes != ex.trait.TraitName)
-                                    {
-                                        continue;
-                                    }
-                                    ex.Excluded = true;
+                                    if (t.trait.Excludes == ex.trait.TraitName)
+                                        ex.Excluded = true;
                                 }
                             }
                         }

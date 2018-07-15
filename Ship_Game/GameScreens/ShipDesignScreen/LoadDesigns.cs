@@ -333,11 +333,11 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         }
                         if (ship.Value.IsReadonlyDesign || ship.Value.FromSave)
                         {
-                            e.AddItem(ship.Value);
+                            e.AddSubItem(ship.Value);
                         }
                         else
                         {
-                            e.AddItem(ship.Value);
+                            e.AddSubItem(ship.Value);
                         }
                     }
                     if ((e.item as ModuleHeader).Text != "WIP")
@@ -346,7 +346,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                     foreach (ShipData data in WIPs)
                     {
-                        e.AddItem(data);
+                        e.AddSubItem(data);
                     }
                 }
             }

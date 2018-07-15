@@ -255,7 +255,7 @@ namespace Ship_Game
                 if (categories.Add(halp.Category))
                 {
                     ScrollList.Entry e = HelpCategories.AddItem(new ModuleHeader(halp.Category, 295));
-                    e.AddItem(halp);
+                    e.AddSubItem(halp);
                 }
             }
         }

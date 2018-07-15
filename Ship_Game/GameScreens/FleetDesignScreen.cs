@@ -1780,7 +1780,7 @@ namespace Ship_Game
                         Ship ship = ResourceManager.ShipsDict[shipname];
                         if (ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
                             continue;
-                        e.AddItem(ship);
+                        e.AddSubItem(ship);
                     }
                 }
             }
@@ -1802,7 +1802,7 @@ namespace Ship_Game
                     {
                         if (ship.shipData.Role == ShipData.RoleName.troop || ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
                             continue;
-                        e.AddItem(ship);
+                        e.AddSubItem(ship);
                     }
                 }
             }

@@ -26,7 +26,6 @@ namespace Ship_Game
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
     public class Array<T> : IList<T>, IReadOnlyList<T>
     {
-        protected static readonly int SizeOf = typeof(T).SizeOfRef();
         protected T[] Items;
         public int Count { get; protected set; }
 
@@ -194,17 +193,14 @@ namespace Ship_Game
             }
         }
 
-        // If TRUE, Array<T> will grow by 2.0x during Add/Insert
-        // else, growth is 1.5x
-        // 1.5x may use less memory, but can potentially cause more reallocations
-        // This should be tested to measure memory usage and GC pressure
-        private const bool AgressiveGrowth = true;
 
         private void Grow(int capacity)
         {
             if (capacity >= 4)
             {
-                capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
+                // Array<T> will grow by 2.0x during Add/Insert
+                // In our tests this had less GC pressure and reallocations than 1.5x
+                capacity *= 2;
 
                 int rem = capacity & 3; // align capacity to a multiple of 4
                 if (rem != 0) capacity += 4 - rem;

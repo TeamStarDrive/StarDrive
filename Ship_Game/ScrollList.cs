@@ -94,47 +94,66 @@ namespace Ship_Game
             Update();
         }
 
-        public void Remove(Entry e)
+        public void SetItems<T>(IEnumerable<T> newItems) where T : class
+        {
+            Reset();
+            foreach (T item in newItems)
+                Entries.Add(new Entry(this, item, false, false));
+            Update();
+        }
+
+        private bool RemoveSub(Entry e)
         {
             foreach (Entry entry in Entries)
-                if (entry.SubEntries.Count > 0 && entry.SubEntries.Remove(e))
-                    break;
+                if (entry.RemoveSub(e)) return true;
+            return false;
+        }
 
-            Entries.Remove(e);
-            bool changed = ExpandedEntries.Remove(e);
-            if (changed) Update();
+        public void Remove(Entry e)
+        {
+            if (!RemoveSub(e))
+                Entries.Remove(e);
+
+            if (ExpandedEntries.Remove(e))
+                Update();
+        }
+
+        private bool RemoveSubItem(Predicate<Entry> predicate)
+        {
+            foreach (Entry entry in Entries)
+                if (entry.RemoveFirstSubIf(predicate)) return true;
+            return false;
         }
 
         public void RemoveItem(object o)
         {
             bool ItemPredicate(Entry e) => e.item == o;
 
-            Entries.RemoveFirstIf(ItemPredicate);
-            bool changed = ExpandedEntries.RemoveFirstIf(ItemPredicate);
-            if (changed) Update();
+            if (!RemoveSubItem(ItemPredicate))
+                Entries.RemoveFirstIf(ItemPredicate);
+
+            if (ExpandedEntries.RemoveFirstIf(ItemPredicate))
+                Update();
         }
 
         public void RemoveFirstIf<T>(Func<T, bool> predicate) where T : class
         {
             bool ItemPredicate(Entry e) => e.item is T item && predicate(item);
 
-            foreach (Entry entry in Entries)
-                if (entry.SubEntries.Count > 0)
-                    entry.SubEntries.RemoveFirstIf(ItemPredicate);
+            if (!RemoveSubItem(ItemPredicate))
+                Entries.RemoveFirstIf(ItemPredicate);
 
-            Entries.RemoveFirstIf(ItemPredicate);
-            bool changed = ExpandedEntries.RemoveFirstIf(ItemPredicate);
-            if (changed) Update();
+            if (ExpandedEntries.RemoveFirstIf(ItemPredicate))
+                Update();
         }
 
         public void RemoveFirst()
         {
-            if (Entries.Count > 0)
-            {
-                Entries.RemoveAt(0);
-                ExpandedEntries.RemoveAt(0);
-                Update();
-            }
+            if (Entries.Count <= 0)
+                return;
+            Entries.RemoveAt(0);
+            ExpandedEntries.RemoveAt(0);
+            Update();
         }
 
         public Entry EntryAt(int index) => Entries[index];
@@ -296,6 +315,15 @@ namespace Ship_Game
             spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_down"), ScrollDown, Color.White);
         }
 
+        public void DrawBlue(SpriteBatch spriteBatch)
+        {
+            if (ExpandedEntries.Count > entriesToDisplay)
+            {
+                UpdateScrollBar(blue: true);
+                DrawScrollBarBlue(spriteBatch);
+            }
+        }
+
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             if (ExpandedEntries.Count > entriesToDisplay)
@@ -336,6 +364,12 @@ namespace Ship_Game
             }
         }
 
+        public void DrawDraggedEntry(SpriteBatch batch)
+        {
+            if (DraggedEntry != null)
+                batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
+        }
+
         private float PercentViewed => entriesToDisplay / (float)ExpandedEntries.Count;
         private float StartingPercent => indexAtTop / (float)ExpandedEntries.Count;
 
@@ -346,15 +380,6 @@ namespace Ship_Game
             int width = blue ? ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Width : ScrollBarMidMarker.Width;
 
             ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + scrollStart, width, scrollEnd);
-        }
-
-        public void DrawBlue(SpriteBatch spriteBatch)
-        {
-            if (ExpandedEntries.Count > entriesToDisplay)
-            {
-                UpdateScrollBar(blue: true);
-                DrawScrollBarBlue(spriteBatch);
-            }
         }
 
         private bool HandleScrollUpDownButtons(InputState input)
@@ -496,23 +521,11 @@ namespace Ship_Game
             if (DraggedEntry == null || !input.LeftMouseDown)
                 return;
 
-            int dragged = 0;
-            // WTF?
+            int dragged = Entries.FirstIndexOf(e => e.Rect == DraggedEntry.Rect);
+
             for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
             {
-                Entry e = Entries[i];
-                if (e.clickRect == DraggedEntry.clickRect)
-                {
-                    dragged = i;
-                    break;
-                }
-            }
-            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
-            {
-                Entry e = Entries[i];
-                if (!e.CheckHover(input))
-                    continue;
-                if (onDragElement(i, dragged))
+                if (Entries[i].CheckHover(input) && dragged != -1 && onDragElement(i, dragged))
                     break;
             }
         }
@@ -529,9 +542,9 @@ namespace Ship_Game
                 {
                     Entry toReplace = Entries[newIndex];
                     Entries[newIndex] = Entries[dragged];
-                    Entries[newIndex].clickRect = toReplace.clickRect;
+                    Entries[newIndex].Rect = toReplace.Rect;
                     Entries[dragged] = toReplace;
-                    Entries[dragged].clickRect = DraggedEntry.clickRect;
+                    Entries[dragged].Rect = DraggedEntry.Rect;
                     DraggedEntry = Entries[newIndex];
                     return true;
                 }
@@ -553,10 +566,10 @@ namespace Ship_Game
                 {
                     Entry toReplace = Entries[newIndex];
                     Entries[newIndex] = Entries[dragged];
-                    Entries[newIndex].clickRect = toReplace.clickRect;
+                    Entries[newIndex].Rect = toReplace.Rect;
                     p.ConstructionQueue[newIndex] = p.ConstructionQueue[dragged];
                     Entries[dragged] = toReplace;
-                    Entries[dragged].clickRect = DraggedEntry.clickRect;
+                    Entries[dragged].Rect = DraggedEntry.Rect;
                     p.ConstructionQueue[dragged] = toReplace.item as QueueItem;
                     DraggedEntry = Entries[newIndex];
                     return true;
@@ -566,11 +579,11 @@ namespace Ship_Game
                     Entry toRemove = Entries[dragged];
                     for (int j = dragged + 1; j <= newIndex; j++)
                     {
-                        Entries[j].clickRect = Entries[j - 1].clickRect;
+                        Entries[j].Rect = Entries[j - 1].Rect;
                         Entries[j - 1] = Entries[j];
                         p.ConstructionQueue[j - 1] = p.ConstructionQueue[j];
                     }
-                    toRemove.clickRect = Entries[newIndex].clickRect;
+                    toRemove.Rect = Entries[newIndex].Rect;
                     Entries[newIndex] = toRemove;
                     p.ConstructionQueue[newIndex] = toRemove.item as QueueItem;
                     DraggedEntry = Entries[newIndex];
@@ -587,10 +600,11 @@ namespace Ship_Game
             ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             int j = 0;
+            int last = indexAtTop + entriesToDisplay - 1;
             for (int i = 0; i < Entries.Count; i++)
             {
                 Entry e = Entries[i];
-                if (i >= indexAtTop && i <= indexAtTop + entriesToDisplay - 1)
+                if (i >= indexAtTop && i <= last)
                     e.UpdateClickRect(r.Pos(), j++);
                 else
                     e.SetUnclickable();
@@ -600,32 +614,18 @@ namespace Ship_Game
         public void Update()
         {
             ExpandedEntries.Clear();
-
             foreach (Entry e in Entries)
-            {
-                ExpandedEntries.Add(e);
-                if (!e.Expanded)
-                    continue;
-                foreach (Entry sub in e.SubEntries)
-                {
-                    ExpandedEntries.Add(sub);
-                    foreach (Entry subsub in sub.SubEntries)
-                        ExpandedEntries.Add(subsub);
-                }
-            }
+                e.ExpandSubEntries(ExpandedEntries);
             
             int j = 0;
+            int last = indexAtTop + entriesToDisplay - 1;
             for (int i = 0; i < ExpandedEntries.Count; i++)
             {
                 Entry e = ExpandedEntries[i];
-                if (i >= indexAtTop)
-                {
+                if (i >= indexAtTop && i <= last)
                     e.UpdateClickRect(Parent.Menu.Pos(), j++);
-                }
                 else
-                {
                     e.SetUnclickable();
-                }
             }
             ScrollBar.Height = (int)(ScrollBarHousing.Height * PercentViewed);
             if (indexAtTop < 0)
@@ -640,7 +640,7 @@ namespace Ship_Game
             // true if item is currently being hovered over with mouse cursor
             public bool Hovered { get; private set; }
 
-            public Rectangle clickRect;
+            public Rectangle Rect;
             public object item;
 
             // Plus and Edit buttons in ColonyScreen build list
@@ -658,10 +658,9 @@ namespace Ship_Game
             private Rectangle Cancel;
             private Rectangle Apply;
 
-            // moved this here for consistency
-            public Array<Entry> SubEntries = new Array<Entry>();
+            private readonly Array<Entry> SubEntries = new Array<Entry>();
 
-            public override string ToString() => $"Y:{clickRect.Y} | {item}";
+            public override string ToString() => $"Y:{Rect.Y} | {item}";
 
             public Entry(ScrollList list, object item, bool plus, bool edit)
             {
@@ -673,29 +672,48 @@ namespace Ship_Game
 
             public T Get<T>() => (T)item;
 
-            public Selector CreateSelector() => new Selector(clickRect);
-            public Vector2 TopLeft => new Vector2(clickRect.X, clickRect.Y);
-            public int X => clickRect.X;
-            public int Y => clickRect.Y;
-            public int W => clickRect.Width;
-            public int H => clickRect.Height;
-            public int Right => clickRect.X + clickRect.Width;
-            public int CenterX => clickRect.X + clickRect.Width / 2;
-            public int CenterY => clickRect.Y + clickRect.Height / 2;
+            public Selector CreateSelector() => new Selector(Rect);
+            public Vector2 TopLeft => new Vector2(Rect.X, Rect.Y);
+            public int X => Rect.X;
+            public int Y => Rect.Y;
+            public int W => Rect.Width;
+            public int H => Rect.Height;
+            public int Right => Rect.X + Rect.Width;
+            public int CenterX => Rect.X + Rect.Width / 2;
+            public int CenterY => Rect.Y + Rect.Height / 2;
 
-            public void AddItem(object o, bool addAndEdit = false)
+            public void AddSubItem(object o, bool addAndEdit = false)
             {
                 SubEntries.Add(new Entry(List, o, addAndEdit, addAndEdit));
             }
 
-            public bool WasClicked(InputState input)
+            public bool RemoveSub(Entry e)
             {
-                return input.LeftMouseClick && CheckHover(input);
+                if (SubEntries.IsEmpty)
+                    return false;
+
+                foreach (Entry sub in SubEntries)
+                    if (sub.RemoveSub(e)) return true;
+
+                return SubEntries.Remove(e);
             }
 
-            public void SetUnclickable()
+            public bool RemoveFirstSubIf(Predicate<Entry> predicate)
             {
-                clickRect = new Rectangle(-500, -500, 0, 0);
+                if (SubEntries.IsEmpty)
+                    return false;
+
+                foreach (Entry sub in SubEntries)
+                    if (sub.RemoveFirstSubIf(predicate)) return true;
+
+                return SubEntries.RemoveFirstIf(predicate);
+            }
+
+            public void ExpandSubEntries(Array<Entry> entries)
+            {
+                entries.Add(this);
+                if (Expanded)
+                    entries.AddRange(SubEntries);
             }
 
             public void Expand(bool expanded)
@@ -712,6 +730,16 @@ namespace Ship_Game
                 List.Update();
             }
 
+            public bool WasClicked(InputState input)
+            {
+                return input.LeftMouseClick && CheckHover(input);
+            }
+
+            public void SetUnclickable()
+            {
+                Rect = new Rectangle(-500, -500, 0, 0);
+            }
+
             public bool WasPlusHovered(InputState input)   => PlusRect.HitTest(input.CursorPosition);
             public bool WasUpHovered(InputState input)     => Up.HitTest(input.CursorPosition);
             public bool WasDownHovered(InputState input)   => Down.HitTest(input.CursorPosition);
@@ -723,13 +751,13 @@ namespace Ship_Game
             public bool CheckHover(Vector2 mousePos)
             {
                 bool wasHovered = Hovered;
-                Hovered = clickRect.HitTest(mousePos);
+                Hovered = Rect.HitTest(mousePos);
 
                 if (!wasHovered && Hovered)
                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
 
                 return Hovered;
-            } 
+            }
 
             public bool CheckPlus(InputState input) => (PlusHover = PlusRect.HitTest(input.CursorPosition));
             public bool CheckEdit(InputState input) => (EditHover = EditRect.HitTest(input.CursorPosition));
@@ -828,7 +856,7 @@ namespace Ship_Game
                 var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * height, List.Parent.Menu.Width - 40, height);
                 int right = r.X + r.Width;
                 int iconY = r.Y + 15;
-                clickRect = r;
+                Rect = r;
 
                 Texture2D addIcon = List.BuildAddIcon;
                 Texture2D upIcon  = List.ArrowUpIcon;

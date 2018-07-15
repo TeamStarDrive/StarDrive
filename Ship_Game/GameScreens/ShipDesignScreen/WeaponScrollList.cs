@@ -89,7 +89,7 @@ namespace Ship_Game
                 e = AddItem(new ModuleHeader(categoryName, 240));
                 Categories.Add(categoryId, e);
             }
-            e.AddItem(mod);
+            e.AddSubItem(mod);
         }
 
         private void OpenCategory(int categoryId)
