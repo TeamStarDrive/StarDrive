@@ -338,8 +338,8 @@ namespace Ship_Game
                 ArtifactsSL.Draw(base.ScreenManager.SpriteBatch);
                 foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
-                    ArtifactsCursor.Y = e.clickRect.Y;
-                    var art = (ArtifactEntry)e.item;
+                    ArtifactsCursor.Y = e.Y;
+                    var art = e.Get<ArtifactEntry>();
                     art.Update(ArtifactsCursor);
                     foreach (SkinnableButton button in art.ArtifactButtons)
                     {
@@ -406,8 +406,8 @@ namespace Ship_Game
                 ArtifactsSL.Draw(base.ScreenManager.SpriteBatch);
                 foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
-                    ArtifactsCursor.Y = e.clickRect.Y;
-                    var art = (ArtifactEntry)e.item;
+                    ArtifactsCursor.Y = e.Y;
+                    var art = e.Get<ArtifactEntry>();
                     art.Update(ArtifactsCursor);
                     foreach (SkinnableButton button in art.ArtifactButtons)
                     {

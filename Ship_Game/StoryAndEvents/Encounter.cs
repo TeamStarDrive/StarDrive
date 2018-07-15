@@ -71,7 +71,7 @@ namespace Ship_Game
                 int i = ResponseSL.indexAtTop;
                 foreach (ScrollList.Entry e in ResponseSL.VisibleEntries)
 				{
-					drawCurs.Y = e.clickRect.Y;
+					drawCurs.Y = e.Y;
 					drawCurs.X = (int)drawCurs.X;
                     ++i;
 				    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 

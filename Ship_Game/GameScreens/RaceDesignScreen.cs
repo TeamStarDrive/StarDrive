@@ -917,11 +917,11 @@ namespace Ship_Game
                 foreach (ScrollList.Entry e in RaceArchetypeSL.VisibleEntries)
                 {
                     var data = e.item as EmpireData;
-                    raceCursor.Y = e.clickRect.Y;
+                    raceCursor.Y = e.Y;
                     if (LowRes)
                     {
                         var source = new Rectangle(0, 0, 256, 128);
-                        var portrait = new Rectangle(e.clickRect.X + e.clickRect.Width / 2 - 128, (int)raceCursor.Y, 256, 128);
+                        var portrait = new Rectangle(e.CenterX - 128, (int)raceCursor.Y, 256, 128);
                         ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, source, Color.White);
                         if (SelectedData == data)
                         {
@@ -930,7 +930,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        var portrait = new Rectangle(e.clickRect.X + e.clickRect.Width / 2 - 176, (int)raceCursor.Y, 352, 128);
+                        var portrait = new Rectangle(e.CenterX - 176, (int)raceCursor.Y, 352, 128);
                         ScreenManager.SpriteBatch.Draw(TextureDict[data], portrait, Color.White);
                         if (SelectedData == data)
                         {
@@ -1057,7 +1057,7 @@ namespace Ship_Game
                 {
                     if (e.Hovered)
                     {
-                        bCursor.Y = (e.clickRect.Y - 5);
+                        bCursor.Y = (e.Y - 5);
                         var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
                         string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
                         var drawColor = new Color(95, 95, 95, 95);
@@ -1092,7 +1092,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        bCursor.Y = (float)(e.clickRect.Y - 5);
+                        bCursor.Y = (float)(e.Y - 5);
                         Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
                         string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
                         Color drawColor = new Color(95, 95, 95, 95);
@@ -1342,11 +1342,12 @@ namespace Ship_Game
                 selector = null;
                 foreach (ScrollList.Entry e in RaceArchetypeSL.AllEntries)
                 {
-                    if (!e.clickRect.HitTest(mousePos) || input.LeftMouseClick)
-                        continue;
-                    SelectedData = e.item as EmpireData;
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    SetEmpireData(SelectedData.Traits);
+                    if (e.WasClicked(input))
+                    {
+                        SelectedData = e.item as EmpireData;
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        SetEmpireData(SelectedData.Traits);
+                    }
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);

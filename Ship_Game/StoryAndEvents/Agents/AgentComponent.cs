@@ -112,9 +112,9 @@ namespace Ship_Game
             CBAutoRepeat.Draw(ScreenManager.SpriteBatch);
             cbSpyMute.Draw(ScreenManager.SpriteBatch);
 
-            Rectangle spyLimit = new Rectangle((int)moneyRect.X + 65, (int)moneyRect.Y, 21, 20);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
-            Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
+            Rectangle spyLimit = new Rectangle(moneyRect.X + 65, moneyRect.Y, 21, 20);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_lock"), spyLimit, Color.White);
+            Vector2 spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
             //empirePlanetSpys = EmpireManager.Player.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (EmpireManager.Player.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
             empirePlanetSpys = EmpireManager.Player.GetPlanets().Count() / 3 + 3;
@@ -125,8 +125,8 @@ namespace Ship_Game
             foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
                 var agent = e.item as Agent;
-                var r = new Rectangle(e.clickRect.X, e.clickRect.Y, 25, 26);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy"], r, Color.White);
+                var r = new Rectangle(e.X, e.Y, 25, 26);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_spy"), r, Color.White);
                 var namecursor = new Vector2(r.X + 30, r.Y);
 
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
@@ -135,8 +135,8 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, namecursor, Color.Gray);
                 for (int j = 0; j < agent.Level; j++)
                 {
-                    var levelRect = new Rectangle(e.clickRect.X + e.clickRect.Width - 18 - 12 * j, e.clickRect.Y, 12, 11);
-                    ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_star"], levelRect, Color.White);
+                    var levelRect = new Rectangle(e.Right - 18 - 12 * j, e.Y, 12, 11);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_star"), levelRect, Color.White);
                 }
                 if (agent.Mission != AgentMission.Defending)
                 {
@@ -171,102 +171,46 @@ namespace Ship_Game
                 OpsSL.Draw(ScreenManager.SpriteBatch);
                 foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
                 {
-                    ((MissionEntry)e.item).Draw(ScreenManager, e.clickRect);
+                    e.Get<MissionEntry>().Draw(ScreenManager, e.clickRect);
                 }
             }
         }
 
-		public static string GetName(string[] Tokens)
+		public static string GetName(string[] tokens)
 		{
-			string ret = "";
-			Array<string> PotentialFirst = new Array<string>();
-			Array<string> PotentialSecond = new Array<string>();
-			string[] tokens = Tokens;
-			for (int i = 0; i < (int)tokens.Length; i++)
+			var firstNames = new Array<string>();
+			var lastNames = new Array<string>();
+            foreach (string t in tokens)
 			{
-				string t = tokens[i];
-				char[] chrArray = new char[] { ' ' };
-				if ((int)t.Split(chrArray).Length != 1)
+				if (t.Split(' ').Length != 1)
 				{
-					PotentialSecond.Add(t);
+					lastNames.Add(t);
 				}
 				else
 				{
-					PotentialFirst.Add(t);
-					PotentialSecond.Add(t);
+					firstNames.Add(t);
+					lastNames.Add(t);
 				}
 			}
-			ret = string.Concat(ret, PotentialFirst[RandomMath.InRange(PotentialFirst.Count)], " ");
-			ret = string.Concat(ret, PotentialSecond[RandomMath.InRange(PotentialSecond.Count)]);
-			return ret;
+
+            string first = RandomMath.RandItem(firstNames);
+            string last = RandomMath.RandItem(lastNames);
+            return $"{first} {last}";
 		}
 
-		public void HandleInputorig(InputState input)
-		{
-			string Names;
-			this.AgentSL.HandleInput(input);
-			if (this.SelectedAgent != null)
-			{
-				this.OpsSL.HandleInput(input);
-			}
-			if (this.RecruitButton.r.HitTest(input.CursorPosition))
-			{
-				ToolTip.CreateTooltip(Localizer.Token(2180));
-			}
-			if (this.RecruitButton.HandleInput(input))
-			{
-				if (EmpireManager.Player.Money < 250f)
-				{
-					GameAudio.PlaySfxAsync("UI_Misc20");
-				}
-				else
-				{
-					Empire empireByName = EmpireManager.Player;
-					empireByName.Money = empireByName.Money - 250f;
-					Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")));
-					string[] Tokens = Names.Split(new char[] { ',' });
-					Agent a = new Agent()
-					{
-						Name = AgentComponent.GetName(Tokens)
-					};
-					EmpireManager.Player.data.AgentList.Add(a);
-					this.AgentSL.AddItem(a);
-				}
-			}
-			selector = null;
-            foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
-			{
-			    if (!e.clickRect.HitTest(input.CursorPosition))
-			        continue;
-			    
-			    selector = new Selector(e.clickRect);
-			    if (input.InGameSelect)
-			    {
-			        SelectedAgent = e.item as Agent;
-			        foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
-			            mission.Initialize();
-			        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-			    }
-			}
-			if (SelectedAgent != null)
-			{
-                foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
-				{
-                    var mission = (MissionEntry)e.item;
-				    mission.HandleInput(input);
-					if (e.clickRect.HitTest(input.CursorPosition))
-					{
-					    ToolTip.CreateTooltip(!mission.DoMission.Rect.HitTest(input.CursorPosition)
-					        ? Localizer.Token(mission.DescriptionIndex)
-					        : Localizer.Token(2198));
-					}
-				}
-			}
-		}
+
+	    string[] LoadNames()
+	    {
+	        string playerNames = $"Content/NameGenerators/spynames_{EmpireManager.Player.data.Traits.ShipType}.txt";
+	        string names = File.Exists(playerNames)
+	            ? File.ReadAllText(playerNames)
+	            : File.ReadAllText("Content/NameGenerators/spynames_Humans.txt");
+	        return names.Split(',');
+	    }
+
         //added by gremlin deveksmod Spy Handleinput
         public void HandleInput(InputState input)
         {
-            string Names;
             this.AgentSL.HandleInput(input);
             if (this.SelectedAgent != null)
             {
@@ -284,31 +228,31 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Empire empireByName = EmpireManager.Player;
-                    empireByName.Money -= ResourceManager.AgentMissionData.AgentCost;
-                    Names = (!File.Exists(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")) ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt") : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_", EmpireManager.Player.data.Traits.ShipType, ".txt")));
-                    string[] Tokens = Names.Split(new char[] { ',' });
-                    Agent a = new Agent();
-                    a.Name = AgentComponent.GetName(Tokens);
+                    EmpireManager.Player.Money -= ResourceManager.AgentMissionData.AgentCost;
+
+
+                    var a = new Agent
+                    {
+                        Name = GetName(LoadNames()),
+                        Age = RandomMath.RandomBetween(20, 30)
+                    };
                     //Added new agent information
-                    a.Age = RandomMath.RandomBetween(20, 30);
-                    int RandomPlanetIndex = RandomMath.InRange(EmpireManager.Player.GetPlanets().Count);
-                    a.HomePlanet = EmpireManager.Player.GetPlanets()[RandomPlanetIndex].Name;
+                    int randomPlanetIndex = RandomMath.InRange(EmpireManager.Player.GetPlanets().Count);
+                    a.HomePlanet = EmpireManager.Player.GetPlanets()[randomPlanetIndex].Name;
                     EmpireManager.Player.data.AgentList.Add(a);
                     this.AgentSL.AddItem(a);
-                    a.AssignMission(AgentMission.Training, empireByName, "");
-
+                    a.AssignMission(AgentMission.Training, EmpireManager.Player, "");
                 }
             }
             selector = null;
             foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
-                if (!e.clickRect.HitTest(input.CursorPosition))
+                if (!e.CheckHover(input))
                     continue;
-                selector = new Selector(e.clickRect);
+                selector = e.CreateSelector();
                 if (input.InGameSelect)
                 {
-                    SelectedAgent = e.item as Agent;
+                    SelectedAgent = e.Get<Agent>();
                     foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
                         mission.Initialize();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -320,7 +264,7 @@ namespace Ship_Game
                 {
                     var mission = (MissionEntry)e.item;
                     mission.HandleInput(input);
-                    if (e.clickRect.HitTest(input.CursorPosition))
+                    if (e.CheckHover(input))
                     {
                         ToolTip.CreateTooltip(!mission.DoMission.Rect.HitTest(input.CursorPosition)
                             ? Localizer.Token(mission.DescriptionIndex)

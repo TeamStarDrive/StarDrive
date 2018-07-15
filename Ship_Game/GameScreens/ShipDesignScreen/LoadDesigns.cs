@@ -104,7 +104,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 var bCursor = new Vector2(SaveShips.Menu.X + 20, SaveShips.Menu.Y + 20);
                 if (e.item == null)
                     continue;
-                bCursor.Y = e.clickRect.Y;
+                bCursor.Y = e.Y;
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(ScreenManager, bCursor);
@@ -203,7 +203,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                             messageBox.Accepted += DeleteDataAccepted;
                             ScreenManager.AddScreen(messageBox);
                         }
-                        selector = new Selector(e.clickRect);
+                        selector = e.CreateSelector();
 
                         if (input.LeftMouseClick)
                         {
@@ -224,7 +224,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                             messageBox.Accepted += DeleteAccepted;
                             ScreenManager.AddScreen(messageBox);
                         }
-                        selector = new Selector(e.clickRect);
+                        selector = e.CreateSelector();
 
                         if (input.LeftMouseClick)
                         {

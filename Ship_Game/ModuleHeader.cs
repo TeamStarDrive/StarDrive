@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -32,7 +29,7 @@ namespace Ship_Game
 
 		public void DrawWidth(ScreenManager screenManager, Vector2 position, int width)
 		{
-		    var spriteBatch = screenManager.SpriteBatch;
+		    SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			R = new Rectangle((int)position.X, (int)position.Y, width, 30);
 
 			new Selector(R, (Hover ? new Color(95, 82, 47) : new Color(32, 30, 18))).Draw(spriteBatch);
@@ -55,7 +52,7 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, ScrollList.Entry e)
 		{
-			if (e.clickRect.HitTest(input.CursorPosition))
+			if (e.CheckHover(input))
 			{
 			    Hover = true;
 			    if (!input.LeftMouseClick)

@@ -573,8 +573,7 @@ namespace Ship_Game
                     HelperFunctions.parseTextToSL(txt, (DialogRect.Width - 30), Fonts.Consolas18, ref OfferTextSL);
                     foreach (ScrollList.Entry e in OfferTextSL.VisibleEntries)
                     {
-                        drawCurs.Y = (e.clickRect.Y - 33);
-                        DrawDropShadowText(e.item as string, drawCurs, Fonts.Consolas18);
+                        DrawDropShadowText(e.Get<string>(), new Vector2(drawCurs.X, e.Y - 33), Fonts.Consolas18);
                     }
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {

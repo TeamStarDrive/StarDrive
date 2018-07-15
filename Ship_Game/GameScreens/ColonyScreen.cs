@@ -389,7 +389,6 @@ namespace Ship_Game
                         buildSL.AddItem(building, false, false);
                     Reset = false;
                 }
-                vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
                 foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
                 {
                     if (!(entry.item is Building building))
@@ -397,15 +396,14 @@ namespace Ship_Game
                     if (!entry.Hovered)
                     {
                         bool wontbuild = !p.WeCanAffordThis(building, p.colonyType);
-                        vector2_1.Y = entry.clickRect.Y;
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
+                        var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        position.X = (float)(entry.Right - 100);
                         var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
                         this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                         // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
@@ -423,15 +421,14 @@ namespace Ship_Game
                     }
                     else
                     {
-                        vector2_1.Y = (float)entry.clickRect.Y;
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
+                        Vector2 position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
+                        position.X = (float)(entry.Right - 100);
                         var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
                         this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                         // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
@@ -515,7 +512,7 @@ namespace Ship_Game
                 vector2_1 = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
                 foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
                 {
-                    vector2_1.Y = entry.clickRect.Y;
+                    vector2_1.Y = entry.Y;
                     if (entry.item is ModuleHeader header)
                         header.Draw(this.ScreenManager, vector2_1);
                     else if (!entry.Hovered)
@@ -536,9 +533,9 @@ namespace Ship_Game
 
 
                         //Forgive my hacks this code of nightmare must GO!
-                        position.X = (entry.clickRect.X + entry.clickRect.Width - 120);
+                        position.X = (entry.Right - 120);
                         var iconProd = ResourceManager.Texture("NewUI/icon_production");
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
                         ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                         // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
@@ -565,7 +562,7 @@ namespace Ship_Game
                     {
                         var ship = (entry.item as Ship);
 
-                        vector2_1.Y = (float)entry.clickRect.Y;
+                        vector2_1.Y = (float)entry.Y;
                         this.ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
@@ -579,13 +576,14 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
 
                         //this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).DesignRole, this.p.Owner), position, Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position.X = (entry.Right - 120);
+                        Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                         // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
-                        position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         // Use correct upkeep method depending on mod settings
                         string upkeep;
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -620,39 +618,40 @@ namespace Ship_Game
                     }
                     Reset = false;
                 }
-                vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
+                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                vector2_1 = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
                 foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
                 {
-                    vector2_1.Y = (float)entry.clickRect.Y;
+                    vector2_1.Y = entry.Y;
                     var troop = (Troop)entry.item;
                     if (!entry.Hovered)
                     {
-                        troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
+                        troop.Draw(ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                        position.Y += Fonts.Arial12Bold.LineSpacing;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                        position.X = (entry.Right - 100);
+                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
+                        position = new Vector2((destinationRectangle2.X + 26), (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
                         
                         entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
                     else
                     {
-                        vector2_1.Y = (float)entry.clickRect.Y;
-                        troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
+                        vector2_1.Y = entry.Y;
+                        troop.Draw(ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                        position.Y += Fonts.Arial12Bold.LineSpacing;
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                        position.X = (entry.Right - 100);
+                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
+                        position = new Vector2((destinationRectangle2.X + 26), (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
                         
                         entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
@@ -671,10 +670,11 @@ namespace Ship_Game
                     }
                     Reset = false;
                 }
+                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
                 vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
                 foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
                 {
-                    vector2_1.Y = (float)entry.clickRect.Y;
+                    vector2_1.Y = (float)entry.Y;
                     var troop = (Troop)entry.item;
                     if (!entry.Hovered)
                     {
@@ -683,24 +683,24 @@ namespace Ship_Game
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position.X = (float)(entry.Right - 100);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
                         entry.DrawPlusEdit(ScreenManager.SpriteBatch);
                     }
                     else
                     {
-                        vector2_1.Y = (float)entry.clickRect.Y;
+                        vector2_1.Y = (float)entry.Y;
                         troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                        position.X = (float)(entry.Right - 100);
+                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                        this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
                         position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
                         entry.DrawPlusEdit(ScreenManager.SpriteBatch);
@@ -714,7 +714,7 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
             {
-                vector2_1.Y = entry.clickRect.Y;
+                vector2_1.Y = entry.Y;
                 entry.CheckHover(pos);
 
                 var qi = (entry.item as QueueItem);
@@ -1785,7 +1785,7 @@ namespace Ship_Game
             this.detailInfo = null;
             foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
             {
-                if (e.clickRect.HitTest(input.CursorPosition))
+                if (e.CheckHover(input))
                 {
                     if (e.item is Building)   detailInfo = e; // @todo Why are we storing Entry here???
                     else if (e.item is Troop) detailInfo = e.item;
@@ -2224,7 +2224,7 @@ namespace Ship_Game
             {
                 if (e.CheckHover(MousePos))
                 {
-                    selector = new Selector(e.clickRect);
+                    selector = e.CreateSelector();
                 }
                 if (e.WasUpHovered(input))
                 {
@@ -2391,7 +2391,7 @@ namespace Ship_Game
                 }
                 else if (e.CheckHover(input))
                 {
-                    selector = new Selector(e.clickRect);
+                    selector = e.CreateSelector();
 
                     if (input.LeftMouseHeldDown && e.item is Building && ActiveBuildingEntry == null)
                     {
