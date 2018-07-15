@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -385,6 +386,8 @@ namespace Ship_Game
                 graphic = graphic + "_power";
             return ResourceManager.Texture(graphic);
         }
+
+        public ShipModule[] Modules => Slots.Select(slot => slot.Module).ToArray();
 
         #endregion
 
