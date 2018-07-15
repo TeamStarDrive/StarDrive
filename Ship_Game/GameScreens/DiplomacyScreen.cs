@@ -555,7 +555,7 @@ namespace Ship_Game
                     drawCurs = TextCursor;
                     foreach (ScrollList.Entry e in StatementsSL.VisibleEntries)
                     {
-                        if (e.clickRectHover == 0 && e.item is DialogOption option)
+                        if (!e.Hovered && e.item is DialogOption option)
                         {
                             option.Update(drawCurs);
                             option.Draw(ScreenManager, Fonts.Consolas18);
@@ -637,7 +637,7 @@ namespace Ship_Game
             var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y + Fonts.Pirulen12.LineSpacing + 10));
             foreach (ScrollList.Entry e in OurItemsSL.VisibleExpandedEntries)
             {
-                if (e.clickRectHover == 0 && e.item is ItemToOffer item)
+                if (!e.Hovered && e.item is ItemToOffer item)
                 {
                     item.Update(drawCurs);
                     item.Draw(base.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
@@ -659,7 +659,7 @@ namespace Ship_Game
             Vector2 drawCurs = new Vector2((float)(ThemRect.X + 10), (float)(ThemRect.Y + Fonts.Pirulen12.LineSpacing + 10));
             foreach (ScrollList.Entry e in TheirItemsSL.VisibleExpandedEntries)
             {
-                if (e.clickRectHover == 0 && e.item is ItemToOffer item)
+                if (!e.Hovered && e.item is ItemToOffer item)
                 {
                     item.Update(drawCurs);
                     item.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold);

@@ -252,7 +252,7 @@ namespace Ship_Game
 				RemoveTech(dependent.UID);
 			}
 			EmpireManager.Player.data.ResearchQueue.Remove(uid);
-            screen.qcomponent.QSL.RemoveIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
+            screen.qcomponent.QSL.RemoveFirstIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
 		}
 	}
 }

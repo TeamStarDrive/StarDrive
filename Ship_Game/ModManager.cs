@@ -148,35 +148,26 @@ namespace Ship_Game
             ModsSL.HandleInput(input);
             foreach (ScrollList.Entry e in ModsSL.AllEntries)
             {
-                if (!e.clickRect.HitTest(input.CursorPosition))
+                if (!e.CheckHover(input.CursorPosition))
+                    continue;
+
+                selector = new Selector(e.clickRect);
+                if (!input.InGameSelect)
+                    continue;
+
+                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                SelectedMod = (ModEntry)e.item;
+                EnterNameArea.Text = SelectedMod.ModName;
+
+                foreach (UIButton button in Buttons)
                 {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect)
+                    if (button.Launches != "Visit")
                         continue;
-
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    SelectedMod = (ModEntry)e.item;
-                    EnterNameArea.Text = SelectedMod.ModName;
-
-                    foreach (UIButton button in Buttons)
-                    {
-                        if (button.Launches != "Visit")
-                            continue;
-                        if (string.IsNullOrEmpty(SelectedMod.mi.URL))
-                            button.Text = Localizer.Token(4015);
-                        else
-                            button.Text = "Goto Mod URL";
-                        break;
-                    }
+                    if (string.IsNullOrEmpty(SelectedMod.mi.URL))
+                        button.Text = Localizer.Token(4015);
+                    else
+                        button.Text = "Goto Mod URL";
+                    break;
                 }
             }
             return base.HandleInput(input);

@@ -107,30 +107,22 @@ namespace Ship_Game
                 }
             }
             this.SavesSL.HandleInput(input);
-            foreach (ScrollList.Entry e in this.SavesSL.VisibleExpandedEntries)
+            foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
-                if (!e.clickRect.HitTest(mousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    if (e.clickRectHover == 0)
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                if (!e.CheckHover(mousePos))
+                    continue;
 
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect)
+                selector = new Selector(e.clickRect);
+                if (!input.InGameSelect)
+                    continue;
+                if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
+                {
+                    var modelData = e.item as ModelData;
+                    if (modelData == null)
                         continue;
-                    if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
-                    {
-                        var modelData = e.item as ModelData;
-                        if (modelData == null)
-                            continue;
-                        LoadModel(modelData);
-                    }
-                    else return true; // scrollList entry clicked
+                    LoadModel(modelData);
                 }
+                else return true; // scrollList entry clicked
             }
             this.previousMouse = input.MousePrev;
             return base.HandleInput(input);

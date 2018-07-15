@@ -61,9 +61,8 @@ namespace Ship_Game
                         continue;
                     if (FighterSubMenu.Menu.HitTest(Screen.Input.CursorPosition))
                     {
-                        if (!e.clickRect.HitTest(input.CursorPosition))
+                        if (!e.CheckHover(input))
                             continue;
-                        e.clickRectHover = 1;
                         SelectionBox = new Selector(e.clickRect);
                         if (!input.InGameSelect)
                             continue;

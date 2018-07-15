@@ -123,7 +123,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     ship.GetTechScore(out int[] scores);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"" +
                                                                                 $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
-                    if (e.clickRectHover == 1 && !ship.IsReadonlyDesign && !ship.FromSave)
+                    if (e.Hovered && !ship.IsReadonlyDesign && !ship.FromSave)
                     {
                         ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
                         if (e.cancel.HitTest(Mouse.GetState().Pos()))
@@ -145,7 +145,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
-                    if (e.clickRectHover != 1)
+                    if (!e.Hovered)
                     {
                         base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
                     }
@@ -214,11 +214,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 }
                 else if (e.item is ShipData data)
                 {
-                    if (!e.clickRect.HitTest(MousePos))
-                    {
-                        e.clickRectHover = 0;
-                    }
-                    else
+                    if (e.CheckHover(MousePos))
                     {
                         if (e.cancel.HitTest(MousePos) && input.InGameSelect)
                         {
@@ -228,11 +224,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                             ScreenManager.AddScreen(messageBox);
                         }
                         selector = new Selector(e.clickRect);
-                        if (e.clickRectHover == 0)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
+
                         if (input.LeftMouseClick)
                         {
                             EnterNameArea.Text = data.Name;
@@ -241,29 +233,24 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         }
                     }
                 }
-                else if (!e.clickRect.HitTest(MousePos))
+                else if (e.CheckHover(MousePos))
                 {
-                    e.clickRectHover = 0;
-                }
-                else if (e.item is Ship ship)
-                {
-                    if (e.cancel.HitTest(MousePos) && !ship.IsReadonlyDesign && !ship.FromSave && input.InGameSelect)
+                    if (e.item is Ship ship)
                     {
-                        ShipToDelete = ship.Name;
-                        var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                        messageBox.Accepted += DeleteAccepted;
-                        ScreenManager.AddScreen(messageBox);
-                    }
-                    selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
-                    if (input.LeftMouseClick)
-                    {
-                        EnterNameArea.Text = ship.Name;
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        if (e.cancel.HitTest(MousePos) && !ship.IsReadonlyDesign && !ship.FromSave && input.InGameSelect)
+                        {
+                            ShipToDelete = ship.Name;
+                            var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                            messageBox.Accepted += DeleteAccepted;
+                            ScreenManager.AddScreen(messageBox);
+                        }
+                        selector = new Selector(e.clickRect);
+
+                        if (input.LeftMouseClick)
+                        {
+                            EnterNameArea.Text = ship.Name;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        }
                     }
                 }
             }

@@ -76,17 +76,13 @@ namespace Ship_Game
                 bCursor.Y = (float)e.clickRect.Y;
                 bCursor.X = (float)e.clickRect.X - 9;
                 var ship = (Ship)e.item;
-                if (e.clickRectHover != 0)
+                if (e.Hovered)
                 {
-                    if (ship.Name == "Subspace Projector")
-                    {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/subspace_projector"), new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    }
-                    else
-                    {
-                        ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    }
-                    
+                    ScreenManager.SpriteBatch.Draw(
+                        ship.Name == "Subspace Projector"
+                            ? ResourceManager.Texture("ShipIcons/subspace_projector")
+                            : ship.shipData.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
+
 
                     Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     string name = ship.Name;
@@ -198,18 +194,10 @@ namespace Ship_Game
             this.SL.HandleInput(input);
             foreach (ScrollList.Entry e in SL.AllEntries)
             {
-                if (!e.clickRect.HitTest(input.CursorPosition))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
+                if (e.CheckHover(input))
                 {
                     this.selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
+
                     if (input.LeftMouseClick)
                     {
                         this.itemToBuild = e.item as Ship;

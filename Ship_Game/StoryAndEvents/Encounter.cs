@@ -76,7 +76,7 @@ namespace Ship_Game
                     ++i;
 				    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
 				        $"{i}. {((Response)e.item).Text}", drawCurs,
-				        (e.clickRectHover == 0 ? Color.LightGray : Color.White));
+				        (e.Hovered ? Color.LightGray : Color.White));
 				}
 			}
 		}
@@ -85,13 +85,8 @@ namespace Ship_Game
 		{
             foreach (ScrollList.Entry e in ResponseSL.VisibleEntries)
 			{
-				if (!e.clickRect.HitTest(input.CursorPosition))
+				if (e.CheckHover(input))
 				{
-					e.clickRectHover = 0;
-				}
-				else
-				{
-					e.clickRectHover = 1;
 					if (input.InGameSelect && e.item is Response r)
 					{
 						if (r.DefaultIndex != -1)

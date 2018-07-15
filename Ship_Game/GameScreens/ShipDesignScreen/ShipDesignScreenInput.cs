@@ -359,10 +359,9 @@ namespace Ship_Game
                     if (moduleHeader.HandleInput(input, e))
                         return true;
                 }
-                else if (e.clickRect.HitTest(input.CursorPosition))
+                else if (e.CheckHover(input))
                 {
                     selector = new Selector(e.clickRect);
-                    e.clickRectHover = 1;
                     selector = new Selector(e.clickRect);
                     if (!input.InGameSelect) continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -375,7 +374,6 @@ namespace Ship_Game
                     ChangeHull(e.item as ShipData);
                     return true;
                 }
-                else e.clickRectHover = 0;
             }
             return false;
         }

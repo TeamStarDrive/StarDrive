@@ -456,7 +456,7 @@ namespace Ship_Game
                     {
                         header.DrawWidth(ScreenManager, bCursor, 265);
                     }
-                    else if (e.clickRectHover != 0)
+                    else if (e.Hovered)
                     {
                         var ship = (Ship)e.item;
                         bCursor.Y = e.clickRect.Y;
@@ -1124,23 +1124,7 @@ namespace Ship_Game
                         
                         if (SubShips.Tabs[1].Selected)
                         {
-                            ScrollList.Entry toremove = null;
-                            foreach (ScrollList.Entry e in ShipSL.AllExpandedEntries)
-                            {
-                                if (!(e.item is Ship ship) || ship != ActiveShipDesign)
-                                    continue;
-                                toremove = e;
-                                break;
-                            }
-                            if (toremove != null)
-                            {
-                                foreach (ScrollList.Entry e in ShipSL.AllExpandedEntries)
-                                {
-                                    e.SubEntries.Remove(toremove);
-                                }
-                                ShipSL.Remove(toremove);
-                                ShipSL.Update();
-                            }
+                            ShipSL.RemoveFirstIf<Ship>(ship => ship == ActiveShipDesign);
                         }
                         ActiveShipDesign = null;
                     }
