@@ -68,7 +68,7 @@ namespace Ship_Game
 				var drawCurs = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
 				drawCurs.X += 10f;
-                int i = ResponseSL.indexAtTop;
+                int i = ResponseSL.FirstVisibleIndex;
                 foreach (ScrollList.Entry e in ResponseSL.VisibleEntries)
 				{
 					drawCurs.Y = e.Y;

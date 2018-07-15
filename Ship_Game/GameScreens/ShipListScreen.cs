@@ -289,10 +289,10 @@ namespace Ship_Game
                 return true;
             }
 
-            int i = ShipSL.indexAtTop;
+            int i = ShipSL.FirstVisibleIndex;
             foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
-                var entry = e.item as ShipListScreenEntry;
+                var entry = e.Get<ShipListScreenEntry>();
                 entry.HandleInput(input);
                 if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
                 {

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-    public class GenericLoadSaveScreen : GameScreen
+    public abstract class GenericLoadSaveScreen : GameScreen
     {
         protected Vector2 Cursor = Vector2.Zero;
 
@@ -32,15 +32,11 @@ namespace Ship_Game
 
         protected SLMode mode;
 
-        protected string InitText = "";
-
-        protected string TitleText = "";
-
+        protected string InitText;
+        protected string TitleText;
         protected string OverWriteText = "";
-
         protected string Path = "";
-
-        protected string TabText = "";
+        protected string TabText;
 
         protected CloseButton close;
 
@@ -101,10 +97,10 @@ namespace Ship_Game
                 this.fileToDel.Delete();        // delete the file
             } catch { }
 
-            int iAT = this.SavesSL.indexAtTop;
+            int iAT = this.SavesSL.FirstVisibleIndex;
             this.Buttons.Clear();
             this.LoadContent();
-            this.SavesSL.indexAtTop = iAT;
+            this.SavesSL.FirstVisibleIndex = iAT;
 
         }
 
@@ -245,10 +241,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        protected virtual void SetSavesSL()        // To be overridden in subclasses
-        {
-
-        }
+        protected abstract void InitSaveList();        // To be implemented in subclasses
 
         public override void LoadContent()
         {
@@ -262,13 +255,11 @@ namespace Ship_Game
             var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.AllSaves = new Submenu(scrollList);
             this.AllSaves.AddTab(this.TabText);
-            this.SavesSL = new ScrollList(AllSaves, eHeight, ListControls.Cancel);
+            SavesSL = new ScrollList(AllSaves, eHeight, ListControls.Cancel);
+            InitSaveList();
 
-            this.SetSavesSL();
-
-            this.SavesSL.indexAtTop = 0;
-            this.EnternamePos = this.TitlePosition;
-            this.EnterNameArea = new UITextEntry();
+            EnternamePos = TitlePosition;
+            EnterNameArea = new UITextEntry();
 
             EnterNameArea.Text = this.InitText;
             EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);

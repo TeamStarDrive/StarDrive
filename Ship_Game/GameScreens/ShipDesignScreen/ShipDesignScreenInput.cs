@@ -824,17 +824,6 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        public void ResetLists()
-        {
-            WeaponSL.ResetOnNextDraw = true;
-            WeaponSL.indexAtTop = 0;
-        }
-
-        public void ResetModuleState()
-        {
-            ActiveModState = ModuleOrientation.Normal;
-        }
-
         private void SaveChanges(object sender, EventArgs e)
         {
             ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));

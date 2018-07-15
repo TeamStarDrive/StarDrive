@@ -30,10 +30,6 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             base.HandleInput(input);
-            if (input.ScrollIn && indexAtTop > 0)
-                --indexAtTop;
-            if (input.ScrollOut && indexAtTop + entriesToDisplay < NumExpandedEntries)
-                ++indexAtTop;
 
             if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
             {

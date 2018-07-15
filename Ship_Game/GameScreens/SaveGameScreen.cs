@@ -35,7 +35,7 @@ namespace Ship_Game
             base.DeleteFile(sender, e);
         }
 
-        protected override void SetSavesSL()        // Set list of files to show
+        protected override void InitSaveList()        // Set list of files to show
         {
             var saves = new Array<FileData>();
             foreach (FileInfo fileInfo in Dir.GetFiles(Path + "Headers", "xml"))

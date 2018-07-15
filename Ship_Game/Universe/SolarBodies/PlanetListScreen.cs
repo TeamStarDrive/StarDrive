@@ -177,7 +177,7 @@ namespace Ship_Game
                 smallHighlight.A = (byte)(textColor.A / 2);
 
                 GameTime gameTime = Game1.Instance.GameTime;
-                int i = PlanetSL.indexAtTop;
+                int i = PlanetSL.FirstVisibleIndex;
                 foreach (ScrollList.Entry e in PlanetSL.VisibleEntries)
                 {
                     var entry2 = (PlanetListScreenEntry)e.item;
