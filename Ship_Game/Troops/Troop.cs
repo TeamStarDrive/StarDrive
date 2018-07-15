@@ -106,14 +106,14 @@ namespace Ship_Game
             }
             if (Idle)
             {
-                Rectangle sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
+                var sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
                 spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White);
                 return;
             }
 
             float scale = drawRect.Width / 128f;
             drawRect.Width = (int)(attack_width * scale);
-            Rectangle sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
+            var sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
 
             Texture2D attackTexture = TextureAttackAnim;
             if (attackTexture.Height <= 128)

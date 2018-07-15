@@ -475,10 +475,10 @@ namespace Ship_Game
                         for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; i++)
                         {
                             Entry e = ExpandedEntries[i];
-                            if (!e.clickRect.HitTest(input.CursorPosition))
+                            if (!e.WasHovered(input))
                                 continue;
                             DraggedEntry = e;
-                            DraggedOffset = new Vector2(e.clickRect.X, e.clickRect.Y) - input.CursorPosition;
+                            DraggedOffset = e.TopLeft - input.CursorPosition;
                             break;
                         }
                     }
@@ -510,7 +510,7 @@ namespace Ship_Game
             for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
             {
                 Entry e = Entries[i];
-                if (!e.clickRect.HitTest(input.CursorPosition))
+                if (!e.WasHovered(input))
                     continue;
                 if (onDragElement(i, dragged))
                     break;
@@ -671,6 +671,15 @@ namespace Ship_Game
                 Edit = edit;
             }
 
+            public Selector CreateSelector() => new Selector(clickRect);
+            public Vector2 TopLeft => new Vector2(clickRect.X, clickRect.Y);
+            public int X => clickRect.X;
+            public int Y => clickRect.Y;
+            public int W => clickRect.Width;
+            public int H => clickRect.Height;
+            public int CenterX => clickRect.X + clickRect.Width / 2;
+            public int CenterY => clickRect.Y + clickRect.Height / 2;
+
             public void AddItem(object o, bool addAndEdit = false)
             {
                 SubEntries.Add(new Entry(List, o, addAndEdit, addAndEdit));
@@ -678,7 +687,12 @@ namespace Ship_Game
 
             public bool WasClicked(InputState input)
             {
-                return input.LeftMouseClick && clickRect.HitTest(input.CursorPosition);
+                return input.LeftMouseClick && WasHovered(input);
+            }
+
+            public bool WasHovered(InputState input)
+            {
+                return clickRect.HitTest(input.CursorPosition);
             }
 
             public void SetUnclickable()

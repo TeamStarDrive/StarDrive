@@ -361,9 +361,9 @@ namespace Ship_Game
                 }
                 else if (e.CheckHover(input))
                 {
-                    selector = new Selector(e.clickRect);
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect) continue;
+                    selector = e.CreateSelector();
+                    if (!input.InGameSelect)
+                        continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
                     {

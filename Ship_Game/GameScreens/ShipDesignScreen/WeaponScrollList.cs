@@ -54,7 +54,7 @@ namespace Ship_Game
                 }
                 else if (e.CheckHover(input))
                 {
-                    SelectionBox = new Selector(e.clickRect);
+                    SelectionBox = e.CreateSelector();
                     if (!Screen.Input.InGameSelect)
                         continue;
 
@@ -251,8 +251,7 @@ namespace Ship_Game
             Vector2 mousePos = Input.CursorPosition;
             foreach (Entry e in VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, Screen.ModSel.Menu.Y + 45);
-                bCursor.Y = e.clickRect.Y;
+                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, e.clickRect.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(Screen.ScreenManager, bCursor);
