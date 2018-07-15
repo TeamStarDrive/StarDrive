@@ -87,7 +87,7 @@ namespace Ship_Game
 			}
             foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
 			{
-                e.Get<ResearchQItem>().Draw(e.clickRect, ScreenManager);
+                e.Get<ResearchQItem>().Draw(ScreenManager, e.Rect);
 			}
 			qsub.Draw();
 		}

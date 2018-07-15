@@ -171,7 +171,7 @@ namespace Ship_Game
                 OpsSL.Draw(ScreenManager.SpriteBatch);
                 foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
                 {
-                    e.Get<MissionEntry>().Draw(ScreenManager, e.clickRect);
+                    e.Get<MissionEntry>().Draw(ScreenManager, e.Rect);
                 }
             }
         }

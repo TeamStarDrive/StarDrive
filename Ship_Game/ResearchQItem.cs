@@ -42,7 +42,7 @@ namespace Ship_Game
 			this.Node.Draw(screenManager);
 		}
 
-		public void Draw(Rectangle container, ScreenManager screenManager)
+		public void Draw(ScreenManager screenManager, Rectangle container)
 		{
 			this.Node = new TreeNode(new Vector2((float)container.X, (float)container.Y) + new Vector2(100f, 20f), this.Node.tech, this.screen);
 			this.bup.r = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);

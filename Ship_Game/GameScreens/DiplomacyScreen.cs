@@ -755,7 +755,7 @@ namespace Ship_Game
                 }
                 ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
                 item1.words += ": " + (int)ResourceManager.TechTree[Technology.Key].Cost;
-                e.AddItem(item1);
+                e.AddSubItem(item1);
                 item1.Response = "Tech";
                 item1.SpecialInquiry = Technology.Key;
                 newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
@@ -768,7 +768,7 @@ namespace Ship_Game
             foreach (Ship_Game.Artifact Artifact in playerEmpire.data.OwnedArtifacts)
             {
                 ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
-                e.AddItem(item1);
+                e.AddSubItem(item1);
                 item1.Response = "Artifacts";
                 item1.SpecialInquiry = Artifact.Name;
                 newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
@@ -781,7 +781,7 @@ namespace Ship_Game
             foreach (Planet p in playerEmpire.GetPlanets())
             {
                 ItemToOffer item1 = new ItemToOffer(p.Name, newCurs, Fonts.Arial12Bold);
-                e.AddItem(item1);
+                e.AddSubItem(item1);
                 item1.Response = "Colony";
                 item1.SpecialInquiry = p.Name;
                 newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
@@ -851,7 +851,7 @@ namespace Ship_Game
                 }
                 ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs, Fonts.Arial12Bold);
                 item1.words += ": " + (int)ResourceManager.TechTree[Technology.Key].Cost;
-                e.AddItem(item1);
+                e.AddSubItem(item1);
                 item1.Response = "Tech";
                 item1.SpecialInquiry = Technology.Key;
                 newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
@@ -864,7 +864,7 @@ namespace Ship_Game
             foreach (Ship_Game.Artifact Artifact in them.data.OwnedArtifacts)
             {
                 ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs, Fonts.Arial12Bold);
-                e.AddItem(item1);
+                e.AddSubItem(item1);
                 item1.Response = "Artifacts";
                 item1.SpecialInquiry = Artifact.Name;
                 newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
@@ -877,7 +877,7 @@ namespace Ship_Game
             foreach (Planet p in them.GetPlanets())
             {
                 ItemToOffer item1 = new ItemToOffer(p.Name, newCurs, Fonts.Arial12Bold);
-                e.AddItem(item1);
+                e.AddSubItem(item1);
                 item1.Response = "Colony";
                 item1.SpecialInquiry = p.Name;
                 newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);

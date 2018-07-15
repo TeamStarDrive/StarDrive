@@ -284,30 +284,13 @@ namespace Ship_Game
             if (this.p.Owner == null)
                 return;
             this.p.UpdateIncomes(false);
-            Vector2 pos;
-            // ISSUE: explicit reference operation
-            // ISSUE: variable of a reference type
-            //Vector2& local1 = @pos;
-            MouseState state1 = Mouse.GetState();
-            //double num1 = (double) state1.X;
-            //state1 = Mouse.GetState();
-            //double num2 = (double) state1.Y;
-            // ISSUE: explicit reference operation
-            //^local1 = new Vector2((float) num1, (float) num2);
-            //interpreting code as:
-            //vector2 *local1 = &pos;
-            //*local1 = new vector2();
-            //equivalent to:
-            //pos=new vector2();
-            //cant be right, the value for pos is used but never set
-            //reconstructed from jd:
-            pos = new Vector2(state1.X, state1.Y);
+            Vector2 pos = Mouse.GetState().Pos();
             this.LeftMenu.Draw();
             this.RightMenu.Draw();
             this.TitleBar.Draw();
             this.LeftColony.Draw(this.ScreenManager);
             this.RightColony.Draw(this.ScreenManager);
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte)239, (byte)208));
+            spriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(369), this.TitlePos, new Color(byte.MaxValue, (byte)239, (byte)208));
             if (!GlobalStats.HardcoreRuleset)
             {
                 this.FoodStorage.Max = this.p.MaxStorage;
@@ -320,49 +303,48 @@ namespace Ship_Game
             this.pLabor.Draw();
             this.pStorage.Draw();
             this.subColonyGrid.Draw();
-            Rectangle destinationRectangle1 = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/" + this.p.GetTile()], destinationRectangle1, Color.White);
+            var destinationRectangle1 = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
+            spriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/" + p.GetTile()], destinationRectangle1, Color.White);
             foreach (PlanetGridSquare pgs in this.p.TilesList)
             {
                 if (!pgs.Habitable)
-                    this.ScreenManager.SpriteBatch.FillRectangle(pgs.ClickRect, new Color((byte)0, (byte)0, (byte)0, (byte)200));
-                this.ScreenManager.SpriteBatch.DrawRectangle(pgs.ClickRect, new Color((byte)211, (byte)211, (byte)211, (byte)70), 2f);
+                    spriteBatch.FillRectangle(pgs.ClickRect, new Color((byte)0, (byte)0, (byte)0, (byte)200));
+                spriteBatch.DrawRectangle(pgs.ClickRect, new Color((byte)211, (byte)211, (byte)211, (byte)70), 2f);
                 if (pgs.building != null)
                 {
                     Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     if(pgs.building.IsPlayerAdded)
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.building.Icon + "_64x64"], destinationRectangle2, Color.WhiteSmoke);
+                        spriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.building.Icon + "_64x64"], destinationRectangle2, Color.WhiteSmoke);
                     }
                     else
                     
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.building.Icon + "_64x64"], destinationRectangle2, Color.White);
+                    spriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.building.Icon + "_64x64"], destinationRectangle2, Color.White);
                 }
                 else if (pgs.QItem != null)
                 {
                     Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.QItem.Building.Icon + "_64x64"], destinationRectangle2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 128));
+                    spriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.QItem.Building.Icon + "_64x64"], destinationRectangle2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 128));
                 }
                 this.DrawPGSIcons(pgs);
             }
             foreach (PlanetGridSquare planetGridSquare in this.p.TilesList)
             {
                 if (planetGridSquare.highlighted)
-                    this.ScreenManager.SpriteBatch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
+                    spriteBatch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
             }
             if (this.ActiveBuildingEntry != null)
             {
                 MouseState state2 = Mouse.GetState();
                 var destinationRectangle2 = new Rectangle(state2.X, state2.Y, 48, 48);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{(ActiveBuildingEntry.item as Building).Icon}_48x48"), destinationRectangle2, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{(ActiveBuildingEntry.item as Building).Icon}_48x48"), destinationRectangle2, Color.White);
             }
             this.pFacilities.Draw();
             if (this.p.Owner == Empire.Universe.player && this.p.TroopsHere.Count > 0)
-                this.launchTroops.Draw(this.ScreenManager.SpriteBatch);
+                this.launchTroops.Draw(spriteBatch);
             //fbedard: Display button
             if (this.p.Owner == Empire.Universe.player)
             {
-               
                 int troopsInvading = eui.empire.GetShips()
                     .Where(troop => troop.TroopList.Count > 0)
                     .Where(ai => ai.AI.State != AIState.Resupply)
@@ -383,10 +365,7 @@ namespace Ship_Game
                 if (this.p.BuildingList.Count != this.buildingsHereLast || this.buildingsCanBuildLast != buildingsWeCanBuildHere.Count || this.Reset)
                 {
                     BuildingsCanBuild = buildingsWeCanBuildHere;
-                    buildSL.Reset();
-                    buildSL.indexAtTop = 0;
-                    foreach (Building building in BuildingsCanBuild)
-                        buildSL.AddItem(building, false, false);
+                    buildSL.SetItems(BuildingsCanBuild);
                     Reset = false;
                 }
                 foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
@@ -447,17 +426,17 @@ namespace Ship_Game
                     entry.CheckHover(currentMouse);
                 }
             }
-            else if (this.p.HasShipyard && this.build.Tabs[1].Selected)
+            else if (p.HasShipyard && build.Tabs[1].Selected)
             {
-                Array<string> list = new Array<string>();
-                if (this.shipsCanBuildLast != this.p.Owner.ShipsWeCanBuild.Count || this.Reset)
+                var added = new HashSet<string>();
+                if (shipsCanBuildLast != p.Owner.ShipsWeCanBuild.Count || Reset)
                 {
-                    this.buildSL.Reset();
+                    buildSL.Reset();
 
                     if (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.ColoniserMenu)
                     {
-                        list.Add("Coloniser");
-                        this.buildSL.AddItem((object)new ModuleHeader("Coloniser"));
+                        added.Add("Coloniser");
+                        buildSL.AddItem(new ModuleHeader("Coloniser"));
                     }
 
                     foreach (string shipToBuild in this.p.Owner.ShipsWeCanBuild)
@@ -467,14 +446,13 @@ namespace Ship_Game
                         var header = Localizer.GetRole(ship.DesignRole, p.Owner);
                         if (role.Protected || role.NoBuild)
                             continue;
-                        if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !list.Contains(header))
+                        if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
                         {
-                            list.Add(header);
-                            this.buildSL.AddItem(new ModuleHeader(header));
+                            added.Add(header);
+                            buildSL.AddItem(new ModuleHeader(header));
                         }
                     }
-                    this.buildSL.indexAtTop = 0;
-                    this.Reset = false;
+                    Reset = false;
 
                     // @todo This sorting looks quite heavy...
                     IOrderedEnumerable<KeyValuePair<string, Ship>> orderedShips = 
@@ -505,7 +483,7 @@ namespace Ship_Game
                             Ship ship = kv.Value;
                             if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) &&
                                 Localizer.GetRole(ship.DesignRole, p.Owner) == header)                            
-                                entry.AddItem(ship, addAndEdit:true);                            
+                                entry.AddSubItem(ship, addAndEdit:true);                            
                         }
                     }
                 }
@@ -708,9 +686,8 @@ namespace Ship_Game
                 }
             }
 
-            QSL.Reset();
-            foreach (QueueItem o in p.ConstructionQueue)
-                QSL.AddItem(o);
+            QSL.SetItems(p.ConstructionQueue);
+            QSL.DrawDraggedEntry(ScreenManager.SpriteBatch);
 
             foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
             {
@@ -766,13 +743,10 @@ namespace Ship_Game
                 }
 
                 entry.DrawUpDownApplyCancel(ScreenManager.SpriteBatch, Input);
-
-                if (QSL.DraggedEntry != null && entry.clickRect == QSL.DraggedEntry.clickRect)
-                    ScreenManager.SpriteBatch.FillRectangle(entry.clickRect, new Color(0, 0, 0, 150));
                 entry.DrawPlus(ScreenManager.SpriteBatch);
             }
-            this.QSL.Draw(this.ScreenManager.SpriteBatch);
-            this.buildSL.Draw(this.ScreenManager.SpriteBatch);
+            QSL.Draw(ScreenManager.SpriteBatch);
+            buildSL.Draw(ScreenManager.SpriteBatch);
             selector?.Draw(ScreenManager.SpriteBatch);
             string format = "0.#";
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)((double)this.ColonySliderFood.amount * (double)this.ColonySliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)((double)this.ColonySliderFood.amount * (double)this.ColonySliderFood.sRect.Width), 6)), this.p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
