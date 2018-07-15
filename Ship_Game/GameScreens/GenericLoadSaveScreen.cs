@@ -127,19 +127,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
-                if (!e.Hovered)
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), e.cancel, Color.White);
-                }
-                else
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover1"), e.cancel, Color.White);
-                    if (e.cancel.HitTest(Mouse.GetState().Pos()))
-                    {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover2"), e.cancel, Color.White);
-                        ToolTip.CreateTooltip("Delete File");
-                    }
-                }
+                e.DrawCancel(ScreenManager.SpriteBatch, Input, "Delete File");
             }
             SavesSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
@@ -180,7 +168,7 @@ namespace Ship_Game
                     continue;
 
                 selector = new Selector(e.clickRect);
-                if (e.cancel.HitTest(MousePos) && input.InGameSelect) // handle file delete
+                if (e.WasCancelHovered(Input) && input.InGameSelect) // handle file delete
                 {
                     fileToDel = ((FileData) e.item).FileLink;
                     var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
