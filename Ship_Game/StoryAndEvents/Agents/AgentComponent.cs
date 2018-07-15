@@ -124,7 +124,7 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
-                var agent = e.item as Agent;
+                var agent = e.Get<Agent>();
                 var r = new Rectangle(e.X, e.Y, 25, 26);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_spy"), r, Color.White);
                 var namecursor = new Vector2(r.X + 30, r.Y);
@@ -262,7 +262,7 @@ namespace Ship_Game
             {
                 foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
                 {
-                    var mission = (MissionEntry)e.item;
+                    var mission = e.Get<MissionEntry>();
                     mission.HandleInput(input);
                     if (e.CheckHover(input))
                     {

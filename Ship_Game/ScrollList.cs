@@ -671,6 +671,15 @@ namespace Ship_Game
             }
 
             public T Get<T>() => (T)item;
+            public bool Is<T>() => item is T;
+            public T As<T>() where T : class => item as T;
+            public bool TryGet<T>(out T outItem)
+            {
+                if (item is T theItem)
+                { outItem = theItem; return true; }
+                outItem = default(T);
+                return false;
+            }
 
             public Selector CreateSelector() => new Selector(Rect);
             public Vector2 TopLeft => new Vector2(Rect.X, Rect.Y);
