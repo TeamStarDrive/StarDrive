@@ -121,23 +121,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.Orange);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                     ship.GetTechScore(out int[] scores);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"" +
-                                                                                $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
-                    if (e.Hovered && !ship.IsReadonlyDesign && !ship.FromSave)
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
+                    
+                    if (!ship.IsReadonlyDesign && !ship.FromSave)
                     {
-                        ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
-                        if (e.cancel.HitTest(Mouse.GetState().Pos()))
-                        {
-                            ScreenManager.SpriteBatch.Draw(Delete_Hover2, e.cancel, Color.White);
-                            ToolTip.CreateTooltip(78);
-                        }
-                    }
-                    else if (!ship.IsReadonlyDesign && !ship.FromSave)
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
+                        e.DrawCancel(ScreenManager.SpriteBatch, Input);
                     }
                 }
-                else if(e.item is ShipData shipData)
+                else if (e.item is ShipData shipData)
                 {
                     bCursor.X = bCursor.X + 15f;                    
                     base.ScreenManager.SpriteBatch.Draw(ResourceManager.HullsDict[shipData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -145,19 +136,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
-                    if (!e.Hovered)
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
-                    }
-                    else
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
-                        if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                        {
-                            base.ScreenManager.SpriteBatch.Draw(Delete_Hover2, e.cancel, Color.White);
-                            ToolTip.CreateTooltip(78);
-                        }
-                    }
+
+                    e.DrawCancel(ScreenManager.SpriteBatch, Input);
                 }
             }
             selector?.Draw(ScreenManager.SpriteBatch);
@@ -198,7 +178,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         continue;
                     }
                     string launches = b.Launches;
-                    if (launches == null || !(launches == "Load"))
+                    if (launches == null || launches != "Load")
                     {
                         continue;
                     }
@@ -216,7 +196,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 {
                     if (e.CheckHover(MousePos))
                     {
-                        if (e.cancel.HitTest(MousePos) && input.InGameSelect)
+                        if (e.WasCancelHovered(input) && input.InGameSelect)
                         {
                             ShipToDelete = data.Name;
                             var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
@@ -237,7 +217,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 {
                     if (e.item is Ship ship)
                     {
-                        if (e.cancel.HitTest(MousePos) && !ship.IsReadonlyDesign && !ship.FromSave && input.InGameSelect)
+                        if (e.WasCancelHovered(input) && !ship.IsReadonlyDesign && !ship.FromSave && input.InGameSelect)
                         {
                             ShipToDelete = ship.Name;
                             var messageBox = new MessageBoxScreen(this, "Confirm Delete:");

@@ -94,15 +94,6 @@ namespace Ship_Game
             Update();
         }
 
-        public void AddQItem(object o)
-        {
-            Entries.Add(new Entry(this, o, false, false)
-            {
-                QItem = 1
-            });
-            Update();
-        }
-
         public void Remove(Entry e)
         {
             foreach (Entry entry in Entries)
@@ -590,23 +581,6 @@ namespace Ship_Game
             return hit;
         }
 
-        private void UpdateClickRect(Entry e, Point topLeft, int j)
-        {
-            var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * EntryHeight, Parent.Menu.Width - 40, EntryHeight);
-            int right = r.X + r.Width;
-            int iconY = r.Y + 15;
-            e.clickRect = r;
-            if (e.Plus) e.addRect  = new Rectangle(right - 30, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-            if (e.Edit) e.editRect = new Rectangle(right - 60, iconY - BuildAddIcon.Height / 2, BuildAddIcon.Width, BuildAddIcon.Height);
-            
-            int offset = 0;
-            bool all = Controls == ListControls.All;
-            if (all) e.up     = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-            if (all) e.down   = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-            if (all) e.apply  = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-            e.cancel = new Rectangle(right - (offset += 30), iconY - ArrowUpIcon.Height / 2, ArrowUpIcon.Width, ArrowUpIcon.Height);
-        }
-
         public void TransitionUpdate(Rectangle r)
         {
             ScrollUp = new Rectangle(r.X + r.Width - 20, r.Y + 30, ScrollBarArrowUp.Width, ScrollBarArrowUp.Height);
@@ -616,14 +590,10 @@ namespace Ship_Game
             for (int i = 0; i < Entries.Count; i++)
             {
                 Entry e = Entries[i];
-                if (i < indexAtTop || i > indexAtTop + entriesToDisplay - 1)
-                {
-                    e.SetUnclickable();
-                }
+                if (i >= indexAtTop && i <= indexAtTop + entriesToDisplay - 1)
+                    e.UpdateClickRect(r.Pos(), j++);
                 else
-                {
-                    UpdateClickRect(e, r.Pos(), j++);
-                }
+                    e.SetUnclickable();
             }
         }
 
@@ -650,7 +620,7 @@ namespace Ship_Game
                 Entry e = ExpandedEntries[i];
                 if (i >= indexAtTop)
                 {
-                    UpdateClickRect(e, Parent.Menu.Pos(), j++);
+                    e.UpdateClickRect(Parent.Menu.Pos(), j++);
                 }
                 else
                 {
@@ -666,25 +636,27 @@ namespace Ship_Game
         {
             // entries with subitems can be expanded or collapsed via category title
             public bool Expanded { get; private set; }
+
+            // true if item is currently being hovered over with mouse cursor
+            public bool Hovered { get; private set; }
+
             public Rectangle clickRect;
             public object item;
-            public readonly bool Plus;
-            public readonly bool Edit;
+
+            // Plus and Edit buttons in ColonyScreen build list
+            private readonly bool Plus;
+            private readonly bool Edit;
             private bool PlusHover;
             private bool EditHover;
+            private Rectangle PlusRect;
+            private Rectangle EditRect;
 
-            public Rectangle editRect;
-            public Rectangle addRect;
             private readonly ScrollList List;
 
-            public bool Hovered { get; private set; }
-            public int QItem;
-
-            public Rectangle up;
-            public Rectangle down;
-            public Rectangle cancel;
-            public Rectangle apply;
-
+            private Rectangle Up;
+            private Rectangle Down;
+            private Rectangle Cancel;
+            private Rectangle Apply;
 
             // moved this here for consistency
             public Array<Entry> SubEntries = new Array<Entry>();
@@ -728,6 +700,12 @@ namespace Ship_Game
                 List.Update();
             }
 
+            public bool WasPlusHovered(InputState input)   => PlusRect.HitTest(input.CursorPosition);
+            public bool WasUpHovered(InputState input)     => Up.HitTest(input.CursorPosition);
+            public bool WasDownHovered(InputState input)   => Down.HitTest(input.CursorPosition);
+            public bool WasCancelHovered(InputState input) => Cancel.HitTest(input.CursorPosition);
+            public bool WasApplyHovered(InputState input)  => Apply.HitTest(input.CursorPosition);
+
             public bool CheckHover(MouseState mouse) => CheckHover(mouse.Pos());
             public bool CheckHover(InputState input) => CheckHover(input.CursorPosition);
             public bool CheckHover(Vector2 mousePos)
@@ -740,8 +718,9 @@ namespace Ship_Game
 
                 return Hovered;
             } 
-            public bool CheckPlus(InputState input) => (PlusHover = addRect.HitTest(input.CursorPosition));
-            public bool CheckEdit(InputState input) => (EditHover = editRect.HitTest(input.CursorPosition));
+
+            public bool CheckPlus(InputState input) => (PlusHover = PlusRect.HitTest(input.CursorPosition));
+            public bool CheckEdit(InputState input) => (EditHover = EditRect.HitTest(input.CursorPosition));
 
             public void DrawPlusEdit(SpriteBatch spriteBatch)
             {
@@ -754,9 +733,9 @@ namespace Ship_Game
                 if (Plus)
                 {
                     string plus = PlusHover ? "NewUI/icon_build_add_hover2"
-                           : Hovered ? "NewUI/icon_build_add_hover1"
+                                  : Hovered ? "NewUI/icon_build_add_hover1"
                                             : "NewUI/icon_build_add";
-                    spriteBatch.Draw(ResourceManager.Texture(plus), addRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture(plus), PlusRect, Color.White);
                 }
             }
 
@@ -765,10 +744,92 @@ namespace Ship_Game
                 if (Edit)
                 {
                     string edit = EditHover ? "NewUI/icon_build_edit_hover2"
-                           : Hovered ? "NewUI/icon_build_edit_hover1"
+                                  : Hovered ? "NewUI/icon_build_edit_hover1"
                                             : "NewUI/icon_build_edit";
-                    spriteBatch.Draw(ResourceManager.Texture(edit), editRect, Color.White);
+                    spriteBatch.Draw(ResourceManager.Texture(edit), EditRect, Color.White);
                 }
+            }
+
+            public void DrawUpDownApplyCancel(SpriteBatch batch, InputState input)
+            {
+                Vector2 pos = input.CursorPosition;
+                if (!Hovered)
+                {
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up"), Up, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_down"), Down, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Apply, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), Cancel, Color.White);
+                    return;
+                }
+
+                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover1"), Up, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_down_hover1"), Down, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1"), Apply, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover1"), Cancel, Color.White);
+
+                if (Up.HitTest(pos))
+                {
+                    batch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], Up, Color.White);
+                }
+                if (Empire.Universe.IsActive)
+                {
+                    if (Down.HitTest(pos))
+                    {
+                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_down_hover2"), Down, Color.White);
+                    }
+                    if (Apply.HitTest(pos))
+                    {
+                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2"), Apply, Color.White);
+                        ToolTip.CreateTooltip(50);
+                    }
+                    if (Cancel.HitTest(pos))
+                    {
+                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover2"), Cancel, Color.White);
+                        ToolTip.CreateTooltip(53);
+                    }
+                }
+            }
+
+            public void DrawCancel(SpriteBatch batch, InputState input, string toolTipText = null)
+            {
+                if (Hovered)
+                {
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover1"), Cancel, Color.White);
+                    if (WasCancelHovered(input))
+                    {
+                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover2"), Cancel, Color.White);
+                        if (toolTipText.NotEmpty())
+                            ToolTip.CreateTooltip(toolTipText);
+                        else
+                            ToolTip.CreateTooltip(78);
+                    }
+                }
+                else
+                {
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), Cancel, Color.White);
+                }
+            }
+
+            public void UpdateClickRect(Point topLeft, int j)
+            {
+                int height = List.EntryHeight;
+                var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * height, List.Parent.Menu.Width - 40, height);
+                int right = r.X + r.Width;
+                int iconY = r.Y + 15;
+                clickRect = r;
+
+                Texture2D addIcon = List.BuildAddIcon;
+                Texture2D upIcon  = List.ArrowUpIcon;
+
+                if (Plus) PlusRect  = new Rectangle(right - 30, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);
+                if (Edit) EditRect = new Rectangle(right - 60, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);
+
+                int offset = 0;
+                bool all = List.Controls == ListControls.All;
+                if (all) Up    = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
+                if (all) Down  = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
+                if (all) Apply = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
+                        Cancel = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
             }
         }
     }
