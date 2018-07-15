@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.AI.Tasks {
     public partial class MilitaryTask
     {
-        public Planet GetTargetPlanet() => TargetPlanet;
+        //public Planet TargetPlanet => TargetPlanet;
 
         private Array<Troop> GetTroopsOnPlanets(Array<Troop> potentialTroops, Vector2 rallyPoint, int needed = 0)
         {
