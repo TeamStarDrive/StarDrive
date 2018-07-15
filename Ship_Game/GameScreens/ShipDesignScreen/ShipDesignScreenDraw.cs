@@ -318,12 +318,8 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-                    if (!e.clickRect.HitTest(mousePos))
-                        continue;
-
-                    if (e.clickRectHover == 0)
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    e.clickRectHover = 1;
+                    
+                    e.CheckHover(mousePos);
                 }
             }
         }

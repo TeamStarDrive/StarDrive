@@ -306,7 +306,7 @@ namespace Ship_Game
                         if (ship.TroopList.Count == 0)
                             continue;
                         Troop t = ship.TroopList[0];
-                        if (e.clickRectHover != 0)
+                        if (e.Hovered)
                         {
                             bCursor.Y = e.clickRect.Y;
                             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -327,7 +327,7 @@ namespace Ship_Game
                     }
                     else if (e.item is Troop t)
                     {
-                        if (e.clickRectHover != 0)
+                        if (e.Hovered)
                         {
                             bCursor.Y = (float)e.clickRect.Y;
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -346,10 +346,7 @@ namespace Ship_Game
                             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
                         }
                     }
-                    if (e.clickRect.HitTest(new Vector2(currentMouse.X, currentMouse.Y)))
-                    {
-                        e.clickRectHover = 1;
-                    }
+                    e.CheckHover(currentMouse);
                 }
                 if (OrbitSL.NumEntries > 0)
                 {
@@ -453,7 +450,7 @@ namespace Ship_Game
             foreach (ScrollList.Entry e in OrbitSL.VisibleEntries)
             {
                 Troop t = ((Ship)e.item).TroopList[0];
-                if (e.clickRectHover != 0)
+                if (e.Hovered)
                 {
                     bCursor.Y = e.clickRect.Y;
                     ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -471,10 +468,7 @@ namespace Ship_Game
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
                 }
-                if (e.clickRect.HitTest(new Vector2(currentMouse.X, currentMouse.Y)))
-                {
-                    e.clickRectHover = 1;
-                }
+                e.CheckHover(currentMouse);
             }
 
             selector?.Draw(ScreenManager.SpriteBatch);
@@ -752,16 +746,11 @@ namespace Ship_Game
             OrbitSL.HandleInput(input);
             foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
-                if (!e.clickRect.HitTest(MousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    selector = new Selector(e.clickRect);
-                    if (input.LeftMouseClick)
-                        draggedTroop = e;
-                }
+                if (!e.CheckHover(MousePos))
+                    continue;
+                selector = new Selector(e.clickRect);
+                if (input.LeftMouseClick)
+                    draggedTroop = e;
             }
             if (draggedTroop != null && input.LeftMouseClick)
             {
@@ -778,27 +767,20 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        try
-                        {
-                            GameAudio.PlaySfxAsync("sd_troop_land");
-                            pgs.TroopsHere.Add(this.draggedTroop.item as Troop);
-                            pgs.TroopsHere[0].AvailableAttackActions = 0;
-                            pgs.TroopsHere[0].AvailableMoveActions = 0;
-                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                        GameAudio.PlaySfxAsync("sd_troop_land");
+                        pgs.TroopsHere.Add(this.draggedTroop.item as Troop);
+                        pgs.TroopsHere[0].AvailableAttackActions = 0;
+                        pgs.TroopsHere[0].AvailableMoveActions = 0;
+                        pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                        pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
+                        pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
 
-                            this.p.TroopsHere.Add(this.draggedTroop.item as Troop);
-                            (this.draggedTroop.item as Troop).SetPlanet(this.p);
-                            this.OrbitSL.Remove(draggedTroop);
-                            (this.draggedTroop.item as Troop).GetShip().TroopList.Remove(this.draggedTroop.item as Troop);
-                            foundPlace = true;
-                            this.draggedTroop = null;
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "TroopLaunch crash");
-                        }
+                        this.p.TroopsHere.Add(this.draggedTroop.item as Troop);
+                        (this.draggedTroop.item as Troop).SetPlanet(this.p);
+                        OrbitSL.Remove(draggedTroop);
+                        (this.draggedTroop.item as Troop).GetShip().TroopList.Remove(this.draggedTroop.item as Troop);
+                        foundPlace = true;
+                        this.draggedTroop = null;
                     }
                     else
                     {
@@ -806,30 +788,23 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        try
+                        GameAudio.PlaySfxAsync("sd_troop_land");
+                        pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
+                        pgs.TroopsHere[0].AvailableAttackActions = 0;
+                        pgs.TroopsHere[0].AvailableMoveActions = 0;
+                        pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                        pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
+                        pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
+                        p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
+                        (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
+                        if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction)
                         {
-                            GameAudio.PlaySfxAsync("sd_troop_land");
-                            pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                            pgs.TroopsHere[0].AvailableAttackActions = 0;
-                            pgs.TroopsHere[0].AvailableMoveActions = 0;
-                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
-                            p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                            (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                            if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction)
-                            {
-                                ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, Empire.Universe);
-                            }
-                            OrbitSL.Remove(draggedTroop);
-                            (draggedTroop.item as Ship).QueueTotalRemoval();
-                            foundPlace = true;
-                            draggedTroop = null;
+                            ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, Empire.Universe);
                         }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "Troop Launch Crash");
-                        }
+                        OrbitSL.Remove(draggedTroop);
+                        (draggedTroop.item as Ship).QueueTotalRemoval();
+                        foundPlace = true;
+                        draggedTroop = null;
                     }
                 }
                 if (!foundPlace)

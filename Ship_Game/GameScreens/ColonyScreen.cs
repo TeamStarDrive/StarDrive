@@ -394,7 +394,7 @@ namespace Ship_Game
                 {
                     if (!(entry.item is Building building))
                         continue;
-                    if (entry.clickRectHover == 0)
+                    if (!entry.Hovered)
                     {
                         bool wontbuild = !p.WeCanAffordThis(building, p.colonyType);
                         vector2_1.Y = entry.clickRect.Y;
@@ -447,8 +447,7 @@ namespace Ship_Game
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
                         entry.DrawPlus(ScreenManager.SpriteBatch);
                     }
-                    if (entry.clickRect.HitTest(new Vector2(currentMouse.X, currentMouse.Y)))
-                        entry.clickRectHover = 1;
+                    entry.CheckHover(currentMouse);
                 }
             }
             else if (this.p.HasShipyard && this.build.Tabs[1].Selected)
@@ -513,13 +512,13 @@ namespace Ship_Game
                         }
                     }
                 }
-                vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
+                vector2_1 = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
                 foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
                 {
-                    vector2_1.Y = (float)entry.clickRect.Y;
+                    vector2_1.Y = entry.clickRect.Y;
                     if (entry.item is ModuleHeader header)
                         header.Draw(this.ScreenManager, vector2_1);
-                    else if (entry.clickRectHover == 0)
+                    else if (!entry.Hovered)
                     {
                         var ship = (entry.item as Ship);
                         ScreenManager.SpriteBatch.Draw(ship.BaseHull.Icon, 
@@ -546,16 +545,16 @@ namespace Ship_Game
 
                         position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                         // Use correct upkeep method depending on mod settings
-                        string upkeep = "Doctor rocks";
+                        string upkeep;
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                         {
-                            upkeep = ship.GetMaintCostRealism(this.p.Owner).ToString("F2");
+                            upkeep = ship.GetMaintCostRealism(p.Owner).ToString("F2");
                         }
                         else
                         {
-                            upkeep = ship.GetMaintCost(this.p.Owner).ToString("F2");
+                            upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
                         }
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
                         // ~~~
 
@@ -626,7 +625,7 @@ namespace Ship_Game
                 {
                     vector2_1.Y = (float)entry.clickRect.Y;
                     var troop = (Troop)entry.item;
-                    if (entry.clickRectHover == 0)
+                    if (!entry.Hovered)
                     {
                         troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
@@ -677,7 +676,7 @@ namespace Ship_Game
                 {
                     vector2_1.Y = (float)entry.clickRect.Y;
                     var troop = (Troop)entry.item;
-                    if (entry.clickRectHover == 0)
+                    if (!entry.Hovered)
                     {
                         troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
@@ -716,8 +715,7 @@ namespace Ship_Game
             foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
             {
                 vector2_1.Y = entry.clickRect.Y;
-                if (entry.clickRect.HitTest(pos))
-                    entry.clickRectHover = 1;
+                entry.CheckHover(pos);
 
                 var qi = (entry.item as QueueItem);
                 if (qi.isBuilding)
@@ -766,7 +764,7 @@ namespace Ship_Game
                         Progress = qi.productionTowards
                     }.Draw(this.ScreenManager.SpriteBatch);
                 }
-                if (entry.clickRectHover == 1)
+                if (entry.Hovered)
                 {
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover1"], entry.up, Color.White);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover1"], entry.down, Color.White);
@@ -794,17 +792,13 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], entry.apply, Color.White);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], entry.cancel, Color.White);
                 }
-                if (this.QSL.DraggedEntry != null && entry.clickRect == this.QSL.DraggedEntry.clickRect)
-                    this.ScreenManager.SpriteBatch.FillRectangle(entry.clickRect, new Color((byte)0, (byte)0, (byte)0, (byte)150));
-                if (entry.PlusHover == 0)
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], entry.addRect, Color.White);
-                else
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], entry.addRect, Color.White);
+                if (QSL.DraggedEntry != null && entry.clickRect == QSL.DraggedEntry.clickRect)
+                    ScreenManager.SpriteBatch.FillRectangle(entry.clickRect, new Color(0, 0, 0, 150));
+                entry.DrawPlus(ScreenManager.SpriteBatch);
             }
             this.QSL.Draw(this.ScreenManager.SpriteBatch);
             this.buildSL.Draw(this.ScreenManager.SpriteBatch);
-            if (this.selector != null)
-                this.selector.Draw(ScreenManager.SpriteBatch);
+            selector?.Draw(ScreenManager.SpriteBatch);
             string format = "0.#";
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)((double)this.ColonySliderFood.amount * (double)this.ColonySliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)((double)this.ColonySliderFood.amount * (double)this.ColonySliderFood.sRect.Width), 6)), this.p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             this.ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderFood.sRect, this.ColonySliderFood.Color);
@@ -2261,18 +2255,9 @@ namespace Ship_Game
             int i = QSL.indexAtTop;
             foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
             {
-                if (!e.clickRect.HitTest(MousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
+                if (e.CheckHover(MousePos))
                 {
                     this.selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
                 }
                 if (e.up.HitTest(MousePos))
                 {
@@ -2452,18 +2437,10 @@ namespace Ship_Game
                 {
                     header.HandleInput(input, e);
                 }
-                else if (!e.clickRect.HitTest(MousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
+                else if (e.CheckHover(input))
                 {
                     this.selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
+
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed && e.item is Building && this.ActiveBuildingEntry == null)
                     {
                         this.ActiveBuildingEntry = e;
@@ -2508,15 +2485,10 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (!e.addRect.HitTest(MousePos))
+                if (e.CheckPlus(input))
                 {
-                    e.PlusHover = 0;
-                }
-                else
-                {
-                    e.PlusHover = 1;
                     ToolTip.CreateTooltip(51);
-                    if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
                         var qi = new QueueItem();
                         if (e.item is Building building)
@@ -2543,19 +2515,13 @@ namespace Ship_Game
                         }
                     }
                 }
-                Rectangle rectangle2 = e.editRect;
-                if (!e.editRect.HitTest(MousePos))
+                if (e.CheckEdit(input))
                 {
-                    e.EditHover = 0;
-                }
-                else
-                {
-                    e.EditHover = 1;
                     ToolTip.CreateTooltip(52);
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
-                        ShipDesignScreen sdScreen = new ShipDesignScreen(Empire.Universe, this.eui);
-                        this.ScreenManager.AddScreen(sdScreen);
+                        var sdScreen = new ShipDesignScreen(Empire.Universe, this.eui);
+                        ScreenManager.AddScreen(sdScreen);
                         sdScreen.ChangeHull((e.item as Ship).shipData);
                     }
                 }

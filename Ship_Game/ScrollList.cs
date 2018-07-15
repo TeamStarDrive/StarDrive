@@ -105,20 +105,35 @@ namespace Ship_Game
 
         public void Remove(Entry e)
         {
+            foreach (Entry entry in Entries)
+                if (entry.SubEntries.Count > 0 && entry.SubEntries.Remove(e))
+                    break;
+
             Entries.Remove(e);
-            ExpandedEntries.Remove(e);
+            bool changed = ExpandedEntries.Remove(e);
+            if (changed) Update();
         }
 
         public void RemoveItem(object o)
         {
-            Entries.RemoveFirstIf(e => e.item == o);
-            ExpandedEntries.RemoveFirstIf(e => e.item == o);
+            bool ItemPredicate(Entry e) => e.item == o;
+
+            Entries.RemoveFirstIf(ItemPredicate);
+            bool changed = ExpandedEntries.RemoveFirstIf(ItemPredicate);
+            if (changed) Update();
         }
 
-        public void RemoveIf<T>(Func<T, bool> predicate) where T : class
+        public void RemoveFirstIf<T>(Func<T, bool> predicate) where T : class
         {
-            Entries.RemoveAllIf(e => e.item is T item && predicate(item));
-            ExpandedEntries.RemoveAllIf(e => e.item is T item && predicate(item));
+            bool ItemPredicate(Entry e) => e.item is T item && predicate(item);
+
+            foreach (Entry entry in Entries)
+                if (entry.SubEntries.Count > 0)
+                    entry.SubEntries.RemoveFirstIf(ItemPredicate);
+
+            Entries.RemoveFirstIf(ItemPredicate);
+            bool changed = ExpandedEntries.RemoveFirstIf(ItemPredicate);
+            if (changed) Update();
         }
 
         public void RemoveFirst()
@@ -127,6 +142,7 @@ namespace Ship_Game
             {
                 Entries.RemoveAt(0);
                 ExpandedEntries.RemoveAt(0);
+                Update();
             }
         }
 
@@ -652,17 +668,16 @@ namespace Ship_Game
             public bool Expanded { get; private set; }
             public Rectangle clickRect;
             public object item;
-            public int Hover;
             public readonly bool Plus;
             public readonly bool Edit;
-            public int PlusHover;
-            public int EditHover;
+            private bool PlusHover;
+            private bool EditHover;
 
             public Rectangle editRect;
             public Rectangle addRect;
             private readonly ScrollList List;
 
-            public int clickRectHover;
+            public bool Hovered { get; private set; }
             public int QItem;
 
             public Rectangle up;
@@ -713,28 +728,45 @@ namespace Ship_Game
                 List.Update();
             }
 
+            public bool CheckHover(MouseState mouse) => CheckHover(mouse.Pos());
+            public bool CheckHover(InputState input) => CheckHover(input.CursorPosition);
+            public bool CheckHover(Vector2 mousePos)
+            {
+                bool wasHovered = Hovered;
+                Hovered = clickRect.HitTest(mousePos);
+
+                if (!wasHovered && Hovered)
+                    GameAudio.PlaySfxAsync("sd_ui_mouseover");
+
+                return Hovered;
+            } 
+            public bool CheckPlus(InputState input) => (PlusHover = addRect.HitTest(input.CursorPosition));
+            public bool CheckEdit(InputState input) => (EditHover = editRect.HitTest(input.CursorPosition));
+
             public void DrawPlusEdit(SpriteBatch spriteBatch)
             {
                 DrawPlus(spriteBatch);
                 DrawEdit(spriteBatch);
             }
+
             public void DrawPlus(SpriteBatch spriteBatch)
             {
                 if (Plus)
                 {
-                    string plus = PlusHover != 0 ? "NewUI/icon_build_add_hover2"
-                           : clickRectHover != 0 ? "NewUI/icon_build_add_hover1"
-                                                 : "NewUI/icon_build_add";
+                    string plus = PlusHover ? "NewUI/icon_build_add_hover2"
+                           : Hovered ? "NewUI/icon_build_add_hover1"
+                                            : "NewUI/icon_build_add";
                     spriteBatch.Draw(ResourceManager.Texture(plus), addRect, Color.White);
                 }
             }
+
             public void DrawEdit(SpriteBatch spriteBatch)
             {
                 if (Edit)
                 {
-                    string edit = EditHover != 0 ? "NewUI/icon_build_edit_hover2"
-                           : clickRectHover != 0 ? "NewUI/icon_build_edit_hover1"
-                                                 : "NewUI/icon_build_edit";
+                    string edit = EditHover ? "NewUI/icon_build_edit_hover2"
+                           : Hovered ? "NewUI/icon_build_edit_hover1"
+                                            : "NewUI/icon_build_edit";
                     spriteBatch.Draw(ResourceManager.Texture(edit), editRect, Color.White);
                 }
             }
