@@ -710,7 +710,7 @@ namespace Ship_Game
 
             QSL.Reset();
             foreach (QueueItem o in p.ConstructionQueue)
-                QSL.AddQItem(o);
+                QSL.AddItem(o);
 
             foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
             {
@@ -764,34 +764,9 @@ namespace Ship_Game
                         Progress = qi.productionTowards
                     }.Draw(this.ScreenManager.SpriteBatch);
                 }
-                if (entry.Hovered)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover1"], entry.up, Color.White);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover1"], entry.down, Color.White);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover1"], entry.apply, Color.White);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], entry.cancel, Color.White);
-                    if (entry.up.HitTest(pos))
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], entry.up, Color.White);
-                    if (entry.down.HitTest(pos) && Empire.Universe.IsActive)
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover2"], entry.down, Color.White);
-                    if (entry.apply.HitTest(pos) && Empire.Universe.IsActive)
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"], entry.apply, Color.White);
-                        ToolTip.CreateTooltip(50);
-                    }
-                    if (entry.cancel.HitTest(pos) && Empire.Universe.IsActive)
-                    {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], entry.cancel, Color.White);
-                        ToolTip.CreateTooltip(53);
-                    }
-                }
-                else
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"], entry.up, Color.White);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down"], entry.down, Color.White);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction"], entry.apply, Color.White);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], entry.cancel, Color.White);
-                }
+
+                entry.DrawUpDownApplyCancel(ScreenManager.SpriteBatch, Input);
+
                 if (QSL.DraggedEntry != null && entry.clickRect == QSL.DraggedEntry.clickRect)
                     ScreenManager.SpriteBatch.FillRectangle(entry.clickRect, new Color(0, 0, 0, 150));
                 entry.DrawPlus(ScreenManager.SpriteBatch);
@@ -2189,23 +2164,23 @@ namespace Ship_Game
                 }
                 return true;                
             }
-            if (!this.ClickedTroop)
+            if (!ClickedTroop)
             {
-                foreach (PlanetGridSquare pgs in this.p.TilesList)
+                foreach (PlanetGridSquare pgs in p.TilesList)
                 {
                     if (pgs.ClickRect.HitTest(input.CursorPosition))
                     {
-                        this.detailInfo = pgs;
-                        Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                        detailInfo = pgs;
+                        var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                         if (pgs.building != null  && bRect.HitTest(input.CursorPosition) &&  Input.RightMouseClick)
                         {
                             if (pgs.building.Scrappable)
                             {
-                                this.toScrap = pgs.building;
+                                toScrap = pgs.building;
                                 string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
-                                MessageBoxScreen messageBox = new MessageBoxScreen(Empire.Universe, message);
-                                messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
-                                this.ScreenManager.AddScreen(messageBox);                                
+                                var messageBox = new MessageBoxScreen(Empire.Universe, message);
+                                messageBox.Accepted += ScrapAccepted;
+                                ScreenManager.AddScreen(messageBox);                                
                                 
                             }
                             rmouse = true;
@@ -2217,113 +2192,93 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    this.detailInfo = pgs.TroopsHere;
+                    detailInfo = pgs.TroopsHere;
                 }
             }
             if (!GlobalStats.HardcoreRuleset)
             {
-                if (this.foodDropDown.r.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (foodDropDown.r.HitTest(MousePos) && input.LeftMouseClick)
                 {
-                    this.foodDropDown.Toggle();
-                    Planet planet = this.p;
-                    planet.FS = (Planet.GoodState)((int)planet.FS + (int)Planet.GoodState.IMPORT);
-                    if (this.p.FS > Planet.GoodState.EXPORT)
-                    {
-                        this.p.FS = Planet.GoodState.STORE;
-                    }
+                    foodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    p.FS = (Planet.GoodState)((int)p.FS + (int)Planet.GoodState.IMPORT);
+                    if (p.FS > Planet.GoodState.EXPORT)
+                        p.FS = Planet.GoodState.STORE;
                 }
-                if (this.prodDropDown.r.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (prodDropDown.r.HitTest(MousePos) && input.LeftMouseClick)
                 {
-                    this.prodDropDown.Toggle();
+                    prodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    Planet planet1 = this.p;
-                    planet1.PS = (Planet.GoodState)((int)planet1.PS + (int)Planet.GoodState.IMPORT);
-                    if (this.p.PS > Planet.GoodState.EXPORT)
-                    {
-                        this.p.PS = Planet.GoodState.STORE;
-                    }
+                    p.PS = (Planet.GoodState)((int)p.PS + (int)Planet.GoodState.IMPORT);
+                    if (p.PS > Planet.GoodState.EXPORT)
+                        p.PS = Planet.GoodState.STORE;
                 }
             }
             else
             {
-                foreach (ThreeStateButton b in this.ResourceButtons)
-                {
-                    b.HandleInput(input, this.ScreenManager);
-                }
+                foreach (ThreeStateButton b in ResourceButtons)
+                    b.HandleInput(input, ScreenManager);
             }
             int i = QSL.indexAtTop;
             foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
             {
                 if (e.CheckHover(MousePos))
                 {
-                    this.selector = new Selector(e.clickRect);
+                    selector = new Selector(e.clickRect);
                 }
-                if (e.up.HitTest(MousePos))
+                if (e.WasUpHovered(input))
                 {
                     ToolTip.CreateTooltip(63);
-                    if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased)
                     {
-                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i > 0)
+                        if (input.LeftMouseClick && i > 0)
                         {
-                            object tmp = this.p.ConstructionQueue[i - 1];
-                            this.p.ConstructionQueue[i - 1] = this.p.ConstructionQueue[i];
-                            this.p.ConstructionQueue[i] = tmp as QueueItem;
+                            QueueItem item = p.ConstructionQueue[i - 1];
+                            p.ConstructionQueue[i - 1] = p.ConstructionQueue[i];
+                            p.ConstructionQueue[i] = item;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     else if (i > 0)
                     {
-                        var item = p.ConstructionQueue[i];
+                        QueueItem item = p.ConstructionQueue[i];
                         p.ConstructionQueue.Remove(item);
                         p.ConstructionQueue.Insert(0, item);
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         break;
                     }
                 }
-                if (e.down.HitTest(MousePos))
+                if (e.WasDownHovered(input))
                 {
                     ToolTip.CreateTooltip(64);
-                    if (!input.IsCtrlKeyDown || input.LeftMouseClick || input.LeftMouseReleased) // @todo WTF??
+                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
                     {
                         if (input.LeftMouseClick && i + 1 < QSL.NumExpandedEntries)
                         {
-                            object tmp = p.ConstructionQueue[i + 1];
+                            QueueItem item = p.ConstructionQueue[i + 1];
                             p.ConstructionQueue[i + 1] = p.ConstructionQueue[i];
-                            p.ConstructionQueue[i] = tmp as QueueItem;
+                            p.ConstructionQueue[i] = item;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
-                    else if (i + 1 < this.QSL.NumExpandedEntries)
+                    else if (i + 1 < QSL.NumExpandedEntries)
                     {
-                        var item = p.ConstructionQueue[i];
+                        QueueItem item = p.ConstructionQueue[i];
                         p.ConstructionQueue.Remove(item);
                         p.ConstructionQueue.Insert(0, item);
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         break;
                     }
                 }
-                if (e.apply.HitTest(MousePos) && !this.p.RecentCombat && this.p.CrippledTurns <= 0)
+                if (e.WasApplyHovered(input) && !p.RecentCombat && p.CrippledTurns <= 0)
                 {
-                    if (!input.KeysCurr.IsKeyDown(Keys.RightControl) && !input.KeysCurr.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
+                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
                     {
-                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
-                            
-                            if (this.p.ApplyStoredProduction(i))
-                            {
-                                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                            }
-                            else
-                            {
-                                GameAudio.PlaySfxAsync("UI_Misc20");
-                            }
+                            GameAudio.PlaySfxAsync(p.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
                         }
                     }
-                    //else if (Empire.Universe.Debug)
-                    //{
-                    //    this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
-                    //}
                     else if (this.p.ProductionHere == 0f)
                     {
                         GameAudio.PlaySfxAsync("UI_Misc20");
@@ -2334,28 +2289,25 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
                 }
-                if (e.cancel.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (e.WasCancelHovered(input) && input.LeftMouseClick)
                 {
-                    Planet productionHere2 = this.p;
-                    productionHere2.ProductionHere = productionHere2.ProductionHere + (e.item as QueueItem).productionTowards;
+                    var item = (QueueItem)e.item;
+                    p.ProductionHere += item.productionTowards;
                     
-                    QueueItem item = (e.item as QueueItem);
                     if (item.pgs != null)
                     {
-                        (e.item as QueueItem).pgs.QItem = null;
+                        item.pgs.QItem = null;
                     }
                     if (item.Goal !=null)
                     {
                         if (item.Goal is Commands.Goals.BuildConstructionShip)
                         {
                             p.Owner.GetGSAI().Goals.Remove(item.Goal);
-                            
                         }
                         if (item.Goal.GetFleet() !=null)
                             p.Owner.GetGSAI().Goals.Remove(item.Goal);
-
                     }
-                    this.p.ConstructionQueue.Remove(e.item as QueueItem);
+                    p.ConstructionQueue.Remove(item);
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
                 ++i;
@@ -2412,7 +2364,7 @@ namespace Ship_Game
                 {
                     foreach (QueueItem qi in this.p.ConstructionQueue)
                     {
-                        if (!qi.isBuilding || !(qi.Building.Name == (this.ActiveBuildingEntry.item as Building).Name) || !(this.ActiveBuildingEntry.item as Building).Unique)
+                        if (!qi.isBuilding || qi.Building.Name != (ActiveBuildingEntry.item as Building).Name || !(ActiveBuildingEntry.item as Building).Unique)
                         {
                             continue;
                         }
@@ -2439,28 +2391,28 @@ namespace Ship_Game
                 }
                 else if (e.CheckHover(input))
                 {
-                    this.selector = new Selector(e.clickRect);
+                    selector = new Selector(e.clickRect);
 
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed && e.item is Building && this.ActiveBuildingEntry == null)
+                    if (input.LeftMouseHeldDown && e.item is Building && ActiveBuildingEntry == null)
                     {
-                        this.ActiveBuildingEntry = e;
+                        ActiveBuildingEntry = e;
                     }
-                    if (this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    if (input.LeftMouseReleased)
                     {
-                        if (this.ClickTimer >= this.TimerDelay)
+                        if (ClickTimer >= TimerDelay)
                         {
-                            this.ClickTimer = 0f;
+                            ClickTimer = 0f;
                         }
                         else
                         {
-                            if (!e.addRect.HitTest(input.CursorPosition))
+                            if (!e.WasPlusHovered(input))
                             {
                                 var qi = new QueueItem();
                                 if (e.item is Ship ship)
                                 {
                                     qi.isShip = true;
                                     qi.sData = ship.shipData;
-                                    qi.Cost = ship.GetCost(this.p.Owner);
+                                    qi.Cost = ship.GetCost(p.Owner);
                                     qi.productionTowards = 0f;
                                     p.ConstructionQueue.Add(qi);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
@@ -2476,8 +2428,6 @@ namespace Ship_Game
                                 }
                                 else if (e.item is Building building)
                                 {
-                                    //Building waitaddstuff = ResourceManager.GetBuilding((e.item as Building).Name);
-                                    //waitaddstuff.IsPlayerAdded=true;
                                     p.AddBuildingToCQ(building, true);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
