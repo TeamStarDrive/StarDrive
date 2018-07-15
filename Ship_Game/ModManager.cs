@@ -47,7 +47,7 @@ namespace Ship_Game
             AllSaves.Draw();
             foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
             {
-                (e.item as ModEntry)?.Draw(ScreenManager, e.clickRect);
+                e.Get<ModEntry>().Draw(ScreenManager, e.clickRect);
             }
             ModsSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
@@ -151,7 +151,7 @@ namespace Ship_Game
                 if (!e.CheckHover(input.CursorPosition))
                     continue;
 
-                selector = new Selector(e.clickRect);
+                selector = e.CreateSelector();
                 if (!input.InGameSelect)
                     continue;
 

@@ -305,7 +305,7 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.clickRect.Y);
+                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(ScreenManager, bCursor);

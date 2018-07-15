@@ -189,7 +189,7 @@ namespace Ship_Game
                     {
                         ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, textColor);
                     }
-                    entry2.SetNewPos(eRect.X + 22, e.clickRect.Y);
+                    entry2.SetNewPos(eRect.X + 22, e.Y);
                     entry2.Draw(ScreenManager, gameTime);
                     ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, textColor);
                     ++i;
@@ -483,7 +483,7 @@ namespace Ship_Game
             {
                 var entry = e.item as PlanetListScreenEntry;
                 entry.HandleInput(input);
-                entry.SetNewPos(eRect.X + 22, e.clickRect.Y);
+                entry.SetNewPos(eRect.X + 22, e.Y);
                 if (!GlobalStats.TakingInput
                     && entry.TotalEntrySize.HitTest(input.CursorPosition)
                     && input.LeftMouseClick)

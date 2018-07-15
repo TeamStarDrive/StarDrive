@@ -43,7 +43,7 @@ namespace Ship_Game
             var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
             foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
-                bCursor.Y = e.clickRect.Y;
+                bCursor.Y = e.Y;
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(ScreenManager, bCursor);
@@ -112,7 +112,7 @@ namespace Ship_Game
                 if (!e.CheckHover(mousePos))
                     continue;
 
-                selector = new Selector(e.clickRect);
+                selector = e.CreateSelector();
                 if (!input.InGameSelect)
                     continue;
                 if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))

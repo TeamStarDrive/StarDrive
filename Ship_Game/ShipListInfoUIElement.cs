@@ -165,17 +165,15 @@ namespace Ship_Game
                     ob.Draw(this.ScreenManager, r);
                 }
             }
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
-            string text = (!this.isFleet || this.ShipList.Count <= 0 || this.ShipList.First<Ship>().fleet == null ? "Multiple Ships" : this.ShipList.First<Ship>().fleet.Name);
-            Vector2 NamePos = new Vector2((float)(this.Housing.X + 41), (float)(this.Housing.Y + 64));
-            this.SelectedShipsSL.Draw(this.ScreenManager.SpriteBatch);
-            Vector2 drawCursor = new Vector2((float)this.RightRect.X, (float)(this.RightRect.Y + 10));
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], Housing, Color.White);
+            string text = (!isFleet || ShipList.Count <= 0 || ShipList.First.fleet == null) ? "Multiple Ships" : ShipList.First.fleet.Name;
+            var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
+            SelectedShipsSL.Draw(ScreenManager.SpriteBatch);
 
             foreach (ScrollList.Entry e in SelectedShipsSL.VisibleEntries)
             {
-                drawCursor.Y = e.clickRect.Y;
                 var ship = (SelectedShipEntry)e.item;
-                ship.Update(drawCursor);
+                ship.Update(new Vector2(RightRect.X, e.Y));
                 foreach (SkinnableButton button in ship.ShipButtons)
                 {
                     if (HoveredShip == button.ReferenceObject)
@@ -188,8 +186,8 @@ namespace Ship_Game
                 HoverOff += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (this.HoverOff > 0.5f)
                 {
-                    text = (!this.isFleet || this.ShipList.Count <= 0 || this.ShipList.First<Ship>().fleet == null ? "Multiple Ships" : this.ShipList.First<Ship>().fleet.Name);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, NamePos, this.tColor);
+                    text = (!isFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, namePos, this.tColor);
                     float fleetOrdnance = 0f;
                     float fleetOrdnanceMax = 0f;
                     foreach (Ship ship in this.ShipList)

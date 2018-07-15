@@ -55,7 +55,7 @@ namespace Ship_Game
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
                 var ship = (Ship)e.item;
-                bCursor.Y = (float)e.clickRect.Y;
+                bCursor.Y = (float)e.Y;
                 spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
@@ -85,7 +85,7 @@ namespace Ship_Game
             {
                 if (e.CheckHover(input))
                 {
-                    this.selector = new Selector(e.clickRect);
+                    this.selector = e.CreateSelector();
 
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {

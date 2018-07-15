@@ -451,7 +451,7 @@ namespace Ship_Game
                 var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
                 foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
                 {
-                    bCursor.Y = e.clickRect.Y;
+                    bCursor.Y = e.Y;
                     if (e.item is ModuleHeader header)
                     {
                         header.DrawWidth(ScreenManager, bCursor, 265);
@@ -459,7 +459,7 @@ namespace Ship_Game
                     else if (e.Hovered)
                     {
                         var ship = (Ship)e.item;
-                        bCursor.Y = e.clickRect.Y;
+                        bCursor.Y = e.Y;
                         spriteBatch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                         var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                         spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);

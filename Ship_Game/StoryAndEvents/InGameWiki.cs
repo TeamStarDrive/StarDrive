@@ -55,7 +55,7 @@ namespace Ship_Game
             Vector2 bCursor;
             foreach (ScrollList.Entry e in HelpCategories.VisibleExpandedEntries)
             {
-                bCursor = new Vector2(Rect.X + 35, e.clickRect.Y);
+                bCursor = new Vector2(Rect.X + 35, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(ScreenManager, bCursor);
@@ -98,7 +98,7 @@ namespace Ship_Game
             HelpEntries.Draw(ScreenManager.SpriteBatch);
             foreach (ScrollList.Entry e in HelpEntries.VisibleExpandedEntries)
             {
-                bCursor.Y = e.clickRect.Y;
+                bCursor.Y = e.Y;
                 bCursor.X = (int)bCursor.X;
                 bCursor.Y = (int)bCursor.Y;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (string)e.item, bCursor, Color.White);
