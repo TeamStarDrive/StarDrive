@@ -387,7 +387,16 @@ namespace Ship_Game
             return ResourceManager.Texture(graphic);
         }
 
-        public ShipModule[] Modules => Slots.Select(slot => slot.Module).ToArray();
+        public ShipModule[] Modules
+        {
+            get
+            {
+                var modules = new Array<ShipModule>();
+                foreach (SlotStruct slot in Slots)
+                    if (slot.Module != null) modules.Add(slot.Module);
+                return modules.ToArray();
+            }
+        }
 
         #endregion
 
