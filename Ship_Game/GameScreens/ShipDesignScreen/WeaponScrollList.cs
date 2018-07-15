@@ -92,12 +92,23 @@ namespace Ship_Game
             e.AddSubItem(mod);
         }
 
-        private void OpenCategory(int categoryId)
+        private bool OpenCategory(int categoryId)
         {
             if (Categories.TryGetValue(categoryId, out Entry e))
             {
                 var category = (ModuleHeader)e.item;
                 category.Expand(true, e);
+                return true;
+            }
+            return false;
+        }
+
+        private void OpenCategoryByIndex(int index)
+        {
+            if (index < NumEntries)
+            {
+                var category = (ModuleHeader)EntryAt(index).item;
+                category.Expand(true, EntryAt(index));
             }
         }
 
@@ -189,6 +200,7 @@ namespace Ship_Game
                     AddCategoryItem("Bomb".GetHashCode(), "Bomb", m);
                 }
             }
+            OpenCategoryByIndex(0);
         }
 
         private void AddPowerCategories()
@@ -202,7 +214,8 @@ namespace Ship_Game
                 if (type == ShipModuleType.PowerPlant || type == ShipModuleType.FuelCell || type == ShipModuleType.Engine)
                     AddCategoryItem((int)type, type.ToString(), m);
             }
-            OpenCategory((int)ShipModuleType.PowerPlant);
+            if (!OpenCategory((int)ShipModuleType.PowerPlant))
+                OpenCategoryByIndex(0);
         }
 
         private void AddDefenseCategories()
@@ -227,7 +240,8 @@ namespace Ship_Game
                     AddCategoryItem(6173, Localizer.Token(6173), m);
                 }
             }
-            OpenCategory((int)ShipModuleType.Shield);
+            if (!OpenCategory((int)ShipModuleType.Shield))
+                OpenCategoryByIndex(0);
         }
 
         private void AddSpecialCategories()
