@@ -74,22 +74,22 @@ namespace Ship_Game.GameScreens.MainMenu
 
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (BBVersionCheck.FilesAndLinks == null)
             {
                 ExitScreen();
                 return;
             }
-            base.Draw(spriteBatch);
-            spriteBatch.Begin();
-            BBListHeader.Draw(spriteBatch);
-            BBVersionCheck.Draw(spriteBatch);
-            ModListHeader.Draw(spriteBatch);
-            ModVersionCheck.Draw(spriteBatch);
+            base.Draw(batch);
+            batch.Begin();
+            BBListHeader.Draw(batch);
+            BBVersionCheck.Draw(batch);
+            ModListHeader.Draw(batch);
+            ModVersionCheck.Draw(batch);
 
 
-            spriteBatch.End();
+            batch.End();
             
         }
 

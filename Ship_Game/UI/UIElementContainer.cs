@@ -59,12 +59,12 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             for (int i = 0; i < Elements.Count; ++i)
-                Elements[i].Draw(spriteBatch);
+                Elements[i].Draw(batch);
             if (ToolTip.Hotkey.IsEmpty())
-                ToolTip.Draw(spriteBatch);
+                ToolTip.Draw(batch);
         }
 
         public override bool HandleInput(InputState input)

@@ -80,7 +80,7 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             double totalSeconds = Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
             this.ScreenManager.FadeBackBufferToBlack((int)this.TransitionAlpha * 2 / 3);
@@ -227,7 +227,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
             MainMenu.DrawHollow();
-            close.Draw(spriteBatch);
+            close.Draw(batch);
             qcomponent.Draw();
             ToolTip.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();

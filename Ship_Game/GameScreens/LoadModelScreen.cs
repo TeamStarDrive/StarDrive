@@ -35,7 +35,7 @@ namespace Ship_Game
             base.IsPopup = true;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.SpriteBatch.Begin();
             this.SaveMenu.Draw();

@@ -83,11 +83,15 @@ namespace Ship_Game
         }
 
         private string WhichFrameString => WhichFrame.ToString("00");
+
+        [XmlIgnore][JsonIgnore]
         public Texture2D TextureDefault => ResourceManager.Texture("Troops/"+TexturePath);
+
         //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
         //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
         private Texture2D TextureIdleAnim   => ResourceManager.Texture("Troops/"+idle_path+WhichFrameString, "Troops/" + idle_path+
             ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+
         private Texture2D TextureAttackAnim => ResourceManager.Texture("Troops/" + attack_path + WhichFrameString, "Troops/" + idle_path +
             ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 

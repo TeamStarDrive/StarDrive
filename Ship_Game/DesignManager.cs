@@ -41,34 +41,34 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            spriteBatch.Begin();
+            batch.Begin();
             this.SaveMenu.Draw();
             this.SaveShips.Draw();
-            this.EnterNameArea.Draw(Fonts.Arial20Bold, spriteBatch, this.EnternamePos, 
+            this.EnterNameArea.Draw(Fonts.Arial20Bold, batch, this.EnternamePos, 
                 Game1.Instance.GameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             this.subAllDesigns.Draw();
-            this.ShipDesigns.Draw(spriteBatch);
+            this.ShipDesigns.Draw(batch);
             var bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
                 var ship = (Ship)e.item;
                 bCursor.Y = (float)e.Y;
-                spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
+                batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                spriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                e.DrawPlusEdit(spriteBatch);
+                batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                e.DrawPlusEdit(batch);
             }
-            selector?.Draw(spriteBatch);
+            selector?.Draw(batch);
             foreach (UIButton b in this.Buttons)
             {
-                b.Draw(spriteBatch);
+                b.Draw(batch);
             }
-            spriteBatch.End();
+            batch.End();
         }
 
         public override bool HandleInput(InputState input)

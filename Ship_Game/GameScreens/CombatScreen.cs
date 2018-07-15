@@ -280,15 +280,15 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
-            spriteBatch.Draw(ResourceManager.Texture($"PlanetTiles/{p.GetTile()}_tilt"), GridRect, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
+            batch.Draw(ResourceManager.Texture($"PlanetTiles/{p.GetTile()}_tilt"), GridRect, Color.White);
+            batch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
 
             if (assetsUI.LandTroops.Toggled)
             {
-                OrbitSL.Draw(spriteBatch);
+                OrbitSL.Draw(batch);
                 var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
                 foreach (ScrollList.Entry e in OrbitSL.VisibleExpandedEntries)
                 {
@@ -300,20 +300,20 @@ namespace Ship_Game
                         if (e.Hovered)
                         {
                             bCursor.Y = e.Y;
-                            spriteBatch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            spriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
                             tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                            spriteBatch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
                         }
                         else
                         {
                             bCursor.Y = e.Y;
-                            spriteBatch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            spriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
                             tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                            spriteBatch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
                         }
                     }
                     else if (e.item is Troop t)
@@ -321,31 +321,31 @@ namespace Ship_Game
                         if (e.Hovered)
                         {
                             bCursor.Y = (float)e.Y;
-                            spriteBatch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            spriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            spriteBatch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
                         }
                         else
                         {
                             bCursor.Y = (float)e.Y;
-                            spriteBatch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            spriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            spriteBatch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
                         }
                     }
                     e.CheckHover(Input.CursorPosition);
                 }
                 if (OrbitSL.NumEntries > 0)
                 {
-                    LandAll.Draw(spriteBatch);
+                    LandAll.Draw(batch);
                 }
                 if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == EmpireManager.Player && mytroops.Launchtimer <= 0f))
                 {
-                    LaunchAll.Draw(spriteBatch);
+                    LaunchAll.Draw(batch);
                 }
             }
             foreach (PlanetGridSquare pgs in ReversedList)
@@ -353,7 +353,7 @@ namespace Ship_Game
                 if (pgs.building == null)
                     continue;
                 var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                spriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.building.Icon}_64x64"), bRect, Color.White);
+                batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.building.Icon}_64x64"), bRect, Color.White);
             }
             foreach (PlanetGridSquare pgs in ReversedList)
             {
@@ -383,23 +383,23 @@ namespace Ship_Game
                             ? ship.TroopList.First : draggedTroop.Get<Troop>();
 
                 Texture2D icon = troop.TextureDefault;
-                spriteBatch.Draw(icon, Input.CursorPosition, null, Color.White, 0f, icon.Center(), 0.65f, SpriteEffects.None, 1f);
+                batch.Draw(icon, Input.CursorPosition, null, Color.White, 0f, icon.Center(), 0.65f, SpriteEffects.None, 1f);
             }
             if (Empire.Universe.IsActive)
             {
-                ToolTip.Draw(spriteBatch);
+                ToolTip.Draw(batch);
             }
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteBlendMode.Additive);
+            batch.End();
+            batch.Begin(SpriteBlendMode.Additive);
             lock (GlobalStats.ExplosionLocker)
             {
                 foreach (SmallExplosion exp in Explosions)
                 {
-                    spriteBatch.Draw(exp.AnimationTex, exp.grid, Color.White);
+                    batch.Draw(exp.AnimationTex, exp.grid, Color.White);
                 }
             }
-            spriteBatch.End();
-            spriteBatch.Begin();
+            batch.End();
+            batch.Begin();
 
             if (ScreenManager.NumScreens == 2)
                 popup = true;

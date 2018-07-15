@@ -18,7 +18,7 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			if (ScreenState == ScreenState.Active && ScreenManager.ScreenCount == 1)
 			{
@@ -31,9 +31,9 @@ namespace Ship_Game
 				Vector2 textSize        = Fonts.Arial12Bold.MeasureString("Loading...");
 				Vector2 textPosition    = (viewportSize - textSize) / 2f;
 				Color color             = new Color(255, 255, 255, TransitionAlpha);
-				spriteBatch.Begin();
-				spriteBatch.DrawString(Fonts.Arial12Bold, "Loading...", textPosition, color);
-				spriteBatch.End();
+				batch.Begin();
+				batch.DrawString(Fonts.Arial12Bold, "Loading...", textPosition, color);
+				batch.End();
 			}
 		}
 
