@@ -155,12 +155,10 @@ namespace Ship_Game
                 }
             }
 
-            var drawCurs = new Vector2(DefenseRect.X, HardAttackRect.Y);
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
-                drawCurs.Y = e.clickRect.Y;
                 string t1 = e.item as string;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, drawCurs, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.clickRect.Y), Color.White);
             }
             DescriptionSL.Draw(ScreenManager.SpriteBatch);
         }
