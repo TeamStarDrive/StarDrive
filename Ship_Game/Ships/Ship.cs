@@ -92,7 +92,7 @@ namespace Ship_Game.Ships
         public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
         public bool isThrusting;
-        public float WarpDraw;
+        //public float WarpDraw;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float DamageModifier;
         public Empire loyalty;
@@ -117,8 +117,9 @@ namespace Ship_Game.Ships
         public float PowerFlowMax;
         public float PowerStoreMax;
         public float PowerDraw;
-        public float ModulePowerDraw;
-        public float ShieldPowerDraw;
+        //public float ModulePowerDraw;
+        //public float ShieldPowerDraw;
+        public Power NetPower;
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
@@ -1766,13 +1767,16 @@ namespace Ship_Game.Ships
                 if (!inborders && engineState == MoveState.Warp)
                 {
                     // FB: shields take no power at warp :/  this is not aligned with ships design and should be fixed after refactor.
-                    PowerDraw = NetPowerWarpDraw(loyalty);
+                    //PowerDraw = NetPowerWarpDraw(loyalty);
+                    PowerDraw = NetPower.NetWarpPowerDraw;
                 }
                 else if (engineState != MoveState.Warp && ShieldsUp)
-                    PowerDraw = ModulePowerDraw + ShieldPowerDraw;
+                    //PowerDraw = ModulePowerDraw + ShieldPowerDraw;
+                    PowerDraw = NetPower.NetSubLightPowerDraw;
                 else
-                    PowerDraw = ModulePowerDraw;
-             
+                    //PowerDraw = ModulePowerDraw;
+                    PowerDraw = NetPower.NetWarpPowerDraw;
+
 
 
                 //Check Current Shields
@@ -2185,8 +2189,8 @@ namespace Ship_Game.Ships
             PowerStoreMax               = 0f;
             PowerFlowMax                = 0f;
             OrdinanceMax                = 0f;
-            ModulePowerDraw             = 0.0f;
-            ShieldPowerDraw             = 0f;
+            //ModulePowerDraw             = 0.0f;
+            //ShieldPowerDraw             = 0f;
             RepairRate                  = 0f;
             CargoSpaceMax               = 0f;
             SensorRange                 = 1000f;
@@ -2196,7 +2200,7 @@ namespace Ship_Game.Ships
             FTLSlowTurnBoost            = false;
             InhibitionRadius            = 0f;
             OrdAddedPerSecond           = 0f;
-            WarpDraw                    = 0f;
+            //WarpDraw                    = 0f;
             HealPerTurn                 = 0;
             ECMValue                    = 0f;
             FTLSpoolTime                = 0f;
@@ -2240,7 +2244,10 @@ namespace Ship_Game.Ships
                     InhibitionRadius      += module.InhibitionRadius;
                     BonusEMP_Protection   += module.EMP_Protection;
                     SensorRange            = Math.Max(SensorRange, module.SensorRange);
-                    sensorBonus            = Math.Max(sensorBonus, module.SensorBonus);                    
+                    sensorBonus            = Math.Max(sensorBonus, module.SensorBonus);
+                    if (module.Is(ShipModuleType.Shield))
+                        shield_max += module.ActualShieldPowerMax;
+                    /*
                     if (module.shield_power_max > 0f)
                     {
                         shield_max += module.ActualShieldPowerMax;
@@ -2248,11 +2255,11 @@ namespace Ship_Game.Ships
                     }
                     else
                         ModulePowerDraw += module.PowerDraw;
-
+                    */
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
-                    if (module.Is(ShipModuleType.Shield)) WarpDraw += module.PowerDrawAtWarp; // FB: shields currently dont draw power at warp
+                    //if (module.Is(ShipModuleType.Shield)) WarpDraw += module.PowerDrawAtWarp; // FB: shields currently dont draw power at warp
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.                    
@@ -2262,8 +2269,8 @@ namespace Ship_Game.Ships
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
-            
-                           
+
+            NetPower = CalcPower(loyalty, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
@@ -2867,11 +2874,13 @@ namespace Ship_Game.Ships
 
             return moduleToRepair.Repair(repairAmount);
         }
-         private float NetPowerWarpDraw(Empire empire) //FB: this does not calc shield drain at warp
-         {
-            float warpDrainModifier = empire?.data.FTLPowerDrainModifier ?? 1;
-            return ModulePowerDraw * (warpDrainModifier) + WarpDraw * warpDrainModifier / 2;
-         }
+        /*
+        private float NetPowerWarpDraw(Empire empire) //FB: this does not calc shield drain at warp
+        {
+           float warpDrainModifier = empire?.data.FTLPowerDrainModifier ?? 1;
+           return ModulePowerDraw * (warpDrainModifier) + WarpDraw * warpDrainModifier / 2;
+        }
+        */
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
@@ -2881,7 +2890,7 @@ namespace Ship_Game.Ships
             empire = empire ?? loyalty;
             if (!shipData.BaseCanWarp) return false;
 
-            float goodPowerSupply = PowerFlowMax - NetPowerWarpDraw(empire);
+            float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
             float powerTime = GlobalStats.MinimumWarpRange;
             if (goodPowerSupply <0)
             {
@@ -2892,7 +2901,7 @@ namespace Ship_Game.Ships
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
             {
-                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPowerWarpDraw(empire)}/{PowerFlowMax}");
+                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}");
             }
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;
@@ -2927,6 +2936,66 @@ namespace Ship_Game.Ships
         //if the shipstatus enum is added to then "5" will need to be changed.
         //it should count all but "NotApplicable"
         private const int ShipStatusCount = 5;
+
+        public struct Power
+        {
+            public float NetSubLightPowerDraw;
+            public float NetWarpPowerDraw;
+
+        }
+
+        private Power CalcPower(Empire empire, ShieldsWarpBehavior behavior)
+        {
+            float nonShieldPowerDraw = 0f;
+            float shieldPowerDraw    = 0f;
+            float warpPowerDrawBonus = 0f;
+
+            foreach(ShipModule module in ModuleSlotList)
+            {
+                if (!module.Active || (!module.Powered && module.PowerDraw > 0f)) 
+                    continue;
+
+                if (module.Is(ShipModuleType.Shield))
+                    shieldPowerDraw += module.PowerDraw;
+                if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+                    warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
+                else
+                {
+                    nonShieldPowerDraw += module.PowerDraw;
+                    warpPowerDrawBonus += module.PowerDrawAtWarp;
+                }
+            }
+            float subLightPowerDraw      = shieldPowerDraw + nonShieldPowerDraw;
+            float warpPowerDrainModifier = empire?.data.FTLPowerDrainModifier ?? 1;
+            float warpPowerDraw          = 0f;
+            switch (behavior)
+            {
+                case ShieldsWarpBehavior.OnFullChargeAtWarpExit:
+                {
+                    warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier - (warpPowerDrawBonus * warpPowerDrainModifier / 2);
+                    break;
+                }
+                case ShieldsWarpBehavior.TurnOnDelayAtWarpExit:
+                {
+                        warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw;
+                    break;
+                }
+                case ShieldsWarpBehavior.OffNoChargeAtWarpExit:
+                {
+                        warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier;
+                    break;
+                }
+            }
+
+            return new Power
+            {
+                NetSubLightPowerDraw = subLightPowerDraw,
+                NetWarpPowerDraw = warpPowerDraw
+            };
+        }
+
+
+
     }
     
     public enum ShipStatus
@@ -2937,6 +3006,14 @@ namespace Ship_Game.Ships
         Good,
         Excellent,
         NotApplicable
+
+    }
+
+    public enum ShieldsWarpBehavior
+    {
+        OnFullChargeAtWarpExit,
+        TurnOnDelayAtWarpExit,
+        OffNoChargeAtWarpExit
 
     }
 }
