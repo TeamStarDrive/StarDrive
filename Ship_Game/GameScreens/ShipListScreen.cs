@@ -153,7 +153,7 @@ namespace Ship_Game
             this.ResetList(this.ShowRoles.ActiveValue);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -264,13 +264,13 @@ namespace Ship_Game
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
                 base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
             }
-            this.ShowRoles.Draw(spriteBatch);
-            this.close.Draw(spriteBatch);
+            this.ShowRoles.Draw(batch);
+            this.close.Draw(batch);
             if (base.IsActive)
             {
-                ToolTip.Draw(spriteBatch);
+                ToolTip.Draw(batch);
             }
-            spriteBatch.End();
+            batch.End();
         }
 
 

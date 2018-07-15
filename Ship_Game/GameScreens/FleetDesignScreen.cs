@@ -221,7 +221,7 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             Viewport viewport;
             Texture2D nodeTexture = ResourceManager.Texture("UI/node");
@@ -229,7 +229,7 @@ namespace Ship_Game
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             Screen.bg.Draw(Screen, Screen.starfield);
-            spriteBatch.Begin();
+            batch.Begin();
             DrawGrid();
             if (SelectedNodeList.Count == 1)
             {
@@ -244,7 +244,7 @@ namespace Ship_Game
                 float ssRadius = Math.Abs(insetRadialSS.X - screenPos.X);
                 Rectangle nodeRect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)ssRadius * 2, (int)ssRadius * 2);
                 Vector2 origin = new Vector2(nodeTexture.Width / 2f, nodeTexture.Height / 2f);
-                spriteBatch.Draw(nodeTexture, nodeRect, null, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
+                batch.Draw(nodeTexture, nodeRect, null, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
             }
             ClickableNodes.Clear();
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
@@ -312,7 +312,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
                 }
@@ -334,7 +334,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
                 }
@@ -362,7 +362,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, Color.White, 2f);
                 }
@@ -384,20 +384,20 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, Color.White, 2f);
                 }
             }
             DrawFleetManagementIndicators();
-            spriteBatch.DrawRectangle(SelectionBox, Color.Green);
-            spriteBatch.End();
+            batch.DrawRectangle(SelectionBox, Color.Green);
+            batch.End();
 
             ScreenManager.RenderSceneObjects();
 
-            spriteBatch.Begin();
+            batch.Begin();
             TitleBar.Draw();
-            spriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
             const int numEntries = 9;
             int k = 9;
             int m = 0;
@@ -423,31 +423,31 @@ namespace Ship_Game
                     }
                 }
                 Selector sel = new Selector(r, Color.TransparentBlack);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
+                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
-                sel.Draw(spriteBatch);
+                sel.Draw(batch);
                 Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
                 if (f.DataNodes.Count > 0)
                 {
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12, rect.Value.Width - 12);
-                    spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
+                    batch.Draw(ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
                 }
                 Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
                 SpriteFont pirulen12 = Fonts.Pirulen12;
                 int key = rect.Key;
-                spriteBatch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
+                batch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
                 num.X = num.X + (rect.Value.Width + 5);
-                spriteBatch.DrawString(Fonts.Pirulen12, f.Name, num,
+                batch.DrawString(Fonts.Pirulen12, f.Name, num,
                     rect.Key != FleetToEdit ? Color.Gray : Color.White);
                 m++;
             }
             if (FleetToEdit != -1)
             {
                 ShipDesigns.Draw();
-                spriteBatch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
-                spriteBatch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
+                batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
+                batch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
                 SubShips.Draw();
-                ShipSL.Draw(spriteBatch);
+                ShipSL.Draw(batch);
                 var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
                 foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
                 {
@@ -460,37 +460,37 @@ namespace Ship_Game
                     {
                         var ship = (Ship)e.item;
                         bCursor.Y = e.Y;
-                        spriteBatch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        batch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                         var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                         tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                        spriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                        e.DrawPlusEdit(spriteBatch);
+                        batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                        e.DrawPlusEdit(batch);
                     }
                     else
                     {
                         var ship = (Ship)e.item;
-                        spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                         var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
                         tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                         if (SubShips.Tabs[0].Selected)
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                         }
                         else if (ship.System== null)
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
                         }
                         else
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, $"{ship.System.Name} system", tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial12Bold, $"{ship.System.Name} system", tCursor, Color.Orange);
                         }
-                        e.DrawPlusEdit(spriteBatch);
+                        e.DrawPlusEdit(batch);
                     }
                 }
             }
-            EmpireUI.Draw(spriteBatch);
+            EmpireUI.Draw(batch);
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
             {
                 if (node.Ship == null || CamPos.Z <= 15000f)
@@ -515,14 +515,14 @@ namespace Ship_Game
                         (int) radius * 2, (int) radius * 2);
                     if (node.GoalGUID == Guid.Empty)
                     {
-                        spriteBatch.Draw(ship.GetTacticalIcon(), r,
+                        batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Red));
                     }
                     else
                     {
-                        spriteBatch.Draw(ship.GetTacticalIcon(), r,
+                        batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Yellow));
@@ -535,7 +535,7 @@ namespace Ship_Game
                             }
                             buildingat = g.GetPlanetWhereBuilding().Name;
                         }
-                        spriteBatch.DrawString(Fonts.Arial8Bold,
+                        batch.DrawString(Fonts.Arial8Bold,
                             (!string.IsNullOrEmpty(buildingat)
                                 ? string.Concat("Building at:\n", buildingat)
                                 : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
@@ -561,7 +561,7 @@ namespace Ship_Game
                     }
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
-                    spriteBatch.Draw(ship.GetTacticalIcon(), r,
+                    batch.Draw(ship.GetTacticalIcon(), r,
                         (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                             ? Color.White
                             : Color.Green));
@@ -585,12 +585,12 @@ namespace Ship_Game
                 }
                 float single = Mouse.GetState().X;
                 MouseState state = Mouse.GetState();
-                spriteBatch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
             DrawSelectedData(Game1.Instance.GameTime);
-            Close.Draw(spriteBatch);
-            ToolTip.Draw(spriteBatch);
-            spriteBatch.End();
+            Close.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
 
             ScreenManager.EndFrameRendering();
         }

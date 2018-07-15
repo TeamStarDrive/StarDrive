@@ -35,14 +35,14 @@ namespace Ship_Game
             MiddleText = Localizer.Token(techEntry.Tech.DescriptionIndex);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
 
-            base.Draw(spriteBatch);
+            base.Draw(batch);
 
-            spriteBatch.Begin();
-            UnlockSL.Draw(spriteBatch);
+            batch.Begin();
+            UnlockSL.Draw(batch);
 
             foreach (ScrollList.Entry entry in UnlockSL.VisibleExpandedEntries)
             {
@@ -53,7 +53,7 @@ namespace Ship_Game
                     var pos = new Vector2(entry.X + 100, entry.CenterY - (int)(textHeight / 2f));
 
                     HelperFunctions.DrawDropShadowText(ScreenManager, title, pos, Fonts.Arial14Bold, Color.Orange);
-                    spriteBatch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
+                    batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
                 }
 
                 var unlockItem = (UnlockItem)entry.item;
@@ -74,7 +74,7 @@ namespace Ship_Game
                             while (r.Height < entry.H) r = DestinationRect(r.Width + modW, r.Height + modH);
                             while (r.Height > entry.H) r = DestinationRect(r.Width - modW, r.Height - modH);                                    
                         }
-                        spriteBatch.Draw(ResourceManager.Texture(unlockItem.module.IconTexturePath), r, Color.White);
+                        batch.Draw(ResourceManager.Texture(unlockItem.module.IconTexturePath), r, Color.White);
 
                         DrawTitleAndDescr(unlockItem.privateName, unlockItem.Description);
                         break;
@@ -82,7 +82,7 @@ namespace Ship_Game
                     case UnlockType.TROOP:
                     {
                         var r = new Rectangle(UnlocksRect.X + 16, entry.CenterY - 32, 64, 64);
-                        unlockItem.troop.Draw(spriteBatch, r);
+                        unlockItem.troop.Draw(batch, r);
 
                         DrawTitleAndDescr(unlockItem.troop.Name, unlockItem.troop.Description);
                         break;
@@ -90,7 +90,7 @@ namespace Ship_Game
                     case UnlockType.BUILDING:
                     {
                         var r = new Rectangle(UnlocksRect.X + 16, entry.CenterY - 32, 64, 64);
-                        spriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{unlockItem.building.Icon}_64x64"), r, Color.White);
+                        batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlockItem.building.Icon}_64x64"), r, Color.White);
 
                         string title = Localizer.Token(unlockItem.building.NameTranslationIndex);
                         string descr = Localizer.Token(unlockItem.building.DescriptionIndex);
@@ -100,7 +100,7 @@ namespace Ship_Game
                     case UnlockType.HULL:
                     {
                         var r = new Rectangle(UnlocksRect.X, entry.Y, 96, 96);
-                        spriteBatch.Draw(ResourceManager.Hull(unlockItem.privateName).Icon, r, Color.White);
+                        batch.Draw(ResourceManager.Hull(unlockItem.privateName).Icon, r, Color.White);
                         DrawTitleAndDescr(unlockItem.HullUnlocked, unlockItem.Description);
                         break;
                     }
@@ -111,7 +111,7 @@ namespace Ship_Game
                     }
                 }
             }
-            spriteBatch.End();
+            batch.End();
         }
 
         public override bool HandleInput(InputState input)

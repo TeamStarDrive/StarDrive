@@ -88,7 +88,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             this.LoadContent();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
             
@@ -146,7 +146,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 b.Draw(base.ScreenManager.SpriteBatch);
             }
             this.PlayerDesignsToggle.Draw(base.ScreenManager);
-            ToolTip.Draw(spriteBatch);
+            ToolTip.Draw(batch);
             base.ScreenManager.SpriteBatch.End();
         }
 

@@ -128,7 +128,7 @@ namespace Ship_Game
             //firstSort = true;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             Rectangle buildingsRect;
             float x = Mouse.GetState().X;
@@ -165,7 +165,7 @@ namespace Ship_Game
             float population = SelectedPlanet.Population / 1000f;
             string str = population.ToString(fmt);
             float maxPopulation = (SelectedPlanet.MaxPopulation + SelectedPlanet.MaxPopBonus) / 1000f;
-            spriteBatch.DrawString(arial12Bold, string.Concat(str, "/", maxPopulation.ToString(fmt)), InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(arial12Bold, string.Concat(str, "/", maxPopulation.ToString(fmt)), InfoCursor, new Color(255, 239, 208));
             Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
@@ -443,10 +443,10 @@ namespace Ship_Game
             botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + 35));
             base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
             Vector2 pos = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
-            spriteBatch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
-            close.Draw(spriteBatch);
-            ToolTip.Draw(spriteBatch);
-            spriteBatch.End();
+            batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
+            close.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
         }
 
         private void DrawPGSIcons(PlanetGridSquare pgs)

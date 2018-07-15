@@ -49,17 +49,17 @@ namespace Ship_Game
         {
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (Rect.HitTest(Mouse.GetState().Pos()) && !TipText.IsEmpty())
             {
                 ToolTip.CreateTooltip(TipText);
             }
-            spriteBatch.DrawRectangle(Rect, new Color(96, 81, 49));
-            spriteBatch.DrawString(Font, Text, TextPos, Color.White);
+            batch.DrawRectangle(Rect, new Color(96, 81, 49));
+            batch.DrawString(Font, Text, TextPos, Color.White);
             if (Binding.Value)
             {
-                spriteBatch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
             }
         }
 

@@ -153,7 +153,7 @@ namespace Ship_Game
             
             return intelligence;
         }
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -187,7 +187,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                         Rectangle r = new Rectangle(race.container.X, race.container.Y, 124, 124);
                         KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
-                        spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
+                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
                     }
                 }
                 else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
@@ -673,7 +673,7 @@ namespace Ship_Game
                 if (SelectedEmpire.data.MissileDodgeChance != 0)
                     DrawStat(Localizer.Token(4035), SelectedEmpire.data.MissileDodgeChance, ref TextCursor, false); 
             }
-            close.Draw(spriteBatch);
+            close.Draw(batch);
             if (base.IsActive)
             {
                 ToolTip.Draw(base.ScreenManager.SpriteBatch);

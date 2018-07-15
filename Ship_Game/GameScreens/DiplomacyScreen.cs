@@ -426,7 +426,7 @@ namespace Ship_Game
             dState = DiplomacyScreen.DialogState.Them;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             string text;
             Vector2 Position;
