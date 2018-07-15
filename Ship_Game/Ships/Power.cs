@@ -13,16 +13,24 @@ namespace Ship_Game.Ships
             float nonShieldPowerDraw = 0f;
             float shieldPowerDraw = 0f;
             float warpPowerDrawBonus = 0f;
+            if (modules == null)
+                return new Power
+                {
+                    NetSubLightPowerDraw = 0f,
+                    NetWarpPowerDraw = 0f
+                };
 
             foreach (ShipModule module in modules)
             {
-                if (!module.Active || (!module.Powered && module.PowerDraw > 0f))
+                if (module == null || !module.Active || (!module.Powered && module.PowerDraw > 0f))
                     continue;
 
                 if (module.Is(ShipModuleType.Shield))
+                {
                     shieldPowerDraw += module.PowerDraw;
-                if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
-                    warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
+                    if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+                        warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
+                }
                 else
                 {
                     nonShieldPowerDraw += module.PowerDraw;
@@ -36,7 +44,7 @@ namespace Ship_Game.Ships
             {
                 case ShieldsWarpBehavior.OnFullChargeAtWarpExit:
                     {
-                        warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier - (warpPowerDrawBonus * warpPowerDrainModifier / 2);
+                        warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
                         break;
                     }
                 case ShieldsWarpBehavior.TurnOnDelayAtWarpExit:

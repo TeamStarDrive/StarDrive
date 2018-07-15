@@ -455,7 +455,7 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
-
+            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
             // Other modification to the ship and draw values
 
             empResist += size; // FB: so the player will know the true EMP Tolerance
@@ -466,7 +466,7 @@ namespace Ship_Game
             if (mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
                 mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
 
-            float powerRecharge = powerFlow - powerDraw;
+            float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
             float turn          = (float)MathHelper.ToDegrees(turnThrust / mass / 700f); 
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
@@ -620,14 +620,13 @@ namespace Ship_Game
             {
                 if (warpDraw != 0) // FB: not sure why do we need this If statment
                 {
-                    fDrawAtWarp = powerFlow - (warpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
-                                               (powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier));
+                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                     if (warpSpeed > 0)
                         DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
                 }
                 else
                 {
-                    fDrawAtWarp = (powerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
+                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                     if (warpSpeed > 0)
                         DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
                 }
