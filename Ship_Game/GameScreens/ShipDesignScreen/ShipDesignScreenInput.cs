@@ -650,7 +650,10 @@ namespace Ship_Game
                 if (slot.Position.X > highestX) highestX = slot.Position.X;
             }
 
-            float hullWidth = highestX - lowestX;
+            // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
+            // Maybe because they are long and narrow. This code is an enigma.
+            // Redfox is working on a fix for this
+            float hullWidth = (highestX - lowestX) * 2;
 
             // So, this attempts to zoom so the entire design is visible
             float UpdateCameraMatrix()
@@ -665,21 +668,21 @@ namespace Ship_Game
                 return center.Distance(hullEdge) + 10f;
             }
 
-            float visibleHullRadius = UpdateCameraMatrix();
-            if (visibleHullRadius >= hullWidth)
+            float visibleHullWidth = UpdateCameraMatrix();
+            if (visibleHullWidth >= hullWidth)
             {
-                while (visibleHullRadius > hullWidth)
+                while (visibleHullWidth > hullWidth)
                 {
                     CameraPosition.Z += 10f;
-                    visibleHullRadius = UpdateCameraMatrix();
+                    visibleHullWidth = UpdateCameraMatrix();
                 }
             }
             else
             {
-                while (visibleHullRadius < hullWidth)
+                while (visibleHullWidth < hullWidth)
                 {
                     CameraPosition.Z -= 10f;
-                    visibleHullRadius = UpdateCameraMatrix();
+                    visibleHullWidth = UpdateCameraMatrix();
                 }
             }
 
