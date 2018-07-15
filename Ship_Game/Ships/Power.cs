@@ -8,21 +8,17 @@ namespace Ship_Game.Ships
         public float NetSubLightPowerDraw;
         public float NetWarpPowerDraw;
 
-        public static Power Calculate(IEnumerable<ShipModule> modules, Empire empire, ShieldsWarpBehavior behavior)
+        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior)
         {
             float nonShieldPowerDraw = 0f;
             float shieldPowerDraw = 0f;
             float warpPowerDrawBonus = 0f;
             if (modules == null)
-                return new Power
-                {
-                    NetSubLightPowerDraw = 0f,
-                    NetWarpPowerDraw = 0f
-                };
+                return new Power();
 
             foreach (ShipModule module in modules)
             {
-                if (module == null || !module.Active || (!module.Powered && module.PowerDraw > 0f))
+                if (!module.Active || (!module.Powered && module.PowerDraw > 0f))
                     continue;
 
                 if (module.Is(ShipModuleType.Shield))
