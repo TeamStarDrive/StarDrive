@@ -470,8 +470,6 @@ namespace Ship_Game.Ships
             WarpThrust                = 0f;
             PowerStoreMax             = 0f;
             PowerFlowMax              = 0f;
-            //ModulePowerDraw           = 0f;
-            //ShieldPowerDraw           = 0f;
             shield_max                = 0f;
             shield_power              = 0f;
             armor_max                 = 0f;
@@ -573,8 +571,6 @@ namespace Ship_Game.Ships
 
                 CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax  += module.OrdinanceCapacity;
-                //if (module.ModuleType == ShipModuleType.Shield) ShieldPowerDraw += module.PowerDraw; //FB: we want primary type shield here
-                //else                                            ModulePowerDraw += module.PowerDraw;
                 if (module.FTLSpoolTime > FTLSpoolTime)
                     FTLSpoolTime = module.FTLSpoolTime;
 
