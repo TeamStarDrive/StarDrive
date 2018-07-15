@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -286,7 +287,6 @@ namespace Ship_Game
             if (p.Owner == null)
                 return;
             p.UpdateIncomes(false);
-            Vector2 pos = Mouse.GetState().Pos();
             LeftMenu.Draw();
             RightMenu.Draw();
             TitleBar.Draw();
@@ -358,14 +358,13 @@ namespace Ship_Game
                     SendTroops.Text = "Send Troops";
                 SendTroops.Draw(batch);
             }
-            var vector2_1 = new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35);
-            DrawDetailInfo(vector2_1);
+            DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw();
             queue.Draw();
 
             if (build.Tabs[0].Selected)
             {
-                DrawBuildingsWeCanBuild(batch, vector2_1);
+                DrawBuildingsWeCanBuild(batch);
             }
             else if (p.HasShipyard && build.Tabs[1].Selected)
             {
@@ -380,7 +379,7 @@ namespace Ship_Game
                 DrawBuildTroopsListDup(batch);
             }
 
-            DrawConstructionQueue(batch, pos);
+            DrawConstructionQueue(batch);
 
             buildSL.Draw(batch);
             selector?.Draw(batch);
@@ -389,7 +388,7 @@ namespace Ship_Game
             batch.DrawRectangle(ColonySliderFood.sRect, ColonySliderFood.Color);
             Rectangle rectangle1 = new Rectangle(ColonySliderFood.sRect.X - 40, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
             batch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], rectangle1, p.Owner.data.Traits.Cybernetic > 0 ? new Color((byte)110, (byte)110, (byte)110, byte.MaxValue) : Color.White);
-            if (rectangle1.HitTest(pos) && Empire.Universe.IsActive)
+            if (rectangle1.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
             {
                 ToolTip.CreateTooltip(p.Owner.data.Traits.Cybernetic == 0 ? 70 : 77);
             }
@@ -420,7 +419,7 @@ namespace Ship_Game
             batch.DrawRectangle(ColonySliderProd.sRect, ColonySliderProd.Color);
             Rectangle rectangle2 = new Rectangle(ColonySliderProd.sRect.X - 40, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
             batch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], rectangle2, Color.White);
-            if (rectangle2.HitTest(pos) && Empire.Universe.IsActive)
+            if (rectangle2.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(71);
             if (ColonySliderProd.cState == "normal")
                 batch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], ColonySliderProd.cursor, Color.White);
@@ -469,7 +468,7 @@ namespace Ship_Game
             batch.DrawRectangle(ColonySliderRes.sRect, ColonySliderRes.Color);
             Rectangle rectangle3 = new Rectangle(ColonySliderRes.sRect.X - 40, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_science"].Height / 2, ResourceManager.TextureDict["NewUI/icon_science"].Width, ResourceManager.TextureDict["NewUI/icon_science"].Height);
             batch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rectangle3, Color.White);
-            if (rectangle3.HitTest(pos) && Empire.Universe.IsActive)
+            if (rectangle3.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(72);
             if (ColonySliderRes.cState == "normal")
                 batch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], ColonySliderRes.cursor, Color.White);
@@ -544,14 +543,14 @@ namespace Ship_Game
             Color color = new Color(byte.MaxValue, (byte)239, (byte)208);
             spriteBatch1.DrawString(arial12Bold, text4, position4, color);
             Rectangle rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385) + ":").X, Fonts.Arial12Bold.LineSpacing);
-            if (rect.HitTest(pos) && Empire.Universe.IsActive)
+            if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75);
             vector2_2.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, p.Fertility.ToString(format), position3, new Color(byte.MaxValue, (byte)239, (byte)208));
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386) + ":").X, Fonts.Arial12Bold.LineSpacing);
-            if (rect.HitTest(pos) && Empire.Universe.IsActive)
+            if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
             vector2_2.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
@@ -599,7 +598,7 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
             batch.DrawString(Fonts.Arial12Bold, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
 
-            if (rect.HitTest(pos) && Empire.Universe.IsActive)
+            if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
             if (ResourceManager.TextureDict.ContainsKey("Portraits/" + p.Owner.data.PortraitName))
@@ -696,11 +695,10 @@ namespace Ship_Game
 
             close.Draw(batch);
 
-            if (foodStorageIcon.HitTest(pos) && Empire.Universe.IsActive)
+            if (foodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73);
-            if (!profStorageIcon.HitTest(pos) || !Empire.Universe.IsActive)
-                return;
-            ToolTip.CreateTooltip(74);
+            if (profStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
+                ToolTip.CreateTooltip(74);
         }
 
         private void DrawBuildTroopsListDup(SpriteBatch batch)
@@ -709,7 +707,6 @@ namespace Ship_Game
             if (Reset)
             {
                 buildSL.Reset();
-                buildSL.indexAtTop = 0;
                 foreach (string troopType in ResourceManager.TroopTypes)
                 {
                     if (p.Owner.WeCanBuildTroop(troopType))
@@ -947,7 +944,6 @@ namespace Ship_Game
             if (Reset)
             {
                 buildSL.Reset();
-                buildSL.indexAtTop = 0;
                 foreach (string troopType in ResourceManager.TroopTypes)
                 {
                     if (p.Owner.WeCanBuildTroop(troopType))
@@ -1001,50 +997,35 @@ namespace Ship_Game
             }
         }
 
-        private void DrawConstructionQueue(SpriteBatch batch, Vector2 pos)
+        private void DrawConstructionQueue(SpriteBatch batch)
         {
             QSL.SetItems(p.ConstructionQueue);
             QSL.DrawDraggedEntry(batch);
 
             foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
             {
-                entry.CheckHoverNoSound(pos);
+                entry.CheckHoverNoSound(Input.CursorPosition);
 
                 var qi = entry.Get<QueueItem>();
+                var position = new Vector2(entry.X + 40f, entry.Y);
+                DrawText(ref position, qi.DisplayText);
+                var r = new Rectangle((int)position.X, (int)position.Y, LowRes ? 120 : 150, 18);
+
                 if (qi.isBuilding)
                 {
                     Texture2D icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
                     batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    var position = new Vector2(entry.X + 40f, entry.Y);
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position,
-                        Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
-                    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                    if (LowRes)
-                        r.Width = 120;
                     new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
                 }
                 else if (qi.isShip)
                 {
                     batch.Draw(qi.sData.Icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    var position = new Vector2(entry.X + 40f, entry.Y);
-                    batch.DrawString(Fonts.Arial12Bold, qi.DisplayName ?? qi.sData.Name, position, Color.White);
-                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    var r = new Rectangle((int) position.X, (int) position.Y, 150, 18);
-                    if (LowRes)
-                        r.Width = 120;
-                    new ProgressBar(r, (int) (qi.Cost * p.ShipBuildingModifier), qi.productionTowards).Draw(batch);
+                    new ProgressBar(r, qi.Cost * p.ShipBuildingModifier, qi.productionTowards).Draw(batch);
                 }
                 else if (qi.isTroop)
                 {
                     Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
                     template.Draw(batch, new Rectangle(entry.X, entry.Y, 29, 30));
-                    var position = new Vector2(entry.X + 40f, entry.Y);
-                    batch.DrawString(Fonts.Arial12Bold, qi.troopType, position, Color.White);
-                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    var r = new Rectangle((int) position.X, (int) position.Y, 150, 18);
-                    if (LowRes)
-                        r.Width = 120;
                     new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
                 }
 
@@ -1055,7 +1036,7 @@ namespace Ship_Game
             QSL.Draw(batch);
         }
 
-        private void DrawBuildingsWeCanBuild(SpriteBatch batch, Vector2 vector2_1)
+        private void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
             Array<Building> buildingsWeCanBuildHere = p.GetBuildingsWeCanBuildHere();
             if (p.BuildingList.Count != buildingsHereLast || buildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
@@ -1069,74 +1050,71 @@ namespace Ship_Game
             {
                 if (!entry.TryGet(out Building building))
                     continue;
+
+                Texture2D icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
+                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+
+                bool unprofitable = !p.WeCanAffordThis(building, p.colonyType);
+                Color buildColor = unprofitable ? Color.IndianRed : Color.White;
+                if (entry.Hovered) buildColor = Color.White; // hover color
+
+                string descr = Localizer.Token(building.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
+                descr = HelperFunctions.ParseText(Fonts.Arial8Bold, descr, LowRes ? 200f : 280f);
+
+                var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
+
+                batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), buildColor);
+                DrawText(ref position, building.NameTranslationIndex, buildColor);
+
                 if (!entry.Hovered)
                 {
-                    bool wontbuild = !p.WeCanAffordThis(building, p.colonyType);
-                    batch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"],
-                        new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
-                    var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position,
-                        wontbuild ? Color.SlateGray : Color.White);
-                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold,
-                        HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex),
-                            LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
-                    position.X = (float) (entry.Right - 100);
-                    var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Orange);
+                    position.X = (entry.Right - 100);
+                    var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    batch.Draw(iconProd, r, Color.White);
 
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
-                    position = new Vector2((float) (destinationRectangle2.X - 60),
-                        (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                    position = new Vector2( (r.X - 60),
+                         (1 + r.Y + r.Height / 2 -
                                  Fonts.Arial12Bold.LineSpacing / 2));
                     string maintenance = building.Maintenance.ToString("F2");
                     batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~~
 
-                    position = new Vector2((float) (destinationRectangle2.X + 26),
-                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                    position = new Vector2((r.X + 26),
+                        (r.Y + r.Height / 2 -
                                  Fonts.Arial12Bold.LineSpacing / 2));
                     batch.DrawString(Fonts.Arial12Bold,
-                        ((float) (int) building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
+                        ((int) building.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
 
                     entry.DrawPlus(batch);
                 }
                 else
                 {
-                    batch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"],
-                        new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
-                    Vector2 position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position, Color.White);
-                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold,
-                        HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex),
-                            LowRes ? 200f : 280f), position, Color.Orange);
-                    position.X = (float) (entry.Right - 100);
-                    var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                    batch.DrawString(Fonts.Arial8Bold, descr, position, Color.Orange);
+                    position.X = (entry.Right - 100);
+                    var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    batch.Draw(iconProd, r, Color.White);
 
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
-                    position = new Vector2((float) (destinationRectangle2.X - 60),
-                        (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    position = new Vector2((r.X - 60),
+                                           (1 + r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                     float actualMaint = building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod;
                     string maintenance = actualMaint.ToString("F2");
                     batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~
 
-                    position = new Vector2((float) (destinationRectangle2.X + 26),
-                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                    position = new Vector2((r.X + 26),
+                        (r.Y + r.Height / 2 -
                                  Fonts.Arial12Bold.LineSpacing / 2));
                     batch.DrawString(Fonts.Arial12Bold,
-                        ((float) (int) building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
+                        ((int) building.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
                     entry.DrawPlus(batch);
                 }
 
@@ -1144,11 +1122,26 @@ namespace Ship_Game
             }
         }
 
-        private Color TextColor => new Color(255, 239, 208);
+        private Color TextColor { get; } = new Color(255, 239, 208);
 
-        private void DrawLine(ref Vector2 cursor, string text)
+        private void DrawText(ref Vector2 cursor, int tokenId)
         {
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, TextColor);
+            DrawText(ref cursor, tokenId, Color.White);
+        }
+
+        private void DrawText(ref Vector2 cursor, string text)
+        {
+            DrawText(ref cursor, text, Color.White);
+        }
+
+        private void DrawText(ref Vector2 cursor, int tokenId, Color color)
+        {
+            DrawText(ref cursor, Localizer.Token(tokenId), color);
+        }
+
+        private void DrawText(ref Vector2 cursor, string text, Color color)
+        {
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, color);
             cursor.Y += Fonts.Arial12Bold.LineSpacing;
         }
 
@@ -1739,34 +1732,13 @@ namespace Ship_Game
         {
             switch (p.colonyType)
             {
-                case Planet.ColonyType.Core:
-                    {
-                        return 1;
-                    }
-                case Planet.ColonyType.Colony:
-                    {
-                        return 0;
-                    }
-                case Planet.ColonyType.Industrial:
-                    {
-                        return 2;
-                    }
-                case Planet.ColonyType.Research:
-                    {
-                        return 4;
-                    }
-                case Planet.ColonyType.Agricultural:
-                    {
-                        return 3;
-                    }
-                case Planet.ColonyType.Military:
-                    {
-                        return 5;
-                    }
-                case Planet.ColonyType.TradeHub:
-                    {
-                        return 6;
-                    }
+                case Planet.ColonyType.Colony: return 0;
+                case Planet.ColonyType.Core: return 1;
+                case Planet.ColonyType.Industrial: return 2;
+                case Planet.ColonyType.Agricultural: return 3;
+                case Planet.ColonyType.Research: return 4;
+                case Planet.ColonyType.Military: return 5;
+                case Planet.ColonyType.TradeHub: return 6;
             }
             return 0;
         }
@@ -2211,101 +2183,7 @@ namespace Ship_Game
                     b.HandleInput(input, ScreenManager);
             }
 
-            int i = QSL.indexAtTop;
-            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
-            {
-                if (e.CheckHover(MousePos))
-                {
-                    selector = e.CreateSelector();
-                }
-                if (e.WasUpHovered(input))
-                {
-                    ToolTip.CreateTooltip(63);
-                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased)
-                    {
-                        if (input.LeftMouseClick && i > 0)
-                        {
-                            QueueItem item = p.ConstructionQueue[i - 1];
-                            p.ConstructionQueue[i - 1] = p.ConstructionQueue[i];
-                            p.ConstructionQueue[i] = item;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    else if (i > 0)
-                    {
-                        QueueItem item = p.ConstructionQueue[i];
-                        p.ConstructionQueue.Remove(item);
-                        p.ConstructionQueue.Insert(0, item);
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        break;
-                    }
-                }
-                if (e.WasDownHovered(input))
-                {
-                    ToolTip.CreateTooltip(64);
-                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
-                    {
-                        if (input.LeftMouseClick && i + 1 < QSL.NumExpandedEntries)
-                        {
-                            QueueItem item = p.ConstructionQueue[i + 1];
-                            p.ConstructionQueue[i + 1] = p.ConstructionQueue[i];
-                            p.ConstructionQueue[i] = item;
-                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        }
-                    }
-                    else if (i + 1 < QSL.NumExpandedEntries)
-                    {
-                        QueueItem item = p.ConstructionQueue[i];
-                        p.ConstructionQueue.Remove(item);
-                        p.ConstructionQueue.Insert(0, item);
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        break;
-                    }
-                }
-                if (e.WasApplyHovered(input) && !p.RecentCombat && p.CrippledTurns <= 0)
-                {
-                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
-                    {
-                        if (input.LeftMouseClick)
-                        {
-                            GameAudio.PlaySfxAsync(p.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
-                        }
-                    }
-                    else if (p.ProductionHere == 0f)
-                    {
-                        GameAudio.PlaySfxAsync("UI_Misc20");
-                    }
-                    else
-                    {
-                        p.ApplyAllStoredProduction(i);
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    }
-                }
-                if (e.WasCancelHovered(input) && input.LeftMouseClick)
-                {
-                    var item = e.Get<QueueItem>();
-                    p.ProductionHere += item.productionTowards;
-                    
-                    if (item.pgs != null)
-                    {
-                        item.pgs.QItem = null;
-                    }
-                    if (item.Goal !=null)
-                    {
-                        if (item.Goal is BuildConstructionShip)
-                        {
-                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
-                        }
-                        if (item.Goal.GetFleet() !=null)
-                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
-                    }
-                    p.ConstructionQueue.Remove(item);
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                }
-                ++i;
-            }
-
-            QSL.HandleInput(input, p);
+            HandleConstructionQueueInput(input);
 
             if (ActiveBuildingEntry != null)
             {
@@ -2502,6 +2380,112 @@ namespace Ship_Game
             return false;
         }
 
+        private void HandleConstructionQueueInput(InputState input)
+        {
+            int i = QSL.FirstVisibleIndex;
+            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
+            {
+                if (e.CheckHover(Input.CursorPosition))
+                {
+                    selector = e.CreateSelector();
+                }
+
+                if (e.WasUpHovered(input))
+                {
+                    ToolTip.CreateTooltip(63);
+                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased)
+                    {
+                        if (input.LeftMouseClick && i > 0)
+                        {
+                            QueueItem item = p.ConstructionQueue[i - 1];
+                            p.ConstructionQueue[i - 1] = p.ConstructionQueue[i];
+                            p.ConstructionQueue[i] = item;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        }
+                    }
+                    else if (i > 0)
+                    {
+                        QueueItem item = p.ConstructionQueue[i];
+                        p.ConstructionQueue.Remove(item);
+                        p.ConstructionQueue.Insert(0, item);
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        break;
+                    }
+                }
+
+                if (e.WasDownHovered(input))
+                {
+                    ToolTip.CreateTooltip(64);
+                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
+                    {
+                        if (input.LeftMouseClick && i + 1 < QSL.NumExpandedEntries)
+                        {
+                            QueueItem item = p.ConstructionQueue[i + 1];
+                            p.ConstructionQueue[i + 1] = p.ConstructionQueue[i];
+                            p.ConstructionQueue[i] = item;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        }
+                    }
+                    else if (i + 1 < QSL.NumExpandedEntries)
+                    {
+                        QueueItem item = p.ConstructionQueue[i];
+                        p.ConstructionQueue.Remove(item);
+                        p.ConstructionQueue.Insert(0, item);
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        break;
+                    }
+                }
+
+                if (e.WasApplyHovered(input) && !p.RecentCombat && p.CrippledTurns <= 0)
+                {
+                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
+                    {
+                        if (input.LeftMouseClick)
+                        {
+                            GameAudio.PlaySfxAsync(p.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
+                        }
+                    }
+                    else if (p.ProductionHere == 0f)
+                    {
+                        GameAudio.PlaySfxAsync("UI_Misc20");
+                    }
+                    else
+                    {
+                        p.ApplyAllStoredProduction(i);
+                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                    }
+                }
+
+                if (e.WasCancelHovered(input) && input.LeftMouseClick)
+                {
+                    var item = e.Get<QueueItem>();
+                    p.ProductionHere += item.productionTowards;
+
+                    if (item.pgs != null)
+                    {
+                        item.pgs.QItem = null;
+                    }
+
+                    if (item.Goal != null)
+                    {
+                        if (item.Goal is BuildConstructionShip)
+                        {
+                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                        }
+
+                        if (item.Goal.GetFleet() != null)
+                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                    }
+
+                    p.ConstructionQueue.Remove(item);
+                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                }
+                ++i;
+            }
+
+            QSL.HandleInput(input, p);
+        }
+
         private void HandleSlider()
         {
             Vector2 mousePos = new Vector2((float)currentMouse.X, (float)currentMouse.Y);
@@ -2613,23 +2597,20 @@ namespace Ship_Game
                 }
                 else if (ProdLock.Locked && !ResLock.Locked)
                 {
-                    Planet researcherPercentage1 = p;
-                    researcherPercentage1.ResearcherPercentage = researcherPercentage1.ResearcherPercentage + difference;
+                    p.ResearcherPercentage += difference;
                     if (p.ResearcherPercentage < 0f)
                     {
-                        Planet farmerPercentage1 = p;
-                        farmerPercentage1.FarmerPercentage = farmerPercentage1.FarmerPercentage + p.ResearcherPercentage;
+                        p.FarmerPercentage += p.ResearcherPercentage;
                         p.ResearcherPercentage = 0f;
                     }
                 }
                 else if (!ProdLock.Locked && ResLock.Locked)
                 {
                     Planet workerPercentage1 = p;
-                    workerPercentage1.WorkerPercentage = workerPercentage1.WorkerPercentage + difference;
+                    p.WorkerPercentage += difference;
                     if (p.WorkerPercentage < 0f)
                     {
-                        Planet planet1 = p;
-                        planet1.FarmerPercentage = planet1.FarmerPercentage + p.WorkerPercentage;
+                        p.FarmerPercentage += p.WorkerPercentage;
                         p.WorkerPercentage = 0f;
                     }
                 }

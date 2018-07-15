@@ -69,8 +69,7 @@ namespace Ship_Game
             ActiveModSubMenu.HandleInputNoReset();
             if (!base.HandleInput(input))
                 return false;
-            WeaponSl.ResetOnNextDraw = true;
-            WeaponSl.indexAtTop = 0;
+            ResetLists();
             return false;
             
         }

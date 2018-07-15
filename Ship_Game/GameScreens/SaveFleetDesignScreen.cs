@@ -44,7 +44,7 @@ namespace Ship_Game
             }
         }
 
-        protected override void SetSavesSL()
+        protected override void InitSaveList()
         {
             foreach (FileInfo info in Dir.GetFiles(Path))
             {

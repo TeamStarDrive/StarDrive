@@ -22,10 +22,10 @@ namespace Ship_Game
     public class ScrollList
     {
         private readonly Submenu Parent;
-        public Rectangle ScrollUp;
-        public Rectangle ScrollDown;
-        public Rectangle ScrollBarHousing;
-        public Rectangle ScrollBar;
+        private Rectangle ScrollUp;
+        private Rectangle ScrollDown;
+        private Rectangle ScrollBarHousing;
+        private Rectangle ScrollBar;
 
         private readonly int EntryHeight = 40;
         private int ScrollBarHover;
@@ -35,8 +35,8 @@ namespace Ship_Game
         private float ClickTimer;
         private float TimerDelay = 0.05f;
 
-        public int entriesToDisplay;
-        public int indexAtTop;
+        private readonly int MaxVisibleEntries;
+        public int FirstVisibleIndex;
         private readonly Array<Entry> Entries = new Array<Entry>();
         private readonly Array<Entry> ExpandedEntries = new Array<Entry>(); // Flattened entries
         private readonly bool IsDraggable;
@@ -56,7 +56,7 @@ namespace Ship_Game
         public ScrollList(Submenu p, ListOptions options = ListOptions.None)
         {
             Parent = p;
-            entriesToDisplay = (p.Menu.Height - 25) / 40;         
+            MaxVisibleEntries = (p.Menu.Height - 25) / 40;         
             IsDraggable = options == ListOptions.Draggable;
             InitializeRects(p, 30);
         }
@@ -66,7 +66,7 @@ namespace Ship_Game
             Parent = p;
             EntryHeight = eHeight;
             Controls = controls;
-            entriesToDisplay = (p.Menu.Height - 25) / EntryHeight;
+            MaxVisibleEntries = (p.Menu.Height - 25) / EntryHeight;
             InitializeRects(p, 30);
         }
 
@@ -74,7 +74,7 @@ namespace Ship_Game
         {
             Parent = p;
             EntryHeight = eHeight;
-            entriesToDisplay = p.Menu.Height / EntryHeight;
+            MaxVisibleEntries = p.Menu.Height / EntryHeight;
             InitializeRects(p, 5);
         }
 
@@ -103,7 +103,8 @@ namespace Ship_Game
 
         public void SetItems<T>(IEnumerable<T> newItems) where T : class
         {
-            Reset();
+            Entries.Clear();
+            ExpandedEntries.Clear();
             foreach (T item in newItems)
                 Entries.Add(new Entry(this, item, false, false));
             Update();
@@ -177,7 +178,7 @@ namespace Ship_Game
 
         public T ItemAtTop<T>() where T : class
         {
-            return (T)ExpandedEntries[indexAtTop].item;
+            return (T)ExpandedEntries[FirstVisibleIndex].item;
         }
 
         public int IndexOf<T>(Func<T, bool> predicate) where T : class
@@ -216,7 +217,7 @@ namespace Ship_Game
         {
             get
             {
-                for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
                     yield return Entries[i];
             }
         }
@@ -225,21 +226,21 @@ namespace Ship_Game
         {
             get
             {
-                for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; ++i)
+                for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
                     yield return ExpandedEntries[i];
             }
         }
 
         public IEnumerable<T> VisibleItems<T>() where T : class
         {
-            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; ++i)
+            for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
                 if (Entries[i].item is T item)
                     yield return item;
         }
 
         public IEnumerable<T> VisibleExpandedItems<T>() where T : class
         {
-            for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; ++i)
+            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
                 if (ExpandedEntries[i].item is T item)
                     yield return item;
         }
@@ -262,7 +263,8 @@ namespace Ship_Game
         {
             Entries.Clear();
             ExpandedEntries.Clear();
-            indexAtTop = 0;
+            FirstVisibleIndex = 0;
+            Update();
         }
 
         private void DrawScrollBar(SpriteBatch spriteBatch)
@@ -324,7 +326,7 @@ namespace Ship_Game
 
         public void DrawBlue(SpriteBatch spriteBatch)
         {
-            if (ExpandedEntries.Count > entriesToDisplay)
+            if (ExpandedEntries.Count > MaxVisibleEntries)
             {
                 UpdateScrollBar(blue: true);
                 DrawScrollBarBlue(spriteBatch);
@@ -333,7 +335,7 @@ namespace Ship_Game
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            if (ExpandedEntries.Count > entriesToDisplay)
+            if (ExpandedEntries.Count > MaxVisibleEntries)
                 DrawScrollBar(spriteBatch);
 
             // @todo Why the hell do we need to know the exact type of item??
@@ -373,8 +375,8 @@ namespace Ship_Game
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
         }
 
-        private float PercentViewed => entriesToDisplay / (float)ExpandedEntries.Count;
-        private float StartingPercent => indexAtTop / (float)ExpandedEntries.Count;
+        private float PercentViewed => MaxVisibleEntries / (float)ExpandedEntries.Count;
+        private float StartingPercent => FirstVisibleIndex / (float)ExpandedEntries.Count;
 
         private void UpdateScrollBar(bool blue = false)
         {
@@ -391,15 +393,15 @@ namespace Ship_Game
                 return false;
             if (ScrollUp.HitTest(input.CursorPosition))
             {
-                if (indexAtTop > 0)
-                    --indexAtTop;
+                if (FirstVisibleIndex > 0)
+                    --FirstVisibleIndex;
                 UpdateScrollBar();
                 return true;
             }
             if (ScrollDown.HitTest(input.CursorPosition))
             {
-                if (indexAtTop + entriesToDisplay < ExpandedEntries.Count)
-                    ++indexAtTop;
+                if (FirstVisibleIndex + MaxVisibleEntries < ExpandedEntries.Count)
+                    ++FirstVisibleIndex;
                 UpdateScrollBar();
                 return true;
             }
@@ -447,10 +449,10 @@ namespace Ship_Game
 
             float mousePosAsPct = (input.CursorPosition.Y - ScrollBarHousing.Y) / ScrollBarHousing.Height;
             mousePosAsPct = mousePosAsPct.Clamped(0f, 1f);
-            indexAtTop = (int)(ExpandedEntries.Count * mousePosAsPct);
-            if (indexAtTop + entriesToDisplay >= ExpandedEntries.Count)
+            FirstVisibleIndex = (int)(ExpandedEntries.Count * mousePosAsPct);
+            if (FirstVisibleIndex + MaxVisibleEntries >= ExpandedEntries.Count)
             {
-                indexAtTop = ExpandedEntries.Count - entriesToDisplay;
+                FirstVisibleIndex = ExpandedEntries.Count - MaxVisibleEntries;
             }
             return true;
         }
@@ -466,21 +468,21 @@ namespace Ship_Game
             return hit;
         }
 
-        private bool HandleParentMenuOpen(InputState input)
+        private bool HandleMouseScrollUpDown(InputState input)
         {
             if (!Parent.Menu.HitTest(input.CursorPosition))
                 return false;
             if (input.ScrollIn)
             {
-                if (indexAtTop > 0)
-                    --indexAtTop;
+                if (FirstVisibleIndex > 0)
+                    --FirstVisibleIndex;
                 UpdateScrollBar();
                 return true;
             }
             if (input.ScrollOut)
             {
-                if (indexAtTop + entriesToDisplay < ExpandedEntries.Count)
-                    ++indexAtTop;
+                if (FirstVisibleIndex + MaxVisibleEntries < ExpandedEntries.Count)
+                    ++FirstVisibleIndex;
                 UpdateScrollBar();
                 return true;
             }
@@ -500,7 +502,7 @@ namespace Ship_Game
                     ClickTimer += 0.0166666675f;
                     if (ClickTimer > TimerDelay)
                     {
-                        for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; i++)
+                        for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
                         {
                             Entry e = ExpandedEntries[i];
                             if (!e.CheckHover(input))
@@ -526,7 +528,7 @@ namespace Ship_Game
 
             int dragged = Entries.FirstIndexOf(e => e.Rect == DraggedEntry.Rect);
 
-            for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
+            for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
             {
                 if (Entries[i].CheckHover(input) && dragged != -1 && onDragElement(i, dragged))
                     break;
@@ -536,7 +538,7 @@ namespace Ship_Game
         public virtual bool HandleInput(InputState input)
         {
             bool hit = HandleScrollBar(input);
-            hit |= HandleParentMenuOpen(input);
+            hit |= HandleMouseScrollUpDown(input);
             HandleDraggable(input);
 
             HandleElementDragging(input, (newIndex, dragged) =>
@@ -560,7 +562,7 @@ namespace Ship_Game
         public bool HandleInput(InputState input, Planet p)
         {
             bool hit = HandleScrollBar(input);
-            hit |= HandleParentMenuOpen(input);
+            hit |= HandleMouseScrollUpDown(input);
             HandleDraggable(input);
 
             HandleElementDragging(input, (newIndex, dragged) =>
@@ -603,11 +605,11 @@ namespace Ship_Game
             ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             int j = 0;
-            int last = indexAtTop + entriesToDisplay - 1;
+            int last = FirstVisibleIndex + MaxVisibleEntries - 1;
             for (int i = 0; i < Entries.Count; i++)
             {
                 Entry e = Entries[i];
-                if (i >= indexAtTop && i <= last)
+                if (i >= FirstVisibleIndex && i <= last)
                     e.UpdateClickRect(r.Pos(), j++);
                 else
                     e.SetUnclickable();
@@ -619,19 +621,21 @@ namespace Ship_Game
             ExpandedEntries.Clear();
             foreach (Entry e in Entries)
                 e.ExpandSubEntries(ExpandedEntries);
-            
+
+            FirstVisibleIndex = FirstVisibleIndex.Clamped(0, 
+                Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
+
             int j = 0;
             for (int i = 0; i < ExpandedEntries.Count; i++)
             {
                 Entry e = ExpandedEntries[i];
-                if (i >= indexAtTop)
+                if (i >= FirstVisibleIndex)
                     e.UpdateClickRect(Parent.Menu.Pos(), j++);
                 else
                     e.SetUnclickable();
             }
-            ScrollBar.Height = (int)(ScrollBarHousing.Height * PercentViewed);
-            if (indexAtTop < 0)
-                indexAtTop = 0;
+
+            UpdateScrollBar();
         }
 
         public class Entry
@@ -734,9 +738,9 @@ namespace Ship_Game
                 Expanded = expanded;
                 if (!expanded)
                 {
-                    List.indexAtTop = List.indexAtTop - SubEntries.Count;
-                    if (List.indexAtTop < 0)
-                        List.indexAtTop = 0;
+                    List.FirstVisibleIndex = List.FirstVisibleIndex - SubEntries.Count;
+                    if (List.FirstVisibleIndex < 0)
+                        List.FirstVisibleIndex = 0;
                 }
                 List.Update();
             }
