@@ -146,7 +146,6 @@ namespace Ship_Game
         {
             this.ShipList.Clear();
             this.SelectedShipsSL.Reset();
-            this.SelectedShipsSL.ScrollBar.Y = this.SelectedShipsSL.ScrollBarHousing.Y;
         }
 
         public override void Draw(GameTime gameTime)
@@ -384,8 +383,6 @@ namespace Ship_Game
                             }
                             screen.SelectedShipList.ApplyPendingRemovals();
                             SetShipList(screen.SelectedShipList, false);
-                            SelectedShipsSL.indexAtTop = 0;
-                            SelectedShipsSL.ScrollBar.Y = SelectedShipsSL.ScrollBarHousing.Y;
                             continue;
                         }
                         else
@@ -425,10 +422,6 @@ namespace Ship_Game
         {
             this.Orders.Clear();
             this.isFleet = isFleet;
-            if (shipList != this.ShipList)
-            {
-                this.SelectedShipsSL.indexAtTop = 0;
-            }
             this.ShipList = shipList;
             this.SelectedShipsSL.Reset();
             SelectedShipEntry entry = new SelectedShipEntry();

@@ -48,7 +48,7 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        protected override void SetSavesSL()        // Set list of files to show
+        protected override void InitSaveList()        // Set list of files to show
         {
             var saves = new Array<FileData>();
             foreach (FileInfo saveHeaderFile in Dir.GetFiles(Path + "Headers", "xml"))

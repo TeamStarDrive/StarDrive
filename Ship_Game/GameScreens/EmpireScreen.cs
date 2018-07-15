@@ -383,7 +383,7 @@ namespace Ship_Game
             Color smallHighlight = TextColor;
             smallHighlight.A = (byte)(TextColor.A / 2);
 
-            int i = ColoniesList.indexAtTop;
+            int i = ColoniesList.FirstVisibleIndex;
             foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
                 var entry = (EmpireScreenEntry)e.item;

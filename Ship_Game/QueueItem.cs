@@ -12,7 +12,7 @@ namespace Ship_Game
         public bool isShip;
         public bool isTroop;
         public ShipData sData;
-        public Ship_Game.Building Building;
+        public Building Building;
         public string troopType;
         public Rectangle rect;
         public Rectangle ProgressBarRect;
@@ -32,5 +32,21 @@ namespace Ship_Game
         public bool NotifyOnEmpty =true;
         public bool notifyWhenBuilt =false;
         public bool IsPlayerAdded = false;
+
+        public string DisplayText
+        {
+            get
+            {
+                if (isBuilding)
+                    return Localizer.Token(Building.NameTranslationIndex);
+                if (isShip)
+                    return DisplayName ?? sData.Name;
+                if (isTroop)
+                    return troopType;
+                return "";
+            }
+        }
+
+        public override string ToString() => DisplayText;
     }
 }
