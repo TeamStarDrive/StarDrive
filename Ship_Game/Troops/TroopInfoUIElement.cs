@@ -158,7 +158,7 @@ namespace Ship_Game
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
                 string t1 = e.item as string;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.clickRect.Y), Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.Y), Color.White);
             }
             DescriptionSL.Draw(ScreenManager.SpriteBatch);
         }
@@ -173,7 +173,7 @@ namespace Ship_Game
             {
                 return false;
             }
-            foreach (TroopInfoUIElement.TippedItem ti in this.ToolTipItems)
+            foreach (TippedItem ti in ToolTipItems)
             {
                 if (!ti.r.HitTest(input.CursorPosition))
                 {

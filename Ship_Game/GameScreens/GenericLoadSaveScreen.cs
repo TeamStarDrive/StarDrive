@@ -119,7 +119,7 @@ namespace Ship_Game
             foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
                 var data = (FileData)e.item;
-                bCursor.Y = (float)e.clickRect.Y - 7;
+                bCursor.Y = (float)e.Y - 7;
                 ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
@@ -167,10 +167,10 @@ namespace Ship_Game
                 if (!e.CheckHover(input))
                     continue;
 
-                selector = new Selector(e.clickRect);
+                selector = e.CreateSelector();
                 if (e.WasCancelHovered(Input) && input.InGameSelect) // handle file delete
                 {
-                    fileToDel = ((FileData) e.item).FileLink;
+                    fileToDel = e.Get<FileData>().FileLink;
                     var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
                     messageBox.Accepted += DeleteFile;
                     ScreenManager.AddScreen(messageBox);

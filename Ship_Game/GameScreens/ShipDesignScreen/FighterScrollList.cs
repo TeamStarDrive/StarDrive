@@ -63,7 +63,7 @@ namespace Ship_Game
                     {
                         if (!e.CheckHover(input))
                             continue;
-                        SelectionBox = new Selector(e.clickRect);
+                        SelectionBox = e.CreateSelector();
                         if (!input.InGameSelect)
                             continue;
                         ActiveModule.hangarShipUID = ship.Name;
@@ -72,7 +72,7 @@ namespace Ship_Game
                     }
                     else if (ActiveModule.hangarShipUID == ship.Name)
                     {
-                        SelectionBox = new Selector(e.clickRect);
+                        SelectionBox = e.CreateSelector();
                     }
                 }
                 return true;
@@ -113,7 +113,7 @@ namespace Ship_Game
             {
                 if (!(e.item is Ship ship))
                     continue;
-                bCursor.Y = e.clickRect.Y;
+                bCursor.Y = e.Y;
                 spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);

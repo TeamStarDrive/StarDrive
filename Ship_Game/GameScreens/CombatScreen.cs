@@ -308,7 +308,7 @@ namespace Ship_Game
                         Troop t = ship.TroopList[0];
                         if (e.Hovered)
                         {
-                            bCursor.Y = e.clickRect.Y;
+                            bCursor.Y = e.Y;
                             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
@@ -317,7 +317,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            bCursor.Y = e.clickRect.Y;
+                            bCursor.Y = e.Y;
                             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
@@ -329,7 +329,7 @@ namespace Ship_Game
                     {
                         if (e.Hovered)
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
+                            bCursor.Y = (float)e.Y;
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
@@ -338,7 +338,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
+                            bCursor.Y = (float)e.Y;
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
@@ -452,7 +452,7 @@ namespace Ship_Game
                 Troop t = ((Ship)e.item).TroopList[0];
                 if (e.Hovered)
                 {
-                    bCursor.Y = e.clickRect.Y;
+                    bCursor.Y = e.Y;
                     ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
@@ -461,7 +461,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    bCursor.Y = e.clickRect.Y;
+                    bCursor.Y = e.Y;
                     ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
@@ -748,7 +748,7 @@ namespace Ship_Game
             {
                 if (!e.CheckHover(MousePos))
                     continue;
-                selector = new Selector(e.clickRect);
+                selector = e.CreateSelector();
                 if (input.LeftMouseClick)
                     draggedTroop = e;
             }

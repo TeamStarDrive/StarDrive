@@ -475,7 +475,7 @@ namespace Ship_Game
                         for (int i = indexAtTop; i < ExpandedEntries.Count && i < indexAtTop + entriesToDisplay; i++)
                         {
                             Entry e = ExpandedEntries[i];
-                            if (!e.WasHovered(input))
+                            if (!e.CheckHover(input))
                                 continue;
                             DraggedEntry = e;
                             DraggedOffset = e.TopLeft - input.CursorPosition;
@@ -510,7 +510,7 @@ namespace Ship_Game
             for (int i = indexAtTop; i < Entries.Count && i < indexAtTop + entriesToDisplay; i++)
             {
                 Entry e = Entries[i];
-                if (!e.WasHovered(input))
+                if (!e.CheckHover(input))
                     continue;
                 if (onDragElement(i, dragged))
                     break;
@@ -671,12 +671,15 @@ namespace Ship_Game
                 Edit = edit;
             }
 
+            public T Get<T>() => (T)item;
+
             public Selector CreateSelector() => new Selector(clickRect);
             public Vector2 TopLeft => new Vector2(clickRect.X, clickRect.Y);
             public int X => clickRect.X;
             public int Y => clickRect.Y;
             public int W => clickRect.Width;
             public int H => clickRect.Height;
+            public int Right => clickRect.X + clickRect.Width;
             public int CenterX => clickRect.X + clickRect.Width / 2;
             public int CenterY => clickRect.Y + clickRect.Height / 2;
 
@@ -687,12 +690,7 @@ namespace Ship_Game
 
             public bool WasClicked(InputState input)
             {
-                return input.LeftMouseClick && WasHovered(input);
-            }
-
-            public bool WasHovered(InputState input)
-            {
-                return clickRect.HitTest(input.CursorPosition);
+                return input.LeftMouseClick && CheckHover(input);
             }
 
             public void SetUnclickable()

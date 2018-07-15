@@ -395,7 +395,7 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, TextColor);
                 }
-                entry.SetNewPos(eRect.X + 22, e.clickRect.Y);
+                entry.SetNewPos(eRect.X + 22, e.Y);
                 entry.Draw(ScreenManager);
                 ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
                 ++i;
@@ -771,7 +771,7 @@ namespace Ship_Game
             }
             foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
             {
-                ((EmpireScreenEntry)e.item).SetNewPos(eRect.X + 22, e.clickRect.Y);
+                e.Get<EmpireScreenEntry>().SetNewPos(eRect.X + 22, e.Y);
             }
         }
 

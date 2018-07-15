@@ -251,7 +251,7 @@ namespace Ship_Game
             Vector2 mousePos = Input.CursorPosition;
             foreach (Entry e in VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, e.clickRect.Y);
+                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(Screen.ScreenManager, bCursor);

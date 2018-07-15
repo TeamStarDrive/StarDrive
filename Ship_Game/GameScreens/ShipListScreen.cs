@@ -214,7 +214,7 @@ namespace Ship_Game
                         //Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, entry.TotalEntrySize, TextColor);
                         ScreenManager.SpriteBatch.FillRectangle(entry.TotalEntrySize, smallHighlight);
                     }
-                    entry.SetNewPos(this.eRect.X + 22, e.clickRect.Y);
+                    entry.SetNewPos(this.eRect.X + 22, e.Y);
                     entry.Draw(base.ScreenManager, GameTime);
                     base.ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
                 }
@@ -577,7 +577,7 @@ namespace Ship_Game
             foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
                 var entry = (ShipListScreenEntry)e.item;
-                entry.SetNewPos(eRect.X + 22, e.clickRect.Y);
+                entry.SetNewPos(eRect.X + 22, e.Y);
             }
         }
 
