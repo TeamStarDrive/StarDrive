@@ -67,7 +67,7 @@ namespace Ship_Game
                 }
                 if (ok)
                 {
-                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItem(info);
+                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
                 }
             }
         }

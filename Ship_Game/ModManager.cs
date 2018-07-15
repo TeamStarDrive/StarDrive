@@ -47,7 +47,7 @@ namespace Ship_Game
             AllSaves.Draw();
             foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
             {
-                e.Get<ModEntry>().Draw(ScreenManager, e.clickRect);
+                e.Get<ModEntry>().Draw(ScreenManager, e.Rect);
             }
             ModsSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 

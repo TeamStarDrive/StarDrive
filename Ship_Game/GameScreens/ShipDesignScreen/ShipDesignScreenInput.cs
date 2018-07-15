@@ -783,7 +783,7 @@ namespace Ship_Game
                         continue;
                     }
 
-                    e.AddItem(hull.Value);
+                    e.AddSubItem(hull.Value);
                 }
             }
 
