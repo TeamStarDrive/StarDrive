@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -384,6 +385,17 @@ namespace Ship_Game
             if (ss.Module.Powered)
                 graphic = graphic + "_power";
             return ResourceManager.Texture(graphic);
+        }
+
+        public ShipModule[] Modules
+        {
+            get
+            {
+                var modules = new Array<ShipModule>();
+                foreach (SlotStruct slot in Slots)
+                    if (slot.Module != null) modules.Add(slot.Module);
+                return modules.ToArray();
+            }
         }
 
         #endregion
