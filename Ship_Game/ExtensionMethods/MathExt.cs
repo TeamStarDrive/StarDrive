@@ -226,6 +226,7 @@ namespace Ship_Game
         }
 
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
+        public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
 
         // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
