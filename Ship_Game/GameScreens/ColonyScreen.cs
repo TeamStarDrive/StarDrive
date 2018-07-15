@@ -362,380 +362,25 @@ namespace Ship_Game
             DrawDetailInfo(vector2_1);
             build.Draw();
             queue.Draw();
+
             if (build.Tabs[0].Selected)
             {
-                Array<Building> buildingsWeCanBuildHere = p.GetBuildingsWeCanBuildHere();
-                if (p.BuildingList.Count != buildingsHereLast || buildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
-                {
-                    BuildingsCanBuild = buildingsWeCanBuildHere;
-                    buildSL.SetItems(BuildingsCanBuild);
-                    Reset = false;
-                }
-                foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
-                {
-                    if (!entry.TryGet(out Building building))
-                        continue;
-                    if (!entry.Hovered)
-                    {
-                        bool wontbuild = !p.WeCanAffordThis(building, p.colonyType);
-                        batch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
-                        var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
-                        batch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex), LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
-                        position.X = (float)(entry.Right - 100);
-                        var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
-
-                        position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        string maintenance = building.Maintenance.ToString("F2");
-                        batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
-
-                        // ~~~~
-
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
-                        
-                        entry.DrawPlus(batch);
-                    }
-                    else
-                    {
-                        batch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                        Vector2 position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
-                        batch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex), LowRes ? 200f : 280f), position, Color.Orange);
-                        position.X = (float)(entry.Right - 100);
-                        var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
-
-                        position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        float actualMaint = building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod;
-                        string maintenance = actualMaint.ToString("F2");
-                        batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
-
-                        // ~~~
-
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((float)(int)building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
-                        entry.DrawPlus(batch);
-                    }
-                    entry.CheckHover(currentMouse);
-                }
+                DrawBuildingsWeCanBuild(batch, vector2_1);
             }
             else if (p.HasShipyard && build.Tabs[1].Selected)
             {
-                var added = new HashSet<string>();
-                if (shipsCanBuildLast != p.Owner.ShipsWeCanBuild.Count || Reset)
-                {
-                    buildSL.Reset();
-
-                    if (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.ColoniserMenu)
-                    {
-                        added.Add("Coloniser");
-                        buildSL.AddItem(new ModuleHeader("Coloniser"));
-                    }
-
-                    foreach (string shipToBuild in p.Owner.ShipsWeCanBuild)
-                    {
-                        var ship = ResourceManager.GetShipTemplate(shipToBuild);
-                        var role = ResourceManager.ShipRoles[ship.shipData.Role];
-                        var header = Localizer.GetRole(ship.DesignRole, p.Owner);
-                        if (role.Protected || role.NoBuild)
-                            continue;
-                        if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
-                        {
-                            added.Add(header);
-                            buildSL.AddItem(new ModuleHeader(header));
-                        }
-                    }
-                    Reset = false;
-
-                    // @todo This sorting looks quite heavy...
-                    IOrderedEnumerable<KeyValuePair<string, Ship>> orderedShips = 
-                        ResourceManager.ShipsDict
-                            .OrderBy(s => !s.Value.IsPlayerDesign)
-                            .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                            .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
-                            .ThenByDescending(kv => kv.Value.GetTechScore(out int[] _))
-                            .ThenBy(kv => kv.Value.Name)
-                            .ThenBy(kv => kv.Key);
-                    KeyValuePair<string, Ship>[] ships = orderedShips.ToArray();
-
-                    foreach(ScrollList.Entry entry in buildSL.AllEntries)
-                    {
-                        string header = entry.Get<ModuleHeader>().Text;
-
-                        foreach (KeyValuePair<string, Ship> kv in ships)
-                        {
-                            if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key))
-                                continue;
-
-                            if (Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player) != header
-                                || kv.Value.Deleted
-                                || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
-                            {
-                                continue;
-                            }
-                            Ship ship = kv.Value;
-                            if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) &&
-                                Localizer.GetRole(ship.DesignRole, p.Owner) == header)                            
-                                entry.AddSubItem(ship, addAndEdit:true);                            
-                        }
-                    }
-                }
-                vector2_1 = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
-                foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
-                {
-                    vector2_1.Y = entry.Y;
-                    if (entry.TryGet(out ModuleHeader header))
-                        header.Draw(ScreenManager, vector2_1);
-                    else if (!entry.Hovered)
-                    {
-                        var ship = entry.Get<Ship>();
-                        batch.Draw(ship.BaseHull.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                        var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, 
-                            ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
-                        position.Y += Fonts.Arial12Bold.LineSpacing;
-                        
-                        var role = ship.BaseHull.Name;
-                        batch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
-                        position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
-                        ship.GetTechScore(out int[] scores);
-                        batch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
-
-
-                        //Forgive my hacks this code of nightmare must GO!
-                        position.X = (entry.Right - 120);
-                        var iconProd = ResourceManager.Texture("NewUI/icon_production");
-                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                        position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        // Use correct upkeep method depending on mod settings
-                        string upkeep;
-                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                        {
-                            upkeep = ship.GetMaintCostRealism(p.Owner).ToString("F2");
-                        }
-                        else
-                        {
-                            upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
-                        }
-                        batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
-
-                        // ~~~
-
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((int)(ship.GetCost(p.Owner)*p.ShipBuildingModifier)).ToString(), position, Color.White);
-                    }
-                    else
-                    {
-                        var ship = entry.Get<Ship>();
-
-                        vector2_1.Y = (float)entry.Y;
-                        batch.Draw(ship.BaseHull.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform ? ship.Name + " " + Localizer.Token(2041) : ship.Name, position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-
-                        //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                        var role = ship.BaseHull.Name;
-                        batch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
-                        position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
-                        ship.GetTechScore(out int[] scores);
-                        batch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
-
-                        position.X = (entry.Right - 120);
-                        Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
-                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                        // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                        position = new Vector2((destinationRectangle2.X - 60), (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        // Use correct upkeep method depending on mod settings
-                        string upkeep;
-                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                        {
-                            upkeep = entry.Get<Ship>().GetMaintCostRealism(p.Owner).ToString("F2");
-                        }
-                        else
-                        {
-                            upkeep = entry.Get<Ship>().GetMaintCost(p.Owner).ToString("F2");
-                        }
-                        batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
-
-                        // ~~~
-
-                        position = new Vector2((destinationRectangle2.X + 26), (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((int)(entry.Get<Ship>().GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(), position, Color.White);
-                        entry.DrawPlusEdit(batch);
-                    }
-                }
-                playerDesignsToggle.Draw(ScreenManager);
+                DrawBuildableShipsList(batch);
             }
             else if (!p.HasShipyard && p.AllowInfantry && build.Tabs[1].Selected)
             {
-                if (Reset)
-                {
-                    buildSL.Reset();
-                    buildSL.indexAtTop = 0;
-                    foreach (string troopType in ResourceManager.TroopTypes)
-                    {
-                        if (p.Owner.WeCanBuildTroop(troopType))
-                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
-                    }
-                    Reset = false;
-                }
-                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
-                vector2_1 = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
-                foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
-                {
-                    vector2_1.Y = entry.Y;
-                    var troop = entry.Get<Troop>();
-                    if (!entry.Hovered)
-                    {
-                        troop.Draw(batch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                        position.Y += Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (entry.Right - 100);
-                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-                        position = new Vector2((destinationRectangle2.X + 26), (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
-                        
-                        entry.DrawPlusEdit(batch);
-                    }
-                    else
-                    {
-                        vector2_1.Y = entry.Y;
-                        troop.Draw(batch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        var position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                        position.Y += Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (entry.Right - 100);
-                        var destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-                        position = new Vector2((destinationRectangle2.X + 26), (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
-                        
-                        entry.DrawPlusEdit(batch);
-                    }
-                }
+                DrawBuildTroopsList(batch);
             }
             else if (build.Tabs.Count > 2 && build.Tabs[2].Selected)
             {
-                if (Reset)
-                {
-                    buildSL.Reset();
-                    buildSL.indexAtTop = 0;
-                    foreach (string troopType in ResourceManager.TroopTypes)
-                    {
-                        if (p.Owner.WeCanBuildTroop(troopType))
-                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
-                    }
-                    Reset = false;
-                }
-                Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
-                vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
-                foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
-                {
-                    vector2_1.Y = (float)entry.Y;
-                    var troop = entry.Get<Troop>();
-                    if (!entry.Hovered)
-                    {
-                        troop.Draw(batch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (float)(entry.Right - 100);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
-                        entry.DrawPlusEdit(batch);
-                    }
-                    else
-                    {
-                        vector2_1.Y = (float)entry.Y;
-                        troop.Draw(batch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                        Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                        position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-                        position.X = (float)(entry.Right - 100);
-                        Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                        batch.Draw(iconProd, destinationRectangle2, Color.White);
-                        position = new Vector2((float)(destinationRectangle2.X + 26), (float)(destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                        batch.DrawString(Fonts.Arial12Bold, ((int)troop.GetCost()).ToString(), position, Color.White);
-                        entry.DrawPlusEdit(batch);
-                    }
-                }
+                DrawBuildTroopsListDup(batch);
             }
 
-            QSL.SetItems(p.ConstructionQueue);
-            QSL.DrawDraggedEntry(batch);
-
-            foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
-            {
-                vector2_1.Y = entry.Y;
-                entry.CheckHoverNoSound(pos);
-
-                var qi = entry.Get<QueueItem>();
-                if (qi.isBuilding)
-                {
-                    Texture2D icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
-                    batch.Draw(icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                    var position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
-                    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                    if (LowRes)
-                        r.Width = 120;
-                    new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
-                }
-                else if (qi.isShip)
-                {
-                    batch.Draw(qi.sData.Icon, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
-                    var position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                    batch.DrawString(Fonts.Arial12Bold, qi.DisplayName ?? qi.sData.Name, position, Color.White);
-                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                    if (LowRes)
-                        r.Width = 120;
-                    new ProgressBar(r, (int)(qi.Cost * p.ShipBuildingModifier), qi.productionTowards).Draw(batch);
-                }
-                else if (qi.isTroop)
-                {
-                    Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
-                    template.Draw(batch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
-                    var position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                    batch.DrawString(Fonts.Arial12Bold, qi.troopType, position, Color.White);
-                    position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-                    if (LowRes)
-                        r.Width = 120;
-                    new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
-                }
-
-                entry.DrawUpDownApplyCancel(batch, Input);
-                entry.DrawPlus(batch);
-            }
-            QSL.Draw(batch);
+            DrawConstructionQueue(batch, pos);
 
             buildSL.Draw(batch);
             selector?.Draw(batch);
@@ -1058,6 +703,447 @@ namespace Ship_Game
             ToolTip.CreateTooltip(74);
         }
 
+        private void DrawBuildTroopsListDup(SpriteBatch batch)
+        {
+            Vector2 vector2_1;
+            if (Reset)
+            {
+                buildSL.Reset();
+                buildSL.indexAtTop = 0;
+                foreach (string troopType in ResourceManager.TroopTypes)
+                {
+                    if (p.Owner.WeCanBuildTroop(troopType))
+                        buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
+                }
+
+                Reset = false;
+            }
+
+            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
+            foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
+            {
+                vector2_1.Y = (float) entry.Y;
+                var troop = entry.Get<Troop>();
+                if (!entry.Hovered)
+                {
+                    troop.Draw(batch, new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30));
+                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    position.X = (float) (entry.Right - 100);
+                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    position = new Vector2((float) (destinationRectangle2.X + 26),
+                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+                    entry.DrawPlusEdit(batch);
+                }
+                else
+                {
+                    vector2_1.Y = (float) entry.Y;
+                    troop.Draw(batch, new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30));
+                    Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    position.X = (float) (entry.Right - 100);
+                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    position = new Vector2((float) (destinationRectangle2.X + 26),
+                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+                    entry.DrawPlusEdit(batch);
+                }
+            }
+        }
+
+        private void DrawBuildableShipsList(SpriteBatch batch)
+        {
+            var added = new HashSet<string>();
+            if (shipsCanBuildLast != p.Owner.ShipsWeCanBuild.Count || Reset)
+            {
+                buildSL.Reset();
+
+                if (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.ColoniserMenu)
+                {
+                    added.Add("Coloniser");
+                    buildSL.AddItem(new ModuleHeader("Coloniser"));
+                }
+
+                foreach (string shipToBuild in p.Owner.ShipsWeCanBuild)
+                {
+                    var ship = ResourceManager.GetShipTemplate(shipToBuild);
+                    var role = ResourceManager.ShipRoles[ship.shipData.Role];
+                    var header = Localizer.GetRole(ship.DesignRole, p.Owner);
+                    if (role.Protected || role.NoBuild)
+                        continue;
+                    if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
+                    {
+                        added.Add(header);
+                        buildSL.AddItem(new ModuleHeader(header));
+                    }
+                }
+
+                Reset = false;
+
+                // @todo This sorting looks quite heavy...
+                IOrderedEnumerable<KeyValuePair<string, Ship>> orderedShips =
+                    ResourceManager.ShipsDict
+                        .OrderBy(s => !s.Value.IsPlayerDesign)
+                        .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                        .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
+                        .ThenByDescending(kv => kv.Value.GetTechScore(out int[] _))
+                        .ThenBy(kv => kv.Value.Name)
+                        .ThenBy(kv => kv.Key);
+                KeyValuePair<string, Ship>[] ships = orderedShips.ToArray();
+
+                foreach (ScrollList.Entry entry in buildSL.AllEntries)
+                {
+                    string header = entry.Get<ModuleHeader>().Text;
+
+                    foreach (KeyValuePair<string, Ship> kv in ships)
+                    {
+                        if (!EmpireManager.Player.ShipsWeCanBuild.Contains(kv.Key))
+                            continue;
+
+                        if (Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player) != header
+                            || kv.Value.Deleted
+                            || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
+                        {
+                            continue;
+                        }
+
+                        Ship ship = kv.Value;
+                        if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) &&
+                            Localizer.GetRole(ship.DesignRole, p.Owner) == header)
+                            entry.AddSubItem(ship, addAndEdit: true);
+                    }
+                }
+            }
+
+            var topLeft = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
+            foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
+            {
+                topLeft.Y = entry.Y;
+                if (entry.TryGet(out ModuleHeader header))
+                    header.Draw(ScreenManager, topLeft);
+                else if (!entry.Hovered)
+                {
+                    var ship = entry.Get<Ship>();
+                    batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
+                    var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold,
+                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                            ? ship.Name + " " + Localizer.Token(2041)
+                            : ship.Name, position, Color.White);
+                    position.Y += Fonts.Arial12Bold.LineSpacing;
+
+                    var role = ship.BaseHull.Name;
+                    batch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
+                    position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    ship.GetTechScore(out int[] scores);
+                    batch.DrawString(Fonts.Arial8Bold,
+                        $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+
+
+                    //Forgive my hacks this code of nightmare must GO!
+                    position.X = (entry.Right - 120);
+                    var iconProd = ResourceManager.Texture("NewUI/icon_production");
+                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+
+                    position = new Vector2((destinationRectangle2.X - 60),
+                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    // Use correct upkeep method depending on mod settings
+                    string upkeep;
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    {
+                        upkeep = ship.GetMaintCostRealism(p.Owner).ToString("F2");
+                    }
+                    else
+                    {
+                        upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
+                    }
+
+                    batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+
+                    // ~~~
+
+                    position = new Vector2((float) (destinationRectangle2.X + 26),
+                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold, ((int) (ship.GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(),
+                        position, Color.White);
+                }
+                else
+                {
+                    var ship = entry.Get<Ship>();
+
+                    topLeft.Y = (float) entry.Y;
+                    batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
+                    Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold,
+                        ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
+                            ? ship.Name + " " + Localizer.Token(2041)
+                            : ship.Name, position, Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+
+                    //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
+                    var role = ship.BaseHull.Name;
+                    batch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
+                    position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    ship.GetTechScore(out int[] scores);
+                    batch.DrawString(Fonts.Arial8Bold,
+                        $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
+
+                    position.X = (entry.Right - 120);
+                    Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+
+                    position = new Vector2((destinationRectangle2.X - 60),
+                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    // Use correct upkeep method depending on mod settings
+                    string upkeep;
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    {
+                        upkeep = entry.Get<Ship>().GetMaintCostRealism(p.Owner).ToString("F2");
+                    }
+                    else
+                    {
+                        upkeep = entry.Get<Ship>().GetMaintCost(p.Owner).ToString("F2");
+                    }
+
+                    batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+
+                    // ~~~
+
+                    position = new Vector2((destinationRectangle2.X + 26),
+                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold,
+                        ((int) (entry.Get<Ship>().GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(), position,
+                        Color.White);
+                    entry.DrawPlusEdit(batch);
+                }
+            }
+
+            playerDesignsToggle.Draw(ScreenManager);
+        }
+
+        private void DrawBuildTroopsList(SpriteBatch batch)
+        {
+            if (Reset)
+            {
+                buildSL.Reset();
+                buildSL.indexAtTop = 0;
+                foreach (string troopType in ResourceManager.TroopTypes)
+                {
+                    if (p.Owner.WeCanBuildTroop(troopType))
+                        buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
+                }
+
+                Reset = false;
+            }
+
+            Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
+            var topLeft = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
+            foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
+            {
+                topLeft.Y = entry.Y;
+                var troop = entry.Get<Troop>();
+                if (!entry.Hovered)
+                {
+                    troop.Draw(batch, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30));
+                    var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    position.X = (entry.Right - 100);
+                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    position = new Vector2((destinationRectangle2.X + 26),
+                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+
+                    entry.DrawPlusEdit(batch);
+                }
+                else
+                {
+                    topLeft.Y = entry.Y;
+                    troop.Draw(batch, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30));
+                    var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    position.X = (entry.Right - 100);
+                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    position = new Vector2((destinationRectangle2.X + 26),
+                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+
+                    entry.DrawPlusEdit(batch);
+                }
+            }
+        }
+
+        private void DrawConstructionQueue(SpriteBatch batch, Vector2 pos)
+        {
+            QSL.SetItems(p.ConstructionQueue);
+            QSL.DrawDraggedEntry(batch);
+
+            foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
+            {
+                entry.CheckHoverNoSound(pos);
+
+                var qi = entry.Get<QueueItem>();
+                if (qi.isBuilding)
+                {
+                    Texture2D icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
+                    batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
+                    var position = new Vector2(entry.X + 40f, entry.Y);
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position,
+                        Color.White);
+                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
+                    if (LowRes)
+                        r.Width = 120;
+                    new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
+                }
+                else if (qi.isShip)
+                {
+                    batch.Draw(qi.sData.Icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
+                    var position = new Vector2(entry.X + 40f, entry.Y);
+                    batch.DrawString(Fonts.Arial12Bold, qi.DisplayName ?? qi.sData.Name, position, Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+                    var r = new Rectangle((int) position.X, (int) position.Y, 150, 18);
+                    if (LowRes)
+                        r.Width = 120;
+                    new ProgressBar(r, (int) (qi.Cost * p.ShipBuildingModifier), qi.productionTowards).Draw(batch);
+                }
+                else if (qi.isTroop)
+                {
+                    Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
+                    template.Draw(batch, new Rectangle(entry.X, entry.Y, 29, 30));
+                    var position = new Vector2(entry.X + 40f, entry.Y);
+                    batch.DrawString(Fonts.Arial12Bold, qi.troopType, position, Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+                    var r = new Rectangle((int) position.X, (int) position.Y, 150, 18);
+                    if (LowRes)
+                        r.Width = 120;
+                    new ProgressBar(r, qi.Cost, qi.productionTowards).Draw(batch);
+                }
+
+                entry.DrawUpDownApplyCancel(batch, Input);
+                entry.DrawPlus(batch);
+            }
+
+            QSL.Draw(batch);
+        }
+
+        private void DrawBuildingsWeCanBuild(SpriteBatch batch, Vector2 vector2_1)
+        {
+            Array<Building> buildingsWeCanBuildHere = p.GetBuildingsWeCanBuildHere();
+            if (p.BuildingList.Count != buildingsHereLast || buildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
+            {
+                BuildingsCanBuild = buildingsWeCanBuildHere;
+                buildSL.SetItems(BuildingsCanBuild);
+                Reset = false;
+            }
+
+            foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
+            {
+                if (!entry.TryGet(out Building building))
+                    continue;
+                if (!entry.Hovered)
+                {
+                    bool wontbuild = !p.WeCanAffordThis(building, p.colonyType);
+                    batch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"],
+                        new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
+                    var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position,
+                        wontbuild ? Color.SlateGray : Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold,
+                        HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex),
+                            LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
+                    position.X = (float) (entry.Right - 100);
+                    var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
+
+                    position = new Vector2((float) (destinationRectangle2.X - 60),
+                        (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    string maintenance = building.Maintenance.ToString("F2");
+                    batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+
+                    // ~~~~
+
+                    position = new Vector2((float) (destinationRectangle2.X + 26),
+                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold,
+                        ((float) (int) building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
+
+                    entry.DrawPlus(batch);
+                }
+                else
+                {
+                    batch.Draw(ResourceManager.TextureDict["Buildings/icon_" + building.Icon + "_48x48"],
+                        new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30), Color.White);
+                    Vector2 position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(building.NameTranslationIndex), position, Color.White);
+                    position.Y += (float) Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold,
+                        HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token(building.ShortDescriptionIndex),
+                            LowRes ? 200f : 280f), position, Color.Orange);
+                    position.X = (float) (entry.Right - 100);
+                    var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+
+                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
+
+                    position = new Vector2((float) (destinationRectangle2.X - 60),
+                        (float) (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    float actualMaint = building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod;
+                    string maintenance = actualMaint.ToString("F2");
+                    batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+
+                    // ~~~
+
+                    position = new Vector2((float) (destinationRectangle2.X + 26),
+                        (float) (destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                                 Fonts.Arial12Bold.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12Bold,
+                        ((float) (int) building.Cost * UniverseScreen.GamePaceStatic).ToString(), position, Color.White);
+                    entry.DrawPlus(batch);
+                }
+
+                entry.CheckHover(currentMouse);
+            }
+        }
+
         private Color TextColor => new Color(255, 239, 208);
 
         private void DrawLine(ref Vector2 cursor, string text)
@@ -1081,17 +1167,28 @@ namespace Ship_Game
             DrawMultiLine(ref cursor, text, TextColor);
         }
 
+        private string MultiLineFormat(string text)
+        {
+            return HelperFunctions.ParseText(Fonts.Arial12Bold,
+                                             text, pFacilities.Menu.Width - 40);
+        }
+
+        private string MultiLineFormat(int token)
+        {
+            return MultiLineFormat(Localizer.Token(token));
+        }
+
         private void DrawMultiLine(ref Vector2 cursor, string text, Color color)
         {
-            string multiline = parseText(text, pFacilities.Menu.Width - 40);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, color);
+            string multiline = MultiLineFormat(text);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, multiline, cursor, color);
             cursor.Y += (Fonts.Arial12Bold.MeasureString(multiline).Y + Fonts.Arial12Bold.LineSpacing);
         }
 
         private void DrawCommoditiesArea(Vector2 bCursor)
         {
-            string desc = parseText(Localizer.Token(4097), (pFacilities.Menu.Width - 40));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, bCursor, TextColor);
+            string text = MultiLineFormat(4097);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, bCursor, TextColor);
         }
 
         private void DrawDetailInfo(Vector2 bCursor)
@@ -1145,14 +1242,14 @@ namespace Ship_Game
                 {
                     spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(348), bCursor, new Color(255, 239, 208));
                     bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, parseText(Localizer.Token(349), (float)(pFacilities.Menu.Width - 40)), bCursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, new Color(255, 239, 208));
                     return;
                 }
                 if (pgs.building == null && pgs.Habitable)
                 {
                     spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(350), bCursor, new Color(255, 239, 208));
                     bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, parseText(Localizer.Token(349), (float)(pFacilities.Menu.Width - 40)), bCursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, new Color(255, 239, 208));
                     return;
                 }
                 if (!pgs.Habitable && pgs.building == null)
@@ -1161,12 +1258,12 @@ namespace Ship_Game
                     {
                         spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, new Color(255, 239, 208));
                         bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, parseText(Localizer.Token(352), (float)(pFacilities.Menu.Width - 40)), bCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(352), bCursor, new Color(255, 239, 208));
                         return;
                     }
                     spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, new Color(255, 239, 208));
                     bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, parseText(Localizer.Token(353), (float)(pFacilities.Menu.Width - 40)), bCursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(353), bCursor, new Color(255, 239, 208));
                     return;
                 }
                 if (pgs.building != null)
@@ -1175,7 +1272,7 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Square Selection"], bRect, Color.White);
                     spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, new Color(255, 239, 208));
                     bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
-                    string text = parseText(Localizer.Token(pgs.building.DescriptionIndex), (float)(pFacilities.Menu.Width - 40));
+                    string text = MultiLineFormat(pgs.building.DescriptionIndex);
                     spriteBatch.DrawString(Fonts.Arial12Bold, text, bCursor, new Color(255, 239, 208));
                     bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(text).Y + (float)Fonts.Arial20Bold.LineSpacing);
                     if (pgs.building.PlusFlatFoodAmount != 0f)
@@ -1379,7 +1476,7 @@ namespace Ship_Game
                 var temp = entry.Get<Building>();
                 spriteBatch.DrawString(Fonts.Arial20Bold, temp.Name, bCursor, new Color(255, 239, 208));
                 bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
-                string text = parseText(Localizer.Token(temp.DescriptionIndex), (pFacilities.Menu.Width - 40));
+                string text = MultiLineFormat(temp.DescriptionIndex);
                 spriteBatch.DrawString(Fonts.Arial12Bold, text, bCursor, new Color(255, 239, 208));
                 bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(text).Y + Fonts.Arial20Bold.LineSpacing);
                 if (temp.PlusFlatFoodAmount != 0f)
@@ -1916,7 +2013,7 @@ namespace Ship_Game
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2225));
                 }
-                if (playerDesignsToggle.HandleInput(input))
+                if (playerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
@@ -2679,24 +2776,6 @@ namespace Ship_Game
             int posX = colonySlider.sRect.X + (int)(colonySlider.sRect.Width * colonySlider.amount) - crosshairTex.Width / 2;
             int posY = colonySlider.sRect.Y + colonySlider.sRect.Height / 2 - crosshairTex.Height / 2;
             return new Rectangle(posX, posY, crosshairTex.Width, crosshairTex.Height);
-        }
-
-        private string parseText(string text, float Width)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(new char[] { ' ' });
-            for (int i = 0; i < (int)strArrays.Length; i++)
-            {
-                string word = strArrays[i];
-                if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
-            }
-            return string.Concat(returnString, line);
         }
 
         public void ResetLists()

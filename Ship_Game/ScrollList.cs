@@ -343,11 +343,7 @@ namespace Ship_Game
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
                 var r = new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30);
                 var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing, 150, 18);
-                var pb = new ProgressBar(pbRect)
-                {
-                    Max = queueItem.Cost,
-                    Progress = queueItem.productionTowards
-                };
+                var pb = new ProgressBar(pbRect, queueItem.Cost, queueItem.productionTowards);
 
                 if (queueItem.isBuilding)
                 {
