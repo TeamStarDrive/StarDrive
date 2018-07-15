@@ -889,7 +889,7 @@ namespace Ship_Game
             HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -999,7 +999,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
             FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
             KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[FlagIndex];
-            spriteBatch.Draw(item.Value, FlagRect, currentObjectColor);
+            batch.Draw(item.Value, FlagRect, currentObjectColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], FlagLeft, Color.BurlyWood);

@@ -15,7 +15,7 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
 
-        public override void Draw(SpriteBatch spriteBatch) 
+        public override void Draw(SpriteBatch batch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
@@ -25,26 +25,26 @@ namespace Ship_Game
 
             if (ToggleOverlay)
             {
-                spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-                DrawEmptySlots(spriteBatch);
-                DrawModules(spriteBatch);
-                DrawTacticalData(spriteBatch);
-                DrawUnpoweredTex(spriteBatch);
-                spriteBatch.End();
+                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
+                DrawEmptySlots(batch);
+                DrawModules(batch);
+                DrawTacticalData(batch);
+                DrawUnpoweredTex(batch);
+                batch.End();
             }
 
-            spriteBatch.Begin();
+            batch.Begin();
             if (ActiveModule != null && !ModSel.HitTest(Input))
-                DrawActiveModule(spriteBatch);
+                DrawActiveModule(batch);
 
             DrawUi();
-            selector?.Draw(spriteBatch);
+            selector?.Draw(batch);
             ArcsButton.DrawWithShadowCaps(ScreenManager);
             if (Debug)
                 DrawDebug();
 
-            Close.Draw(spriteBatch);
-            spriteBatch.End();
+            Close.Draw(batch);
+            batch.End();
             ScreenManager.EndFrameRendering();
         }
 

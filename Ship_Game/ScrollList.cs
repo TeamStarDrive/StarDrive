@@ -13,6 +13,12 @@ namespace Ship_Game
         Cancel, // only show Cancel control
     }
 
+    public enum ListOptions
+    {
+        None,
+        Draggable
+    }
+
     public class ScrollList
     {
         private readonly Submenu Parent;
@@ -33,7 +39,7 @@ namespace Ship_Game
         public int indexAtTop;
         private readonly Array<Entry> Entries = new Array<Entry>();
         private readonly Array<Entry> ExpandedEntries = new Array<Entry>(); // Flattened entries
-        public bool IsDraggable;
+        private readonly bool IsDraggable;
         public Entry DraggedEntry;
         private Vector2 DraggedOffset;
 
@@ -47,10 +53,11 @@ namespace Ship_Game
         private readonly Texture2D ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
         
 
-        public ScrollList(Submenu p)
+        public ScrollList(Submenu p, ListOptions options = ListOptions.None)
         {
             Parent = p;
-            entriesToDisplay = (p.Menu.Height - 25) / 40;            
+            entriesToDisplay = (p.Menu.Height - 25) / 40;         
+            IsDraggable = options == ListOptions.Draggable;
             InitializeRects(p, 30);
         }
 
@@ -618,11 +625,10 @@ namespace Ship_Game
                 e.ExpandSubEntries(ExpandedEntries);
             
             int j = 0;
-            int last = indexAtTop + entriesToDisplay - 1;
             for (int i = 0; i < ExpandedEntries.Count; i++)
             {
                 Entry e = ExpandedEntries[i];
-                if (i >= indexAtTop && i <= last)
+                if (i >= indexAtTop)
                     e.UpdateClickRect(Parent.Menu.Pos(), j++);
                 else
                     e.SetUnclickable();
@@ -765,6 +771,12 @@ namespace Ship_Game
                 if (!wasHovered && Hovered)
                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
 
+                return Hovered;
+            }
+
+            public bool CheckHoverNoSound(Vector2 mousePos)
+            {
+                Hovered = Rect.HitTest(mousePos);
                 return Hovered;
             }
 

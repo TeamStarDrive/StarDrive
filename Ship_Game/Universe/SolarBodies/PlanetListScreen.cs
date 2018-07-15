@@ -121,7 +121,7 @@ namespace Ship_Game
             
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -228,11 +228,11 @@ namespace Ship_Game
                 botSL = new Vector2(topLeftSL.X, (float)(this.eRect.Y + 35));
                 base.ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
             }
-            this.cb_hideUninhabitable.Draw(spriteBatch);
-            this.cb_hideOwned.Draw(spriteBatch);
-            this.close.Draw(spriteBatch);
-            ToolTip.Draw(spriteBatch);
-            spriteBatch.End();
+            this.cb_hideUninhabitable.Draw(batch);
+            this.cb_hideOwned.Draw(batch);
+            this.close.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
         }
 
 
