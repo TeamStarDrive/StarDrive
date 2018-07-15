@@ -30,7 +30,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(15)] public int NeededTroopStrength;
         [Serialize(16)] public int Priority;
 
-        [XmlIgnore] [JsonIgnore] private Planet TargetPlanet;
+        [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] private Empire Owner;
         [XmlIgnore] [JsonIgnore] private Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] private Fleet Fleet => Owner.GetFleet(WhichFleet);
@@ -477,19 +477,19 @@ namespace Ship_Game.AI.Tasks
             if (type == TaskType.Exploration ||type ==TaskType.AssaultPlanet)
             {
                 
-                float ourGroundStrength = GetTargetPlanet().GetGroundStrength(Owner);
+                float ourGroundStrength = TargetPlanet.GetGroundStrength(Owner);
 
                 if (ourGroundStrength > 0)
                 {
                     if (type == TaskType.Exploration)
                     {
-                        Planet p = GetTargetPlanet();
+                        Planet p = TargetPlanet;
                         if (p.BuildingList.Find(relic => !string.IsNullOrEmpty(relic.EventTriggerUID)) != null)
                             return;
                     }
                     else if (type == TaskType.AssaultPlanet)
                     {
-                        float groundstrength = GetTargetPlanet().GetGroundStrengthOther(Owner);
+                        float groundstrength = TargetPlanet.GetGroundStrengthOther(Owner);
                         if (groundstrength > 0)
                             return;
                     }
