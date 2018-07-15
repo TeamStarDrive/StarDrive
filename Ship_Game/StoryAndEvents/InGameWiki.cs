@@ -64,11 +64,11 @@ namespace Ship_Game
                 {
                     bCursor.X += 15f;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        help.Title, bCursor, (e.clickRectHover == 1 ? Color.Orange : Color.White));
+                        help.Title, bCursor, (e.Hovered ? Color.Orange : Color.White));
 
                     bCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12,
-                        help.ShortDescription, bCursor, (e.clickRectHover == 1 ? Color.White : Color.Orange));
+                        help.ShortDescription, bCursor, (e.Hovered ? Color.White : Color.Orange));
                 }
             }
             bCursor = new Vector2(TextRect.X, TextRect.Y + 20);
@@ -176,14 +176,8 @@ namespace Ship_Game
             {
                 if (e.item is ModuleHeader header)                
                     header.HandleInput(input, e);
-                else if (!e.clickRect.HitTest(input.CursorPosition))                
-                    e.clickRectHover = 0;                
-                else
+                else if (e.CheckHover(input))
                 {
-                    if (e.clickRectHover == 0)                    
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    
-                    e.clickRectHover = 1;
                     if (input.LeftMouseClick && e.item is HelpTopic)
                     {
                         HelpEntries.Reset();

@@ -83,18 +83,10 @@ namespace Ship_Game
             this.selector = null;
             foreach (ScrollList.Entry e in ShipDesigns.AllEntries)
             {
-                if (!e.clickRect.HitTest(input.CursorPosition))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
+                if (e.CheckHover(input))
                 {
                     this.selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
+
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
                         this.EnterNameArea.Text = ((Ship)e.item).Name;

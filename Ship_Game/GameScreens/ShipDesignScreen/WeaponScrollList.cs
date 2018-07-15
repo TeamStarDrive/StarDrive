@@ -52,10 +52,9 @@ namespace Ship_Game
                     if (moduleHeader.Hover)
                         DestroySelectionBox();
                 }
-                else if (e.clickRect.HitTest(input.CursorPosition))
+                else if (e.CheckHover(input))
                 {
                     SelectionBox = new Selector(e.clickRect);
-                    e.clickRectHover = 1;
                     if (!Screen.Input.InGameSelect)
                         continue;
 
@@ -63,7 +62,6 @@ namespace Ship_Game
                     Screen.SetActiveModule(module, ModuleOrientation.Normal, 0f);
                     return true;
                 }
-                else e.clickRectHover = 0;
             }
             return false;
         }
@@ -303,14 +301,7 @@ namespace Ship_Game
                         }
                     }
 
-                    if (e.clickRect.HitTest(mousePos))
-                    {
-                        if (e.clickRectHover == 0)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
-                    }
+                    e.CheckHover(mousePos);
                 }
             }
         }

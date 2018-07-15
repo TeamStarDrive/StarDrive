@@ -1017,7 +1017,7 @@ namespace Ship_Game
             Vector2 drawCurs = rpos;
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
-                if (e.clickRectHover == 0)
+                if (!e.Hovered)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
                     drawCurs.Y += Fonts.Arial12.LineSpacing;
@@ -1055,7 +1055,7 @@ namespace Ship_Game
                 var bCursor = new Vector2(Traits.Menu.X + 20, Traits.Menu.Y + 45);
                 foreach (ScrollList.Entry e in traitsSL.VisibleEntries)
                 {
-                    if (e.clickRectHover != 0)
+                    if (e.Hovered)
                     {
                         bCursor.Y = (e.clickRect.Y - 5);
                         var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
@@ -1124,10 +1124,8 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
                         e.DrawPlus(ScreenManager.SpriteBatch);
                     }
-                    if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
-                    {
-                        e.clickRectHover = 1;
-                    }
+
+                    e.CheckHover(currentMouse);
                 }
             }
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2((float)this.GalaxySizeRect.X, (float)this.GalaxySizeRect.Y), Color.White);
@@ -1419,72 +1417,57 @@ namespace Ship_Game
                 this.traitsSL.HandleInput(input);
                 foreach (ScrollList.Entry f in traitsSL.VisibleEntries)
                 {
-                    if (!f.clickRect.HitTest(mousePos))
+                    if (!f.CheckHover(mousePos))
+                        continue;
+
+                    this.selector = new Selector(f.clickRect);
+                    TraitEntry t = f.item as TraitEntry;
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        f.clickRectHover = 0;
-                    }
-                    else
-                    {
-                        if (f.clickRectHover == 0)
+                        if (t.Selected && this.TotalPointsUsed + t.trait.Cost >= 0)
                         {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                            t.Selected = !t.Selected;
+                            RaceDesignScreen totalPointsUsed = this;
+                            totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
+                            GameAudio.PlaySfxAsync("blip_click");
+                            foreach (TraitEntry ex in AllTraits)
+                                if (t.trait.Excludes == ex.trait.TraitName)
+                                    ex.Excluded = false;
                         }
-                        this.selector = new Selector(f.clickRect);
-                        f.clickRectHover = 1;
-                        TraitEntry t = f.item as TraitEntry;
-                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
                         {
-                            if (t.Selected && this.TotalPointsUsed + t.trait.Cost >= 0)
+                            GameAudio.PlaySfxAsync("UI_Misc20");
+                        }
+                        else
+                        {
+                            bool OK = true;
+                            int num = t.trait.Excludes;
+                            foreach (TraitEntry ex in this.AllTraits)
                             {
-                                t.Selected = !t.Selected;
-                                RaceDesignScreen totalPointsUsed = this;
-                                totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
+                                if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
+                                {
+                                    continue;
+                                }
+                                OK = false;
+                            }
+                            if (OK)
+                            {
+                                t.Selected = true;
+                                RaceDesignScreen raceDesignScreen = this;
+                                raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
                                 GameAudio.PlaySfxAsync("blip_click");
-                                int excludes = t.trait.Excludes;
+                                int excludes1 = t.trait.Excludes;
                                 foreach (TraitEntry ex in this.AllTraits)
                                 {
                                     if (t.trait.Excludes != ex.trait.TraitName)
                                     {
                                         continue;
                                     }
-                                    ex.Excluded = false;
+                                    ex.Excluded = true;
                                 }
                             }
-                            else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
-                            {
-                                GameAudio.PlaySfxAsync("UI_Misc20");
-                            }
-                            else
-                            {
-                                bool OK = true;
-                                int num = t.trait.Excludes;
-                                foreach (TraitEntry ex in this.AllTraits)
-                                {
-                                    if (t.trait.Excludes != ex.trait.TraitName || !ex.Selected)
-                                    {
-                                        continue;
-                                    }
-                                    OK = false;
-                                }
-                                if (OK)
-                                {
-                                    t.Selected = true;
-                                    RaceDesignScreen raceDesignScreen = this;
-                                    raceDesignScreen.TotalPointsUsed = raceDesignScreen.TotalPointsUsed - t.trait.Cost;
-                                    GameAudio.PlaySfxAsync("blip_click");
-                                    int excludes1 = t.trait.Excludes;
-                                    foreach (TraitEntry ex in this.AllTraits)
-                                    {
-                                        if (t.trait.Excludes != ex.trait.TraitName)
-                                        {
-                                            continue;
-                                        }
-                                        ex.Excluded = true;
-                                    }
-                                }
-                            }
-                            this.DoRaceDescription();
                         }
+                        this.DoRaceDescription();
                     }
                 }
                 if (this.GalaxySizeRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)

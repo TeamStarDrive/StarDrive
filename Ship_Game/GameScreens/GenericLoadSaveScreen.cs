@@ -127,16 +127,16 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
-                if (e.clickRectHover != 1)
+                if (!e.Hovered)
                 {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), e.cancel, Color.White);
                 }
                 else
                 {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover1"), e.cancel, Color.White);
                     if (e.cancel.HitTest(Mouse.GetState().Pos()))
                     {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover2"), e.cancel, Color.White);
                         ToolTip.CreateTooltip("Delete File");
                     }
                 }
@@ -176,30 +176,20 @@ namespace Ship_Game
             selector = null;
             foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
-                if (e.clickRect.HitTest(input.CursorPosition))
-                {
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
+                if (!e.CheckHover(input))
+                    continue;
 
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (e.cancel.HitTest(MousePos) && input.InGameSelect) // handle file delete
-                    {
-                        fileToDel = ((FileData) e.item).FileLink;
-                        var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                        messageBox.Accepted += DeleteFile;
-                        ScreenManager.AddScreen(messageBox);
-                    }
-                    else if (input.InGameSelect)
-                    {
-                        SwitchFile(e);
-                    }
-                }
-                else
+                selector = new Selector(e.clickRect);
+                if (e.cancel.HitTest(MousePos) && input.InGameSelect) // handle file delete
                 {
-                    e.clickRectHover = 0;
+                    fileToDel = ((FileData) e.item).FileLink;
+                    var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                    messageBox.Accepted += DeleteFile;
+                    ScreenManager.AddScreen(messageBox);
+                }
+                else if (input.InGameSelect)
+                {
+                    SwitchFile(e);
                 }
             }
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
