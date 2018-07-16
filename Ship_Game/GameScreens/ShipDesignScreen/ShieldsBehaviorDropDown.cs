@@ -17,10 +17,16 @@ namespace Ship_Game
                 {
                     switch (ActiveValue)
                     {
-                        case ShieldsWarpBehavior.OnFullChargeAtWarpExit: ToolTip.CreateTooltip("Shields stay online during warp, they will draw more power"); break;
-                        case ShieldsWarpBehavior.LowDischargeDownTo50Percent: ToolTip.CreateTooltip("Shields will not consume excess power at warp but will discharge slowly to a minimum of 50% of total shield power"); break;
-                        case ShieldsWarpBehavior.MediumDischargeDownTo25Percent: ToolTip.CreateTooltip("Shields will consume less power at warp but will discharge to a minimum of 25% of total shield power"); break;
-                        case ShieldsWarpBehavior.HighDischargeDownTo0Percent: ToolTip.CreateTooltip("Shields will not consume power at warp but will discharge quickly to zero"); break;
+                        case ShieldsWarpBehavior.Fully_Powered: ToolTip.CreateTooltip("Shields stay online during warp and also recharge, " +
+                                                                                      "they will draw more power, like other modules"); break;
+                        case ShieldsWarpBehavior.Maintained_With_Acticvation: ToolTip.CreateTooltip("Shields will not consume excess power at warp but " +
+                                                                                                    "they will not recharge during warp and upon exit" +
+                                                                                                    ", they will need to be brought online. The chance " +
+                                                                                                    "to bring them online is affected by ship level and shield" +
+                                                                                                    " complexcity"); break;
+                        case ShieldsWarpBehavior.Discharged_With_Acticvation: ToolTip.CreateTooltip("Shields will not consume power at warp but will discharge" +
+                                                                                                    " slowly to zero. They will also need activation after" +
+                                                                                                    " warp exit and with less chances"); break;
                     }
                 }
                 return base.HandleInput(input);
