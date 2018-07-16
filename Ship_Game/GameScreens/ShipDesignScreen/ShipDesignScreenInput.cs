@@ -28,25 +28,30 @@ namespace Ship_Game
             RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
-                Animated     = hull.Animated,
-                CombatState  = hull.CombatState,
-                Hull         = hull.Hull,
-                IconPath     = hull.ActualIconPath,
-                ModelPath    = hull.HullModel,
-                Name         = hull.Name,
-                Role         = hull.Role,
-                ShipStyle    = hull.ShipStyle,
-                ThrusterList = hull.ThrusterList,
-                ShipCategory = hull.ShipCategory,
-                CarrierShip  = hull.CarrierShip,
-                BaseHull     = hull.BaseHull
+                Animated        = hull.Animated,
+                CombatState     = hull.CombatState,
+                Hull            = hull.Hull,
+                IconPath        = hull.ActualIconPath,
+                ModelPath       = hull.HullModel,
+                Name            = hull.Name,
+                Role            = hull.Role,
+                ShipStyle       = hull.ShipStyle,
+                ThrusterList    = hull.ThrusterList,
+                ShipCategory    = hull.ShipCategory,
+                ShieldsBehavior = hull.ShieldsBehavior,
+                CarrierShip     = hull.CarrierShip,
+                BaseHull        = hull.BaseHull
             };
             ActiveHull.UpdateBaseHull();
 
             CarrierOnly  = hull.CarrierShip;
             LoadCategory = hull.ShipCategory;
-            Fml = true;
-            Fmlevenmore = true;
+            LoadShieldsBehavior = hull.ShieldsBehavior;
+            Fml                             = true;
+            Fmlevenmore                     = true;
+            IsDefaultShieldBehavior         = true;
+            ShouldLoadDefaultShieldBehavior = true;
+
 
             ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
@@ -154,6 +159,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
+            ShieldsBehaviorList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
             if (DesignRoleRect.HitTest(input.CursorPosition))
                 ShipData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
@@ -697,6 +703,12 @@ namespace Ship_Game
             ClassifCursor = new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
 
+            ShieldBehaviorCursor = new Vector2(ScreenWidth * .65f,
+                ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
+
+            RepairOptionsCursor = new Vector2(ScreenWidth * .375f,
+                ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
+
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
             void AddCombatStatusBtn(CombatState state, string iconPath, int toolTip)
@@ -798,14 +810,19 @@ namespace Ship_Game
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            DropdownRect = new Rectangle((int)(ScreenWidth * 0.25f), (int)ClassifCursor.Y + 20, 100, 18);
+            DropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 100, 18);
 
             CategoryList = new CategoryDropDown(this, DropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
+            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 175, 18);
+            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, ShieldsBehaviorRect);
+            foreach (Power.ShieldsWarpBehavior item in Enum.GetValues(typeof(Power.ShieldsWarpBehavior)).Cast<Power.ShieldsWarpBehavior>())
+                ShieldsBehaviorList.AddOption(item.ToString(), item);
+
             CarrierOnly = ActiveHull.CarrierShip;
-            CoBoxCursor = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
+            CoBoxCursor = new Vector2(DropdownRect.X - 200, DropdownRect.Y);
             CarrierOnlyBox = Checkbox(CoBoxCursor, () => CarrierOnly, "Carrier Only", 0);
 
             ShipStats = new Menu1(shipStatsPanel);
@@ -888,6 +905,7 @@ namespace Ship_Game
             toSave.Name         = name;
             toSave.CombatState  = CombatState;
             toSave.ShipCategory = CategoryList.ActiveValue;
+            toSave.ShieldsBehavior = ShieldsBehaviorList.ActiveValue;
             toSave.CarrierShip  = CarrierOnly;
             toSave.ModuleSlots  = CreateModuleSlots();
             SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/Saved Designs/{name}.xml");
