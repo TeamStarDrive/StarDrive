@@ -2239,7 +2239,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
+            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;

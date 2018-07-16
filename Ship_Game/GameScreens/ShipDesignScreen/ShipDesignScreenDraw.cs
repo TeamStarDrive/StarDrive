@@ -455,7 +455,7 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
-            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
+            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
             // Other modification to the ship and draw values
 
             empResist += size; // FB: so the player will know the true EMP Tolerance
@@ -777,14 +777,26 @@ namespace Ship_Game
 
             //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
             if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
-            {
                 Fmlevenmore = false;
+
+            if (IsDefaultShieldBehavior)
+            {
+                ShieldsBehaviorList.ActiveIndex = 1;
+                IsDefaultShieldBehavior = false;
             }
+            //Loads the shields behavior option  from the ShipDesign XML of the ship being loaded OVER the default.
+            if (ShouldLoadDefaultShieldBehavior && ShieldsBehaviorList.SetActiveEntry(LoadShieldsBehavior.ToString()))
+                ShouldLoadDefaultShieldBehavior = false;
 
             CategoryList.Draw(ScreenManager.SpriteBatch);
+            ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
-            const string classifTitle = "Behaviour Presets";
+            const string classifTitle = "Behavior Presets";
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
+            const string shieldsBehaviorTitle = "Shields Warp Behavior";
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, shieldsBehaviorTitle, ShieldBehaviorCursor, Color.Orange);
+            const string repairOptionsTitle = "Repair Options";
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, repairOptionsTitle, RepairOptionsCursor, Color.Orange);
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
             if (ScreenState == ScreenState.TransitionOn ||
