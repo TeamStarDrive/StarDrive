@@ -2652,43 +2652,75 @@ namespace Ship_Game.Ships
         }
         private ShipData.RoleName GetDesignRole()
         {
-            return GetDesignRole(ModuleSlotList, shipData.HullRole, shipData.Role, Size, this);            
+            var roleData = new Ship.RoleData
+            {
+                Ship = this,
+                Modules = ModuleSlotList,
+                HullRole = shipData.HullRole,
+                DataRole = shipData.Role,
+                Size = Size,
+                Category = shipData.ShipCategory
+            };
+
+            return GetDesignRole(roleData);            
         }
-        public static ShipData.RoleName GetDesignRole(ShipModule[] modules, ShipData.RoleName hullRole, ShipData.RoleName dataRole, int size, Ship ship)
+        public struct RoleData
         {
+            public ShipModule[] Modules;
+            public ShipData.RoleName HullRole;
+            public ShipData.RoleName DataRole;
+            public int Size;
+            public Ship Ship;
+            public ShipData.Category Category;
+
+        }
+
+        public static ShipData.RoleName GetDesignRole(RoleData roleData)
+        {
+            var ship     = roleData.Ship;
+            var modules  = roleData.Modules;
+            var hullRole = roleData.HullRole;
+
+
             if (ship != null)
             {
                 if (ship.isConstructor)
                     return ShipData.RoleName.construction;
                 if (ship.isColonyShip || modules.Any(colony => colony.ModuleType == ShipModuleType.Colony))
                     return ShipData.RoleName.colony;
-                if (ship.shipData.Role == ShipData.RoleName.troop)
-                    return ShipData.RoleName.troop;
-                if (ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform)
-                    return ship.shipData.Role;
+                switch (ship.shipData.Role) {
+                    case ShipData.RoleName.troop:
+                        return ShipData.RoleName.troop;
+                    case ShipData.RoleName.station:
+                    case ShipData.RoleName.platform:
+                        return ship.shipData.Role;
+                    case ShipData.RoleName.scout:
+                        return ShipData.RoleName.scout;
+                }
+
                 if (ship.IsSupplyShip && ship.Weapons.Count == 0)
                     return ShipData.RoleName.supply;
             }
             //troops ship
             if (hullRole >= ShipData.RoleName.freighter)
-            {
-                float pTroops = PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.IsTroopBay), size);
+            {                
+                float pTroops = PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.IsTroopBay), roleData.Size);
                 float pTrans =
-                    PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0), size);
-                float troops = PercentageOfShipByModules(modules.FilterBy(module => module.TroopCapacity > 0), size);
+                    PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0), roleData.Size);
+                float troops = PercentageOfShipByModules(modules.FilterBy(module => module.TroopCapacity > 0), roleData.Size);
                 if (pTrans + pTroops + troops > .1f)
                     return ShipData.RoleName.troopShip;
                 if (PercentageOfShipByModules(
-                        modules.FilterBy(bombBay => bombBay.ModuleType == ShipModuleType.Bomb),size) > .05f)
+                        modules.FilterBy(bombBay => bombBay.ModuleType == ShipModuleType.Bomb),roleData.Size) > .05f)
                     return ShipData.RoleName.bomber;
                 //carrier
                 
                 ShipModule[] carrier = modules.FilterBy(hangar => hangar.ModuleType == ShipModuleType.Hangar && !hangar.IsSupplyBay && !hangar.IsTroopBay);
                 ShipModule[] support = modules.FilterBy(hangar => hangar.ModuleType == ShipModuleType.Hangar && (hangar.IsSupplyBay || hangar.IsTroopBay));
 
-                if (PercentageOfShipByModules(carrier, size) > .1)
+                if (PercentageOfShipByModules(carrier, roleData.Size) > .1)
                     return ShipData.RoleName.carrier;
-                if (PercentageOfShipByModules(support, size) > .1)
+                if (PercentageOfShipByModules(support, roleData.Size) > .1)
                     return ShipData.RoleName.support;
             }
             float pSpecial = PercentageOfShipByModules(modules.FilterBy(module =>
@@ -2702,15 +2734,36 @@ namespace Ship_Game.Ships
                  || module.InstalledWeapon.SiphonDamage > 0
                  || module.InstalledWeapon.TroopDamageChance > 0
                  || module.InstalledWeapon.isRepairBeam || module.InstalledWeapon.IsRepairDrone)
-            ), size);
+            ), roleData.Size);
             pSpecial += PercentageOfShipByModules(
-                modules.FilterBy(repair => repair.InstalledWeapon?.IsRepairDrone == true), size);
+                modules.FilterBy(repair => repair.InstalledWeapon?.IsRepairDrone == true), roleData.Size);
 
             if (pSpecial > .10f)
                 return ShipData.RoleName.support;
+            if (roleData.Category != ShipData.Category.Unclassified)
+            {
+                switch (roleData.Category)
+                {
+                    case ShipData.Category.Unclassified:
+                        break;
+                    case ShipData.Category.Civilian:
+                        break;
+                    case ShipData.Category.Recon:
+                        return ShipData.RoleName.scout;                     
+                    case ShipData.Category.Combat:
+                        break;
+                    case ShipData.Category.Bomber:
+                        break;
+                    case ShipData.Category.Fighter:
+                        break;
+                    case ShipData.Category.Kamikaze:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
 
-
-            ShipData.RoleName fixRole = dataRole == ShipData.RoleName.prototype ? dataRole : hullRole;
+            ShipData.RoleName fixRole = roleData.DataRole == ShipData.RoleName.prototype ? roleData.DataRole : hullRole;
 
             switch (fixRole)
             {

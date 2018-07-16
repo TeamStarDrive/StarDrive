@@ -327,16 +327,21 @@ namespace Ship_Game
                     modules.Add(slot.Module);
             }
 
-            var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
-            if (role != Role)
+            var roleData = new Ship.RoleData
             {
-                ShipData.CreateDesignRoleToolTip(role, Fonts.Arial12, DesignRoleRect, true);
-                Role = role;
-            }
+                Modules = modules.ToArray(),
+                HullRole = ActiveHull.HullRole,
+                DataRole = ActiveHull.Role,
+                Size = ActiveHull.ModuleSlots.Length,
+                Category = ActiveHull.ShipCategory
+            };
+            var role = Ship.GetDesignRole(roleData);
+            ShipData.CreateDesignRoleToolTip(role, Fonts.Arial12, DesignRoleRect, true);
+            Role = role;
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
