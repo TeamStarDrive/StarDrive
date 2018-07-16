@@ -66,13 +66,13 @@ namespace Ship_Game.Ships
                 NetWarpPowerDraw = warpPowerDraw
             };
         }
-    }
 
-    public enum ShieldsWarpBehavior
-    {
-        OnFullChargeAtWarpExit = 1,
-        LowDischargeDownTo50Percent = 2,
-        MediumDischargeDownTo25Percent = 4,
-        HighDischargeDownTo0Percent = 5
+        public enum ShieldsWarpBehavior
+        {
+            OnFullChargeAtWarpExit = 1,
+            LowDischargeDownTo50Percent = 2,
+            MediumDischargeDownTo25Percent = 4,
+            HighDischargeDownTo0Percent = 5
+        }
     }
 }

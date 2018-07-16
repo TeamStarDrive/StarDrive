@@ -53,8 +53,12 @@ namespace Ship_Game
         private ModuleOrientation ActiveModState;
         private Selector selector;
         private CategoryDropDown CategoryList;
+        private ShieldBehaviorDropDown ShieldsBehaviorList;
         private Rectangle DropdownRect;
+        private Rectangle ShieldsBehaviorRect;
         private Vector2 ClassifCursor;
+        private Vector2 ShieldBehaviorCursor;
+        private Vector2 RepairOptionsCursor;
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
         private bool ShowAllArcs;
@@ -66,6 +70,9 @@ namespace Ship_Game
         private bool LowRes;
         public bool Debug;
         private ShipData.Category LoadCategory;
+        private Power.ShieldsWarpBehavior LoadShieldsBehavior;
+        private bool IsDefaultShieldBehavior;
+        private bool ShouldLoadDefaultShieldBehavior;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
         public bool IsSymmetricDesignMode = true;
