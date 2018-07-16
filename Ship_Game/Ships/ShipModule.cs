@@ -889,24 +889,46 @@ namespace Ship_Game.Ships
             if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
 
-            // Shield Recharge
-            float shieldMax = ActualShieldPowerMax;
-            if (Active && Powered && ShieldPower < shieldMax)
+            // Shield Recharge / Discharge
+            if (Is(ShipModuleType.Shield))
             {
-                if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                    ShieldPower += shield_recharge_rate * elapsedTime;
-                else if (ShieldPower > 0)
-                    ShieldPower += shield_recharge_combat_rate * elapsedTime;
-                if (ShieldPower > shieldMax)
-                    ShieldPower = shieldMax;
+                float shieldMax = ActualShieldPowerMax;
+                if (Parent.engineState == Ship.MoveState.Sublight) // recahrge in sublight
+                {
+                    RechrageShields();
+                }
+                else // discharge at warp if applicable
+                {
+                    ShieldsWarpBehavior behavior = ShieldsWarpBehavior.HighDischargeDownTo0Percent; // FB: temp value till i code the ship part
+                    if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+                        RechrageShields();
+                    else
+                        DischargeShields(behavior);
+                }
+
+                // local methods
+                void RechrageShields()
+                {
+                    if (!Active || !Powered || ShieldPower >= shieldMax)
+                        return;
+
+                    if (Parent.ShieldRechargeTimer > shield_recharge_delay)
+                        ShieldPower = (ShieldPower + shield_recharge_rate * elapsedTime).Clamped(0, shieldMax);
+                    else if (ShieldPower > 0)
+                        ShieldPower = (ShieldPower + shield_recharge_combat_rate * elapsedTime).Clamped(0, shieldMax);
+                }
+
+                void DischargeShields(ShieldsWarpBehavior behavior)
+                {
+                    float shieldDischargeThreshold = behavior == ShieldsWarpBehavior.HighDischargeDownTo0Percent ? 0f : 1 / (float)behavior;
+                    float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate) * (int)behavior;
+                    if (ShieldPower / shieldMax > shieldDischargeThreshold)
+                        ShieldPower = (ShieldPower - shieldDischargeRate).Clamped(shieldMax * shieldDischargeThreshold, shieldMax);
+                }
             }
-            if (ShieldPower < 0f)
-            {
-                ShieldPower = 0f;
-            }
+
             if (TransporterTimer > 0)
                 TransporterTimer -= elapsedTime;
-
             base.Update(elapsedTime);
         }
 
