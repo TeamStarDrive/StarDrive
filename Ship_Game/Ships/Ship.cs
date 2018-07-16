@@ -1768,7 +1768,10 @@ namespace Ship_Game.Ships
                 else
                     PowerDraw = NetPower.NetWarpPowerDraw;
 
-                if (InCombat || shield_power < shield_max || engineState == MoveState.Warp)
+                if (InCombat 
+                    || shield_power < shield_max 
+                    || engineState == MoveState.Warp 
+                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.Fully_Powered)
                 {
                     shield_power = 0.0f;
                     for (int x = 0; x < Shields.Length; x++)
