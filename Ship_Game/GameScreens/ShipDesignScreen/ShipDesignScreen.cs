@@ -70,7 +70,7 @@ namespace Ship_Game
         private bool LowRes;
         public bool Debug;
         private ShipData.Category LoadCategory;
-        private Power.ShieldsWarpBehavior LoadShieldsBehavior;
+        private ShieldsWarpBehavior LoadShieldsBehavior;
         private bool IsDefaultShieldBehavior;
         private bool ShouldLoadDefaultShieldBehavior;
         private ShipData.RoleName Role;
