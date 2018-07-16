@@ -75,7 +75,7 @@ namespace Ship_Game.Commands.Goals
             if (scoutShipsWeCanBuild.IsEmpty)
                 return GoalStep.TryAgain;
 
-            Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.ModulePowerDraw);
+            Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
             planet.ConstructionQueue.Add(new QueueItem()
             {
                 isShip = true,

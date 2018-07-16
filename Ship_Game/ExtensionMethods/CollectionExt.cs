@@ -385,6 +385,25 @@ namespace Ship_Game
             Array.Sort(keys, array, 0, array.Length);
         }
 
+        /// <summary>
+        /// Returns a sorted copy of the original items
+        /// The ordering of elements is decided by the keyPredicate.
+        /// If you want descending, just negate keyPredicate result!
+        /// </summary>
+        public static T[] Sorted<T, TKey>(this IEnumerable<T> items, Func<T, TKey> keyPredicate) where T : class
+        {
+            T[] array = ToArray(items);
+            if (array.Length <= 1)
+                return array;
+
+            var keys = new TKey[array.Length];
+            for (int i = 0; i < array.Length; ++i)
+                keys[i] = keyPredicate(array[i]);
+
+            Array.Sort(keys, array, 0, array.Length);
+            return array;
+        }
+
         public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameplayObject
         {
             if (array.Length <= 1)
@@ -502,6 +521,69 @@ namespace Ship_Game
             var copy = new T[count];
             Memory.HybridCopy(copy, 0, items, count);
             return copy;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Any(x => x.MatchesCondition), tailored specifically to T[].
+        /// </summary>
+        /// <param name="itemMatchesPredicate">example: item => item.IsExplosive</param>
+        /// <returns>TRUE if any item matches the predicate condition, false otherwise</returns>
+        public static bool Any<T>(this T[] items, Predicate<T> itemMatchesPredicate)
+        {
+            for (int i = 0; i < items.Length; ++i)
+                if (itemMatchesPredicate(items[i]))
+                    return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Count(x => x.IsTrue), tailored specifically to T[].
+        /// </summary>
+        /// <param name="itemMatchesPredicate">example: item => item.IsExplosive</param>
+        /// <returns>Number of total items that match the predicate. Result is always in range of [0, items.Length) </returns>
+        public static int Count<T>(this T[] items, Predicate<T> itemMatchesPredicate)
+        {
+            int count = 0;
+            for (int i = 0; i < items.Length; ++i)
+                if (itemMatchesPredicate(items[i]))
+                    unchecked { ++count; }
+            return count;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Sum(x => x.NumItems), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Total sum from each item</returns>
+        public static int Sum<T>(this T[] items, Func<T, int> sumFromItem)
+        {
+            int sum = 0;
+            for (int i = 0; i < items.Length; ++i)
+                unchecked { sum += sumFromItem(items[i]); }
+            return sum;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Sum(x => x.NumItems), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Total sum from each item</returns>
+        public static float Sum<T>(this T[] items, Func<T, float> sumFromItem)
+        {
+            float sum = 0.0f;
+            for (int i = 0; i < items.Length; ++i)
+                sum += sumFromItem(items[i]);
+            return sum;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Sum(x => x.NumItems), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Total sum from each item</returns>
+        public static double Sum<T>(this T[] items, Func<T, double> sumFromItem)
+        {
+            double sum = 0.0;
+            for (int i = 0; i < items.Length; ++i)
+                sum += sumFromItem(items[i]);
+            return sum;
         }
     }
 }
