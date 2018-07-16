@@ -8,7 +8,7 @@ namespace Ship_Game.Ships
         public float NetSubLightPowerDraw;
         public float NetWarpPowerDraw;
 
-        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior = ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior = ShieldsWarpBehavior.Fully_Powered)
         {
             float nonShieldPowerDraw = 0f;
             float shieldPowerDraw = 0f;
@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
                 if (module.Is(ShipModuleType.Shield))
                 {
                     shieldPowerDraw += module.PowerDraw;
-                    if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+                    if (behavior == ShieldsWarpBehavior.Fully_Powered)
                         warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
                 }
                 else
@@ -38,22 +38,17 @@ namespace Ship_Game.Ships
             float warpPowerDraw = 0f;
             switch (behavior)
             {
-                case ShieldsWarpBehavior.OnFullChargeAtWarpExit:
+                case ShieldsWarpBehavior.Fully_Powered:
                     {
                         warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
                         break;
                     }
-                case ShieldsWarpBehavior.LowDischargeDownTo50Percent:
+                case ShieldsWarpBehavior.Maintained_With_Acticvation:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw;
                         break;
                     }
-                case ShieldsWarpBehavior.MediumDischargeDownTo25Percent:
-                {
-                    warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw / 2;
-                        break;
-                }
-                case ShieldsWarpBehavior.HighDischargeDownTo0Percent:
+                case ShieldsWarpBehavior.Discharged_With_Acticvation:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier;
                         break;
@@ -69,9 +64,8 @@ namespace Ship_Game.Ships
     }
     public enum ShieldsWarpBehavior
     {
-        OnFullChargeAtWarpExit = 1,
-        LowDischargeDownTo50Percent = 2,
-        MediumDischargeDownTo25Percent = 4,
-        HighDischargeDownTo0Percent = 5
+        Fully_Powered,
+        Maintained_With_Acticvation,
+        Discharged_With_Acticvation
     }
 }
