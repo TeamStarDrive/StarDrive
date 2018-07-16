@@ -241,7 +241,7 @@ namespace Ship_Game
 
                 foreach (Planet planet in systemCheck.PlanetList)
                 {
-                    if (planet.Owner != this || !planet.HasShipyard) continue;
+                    if (planet.Owner != this) continue;
                     rallyPlanets.Add(planet);
                 }
 
