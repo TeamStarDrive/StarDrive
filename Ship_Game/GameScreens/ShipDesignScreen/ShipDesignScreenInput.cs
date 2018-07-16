@@ -818,7 +818,7 @@ namespace Ship_Game
 
             ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 175, 18);
             ShieldsBehaviorList = new ShieldBehaviorDropDown(this, ShieldsBehaviorRect);
-            foreach (Power.ShieldsWarpBehavior item in Enum.GetValues(typeof(Power.ShieldsWarpBehavior)).Cast<Power.ShieldsWarpBehavior>())
+            foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
 
             CarrierOnly = ActiveHull.CarrierShip;

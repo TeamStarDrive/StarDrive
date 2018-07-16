@@ -899,8 +899,8 @@ namespace Ship_Game.Ships
                 }
                 else // discharge at warp if applicable
                 {
-                    Power.ShieldsWarpBehavior behavior = Power.ShieldsWarpBehavior.HighDischargeDownTo0Percent; // FB: temp value till i code the ship part
-                    if (behavior == Power.ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+                    ShieldsWarpBehavior behavior = ShieldsWarpBehavior.HighDischargeDownTo0Percent; // FB: temp value till i code the ship part
+                    if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
                         RechrageShields();
                     else
                         DischargeShields(behavior);
@@ -918,9 +918,9 @@ namespace Ship_Game.Ships
                         ShieldPower = (ShieldPower + shield_recharge_combat_rate * elapsedTime).Clamped(0, shieldMax);
                 }
 
-                void DischargeShields(Power.ShieldsWarpBehavior behavior)
+                void DischargeShields(ShieldsWarpBehavior behavior)
                 {
-                    float shieldDischargeThreshold = behavior == Power.ShieldsWarpBehavior.HighDischargeDownTo0Percent ? 0f : 1 / (float)behavior;
+                    float shieldDischargeThreshold = behavior == ShieldsWarpBehavior.HighDischargeDownTo0Percent ? 0f : 1 / (float)behavior;
                     float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate) * (int)behavior;
                     if (ShieldPower / shieldMax > shieldDischargeThreshold)
                         ShieldPower = (ShieldPower - shieldDischargeRate).Clamped(shieldMax * shieldDischargeThreshold, shieldMax);
