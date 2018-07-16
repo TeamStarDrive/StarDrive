@@ -92,7 +92,6 @@ namespace Ship_Game.Ships
         public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
         public bool isThrusting;
-        public float WarpDraw;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float DamageModifier;
         public Empire loyalty;
@@ -117,8 +116,7 @@ namespace Ship_Game.Ships
         public float PowerFlowMax;
         public float PowerStoreMax;
         public float PowerDraw;
-        public float ModulePowerDraw;
-        public float ShieldPowerDraw;
+        public Power NetPower { get; private set; }
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
@@ -1764,16 +1762,11 @@ namespace Ship_Game.Ships
 
                 //Power draw based on warp
                 if (!inborders && engineState == MoveState.Warp)
-                {
-                    // FB: shields take no power at warp :/  this is not aligned with ships design and should be fixed after refactor.
-                    PowerDraw = loyalty.data.FTLPowerDrainModifier * ModulePowerDraw + (WarpDraw * loyalty.data.FTLPowerDrainModifier / 2);
-                }
+                    PowerDraw = NetPower.NetWarpPowerDraw;
                 else if (engineState != MoveState.Warp && ShieldsUp)
-                    PowerDraw = ModulePowerDraw + ShieldPowerDraw;
+                    PowerDraw = NetPower.NetSubLightPowerDraw;
                 else
-                    PowerDraw = ModulePowerDraw;
-             
-
+                    PowerDraw = NetPower.NetWarpPowerDraw;
 
                 //Check Current Shields
                 if (engineState == MoveState.Warp || !ShieldsUp)
@@ -2185,8 +2178,6 @@ namespace Ship_Game.Ships
             PowerStoreMax               = 0f;
             PowerFlowMax                = 0f;
             OrdinanceMax                = 0f;
-            ModulePowerDraw             = 0.0f;
-            ShieldPowerDraw             = 0f;
             RepairRate                  = 0f;
             CargoSpaceMax               = 0f;
             SensorRange                 = 1000f;
@@ -2196,7 +2187,6 @@ namespace Ship_Game.Ships
             FTLSlowTurnBoost            = false;
             InhibitionRadius            = 0f;
             OrdAddedPerSecond           = 0f;
-            WarpDraw                    = 0f;
             HealPerTurn                 = 0;
             ECMValue                    = 0f;
             FTLSpoolTime                = 0f;
@@ -2240,19 +2230,13 @@ namespace Ship_Game.Ships
                     InhibitionRadius      += module.InhibitionRadius;
                     BonusEMP_Protection   += module.EMP_Protection;
                     SensorRange            = Math.Max(SensorRange, module.SensorRange);
-                    sensorBonus            = Math.Max(sensorBonus, module.SensorBonus);                    
-                    if (module.shield_power_max > 0f)
-                    {
+                    sensorBonus            = Math.Max(sensorBonus, module.SensorBonus);
+                    if (module.Is(ShipModuleType.Shield))
                         shield_max += module.ActualShieldPowerMax;
-                        ShieldPowerDraw += module.PowerDraw;
-                    }
-                    else
-                        ModulePowerDraw += module.PowerDraw;
 
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
-                    WarpDraw            += module.PowerDrawAtWarp;
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.                    
@@ -2262,8 +2246,8 @@ namespace Ship_Game.Ships
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
-            
-                           
+
+            NetPower = Power.Calculate(ModuleSlotList, loyalty, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
@@ -2867,7 +2851,6 @@ namespace Ship_Game.Ships
 
             return moduleToRepair.Repair(repairAmount);
         }
-        
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
@@ -2876,8 +2859,8 @@ namespace Ship_Game.Ships
             if (!Active) return false;
             empire = empire ?? loyalty;
             if (!shipData.BaseCanWarp) return false;
-            float powerDraw = ModulePowerDraw * (empire?.data.FTLPowerDrainModifier ?? 1);
-            float goodPowerSupply = PowerFlowMax - powerDraw;
+
+            float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
             float powerTime = GlobalStats.MinimumWarpRange;
             if (goodPowerSupply <0)
             {
@@ -2888,12 +2871,11 @@ namespace Ship_Game.Ships
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
             {
-                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {powerDraw}/{PowerFlowMax}");
+                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}");
             }
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;
             return false;
-
         }
 
         public bool ShipGoodToBuild(Empire empire)
@@ -2903,7 +2885,6 @@ namespace Ship_Game.Ships
                 shipData.CarrierShip)
                 return true;
             return ShipIsGoodForGoals(float.MinValue, empire);
-
         }
 
         public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
@@ -2933,7 +2914,6 @@ namespace Ship_Game.Ships
         Good,
         Excellent,
         NotApplicable
-
     }
 }
 

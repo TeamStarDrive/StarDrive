@@ -630,6 +630,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(tpass);
             }
+            /* // FB: removed this until we decide what to do with this button
             if (Ship.shield_max > 0f)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.ShieldToggle, 18)
@@ -638,6 +639,7 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(ob);
             }
+            */
             if (Ship.Carrier.AllFighterHangars.Length > 0)
             {
                 OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
