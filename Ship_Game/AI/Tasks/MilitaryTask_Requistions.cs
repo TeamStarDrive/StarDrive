@@ -554,7 +554,9 @@ namespace Ship_Game.AI.Tasks {
             {
                 AO = TargetPlanet.Center,
                 AORadius = 75000f,
-                type = TaskType.ClearAreaOfEnemies
+                type = TaskType.ClearAreaOfEnemies,
+                TargetPlanet = TargetPlanet,
+                TargetPlanetGuid = TargetPlanet.guid
             };
 
             closestCoreFleet.Owner.GetGSAI().TasksToAdd.Add(clearArea);

@@ -214,6 +214,45 @@ namespace Ship_Game.AI
             return retList;
 
         }
+        public struct StrengthCluster
+        {
+            public float Strength;
+            public Vector2 Postition;
+            public float Radius;
+            public float Granularity;
+            public Empire Empire;
+        }
+        
+
+        public StrengthCluster FindLargestStengthClusterLimited(StrengthCluster strengthCluster, float maxStength, Vector2 posOffSetInArea)
+        {
+            var targetSpot = Vector2.Zero;
+            float strength = 0;
+            var getStrengthClusters = PingRadarStrengthClusters(strengthCluster.Postition, strengthCluster.Radius,
+                strengthCluster.Granularity, strengthCluster.Empire);
+
+            getStrengthClusters.MaxKeyByValuesFiltered(str => str, str => str < maxStength);
+
+            if (getStrengthClusters.Count == 0)
+            {
+                strengthCluster.Strength = 0;
+                return strengthCluster;
+            }
+            float distance = float.MaxValue;
+            foreach (var kv in getStrengthClusters)
+            {
+                float tempDis = posOffSetInArea.SqDist(kv.Key);
+                if (tempDis > distance) continue;
+                targetSpot = kv.Key;
+                strength   = kv.Value;
+                distance   = tempDis;
+            }
+            strengthCluster.Postition = targetSpot;
+            strengthCluster.Strength  = strength;
+            return strengthCluster;
+        }
+
+
         public float PingRadarStrengthLargestCluster(Vector2 position, float radius, Empire empire, float granularity = 50000f)
         {
             var retList = new Map<Vector2, float>();

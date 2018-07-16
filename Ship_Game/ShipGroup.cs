@@ -193,9 +193,10 @@ namespace Ship_Game
             float ammoDps = 0.0f;
             float energyDps = 0.0f;
             //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
-            for (int index = 0; index < this.Ships.Count; index++)
+            for (int index = 0; index < Ships.Count; index++)
             {
                 Ship ship = this.Ships[index];
+                if (ship.AI.HasPriorityOrder) continue;
                 currentAmmo += ship.Ordinance;
                 maxAmmo += ship.OrdinanceMax;
                 foreach (Weapon weapon in ship.Weapons)
