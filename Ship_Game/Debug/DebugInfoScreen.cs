@@ -305,8 +305,8 @@ namespace Ship_Game.Debug
                 {
                     DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
 
-                    if (Screen.SelectedFleet.FleetTask.GetTargetPlanet() != null)
-                        DrawString(Screen.SelectedFleet.FleetTask.GetTargetPlanet().Name);
+                    if (Screen.SelectedFleet.FleetTask.TargetPlanet != null)
+                        DrawString(Screen.SelectedFleet.FleetTask.TargetPlanet.Name);
 
                     DrawString("Step: "+Screen.SelectedFleet.TaskStep);
                 }
