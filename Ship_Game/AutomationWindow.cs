@@ -55,7 +55,7 @@ namespace Ship_Game
             IsOpen = !IsOpen;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             Rectangle r = ConstructionSubMenu.Menu;
             r.Y = r.Y + 25;
@@ -64,7 +64,7 @@ namespace Ship_Game
             sel.Draw(ScreenManager.SpriteBatch);
             ConstructionSubMenu.Draw();
 
-            base.Draw(spriteBatch);
+            base.Draw(batch);
         }
 
         public override bool HandleInput(InputState input)

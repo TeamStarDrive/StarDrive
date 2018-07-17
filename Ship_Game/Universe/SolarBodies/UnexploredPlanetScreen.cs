@@ -53,19 +53,19 @@ namespace Ship_Game
             this.PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 55, 128, 128);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             this.TitleBar.Draw();
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
             Color c = new Color(255, 239, 208);
-            spriteBatch.DrawString(Fonts.Laserian14, this.p.Name, this.TitlePos, c);
+            batch.DrawString(Fonts.Laserian14, this.p.Name, this.TitlePos, c);
             this.PlanetMenu.Draw();
             this.PlanetInfo.Draw();
-            spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIcon, Color.White);
+            batch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIcon, Color.White);
             Vector2 PNameCursor = new Vector2((float)(this.PlanetInfo.Menu.X + 20), (float)(this.PlanetInfo.Menu.Y + 45));
-            spriteBatch.DrawString(Fonts.Arial20Bold, this.p.Name, PNameCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial20Bold, this.p.Name, PNameCursor, new Color(255, 239, 208));
             PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
             float amount = 80f;
             if (GlobalStats.IsGerman)
@@ -73,14 +73,14 @@ namespace Ship_Game
                 amount = amount + 25f;
             }
             string fmt = "0.#";
-            spriteBatch.DrawString(Fonts.Arial12Bold, "Class:", PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, "Class:", PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            spriteBatch.DrawString(Fonts.Arial12Bold, this.p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, this.p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
             if (!this.p.Habitable)
             {
                 PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 InfoCursor = new Vector2(PNameCursor.X + 80f, PNameCursor.Y);
-                spriteBatch.DrawString(Fonts.Arial12Bold, "Uninhabitable", PNameCursor, Color.Orange);
+                batch.DrawString(Fonts.Arial12Bold, "Uninhabitable", PNameCursor, Color.Orange);
             }
             else
             {
@@ -119,7 +119,7 @@ namespace Ship_Game
             }
             PNameCursor.Y = (float)(this.PlanetIcon.Y + this.PlanetIcon.Height + 20);
             string desc = this.parseText(this.p.Description, (float)(this.PlanetInfo.Menu.Width - 40));
-            spriteBatch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, new Color(255, 239, 208));
             /*if (this.p.Special != "None")     //This was removed, because the string "Special" was never assigned a valus other than "None" -Gretman
             {
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.MeasureString(desc).Y + 10f);

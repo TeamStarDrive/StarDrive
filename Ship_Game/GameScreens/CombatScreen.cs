@@ -57,10 +57,6 @@ namespace Ship_Game
 
         private Selector selector;
 
-        private MouseState currentMouse;
-
-        private MouseState previousMouse;
-
         private ScrollList.Entry draggedTroop;
 
         private Array<PlanetGridSquare> ReversedList = new Array<PlanetGridSquare>();
@@ -154,7 +150,7 @@ namespace Ship_Game
             {
                 for (int i = 0; i < 7; i++)
                 {
-                    CombatScreen.PointSet ps = new CombatScreen.PointSet()
+                    var ps = new PointSet()
                     {
                         point = new Vector2((float)this.GridRect.X + (float)i * this.widthByRow[row] + this.widthByRow[row] / 2f + this.startXByRow[row], (float)(this.GridRect.Y + this.GridRect.Height) - this.distancesByRow[row]),
                         row = row,
@@ -163,42 +159,36 @@ namespace Ship_Game
                     this.pointsList.Add(ps);
                 }
             }
-            foreach (CombatScreen.PointSet ps in this.pointsList)
+            foreach (PointSet ps in this.pointsList)
             {
-                foreach (CombatScreen.PointSet toCheck in this.pointsList)
+                foreach (PointSet toCheck in this.pointsList)
                 {
-                    if (ps.column != toCheck.column || ps.row != toCheck.row - 1)
+                    if (ps.column == toCheck.column && ps.row == toCheck.row - 1)
                     {
-                        continue;
+                        float distance = Vector2.Distance(ps.point, toCheck.point);
+                        Vector2 vtt = toCheck.point - ps.point;
+                        vtt = Vector2.Normalize(vtt);
+                        Vector2 cPoint = ps.point + ((vtt * distance) / 2f);
+                        var cp = new PointSet()
+                        {
+                            point = cPoint,
+                            row = ps.row,
+                            column = ps.column
+                        };
+                        this.CenterPoints.Add(cp);
                     }
-                    float Distance = Vector2.Distance(ps.point, toCheck.point);
-                    Vector2 vtt = toCheck.point - ps.point;
-                    vtt = Vector2.Normalize(vtt);
-                    Vector2 cPoint = ps.point + ((vtt * Distance) / 2f);
-                    CombatScreen.PointSet cp = new CombatScreen.PointSet()
-                    {
-                        point = cPoint,
-                        row = ps.row,
-                        column = ps.column
-                    };
-                    this.CenterPoints.Add(cp);
                 }
             }
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                foreach (CombatScreen.PointSet ps in this.CenterPoints)
+                foreach (PointSet ps in this.CenterPoints)
                 {
-                    if (pgs.x != ps.column || pgs.y != ps.row)
-                    {
-                        continue;
-                    }
-                    pgs.ClickRect = new Rectangle((int)ps.point.X - 32, (int)ps.point.Y - 32, 64, 64);
+                    if (pgs.x == ps.column && pgs.y == ps.row)
+                        pgs.ClickRect = new Rectangle((int) ps.point.X - 32, (int) ps.point.Y - 32, 64, 64);
                 }
             }
             foreach (PlanetGridSquare pgs in p.TilesList)
-            {
-                this.ReversedList.Add(pgs);
-            }
+                ReversedList.Add(pgs);
         }
 
         private void DetermineAttackAndMove()
@@ -290,331 +280,222 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("PlanetTiles/", this.p.GetTile(), "_tilt")], this.GridRect, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/grid"], this.GridRect, Color.White);
-            if (this.assetsUI.LandTroops.Toggled)
+            batch.Draw(ResourceManager.Texture($"PlanetTiles/{p.GetTile()}_tilt"), GridRect, Color.White);
+            batch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
+
+            if (assetsUI.LandTroops.Toggled)
             {
-                this.OrbitSL.Draw(this.ScreenManager.SpriteBatch);
-                Vector2 bCursor = new Vector2((float)(this.orbitalResourcesSub.Menu.X + 25), 350f);
-                for (int i = this.OrbitSL.indexAtTop; i < this.OrbitSL.Copied.Count && i < this.OrbitSL.indexAtTop + this.OrbitSL.entriesToDisplay; i++)
+                OrbitSL.Draw(batch);
+                var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
+                foreach (ScrollList.Entry e in OrbitSL.VisibleExpandedEntries)
                 {
-                    ScrollList.Entry e = this.OrbitSL.Copied[i];
-                    if (e.item is Ship)
+                    if (e.item is Ship ship)
                     {
-                        if ((e.item as Ship).TroopList.Count == 0)
-                        {
+                        if (ship.TroopList.Count == 0)
                             continue;
-                        }
-                        Troop t = (e.item as Ship).TroopList[0];
-                        if (e.clickRectHover != 0)
+                        Troop t = ship.TroopList[0];
+                        if (e.Hovered)
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
+                            bCursor.Y = e.Y;
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
                         }
                         else
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                            Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
+                            bCursor.Y = e.Y;
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
+                            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
                         }
                     }
-                    else if (e.item is Troop)
+                    else if (e.item is Troop t)
                     {
-                        Troop t = e.item as Troop;
-                        if (e.clickRectHover != 0)
+                        if (e.Hovered)
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            bCursor.Y = (float)e.Y;
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
                         }
                         else
                         {
-                            bCursor.Y = (float)e.clickRect.Y;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                            bCursor.Y = (float)e.Y;
+                            batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
+                            batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
                             tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.LightGray);
+                            batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
                         }
                     }
-                    if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
-                    {
-                        e.clickRectHover = 1;
-                    }
+                    e.CheckHover(Input.CursorPosition);
                 }
-                if (this.OrbitSL.Entries.Count > 0)
+                if (OrbitSL.NumEntries > 0)
                 {
-                    this.LandAll.Draw(this.ScreenManager.SpriteBatch);
-                    
+                    LandAll.Draw(batch);
                 }
                 if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == EmpireManager.Player && mytroops.Launchtimer <= 0f))
                 {
-                    this.LaunchAll.Draw(this.ScreenManager.SpriteBatch);
+                    LaunchAll.Draw(batch);
                 }
             }
-            foreach (PlanetGridSquare pgs in this.ReversedList)
+            foreach (PlanetGridSquare pgs in ReversedList)
             {
                 if (pgs.building == null)
-                {
                     continue;
-                }
-                Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64"))
-                    , bRect, Color.White);
+                var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.building.Icon}_64x64"), bRect, Color.White);
             }
-            foreach (PlanetGridSquare pgs in this.ReversedList)
+            foreach (PlanetGridSquare pgs in ReversedList)
             {
-                this.DrawPGSIcons(pgs);
-                this.DrawCombatInfo(pgs);
+                DrawPGSIcons(pgs);
+                DrawCombatInfo(pgs);
             }
-            if (this.ActiveTroop != null)
+            if (ActiveTroop != null)
             {
-                this.tInfo.Draw(gameTime);
+                tInfo.Draw(gameTime);
             }
-            PlanetGridSquare hoveredSquare = this.HoveredSquare;
-            this.assetsUI.Draw(gameTime);
-            if (this.draggedTroop != null)
+
+            assetsUI.Draw(gameTime);
+            if (draggedTroop != null)
             {
-                foreach (PlanetGridSquare pgs in this.ReversedList)
+                foreach (PlanetGridSquare pgs in ReversedList)
                 {
-                    if ((pgs.building != null || pgs.TroopsHere.Count != 0) && (pgs.building == null || pgs.building.CombatStrength != 0 || pgs.TroopsHere.Count != 0))
+                    if ((pgs.building == null && pgs.TroopsHere.Count == 0) ||
+                        (pgs.building != null && pgs.building.CombatStrength == 0 && pgs.TroopsHere.Count == 0))
                     {
-                        continue;
+                        Vector2 center = pgs.ClickRect.Center();
+                        DrawCircle(center, 5f, Color.White, 5f);
+                        DrawCircle(center, 5f, Color.Black);
                     }
-                    Vector2 center = new Vector2((float)(pgs.ClickRect.X + pgs.ClickRect.Width / 2), (float)(pgs.ClickRect.Y + pgs.ClickRect.Height / 2));
-                    DrawCircle(center, 5f, Color.White, 5f);
-                    DrawCircle(center, 5f, Color.Black);
                 }
-                if (!(this.draggedTroop.item is Ship))
-                {
-                    Vector2 Origin = new Vector2((float)(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Troop).TexturePath)].Width / 2), (float)(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Troop).TexturePath)].Height / 2));
-                    Rectangle? nullable = null;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Troop).TexturePath)], new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y), nullable, Color.White, 0f, Origin, 0.65f, SpriteEffects.None, 1f);
-                }
-                else if ((this.draggedTroop.item as Ship).TroopList.Count > 0)
-                {
-                    Vector2 Origin = new Vector2((float)(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Ship).TroopList[0].TexturePath)].Width / 2), (float)(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Ship).TroopList[0].TexturePath)].Height / 2));
-                    Rectangle? nullable1 = null;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Ship).TroopList[0].TexturePath)], new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y), nullable1, Color.White, 0f, Origin, 0.65f, SpriteEffects.None, 1f);
-                }
+
+                Troop troop = draggedTroop.TryGet(out Ship ship) && ship.TroopList.Count > 0
+                            ? ship.TroopList.First : draggedTroop.Get<Troop>();
+
+                Texture2D icon = troop.TextureDefault;
+                batch.Draw(icon, Input.CursorPosition, null, Color.White, 0f, icon.Center(), 0.65f, SpriteEffects.None, 1f);
             }
             if (Empire.Universe.IsActive)
             {
-                ToolTip.Draw(ScreenManager.SpriteBatch);
+                ToolTip.Draw(batch);
             }
-            this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
+            batch.End();
+            batch.Begin(SpriteBlendMode.Additive);
             lock (GlobalStats.ExplosionLocker)
             {
-                foreach (SmallExplosion exp in this.Explosions)
+                foreach (SmallExplosion exp in Explosions)
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[exp.AnimationTexture], exp.grid, Color.White);
+                    batch.Draw(exp.AnimationTex, exp.grid, Color.White);
                 }
             }
-            this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.SpriteBatch.Begin();
+            batch.End();
+            batch.Begin();
 
-            if (this.ScreenManager.NumScreens == 2)
+            if (ScreenManager.NumScreens == 2)
                 popup = true;
         }
 
         private void DrawCombatInfo(PlanetGridSquare pgs)
         {
-            if (this.ActiveTroop != null && this.ActiveTroop == pgs || pgs.building != null && pgs.building.CombatStrength > 0 && this.ActiveTroop != null && this.ActiveTroop == pgs)
-            {
-                Rectangle ActiveSelectionRect = new Rectangle(pgs.TroopClickRect.X - 5, pgs.TroopClickRect.Y - 5, pgs.TroopClickRect.Width + 10, pgs.TroopClickRect.Height + 10);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Square Selection"], ActiveSelectionRect, Color.White);
-                foreach (PlanetGridSquare nearby in this.ReversedList)
-                {
-                    if (nearby == pgs || !nearby.ShowAttackHover)
-                    {
-                        continue;
-                    }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Attack_Confirm"], nearby.TroopClickRect, Color.White);
-                }
-            }
+            if ((ActiveTroop == null || ActiveTroop != pgs) &&
+                (pgs.building == null || pgs.building.CombatStrength <= 0 || ActiveTroop == null ||
+                 ActiveTroop != pgs))
+                return;
 
-        }
-
-        public void DrawOld(SpriteBatch spriteBatch, GameTime gameTime)
-        {
-            this.TitleBar.Draw();
-            this.CombatField.Draw();
-            this.OrbitalResources.Draw();
-            this.orbitalResourcesSub.Draw();
-            this.OrbitSL.Draw(this.ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2((float)(this.orbitalResourcesSub.Menu.X + 20), (float)(this.orbitalResourcesSub.Menu.Y + 45));
-            for (int i = this.OrbitSL.indexAtTop; i < this.OrbitSL.Entries.Count && i < this.OrbitSL.indexAtTop + this.OrbitSL.entriesToDisplay; i++)
+            var activeSel = new Rectangle(pgs.TroopClickRect.X - 5, pgs.TroopClickRect.Y - 5, pgs.TroopClickRect.Width + 10, pgs.TroopClickRect.Height + 10);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Sthis.ScreenManager.SpriteBatchelection"), activeSel, Color.White);
+            foreach (PlanetGridSquare nearby in ReversedList)
             {
-                ScrollList.Entry e = this.OrbitSL.Entries[i];
-                Troop t = (e.item as Ship).TroopList[0];
-                if (e.clickRectHover != 0)
-                {
-                    bCursor.Y = (float)e.clickRect.Y;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
-                }
-                else
-                {
-                    bCursor.Y = (float)e.clickRect.Y;
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", t.TexturePath)], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat("Strength: ", t.Strength.ToString("0.")), tCursor, Color.Orange);
-                }
-                if (e.clickRect.HitTest(new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y)))
-                {
-                    e.clickRectHover = 1;
-                }
+                if (nearby != pgs && nearby.ShowAttackHover)
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Attack_Confirm"),
+                        nearby.TroopClickRect, Color.White);
             }
-            if (this.selector != null)
-            {
-                this.selector.Draw(ScreenManager.SpriteBatch);
-            }
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, "Ground Combat", this.TitlePos, Color.LightPink);
-            Rectangle tilebg = new Rectangle(this.gridPos.X, this.gridPos.Y + 1, this.gridPos.Width - 4, this.gridPos.Height - 3);
-            if (this.p.Type != "Terran")
-            {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/tiles_barren_1"], tilebg, Color.White);
-            }
-            else
-            {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["PlanetTiles/tiles_terran_1"], tilebg, Color.White);
-            }
-            foreach (PlanetGridSquare pgs in this.ReversedList)
-            {
-                if (!pgs.Habitable)
-                {
-                    this.ScreenManager.SpriteBatch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
-                }
-                this.ScreenManager.SpriteBatch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
-                if (pgs.building == null || pgs.building.CombatStrength <= 0)
-                {
-                    continue;
-                }
-                Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64")], bRect, Color.White);
-            }
-            this.DetermineAttackAndMove();
-            foreach (PlanetGridSquare pgs in this.ReversedList)
-            {
-                this.DrawPGSIcons(pgs);
-                this.DrawCombatInfo(pgs);
-            }
-            foreach (PlanetGridSquare pgs in this.ReversedList)
-            {
-                if (!pgs.highlighted)
-                {
-                    continue;
-                }
-                this.ScreenManager.SpriteBatch.DrawRectangle(pgs.ClickRect, Color.White, 2f);
-            }
-            if (this.draggedTroop != null)
-            {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", (this.draggedTroop.item as Ship).TroopList[0].TexturePath)], new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y), Color.White);
-            }
-            this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            lock (GlobalStats.ExplosionLocker)
-            {
-                foreach (CombatScreen.SmallExplosion exp in this.Explosions)
-                {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[exp.AnimationTexture], exp.grid, Color.White);
-                }
-            }
-            this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.SpriteBatch.Begin();
         }
 
         private void DrawPGSIcons(PlanetGridSquare pgs)
         {
-            float width = (float)(pgs.y * 15 + 64);
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+
+            float width = (pgs.y * 15 + 64);
             if (width > 128f)
-            {
                 width = 128f;
-            }
             if (pgs.building != null && pgs.building.CombatStrength > 0)
-            {
                 width = 64f;
-            }
+
             pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - (int)width / 2, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - (int)width / 2, (int)width, (int)width);
             if (pgs.TroopsHere.Count > 0)
             {
-                Rectangle TroopClickRect = pgs.TroopClickRect;
+                Rectangle troopClickRect = pgs.TroopClickRect;
                 if (pgs.TroopsHere[0].MovingTimer > 0f)
                 {
                     float amount = 1f - pgs.TroopsHere[0].MovingTimer;
-                    TroopClickRect.X = (int)MathHelper.Lerp((float)pgs.TroopsHere[0].GetFromRect().X, (float)pgs.TroopClickRect.X, amount);
-                    TroopClickRect.Y = (int)MathHelper.Lerp((float)pgs.TroopsHere[0].GetFromRect().Y, (float)pgs.TroopClickRect.Y, amount);
-                    TroopClickRect.Width = (int)MathHelper.Lerp((float)pgs.TroopsHere[0].GetFromRect().Width, (float)pgs.TroopClickRect.Width, amount);
-                    TroopClickRect.Height = (int)MathHelper.Lerp((float)pgs.TroopsHere[0].GetFromRect().Height, (float)pgs.TroopClickRect.Height, amount);
+                    troopClickRect.X = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().X, pgs.TroopClickRect.X, amount);
+                    troopClickRect.Y = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().Y, pgs.TroopClickRect.Y, amount);
+                    troopClickRect.Width = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().Width, pgs.TroopClickRect.Width, amount);
+                    troopClickRect.Height = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().Height, pgs.TroopClickRect.Height, amount);
                 }
-                pgs.TroopsHere[0].Draw(this.ScreenManager.SpriteBatch, TroopClickRect);
-                Rectangle MoveRect = new Rectangle(TroopClickRect.X + TroopClickRect.Width + 2, TroopClickRect.Y + 38, 12, 12);
+                pgs.TroopsHere[0].Draw(batch, troopClickRect);
+                var moveRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 38, 12, 12);
                 if (pgs.TroopsHere[0].AvailableMoveActions <= 0)
                 {
                     int moveTimer = (int)pgs.TroopsHere[0].MoveTimer + 1;
-                    HelperFunctions.DrawDropShadowText1(this.ScreenManager, moveTimer.ToString(), new Vector2((float)(MoveRect.X + 4), (float)MoveRect.Y), Fonts.Arial12, Color.White);
+                    HelperFunctions.DrawDropShadowText1(ScreenManager, moveTimer.ToString(), new Vector2((moveRect.X + 4), moveRect.Y), Fonts.Arial12, Color.White);
                 }
                 else
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Move"], MoveRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Move"), moveRect, Color.White);
                 }
-                Rectangle AttackRect = new Rectangle(TroopClickRect.X + TroopClickRect.Width + 2, TroopClickRect.Y + 23, 12, 12);
+                var attackRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 23, 12, 12);
                 if (pgs.TroopsHere[0].AvailableAttackActions <= 0)
                 {
                     int attackTimer = (int)pgs.TroopsHere[0].AttackTimer + 1;
-                    HelperFunctions.DrawDropShadowText1(this.ScreenManager, attackTimer.ToString(), new Vector2((float)(AttackRect.X + 4), (float)AttackRect.Y), Fonts.Arial12, Color.White);
+                    HelperFunctions.DrawDropShadowText1(ScreenManager, attackTimer.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Fonts.Arial12, Color.White);
                 }
                 else
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Attack"], AttackRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                 }
-                Rectangle StrengthRect = new Rectangle(TroopClickRect.X + TroopClickRect.Width + 2, TroopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                this.ScreenManager.SpriteBatch.FillRectangle(StrengthRect, new Color(0, 0, 0, 200));
-                this.ScreenManager.SpriteBatch.DrawRectangle(StrengthRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
-                Vector2 cursor = new Vector2((float)(StrengthRect.X + StrengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f, (float)(1 + StrengthRect.Y + StrengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString("0."), cursor, Color.White);
-                if (this.ActiveTroop != null && this.ActiveTroop == pgs)
+
+                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
+                batch.DrawRectangle(strengthRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
+                var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
+                                         (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString("0."), cursor, Color.White);
+                
+                if (ActiveTroop != null && ActiveTroop == pgs)
                 {
-                    if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions > 0)
+                    if (ActiveTroop.TroopsHere[0].AvailableAttackActions > 0)
                     {
-                        foreach (PlanetGridSquare nearby in this.p.TilesList)
+                        foreach (PlanetGridSquare nearby in p.TilesList)
                         {
                             if (nearby == pgs || !nearby.CanAttack)
                             {
                                 continue;
                             }
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Potential_Attack"], nearby.ClickRect, Color.White);
+                            batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
                         }
                     }
-                    if (this.ActiveTroop.TroopsHere[0].AvailableMoveActions > 0)
+                    if (ActiveTroop.TroopsHere[0].AvailableMoveActions > 0)
                     {
-                        foreach (PlanetGridSquare nearby in this.p.TilesList)
+                        foreach (PlanetGridSquare nearby in p.TilesList)
                         {
                             if (nearby == pgs || !nearby.CanMoveTo)
                             {
                                 continue;
                             }
-                            this.ScreenManager.SpriteBatch.FillRectangle(nearby.ClickRect, new Color(255, 255, 255, 30));
-                            Vector2 center = new Vector2((float)(nearby.ClickRect.X + nearby.ClickRect.Width / 2), (float)(nearby.ClickRect.Y + nearby.ClickRect.Height / 2));
+                            batch.FillRectangle(nearby.ClickRect, new Color(255, 255, 255, 30));
+                            Vector2 center = nearby.ClickRect.Center();
                             DrawCircle(center, 5f, Color.White, 5f);
                             DrawCircle(center, 5f, Color.Black);
                         }
@@ -625,40 +506,43 @@ namespace Ship_Game
             {
                 if (pgs.building.CombatStrength <= 0)
                 {
-                    Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    Rectangle StrengthRect = new Rectangle(bRect.X + bRect.Width + 2, bRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                    this.ScreenManager.SpriteBatch.FillRectangle(StrengthRect, new Color(0, 0, 0, 200));
-                    this.ScreenManager.SpriteBatch.DrawRectangle(StrengthRect, (this.p.Owner != null ? this.p.Owner.EmpireColor : Color.Gray));
-                    Vector2 cursor = new Vector2((float)(StrengthRect.X + StrengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.Strength.ToString()).X / 2f, (float)(1 + StrengthRect.Y + StrengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, pgs.building.Strength.ToString(), cursor, Color.White);
+                    var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                    var strengthRect = new Rectangle(bRect.X + bRect.Width + 2, bRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
+                    batch.DrawRectangle(strengthRect, p.Owner?.EmpireColor ?? Color.Gray);
+                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.Strength.ToString()).X / 2f, 
+                                             (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12, pgs.building.Strength.ToString(), cursor, Color.White);
                 }
                 else
                 {
-                    Rectangle AttackRect = new Rectangle(pgs.TroopClickRect.X + pgs.TroopClickRect.Width + 2, pgs.TroopClickRect.Y + 23, 12, 12);
+                    var attackRect = new Rectangle(pgs.TroopClickRect.X + pgs.TroopClickRect.Width + 2, pgs.TroopClickRect.Y + 23, 12, 12);
                     if (pgs.building.AvailableAttackActions <= 0)
                     {
                         int num = (int)pgs.building.AttackTimer + 1;
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, num.ToString(), new Vector2((float)(AttackRect.X + 4), (float)AttackRect.Y), Color.White);
+                        batch.DrawString(Fonts.Arial12, num.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Color.White);
                     }
                     else
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Attack"], AttackRect, Color.White);
+                        batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                     }
-                    Rectangle StrengthRect = new Rectangle(pgs.TroopClickRect.X + pgs.TroopClickRect.Width + 2, pgs.TroopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                    this.ScreenManager.SpriteBatch.FillRectangle(StrengthRect, new Color(0, 0, 0, 200));
-                    this.ScreenManager.SpriteBatch.DrawRectangle(StrengthRect, (this.p.Owner != null ? this.p.Owner.EmpireColor : Color.LightGray));
-                    Vector2 cursor = new Vector2((float)(StrengthRect.X + StrengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.CombatStrength.ToString()).X / 2f, (float)(1 + StrengthRect.Y + StrengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, pgs.building.CombatStrength.ToString(), cursor, Color.White);
+                    var strengthRect = new Rectangle(pgs.TroopClickRect.X + pgs.TroopClickRect.Width + 2, pgs.TroopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
+                    batch.DrawRectangle(strengthRect, p.Owner?.EmpireColor ?? Color.LightGray);
+                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.CombatStrength.ToString()).X / 2f,
+                                             (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+                    batch.DrawString(Fonts.Arial12, pgs.building.CombatStrength.ToString(), cursor, Color.White);
                 }
-                if (this.ActiveTroop != null && this.ActiveTroop == pgs && this.ActiveTroop.building.AvailableAttackActions > 0)
+
+                if (ActiveTroop != null && ActiveTroop == pgs && ActiveTroop.building.AvailableAttackActions > 0)
                 {
-                    foreach (PlanetGridSquare nearby in this.p.TilesList)
+                    foreach (PlanetGridSquare nearby in p.TilesList)
                     {
                         if (nearby == pgs || !nearby.CanAttack)
                         {
                             continue;
                         }
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/GC_Potential_Attack"], nearby.ClickRect, Color.White);
+                        batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
                     }
                 }
             }
@@ -666,25 +550,23 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = Mouse.GetState();
-            Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            bool SelectedSomethingThisFrame = false;
+            bool selectedSomethingThisFrame = false;
             this.assetsUI.HandleInput(input);  
             if (this.ActiveTroop != null && this.tInfo.HandleInput(input))
             {
-                SelectedSomethingThisFrame = true;
+                selectedSomethingThisFrame = true;
             }
             this.selector = null;
             this.HoveredSquare = null;
             foreach (PlanetGridSquare pgs in this.p.TilesList)
             {
-                if (!pgs.ClickRect.HitTest(MousePos) || pgs.TroopsHere.Count == 0 && pgs.building == null)
+                if (!pgs.ClickRect.HitTest(input.CursorPosition) || pgs.TroopsHere.Count == 0 && pgs.building == null)
                 {
                     continue;
                 }
                 this.HoveredSquare = pgs;
             }
-            if (this.OrbitSL.Entries.Count > 0)
+            if (this.OrbitSL.NumEntries > 0)
             {
                 if (!this.LandAll.Rect.HitTest(input.CursorPosition))
                 {
@@ -696,22 +578,20 @@ namespace Ship_Game
                     if (input.InGameSelect)
                     {
                         GameAudio.PlaySfxAsync("sd_troop_land");
-                        for (int i = 0; i < this.OrbitSL.Entries.Count; i++)
+                        foreach (ScrollList.Entry e in OrbitSL.AllEntries)
                         {
-                            ScrollList.Entry e = this.OrbitSL.Entries[i];
-                            if (e.item is Ship)
+                            if (e.item is Ship ship)
                             {
-                                (e.item as Ship).AI.OrderLandAllTroops(this.p);
+                                ship.AI.OrderLandAllTroops(p);
                             }
-                            else if (e.item is Troop)
+                            else if (e.item is Troop troop)
                             {
-                                (e.item as Troop).GetShip().TroopList.Remove(e.item as Troop);
-                                (e.item as Troop).AssignTroopToTile(this.p);
+                                troop.GetShip().TroopList.Remove(troop);
+                                troop.AssignTroopToTile(p);
                             }
                         }
-                        this.OrbitSL.Entries.Clear();
+                        OrbitSL.Reset();
                     }
-                    
                 }
             }
             if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == Empire.Universe.player))
@@ -761,59 +641,44 @@ namespace Ship_Game
                     }
                 }
             }
-            this.OrbitSL.HandleInput(input);
-            foreach (ScrollList.Entry e in this.OrbitSL.Copied)
+            OrbitSL.HandleInput(input);
+            foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {
-                if (!e.clickRect.HitTest(MousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    this.selector = new Selector(e.clickRect);
-                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                    {
-                        continue;
-                    }
-                    this.draggedTroop = e;
-                }
+                if (!e.CheckHover(Input.CursorPosition))
+                    continue;
+                selector = e.CreateSelector();
+                if (input.LeftMouseClick)
+                    draggedTroop = e;
             }
-            if (this.draggedTroop != null && this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+            if (draggedTroop != null && input.LeftMouseClick)
             {
                 bool foundPlace = false;
-                foreach (PlanetGridSquare pgs in this.p.TilesList)
+                foreach (PlanetGridSquare pgs in p.TilesList)
                 {
-                    if (!pgs.ClickRect.HitTest(MousePos))
+                    if (!pgs.ClickRect.HitTest(Input.CursorPosition))
                     {
                         continue;
                     }
-                    if (!(this.draggedTroop.item is Ship) || (this.draggedTroop.item as Ship).TroopList.Count <= 0)
+                    if (!(draggedTroop.item is Ship) || (draggedTroop.item as Ship).TroopList.Count <= 0)
                     {
                         if (!(this.draggedTroop.item is Troop) || (pgs.building != null || pgs.TroopsHere.Count != 0) && (pgs.building == null || pgs.building.CombatStrength != 0 || pgs.TroopsHere.Count != 0))
                         {
                             continue;
                         }
-                        try
-                        {
-                            GameAudio.PlaySfxAsync("sd_troop_land");
-                            pgs.TroopsHere.Add(this.draggedTroop.item as Troop);
-                            pgs.TroopsHere[0].AvailableAttackActions = 0;
-                            pgs.TroopsHere[0].AvailableMoveActions = 0;
-                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                        GameAudio.PlaySfxAsync("sd_troop_land");
+                        pgs.TroopsHere.Add(this.draggedTroop.item as Troop);
+                        pgs.TroopsHere[0].AvailableAttackActions = 0;
+                        pgs.TroopsHere[0].AvailableMoveActions = 0;
+                        pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                        pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
+                        pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
 
-                            this.p.TroopsHere.Add(this.draggedTroop.item as Troop);
-                            (this.draggedTroop.item as Troop).SetPlanet(this.p);
-                            this.OrbitSL.Entries.Remove(this.draggedTroop);
-                            (this.draggedTroop.item as Troop).GetShip().TroopList.Remove(this.draggedTroop.item as Troop);
-                            foundPlace = true;
-                            this.draggedTroop = null;
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "TroopLaunch crash");
-                        }
+                        this.p.TroopsHere.Add(this.draggedTroop.item as Troop);
+                        (this.draggedTroop.item as Troop).SetPlanet(this.p);
+                        OrbitSL.Remove(draggedTroop);
+                        (this.draggedTroop.item as Troop).GetShip().TroopList.Remove(this.draggedTroop.item as Troop);
+                        foundPlace = true;
+                        this.draggedTroop = null;
                     }
                     else
                     {
@@ -821,31 +686,23 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        try
+                        GameAudio.PlaySfxAsync("sd_troop_land");
+                        pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
+                        pgs.TroopsHere[0].AvailableAttackActions = 0;
+                        pgs.TroopsHere[0].AvailableMoveActions = 0;
+                        pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                        pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
+                        pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
+                        p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
+                        (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
+                        if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction)
                         {
-                            GameAudio.PlaySfxAsync("sd_troop_land");
-                            pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                            pgs.TroopsHere[0].AvailableAttackActions = 0;
-                            pgs.TroopsHere[0].AvailableMoveActions = 0;
-                            pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
-                            p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
-                            (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
-                            if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction)
-                            {
-                                ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, Empire.Universe);
-                            }
-                            OrbitSL.Entries.Remove(draggedTroop);
-                            OrbitSL.Copied.Remove(draggedTroop);
-                            (draggedTroop.item as Ship).QueueTotalRemoval();
-                            foundPlace = true;
-                            draggedTroop = null;
+                            ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, Empire.Universe);
                         }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "Troop Launch Crash");
-                        }
+                        OrbitSL.Remove(draggedTroop);
+                        (draggedTroop.item as Ship).QueueTotalRemoval();
+                        foundPlace = true;
+                        draggedTroop = null;
                     }
                 }
                 if (!foundPlace)
@@ -856,7 +713,7 @@ namespace Ship_Game
             }
             foreach (PlanetGridSquare pgs in this.p.TilesList)
             {
-                if (!pgs.ClickRect.HitTest(MousePos))
+                if (!pgs.ClickRect.HitTest(Input.CursorPosition))
                 {
                     pgs.highlighted = false;
                 }
@@ -874,7 +731,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    if (!pgs.TroopClickRect.HitTest(MousePos))
+                    if (!pgs.TroopClickRect.HitTest(Input.CursorPosition))
                     {
                         pgs.ShowAttackHover = false;
                     }
@@ -884,12 +741,11 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        if (Input.LeftMouseClick)
                         {
-                            Building activeTroop = this.ActiveTroop.building;
-                            activeTroop.AvailableAttackActions = activeTroop.AvailableAttackActions - 1;
-                            this.ActiveTroop.building.AttackTimer = 10f;
-                            this.StartCombat(this.ActiveTroop, pgs);
+                            ActiveTroop.building.AvailableAttackActions -= 1;
+                            ActiveTroop.building.AttackTimer = 10f;
+                            StartCombat(ActiveTroop, pgs);
                         }
                         pgs.ShowAttackHover = true;
                     }
@@ -899,23 +755,18 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        if (Input.LeftMouseClick)
                         {
-                            if (pgs.x > this.ActiveTroop.x)
-                            {
-                                this.ActiveTroop.TroopsHere[0].facingRight = true;
-                            }
-                            else if (pgs.x < this.ActiveTroop.x)
-                            {
-                                this.ActiveTroop.TroopsHere[0].facingRight = false;
-                            }
-                            Troop item = this.ActiveTroop.TroopsHere[0];
+                            if      (pgs.x > ActiveTroop.x) ActiveTroop.TroopsHere[0].facingRight = true;
+                            else if (pgs.x < ActiveTroop.x) ActiveTroop.TroopsHere[0].facingRight = false;
+
+                            Troop item = ActiveTroop.TroopsHere[0];
                             item.AvailableAttackActions = item.AvailableAttackActions - 1;
-                            this.ActiveTroop.TroopsHere[0].AttackTimer = (float)this.ActiveTroop.TroopsHere[0].AttackTimerBase;
-                            Troop availableMoveActions = this.ActiveTroop.TroopsHere[0];
+                            ActiveTroop.TroopsHere[0].AttackTimer = ActiveTroop.TroopsHere[0].AttackTimerBase;
+                            Troop availableMoveActions = ActiveTroop.TroopsHere[0];
                             availableMoveActions.AvailableMoveActions = availableMoveActions.AvailableMoveActions - 1;
-                            this.ActiveTroop.TroopsHere[0].MoveTimer = (float)this.ActiveTroop.TroopsHere[0].MoveTimerBase;
-                            this.StartCombat(this.ActiveTroop, pgs);
+                            ActiveTroop.TroopsHere[0].MoveTimer = ActiveTroop.TroopsHere[0].MoveTimerBase;
+                            StartCombat(ActiveTroop, pgs);
                         }
                         pgs.ShowAttackHover = true;
                     }
@@ -924,13 +775,13 @@ namespace Ship_Game
                 {
                     if (pgs.TroopsHere.Count > 0)
                     {
-                        if (pgs.TroopClickRect.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                        if (pgs.TroopClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
                         {
                             if (pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
                             {
                                 this.ActiveTroop = pgs;
                                 this.tInfo.SetPGS(pgs);
-                                SelectedSomethingThisFrame = true;
+                                selectedSomethingThisFrame = true;
                             }
                             else
                             {
@@ -942,17 +793,17 @@ namespace Ship_Game
                                 }
                                 this.ActiveTroop = pgs;
                                 this.tInfo.SetPGS(pgs);
-                                SelectedSomethingThisFrame = true;
+                                selectedSomethingThisFrame = true;
                             }
                         }
                     }
-                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.TroopClickRect.HitTest(MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.TroopClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
                     {
                         if (this.p.Owner != EmpireManager.Player)
                         {
                             this.ActiveTroop = pgs;
                             this.tInfo.SetPGS(pgs);
-                            SelectedSomethingThisFrame = true;
+                            selectedSomethingThisFrame = true;
                         }
                         else
                         {
@@ -964,10 +815,10 @@ namespace Ship_Game
                             }
                             this.ActiveTroop = pgs;
                             this.tInfo.SetPGS(pgs);
-                            SelectedSomethingThisFrame = true;
+                            selectedSomethingThisFrame = true;
                         }
                     }
-                    if (this.ActiveTroop == null || !pgs.CanMoveTo || this.ActiveTroop.TroopsHere.Count == 0 || !pgs.ClickRect.HitTest(MousePos) || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.Player || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released || this.ActiveTroop.TroopsHere[0].AvailableMoveActions <= 0)
+                    if (ActiveTroop == null || !pgs.CanMoveTo || ActiveTroop.TroopsHere.Count == 0 || !pgs.ClickRect.HitTest(Input.CursorPosition) || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.Player || Input.LeftMouseReleased || ActiveTroop.TroopsHere[0].AvailableMoveActions <= 0)
                     {
                         continue;
                     }
@@ -990,20 +841,19 @@ namespace Ship_Game
                     this.ActiveTroop = null;
                     this.ActiveTroop = pgs;
                     pgs.CanMoveTo = false;
-                    SelectedSomethingThisFrame = true;
+                    selectedSomethingThisFrame = true;
                 }
             }
-            if (this.ActiveTroop != null && !SelectedSomethingThisFrame && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.SelectedItemRect.HitTest(input.CursorPosition))
+            if (ActiveTroop != null && !selectedSomethingThisFrame && Input.LeftMouseClick && !SelectedItemRect.HitTest(input.CursorPosition))
             {
-                this.ActiveTroop = null;
+                ActiveTroop = null;
             }
-            if (this.ActiveTroop != null)
+            if (ActiveTroop != null)
             {
-                this.tInfo.pgs = this.ActiveTroop;
+                tInfo.pgs = ActiveTroop;
             }
             this.DetermineAttackAndMove();
             this.hInfo.SetPGS(this.HoveredSquare);
-            this.previousMouse = this.currentMouse;
             
             if (popup)
             {
@@ -1021,30 +871,29 @@ namespace Ship_Game
         
         private void ResetTroopList()
         {
-            this.OrbitSL.Entries.Clear();
-            this.OrbitSL.Copied.Clear();
-            this.OrbitSL.indexAtTop = 0;
-            for (int i = 0; i < this.p.ParentSystem.ShipList.Count; i++)
+            OrbitSL.Reset();
+            for (int i = 0; i < p.ParentSystem.ShipList.Count; i++)
             {
-                Ship ship = this.p.ParentSystem.ShipList[i];
-                if (Vector2.Distance(this.p.Center, ship.Center) < 15000f && ship.loyalty == EmpireManager.Player)
+                Ship ship = p.ParentSystem.ShipList[i];
+                if (p.Center.Distance(ship.Center) >= 15000f || ship.loyalty != EmpireManager.Player)
+                    continue;
+
+                if (ship.shipData.Role == ShipData.RoleName.troop && !Empire.Universe.MasterShipList.IsPendingRemoval(ship))
                 {
-                    if (ship.shipData.Role == ShipData.RoleName.troop && !Empire.Universe.MasterShipList.IsPendingRemoval(ship))
+                    OrbitSL.AddItem(ship);
+                }
+                else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
+                {
+                    int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
+                    foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
+                        landingLimit += module.TransporterTroopLanding;
+
+                    for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
                     {
-                        this.OrbitSL.AddItem(ship);
-                    }
-                    else if (ship.Carrier.HasTroopBays || ship.Carrier.HasTransporters)
-                    {
-                        int landingLimit = ship.Carrier.AllActiveHangars.Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
-                        foreach (ShipModule module in ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1f))
-                            landingLimit += module.TransporterTroopLanding;
-                        for (int x = 0; x < ship.TroopList.Count && landingLimit > 0; x++)
+                        if (ship.TroopList[x].GetOwner() == ship.loyalty)
                         {
-                            if (ship.TroopList[x].GetOwner() == ship.loyalty)
-                            {
-                                this.OrbitSL.AddItem(ship.TroopList[x]);
-                                landingLimit--;
-                            }
+                            OrbitSL.AddItem(ship.TroopList[x]);
+                            landingLimit--;
                         }
                     }
                 }
@@ -1213,6 +1062,8 @@ namespace Ship_Game
             public Rectangle grid;
             public int frame;
 
+            public Texture2D AnimationTex => ResourceManager.Texture(AnimationTexture);
+
             public SmallExplosion(int Size)
             {
                 switch (Size)
@@ -1263,9 +1114,6 @@ namespace Ship_Game
         protected override void Destroy()
         {
             Explosions?.Dispose(ref Explosions);
-            OrbitSL?.Dispose(ref OrbitSL);
-            tInfo?.Dispose(ref tInfo);
-            hInfo?.Dispose(ref hInfo);
             base.Destroy();
         }
     }
