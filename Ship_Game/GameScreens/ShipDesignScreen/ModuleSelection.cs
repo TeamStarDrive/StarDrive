@@ -69,8 +69,7 @@ namespace Ship_Game
             ActiveModSubMenu.HandleInputNoReset();
             if (!base.HandleInput(input))
                 return false;
-            WeaponSl.ResetOnNextDraw = true;
-            WeaponSl.indexAtTop = 0;
+            ResetLists();
             return false;
             
         }
@@ -771,19 +770,6 @@ namespace Ship_Game
                 ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f - bonus.FireRateBonus;
             return 1f;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            ChooseFighterSub = null;
-            WeaponSl?.Dispose(ref WeaponSl);
-            ChooseFighterSL?.Dispose(ref ChooseFighterSL);            
         }
     }
 }

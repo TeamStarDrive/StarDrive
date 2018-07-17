@@ -476,7 +476,7 @@ namespace Ship_Game
             if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
                 return techEntry;
             Log.Error($"Attempt to find tech {tech} failed");
-            return null;
+            return TechEntry.None;
 
         }
 

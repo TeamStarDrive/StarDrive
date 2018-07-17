@@ -55,14 +55,7 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Destroy()
-        {
-            OperationsSL?.Dispose(ref OperationsSL);
-            AgentComponent?.Dispose(ref AgentComponent);
-            base.Destroy();
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -96,7 +89,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                         Rectangle r = new Rectangle(race.container.X, race.container.Y, 124, 124);
                         KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
-                        spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
+                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
                     }
                 }
                 else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
@@ -208,193 +201,12 @@ namespace Ship_Game
                 TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Level ", this.AgentComponent.SelectedAgent.Level.ToString(), " Agent"), TextCursor, Color.Gray);
             }
-            this.close.Draw(spriteBatch);
+            this.close.Draw(batch);
             if (base.IsActive)
             {
                 ToolTip.Draw(ScreenManager.SpriteBatch);
             }
             base.ScreenManager.SpriteBatch.End();
-        }
-
-        private void DrawBadStat(string text, string text2, ref Vector2 Position)
-        {
-            HelperFunctions.ClampVectorToInt(ref Position);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.LightPink);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
-            //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightPink);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-        }
-
-        private void DrawGoodStat(string text, string text2, ref Vector2 Position)
-        {
-            HelperFunctions.ClampVectorToInt(ref Position);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.LightGreen);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
-            //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightGreen);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-        }
-
-        private void DrawStat(string text, float value, ref Vector2 Position)
-        {
-            Color lightGreen;
-            Color color;
-            if (value <= 10f)
-            {
-                value = value * 100f;
-            }
-            HelperFunctions.ClampVectorToInt(ref Position);
-            SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
-            SpriteFont arial12 = Fonts.Arial12;
-            string str = text;
-            Vector2 position = Position;
-            if (value > 0f)
-            {
-                lightGreen = Color.LightGreen;
-            }
-            else
-            {
-                lightGreen = (value == 0f ? Color.White : Color.LightPink);
-            }
-            spriteBatch.DrawString(arial12, str, position, lightGreen);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString(), "%")).X;
-            //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
-            SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
-            string str1 = string.Concat(value.ToString(), "%");
-            Vector2 vector2 = nPos;
-            if (value > 0f)
-            {
-                color = Color.LightGreen;
-            }
-            else
-            {
-                color = (value == 0f ? Color.White : Color.LightPink);
-            }
-            spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
-            Position.Y = Position.Y + (float)Fonts.Arial12Bold.LineSpacing;
-        }
-
-        private void DrawStat(string text, float value, ref Vector2 Position, bool OppositeBonuses)
-        {
-            Color lightGreen;
-            Color color;
-            if (value < 10f)
-            {
-                value = value * 100f;
-            }
-            HelperFunctions.ClampVectorToInt(ref Position);
-            SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
-            SpriteFont arial12 = Fonts.Arial12;
-            string str = text;
-            Vector2 position = Position;
-            if (value < 0f)
-            {
-                lightGreen = Color.LightGreen;
-            }
-            else
-            {
-                lightGreen = (value == 0f ? Color.White : Color.LightPink);
-            }
-            spriteBatch.DrawString(arial12, str, position, lightGreen);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-                nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString(), "%")).X;
-            //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
-            SpriteBatch spriteBatch1 = base.ScreenManager.SpriteBatch;
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
-            string str1 = string.Concat(value.ToString(), "%");
-            Vector2 vector2 = nPos;
-            if (value < 0f)
-            {
-                color = Color.LightGreen;
-            }
-            else
-            {
-                color = (value == 0f ? Color.White : Color.LightPink);
-            }
-            spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-        }
-
-        private void DrawStat(string text, string text2, ref Vector2 Position)
-        {
-            HelperFunctions.ClampVectorToInt(ref Position);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.White);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-                nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
-            //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.White);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-        }
-
-        private float GetMilitaryStr(Empire e)
-        {
-            float single;
-            float str = 0f;
-            try
-            {
-                foreach (Ship ship in e.GetShips())
-                {
-                    str = str + ship.GetStrength();
-                }
-                return str;
-            }
-            catch
-            {
-                single = str;
-            }
-            return single;
-        }
-
-        private float GetPop(Empire e)
-        {
-            float pop = 0f;
-            foreach (Planet p in e.GetPlanets())
-            {
-                pop = pop + p.Population;
-            }
-            return pop;
-        }
-
-        private float GetScientificStr(Empire e)
-        {
-            float scientificStr = 0f;
-            foreach (KeyValuePair<string, TechEntry> Technology in e.GetTDict())
-            {
-                if (!Technology.Value.Unlocked)
-                {
-                    continue;
-                }
-                scientificStr = scientificStr + ResourceManager.TechTree[Technology.Key].Cost;
-            }
-            return scientificStr;
-        }
-
-        private Operation GetSelectedOp()
-        {
-            for (int i = this.OperationsSL.indexAtTop; i < this.OperationsSL.Entries.Count && i < this.OperationsSL.indexAtTop + this.OperationsSL.entriesToDisplay; i++)
-            {
-                ScrollList.Entry e = this.OperationsSL.Entries[i];
-                if ((e.item as Operation).Selected)
-                {
-                    return e.item as Operation;
-                }
-            }
-            return null;
         }
 
         public override bool HandleInput(InputState input)
@@ -421,13 +233,12 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    this.SelectedEmpire = race.e;
+                    SelectedEmpire = race.e;
                     GotRace = true;
                     GameAudio.PlaySfxAsync("echo_affirm");
-                    for (int j = this.OperationsSL.indexAtTop; j < this.OperationsSL.Entries.Count && j < this.OperationsSL.indexAtTop + this.OperationsSL.entriesToDisplay; j++)
+                    foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
                     {
-                        ScrollList.Entry f = this.OperationsSL.Entries[j];
-                        (f.item as Operation).Selected = false;
+                        ((Operation)f.item).Selected = false;
                     }
                 }
                 else
@@ -436,7 +247,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    this.SelectedEmpire = race.e;
+                    SelectedEmpire = race.e;
                     GotRace = true;
                 }
             }

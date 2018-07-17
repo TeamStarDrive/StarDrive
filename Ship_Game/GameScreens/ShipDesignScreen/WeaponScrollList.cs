@@ -30,20 +30,14 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             base.HandleInput(input);
-            if (input.ScrollIn && indexAtTop > 0)
-                --indexAtTop;
-            if (input.ScrollOut && indexAtTop + entriesToDisplay < Entries.Count)
-                ++indexAtTop;
 
             if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
             {
                 DestroySelectionBox();
                 return false;
             }
-            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; ++i)
+            foreach (Entry e in VisibleExpandedEntries)
             {
-                Entry e = Copied[i];
-
                 if (e.item is ModuleHeader moduleHeader)
                 {
                     if (moduleHeader.HandleInput(input, e))
@@ -54,10 +48,9 @@ namespace Ship_Game
                     if (moduleHeader.Hover)
                         DestroySelectionBox();
                 }
-                else if (e.clickRect.HitTest(input.CursorPosition))
+                else if (e.CheckHover(input))
                 {
-                    SelectionBox = new Selector(e.clickRect);
-                    e.clickRectHover = 1;
+                    SelectionBox = e.CreateSelector();
                     if (!Screen.Input.InGameSelect)
                         continue;
 
@@ -65,8 +58,6 @@ namespace Ship_Game
                     Screen.SetActiveModule(module, ModuleOrientation.Normal, 0f);
                     return true;
                 }
-                else
-                    e.clickRectHover = 0;
             }
             return false;
         }
@@ -94,15 +85,26 @@ namespace Ship_Game
                 e = AddItem(new ModuleHeader(categoryName, 240));
                 Categories.Add(categoryId, e);
             }
-            e.AddItem(mod);
+            e.AddSubItem(mod);
         }
 
-        private void OpenCategory(int categoryId)
+        private bool OpenCategory(int categoryId)
         {
             if (Categories.TryGetValue(categoryId, out Entry e))
             {
                 var category = (ModuleHeader)e.item;
                 category.Expand(true, e);
+                return true;
+            }
+            return false;
+        }
+
+        private void OpenCategoryByIndex(int index)
+        {
+            if (index < NumEntries)
+            {
+                var category = (ModuleHeader)EntryAt(index).item;
+                category.Expand(true, EntryAt(index));
             }
         }
 
@@ -112,7 +114,7 @@ namespace Ship_Game
 
             if (ResetOnNextDraw)
             {
-                Entries.Clear();
+                Reset();
                 Categories.Clear();
                 if      (Screen.ModSel.Tabs[0].Selected) AddWeaponCategories();
                 else if (Screen.ModSel.Tabs[1].Selected) AddPowerCategories();
@@ -194,6 +196,7 @@ namespace Ship_Game
                     AddCategoryItem("Bomb".GetHashCode(), "Bomb", m);
                 }
             }
+            OpenCategoryByIndex(0);
         }
 
         private void AddPowerCategories()
@@ -207,7 +210,8 @@ namespace Ship_Game
                 if (type == ShipModuleType.PowerPlant || type == ShipModuleType.FuelCell || type == ShipModuleType.Engine)
                     AddCategoryItem((int)type, type.ToString(), m);
             }
-            OpenCategory((int)ShipModuleType.PowerPlant);
+            if (!OpenCategory((int)ShipModuleType.PowerPlant))
+                OpenCategoryByIndex(0);
         }
 
         private void AddDefenseCategories()
@@ -232,7 +236,8 @@ namespace Ship_Game
                     AddCategoryItem(6173, Localizer.Token(6173), m);
                 }
             }
-            OpenCategory((int)ShipModuleType.Shield);
+            if (!OpenCategory((int)ShipModuleType.Shield))
+                OpenCategoryByIndex(0);
         }
 
         private void AddSpecialCategories()
@@ -254,11 +259,9 @@ namespace Ship_Game
         private void DrawList(SpriteBatch spriteBatch)
         {
             Vector2 mousePos = Input.CursorPosition;
-            for (int i = indexAtTop; i < Copied.Count && i < indexAtTop + entriesToDisplay; i++)
+            foreach (Entry e in VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, Screen.ModSel.Menu.Y + 45);
-                Entry e = Copied[i];
-                bCursor.Y = e.clickRect.Y;
+                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(Screen.ScreenManager, bCursor);
@@ -307,14 +310,7 @@ namespace Ship_Game
                         }
                     }
 
-                    if (e.clickRect.HitTest(mousePos))
-                    {
-                        if (e.clickRectHover == 0)
-                        {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
-                    }
+                    e.CheckHover(mousePos);
                 }
             }
         }

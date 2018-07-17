@@ -19,13 +19,13 @@ namespace Ship_Game.GameScreens
             TextEntry.ClickableArea = Rect;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             
-            spriteBatch.Begin();
-            TextEntry.Draw(spriteBatch, Game1.Instance.GameTime);
-            spriteBatch.End();
-            base.Draw(spriteBatch);
+            batch.Begin();
+            TextEntry.Draw(batch, Game1.Instance.GameTime);
+            batch.End();
+            base.Draw(batch);
         }
 
         public override void Update(GameTime gameTime, bool focus, bool covered)
