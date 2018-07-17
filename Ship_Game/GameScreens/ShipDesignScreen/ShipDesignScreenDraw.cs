@@ -445,7 +445,10 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
-            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
+            Power netPower = GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseShieldWarpBehavior ?
+                             Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue) :
+                             Power.Calculate(ModuleGrid.Modules, EmpireManager.Player);
+
             // Other modification to the ship and draw values
 
             empResist += size; // FB: so the player will know the true EMP Tolerance
