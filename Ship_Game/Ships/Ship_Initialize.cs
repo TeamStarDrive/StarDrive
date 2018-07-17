@@ -579,7 +579,10 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            NetPower = GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseShieldWarpBehavior ? 
+                            Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior) :
+                            Power.Calculate(ModuleSlotList, loyalty);
+
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity 
             MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
