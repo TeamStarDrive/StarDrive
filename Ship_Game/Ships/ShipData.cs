@@ -51,8 +51,8 @@ namespace Ship_Game.Ships
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
         [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
         [XmlIgnore] [JsonIgnore] public bool AllModulesUnlocakable = true;
-        [XmlIgnore] [JsonIgnore] public bool UnLockable;        
-        public HashSet<string> TechsNeeded = new HashSet<string>();
+        [XmlIgnore] [JsonIgnore] public bool UnLockable;
+        [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
         [XmlIgnore] [JsonIgnore] public int TechScore;
 
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
