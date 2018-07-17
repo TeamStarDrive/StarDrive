@@ -125,24 +125,24 @@ namespace Ship_Game
             return new Vector2(rect.X + 10, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             bool hover = IsMouseHoveringOver(Rect);
             if (hover) // draw border if mouse is hovering
-                spriteBatch.FillRectangle(Rect, new Color(128, 87, 43, 50));
+                batch.FillRectangle(Rect, new Color(128, 87, 43, 50));
 
             for (int i = 0; i < BorderCount; ++i) // draw borders
-                Border[i].Draw(spriteBatch, Color.White);
+                Border[i].Draw(batch, Color.White);
 
             if (Count > 0) // draw active item
             {
                 Color color = hover ? Color.White : new Color(255, 239, 208);
-                spriteBatch.DrawString(Fonts.Arial12Bold, WrappedString(ActiveName), TextPosition(Rect), color);
+                batch.DrawString(Fonts.Arial12Bold, WrappedString(ActiveName), TextPosition(Rect), color);
             }
 
             if (Open) // draw drop options
             {
-                DrawOpenOptions(spriteBatch);
+                DrawOpenOptions(batch);
             }
         }
 

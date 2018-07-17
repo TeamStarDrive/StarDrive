@@ -31,6 +31,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         private Dictionary<TechnologyType, float> TechLookAhead;
 
+        public static readonly TechEntry None = new TechEntry { UID = "" };
+
         public TechEntry()
         {
             TechLookAhead = new Dictionary<TechnologyType, float>();
