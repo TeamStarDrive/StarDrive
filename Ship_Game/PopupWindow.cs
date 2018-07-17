@@ -47,35 +47,35 @@ namespace Ship_Game
         {
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            spriteBatch.Begin();
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TL"), TL, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TR"), TR, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BL"), BL, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BR"), BR, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TL_stroke"), TLc, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_TR_stroke"), TRc, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_T"), TopHoriz, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_T_gradient"), TopSep, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_vert_L"), LeftVert, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_vert_R"), RightVert, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BL_stroke"), BLc, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_corner_BR_stroke"), BRc, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_B"), BotHoriz, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_horiz_B_gradient"), BotSep, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomFill, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomBigFill, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_mid"), MidContainer, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepTop, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepBot, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRect, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleLeft, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRight, Color.White);
+            batch.Begin();
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TL"), TL, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TR"), TR, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BL"), BL, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BR"), BR, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TL_stroke"), TLc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_TR_stroke"), TRc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_horiz_T"), TopHoriz, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_horiz_T_gradient"), TopSep, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_vert_L"), LeftVert, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_vert_R"), RightVert, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BL_stroke"), BLc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_corner_BR_stroke"), BRc, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_horiz_B"), BotHoriz, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_horiz_B_gradient"), BotSep, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomFill, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_filler_lower"), BottomBigFill, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_filler_mid"), MidContainer, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepTop, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_separator"), MidSepBot, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRect, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleLeft, Color.White);
+            batch.Draw(ResourceManager.Texture("Popup/popup_filler_title"), TitleRight, Color.White);
 
-            base.Draw(spriteBatch);
+            base.Draw(batch);
 
-            spriteBatch.End();
+            batch.End();
         }        
 
         public Vector2 DrawString(SpriteFont font, string theirText, Vector2 theirTextPos, Color color)

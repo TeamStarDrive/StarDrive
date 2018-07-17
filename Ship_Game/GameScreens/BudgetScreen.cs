@@ -16,7 +16,6 @@ namespace Ship_Game.GameScreens
         private Rectangle TradeRect;
         private GenericSlider TaxSlider;
         private GenericSlider TreasuryGoal;
-        private SpriteFont Arial12Bold1;
 
         public BudgetScreen(UniverseScreen screen) : base(screen)
         {
@@ -26,7 +25,7 @@ namespace Ship_Game.GameScreens
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
@@ -99,7 +98,7 @@ namespace Ship_Game.GameScreens
             float totalBuildingMaintenance  = EmpireManager.Player.GetTotalBuildingMaintenance();
             columnB.X                       = columnB.X - arial12Bold.MeasureString(totalBuildingMaintenance.ToString("#.0")).X;
                         
-            spriteBatch.DrawString(arial12Bold, totalBuildingMaintenance.ToString("#.0"), columnB, Color.White);
+            batch.DrawString(arial12Bold, totalBuildingMaintenance.ToString("#.0"), columnB, Color.White);
             cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
@@ -109,12 +108,12 @@ namespace Ship_Game.GameScreens
             float totalShipMaintenance      = EmpireManager.Player.GetTotalShipMaintenance();
             columnB.X                       = columnB.X - arial12Bold.MeasureString(totalShipMaintenance.ToString("#.0")).X;            
             
-            spriteBatch.DrawString(arial12Bold, totalShipMaintenance.ToString("#.0"), columnB, Color.White);
+            batch.DrawString(arial12Bold, totalShipMaintenance.ToString("#.0"), columnB, Color.White);
             cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
             cursor                          = new Vector2(CostRect.X + CostRect.Width - 75, CostRect.Y + CostRect.Height - arial12Bold.LineSpacing - 5);                        
             
             float totalBuildingMaintenance1 = totalBuildingMaintenance + totalShipMaintenance;
-            spriteBatch.DrawString(arial12Bold, $"{token320}: {totalBuildingMaintenance1:#.0}", cursor, Color.White);            
+            batch.DrawString(arial12Bold, $"{token320}: {totalBuildingMaintenance1:#.0}", cursor, Color.White);            
             cursor                          = new Vector2(TradeRect.X + 10, TradeRect.Y + 8);
             
             HelperFunctions.DrawDropShadowText(ScreenManager, token321, cursor, arial12Bold);

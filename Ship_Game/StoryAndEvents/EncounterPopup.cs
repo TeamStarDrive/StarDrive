@@ -31,13 +31,13 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			if (this.fade)
 			{
 				base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			}
-			base.Draw(spriteBatch);
+			base.Draw(batch);
 
 			base.ScreenManager.SpriteBatch.Begin();
 			this.encounter.Draw(base.ScreenManager);
