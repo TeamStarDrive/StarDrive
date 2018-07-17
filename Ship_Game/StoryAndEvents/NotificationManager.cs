@@ -435,19 +435,18 @@ namespace Ship_Game
         public bool HandleInput(InputState input)
         {
             bool retValue = false;
-            Vector2 mousePos = new Vector2(input.MouseCurr.X, input.MouseCurr.Y);
             bool recalculate = false;
             lock (NotificationLocker)
             {
                 foreach (Notification n in NotificationList)
                 {
-                    if (!n.ClickRect.HitTest(mousePos))
+                    if (!n.ClickRect.HitTest(input.CursorPosition))
                     {
                         n.ShowMessage = false;
                     }
                     else
                     {
-                        if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed)
+                        if (input.LeftMouseReleased)
                         {
                             NotificationList.QueuePendingRemoval(n);
                             recalculate = true;
@@ -474,7 +473,7 @@ namespace Ship_Game
                             }
                             retValue = true;
                         }
-                        if (input.MouseCurr.RightButton == ButtonState.Pressed && input.MousePrev.RightButton == ButtonState.Released && n.Action != "LoadEvent")
+                        if (input.RightMouseClick && n.Action != "LoadEvent")
                         {
                             GameAudio.PlaySfxAsync("sub_bass_whoosh");
                             NotificationList.QueuePendingRemoval(n);

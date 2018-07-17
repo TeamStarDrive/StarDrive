@@ -28,7 +28,7 @@ namespace Ship_Game
             this.ExitScreen();
         }
 
-        protected override void SetSavesSL()        // Set list of files to show
+        protected override void InitSaveList()        // Set list of files to show
         {
             var saves = new Array<FileData>();
             foreach (FileInfo fileInfo in Dir.GetFiles(Path))
@@ -63,7 +63,7 @@ namespace Ship_Game
 
             var sortedList = from data in saves orderby data.FileName ascending select data;
             foreach (FileData data in sortedList)
-                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
+                SavesSL.AddItem(data).AddSubItem(data.FileLink);
         }
     }
 }

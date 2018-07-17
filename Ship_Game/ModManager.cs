@@ -36,13 +36,7 @@ namespace Ship_Game
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Destroy()
-        {
-            ModsSL?.Dispose(ref ModsSL);
-            base.Destroy();
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (IsExiting)
                 return;
@@ -51,10 +45,9 @@ namespace Ship_Game
             SaveMenu.Draw();
             NameSave.Draw();
             AllSaves.Draw();
-            for (int i = ModsSL.indexAtTop; i < ModsSL.Entries.Count && i < ModsSL.indexAtTop + ModsSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
             {
-                ScrollList.Entry e = ModsSL.Entries[i];
-                (e.item as ModEntry)?.Draw(ScreenManager, e.clickRect);
+                e.Get<ModEntry>().Draw(ScreenManager, e.Rect);
             }
             ModsSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
@@ -153,37 +146,28 @@ namespace Ship_Game
                 return false;
             }
             ModsSL.HandleInput(input);
-            foreach (ScrollList.Entry e in ModsSL.Entries)
+            foreach (ScrollList.Entry e in ModsSL.AllEntries)
             {
-                if (!e.clickRect.HitTest(input.CursorPosition))
+                if (!e.CheckHover(input.CursorPosition))
+                    continue;
+
+                selector = e.CreateSelector();
+                if (!input.InGameSelect)
+                    continue;
+
+                GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                SelectedMod = (ModEntry)e.item;
+                EnterNameArea.Text = SelectedMod.ModName;
+
+                foreach (UIButton button in Buttons)
                 {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect)
+                    if (button.Launches != "Visit")
                         continue;
-
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    SelectedMod = e.item as ModEntry;
-                    EnterNameArea.Text = SelectedMod.ModName;
-
-                    foreach (UIButton button in Buttons)
-                    {
-                        if (button.Launches != "Visit")
-                            continue;
-                        if (string.IsNullOrEmpty(SelectedMod.mi.URL))
-                            button.Text = Localizer.Token(4015);
-                        else
-                            button.Text = "Goto Mod URL";
-                        break;
-                    }
+                    if (string.IsNullOrEmpty(SelectedMod.mi.URL))
+                        button.Text = Localizer.Token(4015);
+                    else
+                        button.Text = "Goto Mod URL";
+                    break;
                 }
             }
             return base.HandleInput(input);
