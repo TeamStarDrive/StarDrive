@@ -42,8 +42,8 @@ namespace Ship_Game.Ships
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
 
-        private float ShieldPowerBeforeWarp;
-        private float ShieldUpChance = 100;
+        public float ShieldPowerBeforeWarp { get; private set; }
+        public float ShieldUpChance { get; private set; } = 100;
 
 
 
@@ -247,27 +247,30 @@ namespace Ship_Game.Ships
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
-            XSIZE             = template.XSIZE;
-            YSIZE             = template.YSIZE;
-            Mass              = template.Mass;
-            Powered           = template.Powered;
-            FieldOfFire       = template.FieldOfFire;
-            Facing            = template.facing;
-            XMLPosition       = template.XMLPosition;
-            NameIndex         = template.NameIndex;
-            DescriptionIndex  = template.DescriptionIndex;
-            Restrictions      = template.Restrictions;
-            ShieldPower       = template.shield_power;
-            hangarShipUID     = template.hangarShipUID;
-            hangarTimer       = template.hangarTimer;
-            ModuleType        = template.ModuleType;
-            WeaponType        = template.WeaponType;
-            isWeapon          = WeaponType.NotEmpty();
-            OrdinanceCapacity = template.OrdinanceCapacity;
-            BombTimer         = template.BombTimer;
-            IconTexturePath   = template.IconTexturePath;
-            TargetValue       = template.TargetValue;
-            TemplateMaxHealth = template.HealthMax;
+            XSIZE                 = template.XSIZE;
+            YSIZE                 = template.YSIZE;
+            Mass                  = template.Mass;
+            Powered               = template.Powered;
+            FieldOfFire           = template.FieldOfFire;
+            Facing                = template.facing;
+            XMLPosition           = template.XMLPosition;
+            NameIndex             = template.NameIndex;
+            DescriptionIndex      = template.DescriptionIndex;
+            Restrictions          = template.Restrictions;
+            ShieldPower           = template.shield_power;
+            hangarShipUID         = template.hangarShipUID;
+            hangarTimer           = template.hangarTimer;
+            ModuleType            = template.ModuleType;
+            WeaponType            = template.WeaponType;
+            isWeapon              = WeaponType.NotEmpty();
+            OrdinanceCapacity     = template.OrdinanceCapacity;
+            BombTimer             = template.BombTimer;
+            IconTexturePath       = template.IconTexturePath;
+            TargetValue           = template.TargetValue;
+            TemplateMaxHealth     = template.HealthMax;
+            ShieldPowerBeforeWarp = template.ShieldPowerBeforeWarp;
+            ShieldUpChance        = template.ShieldUpChance;
+
             UpdateModuleRadius();
         }
 
@@ -341,7 +344,8 @@ namespace Ship_Game.Ships
             {
                 module.SetHealth(slot.Health);
                 module.Active      = slot.Health > 0.01f;
-                module.ShieldPower = slot.ShieldPower;;
+                module.ShieldPower = slot.ShieldPower;
+                //module.ShieldPowerBeforeWarp = slot.shieldp
             }
             return module;
         }
@@ -897,8 +901,8 @@ namespace Ship_Game.Ships
             if (Is(ShipModuleType.Shield))
             {
                 float shieldMax = ActualShieldPowerMax;
-                //ShieldsWarpBehavior behavior = Parent.shipData.ShieldsBehavior;
-                ShieldsWarpBehavior behavior = ShieldsWarpBehavior.Discharged_With_Acticvation;
+                ShieldsWarpBehavior behavior = Parent.shipData.ShieldsBehavior;
+                //ShieldsWarpBehavior behavior = ShieldsWarpBehavior.Discharged_With_Acticvation;
                 if (Parent.engineState == Ship.MoveState.Sublight) // recahrge in sublight
                 {
                     if (ShieldUpChance >= 100)
