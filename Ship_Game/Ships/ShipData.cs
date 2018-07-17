@@ -117,7 +117,7 @@ namespace Ship_Game.Ships
             public readonly CStrView Role;
             public readonly CStrView CombatState;
             public readonly CStrView ShipCategory;
-            //public readonly CStrView ShieldsBehavior;
+            public readonly CStrView ShieldsBehavior;
 
             public readonly int TechScore;
             public readonly float BaseStrength;
@@ -198,7 +198,7 @@ namespace Ship_Game.Ships
                 Enum.TryParse(s->Role.AsString,            out ship.Role);
                 Enum.TryParse(s->CombatState.AsString,     out ship.CombatState);
                 Enum.TryParse(s->ShipCategory.AsString,    out ship.ShipCategory);
-                //Enum.TryParse(s->ShieldsBehavior.AsString, out ship.ShieldsBehavior);
+                Enum.TryParse(s->ShieldsBehavior.AsString, out ship.ShieldsBehavior);
                 Enum.TryParse(s->DefaultAIState.AsString,  out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
