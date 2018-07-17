@@ -791,12 +791,15 @@ namespace Ship_Game
             CategoryList.Draw(ScreenManager.SpriteBatch);
             ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
-            const string classifTitle = "Behavior Presets";
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
-            const string shieldsBehaviorTitle = "Shields Warp Behavior";
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, shieldsBehaviorTitle, ShieldBehaviorCursor, Color.Orange);
-            const string repairOptionsTitle = "Repair Options";
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, repairOptionsTitle, RepairOptionsCursor, Color.Orange);
+
+            DrawTitle(ScreenWidth * 0.375f, "Repair Options");
+            DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
+            DrawTitle(ScreenWidth * 0.65f, "Shields Warp Behavior");
+
+            //ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, "Behavior Presets", ClassifCursor, Color.Orange);
+            //ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, "Shields Warp Behavior", ShieldBehaviorCursor, Color.Orange);
+            //ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, "Repair Options", RepairOptionsCursor, Color.Orange);
+
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
             if (ScreenState == ScreenState.TransitionOn ||
@@ -879,6 +882,13 @@ namespace Ship_Game
             if (IsActive)
             {
                 ToolTip.Draw(ScreenManager.SpriteBatch);
+            }
+
+            void DrawTitle(float x, string title)
+            {
+                int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
+                var pos = new Vector2(x, buttonHeight);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
             }
         }
 

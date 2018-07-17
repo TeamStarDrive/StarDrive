@@ -56,9 +56,7 @@ namespace Ship_Game
         private ShieldBehaviorDropDown ShieldsBehaviorList;
         private Rectangle DropdownRect;
         private Rectangle ShieldsBehaviorRect;
-        private Vector2 ClassifCursor;
-        private Vector2 ShieldBehaviorCursor;
-        private Vector2 RepairOptionsCursor;
+
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
         private bool ShowAllArcs;
