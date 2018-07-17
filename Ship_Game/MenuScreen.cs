@@ -20,7 +20,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			Viewport viewport = base.Viewport;
 			Vector2 viewportSize = new Vector2((float)viewport.Width, (float)viewport.Height);

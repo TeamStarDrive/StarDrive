@@ -91,7 +91,7 @@ namespace Ship_Game
             VR = new Rectangle(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             int x = (int)X,     y = (int)Y;
             int w = (int)Width, h = (int)Height;
@@ -105,24 +105,24 @@ namespace Ship_Game
             var left       = new Rectangle(x, y + 24, 24, h - 48);
             var middle     = new Rectangle(x + 24, y + 24, w - 48, h - 48);
 
-            spriteBatch.Draw(Tex.RoundTL, upperleft,  Fill);
-            spriteBatch.Draw(Tex.RoundTR, upperRight, Fill);
-            spriteBatch.Draw(Tex.RoundBL, lowerLeft,  Fill);
-            spriteBatch.Draw(Tex.RoundBR, lowerRight, Fill);
-            spriteBatch.FillRectangle(top,    Fill);
-            spriteBatch.FillRectangle(bottom, Fill);
-            spriteBatch.FillRectangle(right,  Fill);
-            spriteBatch.FillRectangle(left,   Fill);
-            spriteBatch.FillRectangle(middle, Fill);
+            batch.Draw(Tex.RoundTL, upperleft,  Fill);
+            batch.Draw(Tex.RoundTR, upperRight, Fill);
+            batch.Draw(Tex.RoundBL, lowerLeft,  Fill);
+            batch.Draw(Tex.RoundBR, lowerRight, Fill);
+            batch.FillRectangle(top,    Fill);
+            batch.FillRectangle(bottom, Fill);
+            batch.FillRectangle(right,  Fill);
+            batch.FillRectangle(left,   Fill);
+            batch.FillRectangle(middle, Fill);
 
-            spriteBatch.Draw(Tex.HoriVert, HT, EdgeColor);
-            spriteBatch.Draw(Tex.HoriVert, HB, EdgeColor);
-            spriteBatch.Draw(Tex.HoriVert, VR, EdgeColor);
-            spriteBatch.Draw(Tex.HoriVert, VL, EdgeColor);
-            spriteBatch.Draw(Tex.CornerTL, TL, EdgeColor);
-            spriteBatch.Draw(Tex.CornerTR, TR, EdgeColor);
-            spriteBatch.Draw(Tex.CornerBR, BR, EdgeColor);
-            spriteBatch.Draw(Tex.CornerBL, BL, EdgeColor);
+            batch.Draw(Tex.HoriVert, HT, EdgeColor);
+            batch.Draw(Tex.HoriVert, HB, EdgeColor);
+            batch.Draw(Tex.HoriVert, VR, EdgeColor);
+            batch.Draw(Tex.HoriVert, VL, EdgeColor);
+            batch.Draw(Tex.CornerTL, TL, EdgeColor);
+            batch.Draw(Tex.CornerTR, TR, EdgeColor);
+            batch.Draw(Tex.CornerBR, BR, EdgeColor);
+            batch.Draw(Tex.CornerBL, BL, EdgeColor);
         }
 
         public override bool HandleInput(InputState input)
