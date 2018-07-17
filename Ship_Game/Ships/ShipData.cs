@@ -49,10 +49,10 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlIgnore] [JsonIgnore] public bool BaseCanWarp;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
-        [XmlIgnore] [JsonIgnore] public bool hullUnlockable;
-        [XmlIgnore] [JsonIgnore] public bool allModulesUnlocakable = true;
-        [XmlIgnore] [JsonIgnore] public bool unLockable;        
-        public HashSet<string> techsNeeded = new HashSet<string>();
+        [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
+        [XmlIgnore] [JsonIgnore] public bool AllModulesUnlocakable = true;
+        [XmlIgnore] [JsonIgnore] public bool UnLockable;        
+        public HashSet<string> TechsNeeded = new HashSet<string>();
         [XmlIgnore] [JsonIgnore] public int TechScore;
 
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
@@ -187,12 +187,12 @@ namespace Ship_Game.Ships
                     CarrierShip    = s->CarrierShip != 0,
                     BaseStrength   = s->BaseStrength,
                     BaseCanWarp    = s->BaseCanWarp != 0,
-                    hullUnlockable = s->HullUnlockable != 0,
-                    unLockable     = s->UnLockable != 0,
+                    HullUnlockable = s->HullUnlockable != 0,
+                    UnLockable     = s->UnLockable != 0,
                     TechScore      = s->TechScore,
                     IsOrbitalDefense          = s->IsOrbitalDefense != 0,
                     SelectionGraphic          = s->SelectionGraphic.AsInterned,
-                    allModulesUnlocakable     = s->AllModulesUnlockable != 0,
+                    AllModulesUnlocakable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
                 Enum.TryParse(s->Role.AsString,            out ship.Role);
@@ -239,9 +239,9 @@ namespace Ship_Game.Ships
                 }
 
                 // @todo Remove conversion to HashSet
-                ship.techsNeeded = new HashSet<string>();
+                ship.TechsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
-                    ship.techsNeeded.Add(s->Techs[i].AsInterned);
+                    ship.TechsNeeded.Add(s->Techs[i].AsInterned);
 
                 ship.UpdateBaseHull();                
                 return ship;
