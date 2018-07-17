@@ -932,10 +932,10 @@ namespace Ship_Game.Ships
                         return shieldPower;
 
                     if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                        shieldPower = (shieldPower + shield_recharge_rate * elapsedTime).Clamped(0, shieldMax);
+                        shieldPower += shield_recharge_rate * elapsedTime;
                     else if (ShieldPower > 0)
-                        shieldPower = (shieldPower + shield_recharge_combat_rate * elapsedTime).Clamped(0, shieldMax);
-                    return shieldPower;
+                        shieldPower += shield_recharge_combat_rate * elapsedTime;
+                    return shieldPower.Clamped(0, shieldMax);
                 }
 
                 void TryToRaiseShield()
