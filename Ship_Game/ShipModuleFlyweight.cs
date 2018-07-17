@@ -389,7 +389,5 @@ namespace Ship_Game.Gameplay
         public int ExplosionRadius;
         public int ExplosionDamage;
         public float RepairDifficulty = 1;
-        public float ShieldPowerBeforeWarp;
-        public float ShieldUpChance = 100;
     }
 }

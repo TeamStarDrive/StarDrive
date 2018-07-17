@@ -111,15 +111,17 @@ namespace SDNative
 
                     for (; slotData.node; slotData.next())
                     {
-                        ParsePosition(slotData, sd.PositionX, sd.PositionY);
-                        slotData.parse("InstalledModuleUID", sd.InstalledModuleUID);
-                        slotData.parse("HangarshipGuid"    , sd.HangarshipGuid);
-                        slotData.parse("Health"            , sd.Health);
-                        slotData.parse("Shield_Power"      , sd.ShieldPower);
-                        slotData.parse("facing"            , sd.Facing);
-                        slotData.parse("state"             , sd.State);
-                        slotData.parse("Restrictions"      , sd.Restrictions);
-                        slotData.parse("SlotOptions"       , sd.SlotOptions);
+                        ParsePosition(slotData, sd.PositionX   , sd.PositionY);
+                        slotData.parse("InstalledModuleUID"    , sd.InstalledModuleUID);
+                        slotData.parse("HangarshipGuid"        , sd.HangarshipGuid);
+                        slotData.parse("Health"				   , sd.Health);
+                        slotData.parse("Shield_Power"		   , sd.ShieldPower);
+						slotData.parse("ShieldUpChance"        , sd.ShieldUpChance);
+						slotData.parse("ShieldPowerBeforeWarp" , sd.ShieldPowerBeforeWarp);
+                        slotData.parse("facing"                , sd.Facing);
+                        slotData.parse("state"                 , sd.State);
+                        slotData.parse("Restrictions"          , sd.Restrictions);
+                        slotData.parse("SlotOptions"		   , sd.SlotOptions);
                     }
                 });
                 elem.parse("hullUnlockable", HullUnlockable);

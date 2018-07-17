@@ -24,6 +24,8 @@ namespace SDNative
         float PositionY;
         float Health;
         float ShieldPower;
+		float ShieldUpChance;
+		float ShieldPowerBeforeWarp;
         float Facing;
         strview InstalledModuleUID = Empty;
         strview HangarshipGuid     = Empty;

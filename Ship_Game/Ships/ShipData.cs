@@ -96,7 +96,7 @@ namespace Ship_Game.Ships
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private struct CModuleSlot
         {
-            public readonly float PosX, PosY, Health, ShieldPower, Facing;
+            public readonly float PosX, PosY, Health, ShieldPower, ShieldUpChance, ShieldPowerBeforeWarp, Facing;
             public readonly CStrView InstalledModuleUID;
             public readonly CStrView HangarshipGuid;
             public readonly CStrView State;
@@ -207,15 +207,17 @@ namespace Ship_Game.Ships
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
-                    slot.Position           = new Vector2(msd->PosX, msd->PosY);
-                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull;
-                    slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
-                    slot.Health             = msd->Health;
-                    slot.ShieldPower        = msd->ShieldPower;
-                    slot.Facing             = msd->Facing;
+                    slot.Position              = new Vector2(msd->PosX, msd->PosY);
+                    slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull;
+                    slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
+                    slot.Health                = msd->Health;
+                    slot.ShieldPower           = msd->ShieldPower;
+                    slot.ShieldUpChance        = msd->ShieldUpChance;
+                    slot.ShieldPowerBeforeWarp = msd->ShieldPowerBeforeWarp;
+                    slot.Facing                = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.Orientation        = msd->State.AsInterned;                    
-                    slot.SlotOptions        = msd->SlotOptions.AsInterned;   
+                    slot.Orientation           = msd->State.AsInterned;                    
+                    slot.SlotOptions           = msd->SlotOptions.AsInterned;   
                     
                     ship.ModuleSlots[i] = slot;
                 }
