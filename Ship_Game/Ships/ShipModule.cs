@@ -904,7 +904,6 @@ namespace Ship_Game.Ships
                     ShieldWarpBehaviorRecharge(shieldMax, elapsedTime);
                 else
                     ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime); // use regular recharge
-
             }
             if (TransporterTimer > 0)
                 TransporterTimer -= elapsedTime;
