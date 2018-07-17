@@ -816,7 +816,7 @@ namespace Ship_Game
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 175, 18);
+            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 220, 18);
             ShieldsBehaviorList = new ShieldBehaviorDropDown(this, ShieldsBehaviorRect);
             foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
