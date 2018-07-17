@@ -2258,7 +2258,10 @@ namespace Ship_Game.Ships
                 }
             }
 
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            NetPower = GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseShieldWarpBehavior ?
+                            Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior) :
+                            Power.Calculate(ModuleSlotList, loyalty);
+
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
