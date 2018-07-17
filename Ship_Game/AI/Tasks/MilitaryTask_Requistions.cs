@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.AI.Tasks {
     public partial class MilitaryTask
     {
-        public Planet GetTargetPlanet() => TargetPlanet;
+        //public Planet TargetPlanet => TargetPlanet;
 
         private Array<Troop> GetTroopsOnPlanets(Array<Troop> potentialTroops, Vector2 rallyPoint, int needed = 0)
         {
@@ -554,7 +554,9 @@ namespace Ship_Game.AI.Tasks {
             {
                 AO = TargetPlanet.Center,
                 AORadius = 75000f,
-                type = TaskType.ClearAreaOfEnemies
+                type = TaskType.ClearAreaOfEnemies,
+                TargetPlanet = TargetPlanet,
+                TargetPlanetGuid = TargetPlanet.guid
             };
 
             closestCoreFleet.Owner.GetGSAI().TasksToAdd.Add(clearArea);

@@ -353,11 +353,11 @@ namespace Ship_Game
                 foreach (MilitaryTask task in e.GetGSAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
-                    if (task.GetTargetPlanet() == null)
+                    if (task.TargetPlanet == null)
                     {
                         continue;
                     }
-                    task.TargetPlanetGuid = task.GetTargetPlanet().guid;
+                    task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
                 foreach (Goal g in e.GetGSAI().Goals)
                 {

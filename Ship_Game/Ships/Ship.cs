@@ -791,7 +791,11 @@ namespace Ship_Game.Ships
             AI.HasPriorityTarget = true;
             InCombatTimer = 15f;
         }
-
+        /// <summary>
+        /// forces the ship to be in combat without a target.
+        /// </summary>
+        /// <param name="timer"></param>
+        public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
         public void ProcessInput(float elapsedTime)
         {
@@ -1372,7 +1376,14 @@ namespace Ship_Game.Ships
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
             if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
+            {
+                if (engineState == MoveState.Warp)
+                {
+                    isSpooling = false;
+                    ResetJumpTimer();
+                }
                 return;
+            }
             if (Carrier.RecallingFighters())
                 return;
             if (EnginesKnockedOut || Inhibited)

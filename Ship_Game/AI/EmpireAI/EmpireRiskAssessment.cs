@@ -92,7 +92,7 @@ namespace Ship_Game.AI
                 if (task.type != MilitaryTask.TaskType.DefendClaim)
                     continue;
 
-                Planet p = task.GetTargetPlanet();
+                Planet p = task.TargetPlanet;
                 SolarSystem ss = p.ParentSystem;
                 if (!s.Add(ss))
                     continue;
