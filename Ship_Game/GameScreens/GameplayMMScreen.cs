@@ -42,10 +42,10 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            spriteBatch.Begin();
+            batch.Begin();
             if (SavedGame.IsSaving)
             {
                 GameTime gameTime = Game1.Instance.GameTime;
@@ -54,15 +54,15 @@ namespace Ship_Game
                 f = Math.Abs(f) * 255f;
                 Color flashColor = new Color(255, 255, 255, (byte)f);
                 Vector2 pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
-                spriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
+                batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
             }
             window.Draw();
 
             Save.Enabled = SavedGame.NotSaving;
             foreach (UIButton b in Buttons)
-                b.Draw(spriteBatch);
+                b.Draw(batch);
 
-            spriteBatch.End();
+            batch.End();
         }
 
         public override bool HandleInput(InputState input)
