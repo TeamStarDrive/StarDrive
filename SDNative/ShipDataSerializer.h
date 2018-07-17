@@ -24,8 +24,8 @@ namespace SDNative
         float PositionY;
         float Health;
         float ShieldPower;
-		float ShieldUpChance;
-		float ShieldPowerBeforeWarp;
+        float ShieldUpChance;
+        float ShieldPowerBeforeWarp;
         float Facing;
         strview InstalledModuleUID = Empty;
         strview HangarshipGuid     = Empty;
@@ -48,7 +48,7 @@ namespace SDNative
         strview Role             = "fighter";
         strview CombatState      = "AttackRuns";
         strview ShipCategory     = "Unclassified";
-		strview ShieldsBehavior  = "Full";
+        strview ShieldsBehavior  = "Full";
         int      TechScore             = 0;
         float    BaseStrength          = 0.0f;
         float    FixedUpkeep           = 0.0f;
