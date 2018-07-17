@@ -902,7 +902,6 @@ namespace Ship_Game.Ships
             {
                 float shieldMax = ActualShieldPowerMax;
                 ShieldsWarpBehavior behavior = Parent.shipData.ShieldsBehavior;
-                //ShieldsWarpBehavior behavior = ShieldsWarpBehavior.Discharged_With_Acticvation;
                 if (Parent.engineState == Ship.MoveState.Sublight) // recahrge in sublight
                 {
                     if (ShieldUpChance >= 100)
@@ -961,7 +960,7 @@ namespace Ship_Game.Ships
                     if (warpBehavior == ShieldsWarpBehavior.Discharged_With_Acticvation)
                     {
                         float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate);
-                        ShieldPower               = (ShieldPower - shieldDischargeRate * elapsedTime).Clamped(0, shieldMax);
+                        ShieldPower               = (ShieldPower - shieldDischargeRate * elapsedTime * 2).Clamped(0, shieldMax);
                     }
                 }
             }
