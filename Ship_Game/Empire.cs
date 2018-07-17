@@ -1560,11 +1560,11 @@ namespace Ship_Game
             }
             
            
-            if (shipData.techsNeeded.Count > 0)
+            if (shipData.TechsNeeded.Count > 0)
             {
-                if (!shipData.unLockable) return false;
+                if (!shipData.UnLockable) return false;
 
-                foreach (string shipTech in shipData.techsNeeded)
+                foreach (string shipTech in shipData.TechsNeeded)
                 {                    
                     if (ShipTechs.Contains(shipTech)) continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];
