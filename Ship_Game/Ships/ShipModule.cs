@@ -907,7 +907,7 @@ namespace Ship_Game.Ships
                         ShieldPower = RechrageShields(ShieldPower);
                     else
                     {
-                        if (ShieldPowerBeforeWarp < 1) // this shield as not diactivated from previous warp
+                        if (ShieldPowerBeforeWarp < 1) // this shield was not diactivated from previous warp
                             ShieldPowerBeforeWarp = ShieldPower;
                         ShieldPower = 0f;
                         ShieldPowerBeforeWarp = RechrageShields(ShieldPowerBeforeWarp);
