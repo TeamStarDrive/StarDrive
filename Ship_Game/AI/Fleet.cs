@@ -774,8 +774,7 @@ namespace Ship_Game.AI
                     TaskStep = 2;                   
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(CoreFleetSubTask)) break;
-
+                    if (!ArrivedAtCombatRally(CoreFleetSubTask)) break;               
                     TaskStep = 3;
                     break;
 
@@ -796,21 +795,22 @@ namespace Ship_Game.AI
                         break;
                     }
                     if (ShipsOffMission(CoreFleetSubTask))                    
-                        TaskStep = 3;                        
-                    
+                        TaskStep = 3;
+                    for (int x = 0; x < Ships.Count; x++)
+                    {
+                        var ship = Ships[x];
+                        if (ship.AI.BadGuysNear)
+                            ship.AI.HasPriorityOrder = false;
+                    }
                     break;
 
                 case 5:
                     SendFleetToResupply();
-                    this.TaskStep = 6;
+                    TaskStep =4;
                     break;
                 case 6:
-                    if (!IsFleetSupplied(wantedSupplyRatio: .9f))
-                    {
-                        TaskStep = 5;
-                        break;
-                    }
-                    this.TaskStep = 4;
+                    IsFleetSupplied(wantedSupplyRatio: .9f);
+             
                     break;
             }
         }
@@ -1045,59 +1045,14 @@ namespace Ship_Game.AI
 
         private bool ArrivedAtCombatRally(MilitaryTask task)
         {
-            return IsFleetAssembled(5000f) != MoveStatus.Dispersed;
+            return IsFleetAssembled(5000f, task.AO) != MoveStatus.Dispersed;
         }
 
         private Ship[] AvailableShips => AllButRearShips.FilterBy(ship => !ship.AI.HasPriorityOrder);
-
-        private bool AttackEnemyShipClumpsInAO(MilitaryTask task)
-        {
-            
-
-            EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix
-                        .PingRadarShipClustersByVector(task.AO, task.AORadius, 5000, Owner);
-
-            if (EnemyClumpsDict.Count == 0)            
-                return false;
-
-
-            var availableShips = new Array<Ship>(AvailableShips);
-            
-            foreach (var kv in EnemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
-            {
-                if (availableShips.Count == 0) break;
-                foreach (var toAttack in kv.Value)
-                {
-                    float attackStr = 0.0f;
-                    for (int x = availableShips.Count - 1; x >= 0; x--)
-                    {
-                        if (attackStr > toAttack.GetStrength() * 2) break;
-
-                        Ship ship = availableShips[x];
-                        ship.AI.Intercepting = true;
-                        ship.AI.OrderAttackSpecificTarget(toAttack);
-                        availableShips.RemoveAtSwapLast(x);
-                        attackStr += ship.GetStrength();
-                    }
-                }
-            }
-            foreach (Ship needEscort in RearShips)
-            {
-                if (availableShips.IsEmpty) break;
-                Ship ship = availableShips.PopLast();
-                ship.DoEscort(needEscort);
-                
-            }
-
-            foreach (Ship ship in availableShips)            
-                ship.AI.OrderMoveDirectlyTowardsPosition(task.AO, 0, true);
-            
-            return true;
-        }
-
+        
         private bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
         {
-            var enemyClumpsDict = Owner.GetGSAI().ThreatMatrix
+            Map<Vector2, float> enemyClumpsDict = Owner.GetGSAI().ThreatMatrix
                 .PingRadarStrengthClusters(task.AO, task.AORadius, 2500, Owner);
 
             if (enemyClumpsDict.Count == 0)
@@ -1114,9 +1069,9 @@ namespace Ship_Game.AI
                 {
                     if (attackStr > kv.Value * 2) break;
 
-                    Ship ship = availableShips[x];
+                    Ship ship       = availableShips[x];
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
-                    float facing = ship.Center.RadiansToTarget(kv.Key);
+                    float facing    = ship.Center.RadiansToTarget(kv.Key);
                     ship.AI.OrderThrustTowardsPosition(kv.Key, facing, vFacing, false);
                     ship.ForceCombatTimer();
                                         
@@ -1154,7 +1109,7 @@ namespace Ship_Game.AI
                 AO = strengthCluster.Postition,
                 AORadius = strengthCluster.Granularity
             };
-            GatherAtAO(CoreFleetSubTask, 5000);            
+            GatherAtAO(CoreFleetSubTask, 7500);            
             return true;
         }
         private bool ShipsOffMission(MilitaryTask task)
@@ -1190,7 +1145,8 @@ namespace Ship_Game.AI
 
         private void SendFleetToResupply()
         {
-            Planet rallyPoint = Owner.RallyPoints.FindMin(planet => Position.SqDist(planet.Center));
+            Planet rallyPoint = Owner.RallyShipYardNearestTo(FindAveragePosition());
+            if (rallyPoint == null) return;
             for (int x = 0; x < Ships.Count; x++)
             {
                 Ship ship = Ships[x];
@@ -1358,7 +1314,7 @@ namespace Ship_Game.AI
 
         private int MoveToPositionIfAssembled(MilitaryTask task, Vector2 position, float assemblyRadius = 5000f, float moveToWithin = 7500f )
         {
-            MoveStatus nearFleet = IsFleetAssembled(assemblyRadius);
+            MoveStatus nearFleet = IsFleetAssembled(assemblyRadius, task.AO);
 
             if (nearFleet == MoveStatus.InCombat)
                 return -1;

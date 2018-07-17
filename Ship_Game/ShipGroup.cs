@@ -350,10 +350,11 @@ namespace Ship_Game
                 Ship ship = Ships[index];
                 if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
                     continue;
-                if (ship.InCombat) inCombat = true;
+                inCombat |= ship.InCombat;
                 if (ship.Center.InRadius(position + ship.FleetOffset, radius)) continue;
                 moveStatus = MoveStatus.Dispersed;
-                break;
+                if (inCombat)
+                    break;
             }
             moveStatus = inCombat && moveStatus == MoveStatus.Dispersed ? MoveStatus.InCombat : moveStatus;
 
