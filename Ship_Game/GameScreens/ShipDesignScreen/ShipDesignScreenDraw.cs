@@ -765,26 +765,30 @@ namespace Ship_Game
                 Fml = false;
             }
 
-            //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
-            if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
-                Fmlevenmore = false;
-
-            if (IsDefaultShieldBehavior)
-            {
-                ShieldsBehaviorList.ActiveIndex = 1;
-                IsDefaultShieldBehavior = false;
-            }
-            //Loads the shields behavior option  from the ShipDesign XML of the ship being loaded OVER the default.
-            if (ShouldLoadDefaultShieldBehavior && ShieldsBehaviorList.SetActiveEntry(LoadShieldsBehavior.ToString()))
-                ShouldLoadDefaultShieldBehavior = false;
-
             CategoryList.Draw(ScreenManager.SpriteBatch);
-            ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
 
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
-            DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
+
+            if (GlobalStats.ActiveModInfo.UseShieldWarpBehavior) // FB: enable shield warp state
+            {
+                //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
+                if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
+                    Fmlevenmore = false;
+
+                if (IsDefaultShieldBehavior)
+                {
+                    ShieldsBehaviorList.ActiveIndex = 1;
+                    IsDefaultShieldBehavior = false;
+                }
+                //Loads the shields behavior option  from the ShipDesign XML of the ship being loaded OVER the default.
+                if (ShouldLoadDefaultShieldBehavior && ShieldsBehaviorList.SetActiveEntry(LoadShieldsBehavior.ToString()))
+                    ShouldLoadDefaultShieldBehavior = false;
+
+                DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
+                ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
+            }
 
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
