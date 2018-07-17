@@ -1470,13 +1470,17 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 var data = new ModuleSlotData
                 {
-                    Position           = module.XMLPosition,
-                    InstalledModuleUID = module.UID,
-                    Health             = module.Health,
-                    ShieldPower        = module.ShieldPower,
-                    Facing             = module.Facing,
-                    Restrictions       = module.Restrictions
+                    Position              = module.XMLPosition,
+                    InstalledModuleUID    = module.UID,
+                    Health                = module.Health,
+                    ShieldPower           = module.ShieldPower,
+                    ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
+                    Facing                = module.Facing,
+                    Restrictions          = module.Restrictions
                 };
+
+                if (module.Is(ShipModuleType.Shield))
+                    data.ShieldUpChance = module.ShieldUpChance;
 
                 if (module.GetHangarShip() != null)
                     data.HangarshipGuid = module.GetHangarShip().guid;

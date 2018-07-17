@@ -268,8 +268,6 @@ namespace Ship_Game.Ships
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
-            ShieldPowerBeforeWarp = template.ShieldPowerBeforeWarp;
-            ShieldUpChance        = template.ShieldUpChance;
 
             UpdateModuleRadius();
         }
@@ -343,9 +341,10 @@ namespace Ship_Game.Ships
             if (fromSave)
             {
                 module.SetHealth(slot.Health);
-                module.Active      = slot.Health > 0.01f;
-                module.ShieldPower = slot.ShieldPower;
-                //module.ShieldPowerBeforeWarp = slot.shieldp
+                module.Active         = slot.Health > 0.01f;
+                module.ShieldPower    = slot.ShieldPower;
+                module.ShieldUpChance = slot.ShieldUpChance;
+                module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
             }
             return module;
         }
