@@ -46,7 +46,7 @@ namespace SDNative
         strview Role             = "fighter";
         strview CombatState      = "AttackRuns";
         strview ShipCategory     = "Unclassified";
-		strview ShieldsBehavior  = "Fully_Powered";
+		strview ShieldsBehavior  = "Full";
         int      TechScore             = 0;
         float    BaseStrength          = 0.0f;
         float    FixedUpkeep           = 0.0f;

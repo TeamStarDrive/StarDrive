@@ -8,7 +8,7 @@ namespace Ship_Game.Ships
         public float NetSubLightPowerDraw;
         public float NetWarpPowerDraw;
 
-        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior = ShieldsWarpBehavior.Fully_Powered)
+        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior = ShieldsWarpBehavior.Full)
         {
             float nonShieldPowerDraw = 0f;
             float shieldPowerDraw = 0f;
@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
                 if (module.Is(ShipModuleType.Shield))
                 {
                     shieldPowerDraw += module.PowerDraw;
-                    if (behavior == ShieldsWarpBehavior.Fully_Powered)
+                    if (behavior == ShieldsWarpBehavior.Full)
                         warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
                 }
                 else
@@ -38,17 +38,17 @@ namespace Ship_Game.Ships
             float warpPowerDraw = 0f;
             switch (behavior)
             {
-                case ShieldsWarpBehavior.Fully_Powered:
+                case ShieldsWarpBehavior.Full:
                     {
                         warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
                         break;
                     }
-                case ShieldsWarpBehavior.Maintained_With_Acticvation:
+                case ShieldsWarpBehavior.Partially:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw;
                         break;
                     }
-                case ShieldsWarpBehavior.Discharged_With_Acticvation:
+                case ShieldsWarpBehavior.Off:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier;
                         break;
@@ -64,8 +64,8 @@ namespace Ship_Game.Ships
     }
     public enum ShieldsWarpBehavior
     {
-        Fully_Powered,
-        Maintained_With_Acticvation,
-        Discharged_With_Acticvation
+        Full,
+        Partially,
+        Off
     }
 }

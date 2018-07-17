@@ -19,8 +19,6 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen
     {
         private Vector2 ClassifCursor;
-        private Vector2 ShieldBehaviorCursor;
-        private Vector2 RepairOptionsCursor;
 
         public void ChangeHull(ShipData hull)
         {
@@ -809,7 +807,7 @@ namespace Ship_Game
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 220, 18);
+            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 100, 18);
             ShieldsBehaviorList = new ShieldBehaviorDropDown(this, ShieldsBehaviorRect);
             foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);

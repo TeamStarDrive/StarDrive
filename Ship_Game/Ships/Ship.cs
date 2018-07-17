@@ -1437,6 +1437,7 @@ namespace Ship_Game.Ships
             data.techsNeeded               = shipData.techsNeeded;
             data.TechScore                 = shipData.TechScore;
             data.ShipCategory              = shipData.ShipCategory;
+            data.ShieldsBehavior           = shipData.ShieldsBehavior;
             data.Name                      = Name;
             data.Level                     = (byte)Level;
             data.experience                = (byte)experience;
@@ -1771,7 +1772,7 @@ namespace Ship_Game.Ships
                 if (InCombat 
                     || shield_power < shield_max 
                     || engineState == MoveState.Warp 
-                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.Fully_Powered)
+                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.Full)
                 {
                     shield_power = 0.0f;
                     for (int x = 0; x < Shields.Length; x++)

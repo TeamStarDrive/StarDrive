@@ -908,6 +908,8 @@ namespace Ship_Game.Ships
                         ShieldPower = RechrageShields(ShieldPower);
                     else
                     {
+                        if (ShieldPowerBeforeWarp < 1) // this shield as not diactivated from previous warp
+                            ShieldPowerBeforeWarp = ShieldPower;
                         ShieldPower = 0f;
                         ShieldPowerBeforeWarp = RechrageShields(ShieldPowerBeforeWarp);
                         TryToRaiseShield();
@@ -915,13 +917,15 @@ namespace Ship_Game.Ships
                 }
                 else // discharge at warp if applicable
                 {
-                    if (behavior == ShieldsWarpBehavior.Fully_Powered)
+                    if (behavior == ShieldsWarpBehavior.Full)
                         ShieldPower = RechrageShields(ShieldPower);
                     else
                     {
                         ShieldUpChance = 0;
-                        DischargeShields(behavior);
-                        ShieldPowerBeforeWarp = ShieldPower;
+                        if (ShieldPowerBeforeWarp > 0) // if shield was diactivated from previous warp, discharge the correct value
+                            ShieldPowerBeforeWarp = DischargeShields(behavior, ShieldPowerBeforeWarp);
+                        else
+                            ShieldPower = DischargeShields(behavior, ShieldPower);
                     }
                 }
 
@@ -948,20 +952,21 @@ namespace Ship_Game.Ships
                     }
                     else
                     {
-                        float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1)
-                                                                     / (int)behavior
-                                                                     * (Parent.Level + 1);
-                        ShieldUpChance = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
+                        float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1);
+                        activationChanceModifier      /= (int)behavior;
+                        activationChanceModifier      *= Parent.Level + 1;
+                        ShieldUpChance                 = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
                     }
                 }
 
-                void DischargeShields(ShieldsWarpBehavior warpBehavior)
+                float DischargeShields(ShieldsWarpBehavior warpBehavior, float shieldPower)
                 {
-                    if (warpBehavior == ShieldsWarpBehavior.Discharged_With_Acticvation)
+                    if (warpBehavior == ShieldsWarpBehavior.Off)
                     {
                         float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate);
-                        ShieldPower               = (ShieldPower - shieldDischargeRate * elapsedTime * 2).Clamped(0, shieldMax);
+                        shieldPower -= shieldDischargeRate * elapsedTime;
                     }
+                    return shieldPower.Clamped(0, shieldMax);
                 }
             }
 
