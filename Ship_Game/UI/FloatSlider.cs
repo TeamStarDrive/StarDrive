@@ -120,26 +120,26 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            spriteBatch.DrawString(Fonts.Arial12Bold, Text, Pos, TextColor);
+            batch.DrawString(Fonts.Arial12Bold, Text, Pos, TextColor);
 
             var gradient = new Rectangle(SliderRect.X, SliderRect.Y, (int)(RelativeValue * SliderRect.Width), 6);
-            spriteBatch.Draw(SliderGradient, gradient, gradient, Color.White);
-            spriteBatch.DrawRectangle(SliderRect, Hover ? HoverColor : NormalColor);
+            batch.Draw(SliderGradient, gradient, gradient, Color.White);
+            batch.DrawRectangle(SliderRect, Hover ? HoverColor : NormalColor);
 
             for (int i = 0; i < 11; i++)
             {
                 var tickCursor = new Vector2(SliderRect.X + SliderRect.Width / 10 * i, SliderRect.Y + SliderRect.Height + 2);
-                spriteBatch.Draw(Hover ? SliderMinuteHover : SliderMinute, tickCursor, Color.White);
+                batch.Draw(Hover ? SliderMinuteHover : SliderMinute, tickCursor, Color.White);
             }
 
             Rectangle knobRect = KnobRect;
             knobRect.X -= knobRect.Width / 2;
-            spriteBatch.Draw(Hover ? SliderKnobHover : SliderKnob, knobRect, Color.White);
+            batch.Draw(Hover ? SliderKnobHover : SliderKnob, knobRect, Color.White);
 
             var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            spriteBatch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
 
             if (Hover && Tooltip.NotEmpty())
                 ToolTip.CreateTooltip(Tooltip);
