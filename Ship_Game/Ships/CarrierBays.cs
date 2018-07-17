@@ -55,7 +55,7 @@ namespace Ship_Game.Ships
 
         public bool HasTransporters => AllTransporters.Length > 0;
 
-        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters;
+        public bool CanInvadeOrBoard => HasTroopBays || HasAssaultTransporters || Owner.DesignRole == ShipData.RoleName.troop;
 
         public ShipModule[] AllActiveTroopBays => AllTroopBays.FilterBy(module => module.Active);
 
@@ -229,6 +229,21 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool AnyPlanetAssaultAvailable
+        {
+            get
+            {
+                if (Owner == null || Owner.TroopList.IsEmpty)
+                    return false;
+
+                if (Owner.DesignRole == ShipData.RoleName.troop)
+                    return true;
+
+                return AllActiveHangars.Any(sm => sm.IsTroopBay) 
+                       || AllTransporters.Any(sm => sm.TransporterTroopAssault >0);
+            }
+        }
+
         public float PlanetAssaultStrength 
         {
             get
@@ -349,7 +364,7 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return false;
 
-            ShipModule hangar = AllTroopBays.First(hangarSpot => hangarSpot.GetHangarShip() == null);
+            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() != null);
             if (hangar == null)
                 return false;
 

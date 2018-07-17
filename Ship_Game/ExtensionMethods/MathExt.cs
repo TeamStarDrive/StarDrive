@@ -760,6 +760,10 @@ namespace Ship_Game
             return true;
         }
 
+        public static Vector2 OffSetTo(this Vector2 center, Vector2 target, float distance)
+        {
+            return center + center.DirectionToTarget(target) * distance;
+        }
 
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
