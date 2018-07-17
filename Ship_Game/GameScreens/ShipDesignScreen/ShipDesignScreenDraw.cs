@@ -784,11 +784,7 @@ namespace Ship_Game
 
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
-            DrawTitle(ScreenWidth * 0.65f, "Shields Warp Behavior");
-
-            //ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, "Behavior Presets", ClassifCursor, Color.Orange);
-            //ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, "Shields Warp Behavior", ShieldBehaviorCursor, Color.Orange);
-            //ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, "Repair Options", RepairOptionsCursor, Color.Orange);
+            DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
 
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
