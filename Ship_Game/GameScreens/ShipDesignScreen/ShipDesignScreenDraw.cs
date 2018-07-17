@@ -445,9 +445,7 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
-            Power netPower = GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseShieldWarpBehavior ?
-                             Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue) :
-                             Power.Calculate(ModuleGrid.Modules, EmpireManager.Player);
+            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
 
@@ -774,7 +772,7 @@ namespace Ship_Game
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
 
-            if (GlobalStats.ActiveModInfo.UseShieldWarpBehavior) // FB: enable shield warp state
+            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
                 //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
                 if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))

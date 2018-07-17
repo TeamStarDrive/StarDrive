@@ -900,7 +900,7 @@ namespace Ship_Game.Ships
             if (Is(ShipModuleType.Shield))
             {
                 float shieldMax = ActualShieldPowerMax;
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseShieldWarpBehavior)
+                if (GlobalStats.WarpBehaviorsEnabled)
                     ShieldWarpBehaviorRecharge(shieldMax, elapsedTime);
                 else
                     ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime); // use regular recharge
