@@ -18,6 +18,10 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
+        private Vector2 ClassifCursor;
+        private Vector2 ShieldBehaviorCursor;
+        private Vector2 RepairOptionsCursor;
+
         public void ChangeHull(ShipData hull)
         {
         #if SHIPYARD
@@ -702,12 +706,6 @@ namespace Ship_Game
       
             ClassifCursor = new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
-
-            ShieldBehaviorCursor = new Vector2(ScreenWidth * .65f,
-                ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
-
-            RepairOptionsCursor = new Vector2(ScreenWidth * .375f,
-                ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
 
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);

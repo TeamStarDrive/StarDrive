@@ -949,10 +949,10 @@ namespace Ship_Game.Ships
                     }
                     else
                     {
-                        float chanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1)
-                                                           / (int)behavior
-                                                           * (Parent.Level + 1) / 2;
-                        ShieldUpChance = (ShieldUpChance + chanceModifier).Clamped(0, 100);
+                        float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1)
+                                                                     / (int)behavior
+                                                                     * (Parent.Level + 1);
+                        ShieldUpChance = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
                     }
                 }
 
