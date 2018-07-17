@@ -149,7 +149,7 @@ namespace Ship_Game.Gameplay
             foreach (var task in us.GetGSAI().TaskList)
             {
                 if (task.type != AI.Tasks.MilitaryTask.TaskType.DefendClaim) continue;
-                var p = task.GetTargetPlanet();
+                var p = task.TargetPlanet;
                 var ss = p.ParentSystem;
                 if (!s.Add(ss)) continue;
                 float test;
