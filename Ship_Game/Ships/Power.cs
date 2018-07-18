@@ -8,8 +8,12 @@ namespace Ship_Game.Ships
         public float NetSubLightPowerDraw;
         public float NetWarpPowerDraw;
 
-        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior)
+        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior, bool designModule = false)
         {
+            // if warp behaviors are disabled, then force "Full" behavior
+            if (!GlobalStats.WarpBehaviorsEnabled)
+                behavior = ShieldsWarpBehavior.FullPower;
+
             float nonShieldPowerDraw = 0f;
             float shieldPowerDraw = 0f;
             float warpPowerDrawBonus = 0f;
@@ -18,13 +22,13 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule module in modules)
             {
-                if (!module.Active || (!module.Powered && module.PowerDraw > 0f))
+                if (!module.Active || (!module.Powered && module.PowerDraw > 0f) && !designModule)
                     continue;
 
                 if (module.Is(ShipModuleType.Shield))
                 {
                     shieldPowerDraw += module.PowerDraw;
-                    if (behavior == ShieldsWarpBehavior.OnFullChargeAtWarpExit)
+                    if (behavior == ShieldsWarpBehavior.FullPower)
                         warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
                 }
                 else
@@ -34,21 +38,21 @@ namespace Ship_Game.Ships
                 }
             }
             float subLightPowerDraw = shieldPowerDraw + nonShieldPowerDraw;
-            float warpPowerDrainModifier = empire?.data.FTLPowerDrainModifier ?? 1;
+            float warpPowerDrainModifier = empire.data.FTLPowerDrainModifier;
             float warpPowerDraw = 0f;
             switch (behavior)
             {
-                case ShieldsWarpBehavior.OnFullChargeAtWarpExit:
+                case ShieldsWarpBehavior.FullPower:
                     {
                         warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
                         break;
                     }
-                case ShieldsWarpBehavior.TurnOnDelayAtWarpExit:
+                case ShieldsWarpBehavior.Hibernate:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw;
                         break;
                     }
-                case ShieldsWarpBehavior.OffNoChargeAtWarpExit:
+                case ShieldsWarpBehavior.ShutDown:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier;
                         break;
@@ -62,11 +66,10 @@ namespace Ship_Game.Ships
             };
         }
     }
-
     public enum ShieldsWarpBehavior
     {
-        OnFullChargeAtWarpExit,
-        TurnOnDelayAtWarpExit,
-        OffNoChargeAtWarpExit
+        FullPower,
+        Hibernate,
+        ShutDown
     }
 }

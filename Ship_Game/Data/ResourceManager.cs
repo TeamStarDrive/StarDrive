@@ -117,7 +117,7 @@ namespace Ship_Game
             {
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
-                hull.unLockable = false;
+                hull.UnLockable = false;
                 foreach (Technology hulltech2 in shipTechs.Keys)
                 {
                     if (hulltech2.HullsUnlocked.Count == 0) continue;
@@ -127,17 +127,17 @@ namespace Ship_Game
                         {
                             foreach (string tree in shipTechs[hulltech2])
                             {
-                                hull.techsNeeded.Add(tree);
-                                hull.unLockable = true;
+                                hull.TechsNeeded.Add(tree);
+                                hull.UnLockable = true;
                             }
                             break;
                         }
                     }
-                    if (hull.unLockable)
+                    if (hull.UnLockable)
                         break;
                 }
-                if (hull.Role < ShipData.RoleName.fighter || hull.techsNeeded.Count == 0)
-                    hull.unLockable = true;
+                if (hull.Role < ShipData.RoleName.fighter || hull.TechsNeeded.Count == 0)
+                    hull.UnLockable = true;
             }
 
             int x = 0;
@@ -147,27 +147,27 @@ namespace Ship_Game
                 ShipData shipData = kv.Value.shipData;
                 if (shipData == null)
                     continue;
-                shipData.unLockable = false;
+                shipData.UnLockable = false;
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
 
-                if (shipData.BaseHull.unLockable)
+                if (shipData.BaseHull.UnLockable)
                 {
-                    foreach (string str in shipData.BaseHull.techsNeeded)
-                        shipData.techsNeeded.Add(str);
-                    shipData.hullUnlockable = true;
+                    foreach (string str in shipData.BaseHull.TechsNeeded)
+                        shipData.TechsNeeded.Add(str);
+                    shipData.HullUnlockable = true;
                 }
                 else
                 {
-                    shipData.allModulesUnlocakable = false;
-                    shipData.hullUnlockable = false;
+                    shipData.AllModulesUnlocakable = false;
+                    shipData.HullUnlockable = false;
                     Log.WarningVerbose($"Unlockable hull : '{shipData.Hull}' in ship : '{kv.Key}'");
                     purge.Add(kv.Key);
                 }
 
-                if (shipData.hullUnlockable)
+                if (shipData.HullUnlockable)
                 {
-                    shipData.allModulesUnlocakable = true;
+                    shipData.AllModulesUnlocakable = true;
                     foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
                     {
                         if (module.InstalledModuleUID == "Dummy" || module.InstalledModuleUID == null)
@@ -179,9 +179,9 @@ namespace Ship_Game
                             {
                                 if (mods.ModuleUID != module.InstalledModuleUID) continue;
                                 modUnlockable = true;
-                                shipData.techsNeeded.Add(technology.UID);
+                                shipData.TechsNeeded.Add(technology.UID);
                                 foreach (string tree in shipTechs[technology])
-                                    shipData.techsNeeded.Add(tree);
+                                    shipData.TechsNeeded.Add(tree);
                                 break;
                             }
                             if (modUnlockable)
@@ -189,20 +189,20 @@ namespace Ship_Game
                         }
                         if (modUnlockable) continue;
 
-                        shipData.allModulesUnlocakable = false;
+                        shipData.AllModulesUnlocakable = false;
                         Log.WarningVerbose($"Unlockable module : '{module.InstalledModuleUID}' in ship : '{kv.Key}'");
                         break;
                     }
                 }
 
-                if (shipData.allModulesUnlocakable)
+                if (shipData.AllModulesUnlocakable)
                 {
-                    shipData.unLockable = true;
+                    shipData.UnLockable = true;
                     if (shipData.BaseStrength <= 0f)
                         shipData.BaseStrength = kv.Value.CalculateShipStrength();
 
                     shipData.TechScore = 0;
-                    foreach (string techname in shipData.techsNeeded)
+                    foreach (string techname in shipData.TechsNeeded)
                     {
                         var tech = TechTree[techname];
                         shipData.TechScore += tech.RootNode ==0 ? (int)tech.Cost : 0;
@@ -211,8 +211,8 @@ namespace Ship_Game
                 }
                 else
                 {
-                    shipData.unLockable = false;
-                    shipData.techsNeeded.Clear();
+                    shipData.UnLockable = false;
+                    shipData.TechsNeeded.Clear();
                     purge.Add(shipData.Name);
                     shipData.BaseStrength = 0;
                 }

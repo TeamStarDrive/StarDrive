@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Ship_Game
@@ -24,6 +25,14 @@ namespace Ship_Game
         public Entry Active      => Options[ActiveIndex];
         public T ActiveValue     => Options[ActiveIndex].Value;
         public string ActiveName => Options[ActiveIndex].Name;
+
+        public Action<T> OnValueChange;
+
+        private Ref<T> PropertyRef;
+        public Expression<Func<T>> PropertyBinding
+        {
+            set => PropertyRef = new Ref<T>(value);
+        }
 
         public class Entry
         {
@@ -54,11 +63,6 @@ namespace Ship_Game
         {
             Reset();
         }
-        public DropOptions(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
-        {
-            Reset();
-        }
-
 
         public void Clear()
         {
@@ -79,6 +83,23 @@ namespace Ship_Game
         public bool SetActiveEntry(string name)
         {
             int i = IndexOfEntry(name);
+            if (i == -1)
+                return false;
+            ActiveIndex = i;
+            return true;
+        }
+
+        private int IndexOfValue(T value)
+        {
+            for (int i = 0; i < Options.Count; ++i)
+                if (Options[i].Value.Equals(value))
+                    return i;
+            return -1;
+        }
+
+        public bool SetActiveValue(T value)
+        {
+            int i = IndexOfValue(value);
             if (i == -1)
                 return false;
             ActiveIndex = i;
@@ -172,12 +193,15 @@ namespace Ship_Game
             }
         }
 
-        public void DrawGrayed(SpriteBatch spriteBatch)
+        public override void Update()
         {
-            for (int i = 0; i < BorderCount; ++i)
-                Border[i].Draw(spriteBatch, Color.DarkGray);
-
-            spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2(Rect.X + 10, Rect.Y + Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.DarkGray);
+            base.Update();
+            if (PropertyRef != null) // ensure our drop-down list is in sync with the property binding!
+            {
+                T bindingValue = PropertyRef.Value;
+                if (!bindingValue.Equals(ActiveValue))
+                    SetActiveValue(bindingValue);
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -207,6 +231,10 @@ namespace Ship_Game
                     Active.Rect = e.Rect;
                     e.Rect = new Rectangle();
                     ActiveIndex = i;
+                    OnValueChange?.Invoke(ActiveValue);
+
+                    if (PropertyRef != null)
+                        PropertyRef.Value = ActiveValue;
 
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     Open = false;
