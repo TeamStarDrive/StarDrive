@@ -25,6 +25,8 @@ namespace Ship_Game
         public T ActiveValue     => Options[ActiveIndex].Value;
         public string ActiveName => Options[ActiveIndex].Name;
 
+        public Action<T> OnValueChange;
+
         public class Entry
         {
             public string Name;
@@ -54,11 +56,6 @@ namespace Ship_Game
         {
             Reset();
         }
-        public DropOptions(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
-        {
-            Reset();
-        }
-
 
         public void Clear()
         {
@@ -79,6 +76,23 @@ namespace Ship_Game
         public bool SetActiveEntry(string name)
         {
             int i = IndexOfEntry(name);
+            if (i == -1)
+                return false;
+            ActiveIndex = i;
+            return true;
+        }
+
+        private int IndexOfValue(T value)
+        {
+            for (int i = 0; i < Options.Count; ++i)
+                if (Options[i].Value.Equals(value))
+                    return i;
+            return -1;
+        }
+
+        public bool SetActiveValue(T value)
+        {
+            int i = IndexOfValue(value);
             if (i == -1)
                 return false;
             ActiveIndex = i;
@@ -172,14 +186,6 @@ namespace Ship_Game
             }
         }
 
-        public void DrawGrayed(SpriteBatch spriteBatch)
-        {
-            for (int i = 0; i < BorderCount; ++i)
-                Border[i].Draw(spriteBatch, Color.DarkGray);
-
-            spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2(Rect.X + 10, Rect.Y + Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.DarkGray);
-        }
-
         public override bool HandleInput(InputState input)
         {
             bool selectPressed = input.InGameSelect;
@@ -207,6 +213,7 @@ namespace Ship_Game
                     Active.Rect = e.Rect;
                     e.Rect = new Rectangle();
                     ActiveIndex = i;
+                    OnValueChange?.Invoke(ActiveValue);
 
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     Open = false;
@@ -295,7 +302,7 @@ namespace Ship_Game
         }
     }
 
-    internal sealed class DropOptionsDebugView<T>
+    internal sealed class DropOptionsDebugView<T> where T : IComparable<T>
     {
         private readonly DropOptions<T> Collection;
 

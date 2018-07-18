@@ -746,26 +746,6 @@ namespace Ship_Game
             EmpireUI.Draw(ScreenManager.SpriteBatch);
             DrawShipInfoPanel();
 
-            //Defaults based on hull types
-            //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-            if (ActiveHull.Role == ShipData.RoleName.freighter && Fml)
-            {
-                CategoryList.ActiveIndex = 1;
-                Fml = false;
-            }
-            //Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-            else if (ActiveHull.Role == ShipData.RoleName.scout && Fml)
-            {
-                CategoryList.ActiveIndex = 2;
-                Fml = false;
-            }
-            //All other hulls default to unclassified.
-            else if (Fml)
-            {
-                CategoryList.ActiveIndex = 0;
-                Fml = false;
-            }
-
             CategoryList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
 
@@ -774,19 +754,6 @@ namespace Ship_Game
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
-                //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
-                if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
-                    Fmlevenmore = false;
-
-                if (IsDefaultShieldBehavior)
-                {
-                    ShieldsBehaviorList.ActiveIndex = 1;
-                    IsDefaultShieldBehavior = false;
-                }
-                //Loads the shields behavior option  from the ShipDesign XML of the ship being loaded OVER the default.
-                if (ShouldLoadDefaultShieldBehavior && ShieldsBehaviorList.SetActiveEntry(LoadShieldsBehavior.ToString()))
-                    ShouldLoadDefaultShieldBehavior = false;
-
                 DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
                 ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
             }
