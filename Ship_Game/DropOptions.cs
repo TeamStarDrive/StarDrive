@@ -302,7 +302,7 @@ namespace Ship_Game
         }
     }
 
-    internal sealed class DropOptionsDebugView<T> where T : IComparable<T>
+    internal sealed class DropOptionsDebugView<T>
     {
         private readonly DropOptions<T> Collection;
 
