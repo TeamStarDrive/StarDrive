@@ -31,7 +31,7 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle clickRect)
 		{
-			Vector2 Cursor = new Vector2((float)clickRect.X, (float)(clickRect.Y + clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 Cursor = new Vector2(clickRect.X, (clickRect.Y + clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(this.NameIndex), Cursor, (this.Available ? Color.White : Color.Gray));
 			Cursor.X = Cursor.X + 120f;
 			HelperFunctions.ClampVectorToInt(ref Cursor);
@@ -41,13 +41,13 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], smallmoney, Color.White);
 			Cursor.X = (float)(smallmoney.X + 25);
 			HelperFunctions.ClampVectorToInt(ref Cursor);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.cost.ToString(), Cursor, (this.Available ? Color.White : Color.Gray));
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost.ToString(), Cursor, (Available ? Color.White : Color.Gray));
 			if (this.Available)
 			{
 				this.DoMission.Rect = new Rectangle(smallmoney.X + 50, (int)Cursor.Y - 1, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Height);
 				this.DoMission.Draw(ScreenManager.SpriteBatch);
 			}
-			ScreenManager.SpriteBatch.DrawLine(new Vector2((float)clickRect.X, (float)(clickRect.Y + clickRect.Height)), new Vector2((float)(clickRect.X + clickRect.Width), (float)(clickRect.Y + clickRect.Height)), Color.OrangeRed);
+			ScreenManager.SpriteBatch.DrawLine(new Vector2(clickRect.X, (clickRect.Y + clickRect.Height)), new Vector2((clickRect.X + clickRect.Width), (clickRect.Y + clickRect.Height)), Color.OrangeRed);
 		}
 
 		public void HandleInputORIG(InputState input)

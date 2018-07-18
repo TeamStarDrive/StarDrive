@@ -352,21 +352,18 @@ namespace Ship_Game
         private bool HandleShipHullListSelection(InputState input)
         {
             HullSL.HandleInput(input);
-            int max = HullSL.indexAtTop + HullSL.entriesToDisplay;
-            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < max; ++i)
+            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = HullSL.Copied[i];
                 if (e.item is ModuleHeader moduleHeader)
                 {
                     if (moduleHeader.HandleInput(input, e))
                         return true;
                 }
-                else if (e.clickRect.HitTest(input.CursorPosition))
+                else if (e.CheckHover(input))
                 {
-                    selector = new Selector(e.clickRect);
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect) continue;
+                    selector = e.CreateSelector();
+                    if (!input.InGameSelect)
+                        continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
                     {
@@ -377,9 +374,7 @@ namespace Ship_Game
                     ChangeHull(e.item as ShipData);
                     return true;
                 }
-                else e.clickRectHover = 0;
             }
-
             return false;
         }
 
@@ -781,17 +776,17 @@ namespace Ship_Game
                 HullSL.AddItem(new ModuleHeader(cat, 240));
             }
 
-            foreach (ScrollList.Entry e in HullSL.Entries)
+            foreach (ScrollList.Entry e in HullSL.AllEntries)
             {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
                     if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key] ||
-                        ((ModuleHeader) e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
+                        ((ModuleHeader)e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
                     {
                         continue;
                     }
 
-                    e.AddItem(hull.Value);
+                    e.AddSubItem(hull.Value);
                 }
             }
 
@@ -830,17 +825,6 @@ namespace Ship_Game
             // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
             base.ExitScreen();
-        }
-
-        public void ResetLists()
-        {
-            WeaponSL.ResetOnNextDraw = true;
-            WeaponSL.indexAtTop = 0;
-        }
-
-        public void ResetModuleState()
-        {
-            ActiveModState = ModuleOrientation.Normal;
         }
 
         private void SaveChanges(object sender, EventArgs e)

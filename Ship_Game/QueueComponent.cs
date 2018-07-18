@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class QueueComponent: IDisposable
+	public sealed class QueueComponent
 	{
 		private Rectangle Current;
 		private Rectangle Queue;
@@ -82,57 +82,49 @@ namespace Ship_Game
 				{
 					text = ">999 turns";
 				}
-				Cursor.X = Cursor.X - Fonts.Verdana14Bold.MeasureString(text).X;
-				this.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold, text, Cursor, new Color(205, 229, 255));
+				Cursor.X -= Fonts.Verdana14Bold.MeasureString(text).X;
+				ScreenManager.SpriteBatch.DrawString(Fonts.Verdana14Bold, text, Cursor, new Color(205, 229, 255));
 			}
-			Vector2 vector2 = new Vector2((float)(this.qsub.Menu.X + 10), (float)(this.qsub.Menu.Y + 10));
-			for (int i = this.QSL.indexAtTop; i < this.QSL.Entries.Count && i < this.QSL.indexAtTop + this.QSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
 			{
-				Rectangle r = this.QSL.Copied[i].clickRect;
-				(this.QSL.Copied[i].item as ResearchQItem).Draw(r, this.ScreenManager);
+                e.Get<ResearchQItem>().Draw(ScreenManager, e.Rect);
 			}
-			this.qsub.Draw();
+			qsub.Draw();
 		}
 
 		public void HandleInput(InputState input)
 		{
-			if (input.RightMouseClick && this.Visible && this.Queue.HitTest(input.CursorPosition) || input.Escaped)
+			if (input.RightMouseClick && Visible && Queue.HitTest(input.CursorPosition) || input.Escaped)
 			{
-				this.screen.ExitScreen();
+				screen.ExitScreen();
 				return;
 			}
-			this.screen.qcomponent.QSL.Update();
-			this.screen.qcomponent.QSL.HandleInput(input);
-			if (this.Visible)
+			screen.qcomponent.QSL.Update();
+			screen.qcomponent.QSL.HandleInput(input);
+			if (Visible)
 			{
-				int i = this.QSL.indexAtTop;
-				while (i < this.QSL.Entries.Count && i < this.QSL.indexAtTop + this.QSL.entriesToDisplay)
-				{
-					if (!(this.QSL.Copied[i].item as ResearchQItem).HandleInput(input))
-					{
-						i++;
-					}
-					else
-					{
-						GameAudio.PlaySfxAsync("sd_ui_research_select");
-						break;
-					}
-				}
-				if (this.CurrentResearch != null && this.CurrentResearch.HandleInput(input))
+                foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
+                {
+                    if (((ResearchQItem)e.item).HandleInput(input))
+                    {
+                        GameAudio.PlaySfxAsync("sd_ui_research_select");
+                        break;
+                    }
+                }
+				if (CurrentResearch != null && CurrentResearch.HandleInput(input))
 				{
 					GameAudio.PlaySfxAsync("sd_ui_research_select");
 				}
-				if (this.ShowQueue.HandleInput(input))
+				if (ShowQueue.HandleInput(input))
 				{
-					this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2135));
-					this.Visible = false;
-					return;
+					ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2135));
+					Visible = false;
 				}
 			}
-			else if (this.ShowQueue.HandleInput(input))
+			else if (ShowQueue.HandleInput(input))
 			{
-				this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2136));
-				this.Visible = true;
+				ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2136));
+				Visible = true;
 			}
 		}
 
@@ -158,18 +150,5 @@ namespace Ship_Game
 			this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2136));
 			this.Visible = true;
 		}
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~QueueComponent() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            QSL?.Dispose(ref QSL);
-        }
 	}
 }

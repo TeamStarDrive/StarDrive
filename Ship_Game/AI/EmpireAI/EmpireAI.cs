@@ -46,6 +46,14 @@ namespace Ship_Game.AI
             
         }
 
+        public void AddToTaskList(Tasks.MilitaryTask task) => TaskList.Add(task);
+
+        public void RemoveFromTaskList(Tasks.MilitaryTask task)
+        {
+            if (task == null)
+                Log.Error("Attempting to Remove null task from Empire TaskList");
+            TaskList.Remove(task);            
+        }
         public bool HasGoal(GoalType type)
         {
             for (int i = 0; i < Goals.Count; ++i)
