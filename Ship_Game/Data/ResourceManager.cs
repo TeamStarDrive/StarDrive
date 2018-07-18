@@ -87,6 +87,11 @@ namespace Ship_Game
             return technology;
         }
 
+        public static Technology Tech(string techUid)
+        {
+            return TechTree[techUid];
+        }
+
         public static bool TryGetTech(string techUid, out Technology tech) => TechTree.TryGetValue(techUid, out tech);
 
         public static ExplorationEvent Event(string eventName, string defaultEvent = "default")
@@ -1086,6 +1091,11 @@ namespace Ship_Game
         {
             return HullsDict.TryGetValue(shipHull, out hullData);
         }        
+
+        public static ShipData Hull(string shipHull)
+        {
+            return HullsDict[shipHull];
+        }
 
         private static void LoadHullBonuses()
         {

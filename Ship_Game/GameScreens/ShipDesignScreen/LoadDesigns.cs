@@ -88,70 +88,47 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             this.LoadContent();
         }
 
-        protected override void Destroy()
-        {
-            ShipDesigns?.Dispose(ref ShipDesigns);
-            base.Destroy();
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
             
-            ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();            
             loadMenu.Draw();
             SaveShips.Draw();
-            ShipDesigns.Draw(base.ScreenManager.SpriteBatch);
-            EnterNameArea.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
-            Vector2 bCursor = new Vector2((float)(this.SaveShips.Menu.X + 20), (float)(this.SaveShips.Menu.Y + 20));
+            ShipDesigns.Draw(ScreenManager.SpriteBatch);
+            EnterNameArea.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             
-            for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Copied.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
-                bCursor = new Vector2((float)(this.SaveShips.Menu.X + 20), (float)(this.SaveShips.Menu.Y + 20));
-                ScrollList.Entry e = this.ShipDesigns.Copied[i];
+                var bCursor = new Vector2(SaveShips.Menu.X + 20, SaveShips.Menu.Y + 20);
                 if (e.item == null)
                     continue;
-                bCursor.Y = (float)e.clickRect.Y;
+                bCursor.Y = e.Y;
                 if (e.item is ModuleHeader header)
                 {
-                    header.Draw(base.ScreenManager, bCursor);
+                    header.Draw(ScreenManager, bCursor);
                 }
                 else if (e.item is Ship ship)
                 {
                     bCursor.X = bCursor.X + 15f;
-                    try
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    }
-                    catch(KeyNotFoundException error)
-                    {
-                        error.Data.Add("key= ", e.item);
-                    }
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
                     var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.Orange);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                     ship.GetTechScore(out int[] scores);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"" +
-                                                                                $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
-                    if (e.clickRectHover == 1 && !ship.IsReadonlyDesign && !ship.FromSave)
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
+                    
+                    if (!ship.IsReadonlyDesign && !ship.FromSave)
                     {
-                        ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
-                        if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                        {
-                            ScreenManager.SpriteBatch.Draw(Delete_Hover2, e.cancel, Color.White);
-                            ToolTip.CreateTooltip(78);
-                        }
-                    }
-                    else if (!ship.IsReadonlyDesign && !ship.FromSave)
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
+                        e.DrawCancel(ScreenManager.SpriteBatch, Input);
                     }
                 }
-                else if(e.item is ShipData shipData)
+                else if (e.item is ShipData shipData)
                 {
                     bCursor.X = bCursor.X + 15f;                    
                     base.ScreenManager.SpriteBatch.Draw(ResourceManager.HullsDict[shipData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -159,19 +136,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
-                    if (e.clickRectHover != 1)
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(QueueDelete, e.cancel, Color.White);
-                    }
-                    else
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(DeleteHover1, e.cancel, Color.White);
-                        if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                        {
-                            base.ScreenManager.SpriteBatch.Draw(Delete_Hover2, e.cancel, Color.White);
-                            ToolTip.CreateTooltip(78);
-                        }
-                    }
+
+                    e.DrawCancel(ScreenManager.SpriteBatch, Input);
                 }
             }
             selector?.Draw(ScreenManager.SpriteBatch);
@@ -180,7 +146,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 b.Draw(base.ScreenManager.SpriteBatch);
             }
             this.PlayerDesignsToggle.Draw(base.ScreenManager);
-            ToolTip.Draw(spriteBatch);
+            ToolTip.Draw(batch);
             base.ScreenManager.SpriteBatch.End();
         }
 
@@ -212,7 +178,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         continue;
                     }
                     string launches = b.Launches;
-                    if (launches == null || !(launches == "Load"))
+                    if (launches == null || launches != "Load")
                     {
                         continue;
                     }
@@ -220,72 +186,54 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 }
             }
             this.selector = null;
-            for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Copied.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = this.ShipDesigns.Copied[i];
-                if (e.item is ModuleHeader)
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).HandleInput(input, e);
+                    header.HandleInput(input, e);
                 }
-                else if (e.item is ShipData)
+                else if (e.item is ShipData data)
                 {
-                    if (!e.clickRect.HitTest(MousePos))
+                    if (e.CheckHover(MousePos))
                     {
-                        e.clickRectHover = 0;
-                    }
-                    else
-                    {
-                        if (e.cancel.HitTest(MousePos) && input.InGameSelect)
+                        if (e.WasCancelHovered(input) && input.InGameSelect)
                         {
-                            this.ShipToDelete = (e.item as ShipData).Name;
-                            MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                            messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteDataAccepted);
-                            base.ScreenManager.AddScreen(messageBox);
+                            ShipToDelete = data.Name;
+                            var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                            messageBox.Accepted += DeleteDataAccepted;
+                            ScreenManager.AddScreen(messageBox);
                         }
-                        this.selector = new Selector(e.clickRect);
-                        if (e.clickRectHover == 0)
+                        selector = e.CreateSelector();
+
+                        if (input.LeftMouseClick)
                         {
-                            GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                        }
-                        e.clickRectHover = 1;
-                        if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
-                        {
-                            this.EnterNameArea.Text = (e.item as ShipData).Name;
-                            this.selectedWIP = e.item as ShipData;
+                            EnterNameArea.Text = data.Name;
+                            selectedWIP = data;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                 }
-                else if (!e.clickRect.HitTest(MousePos))
+                else if (e.CheckHover(MousePos))
                 {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    if (e.cancel.HitTest(MousePos) && !(e.item as Ship).IsReadonlyDesign && !(e.item as Ship).FromSave && input.InGameSelect)
+                    if (e.item is Ship ship)
                     {
-                        this.ShipToDelete = (e.item as Ship).Name;
-                        MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                        messageBox.Accepted += DeleteAccepted;
-                        base.ScreenManager.AddScreen(messageBox);
-                    }
-                    this.selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
-                    if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
-                    {
-                        this.EnterNameArea.Text = (e.item as Ship).Name;
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        if (e.WasCancelHovered(input) && !ship.IsReadonlyDesign && !ship.FromSave && input.InGameSelect)
+                        {
+                            ShipToDelete = ship.Name;
+                            var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                            messageBox.Accepted += DeleteAccepted;
+                            ScreenManager.AddScreen(messageBox);
+                        }
+                        selector = e.CreateSelector();
+
+                        if (input.LeftMouseClick)
+                        {
+                            EnterNameArea.Text = ship.Name;
+                            GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
+                        }
                     }
                 }
             }
-            //if (this.PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
-            //{
-            //    ToolTip.CreateTooltip(Localizer.Token(2225));
-            //}
             this.previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
@@ -358,35 +306,38 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 if (WIPs.Count > 0)
                 {
                     ShipRoles.Add("WIP");
-                    ModuleHeader mh = new ModuleHeader("WIP");
-                    this.ShipDesigns.AddItem(mh);
+                    var mh = new ModuleHeader("WIP");
+                    ShipDesigns.AddItem(mh);
                 }
-                foreach (ScrollList.Entry e in ShipDesigns.Entries)
+
+                KeyValuePair<string, Ship>[] ships = ResourceManager.ShipsDict
+                    .OrderBy(kv => !kv.Value.IsPlayerDesign)
+                    .ThenBy(kv => kv.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
+                    .ThenBy(kv => kv.Value.BaseHull.ShipStyle)
+                    .ThenByDescending(kv => kv.Value.GetTechScore(out int[] _))
+                    .ThenBy(kv => kv.Value.Name)
+                    .ToArray();
+
+                foreach (ScrollList.Entry e in ShipDesigns.AllEntries)
                 {
-                    foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict
-                        .OrderBy(x => true)
-                        .ThenBy(player => !player.Value.IsPlayerDesign)
-                        .ThenBy(empire => empire.Value.BaseHull.ShipStyle != EmpireManager.Player.data.Traits.ShipType)
-                        .ThenBy(empire => empire.Value.BaseHull.ShipStyle)
-                        .ThenByDescending(tech => tech.Value.GetTechScore(out int[] _))
-                        .ThenBy(name => name.Value.Name))
+                    foreach (KeyValuePair<string, Ship> ship in ships)
                     {
-                        if (Ship.Value.Deleted 
-                            || Ship.Value.shipData.IsShipyard
-                            || !EmpireManager.Player.WeCanBuildThis(Ship.Key)
-                            || Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player) != (e.item as ModuleHeader).Text
-                            || (Empire.Universe?.Debug != true && Ship.Value.Name == "Subspace Projector")
-                            || ResourceManager.ShipRoles[Ship.Value.shipData.Role].Protected)
+                        if (ship.Value.Deleted 
+                            || ship.Value.shipData.IsShipyard
+                            || !EmpireManager.Player.WeCanBuildThis(ship.Key)
+                            || Localizer.GetRole(ship.Value.DesignRole, EmpireManager.Player) != (e.item as ModuleHeader).Text
+                            || (Empire.Universe?.Debug != true && ship.Value.Name == "Subspace Projector")
+                            || ResourceManager.ShipRoles[ship.Value.shipData.Role].Protected)
                         {
                             continue;
                         }
-                        if (Ship.Value.IsReadonlyDesign || Ship.Value.FromSave)
+                        if (ship.Value.IsReadonlyDesign || ship.Value.FromSave)
                         {
-                            e.AddItem(Ship.Value);
+                            e.AddSubItem(ship.Value);
                         }
                         else
                         {
-                            e.AddItemWithCancel(Ship.Value);
+                            e.AddSubItem(ship.Value);
                         }
                     }
                     if ((e.item as ModuleHeader).Text != "WIP")
@@ -395,7 +346,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                     foreach (ShipData data in WIPs)
                     {
-                        e.AddItemWithCancel(data);
+                        e.AddSubItem(data);
                     }
                 }
             }
@@ -431,8 +382,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private void ResetSL()
         {
-            this.ShipDesigns.Entries.Clear();
-            this.ShipDesigns.Copied.Clear();
+            ShipDesigns.Reset();
             string path = Dir.ApplicationData;
             PopulateEntries(path);            
         }

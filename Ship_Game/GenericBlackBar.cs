@@ -72,11 +72,11 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
-		    spriteBatch.Begin();
+		    batch.Begin();
 			DrawUI(Game1.Instance.GameTime);
-		    spriteBatch.End();
+		    batch.End();
 		}
 
 		private void DrawUI(GameTime gameTime)

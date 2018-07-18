@@ -217,13 +217,11 @@ namespace Ship_Game
                 Starfield?.Dispose(ref Starfield);
                 SelectedFleet = null;
                 AvailableShips?.Dispose(ref AvailableShips);
-                ShipSL?.Dispose(ref ShipSL);
-                FleetSL?.Dispose(ref FleetSL);
             }
             base.Destroy();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             Viewport viewport;
             Texture2D nodeTexture = ResourceManager.Texture("UI/node");
@@ -231,7 +229,7 @@ namespace Ship_Game
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             Screen.bg.Draw(Screen, Screen.starfield);
-            spriteBatch.Begin();
+            batch.Begin();
             DrawGrid();
             if (SelectedNodeList.Count == 1)
             {
@@ -246,7 +244,7 @@ namespace Ship_Game
                 float ssRadius = Math.Abs(insetRadialSS.X - screenPos.X);
                 Rectangle nodeRect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)ssRadius * 2, (int)ssRadius * 2);
                 Vector2 origin = new Vector2(nodeTexture.Width / 2f, nodeTexture.Height / 2f);
-                spriteBatch.Draw(nodeTexture, nodeRect, null, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
+                batch.Draw(nodeTexture, nodeRect, null, new Color(0, 255, 0, 75), 0f, origin, SpriteEffects.None, 1f);
             }
             ClickableNodes.Clear();
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
@@ -314,7 +312,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
                 }
@@ -336,7 +334,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
                 }
@@ -364,7 +362,7 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, Color.White, 2f);
                 }
@@ -386,20 +384,20 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        spriteBatch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
                     }
                     DrawCircle(pPos, radius, Color.White, 2f);
                 }
             }
             DrawFleetManagementIndicators();
-            spriteBatch.DrawRectangle(SelectionBox, Color.Green);
-            spriteBatch.End();
+            batch.DrawRectangle(SelectionBox, Color.Green);
+            batch.End();
 
             ScreenManager.RenderSceneObjects();
 
-            spriteBatch.Begin();
+            batch.Begin();
             TitleBar.Draw();
-            spriteBatch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
             const int numEntries = 9;
             int k = 9;
             int m = 0;
@@ -425,110 +423,76 @@ namespace Ship_Game
                     }
                 }
                 Selector sel = new Selector(r, Color.TransparentBlack);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
+                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
-                sel.Draw(spriteBatch);
+                sel.Draw(batch);
                 Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
                 if (f.DataNodes.Count > 0)
                 {
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12, rect.Value.Width - 12);
-                    spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
+                    batch.Draw(ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
                 }
                 Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
                 SpriteFont pirulen12 = Fonts.Pirulen12;
                 int key = rect.Key;
-                spriteBatch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
+                batch.DrawString(pirulen12, key.ToString(), num, Color.Orange);
                 num.X = num.X + (rect.Value.Width + 5);
-                spriteBatch.DrawString(Fonts.Pirulen12, f.Name, num,
+                batch.DrawString(Fonts.Pirulen12, f.Name, num,
                     rect.Key != FleetToEdit ? Color.Gray : Color.White);
                 m++;
             }
             if (FleetToEdit != -1)
             {
                 ShipDesigns.Draw();
-                spriteBatch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
-                spriteBatch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
+                batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
+                batch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
                 SubShips.Draw();
-                ShipSL.Draw(spriteBatch);
+                ShipSL.Draw(batch);
                 var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
-                for (int i = ShipSL.indexAtTop; i < ShipSL.Copied.Count && i < ShipSL.indexAtTop + ShipSL.entriesToDisplay; i++)
+                foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
                 {
-                    ScrollList.Entry e = ShipSL.Copied[i];
-                    bCursor.Y = e.clickRect.Y;
-                    if (e.item is ModuleHeader)
+                    bCursor.Y = e.Y;
+                    if (e.item is ModuleHeader header)
                     {
-                        (e.item as ModuleHeader).DrawWidth(ScreenManager, bCursor, 265);
+                        header.DrawWidth(ScreenManager, bCursor, 265);
                     }
-                    else if (e.clickRectHover != 0)
+                    else if (e.Hovered)
                     {
                         var ship = (Ship)e.item;
-                        bCursor.Y = e.clickRect.Y;
-                        spriteBatch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                        spriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                        if (e.Plus != 0)
-                        {
-                            spriteBatch.Draw(
-                                e.PlusHover != 0
-                                    ? ResourceManager.TextureDict["NewUI/icon_build_add_hover2"]
-                                    : ResourceManager.TextureDict["NewUI/icon_build_add_hover1"], e.addRect,
-                                Color.White);
-                        }
-                        if (e.Edit != 0)
-                        {
-                            spriteBatch.Draw(
-                                e.EditHover != 0
-                                    ? ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"]
-                                    : ResourceManager.TextureDict["NewUI/icon_build_edit_hover1"], e.editRect,
-                                Color.White);
-                        }
-                        if (e.clickRect.Y == 0)
-                        {
-                        }
+                        bCursor.Y = e.Y;
+                        batch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                        batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                        tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                        batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                        e.DrawPlusEdit(batch);
                     }
                     else
                     {
                         var ship = (Ship)e.item;
-                        spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
-                        tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
+                        batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                        batch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
+                        tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                         if (SubShips.Tabs[0].Selected)
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                         }
                         else if (ship.System== null)
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
                         }
                         else
                         {
-                            spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(ship.System.Name, " system"), tCursor, Color.Orange);
+                            batch.DrawString(Fonts.Arial12Bold, $"{ship.System.Name} system", tCursor, Color.Orange);
                         }
-                        if (e.Plus != 0)
-                        {
-                            spriteBatch.Draw(
-                                e.PlusHover != 0
-                                    ? ResourceManager.TextureDict["NewUI/icon_build_add_hover2"]
-                                    : ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
-                        }
-                        if (e.Edit != 0)
-                        {
-                            spriteBatch.Draw(
-                                e.EditHover != 0
-                                    ? ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"]
-                                    : ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
-                        }
-                        if (e.clickRect.Y == 0)
-                        {
-                        }
+                        e.DrawPlusEdit(batch);
                     }
                 }
             }
-            EmpireUI.Draw(spriteBatch);
+            EmpireUI.Draw(batch);
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
+            {
                 if (node.Ship == null || CamPos.Z <= 15000f)
                 {
                     if (node.Ship != null || node.ShipName == "Troop Shuttle")
@@ -551,14 +515,14 @@ namespace Ship_Game
                         (int) radius * 2, (int) radius * 2);
                     if (node.GoalGUID == Guid.Empty)
                     {
-                        spriteBatch.Draw(ship.GetTacticalIcon(), r,
+                        batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Red));
                     }
                     else
                     {
-                        spriteBatch.Draw(ship.GetTacticalIcon(), r,
+                        batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                                 ? Color.White
                                 : Color.Yellow));
@@ -571,7 +535,7 @@ namespace Ship_Game
                             }
                             buildingat = g.GetPlanetWhereBuilding().Name;
                         }
-                        spriteBatch.DrawString(Fonts.Arial8Bold,
+                        batch.DrawString(Fonts.Arial8Bold,
                             (!string.IsNullOrEmpty(buildingat)
                                 ? string.Concat("Building at:\n", buildingat)
                                 : "Need spaceport"), pPos + new Vector2(5f, -5f), Color.White);
@@ -597,11 +561,12 @@ namespace Ship_Game
                     }
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
-                    spriteBatch.Draw(ship.GetTacticalIcon(), r,
+                    batch.Draw(ship.GetTacticalIcon(), r,
                         (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
                             ? Color.White
                             : Color.Green));
                 }
+            }
             if (ActiveShipDesign != null)
             {
                 float scale;
@@ -620,12 +585,12 @@ namespace Ship_Game
                 }
                 float single = Mouse.GetState().X;
                 MouseState state = Mouse.GetState();
-                spriteBatch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(item, new Vector2(single, state.Y), null, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
             DrawSelectedData(Game1.Instance.GameTime);
-            Close.Draw(spriteBatch);
-            ToolTip.Draw(spriteBatch);
-            spriteBatch.End();
+            Close.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
 
             ScreenManager.EndFrameRendering();
         }
@@ -1159,26 +1124,7 @@ namespace Ship_Game
                         
                         if (SubShips.Tabs[1].Selected)
                         {
-                            ScrollList.Entry toremove = null;
-                            foreach (ScrollList.Entry e in ShipSL.Copied)
-                            {
-                                if (!(e.item is Ship) || e.item as Ship != ActiveShipDesign)
-                                {
-                                    continue;
-                                }
-                                toremove = e;
-                                break;
-                            }
-                            if (toremove != null)
-                            {
-                                foreach (ScrollList.Entry e in ShipSL.Copied)
-                                {
-                                    e.SubEntries.Remove(toremove);
-                                }
-                                ShipSL.Entries.Remove(toremove);
-                                ShipSL.Copied.Remove(toremove);
-                                ShipSL.Update();
-                            }
+                            ShipSL.RemoveFirstIf<Ship>(ship => ship == ActiveShipDesign);
                         }
                         ActiveShipDesign = null;
                     }
@@ -1194,7 +1140,7 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                ScrollList.Entry[] items = ShipSL.Copied.AtomicCopy();
+                ScrollList.Entry[] items = ShipSL.AllExpandedEntries.ToArray();
                 foreach (ScrollList.Entry e in items)
                 {
                     if (e.item is ModuleHeader header)
@@ -1814,11 +1760,10 @@ namespace Ship_Game
                 }
                 AvailableShips.Add(ship);
             }
-            ShipSL.Entries.Clear();
-            ShipSL.indexAtTop = 0;
+            ShipSL.Reset();
             if (SubShips.Tabs[0].Selected)
             {
-                Array<string> roles = new Array<string>();
+                var roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(shipname);
@@ -1828,16 +1773,14 @@ namespace Ship_Game
 
                     ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
-                foreach (ScrollList.Entry e in ShipSL.Entries)
+                foreach (ScrollList.Entry e in ShipSL.AllEntries)
                 {
                     foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                     {
                         Ship ship = ResourceManager.ShipsDict[shipname];
                         if (ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
-                        {
                             continue;
-                        }
-                        e.AddItem(ship);
+                        e.AddSubItem(ship);
                     }
                 }
             }
@@ -1853,15 +1796,13 @@ namespace Ship_Game
                     roles.Add(ship.DesignRoleName);
                     ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
                 }
-                foreach (ScrollList.Entry e in ShipSL.Entries)
+                foreach (ScrollList.Entry e in ShipSL.AllEntries)
                 {
                     foreach (Ship ship in AvailableShips)
                     {
                         if (ship.shipData.Role == ShipData.RoleName.troop || ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
-                        {
                             continue;
-                        }
-                        e.AddItem(ship);
+                        e.AddSubItem(ship);
                     }
                 }
             }
