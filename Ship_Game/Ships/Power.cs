@@ -8,7 +8,7 @@ namespace Ship_Game.Ships
         public float NetSubLightPowerDraw;
         public float NetWarpPowerDraw;
 
-        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior)
+        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior, bool designModule = false)
         {
             // if warp behaviors are disabled, then force "Full" behavior
             if (!GlobalStats.WarpBehaviorsEnabled)
@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule module in modules)
             {
-                if (!module.Active || (!module.Powered && module.PowerDraw > 0f))
+                if (!module.Active || (!module.Powered && module.PowerDraw > 0f) && !designModule)
                     continue;
 
                 if (module.Is(ShipModuleType.Shield))
