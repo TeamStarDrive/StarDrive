@@ -18,11 +18,13 @@ namespace Ship_Game
                     string tooltip = new []{
                         "Shields are always ACTIVE, consume MORE power and recharge during warp.",
 
-                        "Shields in warp are SHUT DOWN, do not consume power and will not recharge. "+
-                        "Shield reactivation delay is affected by crew level and shield complexity.",
+                        "Shields in warp are PARTIALLY ACTIVE and will not recharge, their power." +
+                        "consumption is equal to sublight consumption. There is a shield reactivation delay" +
+                        "upon warp exit which is affected by crew level and shield complexity. ",
 
-                        "Shields in warp slowly DISCHARGE and consume LITTLE power. "+
-                        "Shield reactivation delay is much longer.",
+                        "Shields in warp are SHUTDOWN, slowly DISCHARGE and consume NO power." +
+                        " Shield reactivation delay is much longer. "
+
                     }[(int)ActiveValue];
 
                     ToolTip.CreateTooltip(tooltip);
