@@ -16,13 +16,13 @@ namespace Ship_Game
                 if (Rect.HitTest(input.CursorPosition)) 
                 {
                     string tooltip = new []{
-                        "Shields are always ACTIVE, consume DOUBLE power and recharges during warp.",
+                        "Shields are always ACTIVE, consume MORE power and recharge during warp.",
 
-                        "Shields are PARTIALLY ACTIVE, consume regular power and do not recharge during warp. "+
+                        "Shields are TEMPORARILY DISABLED, consume normal power and do NOT recharge during warp. "+
                         "Shield reactivation delay is affected by crew level and shield complexity.",
 
-                        "Shields are SHUT DOWN, consume NO power and slowly DISCHARGE during warp. "+
-                        "Shield reactivation delay is much longer.",
+                        "Shields are completely SHUT DOWN, consume NO power and slowly DISCHARGE during warp. "+
+                        "Shield reactivation delay is TWICE as long.",
                     }[(int)ActiveValue];
 
                     ToolTip.CreateTooltip(tooltip);
