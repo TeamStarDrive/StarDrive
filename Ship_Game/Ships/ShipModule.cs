@@ -964,8 +964,8 @@ namespace Ship_Game.Ships
                 else
                 {
                     float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1);
-                    activationChanceModifier /= (int)behavior;
-                    activationChanceModifier *= Parent.Level + 1;
+                    activationChanceModifier      /= GetReactivationDelay(behavior);
+                    activationChanceModifier      *= Parent.Level + 1;
                     ShieldUpChance = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
                 }
             }
@@ -979,6 +979,15 @@ namespace Ship_Game.Ships
                     shieldPower -= shieldDischargeRate * elapsedTime;
                 }
                 return shieldPower.Clamped(0, shieldMax);
+            }
+        }
+
+        private static float GetReactivationDelay(ShieldsWarpBehavior behavior)
+        {
+            switch (behavior)
+            {
+                default: return 1f;
+                case ShieldsWarpBehavior.ShutDown: return 2f;
             }
         }
 
