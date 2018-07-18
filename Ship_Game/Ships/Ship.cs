@@ -2639,163 +2639,16 @@ namespace Ship_Game.Ships
             return healthMax;
         }
 
-        private float PercentageOfShipByModules(ShipModule[] modules)
-        {
-            int area = 0;
-            foreach (ShipModule module in modules)
-                area += module.XSIZE * module.YSIZE;
-            return area > 0 ? area / (float)Size : 0.0f;
-        }
         public float PercentageOfShipByModules(ShipModuleType moduleType)
         {
-            return PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
+            return RoleData.PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
         }
-        private static float PercentageOfShipByModules(ShipModule[] modules ,int size)
-        {
-            int area = 0;
-            int count = modules.Length;
-            for (int i = 0; i < count; ++i)
-            {
-                ShipModule module = modules[i];
-                area += module.XSIZE * module.YSIZE;
-            }
-            return area > 0 ? area / (float)size : 0.0f;
-        }
+        
         private ShipData.RoleName GetDesignRole()
         {
-            var roleData = new Ship.RoleData
-            {
-                Ship = this,
-                Modules = ModuleSlotList,
-                HullRole = shipData.HullRole,
-                DataRole = shipData.Role,
-                Size = Size,
-                Category = shipData.ShipCategory
-            };
-
-            return GetDesignRole(roleData);            
-        }
-        public struct RoleData
-        {
-            public ShipModule[] Modules;
-            public ShipData.RoleName HullRole;
-            public ShipData.RoleName DataRole;
-            public int Size;
-            public Ship Ship;
-            public ShipData.Category Category;
-
-        }
-
-        public static ShipData.RoleName GetDesignRole(RoleData roleData)
-        {
-            var ship     = roleData.Ship;
-            var modules  = roleData.Modules;
-            var hullRole = roleData.HullRole;
-
-
-            if (ship != null)
-            {
-                if (ship.isConstructor)
-                    return ShipData.RoleName.construction;
-                if (ship.isColonyShip || modules.Any(colony => colony.ModuleType == ShipModuleType.Colony))
-                    return ShipData.RoleName.colony;
-                switch (ship.shipData.Role) {
-                    case ShipData.RoleName.troop:
-                        return ShipData.RoleName.troop;
-                    case ShipData.RoleName.station:
-                    case ShipData.RoleName.platform:
-                        return ship.shipData.Role;
-                    case ShipData.RoleName.scout:
-                        return ShipData.RoleName.scout;
-                }
-
-                if (ship.IsSupplyShip && ship.Weapons.Count == 0)
-                    return ShipData.RoleName.supply;
-            }
-            //troops ship
-            if (hullRole >= ShipData.RoleName.freighter)
-            {                
-                float pTroops = PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.IsTroopBay), roleData.Size);
-                float pTrans =
-                    PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0), roleData.Size);
-                float troops = PercentageOfShipByModules(modules.FilterBy(module => module.TroopCapacity > 0), roleData.Size);
-                if (pTrans + pTroops + troops > .1f)
-                    return ShipData.RoleName.troopShip;
-                if (PercentageOfShipByModules(
-                        modules.FilterBy(bombBay => bombBay.ModuleType == ShipModuleType.Bomb),roleData.Size) > .05f)
-                    return ShipData.RoleName.bomber;
-                //carrier
-                
-                ShipModule[] carrier = modules.FilterBy(hangar => hangar.ModuleType == ShipModuleType.Hangar && !hangar.IsSupplyBay && !hangar.IsTroopBay);
-                ShipModule[] support = modules.FilterBy(hangar => hangar.ModuleType == ShipModuleType.Hangar && (hangar.IsSupplyBay || hangar.IsTroopBay));
-
-                if (PercentageOfShipByModules(carrier, roleData.Size) > .1)
-                    return ShipData.RoleName.carrier;
-                if (PercentageOfShipByModules(support, roleData.Size) > .1)
-                    return ShipData.RoleName.support;
-            }
-            float pSpecial = PercentageOfShipByModules(modules.FilterBy(module =>
-                module.TransporterOrdnance > 0
-                || module.IsSupplyBay
-                || module.InhibitionRadius > 0
-                || module.InstalledWeapon != null && module.InstalledWeapon.DamageAmount < 1 &&
-                (module.InstalledWeapon.MassDamage > 0
-                 || module.InstalledWeapon.EMPDamage > 0
-                 || module.InstalledWeapon.RepulsionDamage > 0
-                 || module.InstalledWeapon.SiphonDamage > 0
-                 || module.InstalledWeapon.TroopDamageChance > 0
-                 || module.InstalledWeapon.isRepairBeam || module.InstalledWeapon.IsRepairDrone)
-            ), roleData.Size);
-            pSpecial += PercentageOfShipByModules(
-                modules.FilterBy(repair => repair.InstalledWeapon?.IsRepairDrone == true), roleData.Size);
-
-            if (pSpecial > .10f)
-                return ShipData.RoleName.support;
-            if (roleData.Category != ShipData.Category.Unclassified)
-            {
-                switch (roleData.Category)
-                {
-                    case ShipData.Category.Unclassified:
-                        break;
-                    case ShipData.Category.Civilian:
-                        break;
-                    case ShipData.Category.Recon:
-                        return ShipData.RoleName.scout;                     
-                    case ShipData.Category.Combat:
-                        break;
-                    case ShipData.Category.Bomber:
-                        break;
-                    case ShipData.Category.Fighter:
-                        break;
-                    case ShipData.Category.Kamikaze:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            ShipData.RoleName fixRole = roleData.DataRole == ShipData.RoleName.prototype ? roleData.DataRole : hullRole;
-
-            switch (fixRole)
-            {
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.gunboat:
-                    return ShipData.RoleName.corvette;
-                case ShipData.RoleName.carrier:
-                case ShipData.RoleName.capital:
-                    return ShipData.RoleName.capital;
-                case ShipData.RoleName.destroyer:
-                case ShipData.RoleName.frigate:
-                    return ShipData.RoleName.frigate;
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
-                    return modules.Any(weapons => weapons.InstalledWeapon != null)
-                        ? ShipData.RoleName.fighter
-                        : ShipData.RoleName.scout;
-            }
-
-            return hullRole;
-        }
+            return  new RoleData(this, Array.AsReadOnly(ModuleSlotList)).DesignRole;
+            //return roleData.DesignRole;         
+        }        
 
         public void CreateColonizationBuildingFor(Planet colonizeTarget)
         {
