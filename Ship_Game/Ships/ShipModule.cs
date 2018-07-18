@@ -973,7 +973,7 @@ namespace Ship_Game.Ships
             // local method
             float DischargeShields(ShieldsWarpBehavior warpBehavior, float shieldPower)
             {
-                if (warpBehavior == ShieldsWarpBehavior.Discharge)
+                if (warpBehavior == ShieldsWarpBehavior.ShutDown)
                 {
                     float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate);
                     shieldPower -= shieldDischargeRate * elapsedTime;
