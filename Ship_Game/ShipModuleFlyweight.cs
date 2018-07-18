@@ -122,6 +122,7 @@ namespace Ship_Game.Gameplay
         public readonly int ExplosionDamage;
         public readonly int ExplosionRadius;
         public readonly float RepairDifficulty = 1f;
+        public readonly string ShieldBubbleColor;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
@@ -233,6 +234,7 @@ namespace Ship_Game.Gameplay
             ExplosionDamage             = s.ExplosionDamage > 0 ? s.ExplosionDamage : s.XSIZE * s.YSIZE * 2500;
             ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius: s.XSIZE * s.YSIZE * 64;
             RepairDifficulty            = s.RepairDifficulty;
+            ShieldBubbleColor           = s.ShieldBubbleColor;
             IndirectPower               = s.IndirectPower;
             isPowerArmour               = s.isPowerArmour;
             isBulkhead                  = s.isBulkhead;
@@ -389,5 +391,6 @@ namespace Ship_Game.Gameplay
         public int ExplosionRadius;
         public int ExplosionDamage;
         public float RepairDifficulty = 1;
+        public string ShieldBubbleColor;
     }
 }

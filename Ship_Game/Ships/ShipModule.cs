@@ -168,6 +168,7 @@ namespace Ship_Game.Ships
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
+        public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
         public bool IsRotatable                  => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -964,8 +965,8 @@ namespace Ship_Game.Ships
                 else
                 {
                     float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1);
-                    activationChanceModifier      /= GetReactivationDelay(behavior);
-                    activationChanceModifier      *= Parent.Level + 1;
+                    activationChanceModifier      *= Shield.GetReactivationDelayMultiplier(behavior);
+                    activationChanceModifier      *= Parent.Level.Clamped(1,5);
                     ShieldUpChance = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
                 }
             }
@@ -979,15 +980,6 @@ namespace Ship_Game.Ships
                     shieldPower -= shieldDischargeRate * elapsedTime;
                 }
                 return shieldPower.Clamped(0, shieldMax);
-            }
-        }
-
-        private static float GetReactivationDelay(ShieldsWarpBehavior behavior)
-        {
-            switch (behavior)
-            {
-                default: return 1f;
-                case ShieldsWarpBehavior.ShutDown: return 2f;
             }
         }
 
