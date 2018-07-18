@@ -2644,11 +2644,7 @@ namespace Ship_Game.Ships
             return RoleData.PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
         }
         
-        private ShipData.RoleName GetDesignRole()
-        {
-            return  new RoleData(this, Array.AsReadOnly(ModuleSlotList)).DesignRole;
-            //return roleData.DesignRole;         
-        }        
+        private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
 
         public void CreateColonizationBuildingFor(Planet colonizeTarget)
         {
