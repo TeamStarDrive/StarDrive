@@ -344,10 +344,10 @@ namespace Ship_Game
         }
 
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (Fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            base.Draw(spriteBatch);
+            base.Draw(batch);
         }
 
         public override void ExitScreen()

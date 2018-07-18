@@ -20,7 +20,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			if (SplashScreen.DisplayComplete)
 			{
