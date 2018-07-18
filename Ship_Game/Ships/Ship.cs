@@ -1787,7 +1787,7 @@ namespace Ship_Game.Ships
                 if (InCombat 
                     || shield_power < shield_max 
                     || engineState == MoveState.Warp 
-                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.Full)
+                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
                 {
                     shield_power = 0.0f;
                     for (int x = 0; x < Shields.Length; x++)

@@ -940,7 +940,7 @@ namespace Ship_Game.Ships
             }
             else // discharge at warp if applicable
             {
-                if (behavior == ShieldsWarpBehavior.Full)
+                if (behavior == ShieldsWarpBehavior.FullPower)
                     ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime);
                 else
                 {
@@ -973,7 +973,7 @@ namespace Ship_Game.Ships
             // local method
             float DischargeShields(ShieldsWarpBehavior warpBehavior, float shieldPower)
             {
-                if (warpBehavior == ShieldsWarpBehavior.Off)
+                if (warpBehavior == ShieldsWarpBehavior.Discharge)
                 {
                     float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate);
                     shieldPower -= shieldDischargeRate * elapsedTime;

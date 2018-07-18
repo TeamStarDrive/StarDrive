@@ -15,14 +15,16 @@ namespace Ship_Game
             {
                 if (Rect.HitTest(input.CursorPosition)) 
                 {
-                    var tooltips = new string[] {
-                        "Shields stay online during warp and also recharge, they will draw more power, like other modules",
-                        "Shields will not consume excess power at warp but they will not recharge during warp. Upon warp exit" +
-                        ", they will need to be activcated. The chance to activate them is affected by ship level and shield complexity",
-                        "Shields will not consume power at warp but will discharge slowly to zero. They will also need activation after" +
-                        " warp exit and will have lower activation chance"
-                    };
-                    string tooltip = tooltips[(int)ActiveValue];
+                    string tooltip = new []{
+                        "Shields are always ACTIVE, consume MORE power and recharge during warp.",
+
+                        "Shields in warp are SHUT DOWN, do not consume power and will not recharge. "+
+                        "Shield reactivation delay is affected by crew level and shield complexity.",
+
+                        "Shields in warp slowly DISCHARGE and consume LITTLE power. "+
+                        "Shield reactivation delay is much longer.",
+                    }[(int)ActiveValue];
+
                     ToolTip.CreateTooltip(tooltip);
                 }
                 return base.HandleInput(input);
