@@ -20,7 +20,6 @@ namespace Ship_Game
         private SceneObject shipSO;
         private Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
         private Vector2 Offset;
-        private CombatState CombatState = CombatState.AttackRuns;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         private UIButton ToggleOverlayButton;
         private UIButton SymmetricDesignButton; // Symmetric Module Placement Feature Created by Fat Bastard
@@ -53,19 +52,17 @@ namespace Ship_Game
         private ModuleOrientation ActiveModState;
         private Selector selector;
         private CategoryDropDown CategoryList;
+        private ShieldBehaviorDropDown ShieldsBehaviorList;
         private Rectangle DropdownRect;
-        private Vector2 ClassifCursor;
+        private Rectangle ShieldsBehaviorRect;
+
         private Vector2 CoBoxCursor;
         private UICheckBox CarrierOnlyBox;
         private bool ShowAllArcs;
-        private bool Fml;
-        private bool Fmlevenmore;
-        public bool CarrierOnly;
         public bool ToggleOverlay = true;
         private bool ShipSaved = true;
         private bool LowRes;
         public bool Debug;
-        private ShipData.Category LoadCategory;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
         public bool IsSymmetricDesignMode = true;

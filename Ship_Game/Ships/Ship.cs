@@ -1445,9 +1445,10 @@ namespace Ship_Game.Ships
             var data                       = new ShipData();
             data.BaseCanWarp               = shipData.BaseCanWarp;
             data.BaseStrength              = -1;
-            data.techsNeeded               = shipData.techsNeeded;
+            data.TechsNeeded               = shipData.TechsNeeded;
             data.TechScore                 = shipData.TechScore;
             data.ShipCategory              = shipData.ShipCategory;
+            data.ShieldsBehavior           = shipData.ShieldsBehavior;
             data.Name                      = Name;
             data.Level                     = (byte)Level;
             data.experience                = (byte)experience;
@@ -1480,13 +1481,17 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 var data = new ModuleSlotData
                 {
-                    Position           = module.XMLPosition,
-                    InstalledModuleUID = module.UID,
-                    Health             = module.Health,
-                    ShieldPower        = module.ShieldPower,
-                    Facing             = module.Facing,
-                    Restrictions       = module.Restrictions
+                    Position              = module.XMLPosition,
+                    InstalledModuleUID    = module.UID,
+                    Health                = module.Health,
+                    ShieldPower           = module.ShieldPower,
+                    ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
+                    Facing                = module.Facing,
+                    Restrictions          = module.Restrictions
                 };
+
+                if (module.Is(ShipModuleType.Shield))
+                    data.ShieldUpChance = module.ShieldUpChance;
 
                 if (module.GetHangarShip() != null)
                     data.HangarshipGuid = module.GetHangarShip().guid;
@@ -1779,21 +1784,16 @@ namespace Ship_Game.Ships
                 else
                     PowerDraw = NetPower.NetWarpPowerDraw;
 
-                //Check Current Shields
-                if (engineState == MoveState.Warp || !ShieldsUp)
-                    shield_power = 0f;
-                else
+                if (InCombat 
+                    || shield_power < shield_max 
+                    || engineState == MoveState.Warp 
+                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
                 {
-                    if (InCombat || shield_power != shield_max)
+                    shield_power = 0.0f;
+                    for (int x = 0; x < Shields.Length; x++)
                     {
-                        shield_power = 0.0f;
-                        for (int x = 0; x < Shields.Length; x++)
-                        {
-                            ShipModule shield = Shields[x];
-                            shield_power += shield.ShieldPower;
-                        }
-                        if (shield_power > shield_max)
-                            shield_power = shield_max;
+                        ShipModule shield = Shields[x];
+                        shield_power = (shield_power + shield.ShieldPower).Clamped(0, shield_max);
                     }
                 }
 
@@ -2258,7 +2258,8 @@ namespace Ship_Game.Ships
                 }
             }
 
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
+            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
