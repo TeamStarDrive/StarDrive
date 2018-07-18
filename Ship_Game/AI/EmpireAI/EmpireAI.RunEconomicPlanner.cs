@@ -44,6 +44,7 @@ namespace Ship_Game.AI {
             SetBudgetForeArea(goalClamped * .02f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
             SetBudgetForeArea(goalClamped * .25f, ref BuildCapacity, Math.Max(risk, buildRatio));           
             SetBudgetForeArea(goalClamped * .08f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
+            SetBudgetForeArea(goalClamped * .25f, ref ColonysBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio));
         }
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
@@ -61,6 +62,22 @@ namespace Ship_Game.AI {
                 risk += kv.Value.Risk.MaxRisk >  riskLimit ? 0 :kv.Value.Risk.MaxRisk;
             }
             return risk;
+        }
+
+        public struct ColonyBudget
+        {
+            public readonly float SystemBudget;
+
+            public readonly SystemCommander SysCom;
+
+        }
+
+        public float GetBudgetForPlanet(Planet planet)
+        {
+            DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander systemCommander);
+            
+            float colonysBudget = ColonysBudget * systemCommander.PercentageOfValue;
+
         }
     }
 }
