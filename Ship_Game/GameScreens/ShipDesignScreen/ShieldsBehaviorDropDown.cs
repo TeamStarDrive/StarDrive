@@ -18,7 +18,7 @@ namespace Ship_Game
                     string tooltip = new []{
                         "Shields are always ACTIVE, consume MORE power and recharge during warp.",
 
-                        "Shields are TEMPORARILY DISABLED, consume normal power and do NOT recharge during warp. "+
+                        "Shields are ACTIVE, consume normal power (without FTL multiplier) and do NOT recharge during warp. "+
                         "Shield reactivation delay is affected by crew level and shield complexity.",
 
                         "Shields are completely SHUT DOWN, consume NO power and slowly DISCHARGE during warp. "+
