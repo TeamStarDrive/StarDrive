@@ -306,15 +306,14 @@ namespace Ship_Game
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
-
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
             if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            var roleData = new RoleData(ActiveHull, ModuleGrid.SlotsList);
-            Role = roleData.DesignRole;
+            var roleData = new RoleData(ActiveHull, ModuleGrid.Modules);
+            Role         = roleData.DesignRole;
             roleData.CreateDesignRoleToolTip(DesignRoleRect);
             
             CameraPosition.Z = OriginalZ / Camera.Zoom;
@@ -323,7 +322,6 @@ namespace Ship_Game
                    * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
-
 
         private enum SlotModOperation
         {
