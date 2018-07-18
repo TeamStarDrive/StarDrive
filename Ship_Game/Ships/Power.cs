@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
                         warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
                         break;
                     }
-                case ShieldsWarpBehavior.PartialPower:
+                case ShieldsWarpBehavior.Hibernate:
                     {
                         warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw;
                         break;
@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
     public enum ShieldsWarpBehavior
     {
         FullPower,
-        PartialPower,
+        Hibernate,
         ShutDown
     }
 }
