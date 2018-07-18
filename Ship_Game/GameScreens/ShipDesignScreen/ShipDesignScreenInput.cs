@@ -82,7 +82,7 @@ namespace Ship_Game
             if (CategoryList == null)
                 return;
 
-            CategoryList.OnValueChange = (category) => ActiveHull.ShipCategory = category;
+            CategoryList.PropertyBinding = () => ActiveHull.ShipCategory;
 
             if (ActiveHull.ShipCategory == ShipData.Category.Unclassified)
             {
@@ -103,7 +103,7 @@ namespace Ship_Game
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
-                ShieldsBehaviorList.OnValueChange = (behavior) => ActiveHull.ShieldsBehavior = behavior;
+                ShieldsBehaviorList.PropertyBinding = () => ActiveHull.ShieldsBehavior;
                 ShieldsBehaviorList.SetActiveValue(ActiveHull.ShieldsBehavior);
             }
         }
