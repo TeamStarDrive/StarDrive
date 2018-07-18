@@ -156,7 +156,7 @@ namespace Ship_Game
             CategoryList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
             if (DesignRoleRect.HitTest(input.CursorPosition))
-                RoleData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
                 if (input.ArrowLeft)  ReorientActiveModule(ModuleOrientation.Left);
