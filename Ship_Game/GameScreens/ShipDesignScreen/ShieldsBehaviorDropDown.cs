@@ -21,7 +21,7 @@ namespace Ship_Game
                         "Shields are PARTIALLY ACTIVE, consume regular power and do not recharge during warp. "+
                         "Shield reactivation delay is affected by crew level and shield complexity.",
 
-                        "Shields slowly DISCHARGE and consume NO power during warp. "+
+                        "Shields are SHUT DOWN, consume NO power and slowly DISCHARGE during warp. "+
                         "Shield reactivation delay is much longer.",
                     }[(int)ActiveValue];
 
