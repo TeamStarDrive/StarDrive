@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,9 +14,9 @@ namespace Ship_Game.Ships
         private readonly ShipData.Category Category;
         public ShipData.RoleName DesignRole;
 
-        public RoleData(Ship ship, IReadOnlyList<ShipModule> modules)
+        public RoleData(Ship ship, ShipModule[] modules)
         {
-            Modules    = modules.ToArray();
+            Modules    = modules;
             HullRole   = ship.shipData.HullRole;
             DataRole   = ship.shipData.Role;
             Size       = ship.Size;
@@ -27,18 +26,9 @@ namespace Ship_Game.Ships
             DesignRole = GetDesignRole();
         }
 
-        public RoleData(ShipData activeHull, IReadOnlyList<SlotStruct> slotsList)
+        public RoleData(ShipData activeHull, ShipModule[] modules)
         {
-            var modules = new Array<ShipModule>();
-
-            for (int x = 0; x < slotsList.Count; x++)
-            {
-                SlotStruct slot = slotsList[x];
-                if (slot.Module != null)
-                    modules.Add(slot.Module);
-            }
-
-            Modules    = modules.ToArray();
+            Modules    = modules;
             HullRole   = activeHull.HullRole;
             DataRole   = activeHull.Role;
             Size       = activeHull.ModuleSlots.Length;
@@ -173,14 +163,16 @@ namespace Ship_Game.Ships
         }
 
         public void CreateDesignRoleToolTip(Rectangle designRoleRect) => CreateDesignRoleToolTip(DesignRole, Fonts.Arial12, designRoleRect, true);
+        public static void CreateDesignRoleToolTip(ShipData.RoleName designRole, Rectangle designRoleRect) 
+            => CreateDesignRoleToolTip(designRole, Fonts.Arial12, designRoleRect, true);
 
-        public static void CreateDesignRoleToolTip(ShipData.RoleName role, SpriteFont roleFont, Rectangle designRoleRect, bool AlwaysShow = false)
+        public static void CreateDesignRoleToolTip(ShipData.RoleName role, SpriteFont roleFont, Rectangle designRoleRect, bool alwaysShow = false)
         {
             var text = $"Autoassigned Role Change\n{RoleDesignString(role)}";
             var spacing = roleFont.MeasureString(text);
             var pos = new Vector2(designRoleRect.Left,
                 designRoleRect.Y - spacing.Y - designRoleRect.Height - roleFont.LineSpacing);
-            ToolTip.CreateTooltip(text, pos, AlwaysShow);
+            ToolTip.CreateTooltip(text, pos, alwaysShow);
         }
 
         private static string RoleDesignString(ShipData.RoleName role)
