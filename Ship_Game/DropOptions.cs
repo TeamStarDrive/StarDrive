@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Ship_Game
@@ -26,6 +27,12 @@ namespace Ship_Game
         public string ActiveName => Options[ActiveIndex].Name;
 
         public Action<T> OnValueChange;
+
+        private Ref<T> PropertyRef;
+        public Expression<Func<T>> PropertyBinding
+        {
+            set => PropertyRef = new Ref<T>(value);
+        }
 
         public class Entry
         {
@@ -186,6 +193,17 @@ namespace Ship_Game
             }
         }
 
+        public override void Update()
+        {
+            base.Update();
+            if (PropertyRef != null) // ensure our drop-down list is in sync with the property binding!
+            {
+                T bindingValue = PropertyRef.Value;
+                if (!bindingValue.Equals(ActiveValue))
+                    SetActiveValue(bindingValue);
+            }
+        }
+
         public override bool HandleInput(InputState input)
         {
             bool selectPressed = input.InGameSelect;
@@ -214,6 +232,9 @@ namespace Ship_Game
                     e.Rect = new Rectangle();
                     ActiveIndex = i;
                     OnValueChange?.Invoke(ActiveValue);
+
+                    if (PropertyRef != null)
+                        PropertyRef.Value = ActiveValue;
 
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     Open = false;
