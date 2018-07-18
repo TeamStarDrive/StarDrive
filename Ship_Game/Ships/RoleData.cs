@@ -7,22 +7,22 @@ namespace Ship_Game.Ships
 {
     public struct RoleData
     {
-        private ShipModule[] Modules;
-        private ShipData.RoleName HullRole;
-        private ShipData.RoleName DataRole;
-        private int Size;
-        private Ship Ship;
-        private ShipData.Category Category;
+        private readonly ShipModule[] Modules;
+        private readonly ShipData.RoleName HullRole;
+        private readonly ShipData.RoleName DataRole;
+        private readonly int Size;
+        private readonly Ship Ship;
+        private readonly ShipData.Category Category;
         public ShipData.RoleName DesignRole;
 
         public RoleData(Ship ship, IReadOnlyList<ShipModule> modules)
         {
-            Modules = modules.ToArray();
-            HullRole = ship.shipData.HullRole;
-            DataRole = ship.shipData.Role;
-            Size = ship.Size;
-            Ship = ship;
-            Category = ship.shipData.ShipCategory;
+            Modules    = modules.ToArray();
+            HullRole   = ship.shipData.HullRole;
+            DataRole   = ship.shipData.Role;
+            Size       = ship.Size;
+            Ship       = ship;
+            Category   = ship.shipData.ShipCategory;
             DesignRole = ShipData.RoleName.disabled;
             DesignRole = GetDesignRole();
         }
@@ -38,12 +38,12 @@ namespace Ship_Game.Ships
                     modules.Add(slot.Module);
             }
 
-            Modules = modules.ToArray();
-            HullRole = activeHull.HullRole;
-            DataRole = activeHull.Role;
-            Size = activeHull.ModuleSlots.Length;
-            Ship = null;
-            Category = activeHull.ShipCategory;
+            Modules    = modules.ToArray();
+            HullRole   = activeHull.HullRole;
+            DataRole   = activeHull.Role;
+            Size       = activeHull.ModuleSlots.Length;
+            Ship       = null;
+            Category   = activeHull.ShipCategory;
             DesignRole = ShipData.RoleName.disabled;
             DesignRole = GetDesignRole();
         }
