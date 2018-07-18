@@ -313,24 +313,10 @@ namespace Ship_Game
             if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            var modules = new Array<ShipModule>();
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
-            {
-                if (slot.Module != null)
-                    modules.Add(slot.Module);
-            }
-
-            var roleData = new Ship.RoleData
-            {
-                Modules = modules.ToArray(),
-                HullRole = ActiveHull.HullRole,
-                DataRole = ActiveHull.Role,
-                Size = ActiveHull.ModuleSlots.Length,
-                Category = ActiveHull.ShipCategory
-            };
-            var role = Ship.GetDesignRole(roleData);
-            ShipData.CreateDesignRoleToolTip(role, Fonts.Arial12, DesignRoleRect, true);
-            Role = role;
+            var roleData = new RoleData(ActiveHull, ModuleGrid.SlotsList);
+            Role = roleData.DesignRole;
+            roleData.CreateDesignRoleToolTip(DesignRoleRect);
+            
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
