@@ -277,8 +277,9 @@ namespace Ship_Game
         {
             Render(gameTime);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            ExplosionManager.DrawExplosions(ScreenManager, view, projection);            
-
+            ExplosionManager.DrawExplosions(ScreenManager, view, projection);
+#if DEBUG
+            if (viewState < UnivScreenState.SectorView)
             foreach (Empire empire in EmpireManager.Empires)
             {
                 var pBudget = empire.GetGSAI()?.PlanetBudgets;
@@ -289,6 +290,7 @@ namespace Ship_Game
                     }
 
             }
+#endif
             ScreenManager.SpriteBatch.End();
             if (!ShowShipNames || LookingAtPlanet)
                 return;
