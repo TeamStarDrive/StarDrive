@@ -1054,7 +1054,7 @@ namespace Ship_Game
                 Texture2D icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
                 Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-                bool unprofitable = !p.WeCanAffordThis(building, p.colonyType);
+                bool unprofitable = !p.WeCanAffordThis(building, p.colonyType) && building.Maintenance > 0f;
                 Color buildColor = unprofitable ? Color.IndianRed : Color.White;
                 if (entry.Hovered) buildColor = Color.White; // hover color
 
