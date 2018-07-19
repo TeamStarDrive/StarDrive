@@ -15,7 +15,7 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
 
-        public override void Draw(SpriteBatch spriteBatch) 
+        public override void Draw(SpriteBatch batch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
@@ -25,26 +25,26 @@ namespace Ship_Game
 
             if (ToggleOverlay)
             {
-                spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-                DrawEmptySlots(spriteBatch);
-                DrawModules(spriteBatch);
-                DrawTacticalData(spriteBatch);
-                DrawUnpoweredTex(spriteBatch);
-                spriteBatch.End();
+                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
+                DrawEmptySlots(batch);
+                DrawModules(batch);
+                DrawTacticalData(batch);
+                DrawUnpoweredTex(batch);
+                batch.End();
             }
 
-            spriteBatch.Begin();
+            batch.Begin();
             if (ActiveModule != null && !ModSel.HitTest(Input))
-                DrawActiveModule(spriteBatch);
+                DrawActiveModule(batch);
 
             DrawUi();
-            selector?.Draw(spriteBatch);
+            selector?.Draw(batch);
             ArcsButton.DrawWithShadowCaps(ScreenManager);
             if (Debug)
                 DrawDebug();
 
-            Close.Draw(spriteBatch);
-            spriteBatch.End();
+            Close.Draw(batch);
+            batch.End();
             ScreenManager.EndFrameRendering();
         }
 
@@ -300,36 +300,26 @@ namespace Ship_Game
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             HullSL.Draw(ScreenManager.SpriteBatch);
-            float x          = (float) Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float) state.Y);
+            Vector2 mousePos = Mouse.GetState().Pos();
             HullSelectionSub.Draw();
-            Vector2 bCursor  = new Vector2((float) (HullSelectionSub.Menu.X + 10),
-                (float) (HullSelectionSub.Menu.Y + 45));
-            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < HullSL.indexAtTop + HullSL.entriesToDisplay; i++)
+
+            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                bCursor = new Vector2((float) (HullSelectionSub.Menu.X + 10),
-                    (float) (HullSelectionSub.Menu.Y + 45));
-                ScrollList.Entry e = HullSL.Copied[i];
-                bCursor.Y          = (float) e.clickRect.Y;
-                if (e.item is ModuleHeader)
+                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.Y);
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).Draw(ScreenManager, bCursor);
+                    header.Draw(ScreenManager, bCursor);
                 }
                 else if (e.item is ShipData ship)
                 {
-                    bCursor.X       = bCursor.X + 10f;
+                    bCursor.X += 10f;
                     ScreenManager.SpriteBatch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                    tCursor.Y       = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-                    if (!e.clickRect.HitTest(MousePos))
-                        continue;
-
-                    if (e.clickRectHover == 0)
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    e.clickRectHover = 1;
+                    
+                    e.CheckHover(mousePos);
                 }
             }
         }
@@ -455,6 +445,7 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
+            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
 
@@ -466,7 +457,7 @@ namespace Ship_Game
             if (mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
                 mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
 
-            float powerRecharge = powerFlow - powerDraw;
+            float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
             float turn          = (float)MathHelper.ToDegrees(turnThrust / mass / 700f); 
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
@@ -620,14 +611,13 @@ namespace Ship_Game
             {
                 if (warpDraw != 0) // FB: not sure why do we need this If statment
                 {
-                    fDrawAtWarp = powerFlow - (warpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
-                                               (powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier));
+                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                     if (warpSpeed > 0)
                         DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
                 }
                 else
                 {
-                    fDrawAtWarp = (powerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
+                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                     if (warpSpeed > 0)
                         DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
                 }
@@ -756,36 +746,18 @@ namespace Ship_Game
             EmpireUI.Draw(ScreenManager.SpriteBatch);
             DrawShipInfoPanel();
 
-            //Defaults based on hull types
-            //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-            if (ActiveHull.Role == ShipData.RoleName.freighter && Fml)
-            {
-                CategoryList.ActiveIndex = 1;
-                Fml = false;
-            }
-            //Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-            else if (ActiveHull.Role == ShipData.RoleName.scout && Fml)
-            {
-                CategoryList.ActiveIndex = 2;
-                Fml = false;
-            }
-            //All other hulls default to unclassified.
-            else if (Fml)
-            {
-                CategoryList.ActiveIndex = 0;
-                Fml = false;
-            }
-
-            //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
-            if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
-            {
-                Fmlevenmore = false;
-            }
-
             CategoryList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
-            const string classifTitle = "Behaviour Presets";
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
+
+            DrawTitle(ScreenWidth * 0.375f, "Repair Options");
+            DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
+
+            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
+            {
+                DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
+                ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
+            }
+
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
             if (ScreenState == ScreenState.TransitionOn ||
@@ -868,6 +840,13 @@ namespace Ship_Game
             if (IsActive)
             {
                 ToolTip.Draw(ScreenManager.SpriteBatch);
+            }
+
+            void DrawTitle(float x, string title)
+            {
+                int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
+                var pos = new Vector2(x, buttonHeight);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
             }
         }
 

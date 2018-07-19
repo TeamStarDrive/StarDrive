@@ -138,7 +138,7 @@ namespace Ship_Game
             Size = new Vector2(rect.Width, rect.Height);
         }
 
-        public abstract void Draw(SpriteBatch spriteBatch);
+        public abstract void Draw(SpriteBatch batch);
         public abstract bool HandleInput(InputState input);
         public abstract void PerformLegacyLayout(Vector2 pos);
 

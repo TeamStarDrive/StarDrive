@@ -305,8 +305,8 @@ namespace Ship_Game.Debug
                 {
                     DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
 
-                    if (Screen.SelectedFleet.FleetTask.GetTargetPlanet() != null)
-                        DrawString(Screen.SelectedFleet.FleetTask.GetTargetPlanet().Name);
+                    if (Screen.SelectedFleet.FleetTask.TargetPlanet != null)
+                        DrawString(Screen.SelectedFleet.FleetTask.TargetPlanet.Name);
 
                     DrawString("Step: "+Screen.SelectedFleet.TaskStep);
                 }
@@ -387,7 +387,6 @@ namespace Ship_Game.Debug
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
-
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.ShipsDict) {

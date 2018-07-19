@@ -16,6 +16,14 @@ namespace Ship_Game.AI {
         public Planet OrbitTarget;
         private float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
 
+        public void ClearWayPoints()
+        {
+            lock (ActiveWayPoints)
+            {
+                ActiveWayPoints.Clear();
+            }
+        }
+
         public void GoTo(Vector2 movePos, Vector2 facing)
         {
             GotoStep = 0;
@@ -240,7 +248,7 @@ namespace Ship_Game.AI {
                     distWaypt = Owner.loyalty.ProjectorRadius / 2f;
             }
 
-            if (OrderQueue.NotEmpty && OrderQueue[1].Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
+            if (goal.TargetPlanet != null && OrderQueue.Count > 2 && OrderQueue[1].Plan != Plan.MoveToWithin1000)
                 lock (WayPointLocker)
                 {
                     //ActiveWayPoints.Last() = goal.TargetPlanet.Center;

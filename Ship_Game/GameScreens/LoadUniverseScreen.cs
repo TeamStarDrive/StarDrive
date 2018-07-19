@@ -309,7 +309,7 @@ namespace Ship_Game
             base.Destroy();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             ScreenManager.SpriteBatch.Begin();
