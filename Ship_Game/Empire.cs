@@ -2643,54 +2643,39 @@ namespace Ship_Game
                     switch (type)
                     {
                         case 1:
-                            {                                
-                                ship.AI.FoodOrProd = "Food";
-                                ship.AI.State = AIState.SystemTrader;
-                                ship.AI.OrderTrade(0.1f);
-                                type++;
-                                break;
-                            }
+                            ship.AI.FoodOrProd = Goods.Food;
+                            ship.AI.State = AIState.SystemTrader;
+                            ship.AI.OrderTrade(0.1f);
+                            ++type;
+                            break;
                         case 2:
-                            {
-                                ship.AI.FoodOrProd = "Prod";
-                                ship.AI.State = AIState.SystemTrader;
-                                ship.AI.OrderTrade(0.1f);
-                                type++;
-                                break;
-                            }
-                        
+                            ship.AI.FoodOrProd = Goods.Production;
+                            ship.AI.State = AIState.SystemTrader;
+                            ship.AI.OrderTrade(0.1f);
+                            ++type;
+                            break;
                         default:
                             ship.AI.State = AIState.PassengerTransport;
                             ship.TradingFood = false;
                             ship.TradingProd = false;
-                            ship.AI.FoodOrProd = "";
+                            ship.AI.FoodOrProd = Goods.Colonists;
                             ship.AI.OrderTransportPassengers(0.1f);
-                            type =1;                            
+                            type = 1;                            
                             break;
                     }
                     if (ship.AI.start == null && ship.AI.end == null)
                         assignedShips.Add(ship);
-
-
-
                 }
-
-
             }
             unusedFreighters.AddRange(assignedShips);
             freighters = 0; // unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
             foreach (Goal goal in EmpireAI.Goals)
             {
-                if (goal is IncreaseFreighters)
+                if (goal is IncreaseFreighters || goal is IncreasePassengerShips)
                 {
                     ++freighters;
-                    goalLimt--;
-                }
-                else if (goal is IncreasePassengerShips)
-                {
-                    goalLimt--;
-                    ++freighters;
+                    --goalLimt;
                 }
             }
             moneyForFreighters -= freighters * avgmaint;

@@ -45,19 +45,20 @@ namespace Ship_Game
             set => SbCommodities.Population = value;
         }
 
+        public override string ToString() => $"{Name}  Type:{colonyType}  NetFood:{NetFoodPerTurn}  NetProd:{NetProductionPerTurn}  ImportFood:{ImportFood}  ImportProd:{ImportProd}";
 
         public GoodState FS = GoodState.STORE;
         public GoodState PS = GoodState.STORE;
-        public GoodState GetGoodState(string good)
+        public bool ImportFood => FS == GoodState.IMPORT;
+        public bool ImportProd => PS == GoodState.IMPORT;
+        public GoodState GetGoodState(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return FS;
-                case "Production":
-                    return PS;
+                case Goods.Food:       return FS;
+                case Goods.Production: return PS;
+                default:               return 0;
             }
-            return 0;
         }        
         public SpaceStation Station = new SpaceStation();        
         
@@ -78,27 +79,23 @@ namespace Ship_Game
         
         
         public float NetFoodPerTurn;
-        public float GetNetGoodProd(string good)
+        public float GetNetGoodProd(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return NetFoodPerTurn;
-                case "Production":
-                    return NetProductionPerTurn;
+                case Goods.Food:       return NetFoodPerTurn;
+                case Goods.Production: return NetProductionPerTurn;
+                default:               return 0;
             }
-            return 0;
         }
-        public float GetMaxGoodProd(string good)
+        public float GetMaxGoodProd(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return NetFoodPerTurn;
-                case "Production":
-                    return MaxProductionPerTurn;
+                case Goods.Food:       return NetFoodPerTurn;
+                case Goods.Production: return MaxProductionPerTurn;
+                default:               return 0;
             }
-            return 0;
         }
         public float FoodPercentAdded;
         public float FlatFoodAdded;
@@ -134,16 +131,14 @@ namespace Ship_Game
         public float Consumption;
         private float Unfed;
         
-        public float GetGoodHere(string good)
+        public float GetGoodHere(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return FoodHere;
-                case "Production":
-                    return ProductionHere;
+                case Goods.Food:       return FoodHere;
+                case Goods.Production: return ProductionHere;
+                default:               return 0;
             }
-            return 0;
         }
         public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
@@ -170,30 +165,23 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public void HealTroops()                                          => TroopManager.HealTroops();
 
-        public void SetExportWeight(string goodType, float weight)
+        public void SetExportWeight(Goods good, float weight)
         {
-            switch (goodType)
+            switch (good)
             {
-                case "Food":
-                    ExportFSWeight = weight;
-                    break;
-                case "Production":
-                    ExportPSWeight = weight;
-                    break;
-
+                case Goods.Food:       ExportFSWeight = weight; break;
+                case Goods.Production: ExportPSWeight = weight; break;
             }   
         }
 
-        public float GetExportWeight(string goodType)
+        public float GetExportWeight(Goods good)
         {
-            switch (goodType)
+            switch (good)
             {
-                case "Food":
-                    return ExportFSWeight;
-                case "Production":
-                    return ExportPSWeight;                    
+                case Goods.Food:       return ExportFSWeight;
+                case Goods.Production: return ExportPSWeight;
+                default:               return 0;
             }
-            return 0;
         }
 
         public Planet()
@@ -275,52 +263,65 @@ namespace Ship_Game
 
         public Goods ImportPriority()
         {
-            if (FS == GoodState.IMPORT && PS != GoodState.IMPORT 
-                || FS != GoodState.IMPORT && PS == GoodState.IMPORT)
+            if (ImportFood && !ImportProd) return Goods.Food;
+            if (ImportProd && !ImportFood) return Goods.Production;
+
+            const float lookahead = 10;
+            float predictedFood = FoodHere + IncomingFood + NetFoodPerTurn * lookahead;
+
+            if (predictedFood < 0f) // we will starve!
             {
-                return FS == GoodState.IMPORT ? Goods.Food : Goods.Production;
-            }
-            if ((FoodHere + IncomingFood) / MaxStorage >.25f)
-            {
-                if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f && ConstructingGoodsBuilding(Goods.Food))
+                // Ok, someone has set a food building to the front of the queue
+                if (FirstConstructedBuilding(Goods.Food, out float foodProduction))
                 {
-                    return Goods.Production;
+                    // we have 
+                    if (NetProductionPerTurn >= 2f)
+                        return Goods.Food;
+                    if (predictedFood + foodProduction >= 0f) // this building might solve starving
+                        return Goods.Production; // send production to finish it faster!
                 }
-                if (ConstructionQueue.Count > 0) return Goods.Production;
+                // ok, we will definitely starve without food, so plz send food!
+                return Goods.Food;
+            }
+            else // OK, we have enough food incoming, so focus on production
+            {
+                // We are not starving and we're constructing stuff, so import production
+                if (ConstructionQueue.Count > 0)
+                    return Goods.Production;
             }
 
-            if (FS == GoodState.IMPORT) return Goods.Food;
-            if (PS == GoodState.IMPORT) return Goods.Production;            
-            return Goods.Food;
+            // here we are importing both food and production
+            // we are not starving and we are not constructing anything
+            // so, import nothing!
+            return ImportProd ? Goods.Production : Goods.Food;
+        }
+
+        public bool FirstConstructedBuilding(Goods goods, out float production)
+        {
+            if (ConstructionQueue.Count > 0 && ConstructionQueue.First.isBuilding)
+            {
+                Building b = ConstructionQueue.First.Building;
+                switch (goods)
+                {
+                    case Goods.Food:       if (b.ProducesFood)       { production = b.FoodProduced(this); return true; } break;
+                    case Goods.Production: if (b.ProducesProduction) { production = b.FoodProduced(this); return true; } break;
+                    case Goods.Colonists:  if (b.ProducesPopulation) { production = b.FoodProduced(this); return true; } break;
+                }
+            }
+            production = 0f;
+            return false;
         }
 
         public bool ConstructingGoodsBuilding(Goods goods)
         {
-            if (ConstructionQueue.IsEmpty) return false;
-            switch (goods)
+            foreach (QueueItem item in ConstructionQueue)
             {
-                case Goods.Production:
-                    foreach (var item in ConstructionQueue)
-                    {
-                        if (item.isBuilding && item.Building.ProducesProduction)
-                        {
-                            return true;
-                        }
-                    }
-                    break;
-                case Goods.Food:
-                    foreach (var item in ConstructionQueue)
-                    {
-                        if (item.isBuilding && item.Building.ProducesFood)
-                        {
-                            return true;
-                        }
-                    }
-                    break;
-                case Goods.Colonists:
-                    break;
-                default:
-                    break;
+                if (item.isBuilding) switch (goods)
+                {
+                    case Goods.Food:       if (item.Building.ProducesFood)       return true; break;
+                    case Goods.Production: if (item.Building.ProducesProduction) return true; break;
+                    case Goods.Colonists:  if (item.Building.ProducesPopulation) return true; break;
+                }
             }
             return false;
         }
@@ -733,8 +734,8 @@ namespace Ship_Game
                     if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
                     if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
 
-                    if (AddToIncomingTrade(ref IncomingFood, ship.CargoSpaceMax * (ship.AI.FoodOrProd == "Food" ? 1 : 0))) return;
-                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.FoodOrProd == "Prod" ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingFood,       ship.CargoSpaceMax * (ship.AI.IsFood ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.IsProd ? 1 : 0))) return;
                     if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
                 }
             }
@@ -1548,7 +1549,7 @@ namespace Ship_Game
                             }
                         }
                         if (!hasShipyard && DevelopmentLevel > 2)
-                            ConstructionQueue.Add(new QueueItem()
+                            ConstructionQueue.Add(new QueueItem(this)
                             {
                                 isShip = true,
                                 sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
@@ -1704,13 +1705,13 @@ namespace Ship_Game
                                     (Owner.EstimateIncomeAtTaxRate(Owner.data.TaxRate) -
                                      ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0f ||
                                      Owner.Money > Owner.GrossTaxes * 3))
-                                    TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
+                                    TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem(this));
                             }
                             else if (Population / (MaxPopulation + MaxPopBonus) > 0.94999f &&
                                      (Owner.EstimateIncomeAtTaxRate(0.5f) -
                                       ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0f ||
                                       Owner.Money > Owner.GrossTaxes * 3))
-                                TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
+                                TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem(this));
                         }
                     }
 
@@ -2296,7 +2297,7 @@ namespace Ship_Game
                             }
                         }
                         if (!hasShipyard)
-                            ConstructionQueue.Add(new QueueItem()
+                            ConstructionQueue.Add(new QueueItem(this)
                             {
                                 isShip = true,
                                 sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
@@ -2452,7 +2453,7 @@ namespace Ship_Game
                         {
                             if (!Owner.WeCanBuildTroop(troopType))
                                 continue;
-                            QueueItem qi = new QueueItem();
+                            QueueItem qi = new QueueItem(this);
                             qi.isTroop = true;
                             qi.troopType = troopType;
                             qi.Cost = ResourceManager.GetTroopCost(troopType);
@@ -2548,7 +2549,7 @@ namespace Ship_Game
                             {
                                 Ship ship = ResourceManager.ShipsDict[station];
                                 if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
-                                    ConstructionQueue.Add(new QueueItem()
+                                    ConstructionQueue.Add(new QueueItem(this)
                                     {
                                         isShip = true,
                                         sData = ship.shipData,
@@ -2566,7 +2567,7 @@ namespace Ship_Game
                             if (!string.IsNullOrEmpty(platform))
                             {
                                 Ship ship = ResourceManager.ShipsDict[platform];
-                                ConstructionQueue.Add(new QueueItem()
+                                ConstructionQueue.Add(new QueueItem(this)
                                 {
                                     isShip = true,
                                     sData = ship.shipData,

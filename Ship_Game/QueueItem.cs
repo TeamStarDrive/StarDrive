@@ -8,6 +8,7 @@ namespace Ship_Game
 {
     public class QueueItem
     {
+        public Planet Planet;
         public bool isBuilding;
         public bool isShip;
         public bool isTroop;
@@ -32,6 +33,20 @@ namespace Ship_Game
         public bool NotifyOnEmpty =true;
         public bool notifyWhenBuilt =false;
         public bool IsPlayerAdded = false;
+
+        public int EstimatedTurnsToComplete
+        {
+            get
+            {
+                float turns = (Cost - productionTowards) / Planet.NetProductionPerTurn;
+                return (int)Math.Ceiling(turns);
+            }
+        }
+            
+        public QueueItem(Planet planet)
+        {
+            Planet = planet;
+        }
 
         public string DisplayText
         {
