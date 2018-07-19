@@ -44,8 +44,20 @@ namespace Ship_Game.AI {
             SetBudgetForeArea(goalClamped * .02f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
             SetBudgetForeArea(goalClamped * .25f, ref BuildCapacity, Math.Max(risk, buildRatio));           
             SetBudgetForeArea(goalClamped * .08f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
-            SetBudgetForeArea(goalClamped * .25f, ref ColonysBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio));
+            SetBudgetForeArea(goalClamped * .25f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            var pBudgets = new Array<Budget.PlanetBudget>();
+            foreach (var empire in EmpireManager.Empires)
+            {
+             
+                foreach (var planet in empire.GetPlanets())
+                {
+                    var pinfo = new AI.Budget.PlanetBudget(planet);
+                    pBudgets.Add(pinfo);
+                }
+            }
+            PlanetBudgets = pBudgets;
         }
+        public Array<Budget.PlanetBudget> PlanetBudgets;
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
             float budget = OwnerEmpire.Money * percentOfIncome * risk;
@@ -64,20 +76,10 @@ namespace Ship_Game.AI {
             return risk;
         }
 
-        public struct ColonyBudget
+        public Budget.PlanetBudget PlanetBudget(Planet planet)
         {
-            public readonly float SystemBudget;
-
-            public readonly SystemCommander SysCom;
-
+            return new Budget.PlanetBudget(planet);
         }
 
-        public float GetBudgetForPlanet(Planet planet)
-        {
-            DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander systemCommander);
-            
-            float colonysBudget = ColonysBudget * systemCommander.PercentageOfValue;
-
-        }
     }
 }
