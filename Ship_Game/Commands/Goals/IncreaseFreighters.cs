@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
             }
             if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
             {
-                planet1.ConstructionQueue.Add(new QueueItem()
+                planet1.ConstructionQueue.Add(new QueueItem(planet1)
                 {
                     isShip = true,
                     QueueNumber = planet1.ConstructionQueue.Count,
@@ -87,7 +87,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             }
             PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem()
+            planet1.ConstructionQueue.Add(new QueueItem(planet1)
             {
                 isShip = true,
                 QueueNumber = planet1.ConstructionQueue.Count,

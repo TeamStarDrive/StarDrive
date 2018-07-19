@@ -308,7 +308,7 @@ namespace Ship_Game.Universe.SolarBodies
         public void AddBuildingToCQ(Building b, bool PlayerAdded)
         {
             int count            = ConstructionQueue.Count;
-            QueueItem qi         = new QueueItem();
+            QueueItem qi         = new QueueItem(null);
             qi.IsPlayerAdded     = PlayerAdded;
             qi.isBuilding        = true;
             qi.Building          = b;

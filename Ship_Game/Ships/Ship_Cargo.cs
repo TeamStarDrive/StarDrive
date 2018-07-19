@@ -132,6 +132,17 @@ namespace Ship_Game.Ships
             if (cargoId == "Colonists_1000") return GetColonists();
             return Cargo.GetOther(cargoId);
         }
+        public float GetCargo(Goods good)
+        {
+            if (Cargo == null) return 0f;
+            switch (good)
+            {
+                case Goods.Food:       return GetFood();
+                case Goods.Production: return GetProduction();
+                case Goods.Colonists:  return GetColonists();
+                default:               return 0f;
+            }
+        }
 
         public float GetColonists()  => Cargo?.Colonists * PassengerModifier ?? 0f;
         public float GetProduction() => Cargo?.Production ?? 0f;
