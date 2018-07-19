@@ -137,7 +137,10 @@ namespace Ship_Game
 
         public Planet[] RallyShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
 
-        public Planet[] BestRallyShipYards => RallyPoints.FilterBy(planet =>
+        public Planet RallyShipYardNearestTo(Vector2 position) =>
+            RallyPoints.FindMaxFiltered(planet => planet.HasShipyard, planet => -position.SqDist(planet.Center));
+
+        public Planet[] BestBuildPlanets => RallyPoints.FilterBy(planet =>
         planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
         && planet.DevelopmentLevel > 2
         && planet.colonyType != Planet.ColonyType.Research
@@ -241,7 +244,7 @@ namespace Ship_Game
 
                 foreach (Planet planet in systemCheck.PlanetList)
                 {
-                    if (planet.Owner != this || !planet.HasShipyard) continue;
+                    if (planet.Owner != this) continue;
                     rallyPlanets.Add(planet);
                 }
 
@@ -476,7 +479,7 @@ namespace Ship_Game
             if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
                 return techEntry;
             Log.Error($"Attempt to find tech {tech} failed");
-            return null;
+            return TechEntry.None;
 
         }
 
@@ -1557,11 +1560,11 @@ namespace Ship_Game
             }
             
            
-            if (shipData.techsNeeded.Count > 0)
+            if (shipData.TechsNeeded.Count > 0)
             {
-                if (!shipData.unLockable) return false;
+                if (!shipData.UnLockable) return false;
 
-                foreach (string shipTech in shipData.techsNeeded)
+                foreach (string shipTech in shipData.TechsNeeded)
                 {                    
                     if (ShipTechs.Contains(shipTech)) continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];

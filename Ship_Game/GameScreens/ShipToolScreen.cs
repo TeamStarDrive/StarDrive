@@ -115,7 +115,7 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
@@ -127,7 +127,7 @@ namespace Ship_Game
             }
             ScreenManager.RenderSceneObjects();
             Rectangle rectangle = new Rectangle(this.border.X, this.border.Y, 512, 512);
-            spriteBatch.Begin();
+            batch.Begin();
             Vector2 TitlePos = new Vector2(20f, 20f);
             HelperFunctions.DrawDropShadowText(base.ScreenManager, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
             TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 3);
@@ -137,13 +137,13 @@ namespace Ship_Game
                 TitlePos = new Vector2((float)this.what.X, 20f);
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float radius = this.shipSO.WorldBoundingSphere.Radius;
-                spriteBatch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
+                batch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
                 TitlePos.Y = TitlePos.Y + 20f;
                 string text = "If you can't see your model then your radius is likely too big or too small. A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. If it is rotated oddly change the X, Y, and Z axis. If the model is off-center then you will need to re-export the 3D model from Blender, making sure to Set Origin to the desired pivot point of your model";
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
             }
             var whichSelectionPos = new Vector2(what.X, what.Y - Fonts.Arial20Bold.LineSpacing);
-            spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(DesignState, " - ", GetDesignStateText()), whichSelectionPos, Color.Orange);
+            batch.DrawString(Fonts.Arial20Bold, string.Concat(DesignState, " - ", GetDesignStateText()), whichSelectionPos, Color.Orange);
             whichSelectionPos.X = whichSelectionPos.X + 150f;
             whichSelectionPos.Y = whichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
             whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
@@ -152,8 +152,8 @@ namespace Ship_Game
             {
                 if (!this.applyThruster && slot.PQ.Filled)
                 {
-                    slot.Draw(spriteBatch, moduleSlot, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
+                    slot.Draw(batch, moduleSlot, Color.White);
+                    batch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
                         slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
                 if (this.applyThruster || slot.ModuleUID == null)
@@ -162,30 +162,30 @@ namespace Ship_Game
                 }
                 if (slot.Module.XSIZE > 1 || slot.Module.YSIZE > 1)
                 {
-                    spriteBatch.Draw(slot.Tex, slot.ModuleRect, Color.White);
+                    batch.Draw(slot.Tex, slot.ModuleRect, Color.White);
                 }
                 else
                 {
-                    slot.Draw(spriteBatch, slot.Tex, Color.White);
+                    slot.Draw(batch, slot.Tex, Color.White);
                 }
             }
-            this.DrawHorizontalLine(spriteBatch, this.SelectionBox.Y);
-            this.DrawHorizontalLine(spriteBatch, this.SelectionBox.Y + this.SelectionBox.Height);
-            this.DrawVerticalLine(spriteBatch, this.SelectionBox.X);
-            this.DrawVerticalLine(spriteBatch, this.SelectionBox.X + this.SelectionBox.Width);
+            this.DrawHorizontalLine(batch, this.SelectionBox.Y);
+            this.DrawHorizontalLine(batch, this.SelectionBox.Y + this.SelectionBox.Height);
+            this.DrawVerticalLine(batch, this.SelectionBox.X);
+            this.DrawVerticalLine(batch, this.SelectionBox.X + this.SelectionBox.Width);
             foreach (ToggleButton button in this.DesignStateButtons)
             {
                 button.Draw(base.ScreenManager);
             }
             if (this.ActiveModule != null)
             {
-                spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                batch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
                 for (int i = 0; i < this.ActiveModule.XSIZE; i++)
                 {
                     for (int j = 0; j < this.ActiveModule.YSIZE; j++)
                     {
                         PrimitiveQuad pq = new PrimitiveQuad(new Rectangle(this.mouseStateCurrent.X + i * 16, this.mouseStateCurrent.Y + j * 16, 16, 16));
-                        pq.Draw(spriteBatch, Color.White);
+                        pq.Draw(batch, Color.White);
                     }
                 }
             }
@@ -194,7 +194,7 @@ namespace Ship_Game
             this.ShipNameBox.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, new Vector2((float)this.ShipNameBox.ClickableArea.X, (float)this.ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
             this.SaveHullButton.Draw(base.ScreenManager);
             this.LoadModelButton.Draw(base.ScreenManager);
-            spriteBatch.End();
+            batch.End();
             ScreenManager.EndFrameRendering();
         }
 
