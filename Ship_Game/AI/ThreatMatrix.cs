@@ -225,8 +225,7 @@ namespace Ship_Game.AI
 
         public StrengthCluster FindLargestStengthClusterLimited(StrengthCluster strengthCluster, float maxStength, Vector2 posOffSetInArea)
         {            
-            float strength = 0;
-            var strengthClusters = PingRadarStrengthClusters(strengthCluster.Postition, strengthCluster.Radius,
+            Map<Vector2, float> strengthClusters = PingRadarStrengthClusters(strengthCluster.Postition, strengthCluster.Radius,
                 strengthCluster.Granularity, strengthCluster.Empire);
 
             Vector2 clusterPostion = strengthClusters.MaxKeyByValuesFiltered(str => str, str => str < maxStength);

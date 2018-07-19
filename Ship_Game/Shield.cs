@@ -169,5 +169,28 @@ namespace Ship_Game
 
             CreateShieldHitParticles(module.GetCenter3D, proj.Center, beamFlash: false);
         }
+
+        public static Color GetBubbleColor(float shieldRate, string colorName = "Green")
+        {
+            float alpha = shieldRate * 0.8f;
+            switch (colorName)
+            {
+                default:
+                case "Green": return new Color(0f, 1f, 0f, alpha);
+                case "Red": return new Color(1f, 0f, 0f, alpha);
+                case "Blue": return new Color(0f, 0f, 1f, alpha);
+                case "Yellow": return new Color(1f, 1f, 0f, alpha);
+            }
+        }
+
+        public static float GetReactivationDelayMultiplier(ShieldsWarpBehavior behavior)
+        {
+            switch (behavior)
+            {
+                default: return 2.5f;
+                case ShieldsWarpBehavior.Hibernate: return 2f;
+                case ShieldsWarpBehavior.ShutDown: return 1f;
+            }
+        }
     }
 }
