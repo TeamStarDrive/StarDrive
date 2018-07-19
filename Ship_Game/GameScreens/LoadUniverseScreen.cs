@@ -697,7 +697,7 @@ namespace Ship_Game
                         continue;
                     foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
                     {
-                        QueueItem qi = new QueueItem();
+                        var qi = new QueueItem(p);
                         if (qisave.isBuilding)
                         {
                             qi.isBuilding = true;
