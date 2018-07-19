@@ -271,59 +271,59 @@ namespace Ship_Game
 
             if (predictedFood < 0f) // we will starve!
             {
-                // Ok, someone has set a food building to the front of the queue
-                if (FirstConstructedBuilding(Goods.Food, out float foodProduction))
+                if (FindConstructionBuilding(Goods.Food, out QueueItem item))
                 {
-                    // we have 
-                    if (NetProductionPerTurn >= 2f)
-                        return Goods.Food;
-                    if (predictedFood + foodProduction >= 0f) // this building might solve starving
+                    // will the building complete in reasonable time?
+                    int turns = NumberOfTurnsUntilCompleted(item);
+                    if (turns > lookahead*2)
+                        return Goods.Food; // No! We will seriously starve even if this solves starving
+
+                    float foodProduced = item.Building.FoodProduced(this);
+                    if (NetFoodPerTurn + foodProduced >= 0f) // this building will solve starving
                         return Goods.Production; // send production to finish it faster!
                 }
-                // ok, we will definitely starve without food, so plz send food!
+
+                // we will definitely starve without food, so plz send food!
                 return Goods.Food;
             }
-            else // OK, we have enough food incoming, so focus on production
-            {
-                // We are not starving and we're constructing stuff, so import production
-                if (ConstructionQueue.Count > 0)
-                    return Goods.Production;
-            }
 
-            // here we are importing both food and production
+            // we have enough food incoming, so focus on production instead
+            float predictedProduction = ProductionHere + IncomingProduction + NetProductionPerTurn * lookahead;
+
+            // We are not starving and we're constructing stuff, so import production
+            if (ConstructionQueue.Count > 0)
+                return Goods.Production;
+
             // we are not starving and we are not constructing anything
-            // so, import nothing!
-            return ImportProd ? Goods.Production : Goods.Food;
+            // just pick which stockpile is smaller
+            return predictedFood < predictedProduction ? Goods.Food : Goods.Production;
         }
 
-        public bool FirstConstructedBuilding(Goods goods, out float production)
+        private bool FindConstructionBuilding(Goods goods, out QueueItem item)
         {
-            if (ConstructionQueue.Count > 0 && ConstructionQueue.First.isBuilding)
+            foreach (QueueItem it in ConstructionQueue)
             {
-                Building b = ConstructionQueue.First.Building;
-                switch (goods)
+                if (it.isBuilding) switch (goods)
                 {
-                    case Goods.Food:       if (b.ProducesFood)       { production = b.FoodProduced(this); return true; } break;
-                    case Goods.Production: if (b.ProducesProduction) { production = b.FoodProduced(this); return true; } break;
-                    case Goods.Colonists:  if (b.ProducesPopulation) { production = b.FoodProduced(this); return true; } break;
+                    case Goods.Food:       if (it.Building.ProducesFood)       { item = it; return true; } break;
+                    case Goods.Production: if (it.Building.ProducesProduction) { item = it; return true; } break;
+                    case Goods.Colonists:  if (it.Building.ProducesPopulation) { item = it; return true; } break;
                 }
             }
-            production = 0f;
+            item = null;
             return false;
         }
 
-        public bool ConstructingGoodsBuilding(Goods goods)
+        private int NumberOfTurnsUntilCompleted(QueueItem item)
         {
-            foreach (QueueItem item in ConstructionQueue)
+            int totalTurns = 0;
+            foreach (QueueItem it in ConstructionQueue)
             {
-                if (item.isBuilding) switch (goods)
-                {
-                    case Goods.Food:       if (item.Building.ProducesFood)       return true; break;
-                    case Goods.Production: if (item.Building.ProducesProduction) return true; break;
-                    case Goods.Colonists:  if (item.Building.ProducesPopulation) return true; break;
-                }
+                totalTurns += it.EstimatedTurnsToComplete;
+                if (it == item)
+                    break;
             }
-            return false;
+            return totalTurns;
         }
 
         public float EmpireFertility(Empire empire) =>
