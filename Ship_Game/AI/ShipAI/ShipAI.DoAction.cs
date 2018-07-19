@@ -728,7 +728,7 @@ namespace Ship_Game.AI {
 
         private void DoRefit(float elapsedTime, ShipGoal goal)
         {
-            QueueItem qi = new BuildShip(goal);
+            QueueItem qi = new BuildShip(goal, OrbitTarget);
             if (qi.sData == null)
             {
                 OrderQueue.Clear();
