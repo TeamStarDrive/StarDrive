@@ -30,17 +30,27 @@ namespace Ship_Game.AI.Tasks
         [Serialize(15)] public int NeededTroopStrength;
         [Serialize(16)] public int Priority;
 
-        [XmlIgnore] [JsonIgnore] private Planet TargetPlanet;
+        [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] private Empire Owner;
         [XmlIgnore] [JsonIgnore] private Array<Ship> TaskForce = new Array<Ship>();
-        [XmlIgnore] [JsonIgnore] private Fleet Fleet => Owner.GetFleet(WhichFleet);
-
+        [XmlIgnore] [JsonIgnore] private Fleet Fleet => Owner.GetFleet(WhichFleet);        
         //This file Refactored by Gretman
 
         public MilitaryTask()
         {
         }
-
+        public static MilitaryTask CreatePostInvasion(Vector2 ao, int fleetID, Empire owner)
+        {
+            var militaryTask = new Tasks.MilitaryTask
+            {
+                AO = ao,
+                AORadius = 10000f,
+                WhichFleet = fleetID
+            };
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.DefendPostInvasion;
+            return militaryTask;
+        }
         public MilitaryTask(AO ao)
         {
             AO = ao.Center;
@@ -466,19 +476,19 @@ namespace Ship_Game.AI.Tasks
             if (type == TaskType.Exploration ||type ==TaskType.AssaultPlanet)
             {
                 
-                float ourGroundStrength = GetTargetPlanet().GetGroundStrength(Owner);
+                float ourGroundStrength = TargetPlanet.GetGroundStrength(Owner);
 
                 if (ourGroundStrength > 0)
                 {
                     if (type == TaskType.Exploration)
                     {
-                        Planet p = GetTargetPlanet();
+                        Planet p = TargetPlanet;
                         if (p.BuildingList.Find(relic => !string.IsNullOrEmpty(relic.EventTriggerUID)) != null)
                             return;
                     }
                     else if (type == TaskType.AssaultPlanet)
                     {
-                        float groundstrength = GetTargetPlanet().GetGroundStrengthOther(Owner);
+                        float groundstrength = TargetPlanet.GetGroundStrengthOther(Owner);
                         if (groundstrength > 0)
                             return;
                     }

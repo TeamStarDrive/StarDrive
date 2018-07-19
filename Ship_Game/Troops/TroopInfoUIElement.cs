@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
-    public sealed class TroopInfoUIElement : UIElement, IDisposable
+    public sealed class TroopInfoUIElement : UIElement
     {
         private Rectangle SliderRect;
         private Rectangle clickRect;
@@ -141,28 +141,26 @@ namespace Ship_Game
                     this.LaunchTroop = new DanButton(new Vector2((float)(slant.leftRect.X + 5), (float)(this.ElementRect.Y + this.ElementRect.Height + 15)), string.Concat(Localizer.Token(1435), (this.pgs.TroopsHere[0].AvailableMoveActions >= 1 ? "" : string.Concat(" (", this.pgs.TroopsHere[0].MoveTimer.ToString("0"), ")"))));
                     this.LaunchTroop.DrawBlue(this.ScreenManager);
                 }
-                if (this.pgs.TroopsHere[0].Level > 0)
+                if (pgs.TroopsHere[0].Level > 0)
                 {
-                    for (int i = 0; i < this.pgs.TroopsHere[0].Level; i++)
+                    for (int i = 0; i < pgs.TroopsHere[0].Level; i++)
                     {
-                        Rectangle star = new Rectangle(this.LeftRect.X + this.LeftRect.Width - 20 - 12 * i, this.LeftRect.Y + 12, 12, 11);
+                        var star = new Rectangle(LeftRect.X + LeftRect.Width - 20 - 12 * i, LeftRect.Y + 12, 12, 11);
                         if (star.HitTest(MousePos))
                         {
                             ToolTip.CreateTooltip(127);
                         }
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
                     }
                 }
             }
-            Vector2 drawCurs = new Vector2((float)this.DefenseRect.X, (float)this.HardAttackRect.Y);
-            for (int i = this.DescriptionSL.indexAtTop; i < this.DescriptionSL.Entries.Count && i < this.DescriptionSL.indexAtTop + this.DescriptionSL.entriesToDisplay; i++)
+
+            foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.DescriptionSL.Entries[i];
-                drawCurs.Y = (float)e.clickRect.Y;
                 string t1 = e.item as string;
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, drawCurs, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.Y), Color.White);
             }
-            this.DescriptionSL.Draw(this.ScreenManager.SpriteBatch);
+            DescriptionSL.Draw(ScreenManager.SpriteBatch);
         }
 
         public override bool HandleInput(InputState input)
@@ -175,7 +173,7 @@ namespace Ship_Game
             {
                 return false;
             }
-            foreach (TroopInfoUIElement.TippedItem ti in this.ToolTipItems)
+            foreach (TippedItem ti in ToolTipItems)
             {
                 if (!ti.r.HitTest(input.CursorPosition))
                 {
@@ -213,37 +211,21 @@ namespace Ship_Game
             }
             if (pgs.TroopsHere.Count != 0)
             {
-                this.DescriptionSL.Entries.Clear();
-                this.DescriptionSL.indexAtTop = 0;
-                HelperFunctions.parseTextToSL(pgs.TroopsHere[0].Description, (float)(this.LeftRect.Width - 15), Fonts.Arial12, ref this.DescriptionSL);
+                DescriptionSL.Reset();
+                HelperFunctions.parseTextToSL(pgs.TroopsHere[0].Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
                 return;
             }
             if (pgs.building != null)
             {
-                this.DescriptionSL.Entries.Clear();
-                this.DescriptionSL.indexAtTop = 0;
-                HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (float)(this.LeftRect.Width - 15), Fonts.Arial12, ref this.DescriptionSL);
+                DescriptionSL.Reset();
+                HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
             }
         }
 
         private struct TippedItem
         {
             public Rectangle r;
-
             public int TIP_ID;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~TroopInfoUIElement() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            DescriptionSL?.Dispose(ref DescriptionSL);
         }
     }
 }

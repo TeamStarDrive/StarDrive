@@ -125,7 +125,7 @@ namespace Ship_Game
             {
                 Ship ship = this as Ship;
                 Empire oldLoyalty = ship.loyalty;
-
+                ship.ClearFleet();
                 oldLoyalty.GetShips().QueuePendingRemoval(ship);
                 oldLoyalty.RemoveShip(ship);
                                                          

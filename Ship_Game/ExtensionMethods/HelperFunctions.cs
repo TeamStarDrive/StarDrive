@@ -253,9 +253,9 @@ namespace Ship_Game
         public static string ParseText(SpriteFont font, string text, float maxLineWidth)
         {
             var result = new StringBuilder();
-            var wordArray = text.Split(' ');
+            string[] words = text.Split(' ');
             float length = 0.0f;
-            foreach (string word in wordArray)
+            foreach (string word in words)
             {
                 if (word != "\\n" && word != "\n")
                 {
@@ -273,15 +273,14 @@ namespace Ship_Game
             return result.ToString();
         }
 
-        public static void parseTextToSL(string text, float Width, SpriteFont font, ref ScrollList List)
+        public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
         {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            char[] chrArray = new char[] { ' ', '\n' };
-            string[] wordArray = text.Split(chrArray);
-            for (int i = 0; i < (int)wordArray.Length; i++)
+            string line = "";
+            string returnString = "";
+            string[] words = text.Split(' ', '\n');
+            for (int i = 0; i < words.Length; i++)
             {
-                string word = wordArray[i];
+                string word = words[i];
                 if (string.IsNullOrEmpty(word))
                 {
                     word = "\n";
@@ -292,7 +291,7 @@ namespace Ship_Game
                     returnString = string.Concat(returnString, line, '\n');
                     line = string.Empty;
                 }
-                else if (font.MeasureString(string.Concat(line, word)).Length() > Width)
+                else if (font.MeasureString(string.Concat(line, word)).Length() > width)
                 {
                     returnString = string.Concat(returnString, line, '\n');
                     line = string.Empty;
@@ -302,15 +301,15 @@ namespace Ship_Game
                     line = string.Concat(line, word, ' ');
                 }
             }
-            string[] lineArray = returnString.Split(new char[] { '\n' });
-            for (int i = 0; i < (int)lineArray.Length; i++)
+            string[] lines = returnString.Split('\n');
+            for (int i = 0; i < lines.Length; i++)
             {
-                string sent = lineArray[i];
+                string sent = lines[i];
                 if (sent.Length > 0)
                 {
                     List.AddItem(sent);
                 }
-                else if (string.IsNullOrEmpty(sent) && (int)lineArray.Length > i + 1 && !string.IsNullOrEmpty(lineArray[i + 1]))
+                else if (sent.IsEmpty() && lines.Length > i + 1 && lines[i + 1].NotEmpty())
                 {
                     List.AddItem("\n");
                 }
@@ -320,23 +319,8 @@ namespace Ship_Game
 
         public static int RoundTo(float amount1, int roundTo)
         {
-            int rounded = (int)(((double)amount1 + 0.5 * (double)roundTo) / (double)roundTo) * roundTo;
+            int rounded = (int)((amount1 + 0.5 * roundTo) / roundTo) * roundTo;
             return rounded;
-        }
-
-        // Added by McShooterz: module repair priority list, main moduletype (disregard secondary module fucntions)
-        public static int ModulePriority(ShipModule shipModule)
-        {
-            switch (shipModule.ModuleType)
-            {
-                case ShipModuleType.Command:      return 0;
-                case ShipModuleType.PowerPlant:   return 1;
-                case ShipModuleType.PowerConduit: return 2;
-                case ShipModuleType.Engine:       return 3;
-                case ShipModuleType.Shield:       return 4;
-                case ShipModuleType.Armor:        return 6;
-                default:                          return 5;
-            }
         }
 
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation

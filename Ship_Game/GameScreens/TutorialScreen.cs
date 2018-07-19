@@ -24,13 +24,13 @@ namespace Ship_Game
 
 	
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-		    spriteBatch.Begin();
-		    spriteBatch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
-			this.close.Draw(spriteBatch);
-		    spriteBatch.End();
+		    batch.Begin();
+		    batch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
+			this.close.Draw(batch);
+		    batch.End();
 		}
 
 		public override bool HandleInput(InputState input)

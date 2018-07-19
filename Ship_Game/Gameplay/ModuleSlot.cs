@@ -12,6 +12,10 @@ namespace Ship_Game.Gameplay
         public float Health;
         [XmlElement(ElementName = "Shield_Power")]
         public float ShieldPower;
+        [XmlElement(ElementName = "ShieldUpChance")]
+        public float ShieldUpChance;
+        [XmlElement(ElementName = "ShieldPowerBeforeWarp")]
+        public float ShieldPowerBeforeWarp;
         [XmlElement(ElementName = "facing")]
         public float Facing;
         [XmlElement(ElementName = "state")]

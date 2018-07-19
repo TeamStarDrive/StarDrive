@@ -113,9 +113,10 @@ namespace Ship_Game.Commands.Goals
                 var tohold = new Array<Goal> { this };
                 var task =
                     new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
-                {
+                task.SetTargetPlanet(markedPlanet);
                     empire.GetGSAI().TaskList.Add(task);
-                }
+                    
+                
             }
 
             var militaryTask = new MilitaryTask
