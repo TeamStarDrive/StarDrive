@@ -10,7 +10,7 @@ namespace Ship_Game.Commands
 {
     class BuildShip : QueueItem
     {
-        public BuildShip(ShipAI.ShipGoal goal )
+        public BuildShip(ShipAI.ShipGoal goal)
         {
             isShip = true;
             productionTowards = 0f;

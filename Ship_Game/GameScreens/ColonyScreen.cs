@@ -271,7 +271,7 @@ namespace Ship_Game
 
         private void AddTroopToQ()
         {
-            QueueItem qItem = new QueueItem()
+            QueueItem qItem = new QueueItem(p)
             {
                 isTroop = true,
                 troopType = "Terran/Space Marine",
@@ -2195,7 +2195,7 @@ namespace Ship_Game
                     }
                     if (pgs.Habitable && pgs.building == null && pgs.QItem == null && (ActiveBuildingEntry.item as Building).Name != "Biospheres")
                     {
-                        QueueItem qi = new QueueItem();
+                        QueueItem qi = new QueueItem(p);
                         //p.SbProduction.AddBuildingToCQ(this.ActiveBuildingEntry.item as Building, PlayerAdded: true);
                         qi.isBuilding = true;
                         qi.Building = ActiveBuildingEntry.item as Building;       //ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
@@ -2217,7 +2217,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        QueueItem qi = new QueueItem();
+                        QueueItem qi = new QueueItem(p);
                         //{
                         qi.isBuilding = true;
                         qi.Building = ActiveBuildingEntry.item as Building;
@@ -2279,7 +2279,7 @@ namespace Ship_Game
                         {
                             if (!e.WasPlusHovered(input))
                             {
-                                var qi = new QueueItem();
+                                var qi = new QueueItem(p);
                                 if (e.TryGet(out Ship ship))
                                 {
                                     qi.isShip = true;
@@ -2312,7 +2312,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(51);
                     if (input.LeftMouseClick)
                     {
-                        var qi = new QueueItem();
+                        var qi = new QueueItem(p);
                         if (e.item is Building building)
                         {
                             //Building b = ResourceManager.GetBuilding((e.item as Building).Name);
