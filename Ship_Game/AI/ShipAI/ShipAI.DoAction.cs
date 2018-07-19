@@ -68,7 +68,7 @@ namespace Ship_Game.AI {
             if (boarding || Owner.TroopsAreBoardingShip)
                 return;
 
-            Planet invadeThis = Owner.System.PlanetList.FindMinFiltered(
+            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
                                 owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
                                 troops => troops.TroopsHere.Count);
             if (invadeThis != null)
