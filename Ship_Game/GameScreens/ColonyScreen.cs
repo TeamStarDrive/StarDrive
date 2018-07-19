@@ -1038,7 +1038,7 @@ namespace Ship_Game
 
         private void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
-            Array<Building> buildingsWeCanBuildHere = p.GetBuildingsWeCanBuildHere();
+            Array<Building> buildingsWeCanBuildHere = p.GetBuildingsCanBuild();
             if (p.BuildingList.Count != buildingsHereLast || buildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
             {
                 BuildingsCanBuild = buildingsWeCanBuildHere;
