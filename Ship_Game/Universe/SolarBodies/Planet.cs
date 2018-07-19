@@ -275,15 +275,22 @@ namespace Ship_Game
 
         public Goods ImportPriority()
         {
-            if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f)
+            if (FS == GoodState.IMPORT && PS != GoodState.IMPORT 
+                || FS != GoodState.IMPORT && PS == GoodState.IMPORT)
             {
-                if (ConstructingGoodsBuilding(Goods.Food))
-                    return Goods.Production;
-                return Goods.Food;
+                return FS == GoodState.IMPORT ? Goods.Food : Goods.Production;
             }
-            if (ConstructionQueue.Count > 0) return Goods.Production;
-            if (PS == GoodState.IMPORT) return Goods.Production;
+            if ((FoodHere + IncomingFood) / MaxStorage >.25f)
+            {
+                if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f && ConstructingGoodsBuilding(Goods.Food))
+                {
+                    return Goods.Production;
+                }
+                if (ConstructionQueue.Count > 0) return Goods.Production;
+            }
+
             if (FS == GoodState.IMPORT) return Goods.Food;
+            if (PS == GoodState.IMPORT) return Goods.Production;            
             return Goods.Food;
         }
 

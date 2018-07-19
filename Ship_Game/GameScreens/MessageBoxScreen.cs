@@ -66,7 +66,7 @@ namespace Ship_Game
             this.PauseMenu = pauseMenu;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             if (!this.Timed)

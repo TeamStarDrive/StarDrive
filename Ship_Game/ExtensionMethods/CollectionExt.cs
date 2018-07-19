@@ -39,7 +39,18 @@ namespace Ship_Game
                     return i;
             return -1;
         }
-
+        // Return Any Item Found
+        public static T Find<T>(this T[] items, Predicate<T> filter) where T : class
+        {
+            T found = null;            
+            for (int i = 0; i < items.Length; ++i)
+            {
+                T item = items[i];
+                if (!filter(item)) continue;
+                found = item;
+            }
+            return found;
+        }
 
         // Return the element with the greatest selector value, or null if empty
         public static T FindMax<T>(this T[] items, int count, Func<T, float> selector) where T : class

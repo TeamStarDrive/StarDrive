@@ -230,6 +230,7 @@
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\ShieldsBehaviorDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\DesignModuleGrid.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\FighterScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesignScreen\LoadDesigns.cs" />
@@ -242,6 +243,7 @@
     <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\RoleData.cs" />
     <Compile Include="Ship_Game\Ships\EmpireShipBonuses.cs" />
     <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />
