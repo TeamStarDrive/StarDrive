@@ -59,12 +59,14 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] private Rectangle fromRect;
         [XmlIgnore][JsonIgnore] private float updateTimer;        
         [XmlIgnore][JsonIgnore] public string DisplayName => DisplayNameEmpire(Owner);
+
         public string DisplayNameEmpire(Empire empire = null)
         {
             empire = Owner ?? empire;
             if (empire == null || !empire.data.IsRebelFaction) return Name;
             return Localizer.Token(empire.data.TroopNameIndex);
         }
+
         public Troop Clone()
         {
             var t = (Troop)MemberwiseClone();
@@ -81,14 +83,19 @@ namespace Ship_Game
         }
 
         private string WhichFrameString => WhichFrame.ToString("00");
-        private Texture2D TextureDefault    => ResourceManager.Texture("Troops/"+TexturePath);
+
+        [XmlIgnore][JsonIgnore]
+        public Texture2D TextureDefault => ResourceManager.Texture("Troops/"+TexturePath);
+
         //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
         //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
         private Texture2D TextureIdleAnim   => ResourceManager.Texture("Troops/"+idle_path+WhichFrameString, "Troops/" + idle_path+
             ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+
         private Texture2D TextureAttackAnim => ResourceManager.Texture("Troops/" + attack_path + WhichFrameString, "Troops/" + idle_path +
             ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
+        public string StrengthText => $"Strength: {Strength:0.}";
 
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
         // to a central location to be used by any animated image. 
@@ -106,14 +113,14 @@ namespace Ship_Game
             }
             if (Idle)
             {
-                Rectangle sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
+                var sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
                 spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White);
                 return;
             }
 
             float scale = drawRect.Width / 128f;
             drawRect.Width = (int)(attack_width * scale);
-            Rectangle sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
+            var sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
 
             Texture2D attackTexture = TextureAttackAnim;
             if (attackTexture.Height <= 128)

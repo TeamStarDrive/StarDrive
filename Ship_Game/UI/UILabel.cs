@@ -70,16 +70,16 @@ namespace Ship_Game
             Color = color;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (LabelText.IsEmpty())
                 return;
 
             Color color = IsMouseOver ? Highlight : Color;
             if (DropShadow)
-                HelperFunctions.DrawDropShadowText(spriteBatch, LabelText, Pos, LabelFont, color);
+                HelperFunctions.DrawDropShadowText(batch, LabelText, Pos, LabelFont, color);
             else
-                spriteBatch.DrawString(LabelFont, LabelText, Pos, color);
+                batch.DrawString(LabelFont, LabelText, Pos, color);
         }
 
         public override bool HandleInput(InputState input)

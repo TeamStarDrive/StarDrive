@@ -340,7 +340,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
 
@@ -597,7 +597,7 @@ namespace Ship_Game
                 DebugWin.Draw(gameTime);
 
             if (aw.IsOpen && !LookingAtPlanet)
-                aw.Draw(spriteBatch);
+                aw.Draw(batch);
 
             if (Paused)
             {

@@ -141,7 +141,7 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = this.GameTime;
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
