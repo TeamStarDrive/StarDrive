@@ -1010,7 +1010,6 @@ namespace Ship_Game
             photonExplosionParticles?.Dispose(ref photonExplosionParticles);
             projectileTrailParticles?.Dispose(ref projectileTrailParticles);
             sceneMap                ?.Dispose(ref sceneMap);
-            shipListInfoUI          ?.Dispose(ref shipListInfoUI);
             smokePlumeParticles     ?.Dispose(ref smokePlumeParticles);
             sparks                  ?.Dispose(ref sparks);
             star_particles          ?.Dispose(ref star_particles);
@@ -1022,7 +1021,6 @@ namespace Ship_Game
             flameParticles          ?.Dispose(ref flameParticles);
             SmallflameParticles     ?.Dispose(ref SmallflameParticles);
             beamflashes             ?.Dispose(ref beamflashes);
-            dsbw                    ?.Dispose(ref dsbw);
             SelectedShipList        ?.Dispose(ref SelectedShipList);
             NotificationManager     ?.Dispose(ref NotificationManager);
             FogMapTarget            ?.Dispose(ref FogMapTarget);

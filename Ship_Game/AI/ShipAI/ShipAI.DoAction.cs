@@ -68,7 +68,7 @@ namespace Ship_Game.AI {
             if (boarding || Owner.TroopsAreBoardingShip)
                 return;
 
-            Planet invadeThis = Owner.System.PlanetList.FindMinFiltered(
+            Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
                                 owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
                                 troops => troops.TroopsHere.Count);
             if (invadeThis != null)
@@ -734,15 +734,12 @@ namespace Ship_Game.AI {
                 OrderQueue.Clear();
                 State = AIState.AwaitingOrders;
             }
-            var cost = (int) (ResourceManager.ShipsDict[goal.VariableString].GetCost(Owner.loyalty) -
+            int cost = (int) (ResourceManager.ShipsDict[goal.VariableString].GetCost(Owner.loyalty) -
                               Owner.GetCost(Owner.loyalty));
             if (cost < 0)
                 cost = 0;
             cost = cost + 10 * (int) UniverseScreen.GamePaceStatic;
-            if (Owner.loyalty.isFaction)
-                qi.Cost = 0;
-            else
-                qi.Cost = (float) cost;
+            qi.Cost = Owner.loyalty.isFaction ? 0 : cost;
             qi.isRefit = true;
             //Added by McShooterz: refit keeps name and level
             if (Owner.VanityName != Owner.Name)

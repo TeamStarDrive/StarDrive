@@ -103,9 +103,9 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep OrderShipToAwaitOrders()
         {
-            if (beingBuilt != null)
+            if (beingBuilt == null)
             {
-                Log.Warning($"BeingBuilt was null at {type} completion");
+                Log.Warning($"BeingBuilt was null in {type} completion");
                 return GoalStep.GoalComplete;
             }
             beingBuilt.AI.State = AIState.AwaitingOrders;
