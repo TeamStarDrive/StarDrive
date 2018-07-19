@@ -303,33 +303,22 @@ namespace Ship_Game
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
-
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
             if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            var modules = new Array<ShipModule>();
-            foreach (SlotStruct slot in ModuleGrid.SlotsList)
-            {
-                if (slot.Module != null)
-                    modules.Add(slot.Module);
-            }
-
-            var role = Ship.GetDesignRole(modules.ToArray(), ActiveHull.Role, ActiveHull.Role, ActiveHull.ModuleSlots.Length, null);
-            if (role != Role)
-            {
-                ShipData.CreateDesignRoleToolTip(role, Fonts.Arial12, DesignRoleRect, true);
-                Role = role;
-            }
+            var roleData = new RoleData(ActiveHull, ModuleGrid.Modules);
+            Role         = roleData.DesignRole;
+            roleData.CreateDesignRoleToolTip(DesignRoleRect);
+            
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
             View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
-
 
         private enum SlotModOperation
         {
