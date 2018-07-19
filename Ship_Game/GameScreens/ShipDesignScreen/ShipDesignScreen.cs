@@ -198,6 +198,8 @@ namespace Ship_Game
 
             ModuleGrid.StartUndoableAction();
 
+            bool same = slot.IsSame(module, orientation, module.Facing);
+
             if (IsSymmetricDesignMode)
             {
                 MirrorSlot mirrored = GetMirrorSlot(slot, module.XSIZE, orientation);
@@ -211,9 +213,14 @@ namespace Ship_Game
 
                     float mirroredFacing = ConvertOrientationToFacing(mirrored.Orientation);
                     ShipModule mirroredModule = CreateDesignModule(module, mirrored.Orientation, mirroredFacing);
+                    
+                    if (same && mirrored.Slot.IsSame(mirroredModule, mirrored.Orientation, mirroredFacing))
+                        return; // both same
                     ModuleGrid.InstallModule(mirrored.Slot, mirroredModule, mirrored.Orientation);
                 }
             }
+            else if (same)
+                return;
 
             ModuleGrid.InstallModule(slot, module, orientation);
             ModuleGrid.RecalculatePower();

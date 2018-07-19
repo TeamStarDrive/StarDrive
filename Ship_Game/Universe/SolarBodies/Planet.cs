@@ -45,7 +45,14 @@ namespace Ship_Game
             set => SbCommodities.Population = value;
         }
 
-        public override string ToString() => $"{Name}  Type:{colonyType}  NetFood:{NetFoodPerTurn}  NetProd:{NetProductionPerTurn}  ImportFood:{ImportFood}  ImportProd:{ImportProd}";
+        private string ImportsDescr()
+        {
+            if (!ImportFood && !ImportProd) return "";
+            if (ImportFood && !ImportProd) return "(IMPORT FOOD)";
+            if (ImportProd && !ImportFood) return "(IMPORT PROD)";
+            return "(IMPORT ALL)";
+        }
+        public override string ToString() => $"{Name} ({Owner.Name}) T:{colonyType} NET(FD:{GetNetFoodPerTurn():0.#} PR:{GetNetProductionPerTurn():0.#}) {ImportsDescr()}";
 
         public GoodState FS = GoodState.STORE;
         public GoodState PS = GoodState.STORE;
@@ -85,15 +92,6 @@ namespace Ship_Game
             {
                 case Goods.Food:       return NetFoodPerTurn;
                 case Goods.Production: return NetProductionPerTurn;
-                default:               return 0;
-            }
-        }
-        public float GetMaxGoodProd(Goods good)
-        {
-            switch (good)
-            {
-                case Goods.Food:       return NetFoodPerTurn;
-                case Goods.Production: return MaxProductionPerTurn;
                 default:               return 0;
             }
         }
@@ -266,37 +264,95 @@ namespace Ship_Game
             if (ImportFood && !ImportProd) return Goods.Food;
             if (ImportProd && !ImportFood) return Goods.Production;
 
-            const float lookahead = 10;
-            float predictedFood = FoodHere + IncomingFood + NetFoodPerTurn * lookahead;
+            bool debug = System.Diagnostics.Debugger.IsAttached;
+            const int lookahead = 30; // 1 turn ~~ 5 second, 12 turns ~~ 1min, 60 turns ~~ 5min
+            float predictedFood = ProjectedFood(lookahead);
 
             if (predictedFood < 0f) // we will starve!
             {
-                if (FindConstructionBuilding(Goods.Food, out QueueItem item))
+                if (!FindConstructionBuilding(Goods.Food, out QueueItem item))
                 {
-                    // will the building complete in reasonable time?
-                    int turns = NumberOfTurnsUntilCompleted(item);
-                    if (turns > lookahead*2)
-                        return Goods.Food; // No! We will seriously starve even if this solves starving
-
-                    float foodProduced = item.Building.FoodProduced(this);
-                    if (NetFoodPerTurn + foodProduced >= 0f) // this building will solve starving
-                        return Goods.Production; // send production to finish it faster!
+                    // we will definitely starve without food, so plz send food!
+                    if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (no food buildings) {this}");
+                    return Goods.Food;
                 }
 
-                // we will definitely starve without food, so plz send food!
+                // will the building complete in reasonable time?
+                int buildTurns = NumberOfTurnsUntilCompleted(item);
+                int starveTurns = TurnsUntilOutOfFood();
+                if (buildTurns > (starveTurns + 30))
+                {
+                    if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (build {buildTurns} > starve {starveTurns + 30}) {this}");
+                    return Goods.Food; // No! We will seriously starve even if this solves starving
+                }
+
+                float foodProduced = item.Building.FoodProduced(this);
+                if (NetFoodPerTurn + foodProduced >= 0f) // this building will solve starving
+                {
+                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (build {buildTurns}) {this}");
+                    return Goods.Production; // send production to finish it faster!
+                }
+
+                // we can't wait until building is finished, import food!
+                if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (build has not enough food) {this}");
                 return Goods.Food;
             }
 
             // we have enough food incoming, so focus on production instead
-            float predictedProduction = ProductionHere + IncomingProduction + NetProductionPerTurn * lookahead;
+            float predictedProduction = ProjectedProduction(lookahead);
 
-            // We are not starving and we're constructing stuff, so import production
+            // We are not starving and we're constructing stuff
             if (ConstructionQueue.Count > 0)
-                return Goods.Production;
+            {
+                // this is taking too long! import production to speed it up
+                int totalTurns = NumberOfTurnsUntilCompleted(ConstructionQueue.Last);
+                if (totalTurns >= 60)
+                {
+                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (construct >= 60 turns) {this}");
+                    return Goods.Production;
+                }
+
+                // only import if we're constructing more than we're producing
+                float projectedProd = ProjectedProduction(totalTurns);
+                if (projectedProd <= 25f)
+                {
+                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (projected {projectedProd:0.#} <= 25) {this}");
+                    return Goods.Production;
+                }
+            }
 
             // we are not starving and we are not constructing anything
             // just pick which stockpile is smaller
             return predictedFood < predictedProduction ? Goods.Food : Goods.Production;
+        }
+
+        private const int NEVER = 10000;
+
+        private float AvgIncomingFood => IncomingFood / 30f; // @todo Estimate this better
+        private float AvgIncomingProd => IncomingProduction / 30f;
+
+        private float AvgFoodPerTurn => GetNetFoodPerTurn() + AvgIncomingFood;
+        private float AvgProdPerTurn => GetNetProductionPerTurn() + AvgIncomingProd;
+
+        private int TurnsUntilOutOfFood()
+        {
+            if (Owner.data.Traits.Cybernetic == 1)
+                return NEVER;
+
+            float avg = AvgFoodPerTurn;
+            if (avg > 0f) return NEVER;
+            return (int)Math.Floor(FoodHere / Math.Abs(avg));
+        }
+
+        private float ProjectedFood(int turns)
+        {
+            float incomingAvg = IncomingFood / 100f;
+            return FoodHere + (incomingAvg + GetNetFoodPerTurn()) * turns;
+        }
+        private float ProjectedProduction(int turns)
+        {
+            float incomingAvg = IncomingProduction / 100f;
+            return ProductionHere + (incomingAvg + GetNetProductionPerTurn()) * turns;
         }
 
         private bool FindConstructionBuilding(Goods goods, out QueueItem item)
