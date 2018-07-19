@@ -445,7 +445,8 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
-            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
+            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
+
             // Other modification to the ship and draw values
 
             empResist += size; // FB: so the player will know the true EMP Tolerance
@@ -745,36 +746,18 @@ namespace Ship_Game
             EmpireUI.Draw(ScreenManager.SpriteBatch);
             DrawShipInfoPanel();
 
-            //Defaults based on hull types
-            //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-            if (ActiveHull.Role == ShipData.RoleName.freighter && Fml)
-            {
-                CategoryList.ActiveIndex = 1;
-                Fml = false;
-            }
-            //Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-            else if (ActiveHull.Role == ShipData.RoleName.scout && Fml)
-            {
-                CategoryList.ActiveIndex = 2;
-                Fml = false;
-            }
-            //All other hulls default to unclassified.
-            else if (Fml)
-            {
-                CategoryList.ActiveIndex = 0;
-                Fml = false;
-            }
-
-            //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
-            if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
-            {
-                Fmlevenmore = false;
-            }
-
             CategoryList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
-            const string classifTitle = "Behaviour Presets";
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
+
+            DrawTitle(ScreenWidth * 0.375f, "Repair Options");
+            DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
+
+            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
+            {
+                DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
+                ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
+            }
+
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
             if (ScreenState == ScreenState.TransitionOn ||
@@ -857,6 +840,13 @@ namespace Ship_Game
             if (IsActive)
             {
                 ToolTip.Draw(ScreenManager.SpriteBatch);
+            }
+
+            void DrawTitle(float x, string title)
+            {
+                int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
+                var pos = new Vector2(x, buttonHeight);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
             }
         }
 

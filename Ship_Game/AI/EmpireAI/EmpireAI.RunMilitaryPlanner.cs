@@ -408,7 +408,7 @@ namespace Ship_Game.AI
                                           && ship.Mothership == null && ship.Active
                                           && ship.shipData.HullRole >= ShipData.RoleName.fighter &&
                                           ship.GetMaintCost(OwnerEmpire) > 0)
-                        .OrderBy(ship => ship.shipData.techsNeeded.Count)
+                        .OrderBy(ship => ship.shipData.TechsNeeded.Count)
 
                 )
                 {
@@ -501,7 +501,7 @@ namespace Ship_Game.AI
 
                 if (role != ship.DesignRole)
                     continue;
-                maxTech = Math.Max(maxTech, ship.shipData.techsNeeded.Count);
+                maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
 
                 potentialShips.Add(ship);
                 if (efficiency)
@@ -517,7 +517,7 @@ namespace Ship_Game.AI
                 {
                     if (efficiency)
                         return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                    return ships.shipData.techsNeeded.Count >= nearmax;
+                    return ships.shipData.TechsNeeded.Count >= nearmax;
                 });
                 int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length - 1);
 

@@ -448,12 +448,12 @@ namespace Ship_Game.AI
                         continue;
                     if (newTemplate.DesignRole != ship.DesignRole) continue;
                     if (newTemplate.GetStrength() <= newStr) continue;
-                    if (ship.shipData.techsNeeded.Except(newTemplate.shipData.techsNeeded).Any()) continue;
+                    if (ship.shipData.TechsNeeded.Except(newTemplate.shipData.TechsNeeded).Any()) continue;
 
                     int newScore = newTemplate.GetTechScore(out int[] newTech);
 
 
-                    var newTechs = newTemplate.shipData.techsNeeded.Except(ship.shipData.techsNeeded).ToArray();
+                    var newTechs = newTemplate.shipData.TechsNeeded.Except(ship.shipData.TechsNeeded).ToArray();
 
                     if (newTechs.Length == 0 && (newScore <= techScore || !TechCompare(origTechs, newTech)))
                         continue;

@@ -1445,9 +1445,10 @@ namespace Ship_Game.Ships
             var data                       = new ShipData();
             data.BaseCanWarp               = shipData.BaseCanWarp;
             data.BaseStrength              = -1;
-            data.techsNeeded               = shipData.techsNeeded;
+            data.TechsNeeded               = shipData.TechsNeeded;
             data.TechScore                 = shipData.TechScore;
             data.ShipCategory              = shipData.ShipCategory;
+            data.ShieldsBehavior           = shipData.ShieldsBehavior;
             data.Name                      = Name;
             data.Level                     = (byte)Level;
             data.experience                = (byte)experience;
@@ -1480,13 +1481,17 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 var data = new ModuleSlotData
                 {
-                    Position           = module.XMLPosition,
-                    InstalledModuleUID = module.UID,
-                    Health             = module.Health,
-                    ShieldPower        = module.ShieldPower,
-                    Facing             = module.Facing,
-                    Restrictions       = module.Restrictions
+                    Position              = module.XMLPosition,
+                    InstalledModuleUID    = module.UID,
+                    Health                = module.Health,
+                    ShieldPower           = module.ShieldPower,
+                    ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
+                    Facing                = module.Facing,
+                    Restrictions          = module.Restrictions
                 };
+
+                if (module.Is(ShipModuleType.Shield))
+                    data.ShieldUpChance = module.ShieldUpChance;
 
                 if (module.GetHangarShip() != null)
                     data.HangarshipGuid = module.GetHangarShip().guid;
@@ -1779,21 +1784,16 @@ namespace Ship_Game.Ships
                 else
                     PowerDraw = NetPower.NetWarpPowerDraw;
 
-                //Check Current Shields
-                if (engineState == MoveState.Warp || !ShieldsUp)
-                    shield_power = 0f;
-                else
+                if (InCombat 
+                    || shield_power < shield_max 
+                    || engineState == MoveState.Warp 
+                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
                 {
-                    if (InCombat || shield_power != shield_max)
+                    shield_power = 0.0f;
+                    for (int x = 0; x < Shields.Length; x++)
                     {
-                        shield_power = 0.0f;
-                        for (int x = 0; x < Shields.Length; x++)
-                        {
-                            ShipModule shield = Shields[x];
-                            shield_power += shield.ShieldPower;
-                        }
-                        if (shield_power > shield_max)
-                            shield_power = shield_max;
+                        ShipModule shield = Shields[x];
+                        shield_power = (shield_power + shield.ShieldPower).Clamped(0, shield_max);
                     }
                 }
 
@@ -2258,7 +2258,8 @@ namespace Ship_Game.Ships
                 }
             }
 
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, ShieldsWarpBehavior.OnFullChargeAtWarpExit);
+            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
@@ -2639,110 +2640,12 @@ namespace Ship_Game.Ships
             return healthMax;
         }
 
-        private float PercentageOfShipByModules(ShipModule[] modules)
-        {
-            int area = 0;
-            foreach (ShipModule module in modules)
-                area += module.XSIZE * module.YSIZE;
-            return area > 0 ? area / (float)Size : 0.0f;
-        }
         public float PercentageOfShipByModules(ShipModuleType moduleType)
         {
-            return PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
+            return RoleData.PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
         }
-        private static float PercentageOfShipByModules(ShipModule[] modules ,int size)
-        {
-            int area = 0;
-            int count = modules.Length;
-            for (int i = 0; i < count; ++i)
-            {
-                ShipModule module = modules[i];
-                area += module.XSIZE * module.YSIZE;
-            }
-            return area > 0 ? area / (float)size : 0.0f;
-        }
-        private ShipData.RoleName GetDesignRole()
-        {
-            return GetDesignRole(ModuleSlotList, shipData.HullRole, shipData.Role, Size, this);            
-        }
-        public static ShipData.RoleName GetDesignRole(ShipModule[] modules, ShipData.RoleName hullRole, ShipData.RoleName dataRole, int size, Ship ship)
-        {
-            if (ship != null)
-            {
-                if (ship.isConstructor)
-                    return ShipData.RoleName.construction;
-                if (ship.isColonyShip || modules.Any(colony => colony.ModuleType == ShipModuleType.Colony))
-                    return ShipData.RoleName.colony;
-                if (ship.shipData.Role == ShipData.RoleName.troop)
-                    return ShipData.RoleName.troop;
-                if (ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform)
-                    return ship.shipData.Role;
-                if (ship.IsSupplyShip && ship.Weapons.Count == 0)
-                    return ShipData.RoleName.supply;
-            }
-            //troops ship
-            if (hullRole >= ShipData.RoleName.freighter)
-            {
-                float pTroops = PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.IsTroopBay), size);
-                float pTrans =
-                    PercentageOfShipByModules(modules.FilterBy(troopbay => troopbay.TransporterTroopLanding > 0), size);
-                float troops = PercentageOfShipByModules(modules.FilterBy(module => module.TroopCapacity > 0), size);
-                if (pTrans + pTroops + troops > .1f)
-                    return ShipData.RoleName.troopShip;
-                if (PercentageOfShipByModules(
-                        modules.FilterBy(bombBay => bombBay.ModuleType == ShipModuleType.Bomb),size) > .05f)
-                    return ShipData.RoleName.bomber;
-                //carrier
-                
-                ShipModule[] carrier = modules.FilterBy(hangar => hangar.ModuleType == ShipModuleType.Hangar && !hangar.IsSupplyBay && !hangar.IsTroopBay);
-                ShipModule[] support = modules.FilterBy(hangar => hangar.ModuleType == ShipModuleType.Hangar && (hangar.IsSupplyBay || hangar.IsTroopBay));
-
-                if (PercentageOfShipByModules(carrier, size) > .1)
-                    return ShipData.RoleName.carrier;
-                if (PercentageOfShipByModules(support, size) > .1)
-                    return ShipData.RoleName.support;
-            }
-            float pSpecial = PercentageOfShipByModules(modules.FilterBy(module =>
-                module.TransporterOrdnance > 0
-                || module.IsSupplyBay
-                || module.InhibitionRadius > 0
-                || module.InstalledWeapon != null && module.InstalledWeapon.DamageAmount < 1 &&
-                (module.InstalledWeapon.MassDamage > 0
-                 || module.InstalledWeapon.EMPDamage > 0
-                 || module.InstalledWeapon.RepulsionDamage > 0
-                 || module.InstalledWeapon.SiphonDamage > 0
-                 || module.InstalledWeapon.TroopDamageChance > 0
-                 || module.InstalledWeapon.isRepairBeam || module.InstalledWeapon.IsRepairDrone)
-            ), size);
-            pSpecial += PercentageOfShipByModules(
-                modules.FilterBy(repair => repair.InstalledWeapon?.IsRepairDrone == true), size);
-
-            if (pSpecial > .10f)
-                return ShipData.RoleName.support;
-
-
-            ShipData.RoleName fixRole = dataRole == ShipData.RoleName.prototype ? dataRole : hullRole;
-
-            switch (fixRole)
-            {
-                case ShipData.RoleName.corvette:
-                case ShipData.RoleName.gunboat:
-                    return ShipData.RoleName.corvette;
-                case ShipData.RoleName.carrier:
-                case ShipData.RoleName.capital:
-                    return ShipData.RoleName.capital;
-                case ShipData.RoleName.destroyer:
-                case ShipData.RoleName.frigate:
-                    return ShipData.RoleName.frigate;
-                case ShipData.RoleName.scout:
-                case ShipData.RoleName.fighter:
-                    return modules.Any(weapons => weapons.InstalledWeapon != null)
-                        ? ShipData.RoleName.fighter
-                        : ShipData.RoleName.scout;
-            }
-
-            return hullRole;
-        }
+        
+        private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
 
         public void CreateColonizationBuildingFor(Planet colonizeTarget)
         {

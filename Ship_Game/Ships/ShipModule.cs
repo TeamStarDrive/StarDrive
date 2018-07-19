@@ -42,6 +42,10 @@ namespace Ship_Game.Ships
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
 
+        public float ShieldPowerBeforeWarp { get; private set; }
+        public float ShieldUpChance { get; private set; } = 100;
+
+
 
         public float BombTimer;
         public ShipModuleType ModuleType;
@@ -164,6 +168,7 @@ namespace Ship_Game.Ships
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
+        public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
         public bool IsRotatable                  => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -243,27 +248,28 @@ namespace Ship_Game.Ships
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
-            XSIZE             = template.XSIZE;
-            YSIZE             = template.YSIZE;
-            Mass              = template.Mass;
-            Powered           = template.Powered;
-            FieldOfFire       = template.FieldOfFire;
-            Facing            = template.facing;
-            XMLPosition       = template.XMLPosition;
-            NameIndex         = template.NameIndex;
-            DescriptionIndex  = template.DescriptionIndex;
-            Restrictions      = template.Restrictions;
-            ShieldPower       = template.shield_power;
-            hangarShipUID     = template.hangarShipUID;
-            hangarTimer       = template.hangarTimer;
-            ModuleType        = template.ModuleType;
-            WeaponType        = template.WeaponType;
-            isWeapon          = WeaponType.NotEmpty();
-            OrdinanceCapacity = template.OrdinanceCapacity;
-            BombTimer         = template.BombTimer;
-            IconTexturePath   = template.IconTexturePath;
-            TargetValue       = template.TargetValue;
-            TemplateMaxHealth = template.HealthMax;
+            XSIZE                 = template.XSIZE;
+            YSIZE                 = template.YSIZE;
+            Mass                  = template.Mass;
+            Powered               = template.Powered;
+            FieldOfFire           = template.FieldOfFire;
+            Facing                = template.facing;
+            XMLPosition           = template.XMLPosition;
+            NameIndex             = template.NameIndex;
+            DescriptionIndex      = template.DescriptionIndex;
+            Restrictions          = template.Restrictions;
+            ShieldPower           = template.shield_power;
+            hangarShipUID         = template.hangarShipUID;
+            hangarTimer           = template.hangarTimer;
+            ModuleType            = template.ModuleType;
+            WeaponType            = template.WeaponType;
+            isWeapon              = WeaponType.NotEmpty();
+            OrdinanceCapacity     = template.OrdinanceCapacity;
+            BombTimer             = template.BombTimer;
+            IconTexturePath       = template.IconTexturePath;
+            TargetValue           = template.TargetValue;
+            TemplateMaxHealth     = template.HealthMax;
+
             UpdateModuleRadius();
         }
 
@@ -336,8 +342,10 @@ namespace Ship_Game.Ships
             if (fromSave)
             {
                 module.SetHealth(slot.Health);
-                module.Active      = slot.Health > 0.01f;
-                module.ShieldPower = slot.ShieldPower;;
+                module.Active         = slot.Health > 0.01f;
+                module.ShieldPower    = slot.ShieldPower;
+                module.ShieldUpChance = slot.ShieldUpChance;
+                module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
             }
             return module;
         }
@@ -889,25 +897,90 @@ namespace Ship_Game.Ships
             if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
 
-            // Shield Recharge
-            float shieldMax = ActualShieldPowerMax;
-            if (Active && Powered && ShieldPower < shieldMax)
+            // Shield Recharge / Discharge
+            if (Is(ShipModuleType.Shield))
             {
-                if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                    ShieldPower += shield_recharge_rate * elapsedTime;
-                else if (ShieldPower > 0)
-                    ShieldPower += shield_recharge_combat_rate * elapsedTime;
-                if (ShieldPower > shieldMax)
-                    ShieldPower = shieldMax;
-            }
-            if (ShieldPower < 0f)
-            {
-                ShieldPower = 0f;
+                float shieldMax = ActualShieldPowerMax;
+                if (GlobalStats.WarpBehaviorsEnabled)
+                    ShieldWarpBehaviorRecharge(shieldMax, elapsedTime);
+                else
+                    ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime); // use regular recharge
             }
             if (TransporterTimer > 0)
                 TransporterTimer -= elapsedTime;
-
             base.Update(elapsedTime);
+        }
+
+        private float RechrageShields(float shieldPower, float shieldMax, float elapsedTime)
+        {
+            if (!Active || !Powered || shieldPower >= shieldMax)
+                return shieldPower;
+
+            if (Parent.ShieldRechargeTimer > shield_recharge_delay)
+                shieldPower += shield_recharge_rate * elapsedTime;
+            else if (ShieldPower > 0)
+                shieldPower += shield_recharge_combat_rate * elapsedTime;
+            return shieldPower.Clamped(0, shieldMax);
+        }
+
+        private void ShieldWarpBehaviorRecharge(float shieldMax, float elapsedTime)
+        {
+            ShieldsWarpBehavior behavior = Parent.shipData.ShieldsBehavior;
+            if (Parent.engineState == Ship.MoveState.Sublight) // recahrge in sublight
+            {
+                if (ShieldUpChance >= 100)
+                    ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime);
+                else
+                {
+                    if (ShieldPowerBeforeWarp < 1) // this shield was not diactivated from previous warp
+                        ShieldPowerBeforeWarp = ShieldPower;
+                    ShieldPower = 0f;
+                    ShieldPowerBeforeWarp = RechrageShields(ShieldPowerBeforeWarp, shieldMax, elapsedTime);
+                    TryToRaiseShield();
+                }
+            }
+            else // discharge at warp if applicable
+            {
+                if (behavior == ShieldsWarpBehavior.FullPower)
+                    ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime);
+                else
+                {
+                    ShieldUpChance = 0;
+                    if (ShieldPowerBeforeWarp > 0) // if shield was diactivated from previous warp, discharge the correct value
+                        ShieldPowerBeforeWarp = DischargeShields(behavior, ShieldPowerBeforeWarp);
+                    else
+                        ShieldPower = DischargeShields(behavior, ShieldPower);
+                }
+            }
+
+            // local method
+            void TryToRaiseShield()
+            {
+                if (RandomMath.RandomBetween(0, 100) < ShieldUpChance)
+                {
+                    ShieldPower = ShieldPowerBeforeWarp.Clamped(0, shieldMax);
+                    ShieldUpChance = 100;
+                    ShieldPowerBeforeWarp = 0;
+                }
+                else
+                {
+                    float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1);
+                    activationChanceModifier      *= Shield.GetReactivationDelayMultiplier(behavior);
+                    activationChanceModifier      *= Parent.Level.Clamped(1,5);
+                    ShieldUpChance = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
+                }
+            }
+
+            // local method
+            float DischargeShields(ShieldsWarpBehavior warpBehavior, float shieldPower)
+            {
+                if (warpBehavior == ShieldsWarpBehavior.ShutDown)
+                {
+                    float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate);
+                    shieldPower -= shieldDischargeRate * elapsedTime;
+                }
+                return shieldPower.Clamped(0, shieldMax);
+            }
         }
 
         public float ActualMass(bool inPowerRadius)
