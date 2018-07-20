@@ -145,9 +145,10 @@ namespace Ship_Game.AI
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
+            Vector2 interceptPoint = Vector2.Zero;
             if (Target != null)
             {
-                Vector2 interceptPoint = Missile.ProjectImpactPoint(Target);
+                interceptPoint = Missile.ProjectImpactPoint(Target);
                 float distancetoTarget = Missile.Center.Distance(interceptPoint);
                 if (Jammed)
                 {
