@@ -1650,8 +1650,8 @@ namespace Ship_Game
         {
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet item_0 in this.OwnedPlanets)
-                    num += item_0.GrossFood;
+                foreach (Planet p in OwnedPlanets)
+                    num += p.NetFoodPerTurn;
             return num;
         }
 

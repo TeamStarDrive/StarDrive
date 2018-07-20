@@ -691,6 +691,24 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float AvgProjectileSpeed
+        {
+            get
+            {
+                if (Weapons.IsEmpty)
+                    return 800f;
+                int count = 0;
+                float speed = 0f;
+                foreach (Weapon weapon in Weapons)
+                {
+                    if (weapon.isBeam) continue;
+                    speed += weapon.ProjectileSpeed;
+                    ++count;
+                }
+                return speed / count;
+            }
+        }
+
         //added by gremlin The Generals GetFTL speed
         public void SetmaxFTLSpeed()
         {
