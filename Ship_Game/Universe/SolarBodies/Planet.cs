@@ -52,12 +52,14 @@ namespace Ship_Game
             if (ImportProd && !ImportFood) return "(IMPORT PROD)";
             return "(IMPORT ALL)";
         }
-        public override string ToString() => $"{Name} ({Owner.Name}) T:{colonyType} NET(FD:{GetNetFoodPerTurn():0.#} PR:{GetNetProductionPerTurn():0.#}) {ImportsDescr()}";
+        public override string ToString() => $"{Name} ({Owner.Name}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
 
         public GoodState FS = GoodState.STORE;
         public GoodState PS = GoodState.STORE;
         public bool ImportFood => FS == GoodState.IMPORT;
         public bool ImportProd => PS == GoodState.IMPORT;
+        public bool ExportFood => FS == GoodState.EXPORT;
+        public bool ExportProd => PS == GoodState.EXPORT;
         public GoodState GetGoodState(Goods good)
         {
             switch (good)
@@ -114,7 +116,6 @@ namespace Ship_Game
         public bool AllowInfantry;
         public float PlusFlatPopulationPerTurn;
         public int TotalDefensiveStrength;
-        public float GrossFood;
         public float GrossMoneyPT;
         public float GrossIncome =>
                     (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
@@ -261,8 +262,9 @@ namespace Ship_Game
 
         public Goods ImportPriority()
         {
-            if (ImportFood && !ImportProd) return Goods.Food;
-            if (ImportProd && !ImportFood) return Goods.Production;
+            // Is this an Import-Export type of planet?
+            if (ImportFood && ExportProd) return Goods.Food;
+            if (ImportProd && ExportFood) return Goods.Production;
 
             bool debug = System.Diagnostics.Debugger.IsAttached;
             const int lookahead = 30; // 1 turn ~~ 5 second, 12 turns ~~ 1min, 60 turns ~~ 5min
@@ -349,6 +351,7 @@ namespace Ship_Game
             float incomingAvg = IncomingFood / 100f;
             return FoodHere + (incomingAvg + GetNetFoodPerTurn()) * turns;
         }
+
         private float ProjectedProduction(int turns)
         {
             float incomingAvg = IncomingProduction / 100f;
@@ -2761,7 +2764,6 @@ namespace Ship_Game
             StorageAdded = 0;
             AllowInfantry = false;
             TotalDefensiveStrength = 0;
-            GrossFood = 0f;
             PlusResearchPerColonist = 0f;
             PlusFlatResearchPerTurn = 0f;
             PlusFlatProductionPerTurn = 0f;
@@ -2874,7 +2876,6 @@ namespace Ship_Game
             //Food
             NetFoodPerTurn =  (FarmerPercentage * Population / 1000 * (Fertility + PlusFoodPerColonist)) + FlatFoodAdded;
             NetFoodPerTurn = NetFoodPerTurn + FoodPercentAdded * NetFoodPerTurn;
-            GrossFood = NetFoodPerTurn;
             //Production
             NetProductionPerTurn =  (WorkerPercentage * Population / 1000f * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;

@@ -44,7 +44,8 @@ namespace Ship_Game.AI {
             if (toAttack == null)
                 return;
 
-            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty)) return;
+            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty))
+                return;
             if (State == AIState.AttackTarget && Target == toAttack)
                 return;
             if (State == AIState.SystemDefender && Target == toAttack)
