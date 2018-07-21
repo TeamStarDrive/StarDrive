@@ -76,18 +76,18 @@ namespace Ship_Game
 
         public Building Clone()
         {
-            Building b = (Building)MemberwiseClone();
+            var b = (Building)MemberwiseClone();
             b.theWeapon = null;
             return b;
         }
 
-        public bool ProducesProduction => PlusFlatProductionAmount >0 || PlusProdPerColonist >0 || PlusProdPerRichness >0;
-        public bool ProducesFood => PlusFlatFoodAmount >0 || PlusFoodPerColonist > 0;
+        public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
+        public bool ProducesFood => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
+        public bool ProducesPopulation => PlusFlatPopulation > 0;
 
         private static float Production(Planet planet, float flatBonus, float perColonistBonus, float adjust = 1)
         {
-            float food = flatBonus;
-            return food + perColonistBonus * (planet.Population / 1000f) * adjust;
+            return flatBonus + perColonistBonus * (planet.Population / 1000f) * adjust;
         }
 
         public float CreditsProduced(Planet planet)
