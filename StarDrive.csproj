@@ -218,9 +218,11 @@
     <Compile Include="Ship_Game\ExtensionMethods\FRect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\Vector.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
@@ -243,6 +245,7 @@
     <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\RoleData.cs" />
     <Compile Include="Ship_Game\Ships\EmpireShipBonuses.cs" />
     <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />

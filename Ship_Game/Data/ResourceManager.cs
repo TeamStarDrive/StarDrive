@@ -595,7 +595,8 @@ namespace Ship_Game
                 // @todo What is going on here? Is this correct?
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
-                    newB.ProjectorRange = UniverseScreen.SubSpaceProjectors.Radius;
+                    // @todo NullReference bug here!
+                    newB.ProjectorRange = UniverseScreen?.SubSpaceProjectors.Radius ?? 0f;
                     newB.IsProjector = true;
                 }
                 if (!newB.IsSensor && !(newB.SensorRange > 0.0f))

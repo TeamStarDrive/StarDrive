@@ -187,7 +187,7 @@ namespace Ship_Game
             ShieldsBehaviorList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
             if (DesignRoleRect.HitTest(input.CursorPosition))
-                ShipData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
                 if (input.ArrowLeft)  ReorientActiveModule(ModuleOrientation.Left);

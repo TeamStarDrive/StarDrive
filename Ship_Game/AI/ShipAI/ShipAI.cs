@@ -791,13 +791,9 @@ namespace Ship_Game.AI
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
             switch (FoodOrProd) {
-                case "Pass":
-                    State = AIState.PassengerTransport;
-                    break;
-                case "Food":
-                case "Prod":
-                    State = AIState.SystemTrader;
-                    break;
+                case Goods.Colonists:  State = AIState.PassengerTransport; break;
+                case Goods.Food:
+                case Goods.Production: State = AIState.SystemTrader; break;
                 default:
                     State = DefaultAIState;
                     break;
