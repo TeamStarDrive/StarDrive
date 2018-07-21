@@ -388,7 +388,7 @@ namespace Ship_Game
             CommoditiesPresent.Count +
             (1 + EmpireFertility(empire))
             * (1 + MineralRichness)
-            * (float)Math.Ceiling(MaxPopulationBillion)
+            * (float)Math.Ceiling(MaxPopulation / 1000)
             );
 
         public bool NeedsFood()
