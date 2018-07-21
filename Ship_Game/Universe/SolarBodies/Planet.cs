@@ -465,6 +465,9 @@ namespace Ship_Game
 
         public void UpdateOwnedPlanet()
         {
+            PopulationBillion = Population / 1000;
+            MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000;
+
             ++TurnsSinceTurnover;
             if (CrippledTurns > 0) CrippledTurns--;
             else CrippledTurns = 0;
@@ -2394,9 +2397,6 @@ namespace Ship_Game
             else        //  ^-- This one increases population if there is enough food to feed everyone
                 Population += Unfed * 10f;      //So this else would only happen if there was not enough food. <-- This reduces population due to starvation.
             if (Population < 100.0) Population = 100f;      //Minimum population. I guess they wont all die from starvation
-
-            PopulationBillion = Population / 1000;
-            MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000;
         }
 
         public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
