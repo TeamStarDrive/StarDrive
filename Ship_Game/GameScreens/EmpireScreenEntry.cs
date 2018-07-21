@@ -358,11 +358,7 @@ namespace Ship_Game
 
 		private void DrawSliders(Ship_Game.ScreenManager ScreenManager)
 		{
-			string str;
 			string str1;
-			float x = (float)Mouse.GetState().X;
-			MouseState state = Mouse.GetState();
-			Vector2 vector2 = new Vector2(x, (float)state.Y);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
 			ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderFood.sRect, this.ColonySliderFood.Color);
 			if (this.ColonySliderFood.cState != "normal")
@@ -387,17 +383,17 @@ namespace Ship_Game
 				}
 			}
 			Vector2 textPos = new Vector2((float)(this.SliderRect.X + this.SliderRect.Width - 5), (float)(this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-			if (this.p.Owner.data.Traits.Cybernetic == 0)
+		    string food;
+            if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{
 				float netFoodPerTurn = this.p.NetFoodPerTurn - this.p.Consumption;
-				str = netFoodPerTurn.ToString(this.fmt);
+			    food = netFoodPerTurn.String();
 			}
 			else
 			{
-				str = "0";
+			    food = "0";
 			}
-			string food = str;
-			textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(food).X;
+			textPos.X -= Fonts.Arial12Bold.MeasureString(food).X;
 			if (this.p.NetFoodPerTurn - this.p.Consumption >= 0f || this.p.Owner.data.Traits.Cybernetic == 1)
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, new Color(255, 239, 208));

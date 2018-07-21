@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
         private GoalStep FindPlanetToBuildAt()
         {
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-            PlanetBuildingAt.ConstructionQueue.Add(new QueueItem
+            PlanetBuildingAt.ConstructionQueue.Add(new QueueItem(PlanetBuildingAt)
             {
                 isTroop = true,
                 QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,

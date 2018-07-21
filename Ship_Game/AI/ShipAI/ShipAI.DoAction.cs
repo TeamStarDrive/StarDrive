@@ -82,20 +82,17 @@ namespace Ship_Game.AI {
         private void DoAttackRun(float elapsedTime)
         {
             float spacerdistance = Owner.Radius + Target.Radius;
-            float adjustedWeaponRange = Owner.maxWeaponsRange * .35f;
+            float adjustedWeaponRange = Owner.maxWeaponsRange * 0.35f;
             if (spacerdistance > adjustedWeaponRange)
                 spacerdistance = adjustedWeaponRange;
 
-            Vector2 interceptPoint = Owner.Center.ProjectImpactPoint(
-                Owner.Velocity, Owner.maxWeaponsRange, Target.Center, Target.Velocity);
-
+            Vector2 interceptPoint = Owner.ProjectImpactPoint(Target);
             float distanceToTarget = Owner.Center.Distance(interceptPoint);                                   
 
-            if (distanceToTarget  > Owner.maxWeaponsRange *2 ) //spacerdistance && distanceToTarget > adjustedWeaponRange)
+            if (distanceToTarget > Owner.maxWeaponsRange * 2) //spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
-
 
                 if (distanceToTarget > 7500 ) //|| distanceToTarget < Owner.maxWeaponsRange)
                 {
@@ -103,9 +100,7 @@ namespace Ship_Game.AI {
                     return;
                     
                 }
-               // DoNonFleetArtillery(elapsedTime);
-                //return;
-                var direction = Owner.Center.DirectionToTarget(interceptPoint);
+                Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
                 MoveInDirection(direction, elapsedTime);
                 DebugTargetCircle(interceptPoint, spacerdistance);
                 return;
@@ -114,23 +109,18 @@ namespace Ship_Game.AI {
             AttackRunStarted |= RunTimer < 0;
             if (AttackRunStarted)
             {
-                //if (RunTimer < 0)
+                if (distanceToTarget > spacerdistance)
                 {
-                    if (distanceToTarget > spacerdistance)
-                    {
-                        var direction = Owner.Center.DirectionToTarget(interceptPoint);
-                        MoveInDirection(direction, elapsedTime);
-                        DebugTargetCircle(interceptPoint, Owner.Radius);
-                        return;
-                    }
-                    AttackRunStarted = false;
-                    int ran = RandomMath.IntBetween(0, 1);
-                    ran = ran == 1 ? 1 : -1;
-                    AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
-                    RunTimer = 20; // Owner.Speed * elapsedTime ;
+                    Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
+                    MoveInDirection(direction, elapsedTime);
+                    DebugTargetCircle(interceptPoint, Owner.Radius);
+                    return;
                 }
-                
-
+                AttackRunStarted = false;
+                int ran = RandomMath.IntBetween(0, 1);
+                ran = ran == 1 ? 1 : -1;
+                AttackRunAngle = ran * RandomMath.RandomBetween(75f, 100f) + Owner.Rotation.ToDegrees();
+                RunTimer = 20; // Owner.Speed * elapsedTime ;
             }
             if (distanceToTarget < Owner.maxWeaponsRange)
             {
@@ -499,25 +489,24 @@ namespace Ship_Game.AI {
         {
             if (Owner.Velocity.Length() > 0f)
             {
+                Vector2 interceptPoint = Owner.ProjectImpactPoint(Target);
+
                 Stop(elapsedTime);
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
-                float angleDiff = Owner.AngleDiffTo(Target.Center.Normalized(), out Vector2 right, out Vector2 forward);
+                float angleDiff = Owner.AngleDiffTo(interceptPoint, out Vector2 right, out Vector2 forward);
                 float facing = Owner.Velocity.Facing(right);
                 if (angleDiff <= 0.2f)                
                     return;
-                
                 RotateToFacing(elapsedTime, angleDiff, facing);
-
             }
             else
             {
-                Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Target.Center);
-                float angleDiff = Owner.AngleDiffTo(vectorToTarget.Normalized(), out Vector2 right, out Vector2 forward);
+                Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
+                float angleDiff = Owner.AngleDiffTo(dir, out Vector2 right, out Vector2 forward);
                 if (angleDiff <= 0.02f)                
                     return;
-                
-                RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
+                RotateToFacing(elapsedTime, angleDiff, dir.Facing(right));
             }
         }
 
@@ -567,7 +556,7 @@ namespace Ship_Game.AI {
         private void DoNonFleetArtillery(float elapsedTime)
         {
             //Heavily modified by Gretman
-            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.Center.ProjectImpactPoint(Owner.Velocity, Owner.maxWeaponsRange, Target.Center,Target.Velocity));
+            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.ProjectImpactPoint(Target));
             var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
             float distanceToTarget = Owner.Center.Distance(Target.Center);
             float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);// * 0.85f;
@@ -728,7 +717,7 @@ namespace Ship_Game.AI {
 
         private void DoRefit(float elapsedTime, ShipGoal goal)
         {
-            QueueItem qi = new BuildShip(goal);
+            QueueItem qi = new BuildShip(goal, OrbitTarget);
             if (qi.sData == null)
             {
                 OrderQueue.Clear();

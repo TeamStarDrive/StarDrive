@@ -60,7 +60,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            var queueItem = new QueueItem
+            var queueItem = new QueueItem(shipyard)
             {
                 isShip        = true,
                 Goal          = this,
