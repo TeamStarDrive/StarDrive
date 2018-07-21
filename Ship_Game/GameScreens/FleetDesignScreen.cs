@@ -460,7 +460,7 @@ namespace Ship_Game
                     {
                         var ship = (Ship)e.item;
                         bCursor.Y = e.Y;
-                        batch.Draw(ResourceManager.TextureDict["Icons/icon_ship_02"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                        batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                         var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                         batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                         tCursor.Y += Fonts.Arial12Bold.LineSpacing;

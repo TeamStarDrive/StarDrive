@@ -173,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.FactionUpdate.cs" />
@@ -218,9 +219,11 @@
     <Compile Include="Ship_Game\ExtensionMethods\FRect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\Vector.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />

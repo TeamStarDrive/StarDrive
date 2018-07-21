@@ -53,7 +53,7 @@ namespace Ship_Game.Commands.Goals
             if (EmpireManager.Player == empire
                 && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out Ship autoScout))
             {
-                planet.ConstructionQueue.Add(new QueueItem()
+                planet.ConstructionQueue.Add(new QueueItem(planet)
                 {
                     isShip = true,
                     QueueNumber = planet.ConstructionQueue.Count,
@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
-            planet.ConstructionQueue.Add(new QueueItem()
+            planet.ConstructionQueue.Add(new QueueItem(planet)
             {
                 isShip = true,
                 QueueNumber = planet.ConstructionQueue.Count,
