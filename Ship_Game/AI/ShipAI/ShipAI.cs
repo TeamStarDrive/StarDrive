@@ -905,7 +905,7 @@ namespace Ship_Game.AI
                 return;
             if (FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
-            var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+            var resupplyPlanet = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
             if (resupplyPlanet == null)
                 return;
             OrderResupply(resupplyPlanet, true);
