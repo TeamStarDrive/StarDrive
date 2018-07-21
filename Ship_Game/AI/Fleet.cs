@@ -760,7 +760,9 @@ namespace Ship_Game.AI
         }
 
         private void DoCohesiveClearAreaOfEnemies(MilitaryTask task)
-        {            
+        {
+            if (CoreFleetSubTask == null) TaskStep = 1;
+
             switch (this.TaskStep)
             {               
                 case 1:
