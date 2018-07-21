@@ -86,9 +86,9 @@ namespace Ship_Game.AI
                     RunInfrastructurePlanner();
             }
             DefensiveCoordinator.ManageForcePool();
+            RunEconomicPlanner();
             if (!OwnerEmpire.isPlayer)
-            {
-                RunEconomicPlanner();
+            {                
                 RunDiplomaticPlanner();
                 RunMilitaryPlanner();
                 RunResearchPlanner();
@@ -99,8 +99,6 @@ namespace Ship_Game.AI
             {
                 if (OwnerEmpire.AutoResearch)
                     RunResearchPlanner();
-                if (OwnerEmpire.data.AutoTaxes)
-                    RunEconomicPlanner();
             }
         }
 
