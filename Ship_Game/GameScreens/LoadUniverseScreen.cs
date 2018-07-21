@@ -155,8 +155,7 @@ namespace Ship_Game
             }
             foreach (SavedGame.PGSData d in psdata.PGSList)
             {
-                var pgs = new PlanetGridSquare(d.x, d.y, d.foodbonus, d.prodbonus, 
-                                            d.resbonus, d.building, d.Habitable)
+                var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable)
                 {
                     Biosphere = d.Biosphere
                 };
@@ -697,7 +696,7 @@ namespace Ship_Game
                         continue;
                     foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
                     {
-                        QueueItem qi = new QueueItem();
+                        var qi = new QueueItem(p);
                         if (qisave.isBuilding)
                         {
                             qi.isBuilding = true;

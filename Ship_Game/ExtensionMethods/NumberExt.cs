@@ -1,0 +1,25 @@
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+
+namespace Ship_Game
+{
+    public static class NumberExt
+    {
+        public static string String(this float number)
+        {
+            return number.ToString("0.#", CultureInfo.InvariantCulture);
+        }
+
+        public static string String(this float number, int numDecimals)
+        {
+            switch (numDecimals)
+            {
+                case 1:  return number.ToString("0.#", CultureInfo.InvariantCulture);
+                case 2:  return number.ToString("0.##", CultureInfo.InvariantCulture);
+                default: return number.ToString("0.###", CultureInfo.InvariantCulture);
+            }
+        }
+    }
+}
