@@ -48,21 +48,32 @@ namespace Ship_Game
         float PopulationBillion;
         float MaxPopulationBillion;
 
+        private string ImportsDescr()
+        {
+            if (!ImportFood && !ImportProd) return "";
+            if (ImportFood && !ImportProd) return "(IMPORT FOOD)";
+            if (ImportProd && !ImportFood) return "(IMPORT PROD)";
+            return "(IMPORT ALL)";
+        }
+        public override string ToString() => $"{Name} ({Owner.Name}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
+
         public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
-        public GoodState GetGoodState(string good)
+        public bool ImportFood => FS == GoodState.IMPORT;
+        public bool ImportProd => PS == GoodState.IMPORT;
+        public bool ExportFood => FS == GoodState.EXPORT;
+        public bool ExportProd => PS == GoodState.EXPORT;
+        public GoodState GetGoodState(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return FS;
-                case "Production":
-                    return PS;
+                case Goods.Food:       return FS;
+                case Goods.Production: return PS;
+                default:               return 0;
             }
-            return 0;
-        }
-        public SpaceStation Station = new SpaceStation();
-
+        }        
+        public SpaceStation Station = new SpaceStation();        
+        
         public float FarmerPercentage = 0.34f;
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;
@@ -74,27 +85,14 @@ namespace Ship_Game
         public int CrippledTurns;
 
         public float NetFoodPerTurn;
-        public float GetNetGoodProd(string good)
+        public float GetNetGoodProd(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return NetFoodPerTurn;
-                case "Production":
-                    return NetProductionPerTurn;
+                case Goods.Food:       return NetFoodPerTurn;
+                case Goods.Production: return NetProductionPerTurn;
+                default:               return 0;
             }
-            return 0;
-        }
-        public float GetMaxGoodProd(string good)
-        {
-            switch (good)
-            {
-                case "Food":
-                    return NetFoodPerTurn;
-                case "Production":
-                    return MaxProductionPerTurn;
-            }
-            return 0;
         }
         //public float FoodPercentAdded;  //This variable is never used... -Gretman
         public float FlatFoodAdded;
@@ -115,7 +113,6 @@ namespace Ship_Game
         public bool AllowInfantry;
         public float PlusFlatPopulationPerTurn;
         public int TotalDefensiveStrength;
-        public float GrossFood;
         public float GrossMoneyPT;
         public float GrossIncome =>
                     (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
@@ -129,22 +126,22 @@ namespace Ship_Game
         public float ShipBuildingModifier;
         public float Consumption;
         private float Unfed;
-
-        public float GetGoodHere(string good)
+        public float GetGoodHere(Goods good)
         {
             switch (good)
             {
-                case "Food":
-                    return FoodHere;
-                case "Production":
-                    return ProductionHere;
+                case Goods.Food:       return FoodHere;
+                case Goods.Production: return ProductionHere;
+                default:               return 0;
             }
-            return 0;
         }
         public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn = 0;
+
+        public float ExportPSWeight = 0;
+        public float ExportFSWeight = 0;
 
         public float TradeIncomingColonists = 0;
 
@@ -159,7 +156,28 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
-        public void HealTroops() => TroopManager.HealTroops();
+        public void HealTroops()                                          => TroopManager.HealTroops();
+
+
+
+        public void SetExportWeight(Goods good, float weight)
+        {
+            switch (good)
+            {
+                case Goods.Food:       ExportFSWeight = weight; break;
+                case Goods.Production: ExportPSWeight = weight; break;
+            }   
+        }
+
+        public float GetExportWeight(Goods good)
+        {
+            switch (good)
+            {
+                case Goods.Food:       return ExportFSWeight;
+                case Goods.Production: return ExportPSWeight;
+                default:               return 0;
+            }
+        }
 
         public Planet()
         {
@@ -240,47 +258,127 @@ namespace Ship_Game
 
         public Goods ImportPriority()
         {
-            if (NetFoodPerTurn <= 0 || FarmerPercentage > .5f)
+            // Is this an Import-Export type of planet?
+            if (ImportFood && ExportProd) return Goods.Food;
+            if (ImportProd && ExportFood) return Goods.Production;
+
+            bool debug = System.Diagnostics.Debugger.IsAttached;
+            const int lookahead = 30; // 1 turn ~~ 5 second, 12 turns ~~ 1min, 60 turns ~~ 5min
+            float predictedFood = ProjectedFood(lookahead);
+
+            if (predictedFood < 0f) // we will starve!
             {
-                if (ConstructingGoodsBuilding(Goods.Food))
-                    return Goods.Production;
+                if (!FindConstructionBuilding(Goods.Food, out QueueItem item))
+                {
+                    // we will definitely starve without food, so plz send food!
+                    if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (no food buildings) {this}");
+                    return Goods.Food;
+                }
+
+                // will the building complete in reasonable time?
+                int buildTurns = NumberOfTurnsUntilCompleted(item);
+                int starveTurns = TurnsUntilOutOfFood();
+                if (buildTurns > (starveTurns + 30))
+                {
+                    if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (build {buildTurns} > starve {starveTurns + 30}) {this}");
+                    return Goods.Food; // No! We will seriously starve even if this solves starving
+                }
+
+                float foodProduced = item.Building.FoodProduced(this);
+                if (NetFoodPerTurn + foodProduced >= 0f) // this building will solve starving
+                {
+                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (build {buildTurns}) {this}");
+                    return Goods.Production; // send production to finish it faster!
+                }
+
+                // we can't wait until building is finished, import food!
+                if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (build has not enough food) {this}");
                 return Goods.Food;
             }
-            if (ConstructionQueue.Count > 0) return Goods.Production;
-            if (PS == GoodState.IMPORT) return Goods.Production;
-            if (FS == GoodState.IMPORT) return Goods.Food;
-            return Goods.Food;
+
+            // we have enough food incoming, so focus on production instead
+            float predictedProduction = ProjectedProduction(lookahead);
+
+            // We are not starving and we're constructing stuff
+            if (ConstructionQueue.Count > 0)
+            {
+                // this is taking too long! import production to speed it up
+                int totalTurns = NumberOfTurnsUntilCompleted(ConstructionQueue.Last);
+                if (totalTurns >= 60)
+                {
+                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (construct >= 60 turns) {this}");
+                    return Goods.Production;
+                }
+
+                // only import if we're constructing more than we're producing
+                float projectedProd = ProjectedProduction(totalTurns);
+                if (projectedProd <= 25f)
+                {
+                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (projected {projectedProd:0.#} <= 25) {this}");
+                    return Goods.Production;
+                }
+            }
+
+            // we are not starving and we are not constructing anything
+            // just pick which stockpile is smaller
+            return predictedFood < predictedProduction ? Goods.Food : Goods.Production;
         }
 
-        public bool ConstructingGoodsBuilding(Goods goods)
+        private const int NEVER = 10000;
+
+        private float AvgIncomingFood => IncomingFood / 30f; // @todo Estimate this better
+        private float AvgIncomingProd => IncomingProduction / 30f;
+
+        private float AvgFoodPerTurn => GetNetFoodPerTurn() + AvgIncomingFood;
+        private float AvgProdPerTurn => GetNetProductionPerTurn() + AvgIncomingProd;
+
+        private int TurnsUntilOutOfFood()
         {
-            if (ConstructionQueue.IsEmpty) return false;
-            switch (goods)
+            if (Owner.data.Traits.Cybernetic == 1)
+                return NEVER;
+
+            float avg = AvgFoodPerTurn;
+            if (avg > 0f) return NEVER;
+            return (int)Math.Floor(FoodHere / Math.Abs(avg));
+        }
+
+        private float ProjectedFood(int turns)
+        {
+            float incomingAvg = IncomingFood / 100f;
+            return FoodHere + (incomingAvg + GetNetFoodPerTurn()) * turns;
+        }
+
+        private float ProjectedProduction(int turns)
+        {
+            float incomingAvg = IncomingProduction / 100f;
+            return ProductionHere + (incomingAvg + GetNetProductionPerTurn()) * turns;
+        }
+
+        private bool FindConstructionBuilding(Goods goods, out QueueItem item)
+        {
+            foreach (QueueItem it in ConstructionQueue)
             {
-                case Goods.Production:
-                    foreach (var item in ConstructionQueue)
-                    {
-                        if (item.isBuilding && item.Building.ProducesProduction)
-                        {
-                            return true;
-                        }
-                    }
-                    break;
-                case Goods.Food:
-                    foreach (var item in ConstructionQueue)
-                    {
-                        if (item.isBuilding && item.Building.ProducesFood)
-                        {
-                            return true;
-                        }
-                    }
-                    break;
-                case Goods.Colonists:
-                    break;
-                default:
+                if (it.isBuilding) switch (goods)
+                {
+                    case Goods.Food:       if (it.Building.ProducesFood)       { item = it; return true; } break;
+                    case Goods.Production: if (it.Building.ProducesProduction) { item = it; return true; } break;
+                    case Goods.Colonists:  if (it.Building.ProducesPopulation) { item = it; return true; } break;
+                }
+            }
+            item = null;
+            return false;
+        }
+
+        private int NumberOfTurnsUntilCompleted(QueueItem item)
+        {
+            int totalTurns = 0;
+            foreach (QueueItem it in ConstructionQueue)
+            {
+                totalTurns += it.EstimatedTurnsToComplete;
+                if (it == item)
                     break;
             }
-            return false;
+            return totalTurns;
         }
 
         public float EmpireFertility(Empire empire) =>
@@ -692,8 +790,8 @@ namespace Ship_Game
                     if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
                     if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
 
-                    if (AddToIncomingTrade(ref IncomingFood, ship.CargoSpaceMax * (ship.AI.FoodOrProd == "Food" ? 1 : 0))) return;
-                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.FoodOrProd == "Prod" ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingFood,       ship.CargoSpaceMax * (ship.AI.IsFood ? 1 : 0))) return;
+                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.IsProd ? 1 : 0))) return;
                     if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
                 }
             }
@@ -1249,7 +1347,7 @@ namespace Ship_Game
                     }
                 }
                 if (!hasShipyard && DevelopmentLevel > 2)
-                    ConstructionQueue.Add(new QueueItem()
+                    ConstructionQueue.Add(new QueueItem(this)
                     {
                         isShip = true,
                         sData = ResourceManager.ShipsDict[Owner.data.DefaultShipyard].shipData,
@@ -2007,7 +2105,7 @@ namespace Ship_Game
                             {
                                 if (!Owner.WeCanBuildTroop(troopType))
                                     continue;
-                                QueueItem qi = new QueueItem();
+                                QueueItem qi = new QueueItem(this);
                                 qi.isTroop = true;
                                 qi.troopType = troopType;
                                 qi.Cost = ResourceManager.GetTroopCost(troopType);
@@ -2018,7 +2116,6 @@ namespace Ship_Game
                             }
                         }
                     }
-
             } //End Gov type Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
@@ -2027,7 +2124,6 @@ namespace Ship_Game
                 #region Troops and platforms
 
             {
-
                 //Added by McShooterz: build defense platforms
 
                 if (HasShipyard && !ParentSystem.CombatInSystem
@@ -2108,7 +2204,7 @@ namespace Ship_Game
                             {
                                 Ship ship = ResourceManager.ShipsDict[station];
                                 if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
-                                    ConstructionQueue.Add(new QueueItem()
+                                    ConstructionQueue.Add(new QueueItem(this)
                                     {
                                         isShip = true,
                                         sData = ship.shipData,
@@ -2126,7 +2222,7 @@ namespace Ship_Game
                             if (!string.IsNullOrEmpty(platform))
                             {
                                 Ship ship = ResourceManager.ShipsDict[platform];
-                                ConstructionQueue.Add(new QueueItem()
+                                ConstructionQueue.Add(new QueueItem(this)
                                 {
                                     isShip = true,
                                     sData = ship.shipData,
@@ -2245,7 +2341,6 @@ namespace Ship_Game
             float storageAdded = 0;
             AllowInfantry = false;
             TotalDefensiveStrength = 0;
-            GrossFood = 0f;
             PlusResearchPerColonist = 0f;
             PlusFlatResearchPerTurn = 0f;
             PlusFlatProductionPerTurn = 0f;
@@ -2339,8 +2434,7 @@ namespace Ship_Game
             NetResearchPerTurn = NetResearchPerTurn + Owner.data.Traits.ResearchMod * NetResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn - Owner.data.TaxRate * NetResearchPerTurn;
             //Food
-            NetFoodPerTurn =  (FarmerPercentage * PopulationBillion * (Fertility + PlusFoodPerColonist)) + FlatFoodAdded;
-            GrossFood = NetFoodPerTurn;     //NetFoodPerTurn is finished being calculated in another file...
+            NetFoodPerTurn =  (FarmerPercentage * PopulationBillion * (Fertility + PlusFoodPerColonist)) + FlatFoodAdded;//NetFoodPerTurn is finished being calculated in another file...
             //Production
             NetProductionPerTurn = (WorkerPercentage * PopulationBillion * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;

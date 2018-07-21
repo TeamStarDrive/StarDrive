@@ -68,7 +68,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             this.PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem()
+            planet1.ConstructionQueue.Add(new QueueItem(planet1)
             {
                 isShip = true,
                 QueueNumber = planet1.ConstructionQueue.Count,

@@ -539,8 +539,38 @@ namespace Ship_Game
             return iter;
         }
 
-        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-            Vector2 targetPos, Vector2 targetVel)
+        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, 
+                                                 float projectileSpeed, GameplayObject target)
+        {
+            // for shipmodules, make sure to use ship Velocity and Acceleration
+            if (target is Ships.Ship ship || target is Ships.ShipModule sm && (ship = sm.GetParent()) != null)
+            {
+                return weaponPos.ProjectImpactPoint(ownerVel, projectileSpeed, target.Center, 
+                                                    ship.Velocity, ship.Acceleration);
+            }
+            return weaponPos.ProjectImpactPoint(ownerVel, projectileSpeed, target.Center, target.Velocity);
+        }
+
+        public static Vector2 ProjectImpactPoint(this Ships.Ship ourShip, GameplayObject target)
+        {
+            // for shipmodules, make sure to use ship Velocity and Acceleration
+            if (target is Ships.Ship theirShip || target is Ships.ShipModule sm && (theirShip = sm.GetParent()) != null)
+            {
+                Vector2 totalAccel = theirShip.Acceleration - ourShip.Acceleration;
+                return ourShip.Center.ProjectImpactPoint(ourShip.Velocity, ourShip.AvgProjectileSpeed, 
+                                                         target.Center, ourShip.Velocity, totalAccel);
+            }
+            return ourShip.Center.ProjectImpactPoint(ourShip.Velocity, ourShip.AvgProjectileSpeed, 
+                                                     target.Center, target.Velocity, ourShip.Acceleration);
+        }
+
+        public static Vector2 ProjectImpactPoint(this Gameplay.Projectile proj, GameplayObject target)
+        {
+            return proj.Center.ProjectImpactPoint(proj.Velocity, proj.Speed, target);
+        }
+
+        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, 
+                                                 float projectileSpeed,  Vector2 targetPos, Vector2 targetVel)
         {
             //Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel);
             Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel);
@@ -763,6 +793,11 @@ namespace Ship_Game
         public static Vector2 OffSetTo(this Vector2 center, Vector2 target, float distance)
         {
             return center + center.DirectionToTarget(target) * distance;
+        }
+
+        public static Vector2 RandomOffset(this Vector2 center, float distance)
+        {
+            return center + RandomMath.RandomDirection() * distance;
         }
 
         // Generates a new point on a circular radius from position

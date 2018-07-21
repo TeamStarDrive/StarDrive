@@ -563,10 +563,10 @@ namespace Ship_Game.Debug
                     switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 6);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
                             break;
                         case Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 3);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
                             break;
                         case Plan.PickupPassengers:
                         case Plan.DropoffPassengers:
