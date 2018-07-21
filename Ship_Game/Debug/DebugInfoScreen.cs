@@ -554,12 +554,6 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                foreach (Planet planet in e.GetPlanets())
-                {                    
-                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
-                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
-                }
-
                 foreach (Ship ship in e.GetShips())
                 {
                     ShipAI ai = ship.AI;
@@ -569,10 +563,10 @@ namespace Ship_Game.Debug
                     switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 6);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
                             break;
                         case Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 3);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
                             break;
                         case Plan.PickupPassengers:
                         case Plan.DropoffPassengers:
