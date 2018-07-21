@@ -8,7 +8,7 @@ namespace Ship_Game.AI.Budget
         public readonly float SystemBudget;
         public readonly float Budget;
         public readonly float EmpireRatio;
-        public float SystemRank => SysCom.RankImportance;
+        public float SystemRank => SysCom?.RankImportance ?? 0;
         private readonly SystemCommander SysCom;
         private Empire Owner                   => Planet.Owner;
         private float EmpireColonizationBudget => Owner.data.ColonyBudget;

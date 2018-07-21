@@ -1065,13 +1065,18 @@ namespace Ship_Game.AI
 
             foreach (var kv in enemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
             {
-                if (availableShips.Count == 0) break;
+                if (availableShips.Count == 0) break;                
                 float attackStr = 0.0f;
                 for (int x = availableShips.Count - 1; x >= 0; x--)
                 {
-                    if (attackStr > kv.Value * 2) break;
+                    if (attackStr > kv.Value * 2) break;                    
 
                     Ship ship       = availableShips[x];
+                    if (ship.AI.HasPriorityOrder)
+                    {
+                        availableShips.RemoveAtSwapLast(x);
+                        continue;
+                    }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
                     float facing    = ship.Center.RadiansToTarget(kv.Key);
                     ship.AI.OrderThrustTowardsPosition(kv.Key, facing, vFacing, false);
@@ -1230,9 +1235,12 @@ namespace Ship_Game.AI
         {
             var bombers = Ships.FilterBy(ship => ship.BombBays.Count > 0);
             foreach (var ship in bombers)
-            {
+            {                
                 if (doBombing)
+                {
+                    if (ship.AI.HasPriorityOrder) continue;
                     ship.AI.OrderBombardPlanet(task.TargetPlanet);
+                }
                 else if (ship.AI.State == AIState.Bombard)
                     ship.AI.ClearOrdersNext = true;
             }
