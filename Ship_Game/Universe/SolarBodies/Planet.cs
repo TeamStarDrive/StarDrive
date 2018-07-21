@@ -45,8 +45,8 @@ namespace Ship_Game
             set => SbCommodities.Population = value;
         }
 
-        float PopulationBillion;
-        float MaxPopulationBillion;
+        private float PopulationBillion;
+        private float MaxPopulationBillion;
 
         private string ImportsDescr()
         {
@@ -666,30 +666,29 @@ namespace Ship_Game
         public void UpdateDevelopmentStatus()
         {
             Density = PopulationBillion;
-            float maxPop = MaxPopulationBillion;   //MaxPopBonus ommitted here so a planet doesn't get upgraded because of a +maxPop building
             if (Density <= 0.5f)
             {
                 DevelopmentLevel = 1;
                 DevelopmentStatus = Localizer.Token(1763);
-                if (maxPop >= 2 && Type != "Barren")
+                if (MaxPopulationBillion >= 2 && Type != "Barren")
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1764);
                     planet.DevelopmentStatus = str;
                 }
-                else if (maxPop >= 2f && Type == "Barren")
+                else if (MaxPopulationBillion >= 2f && Type == "Barren")
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1765);
                     planet.DevelopmentStatus = str;
                 }
-                else if (maxPop < 0 && Type != "Barren")
+                else if (MaxPopulationBillion < 0 && Type != "Barren")
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1766);
                     planet.DevelopmentStatus = str;
                 }
-                else if (maxPop < 0.5f && Type == "Barren")
+                else if (MaxPopulationBillion < 0.5f && Type == "Barren")
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1767);
@@ -700,13 +699,13 @@ namespace Ship_Game
             {
                 DevelopmentLevel = 2;
                 DevelopmentStatus = Localizer.Token(1768);
-                if (maxPop >= 2)
+                if (MaxPopulationBillion >= 2)
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1769);
                     planet.DevelopmentStatus = str;
                 }
-                else if (maxPop < 2)
+                else if (MaxPopulationBillion < 2)
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1770);
@@ -717,13 +716,13 @@ namespace Ship_Game
             {
                 DevelopmentLevel = 3;
                 DevelopmentStatus = Localizer.Token(1771);
-                if (maxPop >= 5.0)
+                if (MaxPopulationBillion >= 5.0)
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1772);
                     planet.DevelopmentStatus = str;
                 }
-                else if (maxPop < 5.0)
+                else if (MaxPopulationBillion < 5.0)
                 {
                     var planet = this;
                     string str = planet.DevelopmentStatus + Localizer.Token(1773);
