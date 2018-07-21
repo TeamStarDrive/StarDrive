@@ -457,7 +457,7 @@ namespace Ship_Game
                 {
                     Planet resupplyTarget = ship.AI.ResupplyTarget;
                     if (resupplyTarget == null)
-                    {
+                    {                        
                         text = Localizer.Token(173);
                         break;
                     }
@@ -469,7 +469,8 @@ namespace Ship_Game
                 }
                 case AIState.Rebase:
                 {
-                    text = Localizer.Token(178) + " to " + ship.AI.OrderQueue.PeekLast.TargetPlanet.Name;  //fbedard
+                    var planetName = ship.AI.OrderQueue.PeekLast?.TargetPlanet.Name;                    
+                    text = Localizer.Token(178) + $" to {planetName ?? "ERROR" }";  //fbedard
                     break;
                 }
                 case AIState.Bombard:
