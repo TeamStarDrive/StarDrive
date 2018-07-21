@@ -115,7 +115,7 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        public bool GovernorOn = true;
+        public bool GovernorOn = true;  //This can be removed...It is set all over the place, but never checked. -Gretman
         public float ObjectRadius
         {
             get => SO != null ? SO.WorldBoundingSphere.Radius : InvisibleRadius;
@@ -124,11 +124,7 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
 
-        
-
-
-
-
+        public Array<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
 
         public string GetTypeTranslation()
         {
@@ -481,7 +477,7 @@ namespace Ship_Game
                         if (habChance > 0)
                             habitable = RandomMath.RandomBetween(0, 100) < habChance;
 
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitable));
+                        TilesList.Add(new PlanetGridSquare(x, y, null, habitable));
                     }
                 }
             }
@@ -758,8 +754,7 @@ namespace Ship_Game
                     for (int y = 0; y < 5; ++y)
                     {
                         bool habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
-                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, habitableTile));
-
+                        TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                     }
                 }
             }

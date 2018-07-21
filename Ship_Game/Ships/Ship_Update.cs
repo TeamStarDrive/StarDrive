@@ -104,7 +104,7 @@ namespace Ship_Game.Ships
                 if (AI.BadGuysNear && InCombat && System != null && LastDamagedBy != null)
                 {
                     System.CombatInSystem = true;
-                    System.combatTimer = 15f;
+                    System.combatTimer = 5f;
                 }
             }
 
@@ -138,7 +138,7 @@ namespace Ship_Game.Ships
             if (!Active) return;
 
             InCombatTimer -= elapsedTime;
-            if (InCombatTimer > 0.0)
+            if (InCombatTimer > 0.0f)
             {
                     
                 InCombat = true;
@@ -156,7 +156,7 @@ namespace Ship_Game.Ships
 
             Position += Velocity * elapsedTime;
             Center   += Velocity * elapsedTime;
-            UpdateShipStatus(elapsedTime); //Mer
+            UpdateShipStatus(elapsedTime);
 
             if (InFrustum)
             {

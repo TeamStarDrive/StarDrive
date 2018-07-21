@@ -391,23 +391,38 @@ namespace Ship_Game.Gameplay
             if (SalvoTarget != null) // check for new direction
             {
                 // update direction only if we have a new valid pip
-                if (ProjectedImpactPoint(SalvoTarget, out Vector2 pip) && CheckFireArc(pip, SalvoTarget))
-                    SalvoDirection = (pip - Module.Center).ToRadians() - Owner.Rotation;
+                if (PrepareFirePos(SalvoTarget, SalvoTarget.Center, out Vector2 firePos))
+                    SalvoDirection = (firePos - Module.Center).ToRadians() - Owner.Rotation;
             }
             
             SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget);
         }
 
+        private bool PrepareFirePos(GameplayObject target, Vector2 targetPos, out Vector2 firePos)
+        {
+            if (target != null)
+            {
+                if (ProjectedImpactPoint(target, out Vector2 pip) && CheckFireArc(pip))
+                {
+                    firePos = pip;
+                    return PrepareToFire();
+                }
+            }
+            if (CheckFireArc(targetPos))
+            {
+                firePos = targetPos;
+                return PrepareToFire();
+            }
+            firePos = targetPos;
+            return false;
+        }
+
         private void FireAtTarget(Vector2 targetPos, GameplayObject target = null)
         {
-            Vector2 pip = targetPos;
-            if (target != null && (!ProjectedImpactPoint(target, out pip) || !CheckFireArc(pip) || !PrepareToFire()))
-                return; // no projected impact point
-            else
-                if (target == null && (!CheckFireArc(pip) || !PrepareToFire()))
+            if (!PrepareFirePos(target, targetPos, out Vector2 firePos))
                 return;
 
-            Vector2 direction = (pip - Module.Center).Normalized();
+            Vector2 direction = (firePos - Module.Center).Normalized();
 
             SpawnSalvo(direction, target);
 
@@ -481,25 +496,11 @@ namespace Ship_Game.Gameplay
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
             Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
-            Vector2 jitter = target.JitterPosition();
-            // for shipmodules, make sure to use ship Velocity and Acceleration
-            if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
-            {                                
-                pip     = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center, ship.Velocity, ship.Acceleration);
-                 jitter += AdjustTargetting();
-                Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 4000) + jitter;                
-                pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
+            Vector2 jitter = target.JitterPosition() + AdjustTargetting();
 
-            }
-            else
-            {
-                pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, 
-                    target.Center, target.Velocity);
-                jitter += AdjustTargetting();
-                jitter += SetDestination(pip, ownerCenter, 4000);                                
-                pip     = SetDestination(jitter, ownerCenter, ownerCenter.Distance(pip));
-            }
+            pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, target);
+            Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 4000) + jitter;
+            pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
             return pip != Vector2.Zero;

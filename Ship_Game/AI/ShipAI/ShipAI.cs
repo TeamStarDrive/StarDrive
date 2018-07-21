@@ -375,6 +375,11 @@ namespace Ship_Game.AI
         private void AIStateRebase()
         {
             if (State != AIState.Rebase) return;
+            if (OrderQueue.IsEmpty)
+            {
+                OrderRebaseToNearest();
+                return;
+            }
             for (int x = 0; x < OrderQueue.Count; x++)
             {
                 ShipGoal goal = OrderQueue[x];
@@ -382,7 +387,7 @@ namespace Ship_Game.AI
                     continue;
                 OrderQueue.Clear();
                 State = AIState.AwaitingOrders;
-                break;
+                return;
             }
         }
 
@@ -791,13 +796,9 @@ namespace Ship_Game.AI
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
             switch (FoodOrProd) {
-                case "Pass":
-                    State = AIState.PassengerTransport;
-                    break;
-                case "Food":
-                case "Prod":
-                    State = AIState.SystemTrader;
-                    break;
+                case Goods.Colonists:  State = AIState.PassengerTransport; break;
+                case Goods.Food:
+                case Goods.Production: State = AIState.SystemTrader; break;
                 default:
                     State = DefaultAIState;
                     break;
@@ -909,7 +910,7 @@ namespace Ship_Game.AI
                 return;
             if (FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
-            var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+            var resupplyPlanet = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
             if (resupplyPlanet == null)
                 return;
             OrderResupply(resupplyPlanet, true);

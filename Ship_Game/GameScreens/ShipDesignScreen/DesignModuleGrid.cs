@@ -278,7 +278,10 @@ namespace Ship_Game
             ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
-                Grid[x + y*Width].Parent = slot;
+            {
+                SlotStruct target = Grid[x + y*Width];
+                if (target != slot) target.Parent = slot;
+            }
         }
         
         public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
@@ -302,7 +305,7 @@ namespace Ship_Game
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
             {
-                SlotStruct root = Grid[x + y*Width].Parent;
+                SlotStruct root = Grid[x + y*Width].Root;
                 if (root?.Module != null) // only clear module roots which have not been cleared yet
                 {
                     SaveAction(root, root.Module, root.Orientation, ChangeType.Removed);

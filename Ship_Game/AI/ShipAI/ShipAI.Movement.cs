@@ -488,18 +488,19 @@ namespace Ship_Game.AI {
 
         }
         
-        private void RotateInLineWithVelocity(float elapsedTime, ShipGoal Goal)
+        private void RotateInLineWithVelocity(float elapsedTime, ShipGoal goal)
         {
             if (Owner.Velocity == Vector2.Zero)
             {
                 OrderQueue.RemoveFirst();
                 return;
             }
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(Vector2.Normalize(Owner.Velocity), forward));
-            float facing = Vector2.Dot(Vector2.Normalize(Owner.Velocity), right) > 0f ? 1f : -1f;
+
+            Vector2 ownerDir = Owner.Velocity.Normalized();
+            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 right = forward.RightVector();
+            float angleDiff = (float)Math.Acos(ownerDir.Dot(forward));
+            float facing = ownerDir.Dot(right) > 0f ? 1f : -1f;
             if (angleDiff <= 0.2f)
             {
                 OrderQueue.RemoveFirst();
@@ -511,13 +512,12 @@ namespace Ship_Game.AI {
         private void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
             Vector2 p = Vector2.Zero.PointFromRadians(goal.DesiredFacing, 1f);
-            Vector2 fvec = Vector2.Zero.DirectionToTarget(p);
-            Vector2 wantedForward = Vector2.Normalize(fvec);
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
-            float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
+            Vector2 wantedForward = Vector2.Zero.DirectionToTarget(p);
+
+            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 right = forward.RightVector();
+            float angleDiff = (float) Math.Acos(wantedForward.Dot(forward));
+            float facing = wantedForward.Dot(right) > 0f ? 1f : -1f;
             if (angleDiff <= 0.02f)
             {
                 OrderQueue.RemoveFirst();
@@ -528,40 +528,21 @@ namespace Ship_Game.AI {
 
         private bool RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
         {
-            var turned = false;
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = Owner.Center.DirectionToTarget(goal.MovePosition);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(VectorToTarget, forward));
+            bool turned = false;
+            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 right = forward.RightVector();
+            Vector2 dir = Owner.Center.DirectionToTarget(goal.MovePosition);
+            float angleDiff = (float)Math.Acos(dir.Dot(forward));
             if (angleDiff > 0.2f)
             {
                 Owner.HyperspaceReturn();
-                RotateToFacing(elapsedTime, angleDiff, Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f);
+                RotateToFacing(elapsedTime, angleDiff, dir.Dot(right) > 0f ? 1f : -1f);
                 turned = true;
             }
             else if (OrderQueue.NotEmpty)
             {
                 OrderQueue.RemoveFirst();
             }
-            return turned;
-        }
-
-        private bool RotateToFaceMovePosition(float elapsedTime, Vector2 MovePosition)
-        {
-            var turned = false;
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = Owner.Center.DirectionToTarget(MovePosition);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(VectorToTarget, forward));
-            if (angleDiff > Owner.rotationRadiansPerSecond * elapsedTime)
-            {
-                Owner.HyperspaceReturn();
-                RotateToFacing(elapsedTime, angleDiff, Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f);
-                turned = true;
-            }
-
             return turned;
         }
 
@@ -575,19 +556,16 @@ namespace Ship_Game.AI {
             {
                 if (Owner.yRotation > -Owner.MaxBank)
                 {
-                    Ship owner = Owner;
-                    owner.yRotation = owner.yRotation - Owner.yBankAmount;
+                    Owner.yRotation -= Owner.yBankAmount;
                 }
             }
             else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
             {
-                Ship ship = Owner;
-                ship.yRotation = ship.yRotation + Owner.yBankAmount;
+                Owner.yRotation += Owner.yBankAmount;
             }
             if (!float.IsNaN(rotAmount))
             {
-                Ship rotation = Owner;
-                rotation.Rotation = rotation.Rotation + rotAmount;
+                Owner.Rotation += rotAmount;
             }
         }
 

@@ -221,10 +221,7 @@ namespace Ship_Game
                             {
                                 x          = tile.x,
                                 y          = tile.y,
-                                resbonus   = tile.resbonus,
-                                prodbonus  = tile.prodbonus,
                                 Habitable  = tile.Habitable,
-                                foodbonus  = tile.foodbonus,
                                 Biosphere  = tile.Biosphere,
                                 building   = tile.building,
                                 TroopsHere = tile.TroopsHere
@@ -439,7 +436,7 @@ namespace Ship_Game
                
                     sdata.AISave = new ShipAISave()
                     {
-                        FoodOrProd = ship.AI.FoodOrProd,
+                        FoodOrProd = ship.AI.GetTradeTypeString(),
                         state      = ship.AI.State
                     };
                     if (ship.AI.Target is Ship targetShip)
@@ -550,7 +547,7 @@ namespace Ship_Game
                     sdata.InCombatTimer = ship.InCombatTimer;
                     sdata.AISave        = new ShipAISave
                     {
-                        FoodOrProd      = ship.AI.FoodOrProd,
+                        FoodOrProd      = ship.AI.GetTradeTypeString(),
                         state           = ship.AI.State,
                         defaultstate    = ship.AI.DefaultAIState,
                         GoToStep        = ship.AI.GotoStep,

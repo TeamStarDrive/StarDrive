@@ -477,6 +477,28 @@ namespace Ship_Game
             return results;
         }
 
+        // Copy paste from above. Purely because I don't want to ruin T[] access optimizations
+        public static unsafe T[] FilterBy<T>(this IReadOnlyList<T> items, Func<T, bool> predicate)
+        {
+            int count = items.Count;
+            byte* map = stackalloc byte[count];
+
+            int resultCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                bool keep = predicate(items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            var results = new T[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < count; ++i)
+                if (map[i] > 0) results[resultCount++] = items[i];
+
+            return results;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] UniqueGameObjects<T>(this T[] items) where T : GameplayObject
             => items.UniqueGameObjects(items.Length);
