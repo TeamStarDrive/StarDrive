@@ -158,7 +158,7 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public void HealTroops()                                          => TroopManager.HealTroops();
 
-
+        private static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
         public void SetExportWeight(Goods good, float weight)
         {
@@ -1546,7 +1546,7 @@ namespace Ship_Game
                     score += score + (building.Maintenance + building.Maintenance * Owner.data.Traits.MaintMod);   //Really dont want this if we cant afford it
                 score -= Owner.data.FlatMoneyBonus * 0.015f;      //Acceptible loss (Note what this will do at high Difficulty)
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} Maintenance : Score was {-score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} Maintenance : Score was {-score}");
             }
 
             return score;
@@ -1567,7 +1567,7 @@ namespace Ship_Game
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatFood : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FlatFood : Score was {score}");
             }
 
             return score;
@@ -1589,7 +1589,7 @@ namespace Ship_Game
                     if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
             }
 
             return score;
@@ -1612,7 +1612,7 @@ namespace Ship_Game
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatProd : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FlatProd : Score was {score}");
             }
 
             return score;
@@ -1633,7 +1633,7 @@ namespace Ship_Game
                     if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
             }
 
             return score;
@@ -1651,7 +1651,7 @@ namespace Ship_Game
                     if (!HasShipyard) score *= 0.75f;       //Do we have a use for all this production?
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ProdPerRich : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ProdPerRich : Score was {score}");
             }
 
             return score;
@@ -1668,7 +1668,7 @@ namespace Ship_Game
                 if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.002f) - (building.Cost * 0.001f);  //If we need more storage, rate this building
                 if (building.Maintenance > 0) score *= 0.25f;       //Prefer free storage
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} StorageAdd : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} StorageAdd : Score was {score}");
             }
 
             return score;
@@ -1688,7 +1688,7 @@ namespace Ship_Game
                 if (Owner.data.Traits.PhysicalTraitLessFertile) score *= 2;     //These are calculated outside the else, so they will affect negative flatpop too
                 if (Owner.data.Traits.PhysicalTraitFertile) score *= 0.5f;
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} PopGrowth : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} PopGrowth : Score was {score}");
             }
 
             return score;
@@ -1708,7 +1708,7 @@ namespace Ship_Game
                         score += building.MaxPopIncrease * 0.001f;
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} MaxPop : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} MaxPop : Score was {score}");
             }
 
             return score;
@@ -1731,7 +1731,7 @@ namespace Ship_Game
                     if (score < building.PlusFlatResearchAmount * 0.1f) score = building.PlusFlatResearchAmount * 0.1f; //A little extra research is always useful
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FlatResearch : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FlatResearch : Score was {score}");
             }
 
             return score;
@@ -1752,7 +1752,7 @@ namespace Ship_Game
                     score += building.PlusResearchPerColonist * (ResearcherPercentage * maxPopulation);       //Research this will generate
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
             }
 
             return score;
@@ -1766,7 +1766,7 @@ namespace Ship_Game
                 if (building.CreditsPerColonist < 0) score += building.CreditsPerColonist * maxPopulation * 2;
                 else score += (building.CreditsPerColonist * maxPopulation) / 2;        //Dont want to cause this to have building preference over infrastructure buildings
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} CredsPerCol : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} CredsPerCol : Score was {score}");
             }
 
             return score;
@@ -1780,7 +1780,7 @@ namespace Ship_Game
                 if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * GrossMoneyPT * 2;
                 else score += building.PlusTaxPercentage * GrossMoneyPT / 2;
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} PlusTaxPercent : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} PlusTaxPercent : Score was {score}");
             }
 
             return score;
@@ -1798,7 +1798,7 @@ namespace Ship_Game
                 //Do we have enough production capability to really justify trying to build ships
                 if (prodFromLabor + prodFromFlat > 5.0f) score += prodFromLabor + prodFromFlat - 5.0f;
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
             }
 
             return score;
@@ -1810,7 +1810,7 @@ namespace Ship_Game
             if (building.PlusTerraformPoints != 0)
             {
                 //Still working on this one...
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} Terraform : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} Terraform : Score was {score}");
             }
 
             return score;
@@ -1832,18 +1832,37 @@ namespace Ship_Game
                     else score += fertLost * 4;
                 }
 
-                if (Name == "MerVille") Log.Info($"Evaluated {building.Name} FertLossOnBuild : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FertLossOnBuild : Score was {score}");
             }
 
             return score;
         }
 
+        private int ExistingMilitaryBuildings()
+        {
+            return BuildingsCanBuild.Count(building => 
+                        building.Strength > 0 && 
+                        building.Name != "Outpost" &&
+                        building.Name != "Capital City" && 
+                        building.MaxPopIncrease == 0);
+        }
+
+        private int DesiredMilitaryBuildings()
+        {
+            //This is a temporary quality rating. This will be replaced by an "importance to the Empire" calculation from the military planner at some point (hopefully soon). -Gretman
+            float quality = Fertility + MineralRichness + MaxPopulationBillion + 1.5f;
+            if (Fertility > 1.6) quality += 1.5f;
+            if (MineralRichness > 1.6) quality += 1.5f;
+
+            return (int)(quality / 5); //Return just the whole number by truncating the decimal
+        }
+
         private float FactorForConstructionCost(float score, float cost)
         {
             //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
-            //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 1000, it will
+            //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 400, it will
             //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman
-            return score *= (1 - (cost / 400)).Clamp(0.001f, 1);
+            return score *= (1 - (cost / 400)).Clamp(0.001f, 10);
         }
 
         private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
@@ -1873,9 +1892,32 @@ namespace Ship_Game
 
             if (buildingValue > 0) buildingValue = FactorForConstructionCost(buildingValue, building.Cost);
 
-            if (Name == "MerVille") Log.Info(ConsoleColor.Cyan, $"Evaluated {building.Name} Final Score was : {buildingValue}");
+            if (Name == ExtraInfoOnPlanet) Log.Info(ConsoleColor.Cyan, $"Evaluated {building.Name} *** Final Score was : {buildingValue}");
 
             return buildingValue;
+        }
+
+        private float EvaluateMilitaryBuilding(Building building, float income)
+        {
+            float upkeep = -EvaluateBuildingMaintenance(building, income);
+
+            float combatScore = (building.Strength + building.Defense + building.CombatStrength + building.SoftAttack + building.HardAttack) / 100;
+
+            float weaponDPS = 0;
+            if (building.isWeapon && building.theWeapon != null)
+                weaponDPS = (building.theWeapon.DamageAmount / building.theWeapon.fireDelay) / 500;
+
+            float shieldScore = building.PlanetaryShieldStrengthAdded / 1000;
+
+            float allowTroops = 0;
+            if (building.AllowInfantry)
+                allowTroops = 1;
+
+            //Shield, weapon, and/or allowtroop weighting go here
+
+            if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated military building {building.Name} : Score was {upkeep + combatScore + weaponDPS + shieldScore + allowTroops}");
+
+            return upkeep + combatScore + weaponDPS + shieldScore + allowTroops;
         }
 
         private void ChooseAndBuild(float income)
@@ -1889,12 +1931,62 @@ namespace Ship_Game
                 buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
                 if (buildingScore > bestValue)
                 {
-                    
                     bestBuilding = BuildingsCanBuild[i];
                     bestValue = buildingScore;
                 }
             }
             if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+        }
+
+        private void ChooseAndBuildMilitary(float income)
+        {
+            Building bestMBuilding = null;
+            float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
+            float mBuildingScore = 0.0f;
+            for (int i = 0; i < BuildingsCanBuild.Count; i++)
+            {
+                if (BuildingsCanBuild[i].Strength == 0 || BuildingsCanBuild[i].MaxPopIncrease > 0) continue;
+                if (BuildingsCanBuild[i].Name == "Outpost" || BuildingsCanBuild[i].Name == "Capital City") continue;
+
+                mBuildingScore = EvaluateMilitaryBuilding(BuildingsCanBuild[i], income);
+                if (mBuildingScore > bestValue)
+                {
+                    bestMBuilding = BuildingsCanBuild[i];
+                    bestValue = mBuildingScore;
+                }
+            }
+            if (bestMBuilding != null) AddBuildingToCQ(bestMBuilding);
+        }
+
+        private void BuildBuildings(float income)
+        {
+            //Do some existing bulding recon
+            int openTiles = TilesList.Count(tile => tile.Habitable && tile.building == null);
+            int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
+
+            //Construction queue recon
+            bool buildingInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
+            bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
+
+            //New Build Logic by Gretman
+            if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
+
+            if (openTiles > 0)
+            {
+                if (!buildingInTheWorks)
+                {
+                    ChooseAndBuild(income);
+                }
+                else ChooseAndBuildMilitary(income);
+            }
+            else
+            {
+                bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(building => building.isBuilding && building.Building.Name == "Biospheres") != null;
+                Building bioSphere = BuildingsCanBuild.Find(building => building.Name == "Biospheres");
+
+                if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                    AddBuildingToCQ(bioSphere);
+            }
         }
 
         public void DoGoverning()
@@ -1905,22 +1997,9 @@ namespace Ship_Game
 
             RefreshBuildingsWeCanBuildHere();
             float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
-
-            //Do some existing bulding recon
-            int openTiles = TilesList.Count(tile => tile.Habitable && tile.building == null);
-            int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
-
-            //Construction queue recon
-            bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(building => building.isBuilding && building.Building.Name == "Biospheres") != null;
-            bool buildingInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
             income -= SbProduction.GetTotalConstructionQueueMaintenance();
 
-            //Stuff we can build recon
-            Building bioSphere = BuildingsCanBuild.Find(building => building.Name == "Biospheres");
-
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
-            bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
-            bool littleInQueueToBuild = ConstructionQueue.Count >= 1;
             float foodMinimum = CalculateFoodWorkers();
 
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
@@ -1930,6 +2009,10 @@ namespace Ship_Game
             if (Name == "MerVilleII")
             { double spotForABreakpoint = Math.PI; }
 
+            FarmerPercentage = 0;
+            WorkerPercentage = 0;
+            ResearcherPercentage = 0;
+
             switch (colonyType)
             {
                 case Planet.ColonyType.TradeHub:
@@ -1937,9 +2020,6 @@ namespace Ship_Game
                     {
                         //New resource management by Gretman
                         FarmerPercentage = CalculateFoodWorkers();
-                        WorkerPercentage = 0.0f;
-                        ResearcherPercentage = 0.0f;
-
                         FillOrResearch(1 - FarmerPercentage);
 
                         if (colonyType == Planet.ColonyType.TradeHub)
@@ -1949,21 +2029,7 @@ namespace Ship_Game
                             break;
                         }
 
-                        //New Build Logic by Gretman
-                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
-
-                        if (openTiles > 0)
-                        {
-                            if (!buildingInTheWorks)
-                            {
-                                ChooseAndBuild(income);
-                            }
-                        }
-                        else
-                        {
-                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
-                                AddBuildingToCQ(bioSphere);
-                        }
+                        BuildBuildings(income);
 
                         DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
                         DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
@@ -1979,20 +2045,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
 
-                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
-
-                        if (openTiles > 0)
-                        {
-                            if (!buildingInTheWorks)
-                            {
-                                ChooseAndBuild(income);
-                            }
-                        }
-                        else
-                        {
-                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
-                                AddBuildingToCQ(bioSphere);
-                        }
+                        BuildBuildings(income);
 
                         DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                         DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
@@ -2008,20 +2061,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
-
-                        if (openTiles > 0)
-                        {
-                            if (!buildingInTheWorks)
-                            {
-                                ChooseAndBuild(income);
-                            }
-                        }
-                        else
-                        {
-                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
-                                AddBuildingToCQ(bioSphere);
-                        }
+                        BuildBuildings(income);
 
                         DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
                         DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
@@ -2036,20 +2076,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
-
-                        if (openTiles > 0)
-                        {
-                            if (!buildingInTheWorks)
-                            {
-                                ChooseAndBuild(income);
-                            }
-                        }
-                        else
-                        {
-                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
-                                AddBuildingToCQ(bioSphere);
-                        }
+                        BuildBuildings(income);
 
                         DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                         DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
@@ -2064,20 +2091,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
-                        if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
-
-                        if (openTiles > 0)
-                        {
-                            if (!buildingInTheWorks)
-                            {
-                                ChooseAndBuild(income);
-                            }
-                        }
-                        else
-                        {
-                            if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
-                                AddBuildingToCQ(bioSphere);
-                        }
+                        BuildBuildings(income);
 
                         DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
                         DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
@@ -2086,6 +2100,7 @@ namespace Ship_Game
                     }
 
                     //Leaving there here for reference -Gretman
+                    /*
                     //Added by McShooterz: Colony build troops
                     if (false && Owner.isPlayer && colonyType == ColonyType.Military)
                     {
@@ -2115,6 +2130,7 @@ namespace Ship_Game
                             }
                         }
                     }
+                    */
             } //End Gov type Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
