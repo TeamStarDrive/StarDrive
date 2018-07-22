@@ -116,7 +116,7 @@ namespace Ship_Game
         public float GrossMoneyPT;
         public float GrossIncome =>
                     (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
-                    + this.PlusFlatMoneyPerTurn + (this.PopulationBillion * this.PlusCreditsPerColonist);
+                    + this.PlusFlatMoneyPerTurn + (this.Population / 1000 * this.PlusCreditsPerColonist);
         public float GrossUpkeep =>
                     (float)((double)this.TotalMaintenanceCostsPerTurn + (double)this.TotalMaintenanceCostsPerTurn
                     * (double)this.Owner?.data.Traits.MaintMod);
@@ -671,8 +671,7 @@ namespace Ship_Game
 
         public void UpdateDevelopmentStatus()
         {
-            Density = PopulationBillion;
-            if (Density <= 0.5f)
+            if (PopulationBillion <= 0.5f)
             {
                 DevelopmentLevel = 1;
                 DevelopmentStatus = Localizer.Token(1763);
@@ -701,7 +700,7 @@ namespace Ship_Game
                     planet.DevelopmentStatus = str;
                 }
             }
-            else if (Density > 0.5f && Density <= 2)
+            else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
                 DevelopmentLevel = 2;
                 DevelopmentStatus = Localizer.Token(1768);
@@ -718,7 +717,7 @@ namespace Ship_Game
                     planet.DevelopmentStatus = str;
                 }
             }
-            else if (Density > 2.0 && Density <= 5.0)
+            else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
                 DevelopmentLevel = 3;
                 DevelopmentStatus = Localizer.Token(1771);
@@ -735,12 +734,12 @@ namespace Ship_Game
                     planet.DevelopmentStatus = str;
                 }
             }
-            else if (Density > 5.0 && Density <= 10.0)
+            else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
                 DevelopmentLevel = 4;
                 DevelopmentStatus = Localizer.Token(1774);
             }
-            else if (Density > 10.0)
+            else if (PopulationBillion > 10.0)
             {
                 DevelopmentLevel = 5;
                 DevelopmentStatus = Localizer.Token(1775);
@@ -2006,11 +2005,11 @@ namespace Ship_Game
 
         public void DoGoverning()
         {
+            RefreshBuildingsWeCanBuildHere();
             BuildOutpostifAble();   //If there is no Outpost or Capital, build it
 
             if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!
 
-            RefreshBuildingsWeCanBuildHere();
             float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
             income -= SbProduction.GetTotalConstructionQueueMaintenance();
 
@@ -2330,7 +2329,7 @@ namespace Ship_Game
         }
 
         public float GetMaxResearchPotential =>
-            PopulationBillion * PlusResearchPerColonist + PlusFlatResearchPerTurn;
+            (Population / 1000) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
 
         public void ApplyProductionTowardsConstruction() => SbProduction.ApplyProductionTowardsConstruction();
 
