@@ -493,8 +493,10 @@ namespace Ship_Game.Ships
 
         private void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
         {
-            Vector2 worldPosA = GridLocalPointToWorld(GridLocalToPoint(a)) + new Vector2(8f);
-            Vector2 worldPosB = GridLocalPointToWorld(GridLocalToPoint(b)) + new Vector2(8f);
+            Point pa = GridLocalToPoint(a);
+            Point pb = GridLocalToPoint(b);
+            Vector2 worldPosA = GridLocalPointToWorld(pa) + new Vector2(8f);
+            Vector2 worldPosB = GridLocalPointToWorld(pb) + new Vector2(8f);
             //Vector2 worldPosA = GridLocalToWorld(a);
             //Vector2 worldPosB = GridLocalToWorld(b);
             Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
@@ -563,7 +565,7 @@ namespace Ship_Game.Ships
                 if (m != null)
                 {
                     if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, m.Center, 6.0f, Color.IndianRed.Alpha(0.5f), 3.0f);
+                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, m.Center, 6f, Color.IndianRed.Alpha(0.5f), 3f);
                     return m;
                 }
             }
