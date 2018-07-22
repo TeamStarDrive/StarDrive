@@ -928,7 +928,7 @@ namespace Ship_Game.AI
             {
                 DebugInfo(FleetTask, $"Fleet in Combat");
             }
-            return EndInvalidTask(invalid);
+            return !EndInvalidTask(invalid);
         }
 
         private void GatherAtAO(MilitaryTask task, float distanceFromAO)
@@ -1080,8 +1080,8 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DebugInfo(MilitaryTask task, string text) 
-            => Log.Info($"{task.type}: Not Combat Effective ({Owner.Name}) Planet: {task.TargetPlanet} {text}");
+        private void DebugInfo(MilitaryTask task, string text)
+            => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet.Name} {text}", Debug.DebugModes.Normal);
 
         private bool StillCombatEffective(MilitaryTask task)
         {
@@ -1337,11 +1337,11 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet?.Name, Name);
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
-                Log.Info($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}");
+                Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", Debug.DebugModes.Normal);                
             ship.fleet = null;
             RemoveFromAllSquads(ship);
-            if (Ships.Remove(ship) || !ship.Active) return true;
-            Log.Info("Fleet RemoveShip: Ship is not in this fleet");
+            if (Ships.Remove(ship) || !ship.Active) return true;            
+            Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", Debug.DebugModes.Normal);
             return false;
         }
 
