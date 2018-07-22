@@ -207,21 +207,23 @@ namespace Ship_Game.AI
             {                
                 EmpireAI = eAI;
                 RatioFighters     = .5f;
-                for (int i = 0; i < OwnerEmpire.GetShips().Count; i++)
+
+                var availableShips = OwnerEmpire.GetShips().FilterBy(item => 
+                    !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
+                    || item.shipData.Role == ShipData.RoleName.prototype
+                    || item.shipData.Role < ShipData.RoleName.troopShip
+                    ));
+                int debugCount = 0;
+                for (int i = 0; i < availableShips.Length; i++)
                 {
-                    Ship item = OwnerEmpire.GetShips()[i];
-                    if (item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
-                        || item.AI.State == AIState.Scrap || item.shipData.Role == ShipData.RoleName.prototype
-                        || item.shipData.Role < ShipData.RoleName.troopShip
-                        ) continue;
-
-                    ShipData.RoleName str = item.DesignRole;
-                    float upkeep;
-
-                    upkeep = item.GetMaintCost();
-                    if (upkeep < .1) continue;
+                    Ship item = availableShips[i];
+             
+                    ShipData.RoleName roleName = item.DesignRole;
+                    float upkeep = item.GetMaintCost();
+                    if (upkeep < .01)
+                        continue;
                     //carrier
-                    switch (str)
+                    switch (roleName)
                     {
                         case ShipData.RoleName.carrier:
                             SetCountsTrackRole(ref NumCarriers, ref CapCarriers, upkeep);
@@ -439,7 +441,7 @@ namespace Ship_Game.AI
 
             private static bool CheckRoleAndScrap(ref float numShips, float desiredShips, Ship ship, ShipData.RoleName role)
             {
-                if (numShips <= (int)desiredShips || ship.DesignRole != role || ship.fleet?.IsCoreFleet == false)
+                if (numShips <= desiredShips || ship.DesignRole != role || ship.fleet?.IsCoreFleet == false)
                     return false;
                 numShips--;
                 ship.AI.OrderScrapShip();
