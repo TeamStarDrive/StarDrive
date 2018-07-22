@@ -490,7 +490,10 @@ namespace Ship_Game.AI
 
                 }
                 else
+                {
+                    Log.Info($"Invasion ({Owner.Name}) planet ({task.TargetPlanet}) Not attackable");
                     task.EndTask();
+                }
                 return;
             }
 
@@ -582,121 +585,33 @@ namespace Ship_Game.AI
                     SetAllShipsPriorityOrder();
                     break;
                 case 2:
-                    bool flag3 = false;
-                    if (Vector2.Distance(this.FindAveragePosition(), task.AO) < 15000.0)
-                    {
-                        foreach (Ship ship in this.Ships)
-                        {
-                            lock (ship)
-                            {
-                                if (ship.InCombat)
-                                {
-                                    flag3 = true;
-                                    ship.HyperspaceReturn();
-                                    ship.AI.OrderQueue.Clear();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!flag3 && Vector2.Distance(this.FindAveragePosition(), task.AO) >= 5000.0)
-                        break;
-                    this.TaskStep = 3;
+                    if (ArrivedAtOffsetRally(task))
+                        this.TaskStep = 3;
                     break;
                 case 3:
-                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(Position, 150000, 10000, this.Owner);
-
-                    if (this.EnemyClumpsDict.Count == 0)
-                    {
-                        if (Vector2.Distance(this.FindAveragePosition(), task.AO) <= 10000.0)
-                            break;
-                        this.FormationWarpTo(task.AO, 0.0f, new Vector2(0.0f, -1f));
-                        break;
-                    }
-                    else
-                    {
-                        Array<Vector2> list3 = new Array<Vector2>();
-                        foreach (var keyValuePair in this.EnemyClumpsDict)
-                            list3.Add(keyValuePair.Key);
-                        IOrderedEnumerable<Vector2> orderedEnumerable2 = list3.OrderBy(clumpPos => Vector2.Distance(this.FindAveragePosition(), clumpPos));
-                        Array<Ship> list4 = new Array<Ship>();
-                        foreach (Ship toAttack in this.EnemyClumpsDict[orderedEnumerable2.First()].OrderByDescending(ship => ship.Size))
-                        {
-                            float num = 0.0f;
-                            foreach (Ship ship in this.Ships.OrderByDescending(ship => ship.Size))
-                            {
-                                if (!list4.Contains(ship) && (num == 0.0 || num < (double)toAttack.GetStrength()))
-                                {
-                                    ship.AI.OrderAttackSpecificTarget(toAttack);
-                                    ship.AI.Intercepting = true;
-                                    list4.Add(ship);
-                                    num += ship.GetStrength();
-                                }
-                            }
-                        }
-                        Array<Ship> list5 = new Array<Ship>();
-                        foreach (Ship ship in this.Ships)
-                        {
-                            if (!list4.Contains(ship))
-                                list5.Add(ship);
-                        }
-                        foreach (Ship ship in list5)
-                        {
-                            ship.AI.OrderAttackSpecificTarget(list4[0].AI.Target as Ship);
-                            ship.AI.Intercepting = true;
-                        }
-                        this.TaskStep = 4;
-                        break;
-                    }
-                case 4:
-                    if (IsFleetSupplied())
-                    {
-                        this.TaskStep = 5;
-                        break;
-                    }
-                    else
-                    {
-                        bool flag4 = false;
-                        foreach (Ship ship in this.Ships)
-                        {
-                            if (!ship.InCombat)
-                            {
-                                flag4 = true;
-                                break;
-                            }
-                        }
-                        if (!flag4)
-                            break;
-                        this.TaskStep = 3;
-                        break;
-                    }
-                case 5:
-                    Array<Planet> list6 = new Array<Planet>();
-                    foreach (Planet planet in this.Owner.GetPlanets())
-                    {
-                        if (planet.HasShipyard)
-                            list6.Add(planet);
-                    }
-                    IOrderedEnumerable<Planet> orderedEnumerable3 = list6.OrderBy(p => Vector2.Distance(this.Position, p.Center));
-                    if (orderedEnumerable3.Count() <= 0)
-                        break;
-                    this.Position = orderedEnumerable3.First().Center;
-                    foreach (Ship ship in this.Ships)
-                        ship.AI.OrderResupply(orderedEnumerable3.First(), true);
-                    this.TaskStep = 6;
+                    if (!AttackEnemyStrengthClumpsInAO(task))                    
+                        DoOrbitTaskArea(task);
+                    
+                    TaskStep = 4;
                     break;
-                case 6:
-                    float num6 = 0.0f;
-                    float num7 = 0.0f;
-                    foreach (Ship ship in this.Ships)
-                    {
-                        ship.AI.HasPriorityOrder = true;
-                        num6 += ship.Ordinance;
-                        num7 += ship.OrdinanceMax;
-                    }
-                    if (num6 != (double)num7)
+                case 4:
+                    if (EndInvalidTask(task.TargetPlanet.Owner != null))
                         break;
-                    this.TaskStep = 0;
+                    if (!IsFleetSupplied())
+                        TaskStep = 5;
+
+                    if (ShipsOffMission(task))
+                        TaskStep = 3;
+                    break;
+                case 5:
+                    SendFleetToResupply();
+                    TaskStep = 6;
+                    break;
+
+                case 6:
+                    if (!IsFleetSupplied())
+                        break;
+                    TaskStep = 3;
                     break;
             }
         }
@@ -959,9 +874,7 @@ namespace Ship_Game.AI
                     TaskStep = 4;
                     break;
             }
-        }
-
-        private bool IsInFormationWarp() => !Ships.Any(ship => ship.AI.State != AIState.FormationWarp);
+        }        
         
         private bool EndInvalidTask(bool condition)
         {
@@ -1010,7 +923,12 @@ namespace Ship_Game.AI
             MoveStatus status = IsFleetAssembled(distanceFromPosition);
             if (status == MoveStatus.Dispersed)
                 return false;
-            return !EndInvalidTask(status == MoveStatus.InCombat);
+            bool invalid = status == MoveStatus.InCombat;
+            if (invalid)
+            {
+                DebugInfo(FleetTask, $"Fleet in Combat");
+            }
+            return EndInvalidTask(invalid);
         }
 
         private void GatherAtAO(MilitaryTask task, float distanceFromAO)
@@ -1162,17 +1080,28 @@ namespace Ship_Game.AI
             }
         }
 
+        private void DebugInfo(MilitaryTask task, string text) 
+            => Log.Info($"{task.type}: Not Combat Effective ({Owner.Name}) Planet: {task.TargetPlanet} {text}");
+
         private bool StillCombatEffective(MilitaryTask task)
         {
             float targetStrength =
                 Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
-            return targetStrength < GetStrength() * 2;            
+            float fleetStrengthThreshold = GetStrength() * 2;
+            if (!(targetStrength >= fleetStrengthThreshold))
+                return true;
+            DebugInfo(task, $"Enemy Strength too high. Them: {targetStrength} Us: {fleetStrengthThreshold}");
+            return false;
         }
 
         private bool StillMissionEffective(MilitaryTask task)
         {
-            bool troopsOnPlanet = task.TargetPlanet.AnyOfOurTroops(Owner);            
-            return troopsOnPlanet || Ships.Any(troops => troops.Carrier.AnyPlanetAssaultAvailable); ;
+            bool troopsOnPlanet        = task.TargetPlanet.AnyOfOurTroops(Owner);
+            bool noShips               = Ships.Any(troops => troops.Carrier.AnyPlanetAssaultAvailable);
+            bool stillMissionEffective = troopsOnPlanet || noShips;
+            if (!stillMissionEffective)
+                DebugInfo(task, $" No Troops on Planet and No Ships.");
+            return stillMissionEffective;
         }
 
         private void InvadeTactics(Array<Ship> flankShips, string type, Vector2 moveTo)
@@ -1214,10 +1143,6 @@ namespace Ship_Game.AI
 
         private bool EscortingToPlanet(MilitaryTask task)
         {
-
-            //EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(center, radius, granularity, Owner);
-            //experimental. Rather than making the fleet attack specific targets. Use the fleet combat weights and range to control 
-            //what is a valid target. 
             var center = task.TargetPlanet.Center;
             AttackEnemyStrengthClumpsInAO(task);
             InvadeTactics(ScreenShips, "screen", center);            
@@ -1233,17 +1158,17 @@ namespace Ship_Game.AI
         private bool StopBombPlanet(MilitaryTask task) => StartStopBombing(false, task);
         private bool StartStopBombing(bool doBombing, MilitaryTask task)
         {
-            var bombers = Ships.FilterBy(ship => ship.BombBays.Count > 0);
+            var bombers = Ships.FilterBy(ship => ship.BombBays.Count > 0);            
             foreach (var ship in bombers)
             {                
                 if (doBombing)
                 {
-                    if (ship.AI.HasPriorityOrder) continue;
-                    ship.AI.OrderBombardPlanet(task.TargetPlanet);
+                    if (ship.AI.HasPriorityOrder || ship.AI.State == AIState.Bombard) continue;
+                    ship.AI.OrderBombardPlanet(task.TargetPlanet);                    
                 }
                 else if (ship.AI.State == AIState.Bombard)
                     ship.AI.ClearOrdersNext = true;
-            }
+            }                        
             return bombers.Length > 0;
         }
 
@@ -1253,7 +1178,7 @@ namespace Ship_Game.AI
             return StartStopBombing(doBombs, task);                                   
         }
 
-        private bool IsInvading(float thierGroundStrength, float ourGroundStrength, MilitaryTask task, int LandingspotsNeeded =5)
+        private bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int LandingspotsNeeded =5)
         {            
             int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots();
             if (freeLandingSpots < 1)
@@ -1263,11 +1188,20 @@ namespace Ship_Game.AI
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength;
             
             planetAssaultStrength += ourGroundStrength;
-            if (planetAssaultStrength < thierGroundStrength) return false;
-            if (freeLandingSpots < LandingspotsNeeded) return false;
+            if (planetAssaultStrength < theirGroundStrength *.75f)
+            {
+                DebugInfo(task, $"Fail insuffcient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
+                return false;
+            }
+            if (freeLandingSpots < LandingspotsNeeded)
+            {
+                DebugInfo(task,$"fail insuffcient landing space. planetHas: {freeLandingSpots} Needed: {LandingspotsNeeded}");
+                return false; 
+            }
 
-            if (ourGroundStrength > 1)
+            if (ourGroundStrength < 1)                            
                 StopBombPlanet(task);
+            
             if (Ships.Find(ship=> ship.Center.InRadius(task.AO,task.AORadius)) != null)
             OrderShipsToInvade(RearShips, task);
             return true;
@@ -1278,7 +1212,7 @@ namespace Ship_Game.AI
             foreach (Ship ship in ships)
             {
                 ship.AI.OrderLandAllTroops(task.TargetPlanet);
-                ship.AI.HasPriorityOrder = true;
+                ship.AI.SetPriorityOrder(false);
             }
         }
 
@@ -1306,21 +1240,6 @@ namespace Ship_Game.AI
 
         private bool PostInvastionAnyShipsOutOfAO(MilitaryTask task) =>
             Ships.Any(ship => task.AO.OutsideRadius(ship.Center, ship.AI.FleetNode.OrdersRadius));
-
-        
-
-        private bool DefendSystemRegrouped()
-        {            
-            foreach (Ship ship in this.Ships)
-            {
-                if (ship.EMPdisabled || !ship.hasCommand || !ship.Active) continue;
-                if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
-                    return true;
-            }
-            return false;
-        }
-
-
 
         private int MoveToPositionIfAssembled(MilitaryTask task, Vector2 position, float assemblyRadius = 5000f, float moveToWithin = 7500f )
         {
