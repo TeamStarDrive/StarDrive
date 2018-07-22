@@ -26,8 +26,8 @@ namespace Ship_Game.Universe.SolarBodies
         private float Fertility                                    => Ground.Fertility;
         private SpaceStation Station                               => Ground.Station;        
         private Planet.GoodState PS                                => Ground.PS;
-        //private Planet.GoodState FS                              => Ground.FS;
-        private bool PSexport                                      => Ground.PSexport;
+        private Planet.GoodState FS                              => Ground.FS;
+        //private bool PSexport                                      => Ground.PSexport;
         private Planet.ColonyType colonyType                       => Ground.colonyType;
         private float NetProductionPerTurn                         => Ground.NetProductionPerTurn;
         private bool GovernorOn                                    => Ground.GovernorOn;
@@ -94,11 +94,11 @@ namespace Ship_Game.Universe.SolarBodies
                     ProductionHere += howMuch;
                 return;
             }
-            float cost = 0;
+
             if (ConstructionQueue.Count > 0 && ConstructionQueue.Count > whichItem)
             {
                 QueueItem item = ConstructionQueue[whichItem];
-                cost = item.Cost;
+                float cost = item.Cost;
                 if (item.isShip)
                     cost *= ShipBuildingModifier;
                 //cost -= item.productionTowards;
@@ -271,21 +271,20 @@ namespace Ship_Game.Universe.SolarBodies
             float maxp = GetMaxProductionPotential() * (1 - Ground.FarmerPercentage); 
             if (maxp < 5)
                 maxp = 5;
-            float StorageRatio = 0;
-            float take10Turns = 0;
-            StorageRatio = ProductionHere / Ground.MaxStorage;
-            take10Turns = maxp * StorageRatio;
 
+            float storageRatio = ProductionHere / Ground.MaxStorage;
+            float take10Turns = maxp * storageRatio;
 
-            if (!PSexport)
-                take10Turns *= (StorageRatio < .75f ? PS == Planet.GoodState.EXPORT ? .5f : PS == Planet.GoodState.STORE ? .25f : 1 : 1);
+            if (PS != Planet.GoodState.EXPORT)
+                take10Turns *= (storageRatio < 0.75f ? PS == Planet.GoodState.EXPORT ? 0.5f : PS == Planet.GoodState.STORE ? 0.25f : 1 : 1);
+
             if (!GovernorOn || colonyType == Planet.ColonyType.Colony)
             {
                 take10Turns = NetProductionPerTurn; ;
             }
             float normalAmount = take10Turns;
 
-            normalAmount = ProductionHere.Clamp(0, normalAmount);
+            normalAmount = ProductionHere.Clamped(0, normalAmount);
             ProductionHere -= normalAmount;
 
             ApplyProductiontoQueue(normalAmount, 0);
@@ -307,17 +306,17 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void AddBuildingToCQ(Building b, bool PlayerAdded)
         {
-            int count            = ConstructionQueue.Count;
-            QueueItem qi         = new QueueItem();
-            qi.IsPlayerAdded     = PlayerAdded;
-            qi.isBuilding        = true;
-            qi.Building          = b;
-            qi.Cost              = b.Cost * UniverseScreen.GamePaceStatic;
-            qi.productionTowards = 0.0f;
-            qi.NotifyOnEmpty     = false;
-            ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer);
+            var qi = new QueueItem(Ground)
+            {
+                IsPlayerAdded = PlayerAdded,
+                isBuilding = true,
+                Building = b,
+                Cost = b.Cost * UniverseScreen.GamePaceStatic,
+                productionTowards = 0.0f,
+                NotifyOnEmpty = false
+            };
 
-            if (terraformer == null)
+            if (!ResourceManager.BuildingsDict.TryGetValue("Terraformer", out Building terraformer))
             {
                 foreach (KeyValuePair<string, bool> bdict in Owner.GetBDict())
                 {
@@ -332,7 +331,6 @@ namespace Ship_Game.Universe.SolarBodies
             }
             if (b.AssignBuildingToTile(qi, Ground))
                 ConstructionQueue.Add(qi);
-
             else if (Owner.data.Traits.Cybernetic <= 0 && Owner.GetBDict()[terraformer.Name] && Fertility < 1.0
                 && Ground.WeCanAffordThis(terraformer, colonyType))
             {
@@ -413,6 +411,17 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
             return false;
+        }
+
+        public float GetTotalConstructionQueueMaintenance()
+        {
+            float count = 0;
+            foreach (QueueItem b in ConstructionQueue)
+            {
+                if (!b.isBuilding) continue;
+                count -= b.Building.Maintenance + b.Building.Maintenance * Owner.data.Traits.MaintMod;
+            }
+            return count;
         }
 
         public void Dispose()

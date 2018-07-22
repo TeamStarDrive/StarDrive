@@ -57,7 +57,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
 			base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
@@ -86,7 +86,6 @@ namespace Ship_Game
 			base.ScreenManager.AddScreen(new MainMenuScreen());
 			base.ExitScreen();
 		}
-
 
 		public override bool HandleInput(InputState input)
 		{

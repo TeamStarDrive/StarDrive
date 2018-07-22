@@ -140,12 +140,12 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Rectangle r)
+        public void Draw(SpriteBatch batch, Rectangle r)
         {
             if (!Visible)
                 return;
 
-            spriteBatch.Draw(ButtonTexture(), r, Color.White);
+            batch.Draw(ButtonTexture(), r, Color.White);
 
             SpriteFont font = Fonts.Arial12Bold;
 
@@ -155,7 +155,7 @@ namespace Ship_Game
             if (State == PressState.Pressed)
                 textCursor.Y += 1f; // pressed down effect
 
-            spriteBatch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
+            batch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
 
             if (State == PressState.Hover && Tooltip.NotEmpty())
             {
@@ -163,9 +163,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            Draw(spriteBatch, Rect);
+            Draw(batch, Rect);
         }
 
         public override bool HandleInput(InputState input)

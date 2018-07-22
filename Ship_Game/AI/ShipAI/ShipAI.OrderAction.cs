@@ -7,6 +7,14 @@ using Ship_Game.Ships;
 namespace Ship_Game.AI {
     public sealed partial class ShipAI
     {
+        public void AddToOrderQueue(ShipGoal goal)
+        {
+            using (OrderQueue.AcquireWriteLock())
+            {
+                OrderQueue.Enqueue(goal);
+            }
+        }
+
         public void OrderAssaultPlanet(Planet p)
         {
             State = AIState.AssaultPlanet;
@@ -36,7 +44,8 @@ namespace Ship_Game.AI {
             if (toAttack == null)
                 return;
 
-            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty)) return;
+            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty))
+                return;
             if (State == AIState.AttackTarget && Target == toAttack)
                 return;
             if (State == AIState.SystemDefender && Target == toAttack)
@@ -65,8 +74,8 @@ namespace Ship_Game.AI {
             HasPriorityOrder = false;
             var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
             OrderQueue.Enqueue(combat);
-            return;
-            OrderInterceptShip(toAttack);
+            //return;
+            //OrderInterceptShip(toAttack);
         }
 
         public void OrderBombardPlanet(Planet toBombard)
@@ -205,35 +214,19 @@ namespace Ship_Game.AI {
 
         public void OrderLandAllTroops(Planet target)
         {
-            if ((Owner.shipData.Role == ShipData.RoleName.troop || Owner.HasTroopBay || Owner.hasTransporter) &&
-                Owner.TroopList.Count > 0 && target.GetGroundLandingSpots() > 0)
-            {
-                HasPriorityOrder = true;
-                State = AIState.AssaultPlanet;
-                OrbitTarget = target;
-                OrderQueue.Clear();
-                lock (ActiveWayPoints)
-                {
-                    ActiveWayPoints.Clear();
-                }
-                var goal = new ShipGoal(Plan.LandTroop, Vector2.Zero, 0f)
-                {
-                    TargetPlanet = target
-                };
-                OrderQueue.Enqueue(goal);
-            }
-            //else if (this.Owner.BombBays.Count > 0 && target.GetGroundStrength(this.Owner.loyalty) ==0)  //universeScreen.player == this.Owner.loyalty && 
-            //{
-            //    this.State = AIState.Bombard;
-            //    this.OrderBombardTroops(target);
-            //}
+            if (!Owner.Carrier.AnyPlanetAssaultAvailable) return;
+            SetPriorityOrderWithClear();
+            ClearWayPoints();
+            State = AIState.AssaultPlanet;
+            OrbitTarget = target;;            
+            AddToOrderQueue(ShipGoal.CreateLandTroopGoal(target));
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing,
             bool clearOrders) => OrderMoveDirectlyTowardsPosition(position, desiredFacing, Vector2.Zero, clearOrders);
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
-            bool ClearOrders)
+            bool clearOrders)
         {
             Target = null;
             HasPriorityTarget = false;
@@ -246,7 +239,7 @@ namespace Ship_Game.AI {
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
             OrderQueue.Clear();
-            if (ClearOrders)
+            if (clearOrders)
                 lock (WayPointLocker)
                 {
                     ActiveWayPoints.Clear();
@@ -302,20 +295,20 @@ namespace Ship_Game.AI {
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec,
-            bool ClearOrders, float speedLimit)
+            bool clearOrders, float speedLimit)
         {
             Target = null;
             HasPriorityTarget = false;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
+            var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
             Vector2.Dot(wantedForward, right);
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
             OrderQueue.Clear();
-            if (ClearOrders)
+            if (clearOrders)
                 lock (WayPointLocker)
                 {
                     ActiveWayPoints.Clear();
@@ -354,20 +347,20 @@ namespace Ship_Game.AI {
                     };
                     OrderQueue.Enqueue(to1K);
                 }
-                if (i == waypoints.Length - 1)
+
+                if (i != waypoints.Length - 1) continue;
+
+                var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
                 {
-                    var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
-                    {
-                        SpeedLimit = speedLimit
-                    };
-                    OrderQueue.Enqueue(finalApproach);
-                    var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
-                    {
-                        SpeedLimit = speedLimit
-                    };
-                    OrderQueue.Enqueue(slow);
-                    AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
-                }
+                    SpeedLimit = speedLimit
+                };
+                OrderQueue.Enqueue(finalApproach);
+                ShipGoal slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
+                {
+                    SpeedLimit = speedLimit
+                };
+                OrderQueue.Enqueue(slow);
+                AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
             }
         }
 
@@ -617,11 +610,11 @@ namespace Ship_Game.AI {
                 OrderQueue.Clear();
             int troops = Owner.loyalty
                 .GetShips()
-                .Where(troop => troop.TroopList.Count > 0)
+                //.Where(troop => troop.TroopList.Count > 0)
                 .Count(
-                    troopAi => troopAi.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
-
-            if (troops >= p.GetGroundLandingSpots())
+                    troopAi => troopAi.TroopList.Count > 0  && troopAi.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
+            int ptCount = p.GetGroundLandingSpots();
+            if (troops >= ptCount )
             {
                 OrderQueue.Clear();
                 State = AIState.AwaitingOrders;
@@ -717,26 +710,15 @@ namespace Ship_Game.AI {
 
         public void OrderResupply(Planet toOrbit, bool ClearOrders)
         {
-            if (ClearOrders)
-            {
-                OrderQueue.Clear();
-                HadPO = true;
-            }
-            else
-            {
-                HadPO = false;
-            }
-            lock (WayPointLocker)
-            {
-                ActiveWayPoints.Clear();
-            }
-            Target = null;
-            OrbitTarget = toOrbit;
-            AwaitClosest = toOrbit;
+            SetPriorityOrder(ClearOrders);
+            HadPO = ClearOrders;
+            ClearWayPoints();
+            
+            Target           = null;
+            OrbitTarget      = toOrbit;
+            AwaitClosest     = toOrbit;
             OrderMoveTowardsPosition(toOrbit.Center, 0f, Vector2.One, ClearOrders, toOrbit);
-            State = AIState.Resupply;
-            HasPriorityOrder = true;
-
+            State            = AIState.Resupply;
         }
 
         public void OrderResupplyNearest(bool ClearOrders)
@@ -751,13 +733,13 @@ namespace Ship_Game.AI {
             }            
             if (Owner.loyalty.isFaction)
                 return;
- 
-            if (Owner.NeedResupplyTroops)
+
+            if (Owner.Carrier.NeedResupplyTroops)
             {
                 var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
                 OrderResupply(troopRallyPoints, ClearOrders);                
             }
-            Planet nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
 
             if (nearestRallyPoint != null)
                 OrderResupply(nearestRallyPoint, ClearOrders);
@@ -1064,11 +1046,13 @@ namespace Ship_Game.AI {
 
         public bool ClearOrdersNext;
         public bool HasPriorityOrder;
-        public bool HadPO;
+        public bool HadPO;        
 
-        public void SetPriorityOrder()
+        public void SetPriorityOrderWithClear() => SetPriorityOrder(true);
+        public void SetPriorityOrder(bool clearOrders)
         {
-            OrderQueue.Clear();
+            if (clearOrders)
+                OrderQueue.Clear();
             HasPriorityOrder = true;
             Intercepting = false;
             HasPriorityTarget = false;

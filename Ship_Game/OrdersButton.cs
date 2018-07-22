@@ -302,7 +302,7 @@ namespace Ship_Game
                             {
                                 ShipList[i].AI.start = null;
                                 ShipList[i].AI.end = null;
-                                ShipList[i].AI.FoodOrProd = "Prod";
+                                ShipList[i].AI.FoodOrProd = Goods.Production;
                                 ShipList[i].AI.OrderTrade(0);
                                 //    ShipList[i].AI.State = AIState.SystemTrader;
 

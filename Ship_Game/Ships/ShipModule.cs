@@ -42,6 +42,10 @@ namespace Ship_Game.Ships
         public Weapon InstalledWeapon;
         public short OrdinanceCapacity;
 
+        public float ShieldPowerBeforeWarp { get; private set; }
+        public float ShieldUpChance { get; private set; } = 100;
+
+
 
         public float BombTimer;
         public ShipModuleType ModuleType;
@@ -164,6 +168,7 @@ namespace Ship_Game.Ships
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
+        public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
         public bool IsRotatable                  => Flyweight.IsRotable;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
@@ -199,9 +204,19 @@ namespace Ship_Game.Ships
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
 
+        // FB: This method was created to deal with modules which have secondary fucntionality. Use this whenever you want to check 
+        // moduletypes for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - shipdesign screen)
+        public bool Is(ShipModuleType type)
+        {
+            if (type == ShipModuleType.PowerPlant)
+                return Flyweight.PowerFlowMax >= 1f;
+            if (type == ShipModuleType.Shield)
+                return Flyweight.shield_power_max >= 1f;
+            return ModuleType == type;
+        }
+
         // this is the design spec of the module
         private float TemplateMaxHealth;
-
 
         public float HealthPercent => Health / ActualMaxHealth;
 
@@ -212,7 +227,7 @@ namespace Ship_Game.Ships
         private void SetHealth(float newHealth)
         {
             float maxHealth = ActualMaxHealth;
-            newHealth = newHealth.Clamp(0, maxHealth);
+            newHealth = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
@@ -233,27 +248,28 @@ namespace Ship_Game.Ships
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
-            XSIZE             = template.XSIZE;
-            YSIZE             = template.YSIZE;
-            Mass              = template.Mass;
-            Powered           = template.Powered;
-            FieldOfFire       = template.FieldOfFire;
-            Facing            = template.facing;
-            XMLPosition       = template.XMLPosition;
-            NameIndex         = template.NameIndex;
-            DescriptionIndex  = template.DescriptionIndex;
-            Restrictions      = template.Restrictions;
-            ShieldPower       = template.shield_power;
-            hangarShipUID     = template.hangarShipUID;
-            hangarTimer       = template.hangarTimer;
-            ModuleType        = template.ModuleType;
-            WeaponType        = template.WeaponType;
-            isWeapon          = WeaponType.NotEmpty();
-            OrdinanceCapacity = template.OrdinanceCapacity;
-            BombTimer         = template.BombTimer;
-            IconTexturePath   = template.IconTexturePath;
-            TargetValue       = template.TargetValue;
-            TemplateMaxHealth = template.HealthMax;
+            XSIZE                 = template.XSIZE;
+            YSIZE                 = template.YSIZE;
+            Mass                  = template.Mass;
+            Powered               = template.Powered;
+            FieldOfFire           = template.FieldOfFire;
+            Facing                = template.facing;
+            XMLPosition           = template.XMLPosition;
+            NameIndex             = template.NameIndex;
+            DescriptionIndex      = template.DescriptionIndex;
+            Restrictions          = template.Restrictions;
+            ShieldPower           = template.shield_power;
+            hangarShipUID         = template.hangarShipUID;
+            hangarTimer           = template.hangarTimer;
+            ModuleType            = template.ModuleType;
+            WeaponType            = template.WeaponType;
+            isWeapon              = WeaponType.NotEmpty();
+            OrdinanceCapacity     = template.OrdinanceCapacity;
+            BombTimer             = template.BombTimer;
+            IconTexturePath       = template.IconTexturePath;
+            TargetValue           = template.TargetValue;
+            TemplateMaxHealth     = template.HealthMax;
+
             UpdateModuleRadius();
         }
 
@@ -293,25 +309,25 @@ namespace Ship_Game.Ships
             module.UpdateModuleRadius();
 
             // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.ModuleType == ShipModuleType.Armor           ? -1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Bomb            ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Command         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Countermeasure  ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Drone           ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Engine          ? 2 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.FuelCell        ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Hangar          ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MainGun         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.MissileLauncher ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Ordnance        ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.PowerPlant      ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Sensors         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Shield          ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb       ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Special         ? 1 : 0;
-            module.TargetValue += module.ModuleType == ShipModuleType.Turret          ? 1 : 0;
-            module.TargetValue += module.explodes ? 2 : 0;
-            module.TargetValue += module.isWeapon ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Armor)             ? -1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Bomb)              ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Command)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Countermeasure)    ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Drone)             ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Engine)            ? 2 : 0;
+            module.TargetValue += module.Is(ShipModuleType.FuelCell)          ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Hangar)            ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.MainGun)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.MissileLauncher)   ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Ordnance)          ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.PowerPlant)        ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Sensors)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Shield)            ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Spacebomb)         ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Special)           ? 1 : 0;
+            module.TargetValue += module.Is(ShipModuleType.Turret)            ? 1 : 0;
+            module.TargetValue += module.explodes                             ? 2 : 0;
+            module.TargetValue += module.isWeapon                             ? 1 : 0;
             return module;
         }
 
@@ -326,8 +342,10 @@ namespace Ship_Game.Ships
             if (fromSave)
             {
                 module.SetHealth(slot.Health);
-                module.Active      = slot.Health > 0.01f;
-                module.ShieldPower = slot.ShieldPower;;
+                module.Active         = slot.Health > 0.01f;
+                module.ShieldPower    = slot.ShieldPower;
+                module.ShieldUpChance = slot.ShieldUpChance;
+                module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
             }
             return module;
         }
@@ -531,7 +549,7 @@ namespace Ship_Game.Ships
         public void DebugDamage(float percent)
         {
             float health = Health * percent + ShieldPower ;
-            float damage = health.Clamp(0, Health + ShieldPower);
+            float damage = health.Clamped(0, Health + ShieldPower);
             var source   = GetParent();
             Damage(source, damage);            
         }
@@ -563,7 +581,7 @@ namespace Ship_Game.Ships
             //even if the damage is greater than the shield amount. 
             if (damagingShields)
             {
-                ShieldPower = (ShieldPower - modifiedDamage).Clamp(0, ShieldPower);
+                ShieldPower = (ShieldPower - modifiedDamage).Clamped(0, ShieldPower);
                 if (proj != null)
                 {
                     if (beam != null) CauseSiphonDamage(beam);
@@ -660,8 +678,8 @@ namespace Ship_Game.Ships
             if (beam.Weapon.SiphonDamage <= 0f)
                 return;
             ShieldPower -= beam.Weapon.SiphonDamage;
-            ShieldPower.Clamp(0, shield_power_max);
-            beam.Owner?.AddPowerFromSiphon(beam.Weapon.SiphonDamage);
+            ShieldPower.Clamped(0, shield_power_max);
+            beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -726,8 +744,7 @@ namespace Ship_Game.Ships
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
                 {
-                    hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.BoardingShuttle.Name, Parent.loyalty, Center, troop);
-                    hangarShip.VanityName = "Assault Shuttle";
+                    hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
                     hangarShip.Mothership = Parent;
                     hangarShip.DoEscort(Parent);
                     hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
@@ -748,14 +765,11 @@ namespace Ship_Game.Ships
                 return;
             if (hangarShip != null && hangarShip.Active)
             {
-                if (hangarShip.AI.State == AIState.ReturnToHangar
-                    || hangarShip.AI.HasPriorityOrder
-                    || hangarShip.AI.HasPriorityTarget
+                if (hangarShip.AI.HasPriorityTarget
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
-                    || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
-                )
-                    return;
+                    || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
+                        return;
                 hangarShip.DoEscort(Parent);
                 return;
             }
@@ -855,6 +869,19 @@ namespace Ship_Game.Ships
                 HangarShipGuid = ship.guid;  //fbedard: save mothership
         }
 
+        public void ResetHangarShip(Ship newShipToLink)
+        {
+            SetHangarShip(newShipToLink);
+            newShipToLink.Mothership = Parent;
+        }
+
+        public void ResetHangarShipWithReturnToHangar(Ship newShipToLink)
+        {
+            SetHangarShip(newShipToLink);
+            newShipToLink.Mothership = Parent;
+            newShipToLink.AI.OrderReturnToHangar();
+        }
+
         public override void Update(float elapsedTime)
         {
             if (Health > 0f && !Active)
@@ -877,32 +904,97 @@ namespace Ship_Game.Ships
             if (Active && ModuleType == ShipModuleType.Hangar) //(this.hangarShip == null || !this.hangarShip.Active) && 
                 hangarTimer -= elapsedTime;
 
-            // Shield Recharge
-            float shieldMax = ActualShieldPowerMax;
-            if (Active && Powered && ShieldPower < shieldMax)
+            // Shield Recharge / Discharge
+            if (Is(ShipModuleType.Shield))
             {
-                if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                    ShieldPower += shield_recharge_rate * elapsedTime;
-                else if (ShieldPower > 0)
-                    ShieldPower += shield_recharge_combat_rate * elapsedTime;
-                if (ShieldPower > shieldMax)
-                    ShieldPower = shieldMax;
-            }
-            if (ShieldPower < 0f)
-            {
-                ShieldPower = 0f;
+                float shieldMax = ActualShieldPowerMax;
+                if (GlobalStats.WarpBehaviorsEnabled)
+                    ShieldWarpBehaviorRecharge(shieldMax, elapsedTime);
+                else
+                    ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime); // use regular recharge
             }
             if (TransporterTimer > 0)
                 TransporterTimer -= elapsedTime;
-
             base.Update(elapsedTime);
+        }
+
+        private float RechrageShields(float shieldPower, float shieldMax, float elapsedTime)
+        {
+            if (!Active || !Powered || shieldPower >= shieldMax)
+                return shieldPower;
+
+            if (Parent.ShieldRechargeTimer > shield_recharge_delay)
+                shieldPower += shield_recharge_rate * elapsedTime;
+            else if (ShieldPower > 0)
+                shieldPower += shield_recharge_combat_rate * elapsedTime;
+            return shieldPower.Clamped(0, shieldMax);
+        }
+
+        private void ShieldWarpBehaviorRecharge(float shieldMax, float elapsedTime)
+        {
+            ShieldsWarpBehavior behavior = Parent.shipData.ShieldsBehavior;
+            if (Parent.engineState == Ship.MoveState.Sublight) // recahrge in sublight
+            {
+                if (ShieldUpChance >= 100)
+                    ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime);
+                else
+                {
+                    if (ShieldPowerBeforeWarp < 1) // this shield was not diactivated from previous warp
+                        ShieldPowerBeforeWarp = ShieldPower;
+                    ShieldPower = 0f;
+                    ShieldPowerBeforeWarp = RechrageShields(ShieldPowerBeforeWarp, shieldMax, elapsedTime);
+                    TryToRaiseShield();
+                }
+            }
+            else // discharge at warp if applicable
+            {
+                if (behavior == ShieldsWarpBehavior.FullPower)
+                    ShieldPower = RechrageShields(ShieldPower, shieldMax, elapsedTime);
+                else
+                {
+                    ShieldUpChance = 0;
+                    if (ShieldPowerBeforeWarp > 0) // if shield was diactivated from previous warp, discharge the correct value
+                        ShieldPowerBeforeWarp = DischargeShields(behavior, ShieldPowerBeforeWarp);
+                    else
+                        ShieldPower = DischargeShields(behavior, ShieldPower);
+                }
+            }
+
+            // local method
+            void TryToRaiseShield()
+            {
+                if (RandomMath.RandomBetween(0, 100) < ShieldUpChance)
+                {
+                    ShieldPower = ShieldPowerBeforeWarp.Clamped(0, shieldMax);
+                    ShieldUpChance = 100;
+                    ShieldPowerBeforeWarp = 0;
+                }
+                else
+                {
+                    float activationChanceModifier = elapsedTime / (RepairDifficulty > 0 ? RepairDifficulty : 1);
+                    activationChanceModifier      *= Shield.GetReactivationDelayMultiplier(behavior);
+                    activationChanceModifier      *= Parent.Level.Clamped(1,5);
+                    ShieldUpChance = (ShieldUpChance + activationChanceModifier).Clamped(0, 100);
+                }
+            }
+
+            // local method
+            float DischargeShields(ShieldsWarpBehavior warpBehavior, float shieldPower)
+            {
+                if (warpBehavior == ShieldsWarpBehavior.ShutDown)
+                {
+                    float shieldDischargeRate = Math.Max(shield_recharge_rate, shield_recharge_combat_rate);
+                    shieldPower -= shieldDischargeRate * elapsedTime;
+                }
+                return shieldPower.Clamped(0, shieldMax);
+            }
         }
 
         public float ActualMass(bool inPowerRadius)
         {
             if (Mass < 0f && inPowerRadius)
-                return ModuleType != ShipModuleType.Armor ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
-            return ModuleType != ShipModuleType.Armor ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+                return !Is(ShipModuleType.Armor) ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
+            return !Is(ShipModuleType.Armor) ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
         }
 
         // @note This is called every frame for every module for every ship in the universe
@@ -937,12 +1029,12 @@ namespace Ship_Game.Ships
                 return repairAmount;
 
             repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules mightbe more difficult to repiar
-            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamp(0, repairAmount);
+            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamped(0, repairAmount);
             SetHealth(Health + repairAmount );
             return repairLeft;
         }
 
-        // Used for picking best repair candidate
+        // Used for picking best repair candidate based on main  moduletype (disregard secondary module fucntions)
         public int ModulePriority
         {
             get
@@ -950,8 +1042,8 @@ namespace Ship_Game.Ships
                 switch (ModuleType)
                 {
                     case ShipModuleType.Command:      return 0;
-                    case ShipModuleType.PowerPlant:   return 1;
-                    case ShipModuleType.PowerConduit: return 2;
+                    case ShipModuleType.PowerConduit: return 1;
+                    case ShipModuleType.PowerPlant:   return 2;
                     case ShipModuleType.Engine:       return 3;
                     case ShipModuleType.Shield:       return 4;
                     default:                          return 5;
@@ -1004,7 +1096,7 @@ namespace Ship_Game.Ships
 
             float def = 0f;
 
-            def += ActualMaxHealth * ((ModuleType == ShipModuleType.Armor ? (XSIZE) : 1f) / (slotCount * 4));
+            def += ActualMaxHealth * ((Is(ShipModuleType.Armor) ? (XSIZE) : 1f) / (slotCount * 4));
 
             // FB: Added Shield related calcs
             float shieldsMax = ActualShieldPowerMax;
@@ -1201,9 +1293,10 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (IsTroopBay || IsSupplyBay) return false;
+                if (IsTroopBay || IsSupplyBay)
+                    return false;
 
-                return hangarShip?.Active == true && hangarTimer <= 0;
+                return hangarShip?.Active == true;
             }
         }
 

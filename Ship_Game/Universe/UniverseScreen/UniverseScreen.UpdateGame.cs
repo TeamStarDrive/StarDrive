@@ -140,9 +140,9 @@ namespace Ship_Game
                     (float) (ocy * this.reducer));
                 if (Vector2.Distance(upscale, node.Position) < node.Radius)
                     grid[cx, cy] = weight;
-                if (weight > 1 || weight == 0 || node.Radius > Empire.ProjectorRadius)
+                if (weight > 1 || weight == 0 || node.Radius > empire.ProjectorRadius)
                 {
-                    float test = node.Radius > Empire.ProjectorRadius ? 1 : 2;
+                    float test = node.Radius > empire.ProjectorRadius ? 1 : 2;
                     int rad = (int) (Math.Ceiling((double) (node.Radius / ((float) reducer) * test)));
                     //rad--;
 
@@ -523,7 +523,7 @@ namespace Ship_Game
 
         private void DoPathingMapRebuild()
         {
-            reducer = (int) (Empire.ProjectorRadius * .75f);
+            reducer = (int) (SubSpaceProjectors.Radius * .75f);
             int granularity = (int) (UniverseSize / reducer);
             int elegran = granularity * 2;
             int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
@@ -812,7 +812,7 @@ namespace Ship_Game
                 bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
-                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamp(speedMin, speedMax);
+                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
             }
         }
 

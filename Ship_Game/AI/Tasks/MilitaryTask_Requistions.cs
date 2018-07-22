@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.AI.Tasks {
     public partial class MilitaryTask
     {
-        public Planet GetTargetPlanet() => TargetPlanet;
+        //public Planet TargetPlanet => TargetPlanet;
 
         private Array<Troop> GetTroopsOnPlanets(Array<Troop> potentialTroops, Vector2 rallyPoint, int needed = 0)
         {
@@ -39,7 +39,7 @@ namespace Ship_Game.AI.Tasks {
             foreach (Ship ship in potentialAssaultShips)
             {
                 int hangars = 0;
-                foreach (ShipModule hangar in ship.GetHangars())
+                foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                 {
                     if (hangar.IsTroopBay)
                         hangars++;
@@ -135,7 +135,7 @@ namespace Ship_Game.AI.Tasks {
                     break;
 
                 newFleet.AddShip(ship);
-                ForceStrength += ship.PlanetAssaultStrength;
+                ForceStrength += ship.Carrier.PlanetAssaultStrength;
             }
 
             foreach (Troop t in potentialTroops.Where(planet=> planet.GetPlanet() != null).OrderBy(troop => troop.GetPlanet().RecentCombat ? 1 :0)
@@ -244,8 +244,8 @@ namespace Ship_Game.AI.Tasks {
                             Ship ship = ships[index];
                             if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= minimumEscortStrength ||
                                 ship.GetStrength() <= 0f
-                                || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter ||
-                                ship.HasTroopBay
+                                || ship.shipData.Role == ShipData.RoleName.troop || ship.Carrier.HasAssaultTransporters ||
+                                ship.Carrier.HasTroopBays
                                 || ship.Mothership != null
                             )
                                 continue;
@@ -310,10 +310,10 @@ namespace Ship_Game.AI.Tasks {
                 if (strAdded < enemyShipStr * 1.65f)
                     break;
 
-                if (ship.HasTroopBay)
+                if (ship.Carrier.HasTroopBays) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    troopStr    += ship.GetHangars().Count * 10;
-                    numOfTroops += ship.GetHangars().Count;                    
+                    troopStr    += ship.Carrier.NumActiveHangars * 10;
+                    numOfTroops += ship.Carrier.NumActiveHangars;                    
                 }
                 ships.Add(ship);
                 strAdded += ship.GetStrength();
@@ -326,10 +326,10 @@ namespace Ship_Game.AI.Tasks {
                 if (numBombs >= 20 || bombTaskForce.Contains(ship))
                     continue;
 
-                if (ship.HasTroopBay)
+                if (ship.Carrier.HasTroopBays) // FB: seems like a bug here since all active hangars contains other hangars as well. why HasTroopBay?
                 {
-                    troopStr += ship.GetHangars().Count * 10;
-                    numOfTroops += ship.GetHangars().Count;
+                    troopStr += ship.Carrier.NumActiveHangars * 10;
+                    numOfTroops += ship.Carrier.NumActiveHangars;
                 }
                 bombTaskForce.Add(ship);
                 numBombs += ship.BombBays.Count;
@@ -554,7 +554,9 @@ namespace Ship_Game.AI.Tasks {
             {
                 AO = TargetPlanet.Center,
                 AORadius = 75000f,
-                type = TaskType.ClearAreaOfEnemies
+                type = TaskType.ClearAreaOfEnemies,
+                TargetPlanet = TargetPlanet,
+                TargetPlanetGuid = TargetPlanet.guid
             };
 
             closestCoreFleet.Owner.GetGSAI().TasksToAdd.Add(clearArea);
@@ -707,8 +709,8 @@ namespace Ship_Game.AI.Tasks {
             AO closestAo = aos.FindMaxFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted, 
                                                ao => -ao.Center.SqDist(AO));
             if (closestAo == null)
-            {
-                Log.Info($"{Owner.Name} : no coreFleetsFound of operation found");
+            {                
+                Empire.Universe?.DebugWin?.DebugLogText($"Tasks ({Owner.Name}) Requistiions: No Core Fleets Stronger than ({strWanted}) found. CoreFleets#: {aos.Count} ", Debug.DebugModes.Normal);
                 return null;
             }
             return closestAo.GetCoreFleet();

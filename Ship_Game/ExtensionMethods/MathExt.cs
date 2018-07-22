@@ -33,11 +33,23 @@ namespace Ship_Game
     public static class MathExt
     {
         // clamp a value between [min, max]: min <= value <= max
+        [Obsolete("Extension method float.Clamp has been replaced by float.Clamped")]
         public static float Clamp(this float value, float min, float max)
         {
             return Max(min, Min(value, max));
         }
+        [Obsolete("Extension method int.Clamp has been replaced by int.Clamped")]
         public static int Clamp(this int value, int min, int max)
+        {
+            return Max(min, Min(value, max));
+        }
+
+        // clamp a value between [min, max]: min <= value <= max
+        public static float Clamped(this float value, float min, float max)
+        {
+            return Max(min, Min(value, max));
+        }
+        public static int Clamped(this int value, int min, int max)
         {
             return Max(min, Min(value, max));
         }
@@ -82,13 +94,13 @@ namespace Ship_Game
         // @return The new "fromValue"
         public static float SmoothStep(this float fromValue, float targetValue, float amount)
         {
-            float clamped = amount.Clamp(0f, 1f);
+            float clamped = amount.Clamped(0f, 1f);
             return fromValue.LerpTo(targetValue, clamped*clamped * (3f - 2f * clamped));
         }
 
         public static float SmoothStep(ref float fromValue, float targetValue, float amount)
         {
-            float clamped = amount.Clamp(0f, 1f);
+            float clamped = amount.Clamped(0f, 1f);
             fromValue = fromValue.LerpTo(targetValue, clamped * clamped * (3f - 2f * clamped));
             return fromValue;
         }
@@ -226,6 +238,9 @@ namespace Ship_Game
         {
             return x > r.X && y > r.Y && x < r.X + r.Width && y < r.Y + r.Height;
         }
+
+        public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
+        public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
 
         // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
@@ -538,8 +553,38 @@ namespace Ship_Game
             return iter;
         }
 
-        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-            Vector2 targetPos, Vector2 targetVel)
+        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, 
+                                                 float projectileSpeed, GameplayObject target)
+        {
+            // for shipmodules, make sure to use ship Velocity and Acceleration
+            if (target is Ships.Ship ship || target is Ships.ShipModule sm && (ship = sm.GetParent()) != null)
+            {
+                return weaponPos.ProjectImpactPoint(ownerVel, projectileSpeed, target.Center, 
+                                                    ship.Velocity, ship.Acceleration);
+            }
+            return weaponPos.ProjectImpactPoint(ownerVel, projectileSpeed, target.Center, target.Velocity);
+        }
+
+        public static Vector2 ProjectImpactPoint(this Ships.Ship ourShip, GameplayObject target)
+        {
+            // for shipmodules, make sure to use ship Velocity and Acceleration
+            if (target is Ships.Ship theirShip || target is Ships.ShipModule sm && (theirShip = sm.GetParent()) != null)
+            {
+                Vector2 totalAccel = theirShip.Acceleration - ourShip.Acceleration;
+                return ourShip.Center.ProjectImpactPoint(ourShip.Velocity, ourShip.AvgProjectileSpeed, 
+                                                         target.Center, ourShip.Velocity, totalAccel);
+            }
+            return ourShip.Center.ProjectImpactPoint(ourShip.Velocity, ourShip.AvgProjectileSpeed, 
+                                                     target.Center, target.Velocity, ourShip.Acceleration);
+        }
+
+        public static Vector2 ProjectImpactPoint(this Gameplay.Projectile proj, GameplayObject target)
+        {
+            return proj.Center.ProjectImpactPoint(proj.Velocity, proj.Speed, target);
+        }
+
+        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, 
+                                                 float projectileSpeed,  Vector2 targetPos, Vector2 targetVel)
         {
             //Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel);
             Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel);
@@ -576,7 +621,7 @@ namespace Ship_Game
 
             Vector2 v = pnt - start;
             float d = Vector2.Dot(v, line);
-            d = Clamp(d, 0f, len);
+            d = Clamped(d, 0f, len);
             return start + line * d;
         }
 
@@ -759,6 +804,15 @@ namespace Ship_Game
             return true;
         }
 
+        public static Vector2 OffSetTo(this Vector2 center, Vector2 target, float distance)
+        {
+            return center + center.DirectionToTarget(target) * distance;
+        }
+
+        public static Vector2 RandomOffset(this Vector2 center, float distance)
+        {
+            return center + RandomMath.RandomDirection() * distance;
+        }
 
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
