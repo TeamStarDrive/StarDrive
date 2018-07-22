@@ -232,7 +232,7 @@ namespace Ship_Game.Ships
                     us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
-            if (us.Debug)
+            if (false && us.Debug)
                 DrawSparseModuleGrid(us);
         }
 

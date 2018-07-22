@@ -226,6 +226,8 @@ namespace Ship_Game
 
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
+        public static Color Alpha(this Color color, float newAlpha) => new Color(color, newAlpha);
+
         // True if pos is inside the rectangle
         //Saftey catch. allow a null to be sent to hit test. 
         public static bool HitTest(this Rectangle r, object o) => false;
@@ -241,6 +243,8 @@ namespace Ship_Game
 
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
         public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
+
+        public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
         // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
@@ -1283,9 +1284,9 @@ namespace Ship_Game
             if (FlatFoodAdded > PopulationBillion)     //Account for possible overproduction from FlatFood
             {
                 float offsetAmount = (FlatFoodAdded - PopulationBillion) * 0.05f;
-                offsetAmount = offsetAmount.Clamp(0.00f, 0.15f);
-                importThreshold = (importThreshold - offsetAmount).Clamp(0.10f, 1.00f);
-                exportThreshold = (exportThreshold - offsetAmount).Clamp(0.10f, 1.00f);
+                offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
+                importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
+                exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
             }
 
             float ratio = FoodHere / MaxStorage;
@@ -1312,17 +1313,17 @@ namespace Ship_Game
                     if (PlusFlatProductionPerTurn > PopulationBillion)
                     {
                         float offsetAmount = (PlusFlatProductionPerTurn - PopulationBillion) * 0.05f;
-                        offsetAmount = offsetAmount.Clamp(0.00f, 0.15f);
-                        importThreshold = (importThreshold - offsetAmount).Clamp(0.10f, 1.00f);
-                        exportThreshold = (exportThreshold - offsetAmount).Clamp(0.10f, 1.00f);
+                        offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
+                        importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
+                        exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                     }
                 }
                 else
                 {
                     float offsetAmount = PlusFlatProductionPerTurn * 0.05f;
-                    offsetAmount = offsetAmount.Clamp(0.00f, 0.15f);
-                    importThreshold = (importThreshold - offsetAmount).Clamp(0.10f, 1.00f);
-                    exportThreshold = (exportThreshold - offsetAmount).Clamp(0.10f, 1.00f);
+                    offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
+                    importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
+                    exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
                 }
             }
 
@@ -1444,11 +1445,11 @@ namespace Ship_Game
                 //Stop producing food a little early, since the flat food will continue to pile up
                 float maxPop = (MaxPopulation + MaxPopBonus) / 1000;
                 if (FlatFoodAdded > maxPop) storedFoodRatio += 0.15f * Math.Min(FlatFoodAdded - maxPop, 3);
-                storedFoodRatio = storedFoodRatio.Clamp(0, 1);
+                storedFoodRatio = storedFoodRatio.Clamped(0, 1);
             }
 
-            minFarmers += CalculateMod(percent, storedFoodRatio).Clamp(-0.35f, 0.50f);             //modify nominal farmers by overage or underage
-            minFarmers = minFarmers.Clamp(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
+            minFarmers += CalculateMod(percent, storedFoodRatio).Clamped(-0.35f, 0.50f);             //modify nominal farmers by overage or underage
+            minFarmers = minFarmers.Clamped(0, 0.9f);                  //Tame resulting value, dont let farming completely consume all labor
             return minFarmers;                          //Return labor % of farmers to progress toward goal
         }
 
@@ -1459,7 +1460,7 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic > 0)
             {											//Nominal workers needed to feed all of the the filthy Opteris
                 minWorkers = (Consumption - PlusFlatProductionPerTurn) / PopulationBillion / (MineralRichness + PlusProductionPerColonist);
-                minWorkers = minWorkers.Clamp(0, 1);
+                minWorkers = minWorkers.Clamped(0, 1);
             }
 
             float storedProdRatio = ProductionHere / MaxStorage;      //Percentage of Prod Storage currently filled
@@ -1475,11 +1476,11 @@ namespace Ship_Game
                 {
                     storedProdRatio += 0.15f * Math.Min(PlusFlatProductionPerTurn, 3);
                 }
-                storedProdRatio = storedProdRatio.Clamp(0, 1);
+                storedProdRatio = storedProdRatio.Clamped(0, 1);
             }
 
-            minWorkers += CalculateMod(percent, storedProdRatio).Clamp(-0.35f, 1.00f);
-            minWorkers = minWorkers.Clamp(0, 1);
+            minWorkers += CalculateMod(percent, storedProdRatio).Clamped(-0.35f, 1.00f);
+            minWorkers = minWorkers.Clamped(0, 1);
             return minWorkers;                          //Return labor % to progress toward goal
         }
 
@@ -1867,16 +1868,13 @@ namespace Ship_Game
             //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 400, it will
             //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman
-            return score *= (1 - (cost / 400)).Clamp(0.001f, 10);
+            return score * (1f - (cost / 400f)).Clamped(0.001f, 10f);
         }
 
         private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
         {
             float buildingValue = 0.0f;    //End result value for entire building
             float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
-
-            if (Name == "MerVilleI")
-            { double spotForABreakpoint = Math.PI; }
 
             buildingValue -= EvaluateBuildingMaintenance(building, income);
             buildingValue += EvaluateBuildingFlatFood(building, maxPopulation);
@@ -1947,9 +1945,6 @@ namespace Ship_Game
 
         private void ChooseAndBuildMilitary(float income)
         {
-            if (Name == "MerVilleI")
-            { double spotForABreakpoint = Math.PI; }
-
             if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
             {
                 Building bestMBuilding = null;
@@ -2019,9 +2014,6 @@ namespace Ship_Game
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
             if (colonyType == ColonyType.Research && notResearching)
                 colonyType = ColonyType.Industrial;
-
-            if (Name == "MerVilleII")
-            { double spotForABreakpoint = Math.PI; }
 
             FarmerPercentage = 0;
             WorkerPercentage = 0;

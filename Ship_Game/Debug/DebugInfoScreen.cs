@@ -62,8 +62,8 @@ namespace Ship_Game.Debug
         private string Fmt = "0.#";
         public static sbyte Loadmodels = 0;
         public static DebugModes Mode { get; private set; }
-        private Array<DebugCircle> Circles = new Array<DebugCircle>();
-        private Array<GameplayObject> GPObjects = new Array<GameplayObject>();
+        private readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
+        private readonly Array<GameplayObject> GPObjects = new Array<GameplayObject>();
         private int CircleTimer = 0;
         private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
 
@@ -195,7 +195,7 @@ namespace Ship_Game.Debug
 
                 DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
                 DrawGPObjects();
-                DrawCircles();
+                DrawDebugPrimitives((float)gameTime.ElapsedGameTime.TotalSeconds);
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
@@ -653,45 +653,51 @@ namespace Ship_Game.Debug
             Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, float lifeTime)
+        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
         {
-            if (mode == Mode)
-                Circles.Add(new DebugCircle(screenPos, radius, Color.Yellow, lifeTime));
+            if (mode != Mode) return;
+            lock (Primitives)
+                Primitives.Add(new DebugCircle(worldPos, radius, Color.Yellow, lifeTime));
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color, float lifeTime)
+        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, float lifeTime)
         {
-            if (mode == Mode)
-                Circles.Add(new DebugCircle(screenPos, radius, color, lifeTime));
+            if (mode != Mode) return;
+            lock (Primitives)
+                Primitives.Add(new DebugCircle(worldPos, radius, color, lifeTime));
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 screenPos, float radius, Color color, Ship ship = null)
+        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, Ship ship = null)
         {
             if (mode != Mode || ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship)
                 return;
-            Circles.Add(new DebugCircle(screenPos, radius, color, 0f));
+            lock (Primitives)
+                Primitives.Add(new DebugCircle(worldPos, radius, color, 0f));
         }
 
-        private void DrawCircles()
+        public void DrawLine(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld, 
+                                              float width, Color color, float lifeTime)
         {
-            for (int i = Circles.Count-1; i >= 0; --i)
+            if (mode != Mode) return;
+            lock (Primitives)
+                Primitives.Add(new DebugLine(startInWorld, endInWorld, width, color, lifeTime));
+        }
+
+        private void DrawDebugPrimitives(float gameDeltaTime)
+        {
+            lock (Primitives)
+            for (int i = Primitives.Count-1; i >= 0; --i)
             {
-                DebugCircle circle = Circles[i];
-                Screen.DrawCircleProjected(circle.Center, circle.Radius, circle.Color, 2);
-
-                if (Screen.Paused)
-                    continue;
-
-                circle.Time -= 0.016f;
-                if (circle.Time <= 0f)
+                DebugPrimitive primitive = Primitives[i];
+                primitive.Draw(Screen);
+                if (!Screen.Paused && primitive.Update(gameDeltaTime))
                 {
-                    Circles.RemoveAtSwapLast(i);
-                    continue;
+                    Primitives.RemoveAtSwapLast(i);
                 }
-                Circles[i] = circle; // update circle struct
             }
         }
-        TimeSpan LastHit =TimeSpan.MaxValue;
+
+        TimeSpan LastHit = TimeSpan.MaxValue;
         public void DrawGPObjects(DebugModes mode, GameplayObject gameplay, Ship ship = null)
         {
             if (mode != Mode) return;
