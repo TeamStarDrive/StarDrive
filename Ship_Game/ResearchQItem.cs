@@ -65,6 +65,13 @@ namespace Ship_Game
             EmpireManager.Player.data.ResearchQueue[second] = tmp;
         }
 
+        private void SwapResearchTopic(int queueIndex)
+        {
+            string tmp = EmpireManager.Player.data.ResearchQueue[queueIndex];
+            EmpireManager.Player.data.ResearchQueue[queueIndex] = EmpireManager.Player.ResearchTopic;
+            EmpireManager.Player.ResearchTopic = tmp;
+        }
+
         private bool HandleResearchButtonUp()
         {
             if (Node.tech.UID == EmpireManager.Player.ResearchTopic)
@@ -72,7 +79,6 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync("UI_Misc20");
                 return true;
             }
-
             int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.tech.UID == Node.tech.UID);
             if (indexOfThis > 0) // move it up
             {
@@ -81,14 +87,8 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("UI_Misc20");
                     return true;
                 }
-
-                Screen.qcomponent.QSL.Reset();
                 SwapQueueItems(indexOfThis - 1, indexOfThis);
-
-                foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-                {
-                    Screen.qcomponent.LoadQueue(Screen.CompleteSubNodeTree[uid] as TreeNode);
-                }
+                Screen.qcomponent.ReloadResearchQueue();
             }
             else // set as current research item
             {
@@ -97,24 +97,8 @@ namespace Ship_Game
                     GameAudio.PlaySfxAsync("UI_Misc20");
                     return true;
                 }
-
-                Screen.qcomponent.QSL.Reset();
-                Screen.qcomponent.CurrentResearch = null;
-
-                string toswitch = EmpireManager.Player.ResearchTopic;
-                EmpireManager.Player.ResearchTopic = Node.tech.UID;
-                EmpireManager.Player.data.ResearchQueue[0] = toswitch;
-
-                string resTop = EmpireManager.Player.ResearchTopic;
-                if (!string.IsNullOrEmpty(resTop))
-                {
-                    Screen.qcomponent.LoadQueue(Screen.CompleteSubNodeTree[resTop] as TreeNode);
-                }
-
-                foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-                {
-                    Screen.qcomponent.LoadQueue(Screen.CompleteSubNodeTree[uid] as TreeNode);
-                }
+                SwapResearchTopic(0);
+                Screen.qcomponent.ReloadResearchQueue();
             }
             return true;
         }
@@ -127,8 +111,7 @@ namespace Ship_Game
 	            GameAudio.PlaySfxAsync("UI_Misc20");
                 return true;
 	        }
-
-	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
+	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic) // move tech down
 	        {
 	            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(r => r.Node.tech.UID == Node.tech.UID);
 	            if (indexOfThis == -1 || indexOfThis == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(indexOfThis))
@@ -136,42 +119,19 @@ namespace Ship_Game
 	                GameAudio.PlaySfxAsync("UI_Misc20");
                     return true;
 	            }
-
-	            Screen.qcomponent.QSL.Reset();
 	            SwapQueueItems(indexOfThis + 1, indexOfThis);
-
-	            foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-	            {
-	                Screen.qcomponent.LoadQueue(Screen.CompleteSubNodeTree[uid] as TreeNode);
-	            }
+	            Screen.qcomponent.ReloadResearchQueue();
 	        }
-	        else
+	        else // move ResearchTopic into the queue
 	        {
 	            if (ThisIsPreReq1())
 	            {
 	                GameAudio.PlaySfxAsync("UI_Misc20");
                     return true;
 	            }
-
-	            Screen.qcomponent.QSL.Reset();
-	            Screen.qcomponent.CurrentResearch = null;
-
-	            string toswitch = EmpireManager.Player.data.ResearchQueue[0];
-	            EmpireManager.Player.data.ResearchQueue[0] = EmpireManager.Player.ResearchTopic;
-	            EmpireManager.Player.ResearchTopic = toswitch;
-
-	            string resTop = EmpireManager.Player.ResearchTopic;
-	            if (!string.IsNullOrEmpty(resTop))
-	            {
-	                Screen.qcomponent.LoadQueue(Screen.CompleteSubNodeTree[resTop] as TreeNode);
-	            }
-
-	            foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-	            {
-	                Screen.qcomponent.LoadQueue(Screen.CompleteSubNodeTree[uid] as TreeNode);
-	            }
+	            SwapResearchTopic(0);
+	            Screen.qcomponent.ReloadResearchQueue();
 	        }
-
 	        return true;
 	    }
 
