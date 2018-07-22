@@ -287,6 +287,8 @@ namespace Ship_Game
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
+                if (GlobalStats.WarpBehaviorsEnabled)
+                    evt["WarpBehaviorsEnabled"] = true;
             }
             var sb = new StringBuilder("(!) Exception: ");
             sb.Append(ex.Message);

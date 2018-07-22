@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -240,12 +241,15 @@ namespace Ship_Game
             EndLayout();
 
             BeginVLayout(RightArea.X, RightArea.Y, spacing);
-                Checkbox(() => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
+                Checkbox(() => GlobalStats.ForceFullSim, "Force Full Simulation", tooltip: 5086);
                 Checkbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
                 Checkbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
                 Checkbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
                 Checkbox(() => GlobalStats.AutoErrorReport, "Automatic Error Report", 
                                 "Send automatic error reports to Blackbox developers");
+                if (Debugger.IsAttached)
+                    Checkbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
+                        "Experimental and untested feature for complex Shield behaviors during Warp");
             EndLayout();
 
             BeginVLayout(RightArea.X, RightArea.Bottom + 60);
@@ -344,10 +348,10 @@ namespace Ship_Game
         }
 
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (Fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            base.Draw(spriteBatch);
+            base.Draw(batch);
         }
 
         public override void ExitScreen()

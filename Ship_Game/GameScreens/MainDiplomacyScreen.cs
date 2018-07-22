@@ -105,12 +105,6 @@ namespace Ship_Game
             Moles = empires;
         }
 
-        protected override void Destroy()
-        {
-            ArtifactsSL?.Dispose(ref ArtifactsSL);
-            base.Destroy();
-        }
-
         private int IntelligenceLevel(Empire e)
         {
             int intelligence = 0;
@@ -159,7 +153,7 @@ namespace Ship_Game
             
             return intelligence;
         }
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -193,7 +187,7 @@ namespace Ship_Game
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                         Rectangle r = new Rectangle(race.container.X, race.container.Y, 124, 124);
                         KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
-                        spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
+                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
                     }
                 }
                 else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
@@ -342,24 +336,14 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y = ArtifactsCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 ArtifactsSL.Draw(base.ScreenManager.SpriteBatch);
-                int i = ArtifactsSL.indexAtTop;
-                while (i < ArtifactsSL.Entries.Count)
+                foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
-                    if (i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay)
+                    ArtifactsCursor.Y = e.Y;
+                    var art = e.Get<ArtifactEntry>();
+                    art.Update(ArtifactsCursor);
+                    foreach (SkinnableButton button in art.ArtifactButtons)
                     {
-                        ScrollList.Entry e = ArtifactsSL.Entries[i];
-                        ArtifactsCursor.Y = (float)e.clickRect.Y;
-                        ArtifactEntry art = e.item as ArtifactEntry;
-                        art.Update(ArtifactsCursor);
-                        foreach (SkinnableButton button in art.ArtifactButtons)
-                        {
-                            button.Draw(base.ScreenManager);
-                        }
-                        i++;
-                    }
-                    else
-                    {
-                        break;
+                        button.Draw(ScreenManager);
                     }
                 }
             }
@@ -367,8 +351,8 @@ namespace Ship_Game
             {
                 if (SelectedEmpire.data.AbsorbedBy != null)
                 {
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular, " Federation"), TextCursor, Color.White);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular, " Federation"), TextCursor, Color.White);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
             else if (!SelectedEmpire.data.Defeated)
@@ -420,15 +404,14 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y = ArtifactsCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 ArtifactsSL.Draw(base.ScreenManager.SpriteBatch);
-                for (int i = ArtifactsSL.indexAtTop; i < ArtifactsSL.Entries.Count && i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay; i++)
+                foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
-                    ScrollList.Entry e = ArtifactsSL.Entries[i];
-                    ArtifactsCursor.Y = (float)e.clickRect.Y;
-                    ArtifactEntry art = e.item as ArtifactEntry;
+                    ArtifactsCursor.Y = e.Y;
+                    var art = e.Get<ArtifactEntry>();
                     art.Update(ArtifactsCursor);
                     foreach (SkinnableButton button in art.ArtifactButtons)
                     {
-                        button.Draw(base.ScreenManager);
+                        button.Draw(ScreenManager);
                     }
                 }
                 Array<Empire> Sortlist = new Array<Empire>();
@@ -690,7 +673,7 @@ namespace Ship_Game
                 if (SelectedEmpire.data.MissileDodgeChance != 0)
                     DrawStat(Localizer.Token(4035), SelectedEmpire.data.MissileDodgeChance, ref TextCursor, false); 
             }
-            close.Draw(spriteBatch);
+            close.Draw(batch);
             if (base.IsActive)
             {
                 ToolTip.Draw(base.ScreenManager.SpriteBatch);
@@ -771,12 +754,6 @@ namespace Ship_Game
             Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
         }
 
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
-        
         private float GetMilitaryStr(Empire e)
         {
             float single;
@@ -922,7 +899,7 @@ namespace Ship_Game
             {
                 if (pin.Ship?.loyalty != empire) continue;
 
-                shipTechs.AddRange(pin.Ship.shipData.techsNeeded);
+                shipTechs.AddRange(pin.Ship.shipData.TechsNeeded);
             }
             foreach (string tech in shipTechs)
                 techs.Add(tech);
@@ -990,9 +967,8 @@ namespace Ship_Game
                         continue;
                     }
                     SelectedEmpire = race.e;
-                    ArtifactsSL.Entries.Clear();
-                    ArtifactsSL.indexAtTop = 0;
-                    ArtifactEntry entry = new ArtifactEntry();
+                    ArtifactsSL.Reset();
+                    var entry = new ArtifactEntry();
                     for (int i = 0; i < SelectedEmpire.data.OwnedArtifacts.Count; i++)
                     {
                         Artifact art = SelectedEmpire.data.OwnedArtifacts[i];
@@ -1021,13 +997,12 @@ namespace Ship_Game
                         continue;
                     }
                     SelectedEmpire = race.e;
-                    ArtifactsSL.Entries.Clear();
-                    ArtifactsSL.indexAtTop = 0;
-                    ArtifactEntry entry = new ArtifactEntry();
+                    ArtifactsSL.Reset();
+                    var entry = new ArtifactEntry();
                     for (int i = 0; i < SelectedEmpire.data.OwnedArtifacts.Count; i++)
                     {
                         Artifact art = SelectedEmpire.data.OwnedArtifacts[i];
-                        SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
+                        var button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
                         {
                             IsToggle = false,
                             ReferenceObject = art,
@@ -1045,17 +1020,16 @@ namespace Ship_Game
                     }
                 }
             }
-            for (int i = ArtifactsSL.indexAtTop; i < ArtifactsSL.Entries.Count && i < ArtifactsSL.indexAtTop + ArtifactsSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
             {
-                foreach (SkinnableButton button in (ArtifactsSL.Entries[i].item as ArtifactEntry).ArtifactButtons)
+                var arte = (ArtifactEntry)e.item;
+                foreach (SkinnableButton button in arte.ArtifactButtons)
                 {
                     if (!button.r.HitTest(input.CursorPosition))
-                    {
                         continue;
-                    }
-                    string Text = string.Concat(Localizer.Token((button.ReferenceObject as Artifact).NameIndex), "\n\n");
-                    Text = string.Concat(Text, Localizer.Token((button.ReferenceObject as Artifact).DescriptionIndex));
-                    ToolTip.CreateTooltip(Text);
+                    var art = (Artifact)button.ReferenceObject;
+                    string text = $"{Localizer.Token(art.NameIndex)}\n\n{Localizer.Token(art.DescriptionIndex)}";
+                    ToolTip.CreateTooltip(text);
                 }
             }
             if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
@@ -1096,13 +1070,12 @@ namespace Ship_Game
                 else
                 {
                     SelectedEmpire = e;
-                    ArtifactsSL.Entries.Clear();
-                    ArtifactsSL.indexAtTop = 0;
-                    ArtifactEntry entry = new ArtifactEntry();
+                    ArtifactsSL.Reset();
+                    var entry = new ArtifactEntry();
                     for (int i = 0; i < e.data.OwnedArtifacts.Count; i++)
                     {
                         Artifact art = e.data.OwnedArtifacts[i];
-                        SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
+                        var button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
                         {
                             IsToggle = false,
                             ReferenceObject = art,

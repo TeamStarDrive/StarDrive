@@ -89,9 +89,9 @@ namespace Ship_Game.Gameplay
 				}
 				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
 				{
-					this.Selected = !this.Selected;
-					e.ShowingSub = !e.ShowingSub;
-					return this.Response;
+					Selected = !Selected;
+                    e.Expand(!e.Expanded);
+					return Response;
 				}
 			}
 			return null;

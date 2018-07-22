@@ -35,32 +35,25 @@ namespace Ship_Game
             base.IsPopup = true;
         }
 
-        protected override void Destroy()
-        {
-            SavesSL?.Dispose(ref SavesSL);
-            base.Destroy();
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.SpriteBatch.Begin();
             this.SaveMenu.Draw();
             this.AllSaves.Draw();
-            Vector2 bCursor = new Vector2((float)(this.AllSaves.Menu.X + 20), (float)(this.AllSaves.Menu.Y + 20));
-            for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Copied.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
+            var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
+            foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = this.SavesSL.Copied[i];
-                bCursor.Y = (float)e.clickRect.Y;
-                if (!(e.item is ModuleHeader))
+                bCursor.Y = e.Y;
+                if (e.item is ModuleHeader header)
                 {
-                    ModelData data = e.item as ModelData;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ShipIcons/Wisp"], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
+                    header.Draw(ScreenManager, bCursor);
                 }
-                else
+                else if (e.item is ModelData data)
                 {
-                    (e.item as ModuleHeader).Draw(base.ScreenManager, bCursor);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
+                        new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
                 }
             }
             this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
@@ -114,30 +107,22 @@ namespace Ship_Game
                 }
             }
             this.SavesSL.HandleInput(input);
-            foreach (ScrollList.Entry e in this.SavesSL.Copied)
+            foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
-                if (!e.clickRect.HitTest(mousePos))
-                {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    if (e.clickRectHover == 0)
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
+                if (!e.CheckHover(mousePos))
+                    continue;
 
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect)
+                selector = e.CreateSelector();
+                if (!input.InGameSelect)
+                    continue;
+                if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
+                {
+                    var modelData = e.item as ModelData;
+                    if (modelData == null)
                         continue;
-                    if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
-                    {
-                        var modelData = e.item as ModelData;
-                        if (modelData == null)
-                            continue;
-                        LoadModel(modelData);
-                    }
-                    else return true; // scrollList entry clicked
+                    LoadModel(modelData);
                 }
+                else return true; // scrollList entry clicked
             }
             this.previousMouse = input.MousePrev;
             return base.HandleInput(input);
@@ -145,7 +130,6 @@ namespace Ship_Game
 
         private bool LoadModel(ModelData modelData)
         {
-
             try
             {
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -181,19 +165,11 @@ namespace Ship_Game
             FileInfo[] objModels = ResourceManager.GatherFilesUnified("Model/Ships", "obj");
             foreach (FileInfo file in xnbModels)
             {
-                SavesSL.Entries[0].AddItem(new ModelData
-                {
-                    Name     = file.Name,
-                    FileInfo = file
-                });
+                SavesSL.EntryAt(0).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
             }
             foreach (FileInfo file in objModels)
             {
-                SavesSL.Entries[1].AddItem(new ModelData
-                {
-                    Name     = file.Name,
-                    FileInfo = file
-                });
+                SavesSL.EntryAt(1).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
             }
             base.LoadContent();
         }

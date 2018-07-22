@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
-	public sealed class Encounter: IDisposable
+	public sealed class Encounter
 	{
 		public int Step;
 
@@ -57,92 +57,72 @@ namespace Ship_Game
 			TheirTextPos.X = (float)((int)TheirTextPos.X);
 			TheirTextPos.Y = (float)((int)TheirTextPos.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12Bold, theirText, TheirTextPos, Color.White);
-			if (this.MessageList[this.CurrentMessage].EndTransmission)
+			if (MessageList[CurrentMessage].EndTransmission)
 			{
-				Vector2 ResponsePos = new Vector2((float)(this.ResponseRect.X + 10), (float)(this.ResponseRect.Y + 10));
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Escape or Right Click to End Transmission:", ResponsePos, Color.White);
+				var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
+				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Escape or Right Click to End Transmission:", responsePos, Color.White);
 			}
 			else
 			{
-				this.ResponseSL.Draw(ScreenManager.SpriteBatch);
-				Vector2 drawCurs = new Vector2((float)(this.ResponseRect.X + 10), (float)(this.ResponseRect.Y + 10));
+				ResponseSL.Draw(ScreenManager.SpriteBatch);
+				var drawCurs = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
-				drawCurs.X = drawCurs.X + 10f;
-				for (int i = this.ResponseSL.indexAtTop; i < this.ResponseSL.Entries.Count; i++)
+				drawCurs.X += 10f;
+                int i = ResponseSL.FirstVisibleIndex;
+                foreach (ScrollList.Entry e in ResponseSL.VisibleEntries)
 				{
-					if (i >= this.ResponseSL.indexAtTop + this.ResponseSL.entriesToDisplay)
-					{
-						return;
-					}
-					ScrollList.Entry e = this.ResponseSL.Entries[i];
-					drawCurs.Y = (float)e.clickRect.Y;
-					drawCurs.X = (float)((int)drawCurs.X);
-					SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-					SpriteFont arial12Bold = Fonts.Arial12Bold;
-					int num = i + 1;
-					spriteBatch.DrawString(arial12Bold, string.Concat(num.ToString(), ". ", (e.item as Response).Text), drawCurs, (e.clickRectHover == 0 ? Color.LightGray : Color.White));
+					drawCurs.Y = e.Y;
+					drawCurs.X = (int)drawCurs.X;
+                    ++i;
+				    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
+				        $"{i}. {((Response)e.item).Text}", drawCurs,
+				        (e.Hovered ? Color.LightGray : Color.White));
 				}
 			}
 		}
 
 		public void HandleInput(InputState input, GameScreen caller)
 		{
-			for (int i = this.ResponseSL.indexAtTop; i < this.ResponseSL.Entries.Count && i < this.ResponseSL.indexAtTop + this.ResponseSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ResponseSL.VisibleEntries)
 			{
-				ScrollList.Entry e = this.ResponseSL.Entries[i];
-				if (!e.clickRect.HitTest(input.CursorPosition))
+				if (e.CheckHover(input))
 				{
-					e.clickRectHover = 0;
-				}
-				else
-				{
-					e.clickRectHover = 1;
-					if (input.InGameSelect)
+					if (input.InGameSelect && e.item is Response r)
 					{
-						Response r = e.item as Response;
 						if (r.DefaultIndex != -1)
 						{
-							this.CurrentMessage = r.DefaultIndex;
+							CurrentMessage = r.DefaultIndex;
 						}
 						else
 						{
-							bool OK = true;
-							if (r.MoneyToThem > 0 && this.playerEmpire.Money < (float)r.MoneyToThem)
+							bool ok = !(r.MoneyToThem > 0 && playerEmpire.Money < r.MoneyToThem);
+							if (r.RequiredTech != null && !playerEmpire.GetTDict()[r.RequiredTech].Unlocked)
+								ok = false;
+							if (r.FailIfNotAlluring && playerEmpire.data.Traits.DiplomacyMod < 0.2)
+								ok = false;
+							if (!ok)
 							{
-								OK = false;
-							}
-							if (r.RequiredTech != null && !this.playerEmpire.GetTDict()[r.RequiredTech].Unlocked)
-							{
-								OK = false;
-							}
-							if (r.FailIfNotAlluring && (double)this.playerEmpire.data.Traits.DiplomacyMod < 0.2)
-							{
-								OK = false;
-							}
-							if (!OK)
-							{
-								this.CurrentMessage = r.FailIndex;
+								CurrentMessage = r.FailIndex;
 							}
 							else
 							{
-								this.CurrentMessage = r.SuccessIndex;
-								if (r.MoneyToThem > 0 && this.playerEmpire.Money >= (float)r.MoneyToThem)
+								CurrentMessage = r.SuccessIndex;
+								if (r.MoneyToThem > 0 && playerEmpire.Money >= r.MoneyToThem)
 								{
-									Empire money = this.playerEmpire;
-									money.Money = money.Money - (float)r.MoneyToThem;
+								    playerEmpire.Money -= r.MoneyToThem;
 								}
 							}
 						}
-						if (this.MessageList[this.CurrentMessage].SetWar)
+						if (MessageList[CurrentMessage].SetWar)
 						{
-							this.empToDiscuss.GetGSAI().DeclareWarFromEvent(this.playerEmpire, WarType.SkirmishWar);
+							empToDiscuss.GetGSAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
 						}
-						if (this.MessageList[this.CurrentMessage].EndWar)
+						if (MessageList[CurrentMessage].EndWar)
 						{
-							this.empToDiscuss.GetGSAI().EndWarFromEvent(this.playerEmpire);
+							empToDiscuss.GetGSAI().EndWarFromEvent(playerEmpire);
 						}
-						this.playerEmpire.GetRelations(this.empToDiscuss).EncounterStep = this.MessageList[this.CurrentMessage].SetEncounterStep;
-						this.SetResponses();
+						playerEmpire.GetRelations(empToDiscuss).EncounterStep = MessageList[CurrentMessage].SetEncounterStep;
+						SetResponses();
 					}
 				}
 			}
@@ -152,15 +132,15 @@ namespace Ship_Game
 			}
 		}
 
-		public void LoadContent(Ship_Game.ScreenManager ScreenManager, Rectangle FitRect)
+		public void LoadContent(ScreenManager screenManager, Rectangle fitRect)
 		{
-			this.MainRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
-			this.TopRect = new Rectangle(this.MainRect.X, this.MainRect.Y, this.MainRect.Width, 28);
-			this.BlackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 240);
-			this.ResponseRect = new Rectangle(FitRect.X, this.BlackRect.Y + this.BlackRect.Height + 10, FitRect.Width, 180);
-			Submenu resp = new Submenu(this.ResponseRect);
-			this.ResponseSL = new ScrollList(resp, 20);
-			this.SetResponses();
+			MainRect = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
+			TopRect = new Rectangle(MainRect.X, MainRect.Y, MainRect.Width, 28);
+			BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 240);
+			ResponseRect = new Rectangle(fitRect.X, BlackRect.Y + BlackRect.Height + 10, fitRect.Width, 180);
+			var resp = new Submenu(ResponseRect);
+			ResponseSL = new ScrollList(resp, 20);
+			SetResponses();
 		}
 
 		private string parseText(string text, float Width, SpriteFont font)
@@ -312,11 +292,10 @@ namespace Ship_Game
 
 		private void SetResponses()
 		{
-			this.ResponseSL.Entries.Clear();
-			this.ResponseSL.indexAtTop = 0;
-			foreach (Response r in this.MessageList[this.CurrentMessage].ResponseOptions)
+			ResponseSL.Reset();
+			foreach (Response r in MessageList[CurrentMessage].ResponseOptions)
 			{
-				this.ResponseSL.AddItem(r);
+				ResponseSL.AddItem(r);
 			}
 		}
 
@@ -329,18 +308,5 @@ namespace Ship_Game
 		{
 			this.empToDiscuss = e;
 		}
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Encounter() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            ResponseSL?.Dispose(ref ResponseSL);
-        }
 	}
 }

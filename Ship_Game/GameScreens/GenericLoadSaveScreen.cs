@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Ship_Game
 {
-    public class GenericLoadSaveScreen : GameScreen
+    public abstract class GenericLoadSaveScreen : GameScreen
     {
         protected Vector2 Cursor = Vector2.Zero;
 
@@ -32,15 +32,11 @@ namespace Ship_Game
 
         protected SLMode mode;
 
-        protected string InitText = "";
-
-        protected string TitleText = "";
-
+        protected string InitText;
+        protected string TitleText;
         protected string OverWriteText = "";
-
         protected string Path = "";
-
-        protected string TabText = "";
+        protected string TabText;
 
         protected CloseButton close;
 
@@ -86,12 +82,6 @@ namespace Ship_Game
             this.eHeight = eHeight;
         }
 
-        protected override void Destroy()
-        {
-            SavesSL?.Dispose(ref SavesSL);
-            base.Destroy();
-        }
-
         public virtual void DoSave()
         {
             //SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
@@ -107,73 +97,51 @@ namespace Ship_Game
                 this.fileToDel.Delete();        // delete the file
             } catch { }
 
-            int iAT = this.SavesSL.indexAtTop;
+            int iAT = this.SavesSL.FirstVisibleIndex;
             this.Buttons.Clear();
             this.LoadContent();
-            this.SavesSL.indexAtTop = iAT;
+            this.SavesSL.FirstVisibleIndex = iAT;
 
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
-            this.SaveMenu.Draw();
-            this.NameSave.Draw();
-            this.AllSaves.Draw();
-            Vector2 bCursor = new Vector2((float)(this.AllSaves.Menu.X + 20), (float)(this.AllSaves.Menu.Y + 20));
-            for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Entries.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.SpriteBatch.Begin();
+            SaveMenu.Draw();
+            NameSave.Draw();
+            AllSaves.Draw();
+            var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
+            foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.SavesSL.Entries[i];
-                FileData data = e.item as FileData;
-                bCursor.Y = (float)e.clickRect.Y - 7;
-                base.ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
-                tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
-                tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
-                if (e.clickRectHover != 1)
-                {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
-                }
-                else
-                {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
-                    if (e.cancel.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
-                        ToolTip.CreateTooltip("Delete File");
-                    }
-                }
+                var data = (FileData)e.item;
+                bCursor.Y = (float)e.Y - 7;
+                ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
+                tCursor.Y += Fonts.Arial20Bold.LineSpacing;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
+                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
+                e.DrawCancel(ScreenManager.SpriteBatch, Input, "Delete File");
             }
-            this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
-            this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, GameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
-            foreach (UIButton b in this.Buttons)
+            SavesSL.Draw(ScreenManager.SpriteBatch);
+            EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            foreach (UIButton b in Buttons)
             {
-                b.Draw(base.ScreenManager.SpriteBatch);
+                b.Draw(ScreenManager.SpriteBatch);
             }
-            if (this.selector != null)
-            {
-                this.selector.Draw(ScreenManager.SpriteBatch);
-            }
-            this.close.Draw(ScreenManager.SpriteBatch);
+
+            selector?.Draw(ScreenManager.SpriteBatch);
+            close.Draw(ScreenManager.SpriteBatch);
             ToolTip.Draw(ScreenManager.SpriteBatch);
-            base.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
-
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
 
         protected virtual void Load()
         {
 
         }
-
 
         protected void SwitchFile(ScrollList.Entry e)
         {
@@ -187,35 +155,25 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = input.MouseCurr;
-            Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            this.SavesSL.HandleInput(input);
-            this.selector = null;
-            for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Entries.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
+            currentMouse = input.MouseCurr;
+            SavesSL.HandleInput(input);
+            selector = null;
+            foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
-                ScrollList.Entry e = this.SavesSL.Entries[i];
-                if (!e.clickRect.HitTest(MousePos))
+                if (!e.CheckHover(input))
+                    continue;
+
+                selector = e.CreateSelector();
+                if (e.WasCancelHovered(Input) && input.InGameSelect) // handle file delete
                 {
-                    e.clickRectHover = 0;
+                    fileToDel = e.Get<FileData>().FileLink;
+                    var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                    messageBox.Accepted += DeleteFile;
+                    ScreenManager.AddScreen(messageBox);
                 }
-                else
+                else if (input.InGameSelect)
                 {
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
-                    this.selector = new Selector(e.clickRect);
-                    if (e.cancel.HitTest(MousePos) && input.InGameSelect)        // handle file delete
-                    {
-                        this.fileToDel = (e.item as FileData).FileLink;
-                        MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                        messageBox.Accepted += DeleteFile;
-                        base.ScreenManager.AddScreen(messageBox);
-                    } else if (input.InGameSelect)
-                    {
-                        this.SwitchFile(e);
-                    }
+                    SwitchFile(e);
                 }
             }
             if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
@@ -283,30 +241,25 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        protected virtual void SetSavesSL()        // To be overridden in subclasses
-        {
-
-        }
+        protected abstract void InitSaveList();        // To be implemented in subclasses
 
         public override void LoadContent()
         {
             this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
             this.SaveMenu = new Menu1(this.Window);
             this.close = new CloseButton(this, new Rectangle(this.Window.X + this.Window.Width - 35, this.Window.Y + 10, 20, 20));
-            Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
+            var sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
             this.NameSave = new Submenu(sub);
             this.NameSave.AddTab(this.TitleText);
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-            Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
+            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.AllSaves = new Submenu(scrollList);
             this.AllSaves.AddTab(this.TabText);
-            this.SavesSL = new ScrollList(this.AllSaves, this.eHeight, true, false, false, false);
+            SavesSL = new ScrollList(AllSaves, eHeight, ListControls.Cancel);
+            InitSaveList();
 
-            this.SetSavesSL();
-
-            this.SavesSL.indexAtTop = 0;
-            this.EnternamePos = this.TitlePosition;
-            this.EnterNameArea = new UITextEntry();
+            EnternamePos = TitlePosition;
+            EnterNameArea = new UITextEntry();
 
             EnterNameArea.Text = this.InitText;
             EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
@@ -318,31 +271,28 @@ namespace Ship_Game
 
         private void OverWriteAccepted(object sender, EventArgs e)
         {
-            this.DoSave();
+            DoSave();
+        }
+
+        private bool IsSaveOk()
+        {
+            foreach (FileData data in SavesSL.AllItems<FileData>())
+                if (EnterNameArea.Text == data.FileName) // check if item already exists
+                    return false;
+            return true;
         }
 
         private void TrySave()
         {
-            bool SaveOK = true;
-
-            foreach (ScrollList.Entry entry in this.SavesSL.Entries)
+            if (IsSaveOk())
             {
-                if (this.EnterNameArea.Text == (entry.item as FileData).FileName)       // check if item already exists
-                {
-                    SaveOK = false;
-                    break;
-                }
-            }
-
-            if (SaveOK)
-            {
-                this.DoSave();
+                DoSave();
             }
             else
             {
-                MessageBoxScreen messageBox = new MessageBoxScreen(this, OverWriteText);
+                var messageBox = new MessageBoxScreen(this, OverWriteText);
                 messageBox.Accepted += OverWriteAccepted;
-                base.ScreenManager.AddScreen(messageBox);
+                ScreenManager.AddScreen(messageBox);
             }
         }
 

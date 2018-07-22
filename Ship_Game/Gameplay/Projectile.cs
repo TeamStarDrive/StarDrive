@@ -464,7 +464,7 @@ namespace Ship_Game.Gameplay
             }
             else if (WeaponType == "Ballistic Cannon")
             {
-                if (target is ShipModule shipModule && shipModule.ModuleType != ShipModuleType.Shield)
+                if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
                     GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
             }
             
@@ -483,7 +483,7 @@ namespace Ship_Game.Gameplay
             // deduct that from the projectile's AP before starting AP and damage checks
             ArmorPiercing -= module.APResist;
 
-            if (ArmorPiercing <= 0 || module.ModuleType != ShipModuleType.Armor)
+            if (ArmorPiercing <= 0 || !module.Is(ShipModuleType.Armor))
                 module.Damage(this, DamageAmount, out DamageAmount);
 
             if (DamageAmount <= 0f)
@@ -500,7 +500,7 @@ namespace Ship_Game.Gameplay
                 ShipModule impactModule = projectedModules[x];
                 if (!impactModule.Active)
                     continue;
-                if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
+                if (ArmorPiercing > 0 && impactModule.Is(ShipModuleType.Armor))
                 {
                     ArmorPiercing -= impactModule.XSIZE; // armor is always squared anyway.
                     impactModule.DebugDamageCircle();

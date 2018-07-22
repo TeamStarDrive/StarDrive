@@ -49,19 +49,19 @@ namespace Ship_Game
 			this.PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			float x = (float)Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			this.TitleBar.Draw();
 			Color c = new Color(255, 239, 208);
-			spriteBatch.DrawString(Fonts.Laserian14, this.p.Name, this.TitlePos, c);
+			batch.DrawString(Fonts.Laserian14, this.p.Name, this.TitlePos, c);
 			this.PlanetMenu.Draw();
 			this.PlanetInfo.Draw();
-			spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIcon, Color.White);
+			batch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIcon, Color.White);
 			Vector2 PNameCursor = new Vector2((float)(this.PlanetInfo.Menu.X + 20), (float)(this.PlanetInfo.Menu.Y + 45));
-			spriteBatch.DrawString(Fonts.Arial20Bold, this.p.Name, PNameCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial20Bold, this.p.Name, PNameCursor, new Color(255, 239, 208));
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
 			string fmt = "#.#";
 			float amount = 80f;
@@ -69,9 +69,9 @@ namespace Ship_Game
 			{
 				amount = amount + 25f;
 			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
+			batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
 			Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-			spriteBatch.DrawString(Fonts.Arial12Bold, this.p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, this.p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
@@ -105,7 +105,7 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(21);
 			}
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
-			spriteBatch.DrawString(Fonts.Arial12Bold, this.parseText(this.p.Description, (float)(this.PlanetInfo.Menu.Width - 40)), PNameCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, this.parseText(this.p.Description, (float)(this.PlanetInfo.Menu.Width - 40)), PNameCursor, new Color(255, 239, 208));
 		}
 
 		public override bool HandleInput(InputState input)

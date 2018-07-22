@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         {
             Planet bestPlanet = null;
             int num1 = 9999999;
-            foreach (Planet planet2 in empire.BestRallyShipYards)
+            foreach (Planet planet2 in empire.BestBuildPlanets)
             {
                 int num2 = 0;
                 foreach (QueueItem queueItem in planet2.ConstructionQueue)
@@ -53,7 +53,7 @@ namespace Ship_Game.Commands.Goals
             if (EmpireManager.Player == empire
                 && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out Ship autoScout))
             {
-                planet.ConstructionQueue.Add(new QueueItem()
+                planet.ConstructionQueue.Add(new QueueItem(planet)
                 {
                     isShip = true,
                     QueueNumber = planet.ConstructionQueue.Count,
@@ -75,8 +75,8 @@ namespace Ship_Game.Commands.Goals
             if (scoutShipsWeCanBuild.IsEmpty)
                 return GoalStep.TryAgain;
 
-            Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.ModulePowerDraw);
-            planet.ConstructionQueue.Add(new QueueItem()
+            Ship mostPowerEfficientScout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
+            planet.ConstructionQueue.Add(new QueueItem(planet)
             {
                 isShip = true,
                 QueueNumber = planet.ConstructionQueue.Count,

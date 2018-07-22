@@ -8,11 +8,12 @@ namespace Ship_Game
 {
     public class QueueItem
     {
+        public Planet Planet;
         public bool isBuilding;
         public bool isShip;
         public bool isTroop;
         public ShipData sData;
-        public Ship_Game.Building Building;
+        public Building Building;
         public string troopType;
         public Rectangle rect;
         public Rectangle ProgressBarRect;
@@ -32,5 +33,38 @@ namespace Ship_Game
         public bool NotifyOnEmpty =true;
         public bool notifyWhenBuilt =false;
         public bool IsPlayerAdded = false;
+
+        public int EstimatedTurnsToComplete
+        {
+            get
+            {
+                float production = Planet.GetNetProductionPerTurn();
+                if (production <= 0f)
+                    return 10000;
+                float turns = (Cost - productionTowards) / production;
+                return (int)Math.Ceiling(turns);
+            }
+        }
+            
+        public QueueItem(Planet planet)
+        {
+            Planet = planet;
+        }
+
+        public string DisplayText
+        {
+            get
+            {
+                if (isBuilding)
+                    return Localizer.Token(Building.NameTranslationIndex);
+                if (isShip)
+                    return DisplayName ?? sData.Name;
+                if (isTroop)
+                    return troopType;
+                return "";
+            }
+        }
+
+        public override string ToString() => DisplayText;
     }
 }

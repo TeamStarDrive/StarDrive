@@ -43,6 +43,9 @@ namespace Ship_Game
         public bool reconDropDown;
         public bool ColoniserMenu;
         public bool ConstructionModule;
+
+        //added by Fat Bastard
+        public bool UseShieldWarpBehavior;
         
         public float ShipyardBonus;
         public float UpkeepBaseline;

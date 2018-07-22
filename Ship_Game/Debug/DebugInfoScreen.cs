@@ -306,8 +306,8 @@ namespace Ship_Game.Debug
                 {
                     DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
 
-                    if (Screen.SelectedFleet.FleetTask.GetTargetPlanet() != null)
-                        DrawString(Screen.SelectedFleet.FleetTask.GetTargetPlanet().Name);
+                    if (Screen.SelectedFleet.FleetTask.TargetPlanet != null)
+                        DrawString(Screen.SelectedFleet.FleetTask.TargetPlanet.Name);
 
                     DrawString("Step: "+Screen.SelectedFleet.TaskStep);
                 }
@@ -388,7 +388,6 @@ namespace Ship_Game.Debug
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
-
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.ShipsDict) {
@@ -558,12 +557,6 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                foreach (Planet planet in e.GetPlanets())
-                {                    
-                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
-                    Screen.DrawCircleProjectedZ(planet.Center, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
-                }
-
                 foreach (Ship ship in e.GetShips())
                 {
                     ShipAI ai = ship.AI;
@@ -573,10 +566,10 @@ namespace Ship_Game.Debug
                     switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 6);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
                             break;
                         case Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 3);
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
                             break;
                         case Plan.PickupPassengers:
                         case Plan.DropoffPassengers:

@@ -386,7 +386,7 @@ namespace Ship_Game.AI {
                 || OwnerEmpire.structuresWeCanBuild.Contains(GetBestCombatShip.Name)) 
                     BestCombatShip = null;
                 else
-                if (!BestCombatShip.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Any())
+                if (!BestCombatShip.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Any())
                     BestCombatShip = null;
             }
             HashSet<string> allAvailableShipTechs = FindBestShip(modifier, availableTechs, command2);
@@ -619,7 +619,7 @@ namespace Ship_Game.AI {
 
             if (BestCombatShip != null && command == "RANDOM")
             {
-                foreach (var bTech in BestCombatShip.shipData.techsNeeded)
+                foreach (var bTech in BestCombatShip.shipData.TechsNeeded)
                     nonShipTechs.Add(bTech);
                 DebugLog(
                     $"Best Ship : {GetBestCombatShip.shipData.HullRole} : {GetBestCombatShip.GetStrength()}");
@@ -646,7 +646,7 @@ namespace Ship_Game.AI {
 
             if (!GetLineFocusedShip(researchableShips, shipTechs))
                 return nonShipTechs;
-            foreach (var tech in BestCombatShip.shipData.techsNeeded)
+            foreach (var tech in BestCombatShip.shipData.TechsNeeded)
                 nonShipTechs.Add(tech);
             return nonShipTechs;
 
@@ -668,7 +668,7 @@ namespace Ship_Game.AI {
                  * Now this list can be used to not just get the one with fewest techs but add a random to get a little variance. 
                  */
                 Array<string> currentTechs =
-                    new Array<string>(shortTermBest.shipData.techsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs));
+                    new Array<string>(shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Except(shipTechs));
 
                 int key = currentTechs.Count;
                 
@@ -698,7 +698,7 @@ namespace Ship_Game.AI {
             //choose Ship
 
             Array<Ship> ships = new Array<Ship>(roleSorter[keyChosen].
-                OrderByDescending(ship => ship.shipData.techsNeeded.Count )); //ship.GetStrength()));//  
+                OrderByDescending(ship => ship.shipData.TechsNeeded.Count )); //ship.GetStrength()));//  
             for (int x = 1; x <= ships.Count; x++)
             {
                 var ship = ships[x-1];
@@ -768,7 +768,7 @@ namespace Ship_Game.AI {
                         //|| !OwnerEmpire.IsHullUnlocked(shortTermBest.shipData.Hull))
                         continue;
                     
-                    if (shortTermBest.shipData.techsNeeded.Count == 0)
+                    if (shortTermBest.shipData.TechsNeeded.Count == 0)
                     {
                         if (Empire.Universe.Debug)
                         {
@@ -799,7 +799,7 @@ namespace Ship_Game.AI {
                 if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name))
                     continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
-                if (!shortTermBest.shipData.unLockable) continue;                
+                if (!shortTermBest.shipData.UnLockable) continue;                
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 researchableShips.Add(shortTermBest);
             }
@@ -807,7 +807,7 @@ namespace Ship_Game.AI {
 
         private bool ShipHasUndiscoveredTech(Ship ship)
         {
-            foreach (var techName in ship.shipData.techsNeeded)
+            foreach (var techName in ship.shipData.TechsNeeded)
             {
                 if (!OwnerEmpire.GetTechEntry(techName).Discovered)
                     return true;
@@ -868,7 +868,7 @@ namespace Ship_Game.AI {
         private int SumShipTechCostFiltered(Ship ship, HashSet<string> techList)
         {
             int techCost = 0;
-            foreach (string shipTech in ship.shipData.techsNeeded)
+            foreach (string shipTech in ship.shipData.TechsNeeded)
             {
                 if (techList.Contains(shipTech)) continue;
                 techCost += (int) (OwnerEmpire.GetTechEntry(shipTech)?.TechCost ?? 0);

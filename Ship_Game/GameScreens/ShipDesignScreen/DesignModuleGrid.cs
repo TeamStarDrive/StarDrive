@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -277,7 +278,10 @@ namespace Ship_Game
             ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
-                Grid[x + y*Width].Parent = slot;
+            {
+                SlotStruct target = Grid[x + y*Width];
+                if (target != slot) target.Parent = slot;
+            }
         }
         
         public void InstallModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
@@ -301,7 +305,7 @@ namespace Ship_Game
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
             {
-                SlotStruct root = Grid[x + y*Width].Parent;
+                SlotStruct root = Grid[x + y*Width].Root;
                 if (root?.Module != null) // only clear module roots which have not been cleared yet
                 {
                     SaveAction(root, root.Module, root.Orientation, ChangeType.Removed);
@@ -340,7 +344,7 @@ namespace Ship_Game
                 DistributePowerFrom(powerSource);
 
                 // only PowerPlants can power conduits
-                if (module.ModuleType == ShipModuleType.PowerPlant)
+                if (module.Is(ShipModuleType.PowerPlant))
                     ConnectPowerConduits(powerSource);
             }
 
@@ -384,6 +388,17 @@ namespace Ship_Game
             if (ss.Module.Powered)
                 graphic = graphic + "_power";
             return ResourceManager.Texture(graphic);
+        }
+
+        public ShipModule[] Modules
+        {
+            get
+            {
+                var modules = new Array<ShipModule>();
+                foreach (SlotStruct slot in Slots)
+                    if (slot.Module != null) modules.Add(slot.Module);
+                return modules.ToArray();
+            }
         }
 
         #endregion
