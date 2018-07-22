@@ -1841,7 +1841,7 @@ namespace Ship_Game
         private int ExistingMilitaryBuildings()
         {
             return BuildingsCanBuild.Count(building => 
-                        building.Strength > 0 && 
+                        building.CombatStrength > 0 && 
                         building.Name != "Outpost" &&
                         building.Name != "Capital City" && 
                         building.MaxPopIncrease == 0);
@@ -1913,11 +1913,13 @@ namespace Ship_Game
             if (building.AllowInfantry)
                 allowTroops = 1;
 
-            //Shield, weapon, and/or allowtroop weighting go here
+            //Shield, weapon, and/or allowtroop weighting go here (which is why they are all seperate values)
 
-            if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated military building {building.Name} : Score was {upkeep + combatScore + weaponDPS + shieldScore + allowTroops}");
+            float finalRating = upkeep + combatScore + weaponDPS + shieldScore + allowTroops;
+            if (finalRating > 0) finalRating = FactorForConstructionCost(finalRating, building.Cost);
 
-            return upkeep + combatScore + weaponDPS + shieldScore + allowTroops;
+            if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated military building {building.Name} : Score was {finalRating}");
+            return finalRating;
         }
 
         private void ChooseAndBuild(float income)
@@ -1940,22 +1942,28 @@ namespace Ship_Game
 
         private void ChooseAndBuildMilitary(float income)
         {
-            Building bestMBuilding = null;
-            float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
-            float mBuildingScore = 0.0f;
-            for (int i = 0; i < BuildingsCanBuild.Count; i++)
-            {
-                if (BuildingsCanBuild[i].Strength == 0 || BuildingsCanBuild[i].MaxPopIncrease > 0) continue;
-                if (BuildingsCanBuild[i].Name == "Outpost" || BuildingsCanBuild[i].Name == "Capital City") continue;
+            if (Name == "MerVilleI")
+            { double spotForABreakpoint = Math.PI; }
 
-                mBuildingScore = EvaluateMilitaryBuilding(BuildingsCanBuild[i], income);
-                if (mBuildingScore > bestValue)
+            if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
+            {
+                Building bestMBuilding = null;
+                float bestValue = 0.0f;
+                float mBuildingScore = 0.0f;
+                for (int i = 0; i < BuildingsCanBuild.Count; i++)
                 {
-                    bestMBuilding = BuildingsCanBuild[i];
-                    bestValue = mBuildingScore;
+                    if (BuildingsCanBuild[i].CombatStrength == 0 || BuildingsCanBuild[i].MaxPopIncrease > 0) continue;
+                    if (BuildingsCanBuild[i].Name == "Outpost" || BuildingsCanBuild[i].Name == "Capital City") continue;
+
+                    mBuildingScore = EvaluateMilitaryBuilding(BuildingsCanBuild[i], income);
+                    if (mBuildingScore > bestValue)
+                    {
+                        bestMBuilding = BuildingsCanBuild[i];
+                        bestValue = mBuildingScore;
+                    }
                 }
+                if (bestMBuilding != null) AddBuildingToCQ(bestMBuilding);
             }
-            if (bestMBuilding != null) AddBuildingToCQ(bestMBuilding);
         }
 
         private void BuildBuildings(float income)
@@ -1977,7 +1985,8 @@ namespace Ship_Game
                 {
                     ChooseAndBuild(income);
                 }
-                else ChooseAndBuildMilitary(income);
+
+                ChooseAndBuildMilitary(income);
             }
             else
             {
@@ -2252,7 +2261,7 @@ namespace Ship_Game
             #endregion
 
             #region Scrap
-
+            /*
             {
                 using (ConstructionQueue.AcquireReadLock())
                     foreach (PlanetGridSquare PGS in TilesList)
@@ -2289,9 +2298,8 @@ namespace Ship_Game
                     }
 
                 ConstructionQueue.ApplyPendingRemovals();
-
+            }*/
             #endregion
-            }
         }
 
         public float GetMaxProductionPotential() { return MaxProductionPerTurn; }
