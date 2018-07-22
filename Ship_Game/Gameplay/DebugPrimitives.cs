@@ -12,7 +12,7 @@ namespace Ship_Game.Gameplay
         protected DebugPrimitive(Color color, float lifeTime)
         {
             Color = color;
-            LifeTime  = lifeTime;
+            LifeTime = lifeTime;
         }
         public bool Update(float gameDeltaTime)
         {
@@ -22,16 +22,16 @@ namespace Ship_Game.Gameplay
         public abstract void Draw(UniverseScreen screen);
     }
 
-	public class DebugCircle : DebugPrimitive
+    public class DebugCircle : DebugPrimitive
     {
         private readonly Vector2 Center;
         private readonly float Radius;
-		public DebugCircle(Vector2 centerInWorld, float radius, 
-		                   Color color, float lifeTime) : base(color, lifeTime)
-		{
-			Radius = radius;
-			Center = centerInWorld;
-		}
+        public DebugCircle(Vector2 centerInWorld, float radius,
+            Color color, float lifeTime) : base(color, lifeTime)
+        {
+            Radius = radius;
+            Center = centerInWorld;
+        }
         public override void Draw(UniverseScreen screen)
         {
             screen.DrawCircleProjected(Center, Radius, Color, 2);
@@ -43,11 +43,11 @@ namespace Ship_Game.Gameplay
         private readonly Vector2 StartInWorld;
         private readonly Vector2 EndInWorld;
         private readonly float Width;
-        public DebugLine(Vector2 startInWorld, Vector2 endInWorld, float width, 
-                         Color color, float lifeTime) : base(color, lifeTime)
+        public DebugLine(Vector2 startInWorld, Vector2 endInWorld, float width,
+            Color color, float lifeTime) : base(color, lifeTime)
         {
             StartInWorld = startInWorld;
-            EndInWorld   = endInWorld;
+            EndInWorld = endInWorld;
             Width = width;
         }
         public override void Draw(UniverseScreen screen)
