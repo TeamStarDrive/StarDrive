@@ -9,8 +9,35 @@ namespace Ship_Game.AI
     {
         public Planet start;
         public Planet end;
-        public string FoodOrProd;
+        public Goods FoodOrProd;
 
+        public bool NoGoods => FoodOrProd == Goods.None;
+        public bool IsFood => FoodOrProd == Goods.Food;
+        public bool IsProd => FoodOrProd == Goods.Production;
+        public bool IsPassengers => FoodOrProd == Goods.Colonists;
+
+        public void SetTradeType(string savedString)
+        {
+            switch (savedString)
+            {
+                case "Food": FoodOrProd = Goods.Food; break;
+                case "Prod": FoodOrProd = Goods.Production; break;
+                case "Pass": FoodOrProd = Goods.Colonists; break;
+                default:     FoodOrProd = Goods.None; break;
+            }
+        }
+
+        public string GetTradeTypeString()
+        {
+            switch (FoodOrProd)
+            {
+                default:
+                case Goods.None:       return "";
+                case Goods.Food:       return "Food";
+                case Goods.Production: return "Prod";
+                case Goods.Colonists:  return "Pass";
+            }
+        }
         private static float UniverseSize => UniverseScreen?.UniverseSize ?? 5000000f;
 
         private void DropoffGoods()
@@ -47,7 +74,7 @@ namespace Ship_Game.AI
             OrderTransportPassengers(5f);
         }
 
-        private static float TradeSort(Ship ship, Planet planetCheck, string resourceType, float cargoCount, bool Delivery)
+        private static float TradeSort(Ship ship, Planet planetCheck, Goods good, float cargoCount, bool delivery)
         {
             /*here I am trying to predict the planets need versus the ships speed.
              * I am returning a weighted value that is based on this but primarily the returned value is the time it takes the freighter to get to the target in a straight line
@@ -57,12 +84,12 @@ namespace Ship_Game.AI
             //cargoCount = cargoCount > PlanetCheck.MAX_STORAGE ? PlanetCheck.MAX_STORAGE : cargoCount;
             float resourceRecharge = 0;
             float resourceAmount = 0;
-            if (resourceType == "Food")
+            if (good == Goods.Food)
             {
                 resourceRecharge = planetCheck.NetFoodPerTurn;
                 resourceAmount = planetCheck.FoodHere;
             }
-            else if (resourceType == "Production")
+            else if (good == Goods.Production)
             {
                 resourceRecharge = planetCheck.NetProductionPerTurn;
                 resourceAmount = planetCheck.ProductionHere;
@@ -72,7 +99,7 @@ namespace Ship_Game.AI
 
             // return PlanetCheck.MAX_STORAGE / (PlanetCheck.MAX_STORAGE -(Effeciency + resourceAmount));
 
-            if (Delivery)
+            if (delivery)
             {
                 bool badCargo = efficiency + resourceAmount > planetCheck.MaxStorage;             
                 if (!badCargo)
@@ -114,50 +141,46 @@ namespace Ship_Game.AI
             if (IsAlreadyTrading()) return;
             if (!IsReadyForTrade) return;
 
-            if (FoodOrProd == "")
+            if (NoGoods)
             {
                 end = null;
                 start = null;
                 return;
             }
 
-                               
-           
-            if (Owner.loyalty.data.Traits.Cybernetic < 1 && FoodOrProd == "Food" && (end == null || Owner.GetFood() > 0))
+            if (Owner.loyalty.data.Traits.Cybernetic < 1 && IsFood && (end == null || Owner.GetFood() > 0))
             {
-                if ( DeliverShipment("Food"))
+                if (DeliverShipment(Goods.Food))
                 {                    
-                    FoodOrProd = "Food";
+                    FoodOrProd = Goods.Food;
                     Owner.TradingFood = true;
                     Owner.TradingProd = false;
-                    //return;
                 }
                 else
                 {
-                    FoodOrProd = "";
+                    FoodOrProd = Goods.None;
                     Owner.TradingFood = false;
                     Owner.TradingProd = false;
                 }
             }
             
-            if (FoodOrProd == "Prod" && (end == null || Owner.GetProduction() >0))
+            if (IsProd && (end == null || Owner.GetProduction() >0))
             {
-                if(DeliverShipment("Production"))
+                if (DeliverShipment(Goods.Production))
                 {
                     
-                    FoodOrProd = "Prod";
+                    FoodOrProd = Goods.Production;
                     Owner.TradingProd = true;
                     Owner.TradingFood = false;
-                    //return;
                 }
                 else
                 {
-                    FoodOrProd = "";
+                    FoodOrProd = Goods.None;
                     Owner.TradingFood = false;
                     Owner.TradingProd = false;
                 }
             }
-            GetShipment(Owner.TradingFood ? "Food" : "Production");
+            GetShipment(Owner.TradingFood ? Goods.Food : Goods.Production);
 
             if (start != null && end != null && start != end)
             {
@@ -169,7 +192,7 @@ namespace Ship_Game.AI
             else
             {
                 OrderQueue.Clear();
-                FoodOrProd = "";
+                FoodOrProd = Goods.None;
                 Owner.TradingFood = false;
                 Owner.TradingProd = false;
                 AwaitClosest = start ?? Owner.loyalty.FindNearestRallyPoint(Owner.Center); //?? end 
@@ -199,80 +222,31 @@ namespace Ship_Game.AI
                     int rnd = RandomMath.IntBetween(1, 100);
                     if (rnd > 50)
                     {
-                        FoodOrProd = "Prod";                                
+                        FoodOrProd = Goods.Production;                                
                         return;
                     }
                 }
-                FoodOrProd = "Food";
-                        
+                FoodOrProd = Goods.Food;
                 return;
             }
 
-            FoodOrProd = "Prod";
+            FoodOrProd = Goods.Production;
         }
 
-        private void GetShipment(string goodType)
+        private void GetShipment(Goods good)
         {
-            if (end == null) // || (start != null && Owner.GetCargo(prodOrFood) < 1)) return;
+            if (end == null)
                 return;
-            var prodOrFood = goodType.Substring(0, 4);
 
-           
+            TradePlanets tradePlanets = GetTradePlanets(good, Planet.GoodState.EXPORT);
+            Array<Planet> planets = tradePlanets.Planets;
+            if (planets.Count <= 0)
+                return;
 
-                //if (start != null || end == null || (FoodOrProd != null && FoodOrProd != prodOrFood) ||
-                //(Owner.CargoSpaceUsed > 0 && !(Owner.CargoSpaceUsed / Owner.CargoSpaceMax < .2f))) return;
-
-            var tradePlanets = GetTradePlanets(goodType, Planet.GoodState.EXPORT);
-            var planets = tradePlanets.Planets;
-
-            if (planets.Count <= 0) return;
-
-            var sortPlanets = planets.OrderBy(p => TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, false));
-            foreach (Planet p in sortPlanets)
+            Planet[] sortedPlanets = planets.Sorted(p => TradeSort(Owner, p, good, Owner.CargoSpaceMax, false));
+            foreach (Planet p in sortedPlanets)
             {
-                if (p.ParentSystem.CombatInSystem) continue;
-                bool flag = false;
-                float cargoSpaceMax = p.GetGoodHere(goodType);
-
-                float mySpeed = TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, false);
-                     
-                ShipGoal plan;
-                using (Owner.loyalty.GetShips().AcquireReadLock())
-                {
-                    for (var k = 0; k < Owner.loyalty.GetShips().Count; k++)
-                    {
-                        Ship s = Owner.loyalty.GetShips()[k];
-                        if (s != null &&
-                            (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory ==
-                             ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
-                        {
-                            plan = s.AI.OrderQueue.PeekLast;
-                            if (plan != null && s.AI.State == AIState.SystemTrader && s.AI.start == p &&
-                                plan.Plan == Plan.PickupGoods && s.AI.FoodOrProd == prodOrFood)
-                            {
-                                if (p.ImportPriority().ToString() != goodType)
-                                {
-                                    break;
-                                }
-                                float currenTrade = TradeSort(s, p, goodType, s.CargoSpaceMax, false);
-                                if (currenTrade > 1000)
-                                    continue;
-
-                                float efficiency = Math.Abs(currenTrade - mySpeed);
-                                efficiency = s.CargoSpaceMax - efficiency * p.GetNetGoodProd(goodType);
-                                if (efficiency > 0)
-                                    cargoSpaceMax = cargoSpaceMax - efficiency;
-                            }
-
-                            if (cargoSpaceMax <= 0 + p.MaxStorage * .1f) 
-                            {
-                                flag = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!flag)
+                if (IsEfficientPickupPlanet(good, p))
                 {
                     start = p;
                     break;
@@ -280,28 +254,68 @@ namespace Ship_Game.AI
             }
         }
 
-        private bool DeliverShipment(string goodType)
+        private bool IsEfficientPickupPlanet(Goods good, Planet p)
         {
-            var planets = GetTradePlanets(goodType, Planet.GoodState.IMPORT);
+            if (p.ParentSystem.CombatInSystem)
+                return false;
 
-            if (planets.Planets.Count <= 0) return false;
-            var goodSwitch = goodType.Substring(0, 4);
-            
-            var cargoSpace = Owner.GetCargo(goodType);
+            float cargoSpaceMax = p.GetGoodHere(good);
+            float mySpeed = TradeSort(Owner, p, good, Owner.CargoSpaceMax, false);
+
+            using (Owner.loyalty.GetShips().AcquireReadLock())
+            {
+                foreach (Ship s in Owner.loyalty.GetShips())
+                {
+                    if (s != Owner && !s.isConstructor &&
+                        (s.DesignRole == ShipData.RoleName.freighter ||
+                         s.shipData.ShipCategory == ShipData.Category.Civilian))
+                    {
+                        ShipGoal plan = s.AI.OrderQueue.PeekLast;
+                        if (s.AI.State == AIState.SystemTrader && s.AI.start == p &&
+                            plan?.Plan == Plan.PickupGoods && s.AI.FoodOrProd == good)
+                        {
+                            if (p.ImportPriority() != good)
+                                break;
+
+                            float currentTrade = TradeSort(s, p, good, s.CargoSpaceMax, false);
+                            if (currentTrade > 1000)
+                                continue;
+
+                            float efficiency = Math.Abs(currentTrade - mySpeed);
+                            efficiency = s.CargoSpaceMax - efficiency * p.GetNetGoodProd(good);
+                            if (efficiency > 0)
+                                cargoSpaceMax -= efficiency;
+                        }
+
+                        if (cargoSpaceMax <= (p.MaxStorage * 0.1f))
+                            return false;
+                    }
+                }
+            }
+            return true; // Yep, it's ok!
+        }
+
+        private bool DeliverShipment(Goods good)
+        {
+            TradePlanets planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
+            if (planets.Planets.Count <= 0)
+                return false;
+
+            float cargoSpace = Owner.GetCargo(good);
             cargoSpace = cargoSpace > 0 ? cargoSpace : Owner.CargoSpaceMax;
-            var sortPlanets = planets.Planets.OrderBy(planetCheck => TradeSort(Owner, planetCheck, goodType, cargoSpace, true));
+            var sortPlanets = planets.Planets.OrderBy(planetCheck => TradeSort(Owner, planetCheck, good, cargoSpace, true));
             
 
             foreach (Planet p in sortPlanets)
             {
                 if (p.ParentSystem.CombatInSystem) continue;
                 var flag = false;
-                float cargoSpaceMax = p.MaxStorage - p.GetGoodHere(goodType);
+                float cargoSpaceMax = p.MaxStorage - p.GetGoodHere(good);
                 var faster = true;
-                float thisTradeStr = TradeSort(Owner, p, goodType, Owner.CargoSpaceMax, true);
-                if (thisTradeStr >= UniverseSize && p.GetGoodHere(goodType) >= 0)
+                float thisTradeStr = TradeSort(Owner, p, good, Owner.CargoSpaceMax, true);
+                if (thisTradeStr >= UniverseSize && p.GetGoodHere(good) >= 0)
                     continue;
-                if (goodType == "Food" && p.ImportPriority().ToString() != goodType)
+                if (good == Goods.Food && p.ImportPriority() != Goods.Food)
                     continue;
                 using (Owner.loyalty.GetShips().AcquireReadLock())
                 {
@@ -312,9 +326,9 @@ namespace Ship_Game.AI
                             (s.DesignRole != ShipData.RoleName.freighter &&
                              s.shipData.ShipCategory != ShipData.Category.Civilian) || s == Owner ||
                             s.isConstructor) continue;
-                        if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == goodSwitch)
+                        if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == good)
                         {                          
-                            float currenTrade = TradeSort(s, p, goodType, s.CargoSpaceMax, true);
+                            float currenTrade = TradeSort(s, p, good, s.CargoSpaceMax, true);
                             if (currenTrade < thisTradeStr)
                                 faster = false;
                             if (currenTrade > UniverseData.UniverseWidth && !faster)
@@ -358,23 +372,21 @@ namespace Ship_Game.AI
             return end != null;
         }
 
-        private TradePlanets GetTradePlanets(string goodType, Planet.GoodState goodState)
+        private TradePlanets GetTradePlanets(Goods good, Planet.GoodState goodState)
         {
             var planets = new TradePlanets(true);            
             foreach (Planet planet in Owner.loyalty.GetPlanets())
             {
                 if (!(planet.ParentSystem.combatTimer <= 0)) continue;
-                float distanceWeight = TradeSort(Owner, planet, goodType, Owner.CargoSpaceMax, false);
+                float distanceWeight = TradeSort(Owner, planet, good, Owner.CargoSpaceMax, false);
 
-                var exportWeight = planet.GetExportWeight(goodType);
+                var exportWeight = planet.GetExportWeight(good);
                 
-                planet.SetExportWeight(goodType, distanceWeight < exportWeight
-                    ? distanceWeight
-                    : exportWeight);
+                planet.SetExportWeight(good, distanceWeight < exportWeight ? distanceWeight : exportWeight);
 
-                if (planet.GetGoodState(goodType) == goodState && InsideAreaOfOperation(planet))
+                if (planet.GetGoodState(good) == goodState && InsideAreaOfOperation(planet))
                     planets.Planets.Add(planet);
-                else if (planet.MaxStorage - planet.GetGoodHere(goodType) > 0)
+                else if (planet.MaxStorage - planet.GetGoodHere(good) > 0)
                     planets.SecondaryPlanets.Add(planet);
             }
             return planets;
@@ -397,13 +409,13 @@ namespace Ship_Game.AI
                 State = AIState.SystemTrader;
                 return true;
             }
-            if (FoodOrProd == "Pass" || FoodOrProd == "")
+            if (IsPassengers || NoGoods)
             {
                 Owner.TradingFood = false;
                 Owner.TradingProd = false;
                 end = null;
                 start = null;
-                FoodOrProd = "";
+                FoodOrProd = Goods.None;
                 return false;
             }
             OrderMoveTowardsPosition(start.Center, 0f, new Vector2(0f, -1f), true, start);
@@ -435,8 +447,7 @@ namespace Ship_Game.AI
                 }
             if (!hasCargo && start != null)
             {
-                OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
-                    true, start);
+                OrderMoveTowardsPosition(start.Center.RandomOffset(500f), 0f, Vector.Up(), true, start);
                 AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
                 State = AIState.SystemTrader;
             }
@@ -446,16 +457,15 @@ namespace Ship_Game.AI
                     OrderTrade(5f);
                 return;
             }
-            OrderMoveTowardsPosition(end.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true,
-                end);
+            OrderMoveTowardsPosition(end.Center + RandomMath.RandomDirection() * 500f, 0f, Vector.Up(), true, end);
             AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
             State = AIState.SystemTrader;
         }
 
         private bool PassengerDropOffTarget(Planet p)
         {
-            return p != start && p.MaxPopulation > 2000f && (p.Population + p.IncomingColonists) / p.MaxPopulation < 0.75f
-                   && !p.NeedsFood();
+            return p != start && !p.NeedsFood() && p.MaxPopulation > 2000f
+                   && (p.Population + p.IncomingColonists) / p.MaxPopulation < 0.75f;
         }
 
         private bool PassengerPickUpTarget(Planet p)
@@ -476,31 +486,34 @@ namespace Ship_Game.AI
                 return;
             }
       
-            Planet[] safePlanets = Owner.loyalty.GetPlanets().ToArray().FilterBy
-                (combat => combat.ParentSystem.combatTimer <= 0f);
+            Planet[] safePlanets = Owner.loyalty.GetPlanets().FilterBy(combat => combat.ParentSystem.combatTimer <= 0f);
             OrderQueue.Clear();
 
-            // RedFox: Where to drop nearest Population
+            // RedFox: We have already have colonists, so find a drop-off planet
             if (Owner.GetColonists() > 0f)
             {
+                // try to find a reasonable drop-off planet
                 if (SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget))
                 {
-                    OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
+                    OrderMoveTowardsPosition(end.Center, 0f, Vector.Up(), true, end);
                     State = AIState.PassengerTransport;
-                    FoodOrProd = "Pass";
+                    FoodOrProd = Goods.Colonists;
                     AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
                     end.IncomingColonists += Owner.GetColonists();
                 }
+                // try to find ANY safe planet
                 else if (SelectPlanetByFilter(safePlanets, out end, p => p.Population < p.MaxPopulation))
                 {
-                    OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
+                    OrderMoveTowardsPosition(end.Center, 0f, Vector.Up(), true, end);
                     State = AIState.PassengerTransport;
-                    FoodOrProd = "Pass";
+                    FoodOrProd = Goods.Colonists;
                     AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
                     end.IncomingColonists += Owner.GetColonists();
                 }
                 else
-                    Owner.ClearCargo();
+                {
+                    Owner.ClearCargo(); // Space the colonists
+                }
                 return;
             }
 
@@ -508,11 +521,11 @@ namespace Ship_Game.AI
             SelectPlanetByFilter(safePlanets, out start, PassengerPickUpTarget);
             SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
 
+            // go pick them up!
             if (start != null && end != null)
             {
-                OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f, new Vector2(0f, -1f),
-                    true, start);
-                end.IncomingColonists += Owner.CargoSpaceMax;
+                OrderMoveTowardsPosition(start.Center.RandomOffset(500f), 0f, Vector.Up(), true, start);
+                end.IncomingColonists += Owner.CargoSpaceMax; // resort colony adverts for suckers
                 start.IncomingColonists -= Owner.CargoSpaceMax;
                 AddShipGoal(Plan.PickupPassengers, Vector2.Zero, 0f);
             }
@@ -524,7 +537,7 @@ namespace Ship_Game.AI
             }
             Owner.TradeTimer = 5f;
             State = AIState.PassengerTransport;
-            FoodOrProd = "Pass";
+            FoodOrProd = Goods.Colonists;
         }
 
         public void OrderTransportPassengersFromSave()
@@ -555,12 +568,12 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (FoodOrProd == "Food")
+            if (IsFood)
             {
                 start.ProductionHere += Owner.UnloadProduction();
                 start.Population += Owner.UnloadColonists();
 
-                float maxFoodLoad = (start.FoodHere).Clamp(0f, start.MaxStorage * 0.10f);
+                float maxFoodLoad = start.FoodHere.Clamped(0f, start.MaxStorage * 0.10f);
                 start.FoodHere -= Owner.LoadFood(maxFoodLoad);
 
                 OrderQueue.RemoveFirst();
@@ -568,12 +581,12 @@ namespace Ship_Game.AI
                     new Vector2(0f, -1f), true, end);
                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
             }
-            else if (FoodOrProd == "Prod")
+            else if (IsProd)
             {
                 start.FoodHere += Owner.UnloadFood();
                 start.Population += Owner.UnloadColonists();
 
-                float maxProdLoad = (start.ProductionHere).Clamp(0f, start.MaxStorage * 10f);
+                float maxProdLoad = start.ProductionHere.Clamped(0f, start.MaxStorage * 10f);
                 start.ProductionHere -= Owner.LoadProduction(maxProdLoad);
 
                 OrderQueue.RemoveFirst();

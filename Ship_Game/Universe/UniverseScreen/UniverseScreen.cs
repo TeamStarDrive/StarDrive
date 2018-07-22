@@ -245,6 +245,7 @@ namespace Ship_Game
         public int lastplanetcombat = 0;
         public int reducer          = 1;
         public float screenDelay    = 0f;
+        public Empires.SubSpaceProjectors SubSpaceProjectors;
 
         // for really specific debuggingD
         public static int FrameId;
@@ -265,8 +266,10 @@ namespace Ship_Game
             PlayerEmpire                = playerShip.loyalty;
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
-            PlayerEmpire.isPlayer       = true;            
+            PlayerEmpire.isPlayer       = true;
+            SubSpaceProjectors          = new Empires.SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
+            
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -284,7 +287,9 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
+            SubSpaceProjectors    = new Empires.SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
+            
         }
 
         public void ResetLighting() => SetLighting(UseRealLights);
@@ -746,8 +751,6 @@ namespace Ship_Game
         }
 
         //added by gremlin replace redundant code with method
-
-
         public override void ExitScreen()
         {
             IsExiting = true;
@@ -1007,7 +1010,6 @@ namespace Ship_Game
             photonExplosionParticles?.Dispose(ref photonExplosionParticles);
             projectileTrailParticles?.Dispose(ref projectileTrailParticles);
             sceneMap                ?.Dispose(ref sceneMap);
-            shipListInfoUI          ?.Dispose(ref shipListInfoUI);
             smokePlumeParticles     ?.Dispose(ref smokePlumeParticles);
             sparks                  ?.Dispose(ref sparks);
             star_particles          ?.Dispose(ref star_particles);
@@ -1019,7 +1021,6 @@ namespace Ship_Game
             flameParticles          ?.Dispose(ref flameParticles);
             SmallflameParticles     ?.Dispose(ref SmallflameParticles);
             beamflashes             ?.Dispose(ref beamflashes);
-            dsbw                    ?.Dispose(ref dsbw);
             SelectedShipList        ?.Dispose(ref SelectedShipList);
             NotificationManager     ?.Dispose(ref NotificationManager);
             FogMapTarget            ?.Dispose(ref FogMapTarget);

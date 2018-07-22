@@ -252,6 +252,16 @@ namespace Ship_Game.AI
             }
 
         }
+
+        public SolarSystem GetNearestSystemNeedingTroops(Vector2 posistion)
+        {
+            return DefenseDict.MaxKeyByValuesFiltered(sComs =>
+                    (1 - sComs.TroopCount / sComs.IdealTroopCount) * sComs.ValueToUs *
+                    (int)(UniverseData.UniverseWidth - sComs.System.Position.SqDist(posistion)) / UniverseData.UniverseWidth 
+                , sCom => sCom.TroopStrengthNeeded > 0 && sCom.System.PlanetList.Count > 0 && sCom.System.PlanetList.Sum(p=> p. GetGroundLandingSpots())>0
+            );
+        }
+
         private void ManageTroops()
         {
             if (Us.isPlayer)
@@ -268,9 +278,8 @@ namespace Ship_Game.AI
                     return;
             }
 
-            float totalTroopStrength = 0f;
-            var troopShips = Us.GetTroopShips(ref totalTroopStrength);
-            int totalTroopWanted = 0;
+            Array<Ship> troopShips = Us.GetAvailableTroopShips();
+            int totalTroopWanted   = 0;
             int totalCurrentTroops = 0;
             foreach (var kv in DefenseDict)
             {
@@ -293,8 +302,8 @@ namespace Ship_Game.AI
                         troopShips.Remove(troop);
                         continue;
                     }
-                    if (troopAI.State == AIState.Rebase
-                        && troopAI.OrderQueue.NotEmpty
+                    if (troopAI.State == AIState.Rebase &&
+                         troopAI.OrderQueue.NotEmpty
                         && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
                     {
                         currentTroops++;
@@ -306,42 +315,33 @@ namespace Ship_Game.AI
                 totalCurrentTroops += currentTroops;
                 totalTroopWanted += kv.Value.TroopsWanted;
             }
+
+
+
+
             UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
 
-
-            for (int x = 0; x < troopShips.Count; x++)
+            for (int x = troopShips.Count - 1; x >= 0; x--)
             {
                 Ship troopShip = troopShips[x];
-                var sortedSystems =
-                from sComs in DefenseDict.Values
-                orderby sComs.TroopStrengthNeeded / sComs.IdealTroopCount descending
-                orderby (int)(Vector2.Distance(sComs.System.Position, troopShip.Center) / (UniverseData.UniverseWidth / 5f))
-                orderby sComs.ValueToUs descending
-                select sComs.System;
-                foreach (SolarSystem solarSystem2 in sortedSystems)
-                {
 
-                    if (solarSystem2.PlanetList.Count <= 0) continue;
+                SolarSystem solarSystem = GetNearestSystemNeedingTroops(troopShip.Center);
 
-                    SystemCommander defenseSystem = DefenseDict[solarSystem2];
+                if (solarSystem == null)
+                    break;
 
-                    if (defenseSystem.TroopStrengthNeeded <= 0) continue;
+                SystemCommander defenseSystem = DefenseDict[solarSystem];
 
-                    defenseSystem.TroopStrengthNeeded--;
-                    troopShips.Remove(troopShip);
+                defenseSystem.TroopStrengthNeeded--;
+                troopShips.Remove(troopShip);
 
-                    Planet target = null;
-                    foreach (Planet lowTroops in solarSystem2.PlanetList)
-                    {
-                        if (lowTroops.Owner != troopShip.loyalty) continue;
+                Planet target = solarSystem.PlanetList
+                    .FindMinFiltered(p => p.Owner == troopShip.loyalty && p.GetGroundLandingSpots() > 0, planet => planet.CountEmpireTroops(planet.Owner));
 
-                        if (target == null || lowTroops.TroopsHere.Count < target.TroopsHere.Count)
-                            target = lowTroops;
-                    }
-                    if (target == null) continue;
-                    troopShip.AI.OrderRebase(target, true);
-                }
+                if (target == null) continue;
+                troopShip.AI.OrderRebase(target, true);
             }
+
             EmpireTroopRatio = UniverseWants;
             if (UniverseWants > 1.25f)
             {

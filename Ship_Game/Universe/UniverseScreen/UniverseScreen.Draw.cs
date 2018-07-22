@@ -278,6 +278,19 @@ namespace Ship_Game
             Render(gameTime);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             ExplosionManager.DrawExplosions(ScreenManager, view, projection);
+#if DEBUG
+            if (viewState < UnivScreenState.SectorView)
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                var pBudget = empire.GetGSAI()?.PlanetBudgets;
+                if (pBudget != null)
+                    foreach (var budget in pBudget)
+                    {
+                        budget.DrawBudgetInfo(this);
+                    }
+
+            }
+#endif
             ScreenManager.SpriteBatch.End();
             if (!ShowShipNames || LookingAtPlanet)
                 return;
@@ -340,7 +353,7 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = Game1.Instance.GameTime;
 
@@ -597,7 +610,7 @@ namespace Ship_Game
                 DebugWin.Draw(gameTime);
 
             if (aw.IsOpen && !LookingAtPlanet)
-                aw.Draw(spriteBatch);
+                aw.Draw(batch);
 
             if (Paused)
             {
@@ -816,7 +829,7 @@ namespace Ship_Game
                     var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
                         fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
 
-                    bool inCombat = false;
+                    bool inCombat = false;                   
                     for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
                     {
                         try
@@ -934,7 +947,7 @@ namespace Ship_Game
                         {
                             if (item.UID == "Subspace Projector")
                             {
-                                DrawCircleProjected(item.BuildPos, Empire.ProjectorRadius, Color.Orange, 2f);
+                                DrawCircleProjected(item.BuildPos, EmpireManager.Player.ProjectorRadius, Color.Orange, 2f);
                             }
                             else if (buildTemplate.SensorRange > 0f)
                             {
@@ -950,7 +963,7 @@ namespace Ship_Game
                 AdjustCamTimer <= 0f)
             {
                 Vector2 center = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                float screenRadius = ProjectToScreenSize(Empire.ProjectorRadius);
+                float screenRadius = ProjectToScreenSize(EmpireManager.Player.ProjectorRadius);
                 DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
             }
         }

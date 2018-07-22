@@ -10,9 +10,12 @@ using Ship_Game.UI;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
+    using static ShipMaintenance;
+
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
-        public override void Draw(SpriteBatch spriteBatch) 
+
+        public override void Draw(SpriteBatch batch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
@@ -22,26 +25,26 @@ namespace Ship_Game
 
             if (ToggleOverlay)
             {
-                spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-                DrawEmptySlots(spriteBatch);
-                DrawModules(spriteBatch);
-                DrawTacticalData(spriteBatch);
-                DrawUnpoweredTex(spriteBatch);
-                spriteBatch.End();
+                batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
+                DrawEmptySlots(batch);
+                DrawModules(batch);
+                DrawTacticalData(batch);
+                DrawUnpoweredTex(batch);
+                batch.End();
             }
 
-            spriteBatch.Begin();
+            batch.Begin();
             if (ActiveModule != null && !ModSel.HitTest(Input))
-                DrawActiveModule(spriteBatch);
+                DrawActiveModule(batch);
 
             DrawUi();
-            selector?.Draw(spriteBatch);
+            selector?.Draw(batch);
             ArcsButton.DrawWithShadowCaps(ScreenManager);
             if (Debug)
                 DrawDebug();
 
-            Close.Draw(spriteBatch);
-            spriteBatch.End();
+            Close.Draw(batch);
+            batch.End();
             ScreenManager.EndFrameRendering();
         }
 
@@ -297,36 +300,26 @@ namespace Ship_Game
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             HullSL.Draw(ScreenManager.SpriteBatch);
-            float x          = (float) Mouse.GetState().X;
-            MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float) state.Y);
+            Vector2 mousePos = Mouse.GetState().Pos();
             HullSelectionSub.Draw();
-            Vector2 bCursor  = new Vector2((float) (HullSelectionSub.Menu.X + 10),
-                (float) (HullSelectionSub.Menu.Y + 45));
-            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < HullSL.indexAtTop + HullSL.entriesToDisplay; i++)
+
+            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                bCursor = new Vector2((float) (HullSelectionSub.Menu.X + 10),
-                    (float) (HullSelectionSub.Menu.Y + 45));
-                ScrollList.Entry e = HullSL.Copied[i];
-                bCursor.Y          = (float) e.clickRect.Y;
-                if (e.item is ModuleHeader)
+                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.Y);
+                if (e.item is ModuleHeader header)
                 {
-                    (e.item as ModuleHeader).Draw(ScreenManager, bCursor);
+                    header.Draw(ScreenManager, bCursor);
                 }
                 else if (e.item is ShipData ship)
                 {
-                    bCursor.X       = bCursor.X + 10f;
+                    bCursor.X += 10f;
                     ScreenManager.SpriteBatch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                    tCursor.Y       = tCursor.Y + (float) Fonts.Arial12Bold.LineSpacing;
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-                    if (!e.clickRect.HitTest(MousePos))
-                        continue;
-
-                    if (e.clickRectHover == 0)
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    e.clickRectHover = 1;
+                    
+                    e.CheckHover(mousePos);
                 }
             }
         }
@@ -390,7 +383,7 @@ namespace Ship_Game
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += slot.Module.OrdinanceCapacity;
                 powerFlow     += slot.Module.ActualPowerFlowMax;
-                cost          += slot.Module.Cost * UniverseScreen.GamePaceStatic;
+                cost          += slot.Module.Cost;
                 cargoSpace    += slot.Module.Cargo_Capacity;
 
                 if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
@@ -452,6 +445,7 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
+            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
 
@@ -463,7 +457,7 @@ namespace Ship_Game
             if (mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
                 mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
 
-            float powerRecharge = powerFlow - powerDraw;
+            float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
             float turn          = (float)MathHelper.ToDegrees(turnThrust / mass / 700f); 
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
@@ -476,18 +470,18 @@ namespace Ship_Game
 
             DrawHullBonuses();
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep) 
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working 
             else
-                upkeep = GetMaintCostShipyard(ActiveHull, (int)size, EmpireManager.Player);
+                upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
-            DrawStat(ref cursor, "Upkeep Cost:", upkeep, 175);
-            DrawStat(ref cursor, "Total Module Slots:", (float) ActiveHull.ModuleSlots.Length, 230);  //Why was this changed to UniverseRadius? -Gretman
-            DrawStat(ref cursor, string.Concat(Localizer.Token(115), ":"), (int)mass, 79);
+            DrawStatColor(ref cursor, TintedValue("Upkeep Cost:", upkeep, 175, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Total Module Slots:", size, 230, Color.White));
+            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(115), ":"), (int)mass, 79, Color.White));
             WriteLine(ref cursor);
 
-            DrawStatColor(ref cursor, string.Concat(Localizer.Token(110), ":"), powerCapacity, 100, Color.LightSkyBlue);
-            DrawStatColor(ref cursor, string.Concat(Localizer.Token(111), ":"), powerRecharge, 101, Color.LightSkyBlue);
+            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(110), ":"), powerCapacity, 100, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(111), ":"), powerRecharge, 101, Color.LightSkyBlue));
 
             float fDrawAtWarp;
             DrawPowerDrawAtWarp();
@@ -496,34 +490,33 @@ namespace Ship_Game
             DrawFtlTime();
             WriteLine(ref cursor);
 
-            DrawStatColor(ref cursor, string.Concat(Localizer.Token(113), ":"), hitPoints, 103, Color.Goldenrod);
-            if (repairRate > 0)  DrawStatColor(ref cursor, string.Concat(Localizer.Token(6013), ":"), repairRate, 236, Color.Goldenrod); // Added by McShooterz: draw total repair
-            if (shieldPower > 0) DrawStatColor(ref cursor, string.Concat(Localizer.Token(114), ":"), shieldPower, 104, Color.Goldenrod);
-            if (empResist > 0)   DrawStatColor(ref cursor, string.Concat(Localizer.Token(6177), ":"), empResist, 220, Color.Goldenrod);
-            if (totalEcm > 0)    DrawStatColor(ref cursor, string.Concat(Localizer.Token(6189), ":"), totalEcm, 234, Color.Goldenrod, isPercent: true);
+            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(113), ":"), hitPoints, 103, Color.Goldenrod));
+            if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6013), ":"), repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
+            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(114), ":"), shieldPower, 104, Color.Goldenrod));
+            if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6177), ":"), empResist, 220, Color.Goldenrod));
+            if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6189), ":"), totalEcm, 234, Color.Goldenrod));
             WriteLine(ref cursor);
 
             DrawPropulsion();
-            DrawStatColor(ref cursor, string.Concat(Localizer.Token(116), ":"), modifiedSpeed, 105, Color.DarkSeaGreen);
-            DrawStatColor(ref cursor, string.Concat(Localizer.Token(117), ":"), turn, 107, Color.DarkSeaGreen);
-            if (afterSpeed > 0) DrawStatColor(ref cursor, "Afterburner Speed:", afterSpeed, 105, Color.DarkSeaGreen); // added by McShooterz: afterburn speed
+            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(116), ":"), modifiedSpeed, 105, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(117), ":"), turn, 107, Color.DarkSeaGreen));
+            if (afterSpeed > 0) DrawStatColor(ref cursor, TintedValue("Afterburner Speed:", afterSpeed, 105, Color.DarkSeaGreen));
             WriteLine(ref cursor);
 
             DrawOrdnance();
-            if (troopCount > 0) DrawStatColor(ref cursor, string.Concat(Localizer.Token(6132), ":"), (float)troopCount, 180, Color.IndianRed);
+            if (troopCount > 0) DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6132), ":"), troopCount, 180, Color.IndianRed));
             WriteLine(ref cursor);
 
-            if (cargoSpace > 0) DrawStat(ref cursor, string.Concat(Localizer.Token(119), ":"), cargoSpace * bonus.CargoModifier, 109);
-            if (targets > 0)    DrawStat(ref cursor, string.Concat(Localizer.Token(6188), ":"), targets + 1f, 232);
+            if (cargoSpace > 0) DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(119), ":"), cargoSpace * bonus.CargoModifier, 109, Color.White));
+            if (targets > 0)    DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6188), ":"), targets + 1f, 232, Color.White));
             if (sensorRange > 0)
             {
                 float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
-                DrawStat(ref cursor, string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235);
+                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235, Color.White));
             }
-            WriteLine(ref cursor);
 
-            strength = (defense > offense ? offense * 2 : defense + offense);
-            if (strength > 0)   DrawStat(ref cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
+            strength = defense > offense ? offense * 2 : defense + offense;
+            if (strength > 0)     DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6190), ":"), strength, 227, Color.White));
 
             Vector2 cursorReq = new Vector2((float) (StatsSub.Menu.X - 180), (float) (ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing) + 5 ));
             if (ActiveHull.Role != ShipData.RoleName.platform)
@@ -563,7 +556,8 @@ namespace Ship_Game
                     HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
                 }
                 cursor = EndLayout();
-                DrawStat(ref cursor, Localizer.Token(109) + ":", ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus), 99); // Added by McShooterz: hull bonus starting cost
+                cost = ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * UniverseScreen.GamePaceStatic;
+                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(109), ":"), cost, 99, Color.White));  
             }
 
             void HullBonus(float stat, string text)
@@ -574,15 +568,15 @@ namespace Ship_Game
 
             void DrawOrdnance()
             {
-                if (ordnanceRecoverd > 0) DrawStatColor(ref cursor, "Ordnance Created / s:", ordnanceRecoverd, 162, Color.IndianRed);
+                if (ordnanceRecoverd > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s:", ordnanceRecoverd, 162, Color.IndianRed));
                 if (!(ordnanceCap > 0))
                     return;
 
-                DrawStatColor(ref cursor, string.Concat(Localizer.Token(118), ":"), ordnanceCap, 108, Color.IndianRed);
+                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(118), ":"), ordnanceCap, 108, Color.IndianRed));
                 if (ordnanceUsed - ordnanceRecoverd > 0)
                 {
                     float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecoverd);
-                    DrawStatColor(ref cursor, "Ammo Time:", ammoTime, 164, Color.IndianRed);
+                    DrawStatColor(ref cursor, TintedValue("Ammo Time:", ammoTime, 164, Color.IndianRed));
                 }
                 else
                     DrawStatOrdnance(ref cursor, "Ammo Time:", "INF", 164);
@@ -604,29 +598,28 @@ namespace Ship_Game
                     if (ftlCount > 0f)
                     {
                         float harcoreSpeed = ftlSpeed / ftlCount;
-                        DrawStat(ref cursor, string.Concat(Localizer.Token(2170), ":"), harcoreSpeed, 135);
+                        DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(2170), ":"), harcoreSpeed, 135, Color.LightSkyBlue));
                     }
                 }
                 else
                     DrawStatPropulsion(ref cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
 
-                if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, "FTL Spool:", warpSpoolTimer, 177, Color.DarkSeaGreen);
+                if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool:", warpSpoolTimer, 177, Color.DarkSeaGreen));
             }
 
             void DrawPowerDrawAtWarp() //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
             {
                 if (warpDraw != 0) // FB: not sure why do we need this If statment
                 {
-                    fDrawAtWarp = powerFlow - (warpDraw / 2 * EmpireManager.Player.data.FTLPowerDrainModifier +
-                                               (powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier));
+                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                     if (warpSpeed > 0)
-                        DrawStatColor(ref cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue);
+                        DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
                 }
                 else
                 {
-                    fDrawAtWarp = (powerFlow - powerDraw * EmpireManager.Player.data.FTLPowerDrainModifier);
+                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                     if (warpSpeed > 0)
-                        DrawStatColor(ref cursor, string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue);
+                        DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
                 }
             }
 
@@ -637,9 +630,8 @@ namespace Ship_Game
                     return;
 
                 float fWarpTime = (-powerCapacity / fDrawAtWarp) * 0.9f;
-                string sWarpTime = fWarpTime.ToString("0.#");
                 if (fDrawAtWarp < 0)
-                    DrawStatEnergy(ref cursor, "FTL Time:", sWarpTime, 176);
+                    DrawStatColor(ref cursor, TintedValue("FTL Time:", fWarpTime, 176, Color.LightSkyBlue));
                 else if (fWarpTime > 900)
                     DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
                 else
@@ -654,12 +646,12 @@ namespace Ship_Game
                 float powerConsumed = weaponPowerNeeded - powerRecharge;
                 if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
                 {
-                    DrawStatColor(ref cursor, "Wpn Fire Pwr Drain:", powerConsumed, 243, Color.LightSkyBlue);
+                    DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain:", -powerConsumed, 243, Color.LightSkyBlue));
                     float energyDuration = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, "Power Time:", energyDuration, 163, Color.LightSkyBlue);
+                    DrawStatColor(ref cursor, TintedValue("Wpn Fire Power Time:", energyDuration, 163, Color.LightSkyBlue));
                 }
                 else
-                    DrawStatEnergy(ref cursor, "Power Time:", "INF", 163);
+                    DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
 
             }
 
@@ -674,12 +666,12 @@ namespace Ship_Game
                 if (!(powerConsumedWithBeams > 0))
                     return;
 
-                DrawStatColor(ref cursor, "Peak Wpn Pwr Drain:", powerConsumedWithBeams, 244, Color.LightSkyBlue);
-                float peakEnergyDuration = powerCapacity / powerConsumedWithBeams;
-                if (peakEnergyDuration < beamLongestDuration)
-                    DrawStatColor(ref cursor, "Peak Wpn Pwr Time:", peakEnergyDuration, 245, Color.LightSkyBlue);
+                DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain:", - powerConsumedWithBeams, 244, Color.LightSkyBlue));
+                float burstEnergyDuration = powerCapacity / powerConsumedWithBeams;
+                if (burstEnergyDuration < beamLongestDuration)
+                    DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time:", burstEnergyDuration, 245, Color.LightSkyBlue));
                 else
-                    DrawStatEnergy(ref cursor, "Peak Wpn Pwr Time:", "INF", 245);
+                    DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
         }
 
@@ -697,22 +689,6 @@ namespace Ship_Game
             if (tooltipId > 0) CheckToolTip(tooltipId, cursor, words, stats, font, MousePos);
         }
 
-        public void DrawStatColor(ref Vector2 cursor, string words, float stat, int tooltipId, Color color
-            , bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2)
-        {
-            SpriteFont font        = Fonts.Arial12Bold;
-            float amount           = Spacing(spacing);
-            cursor.Y              += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
-            Vector2 statCursor     = new Vector2(cursor.X + amount , cursor.Y);
-            Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
-            DrawString(statNameCursor, color, words, font);
-            string numbers         = "0.0";
-            numbers                = isPercent ? stat.ToString("P1") : GetNumberString(stat);
-            color                  = doGoodBadTint ? (stat > 0f ? Color.LightGreen : Color.LightPink) : Color.White;
-            DrawString(statCursor, color, numbers, font);
-            CheckToolTip(tooltipId, cursor, words, numbers, font, MousePos);
-        }
-
         public void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId, Color nameColor,Color statColor, float spacing = 165f, float lineSpacing = 2)
         {
             SpriteFont font        = Fonts.Arial12Bold;
@@ -727,9 +703,12 @@ namespace Ship_Game
             CheckToolTip(tooltipId, cursor, words, stat, font, MousePos);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, float stat, int tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165, float lineSpacing = 2)
+        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
-            DrawStatColor(ref cursor, words, stat, tooltipId, Color.White, doGoodBadTint, isPercent, spacing, lineSpacing);
+            if (isPercent)
+                DrawStatColor(ref cursor, TintedPercent(words, stat, tooltipId, color, spacing, 0));
+            else
+                DrawStatColor(ref cursor, TintedValue(words, stat, tooltipId, color, spacing, 0));
         }
 
         private void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int tooltipId)
@@ -767,36 +746,18 @@ namespace Ship_Game
             EmpireUI.Draw(ScreenManager.SpriteBatch);
             DrawShipInfoPanel();
 
-            //Defaults based on hull types
-            //Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
-            if (ActiveHull.Role == ShipData.RoleName.freighter && Fml)
-            {
-                CategoryList.ActiveIndex = 1;
-                Fml = false;
-            }
-            //Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
-            else if (ActiveHull.Role == ShipData.RoleName.scout && Fml)
-            {
-                CategoryList.ActiveIndex = 2;
-                Fml = false;
-            }
-            //All other hulls default to unclassified.
-            else if (Fml)
-            {
-                CategoryList.ActiveIndex = 0;
-                Fml = false;
-            }
-
-            //Loads the Category from the ShipDesign XML of the ship being loaded, and loads this OVER the hull type default, very importantly.
-            if (Fmlevenmore && CategoryList.SetActiveEntry(LoadCategory.ToString()))
-            {
-                Fmlevenmore = false;
-            }
-
             CategoryList.Draw(ScreenManager.SpriteBatch);
             CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
-            const string classifTitle = "Behaviour Presets";
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, classifTitle, ClassifCursor, Color.Orange);
+
+            DrawTitle(ScreenWidth * 0.375f, "Repair Options");
+            DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
+
+            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
+            {
+                DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
+                ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
+            }
+
             float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
             Rectangle r = BlackBar;
             if (ScreenState == ScreenState.TransitionOn ||
@@ -880,6 +841,67 @@ namespace Ship_Game
             {
                 ToolTip.Draw(ScreenManager.SpriteBatch);
             }
+
+            void DrawTitle(float x, string title)
+            {
+                int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
+                var pos = new Vector2(x, buttonHeight);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
+            }
+        }
+
+        private enum ValueTint
+        {
+            None,
+            Bad,
+            GoodBad,
+        }
+
+        private struct StatValue
+        {
+            public string Title;
+            public Color TitleColor;
+            public float Value;
+            public int Tooltip;
+            public ValueTint Tint;
+            public bool IsPercent;
+            public float Spacing;
+            public int LineSpacing;
+
+            public Color ValueColor => Tint == ValueTint.GoodBad ? (Value > 0f ? Color.LightGreen : Color.LightPink) :
+                Tint == ValueTint.Bad ? Color.LightPink : Color.White;
+
+            public string ValueText => IsPercent ? Value.ToString("P1") : NumericText;
+
+            private string NumericText => GetNumberString(Value);
+        }
+
+        private static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
+
+        private static StatValue BadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
+
+        private static StatValue TintedValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
+
+        private static StatValue TintedPercent(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
+
+        private void DrawStatColor(ref Vector2 cursor, StatValue stat)
+        {
+            SpriteFont font = Fonts.Arial12Bold;
+            //const float spacing = 165f;
+
+            WriteLine(ref cursor);
+            cursor.Y += stat.LineSpacing;
+
+            Vector2 statCursor = new Vector2(cursor.X + Spacing(stat.Spacing), cursor.Y);
+            DrawString(FontSpace(statCursor, -40, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
+
+            string valueText = stat.ValueText;
+            DrawString(statCursor, stat.ValueColor, valueText, font);
+            CheckToolTip(stat.Tooltip, cursor, stat.Title, valueText, font, MousePos);
         }
     }
 }

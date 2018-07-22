@@ -46,6 +46,14 @@ namespace Ship_Game.AI
             
         }
 
+        public void AddToTaskList(Tasks.MilitaryTask task) => TaskList.Add(task);
+
+        public void RemoveFromTaskList(Tasks.MilitaryTask task)
+        {
+            if (task == null)
+                Log.Error("Attempting to Remove null task from Empire TaskList");
+            TaskList.Remove(task);            
+        }
         public bool HasGoal(GoalType type)
         {
             for (int i = 0; i < Goals.Count; ++i)
@@ -78,9 +86,9 @@ namespace Ship_Game.AI
                     RunInfrastructurePlanner();
             }
             DefensiveCoordinator.ManageForcePool();
+            RunEconomicPlanner();
             if (!OwnerEmpire.isPlayer)
-            {
-                RunEconomicPlanner();
+            {                
                 RunDiplomaticPlanner();
                 RunMilitaryPlanner();
                 RunResearchPlanner();
@@ -91,8 +99,6 @@ namespace Ship_Game.AI
             {
                 if (OwnerEmpire.AutoResearch)
                     RunResearchPlanner();
-                if (OwnerEmpire.data.AutoTaxes)
-                    RunEconomicPlanner();
             }
         }
 
@@ -440,12 +446,12 @@ namespace Ship_Game.AI
                         continue;
                     if (newTemplate.DesignRole != ship.DesignRole) continue;
                     if (newTemplate.GetStrength() <= newStr) continue;
-                    if (ship.shipData.techsNeeded.Except(newTemplate.shipData.techsNeeded).Any()) continue;
+                    if (ship.shipData.TechsNeeded.Except(newTemplate.shipData.TechsNeeded).Any()) continue;
 
                     int newScore = newTemplate.GetTechScore(out int[] newTech);
 
 
-                    var newTechs = newTemplate.shipData.techsNeeded.Except(ship.shipData.techsNeeded).ToArray();
+                    var newTechs = newTemplate.shipData.TechsNeeded.Except(ship.shipData.TechsNeeded).ToArray();
 
                     if (newTechs.Length == 0 && (newScore <= techScore || !TechCompare(origTechs, newTech)))
                         continue;

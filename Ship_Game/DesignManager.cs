@@ -38,69 +38,42 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            ShipDesigns?.Dispose(ref ShipDesigns);
             base.Destroy();
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             this.SaveMenu.Draw();
             this.SaveShips.Draw();
-            this.EnterNameArea.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, 
+            this.EnterNameArea.Draw(Fonts.Arial20Bold, batch, this.EnternamePos, 
                 Game1.Instance.GameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             this.subAllDesigns.Draw();
-            this.ShipDesigns.Draw(base.ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
-            for (int i = this.ShipDesigns.indexAtTop; i < this.ShipDesigns.Entries.Count && i < this.ShipDesigns.indexAtTop + this.ShipDesigns.entriesToDisplay; i++)
+            this.ShipDesigns.Draw(batch);
+            var bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
+            foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
-                ScrollList.Entry e = this.ShipDesigns.Entries[i];
                 var ship = (Ship)e.item;
-                bCursor.Y = (float)e.clickRect.Y;                
-                ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
+                bCursor.Y = (float)e.Y;
+                batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                if (e.Plus != 0)
-                {
-                    if (e.PlusHover != 0)
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add_hover2"], e.addRect, Color.White);
-                    }
-                    else
-                    {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_build_add"], e.addRect, Color.White);
-                    }
-                }
-                if (e.Edit != 0)
-                {
-                    ScreenManager.SpriteBatch.Draw(
-                        e.EditHover != 0
-                            ? ResourceManager.TextureDict["NewUI/icon_build_edit_hover2"]
-                            : ResourceManager.TextureDict["NewUI/icon_build_edit"], e.editRect, Color.White);
-                }
+                batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
+                e.DrawPlusEdit(batch);
             }
-            selector?.Draw(ScreenManager.SpriteBatch);
+            selector?.Draw(batch);
             foreach (UIButton b in this.Buttons)
             {
-                b.Draw(base.ScreenManager.SpriteBatch);
+                b.Draw(batch);
             }
-            base.ScreenManager.SpriteBatch.End();
+            batch.End();
         }
-
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-        }
-
-
 
         public override bool HandleInput(InputState input)
         {
             this.currentMouse = input.MouseCurr;
-            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
             this.ShipDesigns.HandleInput(input);
             if (input.Escaped || input.RightMouseClick)
             {
@@ -108,21 +81,12 @@ namespace Ship_Game
                 return true;
             }
             this.selector = null;
-            for (int i = 0; i < this.ShipDesigns.Entries.Count; i++)
+            foreach (ScrollList.Entry e in ShipDesigns.AllEntries)
             {
-                ScrollList.Entry e = this.ShipDesigns.Entries[i];
-                if (!e.clickRect.HitTest(mousePos))
+                if (e.CheckHover(input))
                 {
-                    e.clickRectHover = 0;
-                }
-                else
-                {
-                    this.selector = new Selector(e.clickRect);
-                    if (e.clickRectHover == 0)
-                    {
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    }
-                    e.clickRectHover = 1;
+                    this.selector = e.CreateSelector();
+
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
                         this.EnterNameArea.Text = ((Ship)e.item).Name;
@@ -132,7 +96,7 @@ namespace Ship_Game
             }
             foreach (UIButton b in this.Buttons)
             {
-                if (!b.Rect.HitTest(mousePos))
+                if (!b.Rect.HitTest(input.CursorPosition))
                 {
                     b.State = UIButton.PressState.Default;
                 }
@@ -163,7 +127,7 @@ namespace Ship_Game
                 }
             }
             this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y, 200, 30);
-            if (!this.EnterNameArea.ClickableArea.HitTest(mousePos))
+            if (!this.EnterNameArea.ClickableArea.HitTest(input.CursorPosition))
             {
                 this.EnterNameArea.Hover = false;
             }

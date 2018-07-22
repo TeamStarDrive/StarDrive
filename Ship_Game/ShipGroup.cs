@@ -54,6 +54,17 @@ namespace Ship_Game
             }
         }
 
+        public void ProjectPosNoOffset(Vector2 projectedPosition, float facing)
+        {
+            ProjectedFacing = facing;
+            foreach (Ship ship in Ships)
+            {
+                //float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                //float distance = ship.RelativeFleetOffset.Length();
+                ship.projectedPosition = projectedPosition + Vector2.Zero.PointFromRadians(facing, 1);
+            }
+        }
+
         public bool ContainsShip(Ship ship)
         {
             using (Ships.AcquireReadLock())
@@ -182,9 +193,10 @@ namespace Ship_Game
             float ammoDps = 0.0f;
             float energyDps = 0.0f;
             //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
-            for (int index = 0; index < this.Ships.Count; index++)
+            for (int index = 0; index < Ships.Count; index++)
             {
                 Ship ship = this.Ships[index];
+                if (ship.AI.HasPriorityOrder) continue;
                 currentAmmo += ship.Ordinance;
                 maxAmmo += ship.OrdinanceMax;
                 foreach (Weapon weapon in ship.Weapons)
@@ -208,7 +220,7 @@ namespace Ship_Game
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
-                    ship.AI.SetPriorityOrder();
+                    ship.AI.SetPriorityOrder(true);
                     ship.AI.OrderMoveDirectlyTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true);
                 }
             }
@@ -221,12 +233,12 @@ namespace Ship_Game
         {
             GoalStack?.Clear();
             Position = movePosition;
-            Facing = facing;
-            AssembleFleet(facing, fvec);
+            Facing = facing;            
+            AssembleFleet(facing, fvec, !queueOrder);
             using(Ships.AcquireReadLock())
             foreach (Ship ship in Ships)
             {
-                ship.AI.SetPriorityOrder();
+                ship.AI.SetPriorityOrder(!queueOrder);
                 if (queueOrder) ship.AI.OrderFormationWarpQ(movePosition + ship.FleetOffset, facing, fvec);
                 else ship.AI.OrderFormationWarp(movePosition + ship.FleetOffset, facing, fvec);
             }
@@ -245,10 +257,10 @@ namespace Ship_Game
         {
             this.Position = movePosition;
             this.Facing = facing;
-            this.AssembleFleet(facing, fVec);
+            this.AssembleFleet(facing, fVec, true);
             foreach (Ship ship in this.Ships)
             {
-                ship.AI.SetPriorityOrder();
+                ship.AI.SetPriorityOrder(false);
                 ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
@@ -290,41 +302,82 @@ namespace Ship_Game
             }
             return num;
         }
-
-        public int CountShipsWithStrength(out int troops)
+        /// <summary>
+        /// This will force all ships in fleet to orbit planet. 
+        /// There are no checks here for ships already in some action.
+        /// this can cause a cancel current order and orbit loop.
+        /// </summary>
+        /// <param name="planet"></param>
+        internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius)
         {
-            int num = 0;
-            troops = 0;
-            for (int index = 0; index < this.Ships.Count; index++)
+            foreach (var ship in Ships)
             {
-                Ship ship = this.Ships[index];
-                if (ship.Active && ship.GetStrength() > 0)
-                    num++;
-                troops += ship.PlanetAssaultCount;
+                if (ship.AI.State == AIState.Orbit) continue;
+                if (ship.Center.OutsideRadius(ship.Center, radius)) continue;
+                ship.DoOrbit(planet);
             }
-            return num;
         }
-        public bool IsFleetAssembled(float radius, out bool endTask, Vector2 position = default(Vector2))
+
+        public int CountShipsWithStrength()
+        {
+            using (Ships.AcquireReadLock())
+            {
+                return Ships.Count(ship => ship.GetStrength() > 0);
+            }
+        }
+        public int CountFleetAssaultTroops()
+        {
+            using (Ships.AcquireReadLock())
+            {
+                return Ships.Sum(ship => ship.Carrier.PlanetAssaultCount);
+            }
+        }
+
+        public enum MoveStatus
+        {
+            InCombat = 0,
+            Dispersed,
+            Assembled            
+        }
+        
+        public MoveStatus IsFleetAssembled(float radius, Vector2 position = default(Vector2))
         {
             if (position == default(Vector2)) position = Position;
-            endTask = false;
-            bool assembled = true;
+            MoveStatus moveStatus = MoveStatus.Assembled;
+            bool inCombat = false;
             for (int index = 0; index < Ships.Count; index++)
             {
                 Ship ship = Ships[index];
                 if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
                     continue;
-                if (ship.Center.OutsideRadius(position + ship.FleetOffset, radius))
-                {
-                    assembled = false;
-                    continue;
-                }
-
-                if (!ship.InCombat) continue;
-                endTask = true;
+                inCombat |= ship.InCombat;
+                if (ship.Center.InRadius(position + ship.FleetOffset, radius)) continue;
+                moveStatus = MoveStatus.Dispersed;
+                if (inCombat)
+                    break;
             }
+            moveStatus = inCombat && moveStatus == MoveStatus.Dispersed ? MoveStatus.InCombat : moveStatus;
 
-            return assembled;
+            return moveStatus;
+        }
+
+        public enum CombatStatus
+        {
+            InCombat = 0,
+            EnemiesNear,
+            ClearSpace
+        }
+
+        public CombatStatus FleetInAreaInCombat(Vector2 position, float radius)
+        {
+            for (int x = 0; x < Ships.Count; ++x)
+            {
+                var ship = Ships[x];
+                if (ship.Center.OutsideRadius(position, radius)) continue;
+                if (ship.InCombat) return CombatStatus.InCombat;
+                if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
+            }
+            return CombatStatus.ClearSpace;
         }
 
         public void Dispose()

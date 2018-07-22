@@ -46,31 +46,14 @@ namespace Ship_Game
 
         private Vector2 StartDragPos = Vector2.Zero;
 
-        //private bool BuyHover;
-
-        //private bool ShowingDetailPopUp;
-
-        private Rectangle DetailPopUpRect = new Rectangle();
-
-        private Node DetailInfo;
-
         private Rectangle DetailDestinationRect = new Rectangle(0, 0, 600, 600);
-
         private Rectangle AbsoluteDestination = new Rectangle(0, 0, 600, 600);
-
-        //private float TimerDelay = 0.25f;
 
         private float ClickTimer;
 
-        //private float transitionElapsedTime;
-
         private Color needToBuy = new Color(255, 165, 0, 50);
 
-        private Array<ResearchScreenNew.UnlockItem> DetailUnlocks = new Array<ResearchScreenNew.UnlockItem>();
-
-        private ScrollList UnlockSL;
-
-        private Submenu UnlocksSubMenu;
+        private Array<UnlockItem> DetailUnlocks = new Array<UnlockItem>();
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -80,15 +63,8 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Destroy()
+        public override void Draw(SpriteBatch batch)
         {
-            qcomponent?.Dispose(ref qcomponent);
-            base.Destroy();
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            double totalSeconds = Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
             this.ScreenManager.FadeBackBufferToBlack((int)this.TransitionAlpha * 2 / 3);
             this.ScreenManager.SpriteBatch.Begin();
             this.ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
@@ -233,7 +209,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
             MainMenu.DrawHollow();
-            close.Draw(spriteBatch);
+            close.Draw(batch);
             qcomponent.Draw();
             ToolTip.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
@@ -245,8 +221,6 @@ namespace Ship_Game
             RightClicked = false;
             base.ExitScreen();
         }
-
-    
 
         private int FindDeepestY()
         {
@@ -728,85 +702,6 @@ namespace Ship_Game
                 newNode.isResearched = true;
             }
             this.TechTree.Add(tech.UID, newNode);
-        }
-
-        public void ShowDetailPop(Node node, string techUID)
-        {
-            Technology unlockedTech = ResourceManager.TechTree[techUID];
-            //this.ShowingDetailPopUp = true;
-            this.DetailInfo = node;
-            this.DetailPopUpRect = node.NodeRect;
-            this.UnlocksSubMenu = new Submenu(this.DetailPopUpRect);
-            this.UnlockSL = new ScrollList(this.UnlocksSubMenu, 96)
-            {
-                indexAtTop = 0
-            };
-            this.DetailUnlocks.Clear();
-            TechEntry techEntry = EmpireManager.Player.GetTDict()[techUID];
-            foreach (Technology.UnlockedMod unlockMod in unlockedTech.ModulesUnlocked)
-            {
-                if (EmpireManager.Player.data.Traits.ShipType == unlockMod.Type || unlockMod.Type == null || unlockMod.Type == techEntry.AcquiredFrom)
-                {
-                    UnlockItem unlock = new UnlockItem()
-                    {
-                        Type = "SHIPMODULE",
-                        module = ResourceManager.GetModuleTemplate(unlockMod.ModuleUID)
-                    };
-                    this.UnlockSL.AddItem(unlock);
-                }
-            }
-            foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
-            {
-                if (troop.Type == EmpireManager.Player.data.Traits.ShipType || troop.Type == null || troop.Type == "ALL" || troop.Type == techEntry.AcquiredFrom)
-                {
-                    UnlockItem unlock = new UnlockItem()
-                    {
-                        Type = "TROOP",
-                        troop = ResourceManager.GetTroopTemplate(troop.Name)
-                    };
-                    this.UnlockSL.AddItem(unlock);
-                }
-            }
-            foreach (Technology.UnlockedHull hull in unlockedTech.HullsUnlocked)
-            {
-                if (EmpireManager.Player.data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == techEntry.AcquiredFrom)
-                {
-                    ShipData shipData = ResourceManager.HullsDict[hull.Name];
-                    UnlockItem unlock = new UnlockItem
-                    {
-                        Type = "HULL",
-                        privateName = hull.Name,
-                        HullUnlocked = shipData.Name,
-                        Description = string.Concat(Localizer.Token(4042), " ",
-                            Localizer.GetRole(shipData.Role, EmpireManager.Player))
-                    };
-                    this.UnlockSL.AddItem(unlock);
-                }
-            }
-            foreach (Technology.UnlockedBuilding unlockedB in unlockedTech.BuildingsUnlocked)
-            {
-                if (EmpireManager.Player.data.Traits.ShipType == unlockedB.Type || unlockedB.Type == null || unlockedB.Type == techEntry.AcquiredFrom)
-                {
-                    UnlockItem unlock = new UnlockItem()
-                    {
-                        Type = "BUILDING",
-                        building = ResourceManager.BuildingsDict[unlockedB.Name]
-                    };
-                    this.UnlockSL.AddItem(unlock);
-                }
-            }
-            foreach (Technology.UnlockedBonus ub in unlockedTech.BonusUnlocked)
-            {
-                if (EmpireManager.Player.data.Traits.ShipType == ub.Type || ub.Type == null || ub.Type == techEntry.AcquiredFrom)
-                {
-                    UnlockItem unlock = new UnlockItem()
-                    {
-                        Type = "ADVANCE",
-                        privateName = ub.Name,
-                    };
-                    this.UnlockSL.AddItem(unlock);
-                }
-            }
         }
 
         private void UnlockTree(string key)

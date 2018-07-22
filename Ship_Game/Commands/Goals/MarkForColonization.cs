@@ -113,9 +113,10 @@ namespace Ship_Game.Commands.Goals
                 var tohold = new Array<Goal> { this };
                 var task =
                     new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
-                {
+                task.SetTargetPlanet(markedPlanet);
                     empire.GetGSAI().TaskList.Add(task);
-                }
+                    
+                
             }
 
             var militaryTask = new MilitaryTask
@@ -153,7 +154,7 @@ namespace Ship_Game.Commands.Goals
 
             if (empire.isPlayer && ResourceManager.ShipsDict.TryGetValue(empire.data.CurrentAutoColony, out Ship autoColony))
             {
-                planet.ConstructionQueue.Add(new QueueItem
+                planet.ConstructionQueue.Add(new QueueItem(planet)
                 {
                     isShip      = true,
                     QueueNumber = planet.ConstructionQueue.Count,
@@ -167,7 +168,7 @@ namespace Ship_Game.Commands.Goals
             else
             {
                 Ship shipTypeToBuild = ResourceManager.ShipsDict[empire.data.DefaultColonyShip];
-                planet.ConstructionQueue.Add(new QueueItem
+                planet.ConstructionQueue.Add(new QueueItem(planet)
                 {
                     isShip        = true,
                     QueueNumber   = planet.ConstructionQueue.Count,
@@ -206,9 +207,6 @@ namespace Ship_Game.Commands.Goals
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
                 empire.GetGSAI().CheckClaim(them, markedPlanet);
             return GoalStep.GoalComplete;
-
-            this.PlanetBuildingAt = (Planet) null;
-            return GoalStep.RestartGoal;
         }
 
         private Ship FindIdleColonyShip()

@@ -237,7 +237,7 @@ namespace Ship_Game
                 if (HistoryTraitCybernetic)
                 {
                     Cybernetic = 1;
-                    if (trait.RepairMod > 0)
+                    if (trait.RepairMod > 0)            //Is this a bug? Should this be its own if branch?
                         RepairMod = trait.RepairMod;
                 }
                 if (HistoryTraitManifestDestiny && trait.PassengerBonus > 0)
