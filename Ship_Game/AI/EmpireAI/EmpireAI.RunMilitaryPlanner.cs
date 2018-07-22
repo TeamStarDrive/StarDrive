@@ -171,7 +171,7 @@ namespace Ship_Game.AI
             public float RatioCarriers  = 0;
             public float RatioSupport   = 0;
             public float RatioTroopShip = 0;
-            public float CapFighters;
+            public float CapFighters = 1;
             public float CapCorvettes;
             public float CapFrigates;
             public float CapCruisers;
@@ -189,7 +189,7 @@ namespace Ship_Game.AI
             public float NumCapitals;
             public float NumTroops;
             public float NumSupport;
-            public float TotalUpkeep;
+            public float TotalUpkeep =1;
             public float TotalMilShipCount;
             private readonly EmpireAI EmpireAI;
             private Empire OwnerEmpire  => EmpireAI.OwnerEmpire;
@@ -311,10 +311,10 @@ namespace Ship_Game.AI
                 if (ratio < .01f) return 0;
                 
                 float shipUpkeep = Math.Max(roleUpkeep, 1) / Math.Max(roleCount, 1);                
-                float mainRatio = shipUpkeep * ratio / TotalUpkeep;
+                float mainRatio = shipUpkeep * ratio / Math.Max(TotalUpkeep , 1);
                 float possible = capacity * mainRatio / shipUpkeep;
 
-                return (int)possible;
+                return (int)Math.Round(possible);
 
                 
             }
