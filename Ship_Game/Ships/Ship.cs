@@ -2173,7 +2173,7 @@ namespace Ship_Game.Ships
             if (empire.data.DefaultAssaultShuttle.IsEmpty())
             {
                 assaultShuttleName = empire.BoardingShuttle.Name; // this is the deafult one in case nothing is found in empire data
-                Log.Info("Race specific assault Shuttle not found. Using default one");
+                Empire.Universe?.DebugWin?.DebugLogText($"GetAssaultShuttle: ({empire.Name}) Using Default Shuttle. empire.data.DefaultAssaultShuttle Was Empty", DebugModes.Normal);                
             }
             else
                 assaultShuttleName = empire.data.DefaultAssaultShuttle;
@@ -2802,8 +2802,8 @@ namespace Ship_Game.Ships
 
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
             if (!goodPower || empire == null)
-            {
-                Log.Info($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}");
+            {                
+                Empire.Universe?.DebugWin?.DebugLogText($"WARNING ship design {Name} with hull {shipData.Hull} :Bad WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}", DebugModes.Normal);
             }
             if (DesignRole < ShipData.RoleName.fighter || GetStrength() >  baseStrengthNeeded )
                 return goodPower;

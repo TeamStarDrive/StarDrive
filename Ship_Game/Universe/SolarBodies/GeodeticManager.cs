@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -328,16 +329,24 @@ namespace Ship_Game.Universe.SolarBodies
                         }
                     }
                 }
+              
+
+              if (ship.shipData.Role == ShipData.RoleName.platform || ship.shipData.Role == ShipData.RoleName.station)
+                {
+                    ship.ChangeOrdnance(ship.OrdinanceMax);
+                    ship.AddPower(ship.PowerStoreMax);
+                }
+                else 
+                {
+                    float supply = Math.Max(1,SolarSystemBody.GetNetGoodProd(Goods.Production));
+                    supply *= HasShipyard ? 1 : .2f;
+                    supply *= !ship.AI.BadGuysNear ? 1 : .1f;
+                    supply = Math.Max(.1f, supply);
+                    ship.AddPower(supply);
+                    ship.ChangeOrdnance(supply);
+                }
                 if (!HasShipyard)
                     continue;
-
-                if (!ship.InCombat)
-                {
-                    ship.AddPower(ship.PowerStoreMax);
-                    ship.ChangeOrdnance(ship.OrdinanceMax);
-                }
-                else if (ship.shipData.Role == ShipData.RoleName.platform)
-                    ship.ChangeOrdnance(ship.OrdinanceMax);
 
                 //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                 if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
