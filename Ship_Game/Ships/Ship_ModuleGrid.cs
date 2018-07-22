@@ -181,17 +181,6 @@ namespace Ship_Game.Ships
             return module != null;
         }
 
-        private bool GetCardinalModules(Point p, out ShipModule up, out ShipModule down, 
-                                                 out ShipModule left, out ShipModule right)
-        {
-            down = null; left = null; right = null;
-            return GetModuleAt(SparseModuleGrid, p.X, p.Y - 1, out up)
-                && GetModuleAt(SparseModuleGrid, p.X, p.Y + 1, out down)
-                && GetModuleAt(SparseModuleGrid, p.X - 1, p.Y, out left)
-                && GetModuleAt(SparseModuleGrid, p.X + 1, p.Y, out right);
-        }
-
-
         // The simplest form of collision against shields. This is handled in all other HitTest functions
         private ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
@@ -493,12 +482,8 @@ namespace Ship_Game.Ships
 
         private void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
         {
-            Point pa = GridLocalToPoint(a);
-            Point pb = GridLocalToPoint(b);
-            Vector2 worldPosA = GridLocalPointToWorld(pa) + new Vector2(8f);
-            Vector2 worldPosB = GridLocalPointToWorld(pb) + new Vector2(8f);
-            //Vector2 worldPosA = GridLocalToWorld(a);
-            //Vector2 worldPosB = GridLocalToWorld(b);
+            Vector2 worldPosA = GridLocalPointToWorld(GridLocalToPoint(a)) + new Vector2(8f);
+            Vector2 worldPosB = GridLocalPointToWorld(GridLocalToPoint(b)) + new Vector2(8f);
             Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
         }
 
