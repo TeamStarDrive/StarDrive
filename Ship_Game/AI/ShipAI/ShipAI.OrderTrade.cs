@@ -267,12 +267,12 @@ namespace Ship_Game.AI
                 foreach (Ship s in Owner.loyalty.GetShips())
                 {
                     if (s != Owner && !s.isConstructor &&
-                        (s.shipData.Role == ShipData.RoleName.freighter ||
+                        (s.DesignRole == ShipData.RoleName.freighter ||
                          s.shipData.ShipCategory == ShipData.Category.Civilian))
                     {
                         ShipGoal plan = s.AI.OrderQueue.PeekLast;
                         if (s.AI.State == AIState.SystemTrader && s.AI.start == p &&
-                            plan.Plan == Plan.PickupGoods && s.AI.FoodOrProd == good)
+                            plan?.Plan == Plan.PickupGoods && s.AI.FoodOrProd == good)
                         {
                             if (p.ImportPriority() != good)
                                 break;
