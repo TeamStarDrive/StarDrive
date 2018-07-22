@@ -96,18 +96,22 @@ namespace Ship_Game.Ships
             return dir.X <= 0f ? 4 /*left*/ : 2 /*right*/;
         }
 
+        private bool ShouldBeExternal(int x, int y, ShipModule module)
+        {
+            return module.Active &&
+                IsModuleInactiveAt(x, y - 1) ||
+                IsModuleInactiveAt(x - 1, y) ||
+                IsModuleInactiveAt(x + module.XSIZE, y) ||
+                IsModuleInactiveAt(x, y + module.YSIZE);
+        }
+
         private bool CheckIfShouldBeExternal(int x, int y)
         {
             if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
                 return false;
 
             ModulePosToGridPoint(module.Position, out x, out y); // now get the true topleft root coordinates of module
-            bool shouldBeExternal = module.Active &&
-                                    IsModuleInactiveAt(x, y - 1) ||
-                                    IsModuleInactiveAt(x - 1, y) ||
-                                    IsModuleInactiveAt(x + module.XSIZE, y) ||
-                                    IsModuleInactiveAt(x, y + module.YSIZE);
-            if (shouldBeExternal)
+            if (ShouldBeExternal(x, y, module))
             {
                 if (!module.isExternal)
                     AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
@@ -170,12 +174,6 @@ namespace Ship_Game.Ships
             y = (int)Math.Floor(offset.Y / 16f);
         }
 
-        public bool TryGetModule(Vector2 modulePos, out ShipModule module)
-        {
-            ModulePosToGridPoint(modulePos, out int x, out int y);
-            return GetModuleAt(SparseModuleGrid, x, y, out module);
-        }
-
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
         private bool GetModuleAt(ShipModule[] sparseGrid, int x, int y, out ShipModule module)
         {
@@ -183,8 +181,15 @@ namespace Ship_Game.Ships
             return module != null;
         }
 
-
-
+        private bool GetCardinalModules(Point p, out ShipModule up, out ShipModule down, 
+                                                 out ShipModule left, out ShipModule right)
+        {
+            down = null; left = null; right = null;
+            return GetModuleAt(SparseModuleGrid, p.X, p.Y - 1, out up)
+                && GetModuleAt(SparseModuleGrid, p.X, p.Y + 1, out down)
+                && GetModuleAt(SparseModuleGrid, p.X - 1, p.Y, out left)
+                && GetModuleAt(SparseModuleGrid, p.X + 1, p.Y, out right);
+        }
 
 
         // The simplest form of collision against shields. This is handled in all other HitTest functions
@@ -224,7 +229,6 @@ namespace Ship_Game.Ships
 
 
 
-        
         // Converts a world position to a grid local position (such as [16f,32f])
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
@@ -235,8 +239,7 @@ namespace Ship_Game.Ships
 
         public Point WorldToGridLocalPoint(Vector2 worldPoint)
         {
-            Vector2 local = WorldToGridLocal(worldPoint);
-            return new Point((int)Math.Floor(local.X / 16f), (int)Math.Floor(local.Y / 16f));
+            return GridLocalToPoint(WorldToGridLocal(worldPoint));
         }
 
         public Point GridLocalToPoint(Vector2 localPos)
@@ -246,10 +249,7 @@ namespace Ship_Game.Ships
 
         public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
         {
-            Point pt = WorldToGridLocalPoint(worldPoint);
-            if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
-            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
-            return pt;
+            return ClipLocalPoint(WorldToGridLocalPoint(worldPoint));
         }
 
         public Point ClipLocalPoint(Point pt)
@@ -265,16 +265,15 @@ namespace Ship_Game.Ships
                 && 0 <= point.Y && point.Y < GridHeight;
         }
         
-        //an out of bounds clipped point would be in any of the extreme corners. 
+        // an out of bounds clipped point would be in any of the extreme corners. 
         private bool ClippedLocalPointInBounds(Point point)
         {
             return 0 <= point.X && point.X < GridWidth
-                   && 0 <= point.Y && point.Y < GridHeight
-                   && point != Point.Zero
-                   && (point.X < GridWidth - 1 || point.Y < GridHeight - 1)
-                   && (point.X > 0 || point.Y < GridHeight - 1)
-                   && (point.Y > 0 || point.X < GridWidth - 1)
-                ;
+                && 0 <= point.Y && point.Y < GridHeight
+                && point != Point.Zero
+                && (point.X < GridWidth - 1 || point.Y < GridHeight - 1)
+                && (point.X > 0 || point.Y < GridHeight - 1)
+                && (point.Y > 0 || point.X < GridWidth - 1);
         }
 
         public Vector2 GridLocalToWorld(Vector2 localPoint)
@@ -289,7 +288,6 @@ namespace Ship_Game.Ships
         }
 
         public Vector2 GridSquareToWorld(int x, int y) => GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
-        public Vector2 GridSquareToWorld(Point pt) => GridLocalToWorld(new Vector2(pt.X * 16f + 8f, pt.Y * 16f + 8f));
 
 
 
@@ -430,16 +428,8 @@ namespace Ship_Game.Ships
 
             Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));            
             Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
-            bool inA = ClippedLocalPointInBounds(a);
-            bool inB = ClippedLocalPointInBounds(b);             
-            if (!inA && !inB)
-            {
-                if (!LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
-                    return;
-            }
-            
-            //if (!inA) a = ClipLocalPoint(a);
-            //if (!inB) b = ClipLocalPoint(b);
+            if (!ClippedLocalPointInBounds(a) && !ClippedLocalPointInBounds(b))
+                return;
 
             ShipModule[] grid = SparseModuleGrid;
             int width = GridWidth;
@@ -495,6 +485,91 @@ namespace Ship_Game.Ships
             }
         }
 
+        private void DebugGridStep(Vector2 p, Color color)
+        {
+            Vector2 gridWorldPos = GridLocalPointToWorld(GridLocalToPoint(p)) + new Vector2(8f);
+            Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, gridWorldPos, 4f, color.Alpha(0.33f), 2.0f);
+        }
+
+        private void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
+        {
+            Vector2 worldPosA = GridLocalPointToWorld(GridLocalToPoint(a)) + new Vector2(8f);
+            Vector2 worldPosB = GridLocalPointToWorld(GridLocalToPoint(b)) + new Vector2(8f);
+            //Vector2 worldPosA = GridLocalToWorld(a);
+            //Vector2 worldPosB = GridLocalToWorld(b);
+            Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
+        }
+
+        // take one step in the module grid
+        // @todo Make use of rayRadius to improve Walk precision
+        private ShipModule TakeOneStep(Vector2 start, Vector2 step)
+        {
+            Vector2 endPos = start + step;
+            Point pos = GridLocalToPoint(start);
+            Point end = GridLocalToPoint(endPos);
+            // @note We don't check grid at [pos], because we assume prev call checked it
+            if (pos.IsDiagonalTo(end))
+            {
+                // check a module at the same Y height as final point
+                // this forces us to always take an L shaped step instead of diagonal \
+                var neighbourPos = new Vector2(start.X, endPos.Y);
+                var neighbour = new Point(pos.X, end.Y);
+                if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                    DebugGridStep(neighbourPos, Color.Yellow);
+
+                ShipModule mb = SparseModuleGrid[neighbour.X + neighbour.Y * GridWidth];
+                if (mb != null && mb.Active)
+                {
+                    if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                        DebugGridStep(start, neighbourPos, Color.Cyan, 4f);
+                    return mb;
+                }
+            }
+
+            if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                DebugGridStep(endPos, Color.LightGreen);
+
+            ShipModule mc = SparseModuleGrid[end.X + end.Y * GridWidth];
+            if (mc != null && mc.Active)
+            {
+                if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                    DebugGridStep(start, endPos, Color.HotPink, 4f);
+                return mc;
+            }
+            return null;
+        }
+
+        // perform a raytrace from point a to point b, visiting all grid points between them!
+        private ShipModule WalkModuleGrid(Vector2 a, Vector2 b)
+        {
+            Vector2 pos = a;
+            Vector2 delta = b - a;
+            Vector2 step = delta.Normalized() * 16f;
+
+            // sometimes we directly enter the grid and hit a module:
+            Point enter = GridLocalToPoint(pos);
+            ShipModule me = SparseModuleGrid[enter.X + enter.Y * GridWidth];
+            if (me != null && me.Active)
+            {
+                if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                    DebugGridStep(pos - step, pos, Color.DarkGoldenrod);
+                return me;
+            }
+
+            int n = (int)(delta.Length() / 16f);
+            for (; n >= 0; --n, pos += step)
+            {
+                ShipModule m = TakeOneStep(pos, step);
+                if (m != null)
+                {
+                    if (DebugInfoScreen.Mode == DebugModes.Targeting)
+                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, m.Center, 6.0f, Color.IndianRed.Alpha(0.5f), 3.0f);
+                    return m;
+                }
+            }
+            return null;
+        }
+
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
         {
             // first we find the shield overlap, however, a module might be overlapping just before the shield border
@@ -507,45 +582,12 @@ namespace Ship_Game.Ships
             Vector2 b = WorldToGridLocal(endPos);
             if (MathExt.ClipLineWithBounds(GridWidth*16f, GridHeight*16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
-                // @todo Make use of rayRadius to improve raytrace precision
-                ShipModule module = null;
-
-                // perform a raytrace from point a to point b, visiting all grid points between them!
-                Vector2 pos   = a;
-                Vector2 delta = b - a;
-                Vector2 step = delta.Normalized() * 16f;
-                int n = (int)(delta.Length() / 16f);
-                int max = n;
-
-                for (; n >= 0; --n, pos += step)
-                {
-                    Point p = GridLocalToPoint(pos);
-
-                    if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    {
-                        Vector2 gridWorldPos = GridLocalPointToWorld(p) + new Vector2(8f);
-                        Color c = Color.Yellow.LerpTo(Color.Green, (float)n / max);
-                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, gridWorldPos, 4.0f, c, 1.5f);
-                    }
-
-                    ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
-                    if (m != null && m.Active) { module = m; break; }
-                }
-
+                ShipModule module = WalkModuleGrid(a, b);
                 if (module == null)
                     return shield;
 
                 if (shield == null || module.Center.Distance(startPos) < shieldHitDist)
                     return module; // module was closer, so should be hit first
-
-                //#if DEBUG
-                //    if (Empire.Universe.Debug && m != null)
-                //    {
-                //        Vector2 localA = WorldToGridLocal(startPos);
-                //        Vector2 localB = WorldToGridLocal(endPos);
-                //        AddGridLocalDebugLine(5f, localA, localB);
-                //    }
-                //#endif
             }
             return shield;
         }
