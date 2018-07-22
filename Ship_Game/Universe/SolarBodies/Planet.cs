@@ -55,7 +55,7 @@ namespace Ship_Game
             if (ImportProd && !ImportFood) return "(IMPORT PROD)";
             return "(IMPORT ALL)";
         }
-        public override string ToString() => $"{Name} ({Owner.Name}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
+        public override string ToString() => $"{Name} ({Owner?.Name ?? "ERROR No Owner"}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
 
         public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
@@ -256,6 +256,12 @@ namespace Ship_Game
             TroopManager.SetInCombat();
         }
 
+        private void DebugImportFood(float predictedFood, string text) =>                   
+            Empire.Universe.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+        
+        private void DebugImportProd(float predictedFood, string text) =>                    
+            Empire.Universe.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+        
         public Goods ImportPriority()
         {
             // Is this an Import-Export type of planet?
@@ -270,8 +276,8 @@ namespace Ship_Game
             {
                 if (!FindConstructionBuilding(Goods.Food, out QueueItem item))
                 {
-                    // we will definitely starve without food, so plz send food!
-                    if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (no food buildings) {this}");
+                    // we will definitely starve without food, so plz send food!                    
+                    DebugImportFood(predictedFood,"(no food buildings)");
                     return Goods.Food;
                 }
 
@@ -279,20 +285,20 @@ namespace Ship_Game
                 int buildTurns = NumberOfTurnsUntilCompleted(item);
                 int starveTurns = TurnsUntilOutOfFood();
                 if (buildTurns > (starveTurns + 30))
-                {
-                    if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (build {buildTurns} > starve {starveTurns + 30}) {this}");
+                {                    
+                    DebugImportFood(predictedFood, $"(build {buildTurns} > starve {starveTurns + 30})");
                     return Goods.Food; // No! We will seriously starve even if this solves starving
                 }
 
                 float foodProduced = item.Building.FoodProduced(this);
                 if (NetFoodPerTurn + foodProduced >= 0f) // this building will solve starving
-                {
-                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (build {buildTurns}) {this}");
+                {                    
+                    DebugImportProd(predictedFood, $"(build {buildTurns})");
                     return Goods.Production; // send production to finish it faster!
                 }
 
-                // we can't wait until building is finished, import food!
-                if (debug) Log.Info($"IFOOD PREDFD:{predictedFood:0.#} (build has not enough food) {this}");
+                // we can't wait until building is finished, import food!                
+                DebugImportFood(predictedFood, "(build has not enough food)");                
                 return Goods.Food;
             }
 
@@ -305,16 +311,16 @@ namespace Ship_Game
                 // this is taking too long! import production to speed it up
                 int totalTurns = NumberOfTurnsUntilCompleted(ConstructionQueue.Last);
                 if (totalTurns >= 60)
-                {
-                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (construct >= 60 turns) {this}");
+                {                    
+                    DebugImportProd(predictedFood, "(construct >= 60 turns)");
                     return Goods.Production;
                 }
 
                 // only import if we're constructing more than we're producing
                 float projectedProd = ProjectedProduction(totalTurns);
                 if (projectedProd <= 25f)
-                {
-                    if (debug) Log.Info($"IPROD PREDFD:{predictedFood:0.#} (projected {projectedProd:0.#} <= 25) {this}");
+                {                    
+                    DebugImportProd(predictedFood, $"(projected {projectedProd:0.#} <= 25)");
                     return Goods.Production;
                 }
             }
