@@ -739,7 +739,7 @@ namespace Ship_Game.AI {
                 var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
                 OrderResupply(troopRallyPoints, ClearOrders);                
             }
-            Planet nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
 
             if (nearestRallyPoint != null)
                 OrderResupply(nearestRallyPoint, ClearOrders);
