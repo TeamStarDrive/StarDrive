@@ -709,8 +709,8 @@ namespace Ship_Game.AI.Tasks {
             AO closestAo = aos.FindMaxFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted, 
                                                ao => -ao.Center.SqDist(AO));
             if (closestAo == null)
-            {
-                Log.Info($"{Owner.Name} : no coreFleetsFound of operation found");
+            {                
+                Empire.Universe?.DebugWin?.DebugLogText($"Tasks ({Owner.Name}) Requistiions: No Core Fleets Stronger than ({strWanted}) found. CoreFleets#: {aos.Count} ", Debug.DebugModes.Normal);
                 return null;
             }
             return closestAo.GetCoreFleet();
