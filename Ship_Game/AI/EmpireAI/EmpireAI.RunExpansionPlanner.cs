@@ -9,8 +9,24 @@ using Ship_Game.Gameplay;
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
     {
-        private int DesiredColonyGoals = 2;
-        private Array<Planet> DesiredPlanets = new Array<Planet>();
+        /// <summary>
+        /// This uses difficult and empire personality to set the colonization goal count. 
+        /// </summary>
+        private int DesiredColonyGoals
+        {
+            get
+            {
+                var baseVal = 2;
+                var difMod = (int)Empire.Universe.GameDifficulty;
+                difMod = (int)(difMod + OwnerEmpire.getResStrat().ExpansionRatio);
+                int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;                
+
+                return baseVal + difMod + econmicPersonalityMod;
+            }
+        }
+
+
+        private Planet[] DesiredPlanets  = new Planet[0];
 
         public void CheckClaim(KeyValuePair<Empire, Relationship> them, Planet claimedPlanet)
         {
@@ -72,30 +88,20 @@ namespace Ship_Game.AI {
 
         private void RunExpansionPlanner()
         {
-            var weightedCenter = new Vector2();
-
-            if (CannotColonize(ref weightedCenter)) return;
-            var ranker = new Array<Goal.PlanetRanker>();
-            var allPlanetsRanker = new Array<Goal.PlanetRanker>();
-
-            GatherAllPlanetRanks(weightedCenter, ranker, allPlanetsRanker);
-
-            if (allPlanetsRanker.Count < 1) return;
-            Planet
-                toMark = null; // allPlanetsRanker.OrderByDescending(rank => rank).FirstOrDefault().Planet; //  MarkBestPlanet(ranker);
-
             
-            DesiredPlanets.Clear();
+            Planet[] markedPlanets = GetMarkedPlanets();
+            if (markedPlanets.Length > DesiredColonyGoals) return;            
 
-            IOrderedEnumerable<Goal.PlanetRanker> sortedList =
-                from ran in allPlanetsRanker
-                orderby ran.Value descending
-                select ran;
-            foreach (Goal.PlanetRanker planetRanker in sortedList)
-                DesiredPlanets.Add(planetRanker.Planet);
+            var allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
 
-            toMark = sortedList.First().Planet;
-            Goals.Add(new MarkForColonization(toMark, OwnerEmpire));
+            if (allPlanetsRanker.Count < 1)
+                return;
+
+            DesiredPlanets = allPlanetsRanker.SortedBy(v => -v.Value - (v.OutOfRange ? 1 :0)).Select(p => p.Planet).ToArray();
+
+            if (DesiredPlanets.Length == 0)
+                return;
+            Goals.Add(new MarkForColonization(DesiredPlanets[0], OwnerEmpire));
         }
 
         private static Planet MarkBestPlanet(IReadOnlyCollection<Goal.PlanetRanker> ranker)
@@ -117,55 +123,65 @@ namespace Ship_Game.AI {
             return toMark;
         }
 
-        private void GatherAllPlanetRanks(Vector2 weightedCenter, Array<Goal.PlanetRanker> ranker, Array<Goal.PlanetRanker> allPlanetsRanker)
+        /// <summary>
+        /// Go through all known planets. filter planets by colonization rules. Rank remaining ones. 
+        /// 
+        /// </summary>
+        /// <param name="markedPlanets"></param>
+        /// <returns></returns>
+        private Array<Goal.PlanetRanker>  GatherAllPlanetRanks(Planet[] markedPlanets)
         {
+            //need a better way to find biosphere
             bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.data.Traits.Cybernetic > 0;
+
+            var allPlanetsRanker = new Array<Goal.PlanetRanker>();
+            Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();
+            //Here we should be using the building score that the governors use to determin is a planet is viable i think.
             bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
-            float valueTotal = 0;
-            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
+
+            for (int x = 0; x < UniverseScreen.SolarSystemList.Count; x++)
             {
-                //added by gremlin make non offensive races act like it.
+                SolarSystem s = UniverseScreen.SolarSystemList[x];
+
                 if (!s.IsExploredBy(OwnerEmpire))
                     continue;
-                if (ColonizeBlockedByMorals(s)) continue;
+               
+                if (IsColonizeBlockedByMorals(s))
+                    continue;
 
                 float str = ThreatMatrix.PingRadarStr(s.Position, 150000f, OwnerEmpire, true, any: true);
-               // if (str > 0) continue;
-                
-                foreach (Planet planetList in s.PlanetList)
+
+                for (int y = 0; y < s.PlanetList.Count; y++)
                 {
-                    if (!planetList.Habitable)
+                    Planet planet = s.PlanetList[y];
+                    if (!planet.Habitable)
                         continue;
-                    if (planetList.Owner != null) continue;
-                    if (IsAlreadyMarked(planetList, str)) continue;
-                    int commodities = planetList.CommoditiesPresent.Count;
-                    
-                    Goal.PlanetRanker r2 = PlanetRank(weightedCenter, planetList, commodities);
-                    if (r2.Value < .3f )
+                    if (planet.Owner != null)
                         continue;
-                    bool hasCommodities = commodities > 0;                  
+                    if (markedPlanets.Contains(planet))
+                        continue;
 
-                    if (IsBadWorld(planetList, canColonizeBarren, hasCommodities, foodBonus)) continue;
-                    r2.OutOfRange = PlanetToFarToColonize(planetList);
+                    int commodities = planet.CommoditiesPresent.Count;
+
+                    Goal.PlanetRanker r2 = PlanetRank(weightedCenter, planet, commodities);
+                    if (r2.Value < .3f)
+                        continue;
+                    bool hasCommodities = commodities > 0;
+
+                    if (IsBadWorld(planet, canColonizeBarren, hasCommodities, foodBonus))
+                        continue;
+                    r2.OutOfRange = PlanetToFarToColonize(planet);
                     if (str > 0)
-                        r2.Value /= (str / OwnerEmpire.currentMilitaryStrength);
+                        r2.Value *= (OwnerEmpire.currentMilitaryStrength - str) / OwnerEmpire.currentMilitaryStrength;
                     allPlanetsRanker.Add(r2);
-
-                    valueTotal += r2.Value;
-                    
-
-                    //if (str >0 && ThreatMatrix.PingRadarStr(planetList.Center, 50000f, OwnerEmpire, false, any: true) >0 )
-                    //    continue;
-                    ranker.Add(r2);
-                    
                 }
-            }            
-
+            }
+            return allPlanetsRanker;
         }
 
         private bool PlanetToFarToColonize(Planet planetList)
         {
-            var closestAO = OwnerEmpire.GetGSAI().AreasOfOperations
+            AO closestAO = OwnerEmpire.GetGSAI().AreasOfOperations
                 .FindMin(ao => ao.Center.SqDist(planetList.Center));
             if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 2f))
                 return true;
@@ -200,44 +216,44 @@ namespace Ship_Game.AI {
             //    return true;
             return false;
         }
-
-        private bool ColonizeBlockedByMorals(SolarSystem s)
+        /// <summary>
+        /// This will cause an empire to not colonize based on its personality.
+        /// These values should be made common to set up common behavior types
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        private bool IsColonizeBlockedByMorals(SolarSystem s)
         {
             if (s.OwnerList.Count == 0) return false;
             if (s.OwnerList.Contains(OwnerEmpire)) return false;
             if (OwnerEmpire.isFaction) return false;
             if (OwnerEmpire.data?.DiplomaticPersonality == null) return false;
             bool atWar = OwnerEmpire.AllRelations.Any(war => war.Value.AtWar);
-            bool trusting = OwnerEmpire.data?.DiplomaticPersonality.Trustworthiness >= 80;
-            bool careless = OwnerEmpire.data?.DiplomaticPersonality.Trustworthiness <= 60;
-            string personality = OwnerEmpire.data.DiplomaticPersonality.Name;
+            bool trusting = OwnerEmpire.data.DiplomaticPersonality.IsTrusting ;
+            bool careless = OwnerEmpire.data.DiplomaticPersonality.Careless ;            
 
             if (atWar && careless) return false;
 
-            bool systemOK = true;
-
             foreach (Empire enemy in s.OwnerList)
-            {
-                if (OwnerEmpire.IsEmpireAttackable(enemy)  && !trusting) return false;
-                systemOK = enemy.isFaction;
-            }
-            
+                if (OwnerEmpire.IsEmpireAttackable(enemy) && !trusting)
+                    return false;
+
             return true;
             
         }
 
-        private bool IsAlreadyMarked(Planet planetList, float str)
+        private Planet[] GetMarkedPlanets()
         {
+            var list = new Array<Planet>();
             foreach (Goal g in Goals)
-                if (g.type == GoalType.Colonize && g.GetMarkedPlanet() == planetList)
-                    return true;
-            return false;
+                if (g.type == GoalType.Colonize)
+                    list.Add(g.GetMarkedPlanet());
+            return list.ToArray();
         }
 
-        private bool CannotColonize(ref Vector2 weightedCenter)
+        private bool CannotColonize(out Vector2 weightedCenter)
         {
-            DesiredColonyGoals = (int) (Empire.Universe.GameDifficulty + 1)  +
-                                 (OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0);
+            weightedCenter = new Vector2();
             int numColonyGoals = NumColonyGoals();
             if (numColonyGoals >= DesiredColonyGoals) return true;
 
