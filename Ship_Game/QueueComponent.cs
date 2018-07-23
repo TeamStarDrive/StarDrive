@@ -128,27 +128,47 @@ namespace Ship_Game
 			}
 		}
 
+        private ResearchQItem CreateQItem(TreeNode researchItem)
+        {
+            return new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
+        }
+
 		public void LoadQueue(TreeNode researchItem)
 		{
-			if (this.CurrentResearch == null)
+			if (CurrentResearch == null)
 			{
-				this.CurrentResearch = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
+				CurrentResearch = CreateQItem(researchItem);
 				return;
 			}
-			ResearchQItem qi = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
-			this.QSL.AddItem(qi);
+			QSL.AddItem(CreateQItem(researchItem));
 		}
+
+        public void ReloadResearchQueue()
+        {
+            var items = new Array<ResearchQItem>();
+            if (EmpireManager.Player.ResearchTopic.NotEmpty())
+            {
+                var researchItem = (TreeNode)screen.CompleteSubNodeTree[EmpireManager.Player.ResearchTopic];
+                CurrentResearch = CreateQItem(researchItem);
+            }
+            foreach (string uid in EmpireManager.Player.data.ResearchQueue)
+            {
+                var researchItem = (TreeNode)screen.CompleteSubNodeTree[uid];
+                items.Add(CreateQItem(researchItem));
+            }
+            QSL.SetItems(items);
+        }
 
 		public void SetInvisible()
 		{
-			this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2135));
-			this.Visible = false;
+			ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2135));
+			Visible = false;
 		}
 
 		public void SetVisible()
 		{
-			this.ShowQueue = new DanButton(this.ShowQueue.Pos, Localizer.Token(2136));
-			this.Visible = true;
+			ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2136));
+			Visible = true;
 		}
 	}
 }
