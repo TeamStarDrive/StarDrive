@@ -307,6 +307,11 @@ namespace Ship_Game.AI
                     , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
             }
 
+            private void AddInconstructionToCounts()
+            {
+
+            }
+
             private int SetCounts(float roleCount, float roleUpkeep, float capacity, float ratio, float totalRatio)
             {
 
@@ -484,7 +489,7 @@ namespace Ship_Game.AI
         private static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
              rolesPicked)
         {            
-            if (numShips >= (int)desiredShips)
+            if (numShips >= desiredShips)
                 return;            
             rolesPicked.Add(role,  numShips / desiredShips);
         }
