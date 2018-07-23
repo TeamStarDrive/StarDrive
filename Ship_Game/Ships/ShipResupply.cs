@@ -81,8 +81,11 @@ namespace Ship_Game.Ships
 
         private static bool CanNotCreateEnoughOdrnance(Ship ship)
         {
-            if (ship.OrdAddedPerSecond < 1 || ship.OrdinanceMax < 1)
+            if (ship.OrdAddedPerSecond < 1 || ship.OrdinanceMax > 0)
                 return true;
+
+            if (ship.OrdinanceMax < 1)
+                return false; // doesnt care about ordnance since it has no storage for ordnance
 
             float ordnanceProductionThreshold;
 
