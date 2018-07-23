@@ -494,7 +494,11 @@ namespace Ship_Game.Ships
             Vector2 endPos = start + step;
             Point pos = GridLocalToPoint(start);
             Point end = GridLocalToPoint(endPos);
+            if (!LocalPointInBounds(pos) || !LocalPointInBounds(end))
+                return null; // we're walking out of bounds
+
             // @note We don't check grid at [pos], because we assume prev call checked it
+
             if (pos.IsDiagonalTo(end))
             {
                 // check a module at the same Y height as final point
