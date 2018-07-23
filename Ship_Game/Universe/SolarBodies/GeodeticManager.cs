@@ -260,13 +260,13 @@ namespace Ship_Game.Universe.SolarBodies
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
             float repairPool = CalcRepairPool();
-            // FB: I added here a minimum threshold of 5 troops to stay as garrison so the auto load wont clean the colony
+            // FB: I added here a minimum threshold of 5 troops to stay as garrison so the LoadTroops wont clean the colony
             // But this should be made at a button for the player to decide how many troops he wants to leave as a garrison in ship colony screen
             int garrisonSize = SolarSystemBody.Owner.isPlayer ? 5 : 0;
 
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
-                Ship ship = ParentSystem.ShipList[i];
+                Ship ship         = ParentSystem.ShipList[i];
                 bool loyaltyMatch = ship.loyalty == Owner;
 
                 if (ship.loyalty.isFaction)
@@ -291,9 +291,9 @@ namespace Ship_Game.Universe.SolarBodies
             else
             {
                 float supply = DevelopmentLevel;
-                supply *= HasSpacePort ? 5f : 2f;
-                supply *= ship.InCombat ? 0.1f : 10f;
-                supply = Math.Max(.1f, supply);
+                supply      *= HasSpacePort ? 5f : 2f;
+                supply      *= ship.InCombat ? 0.1f : 10f;
+                supply       = Math.Max(.1f, supply);
                 ship.AddPower(supply);
                 ship.ChangeOrdnance(supply);
             }
@@ -330,7 +330,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void LoadTroops(Ship ship, int garrisonSize)
         {
-            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity >= ship.TroopList.Count)
+            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity >= ship.TroopList.Count || ship.InCombat)
                 return;
 
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
