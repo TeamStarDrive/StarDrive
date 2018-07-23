@@ -330,7 +330,10 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
             if (b.AssignBuildingToTile(qi, Ground))
+            {
                 ConstructionQueue.Add(qi);
+                Ground.RefreshBuildingsWeCanBuildHere();
+            }
             else if (Owner.data.Traits.Cybernetic <= 0 && Owner.GetBDict()[terraformer.Name] && Fertility < 1.0
                 && Ground.WeCanAffordThis(terraformer, colonyType))
             {
