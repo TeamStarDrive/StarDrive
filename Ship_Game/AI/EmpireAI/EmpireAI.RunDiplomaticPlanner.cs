@@ -318,12 +318,12 @@ namespace Ship_Game.AI {
                     int i = 0;
                     while (i < 5)
                     {
-                        if (i >= this.DesiredPlanets.Count)
+                        if (i >= DesiredPlanets.Length)
                         {
                             //goto Label0;    //this tried to restart the loop it's in => bad mojo
                             break;
                         }
-                        if (this.DesiredPlanets[i].Owner != Relationship.Key)
+                        if (DesiredPlanets[i].Owner != Relationship.Key)
                         {
                             i++;
                         }
@@ -333,7 +333,8 @@ namespace Ship_Game.AI {
                             //goto Label0;
                             break;
                         }
-                    }
+                    }                    
+
                 }
             }
             if (PotentialTargets.Count > 0 && numberofWars <= this.OwnerEmpire.currentMilitaryStrength) //1)
@@ -643,7 +644,7 @@ namespace Ship_Game.AI {
                                 int i = 0;
                                 while (i < 5)
                                 {
-                                    if (i >= this.DesiredPlanets.Count)
+                                    if (i >= this.DesiredPlanets.Length)
                                     {
                                         break;
                                     }
