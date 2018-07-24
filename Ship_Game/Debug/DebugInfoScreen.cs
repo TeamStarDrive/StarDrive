@@ -279,10 +279,6 @@ namespace Ship_Game.Debug
 
                     Screen.DrawCircleProjected(module.Center, 8f, 6, Color.Pink);
 
-                    Vector2 impactOld = weapon.Center.FindProjectedImpactPointOld(ship.Velocity,
-                        weapon.ProjectileSpeed, module.Center, ship.AI.Target.Velocity);
-                    Screen.DrawLineProjected(weapon.Center, impactOld, Color.LightYellow);
-                    
                     if (weapon.ProjectedImpactPoint(ship.AI.Target, out Vector2 impactNew))
                         Screen.DrawLineProjected(weapon.Center, impactNew, Color.Yellow);
 
