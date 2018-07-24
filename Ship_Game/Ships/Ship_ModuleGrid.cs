@@ -569,7 +569,9 @@ namespace Ship_Game.Ships
 
             ++GlobalStats.DistanceCheckTotal;
 
-            Vector2 a = WorldToGridLocal(startPos);
+            // move [a] completely out of bounds to prevent attacking central modules
+            Vector2 dir = (endPos - startPos).Normalized();
+            Vector2 a = WorldToGridLocal(startPos - dir * (Radius * 2));
             Vector2 b = WorldToGridLocal(endPos);
             if (MathExt.ClipLineWithBounds(GridWidth*16f, GridHeight*16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
@@ -589,6 +591,7 @@ namespace Ship_Game.Ships
         // results are sorted by distance
         // @warning Ignores shields!!
         // @note Don't bother optimizing this. It's only used during armour piercing, which is super rare.
+        // @todo Align this with RayHitTestSingle
         public Array<ShipModule> RayHitTestModules(
             Vector2 startPos, Vector2 direction, float distance, float rayRadius)
         {
