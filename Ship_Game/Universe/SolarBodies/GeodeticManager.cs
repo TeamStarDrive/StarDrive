@@ -311,21 +311,13 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void RepairShip(Ship ship, float repairPool)
         {
+            CheckSupplyStatus(ship);
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
-            if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax || ship.shield_percent >= 90)
+            if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax)
                 return;
                  
             int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
             ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
-
-            if (ship.AI.State == AIState.Resupply) // FB: old logic is not working well for non immediate ordnance to max - WIP
-            {
-                ship.AI.OrderQueue.Clear();
-                ship.AI.Target = null;
-                ship.AI.PotentialTargets.Clear();
-                ship.AI.HasPriorityOrder = false;
-                ship.AI.State = AIState.AwaitingOrders;
-            }
         }
 
         private void LoadTroops(Ship ship, int garrisonSize)
@@ -354,6 +346,23 @@ namespace Ship_Game.Universe.SolarBodies
                         }
                 }
             }
+        }
+
+        private void CheckSupplyStatus(Ship ship)
+        {
+            if (ship.AI.State != AIState.Resupply)
+                return;
+
+            if (ShipResupply.DoneResupplying(ship))
+            {
+                ship.AI.State = AIState.AwaitingOrders;
+                return;
+            }
+
+            ship.AI.OrderQueue.Clear();
+            ship.AI.Target = null;
+            ship.AI.PotentialTargets.Clear();
+            ship.AI.HasPriorityOrder = false;
         }
 
         private void AddTroopsForFactions(Ship ship)
