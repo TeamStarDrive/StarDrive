@@ -208,7 +208,7 @@ namespace Ship_Game.AI.Tasks
                 else
                 {
                     Owner.ForcePoolAdd(ship);
-                    ship.AI.OrderResupplyNearest(false);
+                    ship.AI.GoOrbitNearestPlanet(false);
                 }
             }
 
@@ -571,7 +571,7 @@ namespace Ship_Game.AI.Tasks
 
                         if (ship.shipData.Role != ShipData.RoleName.troop)
                         {
-                            ship.AI.OrderResupplyNearest(false);
+                            ship.AI.GoOrbitNearestPlanet(false);
                         }
                         else
                         {
