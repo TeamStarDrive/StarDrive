@@ -1863,15 +1863,15 @@ namespace Ship_Game
             return (int)(quality / 5); //Return just the whole number by truncating the decimal
         }
 
-        private float FactorForConstructionCost(float score, float cost)
+        private float FactorForConstructionCost(float score, float cost, float highestCost)
         {
-            //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
-            //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 400, it will
-            //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman
-            return score *= (1 - (cost / 400)).Clamped(0.001f, 10);
+            //1 minus cost divided by highestCost gives a decimal value that is higher for smaller construction cost. This will make buildings with lower cost more desirable,
+            //but never disqualify a building that had a positive score to begin with. -Gretman
+            if (highestCost <= 0) highestCost = 150;    //Fallback in case of negative highestCost
+            return score *= (1 - (cost / highestCost)).Clamped(0.001f, 10);
         }
 
-        private float EvaluateBuilding(Building building, float income)     //Gretman function, to support DoGoverning()
+        private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
             float buildingValue = 0.0f;    //End result value for entire building
             float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
@@ -1896,14 +1896,14 @@ namespace Ship_Game
             buildingValue += EvaluateBuildingTerraforming(building);
             buildingValue -= EvaluateBuildingFertilityLoss(building, maxPopulation);
 
-            if (buildingValue > 0) buildingValue = FactorForConstructionCost(buildingValue, building.Cost);
+            if (buildingValue > 0) buildingValue = FactorForConstructionCost(buildingValue, building.Cost, highestCost);
 
             if (Name == ExtraInfoOnPlanet) Log.Info(ConsoleColor.Cyan, $"Evaluated {building.Name} Final Score was : {buildingValue}");
 
             return buildingValue;
         }
 
-        private float EvaluateMilitaryBuilding(Building building, float income)
+        private float EvaluateMilitaryBuilding(Building building, float income, float highestCost)
         {
             float upkeep = -EvaluateBuildingMaintenance(building, income);
 
@@ -1922,7 +1922,7 @@ namespace Ship_Game
             //Shield, weapon, and/or allowtroop weighting go here (which is why they are all seperate values)
 
             float finalRating = upkeep + combatScore + weaponDPS + shieldScore + allowTroops;
-            if (finalRating > 0) finalRating = FactorForConstructionCost(finalRating, building.Cost);
+            if (finalRating > 0) finalRating = FactorForConstructionCost(finalRating, building.Cost, highestCost);
 
             if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated military building {building.Name} : Score was {finalRating}");
             return finalRating;
@@ -1930,13 +1930,15 @@ namespace Ship_Game
 
         private void ChooseAndBuild(float income)
         {
+            if (BuildingsCanBuild.Count == 0) return;
             Building bestBuilding = null;
             float bestValue = 0.0f;     //So a building with a value of 0 will not be built.
             float buildingScore = 0.0f;
+            float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
             {
                 //Find the building with the highest score
-                buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income);
+                buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income, highestCost);
                 if (buildingScore > bestValue)
                 {
                     bestBuilding = BuildingsCanBuild[i];
@@ -1956,12 +1958,13 @@ namespace Ship_Game
                 Building bestMBuilding = null;
                 float bestValue = 0.0f;
                 float mBuildingScore = 0.0f;
+                float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                 {
                     if (BuildingsCanBuild[i].CombatStrength == 0 || BuildingsCanBuild[i].MaxPopIncrease > 0) continue;
                     if (BuildingsCanBuild[i].Name == "Outpost" || BuildingsCanBuild[i].Name == "Capital City") continue;
 
-                    mBuildingScore = EvaluateMilitaryBuilding(BuildingsCanBuild[i], income);
+                    mBuildingScore = EvaluateMilitaryBuilding(BuildingsCanBuild[i], income, highestCost);
                     if (mBuildingScore > bestValue)
                     {
                         bestMBuilding = BuildingsCanBuild[i];
