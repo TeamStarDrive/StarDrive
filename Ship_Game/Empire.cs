@@ -2225,7 +2225,6 @@ namespace Ship_Game
                                 cyberneticMultiplier = .5f;
                                 break;
                             }
-
                         }
                     }
                     if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
@@ -2288,9 +2287,6 @@ namespace Ship_Game
                 if (this.AutoExplore)
                     this.AssignExplorationTasks();
             }
-
-
-            return;
         }
 
         private void UpdateRelationships()
