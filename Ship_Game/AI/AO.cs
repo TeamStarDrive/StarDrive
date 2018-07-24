@@ -214,6 +214,7 @@ namespace Ship_Game.AI
 
         public void Update()
         {
+            Empire.Universe.DebugWin.DrawCircle(Debug.DebugModes.AO, Center, Radius);
             if (OurPlanetsInAo.Length == 0 && Owner != null && PlanetsInAo.Length > 0)
             {
                 OurPlanetsInAo = PlanetsInAo.FilterBy(p => p.Owner == Owner);

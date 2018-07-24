@@ -225,7 +225,7 @@ namespace Ship_Game.AI
             {
                 AO closestAO = empire.GetGSAI().AreasOfOperations
                     .FindMin(ao => ao.Center.SqDist(planetList.Center));
-                if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 2f))
+                if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f))
                     return true;
                 return false;
             }
