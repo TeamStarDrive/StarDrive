@@ -201,17 +201,17 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool NeedResupplyTroops
+        public float TroopsMissingVsTroopCapacity
         {
             get
             {
                 if (Owner == null)
-                    return false;
+                    return 1f;
 
                 int troopsNotInTroopListCount = LaunchedAssaultShuttles;
                 troopsNotInTroopListCount += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
                 float troopsPresentRatio = (float)(Owner.TroopList.Count + troopsNotInTroopListCount) / Owner.TroopCapacity;
-                return troopsPresentRatio < 0.5f;
+                return troopsPresentRatio;
             }
         }
 

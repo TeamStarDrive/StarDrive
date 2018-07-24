@@ -416,7 +416,7 @@ namespace Ship_Game.AI
                     hangar.SetHangarShip(shuttle);
                     shuttle.AI.IgnoreCombat = true;
                     shuttle.AI.State        = AIState.Resupply;
-                    shuttle.AI.OrderResupplyNearest(true);
+                    shuttle.AI.GoOrbitNearestPlanet(true);
                 }
 
                 break;

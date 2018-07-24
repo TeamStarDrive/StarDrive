@@ -410,29 +410,7 @@ namespace Ship_Game.Ships
             }
             projectiles.Add(projectile);
         }
-        public bool SupplyShipReady => Carrier.HasSupplyBays && OrdnanceStatus > ShipStatus.Critical
-                                                     && OrdnanceStatus != ShipStatus.NotApplicable;
-        public bool NeedResupplyOrdnance
-        {
-            get
-            {
-                if (OrdnanceStatus > ShipStatus.Critical)
-                    return false;
 
-                if (AI.State == AIState.AwaitingOrders)
-                    return !AI.FriendliesNearby.Any(supply => supply.SupplyShipReady);
-
-                foreach (var weapon in Weapons)
-                {
-                    if (weapon.OrdinanceRequiredToFire > .01)
-                        continue;
-                    return false;
-                }
-
-                return !AI.FriendliesNearby.Any(supply => supply.SupplyShipReady);
-            }
-
-        } 
         public ShipStatus OrdnanceStatus
         {
             get
@@ -467,11 +445,6 @@ namespace Ship_Game.Ships
                 return Bombs;
             }
 
-        }
-        public bool Resupplying
-        {
-            get => AI.State == AIState.Resupply;
-            set => AI.OrderResupplyNearest(true);
         }
 
         public bool FightersOut
@@ -586,7 +559,7 @@ namespace Ship_Game.Ships
         public bool DoingResupply
         {
             get => AI.State == AIState.Resupply;
-            set => AI.OrderResupplyNearest(true);
+            set => AI.GoOrbitNearestPlanet(true);
         }
 
         public bool DoingSystemDefense
