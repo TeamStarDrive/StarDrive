@@ -212,15 +212,15 @@ namespace Ship_Game.Debug
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
-                    case DebugModes.Normal: EmpireInfo(); break;
-                    case DebugModes.DefenseCo: DefcoInfo(); break;
-                    case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
-                    case DebugModes.Pathing: PathingInfo(); break;
-                    case DebugModes.Trade: TradeInfo(); break;
-                    case DebugModes.Targeting: Targeting(); break;
+                    case DebugModes.Normal        : EmpireInfo(); break;
+                    case DebugModes.DefenseCo     : DefcoInfo(); break;
+                    case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
+                    case DebugModes.Pathing       : PathingInfo(); break;
+                    case DebugModes.Trade         : TradeInfo(); break;
+                    case DebugModes.Targeting     : Targeting(); break;
                     case DebugModes.SpatialManager: SpatialManagement(); break;
-                    case DebugModes.input: InputDebug(); break;
-                    case DebugModes.Tech: Tech(); break;
+                    case DebugModes.input         : InputDebug(); break;
+                    case DebugModes.Tech          : Tech(); break;
                 }
                 ShipInfo();
             }
