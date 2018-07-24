@@ -121,7 +121,6 @@ namespace Ship_Game.AI
         public GameplayObject ScanForCombatTargets(Ship sensorShip, float radius)
         {
             BadGuysNear = false;
-            GameplayObject priorityTarget = null;
             FriendliesNearby.Clear();
             PotentialTargets.Clear();
             NearByShips.Clear();
@@ -138,8 +137,6 @@ namespace Ship_Game.AI
                         Target = TargetQueue.First();
                     }
                 }
-                else
-                    priorityTarget = Target;
             }
             UpdateTrackedProjectiles();
             if (Target is Ship target)
