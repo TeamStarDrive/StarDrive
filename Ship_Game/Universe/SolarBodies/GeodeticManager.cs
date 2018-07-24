@@ -330,7 +330,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void LoadTroops(Ship ship, int garrisonSize)
         {
-            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity >= ship.TroopList.Count || ship.InCombat)
+            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity == 0 || ship.TroopCapacity <= ship.TroopList.Count || ship.InCombat)
                 return;
 
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;

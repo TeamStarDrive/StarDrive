@@ -19,13 +19,16 @@ namespace Ship_Game.Ships
             return threshold;
         }
 
-        public static ResupplyReason NeedResupply(Ship ship)
+        public static ResupplyReason Resupply(Ship ship)
         {
-            if (ship.DesignRole >= ShipData.RoleName.supply || ship.AI.State == AI.AIState.Resupply)
+            if (ship.DesignRole < ShipData.RoleName.colony || ship.DesignRole == ShipData.RoleName.troop || ship.AI.State == AI.AIState.Resupply)
                 return ResupplyReason.NotNeeded;
 
             if (!ship.hasCommand)
                 return ResupplyReason.NoCommand;
+
+            if (HangarShipReactorsDamaged(ship))
+                return ResupplyReason.FighterReactorsDamaged;
 
             if (ResupplyNeededBecauseOfHealth(ship))
                 return ResupplyReason.LowHealth;
@@ -96,13 +99,19 @@ namespace Ship_Game.Ships
 
             return ship.OrdinanceMax / ship.OrdAddedPerSecond > ordnanceProductionThreshold;
         }
+
+        private static bool HangarShipReactorsDamaged(Ship ship)
+        {
+            return ship.Mothership?.Active == true && ship.PowerCurrent <= 1f && ship.PowerFlowMax < ship.PowerDraw;
+        }
     }
     public enum ResupplyReason
     {
+        NotNeeded,
         LowHealth,
         LowOrdnance,
         LowTroops,
-        NoCommand,
-        NotNeeded
+        FighterReactorsDamaged,
+        NoCommand
     }
 }
