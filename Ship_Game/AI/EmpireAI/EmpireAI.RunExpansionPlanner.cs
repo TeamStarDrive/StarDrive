@@ -88,8 +88,9 @@ namespace Ship_Game.AI {
 
         private void RunExpansionPlanner()
         {
-            
-            Planet[] markedPlanets = GetMarkedPlanets();
+            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoColonize)
+                return;
+                Planet[] markedPlanets = GetMarkedPlanets();
             if (markedPlanets.Length > DesiredColonyGoals) return;            
 
             var allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
@@ -97,30 +98,11 @@ namespace Ship_Game.AI {
             if (allPlanetsRanker.Count < 1)
                 return;
 
-            DesiredPlanets = allPlanetsRanker.SortedBy(v => -v.Value - (v.OutOfRange ? 1 :0)).Select(p => p.Planet).ToArray();
+            DesiredPlanets = allPlanetsRanker.SortedBy(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet).ToArray();
 
             if (DesiredPlanets.Length == 0)
                 return;
             Goals.Add(new MarkForColonization(DesiredPlanets[0], OwnerEmpire));
-        }
-
-        private static Planet MarkBestPlanet(IReadOnlyCollection<Goal.PlanetRanker> ranker)
-        {
-            Planet toMark = null;
-            if (ranker.Count <= 0) return toMark;            
-            Goal.PlanetRanker winner;
-            winner.Planet = null;
-            float highest = float.MinValue;                
-            foreach (Goal.PlanetRanker pr in ranker)
-            {
-                if (pr.Value <= highest)
-                    continue;                  
-
-                winner = pr;
-                highest = pr.Value;
-            }
-            toMark = winner.Planet;
-            return toMark;
         }
 
         /// <summary>
@@ -133,12 +115,12 @@ namespace Ship_Game.AI {
         {
             //need a better way to find biosphere
             bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.data.Traits.Cybernetic > 0;
-
+            
             var allPlanetsRanker = new Array<Goal.PlanetRanker>();
             Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();
-            //Here we should be using the building score that the governors use to determin is a planet is viable i think.
-            bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
-
+            //Here we should be using the building score that the governors use to determine is a planet is viable i think.
+            //bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
+            
             for (int x = 0; x < UniverseScreen.SolarSystemList.Count; x++)
             {
                 SolarSystem s = UniverseScreen.SolarSystemList[x];
@@ -149,7 +131,7 @@ namespace Ship_Game.AI {
                 if (IsColonizeBlockedByMorals(s))
                     continue;
 
-                float str = ThreatMatrix.PingRadarStr(s.Position, 150000f, OwnerEmpire, true, any: true);
+                float str = ThreatMatrix.PingRadarStr(s.Position, 150000f, OwnerEmpire, true);
 
                 for (int y = 0; y < s.PlanetList.Count; y++)
                 {
@@ -161,61 +143,17 @@ namespace Ship_Game.AI {
                     if (markedPlanets.Contains(planet))
                         continue;
 
-                    int commodities = planet.CommoditiesPresent.Count;
+                    var r2 = new Goal.PlanetRanker(OwnerEmpire, planet, canColonizeBarren, weightedCenter, str);
 
-                    Goal.PlanetRanker r2 = PlanetRank(weightedCenter, planet, commodities);
-                    if (r2.Value < .3f)
+                    if (r2.CantColonize)
                         continue;
-                    bool hasCommodities = commodities > 0;
 
-                    if (IsBadWorld(planet, canColonizeBarren, hasCommodities, foodBonus))
-                        continue;
-                    r2.OutOfRange = PlanetToFarToColonize(planet);
-                    if (str > 0)
-                        r2.Value *= (OwnerEmpire.currentMilitaryStrength - str) / OwnerEmpire.currentMilitaryStrength;
                     allPlanetsRanker.Add(r2);
                 }
             }
             return allPlanetsRanker;
         }
 
-        private bool PlanetToFarToColonize(Planet planetList)
-        {
-            AO closestAO = OwnerEmpire.GetGSAI().AreasOfOperations
-                .FindMin(ao => ao.Center.SqDist(planetList.Center));
-            if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 2f))
-                return true;
-            return false;
-        }
-
-        private Goal.PlanetRanker PlanetRank(Vector2 weightedCenter, Planet planetList, int commodities)
-        {
-            var r2 = new Goal.PlanetRanker()
-            {
-                Distance = Vector2.Distance(weightedCenter, planetList.Center)
-            };
-            float distanceInJumps = Math.Max(r2.Distance / 600000, 1);
-            
-            r2.JumpRange = distanceInJumps;
-            r2.Planet = planetList;            
-            
-            float baseValue = planetList.EmpireBaseValue(OwnerEmpire);
-
-            r2.Value = baseValue / distanceInJumps;
-
-            return r2;
-        }
-
-        private static bool IsBadWorld(Planet planetList, bool canColonizeBarren, bool hasCommodities, bool foodBonus)
-        {
-            if (planetList.Type == "Barren"
-                && !canColonizeBarren && !hasCommodities)
-                return true;
-
-            //if (!foodBonus && planetList.Fertility < 1 && !hasCommodities)
-            //    return true;
-            return false;
-        }
         /// <summary>
         /// This will cause an empire to not colonize based on its personality.
         /// These values should be made common to set up common behavior types
@@ -224,10 +162,14 @@ namespace Ship_Game.AI {
         /// <returns></returns>
         private bool IsColonizeBlockedByMorals(SolarSystem s)
         {
-            if (s.OwnerList.Count == 0) return false;
-            if (s.OwnerList.Contains(OwnerEmpire)) return false;
-            if (OwnerEmpire.isFaction) return false;
-            if (OwnerEmpire.data?.DiplomaticPersonality == null) return false;
+            if (s.OwnerList.Count == 0)
+                return false;
+            if (s.OwnerList.Contains(OwnerEmpire))
+                return false;
+            if (OwnerEmpire.isFaction)
+                return false;
+            if (OwnerEmpire.data?.DiplomaticPersonality == null)
+                return false;
             bool atWar = OwnerEmpire.AllRelations.Any(war => war.Value.AtWar);
             bool trusting = OwnerEmpire.data.DiplomaticPersonality.IsTrusting ;
             bool careless = OwnerEmpire.data.DiplomaticPersonality.Careless ;            
@@ -249,30 +191,6 @@ namespace Ship_Game.AI {
                 if (g.type == GoalType.Colonize)
                     list.Add(g.GetMarkedPlanet());
             return list.ToArray();
-        }
-
-        private bool CannotColonize(out Vector2 weightedCenter)
-        {
-            weightedCenter = new Vector2();
-            int numColonyGoals = NumColonyGoals();
-            if (numColonyGoals >= DesiredColonyGoals) return true;
-
-
-            int numPlanets = 0;
-            foreach (Planet p in OwnerEmpire.GetPlanets())
-            {
-                for (int i = 0; (float) i < p.Population / 1000f; i++)
-                {
-                    weightedCenter = weightedCenter + p.Center;
-                    numPlanets++;
-                }
-                if (numColonyGoals <= 0) break;
-            }
-            if (numColonyGoals >= DesiredColonyGoals)
-                return true;
-
-            weightedCenter = weightedCenter / numPlanets;
-            return false;
         }
 
         private int NumColonyGoals()

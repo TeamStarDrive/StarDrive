@@ -9,6 +9,8 @@ namespace Ship_Game.AI {
     {
         private void RunDiplomaticPlanner()
         {
+            if (OwnerEmpire.isPlayer)
+                return;
             string name = OwnerEmpire.data.DiplomaticPersonality.Name;
             if (name != null)
             {
