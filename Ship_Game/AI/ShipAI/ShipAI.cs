@@ -339,6 +339,7 @@ namespace Ship_Game.AI
                     return;
                 }
             }
+            HasPriorityOrder = true;
             DecideWhereToResupply(nearestRallyPoint);
         }
 
@@ -355,28 +356,6 @@ namespace Ship_Game.AI
                     OrderFlee(true);
             }
         }
-
-        public void GoOrbitNearestPlanet()
-        {
-            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-            DecideWhereToResupply(nearestRallyPoint, cancelOrders: true);
-        }
-        /*
-        private void UpdateResupplyAI()
-        {
-            if (State != AIState.Resupply && !HasPriorityOrder &&
-                Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] &&
-                Owner.DesignRole >= ShipData.RoleName.supply) //fbedard: ships will go for repair
-                if (Owner.fleet == null || Owner.fleet != null && !Owner.fleet.HasRepair)
-                    OrderResupplyNearest(false);
-            if (State == AIState.AwaitingOrders && Owner.Carrier.NeedResupplyTroops)
-                OrderResupplyNearest(false);
-            if (Owner.NeedResupplyOrdnance)
-                OrderResupplyNearest(false);
-            if (State == AIState.Resupply && !HasPriorityOrder)
-                HasPriorityOrder = true;
-        }
-        */
 
         private void UpdateCombatStateAI(float elapsedTime)
         {

@@ -57,8 +57,8 @@ namespace Ship_Game.Ships
             if (ship.AI.HasPriorityOrder)
                 return false;
 
-            //float resupplyTroopThreshold = 0.5f;
-            return ship.Carrier.NeedResupplyTroops; // threshold should be calculated here  0.5. change the carrier class method after implementation.
+            const float resupplyTroopThreshold = 0.5f;
+            return ship.Carrier.TroopsMissingVsTroopCapacity < resupplyTroopThreshold; 
         }
 
         private static bool OrdnanceLow(Ship ship)

@@ -193,38 +193,7 @@ namespace Ship_Game.AI {
             State = AIState.Combat;
             Owner.InCombat = true;
             Owner.InCombatTimer = 15f;
-            /* FB: remove this hangar ship duplicate resupply code
-            if (Owner.Mothership?.Active == true)
-                if (Owner.shipData.Role != ShipData.RoleName.troop
-                    &&
-                    (Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] 
-                    || (Owner.OrdinanceMax > 0 && Owner.Ordinance / Owner.OrdinanceMax <= .1f)
-                    || (Owner.PowerCurrent <= 1f && Owner.PowerFlowMax < Owner.PowerDraw))) // FB:  reactors damaged and cannot produce power to maintain combat
-                        OrderReturnToHangar();
 
-            */
-
-            /* FB: remove this duplicate resupply code ordnance 
-            if (State != AIState.Resupply && Owner.OrdinanceMax > 0f && Owner.OrdinanceMax * 0.05 > Owner.Ordinance &&
-                !HasPriorityTarget)
-                //if (!FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
-                if (!FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.Ordinance >= 100))
-                {
-                    OrderResupplyNearest(false);
-                    return;
-                }
-
-            */
-            /* FB: remove this duplicate resupply code health
-            if (State != AIState.Resupply && Owner.Health > 0 &&
-                Owner.HealthMax * DmgLevel[(int) Owner.shipData.ShipCategory] > Owner.Health
-                && Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: repair level
-                if (Owner.fleet == null || !Owner.fleet.HasRepair)
-                {
-                    OrderResupplyNearest(false);
-                    return;
-                }
-            */
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
@@ -886,14 +855,14 @@ namespace Ship_Game.AI {
             if (EscortTarget == null || !EscortTarget.Active)
             {
                 OrderQueue.Clear();
-                OrderResupplyNearest(false);
+                GoOrbitNearestPlanet(false);
                 return;
             }
             if (EscortTarget.AI.State == AIState.Resupply || EscortTarget.AI.State == AIState.Scrap ||
                 EscortTarget.AI.State == AIState.Refit)
             {
                 OrderQueue.Clear();
-                OrderResupplyNearest(false);
+                GoOrbitNearestPlanet(false);
                 return;
             }
             ThrustTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
