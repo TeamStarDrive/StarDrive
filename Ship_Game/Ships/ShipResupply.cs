@@ -132,7 +132,7 @@ namespace Ship_Game.Ships
 
         private static bool TroopsOk(Ship ship)
         {
-            if (ship.InCombat)
+            if (ship.InCombat || ship.TroopCapacity == 0)
                 return true;
 
             return ship.Carrier.TroopsMissingVsTroopCapacity  >= 1f;
