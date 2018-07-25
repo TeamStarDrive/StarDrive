@@ -13,6 +13,7 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdPriority  = 200;
         private const int OrdnanceProductionThresholdNonCombat = 100;
         private const int OrdnanceProductionThresholdCombat    = 50;
+        public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
 
         private static float DamageThreshold(ShipData.Category category)
         {
