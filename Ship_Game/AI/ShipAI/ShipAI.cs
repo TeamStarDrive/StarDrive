@@ -315,18 +315,17 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnance:
                 {
-                    if (Owner.fleet == null || !Owner.fleet.HasOrdnanceSupplyShuttles)
-                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-                    else
+                    if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
                         return;
 
+                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 }
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
                 {
                     if (Owner.fleet == null || !Owner.fleet.HasRepair)
-                        nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
+                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     else
                         return;
 
