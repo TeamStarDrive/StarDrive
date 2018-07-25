@@ -443,14 +443,12 @@ namespace Ship_Game.Ships
 
                 float cx = module.LocalCenter.X;
                 float cy = module.LocalCenter.Y;
-                int powerRadius = module.PowerRadius * 16 + (int)module.Radius ;                
+                int powerRadius = module.PowerRadius * 16 + (int)module.Radius;
 
                 foreach (ShipModule slot2 in ModuleSlotList)
-
                 {
                     if (!slot2.Active || slot2.Powered  || slot2 == module || slot2.ModuleType == ShipModuleType.PowerConduit)                                    
                         continue;
-
 
                     int distanceFromPowerX = (int)Math.Abs(cx - (slot2.Position.X + 8)) ;
                     int distanceFromPowerY = (int)Math.Abs(cy - (slot2.Position.Y + 8));
