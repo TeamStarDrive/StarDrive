@@ -241,8 +241,6 @@ namespace Ship_Game
 
                 projectile.DamageMissile(this, DamageAmount);
                 return true;
-
-
             }           
 
             var targetModule = target as ShipModule;
@@ -311,7 +309,8 @@ namespace Ship_Game
                 //}
                 if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
                 {
-                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
+                    if (ship != null)
+                        Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
                     Log.Info("Beam killed because of angle");
                     Die(null, true);
                     return;

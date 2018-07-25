@@ -104,20 +104,18 @@ namespace Ship_Game
             {
                 var ship = (Ship)target.Obj;
                 hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
-                if (hitModule == null)
-                    return 0f;
-                if (hitModule.shield_radius > 0)
-                    return hitModule.Center.RayCircleIntersect(hitModule.ShieldHitRadius, beamStart, beamEnd);
-                return hitModule.Center.FindClosestPointOnLine(beamStart, beamEnd).Distance(beamStart);
-            }            
+                return hitModule?.RayHitTest(beamStart, beamEnd, 8f) ?? 0f;
+            }
+
             hitModule = null;
             if ((target.Type & GameObjectType.Proj) != 0)
             {
                 var proj = (Projectile)target.Obj;
-                if (!proj.Weapon.Tag_Intercept)
+                if (!proj.Weapon.Tag_Intercept) // for projectiles, make sure they are physical and can be killed
                     return 0f;
             }
 
+            // intersect projectiles or anything else that can collide
             return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd);
         }
 
@@ -128,19 +126,17 @@ namespace Ship_Game
             float dx = Center.X - target.Center.X;
             float dy = Center.Y - target.Center.Y;
             float ra = Radius, rb = target.Radius;
-            if ((dx*dx + dy*dy) >= (ra*ra + rb*rb))
+            if ((dx*dx + dy*dy) >= (ra*ra + rb*rb)) // filter out by target Ship or target Projectile radius
                 return false;
+
             if ((target.Type & GameObjectType.Ship) == 0) // target not a ship, collision success
                 return true;
 
             // ship collision, target modules instead
             var proj = (Projectile)Obj;
             var ship = (Ship)target.Obj;
-            if (ship == null)
-            {
-                Log.Info("HitTestProj had a null ship.");
-                return false;
-            }
+            if (ship == null) { Log.Warning("HitTestProj had a null ship."); return false; }
+
             // give a lot of leeway here; if we fall short, collisions wont work right
             float maxDistPerFrame = proj.Velocity.Length() / 30.0f; // this actually depends on the framerate...
             if (maxDistPerFrame > 15.0f) // ray collision
