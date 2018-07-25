@@ -382,7 +382,7 @@ namespace Ship_Game.AI
                 else // FB: Fatch ordnance from a colony when mothership doesnt have enough ordnance
                 {
                     shuttle.ChangeOrdnance(-shuttle.OrdinanceMax);
-                    shuttle.AI.GoOrbitNearestPlanet(false);
+                    shuttle.AI.GoOrbitNearestPlanetAndResupply(false);
                 }
                 break;
             }
