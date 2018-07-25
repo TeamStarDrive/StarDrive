@@ -208,14 +208,14 @@ namespace Ship_Game.AI
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {                
                 EmpireAI = eAI;
-                RatioFighters     = .5f;
+                RatioFighters = 0.5f;
 
                 var availableShips = OwnerEmpire.GetShips().FilterBy(item => 
                     !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
                     || item.shipData.Role == ShipData.RoleName.prototype
                     || item.shipData.Role < ShipData.RoleName.troopShip
                     ));
-                int debugCount = 0;
+
                 for (int i = 0; i < availableShips.Length; i++)
                 {
                     Ship item = availableShips[i];

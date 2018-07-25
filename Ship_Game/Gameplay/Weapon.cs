@@ -443,8 +443,8 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = -1)
         {
-            if (Module == null || (Module?.AccuracyPercent ?? 0) > .9999f) return Vector2.Zero; //|| Tag_PD || TruePD
-            Vector2 jitter = Vector2.Zero;
+            if (Module == null || Module.AccuracyPercent > 0.9999f) 
+                return Vector2.Zero; //|| Tag_PD || TruePD
 
             //calaculate level. 
             int trackingPower = (int)(Owner?.TrackingPower ?? 1);                        
@@ -456,7 +456,7 @@ namespace Ship_Game.Gameplay
             //reduce jitter by level cubed. if jitter is less than a module radius stop.
             float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE; 
             float adjust     = Math.Max(0, baseJitter - level * level * level);
-            if (adjust < 8) return jitter;
+            if (adjust < 8) return Vector2.Zero;
 
 
             //reduce or increase jitter based on weapon and trait characteristics. 
@@ -467,8 +467,7 @@ namespace Ship_Game.Gameplay
             if (Owner?.loyalty?.data.Traits.Blind > 0) adjust *= 2f;
             adjust *= CalculateBaseAccuracy();
             
-            jitter += RandomMath2.Vector2D(adjust);            
-            return jitter;
+            return RandomMath2.Vector2D(adjust);
         }
 
         private float CalculateBaseAccuracy()
@@ -498,7 +497,7 @@ namespace Ship_Game.Gameplay
             Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
             Vector2 jitter = target.JitterPosition() + AdjustTargetting();
 
-            pip = weaponOrigin.ProjectImpactPoint(ownerVel, ProjectileSpeed, target);
+            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, target).Predict();
             Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 4000) + jitter;
             pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
 
