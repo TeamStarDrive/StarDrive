@@ -20,7 +20,6 @@ namespace Ship_Game.AI
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
         private int StopNumber;
         public FleetDataNode FleetNode { get;  set; }         
-        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
 
         public static UniverseScreen UniverseScreen;
         public Ship Owner;
@@ -355,6 +354,23 @@ namespace Ship_Game.AI
                 else
                     OrderFlee(true);
             }
+        }
+
+        public void CheckSupplyStatus(Ship ship)
+        {
+            if (ship.AI.State != AIState.Resupply)
+                return;
+
+            if (ShipResupply.DoneResupplying(ship))
+            {
+                ship.AI.HasPriorityOrder = false;
+                ship.AI.State = AIState.AwaitingOrders;
+                return;
+            }
+
+            ship.AI.OrderQueue.Clear();
+            ship.AI.Target = null;
+            ship.AI.PotentialTargets.Clear();
         }
 
         private void UpdateCombatStateAI(float elapsedTime)

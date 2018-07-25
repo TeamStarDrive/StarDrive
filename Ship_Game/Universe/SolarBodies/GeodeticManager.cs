@@ -311,7 +311,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void RepairShip(Ship ship, float repairPool)
         {
-            CheckSupplyStatus(ship);
+            ship.AI.CheckSupplyStatus(ship);
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
             if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax)
                 return;
@@ -346,23 +346,6 @@ namespace Ship_Game.Universe.SolarBodies
                         }
                 }
             }
-        }
-
-        private void CheckSupplyStatus(Ship ship)
-        {
-            if (ship.AI.State != AIState.Resupply)
-                return;
-
-            if (ShipResupply.DoneResupplying(ship))
-            {
-                ship.AI.State = AIState.AwaitingOrders;
-                return;
-            }
-
-            ship.AI.OrderQueue.Clear();
-            ship.AI.Target = null;
-            ship.AI.PotentialTargets.Clear();
-            ship.AI.HasPriorityOrder = false;
         }
 
         private void AddTroopsForFactions(Ship ship)
