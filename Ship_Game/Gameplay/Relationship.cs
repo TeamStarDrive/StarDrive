@@ -149,7 +149,7 @@ namespace Ship_Game.Gameplay
         {
             bool newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.guid);
 
-            if (newTheft)
+            if (newTheft && !HaveWarnedTwice)
             {
                 DiplomacyScreen.Stole1stColonyClaim(claimedPlanet, victim);                
                 return;
@@ -162,8 +162,10 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            if (newTheft || !HaveWarnedThrice)
+                DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim);
             HaveWarnedThrice = true;
-            DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim);            
+            
             
         }
 
