@@ -315,8 +315,10 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnance:
                 {
-                    if (Owner.fleet == null ||  !Owner.fleet.HasOrdnanceSupplyShuttles)
+                    if (Owner.fleet == null || !Owner.fleet.HasOrdnanceSupplyShuttles)
                         nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    else
+                        return;
 
                     break;
                 }
@@ -325,6 +327,8 @@ namespace Ship_Game.AI
                 {
                     if (Owner.fleet == null || !Owner.fleet.HasRepair)
                         nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
+                    else
+                        return;
 
                     break;
                 }
@@ -334,9 +338,8 @@ namespace Ship_Game.AI
                     break;
                 }
                 case ResupplyReason.NotNeeded:
-                {
                     return;
-                }
+
             }
             HasPriorityOrder = true;
             DecideWhereToResupply(nearestRallyPoint);
@@ -356,21 +359,21 @@ namespace Ship_Game.AI
             }
         }
 
-        public void CheckSupplyStatus(Ship ship)
+        public void CheckSupplyStatus()
         {
-            if (ship.AI.State != AIState.Resupply)
+            if (Owner.AI.State != AIState.Resupply)
                 return;
 
-            if (ShipResupply.DoneResupplying(ship))
+            if (ShipResupply.DoneResupplying(Owner))
             {
-                ship.AI.HasPriorityOrder = false;
-                ship.AI.State = AIState.AwaitingOrders;
+                Owner.AI.HasPriorityOrder = false;
+                Owner.AI.State = AIState.AwaitingOrders;
                 return;
             }
 
-            ship.AI.OrderQueue.Clear();
-            ship.AI.Target = null;
-            ship.AI.PotentialTargets.Clear();
+            Owner.AI.OrderQueue.Clear();
+            Owner.AI.Target = null;
+            Owner.AI.PotentialTargets.Clear();
         }
 
         private void UpdateCombatStateAI(float elapsedTime)
