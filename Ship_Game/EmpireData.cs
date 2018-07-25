@@ -48,6 +48,8 @@ namespace Ship_Game
     /// This has an effect on diplomacy but all that code is in the diplomacy code. i feel it should be pulled out and placed here.
     /// in the diplomacy code there is a lot of this "TrustCost = (Them.data.EconomicPersonality.Name == "Technologists"
     /// this makes new econmic personality files basically... Useless. 
+    /// except that it contains the econ strat which has useful values.
+    /// 
     /// </summary>
     public sealed class ETrait
     {
