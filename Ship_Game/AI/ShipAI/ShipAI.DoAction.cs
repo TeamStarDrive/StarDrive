@@ -810,6 +810,10 @@ namespace Ship_Game.AI {
             if (Owner.Mothership == null || !Owner.Mothership.Active)
             {
                 OrderQueue.Clear();
+                if (Owner.shipData.Role == ShipData.RoleName.supply)
+                    OrderScrapShip();
+                else
+                    GoOrbitNearestPlanet(true);
                 return;
             }
             ThrustTowardsPosition(Owner.Mothership.Center, elapsedTime, Owner.Speed);
@@ -852,25 +856,19 @@ namespace Ship_Game.AI {
 
         private void DoSupplyShip(float elapsedTime, ShipGoal goal)
         {
-            if (EscortTarget == null || !EscortTarget.Active)
+            if (EscortTarget == null || !EscortTarget.Active  
+                                     || EscortTarget.AI.State == AIState.Resupply 
+                                     || EscortTarget.AI.State == AIState.Scrap 
+                                     || EscortTarget.AI.State == AIState.Refit)
             {
-                OrderQueue.Clear();
-                GoOrbitNearestPlanet(false);
-                return;
-            }
-            if (EscortTarget.AI.State == AIState.Resupply || EscortTarget.AI.State == AIState.Scrap ||
-                EscortTarget.AI.State == AIState.Refit)
-            {
-                OrderQueue.Clear();
-                GoOrbitNearestPlanet(false);
+                OrderReturnToHangar();
                 return;
             }
             ThrustTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
-                OrderQueue.Clear();
-                Owner.ReturnToHangar();
+                OrderReturnToHangar();
             }
         }
 

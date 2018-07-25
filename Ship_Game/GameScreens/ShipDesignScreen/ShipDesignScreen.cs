@@ -318,7 +318,7 @@ namespace Ship_Game
 
             var roleData = new RoleData(ActiveHull, ModuleGrid.Modules);
             Role         = roleData.DesignRole;
-            roleData.CreateDesignRoleToolTip(DesignRoleRect);
+            //roleData.CreateDesignRoleToolTip(DesignRoleRect); FB: This was killing tool tips in ship design, disabled and should check this
             
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
