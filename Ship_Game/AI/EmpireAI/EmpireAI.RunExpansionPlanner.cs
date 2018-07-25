@@ -25,65 +25,29 @@ namespace Ship_Game.AI {
             }
         }
 
-
         private Planet[] DesiredPlanets  = new Planet[0];
 
-        public void CheckClaim(KeyValuePair<Empire, Relationship> them, Planet claimedPlanet)
-        {
-            if (OwnerEmpire == Empire.Universe.PlayerEmpire)            
-                return;
-            
-            if (OwnerEmpire.isFaction)            
-                return;
-            
-            if (!them.Value.Known)            
-                return;
-            
-            if (them.Value.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid) 
-                && claimedPlanet.Owner == them.Key 
-                && !them.Value.AtWar)
-            {
-                bool theyAreThereAlready = false;
-                foreach (Planet p in claimedPlanet.ParentSystem.PlanetList)
-                {
-                    if (p.Owner == null || p.Owner != Empire.Universe.PlayerEmpire)                    
-                        continue;
-                    
-                    theyAreThereAlready = true;
-                }
-                if (!theyAreThereAlready || them.Key != Empire.Universe.PlayerEmpire) return;
+        public void CheckClaim(KeyValuePair<Empire, Relationship> relKv, Planet claimedPlanet)
+        {        
 
-                Relationship item = OwnerEmpire.GetRelations(them.Key);
-                item.Anger_TerritorialConflict = item.Anger_TerritorialConflict +
-                                                 (5f + (float) Math.Pow(5,
-                                                      OwnerEmpire.GetRelations(them.Key).NumberStolenClaims));
-                OwnerEmpire.GetRelations(them.Key).UpdateRelationship(OwnerEmpire, them.Key);
-                Relationship numberStolenClaims = OwnerEmpire.GetRelations(them.Key);
-                numberStolenClaims.NumberStolenClaims = numberStolenClaims.NumberStolenClaims + 1;
-                if (OwnerEmpire.GetRelations(them.Key).NumberStolenClaims == 1 && !OwnerEmpire.GetRelations(them.Key)
-                        .StolenSystems.Contains(claimedPlanet.guid))
-                {
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Stole Claim", claimedPlanet.ParentSystem));
-                }
-                else if (OwnerEmpire.GetRelations(them.Key).NumberStolenClaims == 2 &&
-                         !OwnerEmpire.GetRelations(them.Key).HaveWarnedTwice && !OwnerEmpire.GetRelations(them.Key)
-                             .StolenSystems.Contains(claimedPlanet.ParentSystem.guid))
-                {
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Stole Claim 2", claimedPlanet.ParentSystem));
-                    OwnerEmpire.GetRelations(them.Key).HaveWarnedTwice = true;
-                }
-                else if (OwnerEmpire.GetRelations(them.Key).NumberStolenClaims >= 3 &&
-                         !OwnerEmpire.GetRelations(them.Key).HaveWarnedThrice && !OwnerEmpire.GetRelations(them.Key)
-                             .StolenSystems.Contains(claimedPlanet.ParentSystem.guid))
-                {
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Stole Claim 3", claimedPlanet.ParentSystem));
-                    OwnerEmpire.GetRelations(them.Key).HaveWarnedThrice = true;
-                }
-                OwnerEmpire.GetRelations(them.Key).StolenSystems.Add(claimedPlanet.ParentSystem.guid);
-            }
+            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
+                return;
+
+            Empire thievingEmpire        = relKv.Key;
+            Relationship thiefRelationship = relKv.Value;
+
+            if (!thiefRelationship.Known)            
+                return;
+
+            if (claimedPlanet.Owner != thievingEmpire || thiefRelationship.AtWar)
+                return;
+
+            thiefRelationship.StoleOurColonyClaim(OwnerEmpire, claimedPlanet);
+
+            if (!thievingEmpire.isPlayer)
+                return;
+
+            thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, OwnerEmpire);
         }
 
         private void RunExpansionPlanner()
@@ -191,25 +155,6 @@ namespace Ship_Game.AI {
                 if (g.type == GoalType.Colonize)
                     list.Add(g.GetMarkedPlanet());
             return list.ToArray();
-        }
-
-        private int NumColonyGoals()
-        {
-            int numColonyGoals = 0;
-            foreach (Goal g in Goals)
-            {
-                if (g.type != GoalType.Colonize || g.Held)
-                    continue;
-
-                //added by Gremlin: Colony expansion changes
-                Planet markedPlanet = g.GetMarkedPlanet();
-                if (markedPlanet?.ParentSystem == null) continue;
-
-                if (markedPlanet.ParentSystem.ShipList.Any(ship => ship.loyalty != null && ship.loyalty.isFaction))
-                    --numColonyGoals;
-                ++numColonyGoals;
-            }
-            return numColonyGoals;
         }
     }
 }
