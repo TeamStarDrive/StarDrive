@@ -1869,11 +1869,10 @@ namespace Ship_Game
             //1 minus cost divided by highestCost gives a decimal value that is higher for smaller construction cost. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. -Gretman
             if (highestCost <= 0) highestCost = 150;    //Fallback in case of negative highestCost
-            return score *= (1 - (cost / highestCost)).Clamped(0.001f, 10);
+            return score * (1f - cost / highestCost).Clamped(0.001f, 10);
             //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 400, it will
-            //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman
-            return score * (1f - (cost / 400f)).Clamped(0.001f, 10f);
+            //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman            
         }
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
