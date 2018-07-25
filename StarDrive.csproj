@@ -230,6 +230,7 @@
     <Compile Include="Ship_Game\FGPathing\PathFinder.cs" />
     <Compile Include="Ship_Game\FGPathing\PathFinderFast.cs" />
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
+    <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
@@ -258,7 +259,6 @@
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
-    <Compile Include="Ship_Game\GameScreens\DrawRoutines.cs" />
     <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\RuleOptionsScreen.cs" />
@@ -1308,7 +1308,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\Circle.cs">
+    <Compile Include="Ship_Game\Gameplay\DebugPrimitives.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

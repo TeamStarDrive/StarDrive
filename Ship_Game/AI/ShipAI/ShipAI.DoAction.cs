@@ -86,7 +86,7 @@ namespace Ship_Game.AI {
             if (spacerdistance > adjustedWeaponRange)
                 spacerdistance = adjustedWeaponRange;
 
-            Vector2 interceptPoint = Owner.ProjectImpactPoint(Target);
+            Vector2 interceptPoint = Owner.PredictImpact(Target);
             float distanceToTarget = Owner.Center.Distance(interceptPoint);                                   
 
             if (distanceToTarget > Owner.maxWeaponsRange * 2) //spacerdistance && distanceToTarget > adjustedWeaponRange)
@@ -489,7 +489,7 @@ namespace Ship_Game.AI {
         {
             if (Owner.Velocity.Length() > 0f)
             {
-                Vector2 interceptPoint = Owner.ProjectImpactPoint(Target);
+                Vector2 interceptPoint = Owner.PredictImpact(Target);
 
                 Stop(elapsedTime);
                 if (Owner.engineState == Ship.MoveState.Warp)
@@ -556,7 +556,7 @@ namespace Ship_Game.AI {
         private void DoNonFleetArtillery(float elapsedTime)
         {
             //Heavily modified by Gretman
-            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.ProjectImpactPoint(Target));
+            Vector2 vectorToTarget = Owner.Center.DirectionToTarget(Owner.PredictImpact(Target));
             var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
             float distanceToTarget = Owner.Center.Distance(Target.Center);
             float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);// * 0.85f;
