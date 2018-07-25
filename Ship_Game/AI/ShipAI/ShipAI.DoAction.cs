@@ -813,7 +813,7 @@ namespace Ship_Game.AI {
                 if (Owner.shipData.Role == ShipData.RoleName.supply)
                     OrderScrapShip();
                 else
-                    GoOrbitNearestPlanet(true);
+                    GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
             ThrustTowardsPosition(Owner.Mothership.Center, elapsedTime, Owner.Speed);

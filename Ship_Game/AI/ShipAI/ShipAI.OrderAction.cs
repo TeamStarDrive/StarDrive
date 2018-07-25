@@ -845,7 +845,7 @@ namespace Ship_Game.AI {
                         State = AIState.SystemDefender;
                     }
                     else
-                        GoOrbitNearestPlanet(true);
+                        GoOrbitNearestPlanetAndResupply(true);
                 }
                 //this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
             }
@@ -853,7 +853,7 @@ namespace Ship_Game.AI {
             //this.State = AIState.SystemDefender;                   
         }
 
-        public void GoOrbitNearestPlanet(bool cancelOrders)
+        public void GoOrbitNearestPlanetAndResupply(bool cancelOrders)
         {
             Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
             DecideWhereToResupply(nearestRallyPoint, cancelOrders: cancelOrders);
