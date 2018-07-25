@@ -126,7 +126,7 @@ namespace Ship_Game.Ships
 
         private static bool OrdnanceOk(Ship ship)
         {
-            float ordnanceThreshold = ship.InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
+            float ordnanceThreshold = ship.InCombat ? OrdnanceThresholdCombat * 2 : OrdnanceThresholdNonCombat;
             return ship.Ordinance / ship.OrdinanceMax >= ordnanceThreshold;
         }
 

@@ -364,7 +364,7 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return false;
 
-            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() != null);
+            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() == null);
             if (hangar == null)
                 return false;
 
