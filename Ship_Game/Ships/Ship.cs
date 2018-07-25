@@ -411,6 +411,9 @@ namespace Ship_Game.Ships
             projectiles.Add(projectile);
         }
 
+        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > ShipStatus.Critical
+                                                                 && OrdnanceStatus != ShipStatus.NotApplicable;
+
         public ShipStatus OrdnanceStatus
         {
             get
