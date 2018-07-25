@@ -1414,7 +1414,7 @@ namespace Ship_Game
 
         private float CalculateFoodWorkers()    //Simply calculates what percentage of workers are needed for farming (between 0.0 and 0.9)
         {
-            if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0.5) return 0.0f;
+            if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0.5 || Population == 0) return 0.0f;
 
             float workers = (Consumption - FlatFoodAdded) / PopulationBillion / (Fertility + PlusFoodPerColonist);
             if (workers > 0.9f) workers = 0.9f;     //Dont allow farmers to consume all labor
@@ -1950,9 +1950,7 @@ namespace Ship_Game
 
         private void ChooseAndBuildMilitary(float income)
         {
-            if (Name == "MerVilleI")
-            { double spotForABreakpoint = Math.PI; }
-
+            if (BuildingsCanBuild.Count == 0) return;
             if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
             {
                 Building bestMBuilding = null;
