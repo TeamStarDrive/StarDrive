@@ -75,6 +75,20 @@ namespace Ship_Game
             return minValue + (maxValue - minValue) * amount;
         }
 
+        public static Vector3 LerpTo(this Vector3 start, Vector3 end, float amount)
+        {
+            return new Vector3( start.X + (end.X - start.X) * amount,
+                                start.Y + (end.Y - start.Y) * amount,
+                                start.Z + (end.Z - start.Z) * amount );
+        }
+
+        public static Color LerpTo(this Color start, Color end, float amount)
+        {
+            return new Color((byte)(start.R + (end.R - start.R) * amount),
+                             (byte)(start.G + (end.G - start.G) * amount),
+                             (byte)(start.B + (end.B - start.B) * amount));
+        }
+
         // This will smoothstep "fromValue" towards "targetValue"
         // @warning "fromValue" WILL CHANGE
         // @return The new "fromValue"
@@ -212,6 +226,8 @@ namespace Ship_Game
 
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
+        public static Color Alpha(this Color color, float newAlpha) => new Color(color, newAlpha);
+
         // True if pos is inside the rectangle
         //Saftey catch. allow a null to be sent to hit test. 
         public static bool HitTest(this Rectangle r, object o) => false;
@@ -228,6 +244,8 @@ namespace Ship_Game
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
         public static Vector2 PosVec(this Rectangle r) => new Vector2(r.X, r.Y);
         public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
+
+        public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
         // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
@@ -369,218 +387,19 @@ namespace Ship_Game
             return new Vector2(dx / len, dy / len);
         }
 
-        public static Vector2 FindProjectedImpactPointOld(this Vector2 weaponPos, Vector2 ownerVelocity,
-            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
-        {
-            Vector2 vectorToTarget     = targetPos - weaponPos;
-            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;            
-            float distance = vectorToTarget.Length();
-            float time = distance / projectileVelocity.Length();
-            return targetPos + targetVelocity * time;
-        }
-
-        // assume we have a relative reference frame and weaponPos is stationary
-        // use additional calculations to set up correct interceptSpeed and deltaVel
-        // https://stackoverflow.com/a/2249237
-        private static float ProjectedImpactTime(this Vector2 weaponPos, Vector2 targetPos, 
-                                                     Vector2 deltaV, float interceptSpeed)
-        {
-            Vector2 distance = targetPos - weaponPos;
-
-            float a  = deltaV.Dot(deltaV) - (interceptSpeed*interceptSpeed);
-            float bm = 2f*distance.Dot(deltaV);
-            float c  = distance.Dot(distance);
-
-            // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
-            if (Abs(a) < 0.0001f)
-                return 0f; // no solution
-
-            float sqrt = bm*bm - 4 * a * c;
-            if (sqrt < 0.0f)
-                return 0f; // no solution
-            sqrt = (float)Sqrt(sqrt);
-
-            // Those values are the time values at which point you can hit the target.
-            float timeToImpact1 = (bm - sqrt) / (2 * a);
-            float timeToImpact2 = (bm + sqrt) / (2 * a);
-
-            // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
-            // Take any of the remaining positive values (probably the smaller one).
-            if (timeToImpact1 < 0f) return Max(0f, timeToImpact2);
-            if (timeToImpact2 < 0f) return timeToImpact1;
-            return Min(timeToImpact1, timeToImpact2);
-        }
-
-        // http://www.dummies.com/education/science/physics/finding-distance-using-initial-velocity-time-and-acceleration/
-        public static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, Vector2 accel, float time)
-        {
-            // s = v0*t + (a*t^2)/2
-            Vector2 dist = vel*time + accel*(time*time*0.5f);
-            return pos + dist;
-        }
-        public static Vector2 ProjectPosition(Vector2 pos, Vector2 vel, float time)
-        {
-            return pos + vel*time;
-        }
-
         public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
         {
-            return (endVel-startVel) / deltaTime;
+            return (endVel - startVel) / deltaTime;
         }
 
-        public static Vector2 ProjectImpactPointQuad(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-                                                  Vector2 targetPos, Vector2 targetVel)
+        public static Vector2 PredictImpact(this Ships.Ship ourShip, GameplayObject target)
         {
-            if (projectileSpeed.AlmostEqual(0f, 0.01f))
-                return targetPos;
-
-            Vector2 deltaV = targetVel-ownerVel;
-            float impactTime = weaponPos.ProjectedImpactTime(targetPos, deltaV, projectileSpeed);
-
-            if (impactTime > 20f) // projectile will probably never catch up to target
-                impactTime = 20f;
-            else if (impactTime <= 0f)
-                impactTime = weaponPos.Distance(targetPos) / projectileSpeed;
-
-            return ProjectPosition(targetPos, deltaV, impactTime);
+            return new Gameplay.ImpactPredictor(ourShip, target).Predict();
         }
 
-        public static Vector2 ProjectImpactPointQuad(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-                                                  Vector2 targetPos, Vector2 targetVel, Vector2 targetAccel)
+        public static Vector2 PredictImpact(this Gameplay.Projectile proj, GameplayObject target)
         {
-            if (projectileSpeed.AlmostEqual(0f, 0.01f))
-                return targetPos;
-
-            Vector2 deltaV = targetVel-ownerVel;
-            float impactTime = weaponPos.ProjectedImpactTime(targetPos, deltaV, projectileSpeed);
-
-            if (impactTime > 20f) // projectile will probably never catch up to target
-                impactTime = 20f;
-            else if (impactTime <= 0f)
-                impactTime = weaponPos.Distance(targetPos) / projectileSpeed;
-
-            // project target position at impactTime
-            Vector2 pip  = ProjectPosition(targetPos, deltaV, targetAccel, impactTime);
-            Vector2 dist = pip - weaponPos;
-
-            float impactTime2 = dist.Length() / projectileSpeed; // t = s/v
-            if (impactTime2 <= 0f)
-                return targetPos; // incase of head-on collision
-
-            // this is the final corrected PIP:
-            Vector2 pip2 = ProjectPosition(targetPos, deltaV, targetAccel, impactTime2);
-            return pip2;
-        }
-
-        public static Vector2 ProjectImpactPointIter(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-                                                 Vector2 targetPos, Vector2 targetVel, Vector2 targetAccel)
-        {
-            if (projectileSpeed.AlmostEqual(0f, 0.01f))
-                return targetPos;
-
-            float time = weaponPos.Distance(targetPos) / projectileSpeed;
-            Vector2 deltaV = targetVel-ownerVel;
-
-            // objects are separating faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length() > projectileSpeed)
-                return ProjectPosition(targetPos, deltaV, targetAccel, time);
-
-            Vector2 predictedPos = default(Vector2);
-
-            for (int i = 0; i < 20; ++i)
-            {
-                predictedPos = ProjectPosition(targetPos, deltaV, targetAccel, time);
-                float newTime = weaponPos.Distance(predictedPos) / projectileSpeed;
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.1f))
-                    return predictedPos;
-                time = newTime;
-            }
-            return predictedPos;
-        }
-
-        public static Vector2 ProjectImpactPointIter(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-                                                 Vector2 targetPos, Vector2 targetVel)
-        {
-            if (projectileSpeed.AlmostEqual(0f, 0.01f))
-                return targetPos;
-
-            float time = weaponPos.Distance(targetPos) / projectileSpeed;
-            Vector2 deltaV = targetVel-ownerVel;
-
-            // objects are separating faster than projectile can catch up, so this means
-            // the projectile might never hit?
-            if (deltaV.Length() > projectileSpeed)
-                return ProjectPosition(targetPos, deltaV, time);
-
-            Vector2 predictedPos = default(Vector2);
-
-            for (int i = 0; i < 20; ++i)
-            {
-                predictedPos = ProjectPosition(targetPos, deltaV, time);
-                float newTime = weaponPos.Distance(predictedPos) / projectileSpeed;
-                if (newTime > 20f || time.AlmostEqual(newTime, 0.1f))
-                    return predictedPos;
-                time = newTime;
-            }
-            return predictedPos;
-        }
-
-        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, float projectileSpeed, 
-            Vector2 targetPos, Vector2 targetVel, Vector2 targetAccel)
-        {
-            //Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
-            Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel, targetAccel);
-            //Log.Info("PIP quad: {0}", quad);
-            //Log.Info("PIP iter: {0}", iter);
-
-            //Vector2 error = quad-iter;
-            //if (error.Length() > 100000)
-            //    return iter;
-            return iter;
-        }
-
-        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, 
-                                                 float projectileSpeed, GameplayObject target)
-        {
-            // for shipmodules, make sure to use ship Velocity and Acceleration
-            if (target is Ships.Ship ship || target is Ships.ShipModule sm && (ship = sm.GetParent()) != null)
-            {
-                return weaponPos.ProjectImpactPoint(ownerVel, projectileSpeed, target.Center, 
-                                                    ship.Velocity, ship.Acceleration);
-            }
-            return weaponPos.ProjectImpactPoint(ownerVel, projectileSpeed, target.Center, target.Velocity);
-        }
-
-        public static Vector2 ProjectImpactPoint(this Ships.Ship ourShip, GameplayObject target)
-        {
-            // for shipmodules, make sure to use ship Velocity and Acceleration
-            if (target is Ships.Ship theirShip || target is Ships.ShipModule sm && (theirShip = sm.GetParent()) != null)
-            {
-                Vector2 totalAccel = theirShip.Acceleration - ourShip.Acceleration;
-                return ourShip.Center.ProjectImpactPoint(ourShip.Velocity, ourShip.AvgProjectileSpeed, 
-                                                         target.Center, ourShip.Velocity, totalAccel);
-            }
-            return ourShip.Center.ProjectImpactPoint(ourShip.Velocity, ourShip.AvgProjectileSpeed, 
-                                                     target.Center, target.Velocity, ourShip.Acceleration);
-        }
-
-        public static Vector2 ProjectImpactPoint(this Gameplay.Projectile proj, GameplayObject target)
-        {
-            return proj.Center.ProjectImpactPoint(proj.Velocity, proj.Speed, target);
-        }
-
-        public static Vector2 ProjectImpactPoint(this Vector2 weaponPos, Vector2 ownerVel, 
-                                                 float projectileSpeed,  Vector2 targetPos, Vector2 targetVel)
-        {
-            //Vector2 quad = weaponPos.ProjectImpactPointQuad(ownerVel, projectileSpeed, targetPos, targetVel);
-            Vector2 iter = weaponPos.ProjectImpactPointIter(ownerVel, projectileSpeed, targetPos, targetVel);
-            //Log.Info("PIP quad: {0}", quad);
-            //Log.Info("PIP iter: {0}", iter);
-            //Vector2 error = quad-iter;
-            //if (error.Length() > 100000)
-            //    return quad;
-            return iter;
+            return new Gameplay.ImpactPredictor(proj, target).Predict();
         }
 
         // can be used for collision detection
