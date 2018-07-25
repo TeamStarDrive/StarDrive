@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
@@ -1869,15 +1870,16 @@ namespace Ship_Game
             //but never disqualify a building that had a positive score to begin with. -Gretman
             if (highestCost <= 0) highestCost = 150;    //Fallback in case of negative highestCost
             return score *= (1 - (cost / highestCost)).Clamped(0.001f, 10);
+            //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
+            //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 400, it will
+            //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman
+            return score * (1f - (cost / 400f)).Clamped(0.001f, 10f);
         }
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
             float buildingValue = 0.0f;    //End result value for entire building
             float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
-
-            if (Name == "MerVilleI")
-            { double spotForABreakpoint = Math.PI; }
 
             buildingValue -= EvaluateBuildingMaintenance(building, income);
             buildingValue += EvaluateBuildingFlatFood(building, maxPopulation);
@@ -2021,9 +2023,6 @@ namespace Ship_Game
             //Switch to Industrial if there is nothing in the research queue (Does not actually change assigned Governor)
             if (colonyType == ColonyType.Research && notResearching)
                 colonyType = ColonyType.Industrial;
-
-            if (Name == "MerVilleII")
-            { double spotForABreakpoint = Math.PI; }
 
             FarmerPercentage = 0;
             WorkerPercentage = 0;
