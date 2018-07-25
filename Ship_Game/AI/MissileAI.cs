@@ -148,7 +148,7 @@ namespace Ship_Game.AI
             Vector2 interceptPoint = Vector2.Zero;
             if (Target != null)
             {
-                interceptPoint = Missile.ProjectImpactPoint(Target);
+                interceptPoint = Missile.PredictImpact(Target);
                 float distancetoTarget = Missile.Center.Distance(interceptPoint);
                 if (Jammed)
                 {

@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -366,7 +368,7 @@ namespace Ship_Game.AI
             if (FleetTask == null)
                 return;
             if (Empire.Universe.SelectedFleet == this)
-            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.AO, Position, FleetTask.AORadius);
+                Empire.Universe.DebugWin.DrawCircle(DebugModes.AO, Position, FleetTask.AORadius, Color.AntiqueWhite);
             switch (FleetTask.type)
             {
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask); break;
@@ -1081,7 +1083,7 @@ namespace Ship_Game.AI
         }
 
         private void DebugInfo(MilitaryTask task, string text)
-            => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet.Name} {text}", Debug.DebugModes.Normal);
+            => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         private bool StillCombatEffective(MilitaryTask task)
         {
