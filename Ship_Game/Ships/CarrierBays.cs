@@ -201,6 +201,18 @@ namespace Ship_Game.Ships
             }
         }
 
+        public void RecoverSupplyShips()
+        {
+            foreach (ShipModule hangar in AllSupplyBays)
+            {
+                Ship hangarship = hangar.GetHangarShip();
+                if (hangarship == null || !hangarship.Active)
+                    continue;
+
+                hangarship.AI.OrderReturnToHangar();
+            }
+        }
+
         public float TroopsMissingVsTroopCapacity
         {
             get
@@ -306,7 +318,7 @@ namespace Ship_Game.Ships
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
-                foreach (ShipModule hangar in AllActiveHangars.FilterBy(hangar => !hangar.IsSupplyBay))
+                foreach (ShipModule hangar in AllActiveHangars)
                 {
                     Ship hangarShip = hangar.GetHangarShip();
                     if (hangarShip == null)
@@ -338,6 +350,7 @@ namespace Ship_Game.Ships
                 return false;
             }
             RecoverAssaultShips();
+            RecoverSupplyShips();
             RecoverFighters();
             if (DoneRecovering)
             {
