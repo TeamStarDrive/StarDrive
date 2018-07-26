@@ -56,7 +56,7 @@ namespace Ship_Game
             if (ImportProd && !ImportFood) return "(IMPORT PROD)";
             return "(IMPORT ALL)";
         }
-        public override string ToString() => $"{Name} ({Owner?.Name ?? "ERROR No Owner"}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
+        public override string ToString() => $"{Name} ({Owner?.Name ?? "No Owner"}) T:{colonyType} NET(FD:{GetNetFoodPerTurn().String(1)} PR:{GetNetProductionPerTurn().String(1)}) {ImportsDescr()}";
 
         public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
