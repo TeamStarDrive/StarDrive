@@ -628,13 +628,13 @@ namespace Ship_Game.AI
 
         private void DoClaimDefense(Tasks.MilitaryTask task)
         {
-            if (!StillCombatEffective(task))
-            {
-                task.IsCoreFleetTask = false;
-                FleetTask = null;
-                TaskStep = 0;
-                return;
-            }
+            //if (!StillCombatEffective(task))
+            //{
+            //    task.IsCoreFleetTask = false;
+            //    FleetTask = null;
+            //    TaskStep = 0;
+            //    return;
+            //}
             switch (TaskStep)
             {
                 case 0:
