@@ -193,31 +193,6 @@ namespace Ship_Game.AI {
             State = AIState.Combat;
             Owner.InCombat = true;
             Owner.InCombatTimer = 15f;
-            if (Owner.Mothership?.Active == true)
-                if (Owner.shipData.Role != ShipData.RoleName.troop
-                    &&
-                    (Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] 
-                    || (Owner.OrdinanceMax > 0 && Owner.Ordinance / Owner.OrdinanceMax <= .1f)
-                    || (Owner.PowerCurrent <= 1f && Owner.PowerFlowMax < Owner.PowerDraw))) // FB:  reactors damaged and cannot produce power to maintain combat
-                        OrderReturnToHangar();
-
-            if (State != AIState.Resupply && Owner.OrdinanceMax > 0f && Owner.OrdinanceMax * 0.05 > Owner.Ordinance &&
-                !HasPriorityTarget)
-                //if (!FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
-                if (!FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.Ordinance >= 100))
-                {
-                    OrderResupplyNearest(false);
-                    return;
-                }
-
-            if (State != AIState.Resupply && Owner.Health > 0 &&
-                Owner.HealthMax * DmgLevel[(int) Owner.shipData.ShipCategory] > Owner.Health
-                && Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: repair level
-                if (Owner.fleet == null || !Owner.fleet.HasRepair)
-                {
-                    OrderResupplyNearest(false);
-                    return;
-                }
 
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
@@ -835,6 +810,10 @@ namespace Ship_Game.AI {
             if (Owner.Mothership == null || !Owner.Mothership.Active)
             {
                 OrderQueue.Clear();
+                if (Owner.shipData.Role == ShipData.RoleName.supply)
+                    OrderScrapShip();
+                else
+                    GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
             ThrustTowardsPosition(Owner.Mothership.Center, elapsedTime, Owner.Speed);
@@ -877,25 +856,19 @@ namespace Ship_Game.AI {
 
         private void DoSupplyShip(float elapsedTime, ShipGoal goal)
         {
-            if (EscortTarget == null || !EscortTarget.Active)
+            if (EscortTarget == null || !EscortTarget.Active  
+                                     || EscortTarget.AI.State == AIState.Resupply 
+                                     || EscortTarget.AI.State == AIState.Scrap 
+                                     || EscortTarget.AI.State == AIState.Refit)
             {
-                OrderQueue.Clear();
-                OrderResupplyNearest(false);
-                return;
-            }
-            if (EscortTarget.AI.State == AIState.Resupply || EscortTarget.AI.State == AIState.Scrap ||
-                EscortTarget.AI.State == AIState.Refit)
-            {
-                OrderQueue.Clear();
-                OrderResupplyNearest(false);
+                OrderReturnToHangar();
                 return;
             }
             ThrustTowardsPosition(EscortTarget.Center, elapsedTime, Owner.Speed);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
-                OrderQueue.Clear();
-                Owner.ReturnToHangar();
+                OrderReturnToHangar();
             }
         }
 

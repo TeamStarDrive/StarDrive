@@ -50,7 +50,8 @@ namespace Ship_Game.AI
         public bool IsCoreFleet;
 
         private Array<Ship> AllButRearShips => Ships.Except(RearShips).ToArrayList();
-        public bool HasRepair;  //fbedard: ships in fleet with repair capability will not return for repair.
+        public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
+        public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
         public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid}";
 
@@ -87,6 +88,7 @@ namespace Ship_Game.AI
             if (InvalidFleetShip(shiptoadd)) return;
 
             FleetShipAddsRepair(shiptoadd);
+            FleetShipAddsOrdnanceSupplyShuttles(shiptoadd);
 
             if (updateOnly && Ships.Contains(shiptoadd)) return;
 
@@ -107,6 +109,12 @@ namespace Ship_Game.AI
         {
             HasRepair = HasRepair || ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0);
         }
+
+        private void FleetShipAddsOrdnanceSupplyShuttles( Ship ship)
+        {
+            HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
+        }
+
         private bool InvalidFleetShip(Ship ship) => ship.shipData.Role == ShipData.RoleName.station || ship.IsPlatform;
 
         public void AddExistingShip(Ship ship) => AddShipToNodes(ship);
