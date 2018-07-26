@@ -376,7 +376,7 @@ namespace Ship_Game.AI
             if (FleetTask == null)
                 return;
             if (Empire.Universe.SelectedFleet == this)
-                Empire.Universe.DebugWin.DrawCircle(DebugModes.AO, Position, FleetTask.AORadius, Color.AntiqueWhite);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.AO, Position, FleetTask.AORadius, Color.AntiqueWhite);
             switch (FleetTask.type)
             {
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask); break;

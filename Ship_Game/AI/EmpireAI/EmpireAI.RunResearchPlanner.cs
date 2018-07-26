@@ -25,6 +25,8 @@ namespace Ship_Game.AI {
 
         private void RunResearchPlanner(string command = "CHEAPEST")
         {
+            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoResearch)
+                return;
             if (OwnerEmpire.ResearchTopic.NotEmpty())
                 return;
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);

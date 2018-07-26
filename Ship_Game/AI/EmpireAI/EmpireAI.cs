@@ -80,26 +80,16 @@ namespace Ship_Game.AI
             }
             if (!OwnerEmpire.isFaction)
             {
-                if (!OwnerEmpire.isPlayer || OwnerEmpire.AutoColonize)
-                    RunExpansionPlanner();
-                if (!OwnerEmpire.isPlayer || OwnerEmpire.AutoBuild)
-                    RunInfrastructurePlanner();
-            }
-            DefensiveCoordinator.ManageForcePool();
-            RunEconomicPlanner();
-            if (!OwnerEmpire.isPlayer)
-            {                
+                RunEconomicPlanner();
+                DefensiveCoordinator.ManageForcePool();
+                RunExpansionPlanner();
+                RunInfrastructurePlanner();                
                 RunDiplomaticPlanner();
-                RunMilitaryPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
-                RunWarPlanner();
             }
-            else
-            {
-                if (OwnerEmpire.AutoResearch)
-                    RunResearchPlanner();
-            }
+            RunMilitaryPlanner();
+            RunWarPlanner();                        
         }
 
         public Array<Planet> GetKnownPlanets()
