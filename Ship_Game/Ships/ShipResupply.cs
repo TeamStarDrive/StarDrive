@@ -6,7 +6,7 @@ namespace Ship_Game.Ships
     public static class ShipResupply // Created by Fat Bastard to deal with resupply logic. July 2018
     {
         private const float OrdnanceThresholdCombat            = 0.05f;
-        private const float OrdnanceThresholdNonCombat         = 0.5f;
+        private const float OrdnanceThresholdNonCombat         = 0.25f;
         private const float ResupplyTroopThreshold             = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
