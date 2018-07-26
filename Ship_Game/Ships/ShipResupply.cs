@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdCombat    = 50;
         public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
         public const float ShipDestroyThreshold                = 0.5f;
+        public const float RepairDroneThreshold                = 0.75f; // internal modules percentage
 
         private static float DamageThreshold(ShipData.Category category)
         {
