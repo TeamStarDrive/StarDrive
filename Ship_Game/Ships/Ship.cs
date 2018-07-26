@@ -245,6 +245,7 @@ namespace Ship_Game.Ships
 
         public float EmpTolerance => Size + BonusEMP_Protection;
         public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
+        public float HealthPercent => Health / HealthMax;
 
         public void DebugDamage(float percent)
         {
@@ -1855,7 +1856,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < 0.5f)
+            if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
