@@ -297,51 +297,56 @@ namespace Ship_Game.AI
 
         private void UpdateResupplyAI()
         {
-            if (Owner.Health < 0.1f || State == AI.AIState.Resupply)
+            if (Owner.Health < 0.1f )
                 return;
 
-            ResupplyReason resupplyReason = ShipResupply.Resupply(Owner);
-            if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
+            if (State == AI.AIState.Resupply)
+                CheckIfSupplyIsDone();
+            else
             {
-                OrderReturnToHangar(); // dealing with hangar ships needing resupply
-                return;
-            }
-
-            if (Owner.loyalty.isFaction)
-                return;
-
-            Planet nearestRallyPoint = null;
-            switch (resupplyReason)
-            {
-                case ResupplyReason.LowOrdnance:
+                ResupplyReason resupplyReason = ShipResupply.Resupply(Owner);
+                if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
                 {
-                    if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
-                        return;
+                    OrderReturnToHangar(); // dealing with hangar ships needing resupply
+                    return;
+                }
 
-                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-                    break;
-                }
-                case ResupplyReason.NoCommand:
-                case ResupplyReason.LowHealth:
-                {
-                    if (Owner.fleet == null || !Owner.fleet.HasRepair)
-                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-                    else
-                        return;
-
-                    break;
-                }
-                case ResupplyReason.LowTroops:
-                {
-                    nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
-                    break;
-                }
-                case ResupplyReason.NotNeeded:
+                if (Owner.loyalty.isFaction)
                     return;
 
+                Planet nearestRallyPoint = null;
+                switch (resupplyReason)
+                {
+                    case ResupplyReason.LowOrdnance:
+                        {
+                            if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
+                                return;
+
+                            nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                            break;
+                        }
+                    case ResupplyReason.NoCommand:
+                    case ResupplyReason.LowHealth:
+                        {
+                            if (Owner.fleet == null || !Owner.fleet.HasRepair)
+                                nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                            else
+                                return;
+
+                            break;
+                        }
+                    case ResupplyReason.LowTroops:
+                        {
+                            nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
+                            break;
+                        }
+                    case ResupplyReason.NotNeeded:
+                        return;
+
+                }
+                HasPriorityOrder = true;
+                DecideWhereToResupply(nearestRallyPoint);
             }
-            HasPriorityOrder = true;
-            DecideWhereToResupply(nearestRallyPoint);
         }
 
         private void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -358,7 +363,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public void CheckSupplyStatus()
+        public void CheckIfSupplyIsDone()
         {
             if (Owner.AI.State != AIState.Resupply)
                 return;
