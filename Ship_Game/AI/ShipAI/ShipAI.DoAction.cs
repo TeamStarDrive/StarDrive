@@ -727,7 +727,7 @@ namespace Ship_Game.AI {
             {
                 Ship repairMe = FriendliesNearby.FindMinFiltered(
                     filter: ship => ShipNeedsRepair(ship, 20000f),
-                    selector: ship => ship.Health / ship.HealthMax);
+                    selector: ship => ship.InternalSlotsHealthPercent);
 
                 if (repairMe == null) return;
                 Vector2 target = w.Center.DirectionToTarget(repairMe.Center);
@@ -740,14 +740,14 @@ namespace Ship_Game.AI {
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
                     filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),                    
-                    selector: ship => ship.Health / ship.HealthMax);
+                    selector: ship => ship.InternalSlotsHealthPercent);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
         private bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
         {
             return target.Active && target != dontHealSelf
-                    && target.Health / target.HealthMax < .9f
+                    && target.InternalSlotsHealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
         private void DoOrdinanceTransporterLogic(ShipModule module)
