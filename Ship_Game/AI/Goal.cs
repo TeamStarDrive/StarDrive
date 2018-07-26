@@ -50,7 +50,7 @@ namespace Ship_Game.AI
         protected Ship colonyShip;
         protected Ship freighter;
         protected Ship passTran;
-
+        public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;

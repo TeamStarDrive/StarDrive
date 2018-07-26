@@ -77,7 +77,7 @@ namespace Ship_Game.AI.Tasks
             if (InitialEnemyStrength < 1)
                 InitialEnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(location, radius, Owner); ;
 
-            MinimumTaskForceStrength = EnemyStrength *.75f;
+            MinimumTaskForceStrength = EnemyStrength;
             this.Owner = Owner;
         }         
 

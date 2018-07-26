@@ -456,8 +456,8 @@ namespace Ship_Game.Debug
 
                     NewLine();
                     string held = g.Held ? "(Held" : "";
-                    DrawString($"{held}{g} {g.GetMarkedPlanet().Name}");
-                    DrawString(15f, $"Step: {g.Step}");
+                    DrawString($"{held}{g.UID} {g.GetMarkedPlanet().Name}");
+                    DrawString(15f, $"Step: {g.StepName}");
                     if (g.GetColonyShip() != null && g.GetColonyShip().Active)
                         DrawString(15f, "Has ship");
                 }

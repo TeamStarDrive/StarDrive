@@ -189,6 +189,25 @@ namespace Ship_Game
             }
             return found;
         }
+        public static T FindMinFiltered<T>(this IReadOnlyList<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
+        {
+            T found = null;
+            int n = list.Count;
+            float min = float.MaxValue;
+            T[] items = list.ToArray();
+            for (int i = 0; i < n; ++i)
+            {
+                T item = items[i];
+                if (!filter(item)) continue;
+
+                float value = selector(item);
+                if (value > min) continue;
+                min = value;
+                found = item;
+            }
+            return found;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool FindMinFiltered<T>(this Array<T> list, out T elem, Predicate<T> filter, Func<T, float> selector) where T : class
         {
