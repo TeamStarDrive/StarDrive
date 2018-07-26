@@ -427,7 +427,7 @@ namespace Ship_Game
                 foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
                 {
                     if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                        solarSystem2.Position = GenerateRandomSysPos(Data.Size.X / 3f);
+                        solarSystem2.Position = GenerateRandomSysPos(Data.Size.X / (2.5f - 1f / (Data.EmpireList.Count -1)));
                 }
 
                 foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)    //Unaltered Vanilla stuff
