@@ -35,8 +35,22 @@ namespace Ship_Game
         [Serialize(10)] public float WeaknessDecline;
         [Serialize(11)] public float PowerIncrease;
         [Serialize(12)] public float TrustGainedAtPeace;
+
+        [XmlIgnore][JsonIgnore]
+        public bool IsTrusting => Trustworthiness >= 80;
+        [XmlIgnore][JsonIgnore]
+        public bool Careless   => Trustworthiness <= 60;
     }
 
+    /// <summary>
+    /// This class looks pretty useless. I think we need another class for "mood" or find the mood of the empire buried in the code.
+    /// mostly only the name or type is used. the logic is a little confusing. 
+    /// This has an effect on diplomacy but all that code is in the diplomacy code. i feel it should be pulled out and placed here.
+    /// in the diplomacy code there is a lot of this "TrustCost = (Them.data.EconomicPersonality.Name == "Technologists"
+    /// this makes new econmic personality files basically... Useless. 
+    /// except that it contains the econ strat which has useful values.
+    /// 
+    /// </summary>
     public sealed class ETrait
     {
         [Serialize(0)] public string Name;
