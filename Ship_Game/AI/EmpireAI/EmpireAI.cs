@@ -276,10 +276,10 @@ namespace Ship_Game.AI
                 }                
                 areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, OwnerEmpire);
 
+                int taskStrNeeded = (int)(TaskList.FindMax(t => t.InitialEnemyStrength).EnemyStrength * 1.5f);
+
                 int min = (int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) *.5f);
-                if (areasOfOperation.ThreatLevel < min)
-                    areasOfOperation.ThreatLevel = min;
-                
+                areasOfOperation.ThreatLevel = (int)MathExt.Max3(areasOfOperation.ThreatLevel, min, taskStrNeeded);                      
             }
             foreach (AO aO1 in aOs)
             {
