@@ -868,6 +868,7 @@ namespace Ship_Game.AI {
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
+                EscortTarget.AI.CheckIfSupplyIsDone();
                 OrderReturnToHangar();
             }
         }
