@@ -12,6 +12,8 @@ namespace Ship_Game.AI
     {
         private void RunMilitaryPlanner()
         {
+            if (OwnerEmpire.isPlayer)
+                return;
             var shipCountLimit = GlobalStats.ShipCountLimit;
             RunGroundPlanner();
             NumberOfShipGoals = 0;

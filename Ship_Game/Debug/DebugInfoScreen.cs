@@ -103,9 +103,22 @@ namespace Ship_Game.Debug
 
         public bool DebugLogText(string text, DebugModes mode)
         {
-            if (!IsOpen || Mode != mode || !GlobalStats.VerboseLogging) return false;
+            if (!IsOpen || mode != DebugModes.Last &&  Mode != mode || !GlobalStats.VerboseLogging) return false;
             Log.Info(text);
             return true;
+        }
+
+        public static void LogSelected(object selected, string text, DebugModes mode = DebugModes.Last)
+        {     
+            if (Empire.Universe.SelectedShip        != selected
+                && Empire.Universe.SelectedPlanet   != selected
+                && Empire.Universe.SelectedFleet    != selected
+                && Empire.Universe.SelectedItem     != selected
+                && Empire.Universe.SelectedSystem   != selected
+                && Empire.Universe.SelectedShipList != selected
+                )
+                return;
+            Empire.Universe?.DebugWin?.DebugLogText(text, mode);
         }
 
         public void ClearResearchLog(Empire empire)
@@ -199,15 +212,15 @@ namespace Ship_Game.Debug
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
-                    case DebugModes.Normal: EmpireInfo(); break;
-                    case DebugModes.DefenseCo: DefcoInfo(); break;
-                    case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
-                    case DebugModes.Pathing: PathingInfo(); break;
-                    case DebugModes.Trade: TradeInfo(); break;
-                    case DebugModes.Targeting: Targeting(); break;
+                    case DebugModes.Normal        : EmpireInfo(); break;
+                    case DebugModes.DefenseCo     : DefcoInfo(); break;
+                    case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
+                    case DebugModes.Pathing       : PathingInfo(); break;
+                    case DebugModes.Trade         : TradeInfo(); break;
+                    case DebugModes.Targeting     : Targeting(); break;
                     case DebugModes.SpatialManager: SpatialManagement(); break;
-                    case DebugModes.input: InputDebug(); break;
-                    case DebugModes.Tech: Tech(); break;
+                    case DebugModes.input         : InputDebug(); break;
+                    case DebugModes.Tech          : Tech(); break;
                 }
                 ShipInfo();
             }
