@@ -538,6 +538,9 @@ namespace Ship_Game.AI {
 
         private void RunWarPlanner()
         {
+            if (OwnerEmpire.isPlayer)
+                return;
+
             float warWeight = 1 +
                               OwnerEmpire.getResStrat().MilitaryPriority;
             var weightedTargets = EmpireAttackWeights();
