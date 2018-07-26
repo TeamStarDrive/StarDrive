@@ -200,8 +200,6 @@ namespace Ship_Game
 
         public void SpawnHomePlanet(Planet newOrbital)
         {
-            ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
-            ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
             newOrbital.Owner           = this;
             Capital                    = newOrbital;
             newOrbital.InitializeSliders(this);
