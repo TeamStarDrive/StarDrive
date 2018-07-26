@@ -33,7 +33,8 @@ namespace Ship_Game.Ships
 
         public static ResupplyReason Resupply(Ship ship)
         {
-            if (ship.DesignRole < ShipData.RoleName.colony || ship.DesignRole == ShipData.RoleName.troop 
+            if (ship.DesignRole < ShipData.RoleName.colony || ship.DesignRole == ShipData.RoleName.troop
+                                                           || ship.DesignRole == ShipData.RoleName.supply
                                                            || ship.AI.State == AI.AIState.Resupply)
                 return ResupplyReason.NotNeeded;
 
