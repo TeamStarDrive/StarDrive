@@ -708,43 +708,17 @@ namespace Ship_Game.AI {
             State = AIState.Refit;
         }
 
-        public void OrderResupply(Planet toOrbit, bool ClearOrders)
+        public void OrderResupply(Planet toOrbit, bool clearOrders)
         {
-            SetPriorityOrder(ClearOrders);
-            HadPO = ClearOrders;
+            SetPriorityOrder(clearOrders);
+            HadPO = clearOrders;
             ClearWayPoints();
             
             Target           = null;
             OrbitTarget      = toOrbit;
             AwaitClosest     = toOrbit;
-            OrderMoveTowardsPosition(toOrbit.Center, 0f, Vector2.One, ClearOrders, toOrbit);
+            OrderMoveTowardsPosition(toOrbit.Center, 0f, Vector2.One, clearOrders, toOrbit);
             State            = AIState.Resupply;
-        }
-
-        public void OrderResupplyNearest(bool ClearOrders)
-        {
-            if (Owner.Mothership != null && Owner.Mothership.Active && (Owner.shipData.Role != ShipData.RoleName.supply
-                                                                        || Owner.Ordinance > 0 ||
-                                                                        Owner.Health / Owner.HealthMax <
-                                                                        DmgLevel[(int) Owner.shipData.ShipCategory]))
-            {
-                OrderReturnToHangar();
-                return;
-            }            
-            if (Owner.loyalty.isFaction)
-                return;
-
-            if (Owner.Carrier.NeedResupplyTroops)
-            {
-                var troopRallyPoints = Owner.loyalty.RallyShipYards.FindMax(p=> p.TroopsHere.Count);
-                OrderResupply(troopRallyPoints, ClearOrders);                
-            }
-            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-
-            if (nearestRallyPoint != null)
-                OrderResupply(nearestRallyPoint, ClearOrders);
-            else
-                OrderFlee(true);
         }
 
         public void OrderReturnToHangar()
@@ -871,14 +845,18 @@ namespace Ship_Game.AI {
                         State = AIState.SystemDefender;
                     }
                     else
-                    {
-                        OrderResupplyNearest(true);
-                    }
+                        GoOrbitNearestPlanetAndResupply(true);
                 }
                 //this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
             }
 
             //this.State = AIState.SystemDefender;                   
+        }
+
+        public void GoOrbitNearestPlanetAndResupply(bool cancelOrders)
+        {
+            Planet nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+            DecideWhereToResupply(nearestRallyPoint, cancelOrders: cancelOrders);
         }
 
         public void OrderThrustTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders)

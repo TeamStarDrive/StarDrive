@@ -201,17 +201,29 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool NeedResupplyTroops
+        public void RecoverSupplyShips()
+        {
+            foreach (ShipModule hangar in AllSupplyBays)
+            {
+                Ship hangarship = hangar.GetHangarShip();
+                if (hangarship == null || !hangarship.Active)
+                    continue;
+
+                hangarship.AI.OrderReturnToHangar();
+            }
+        }
+
+        public float TroopsMissingVsTroopCapacity
         {
             get
             {
                 if (Owner == null)
-                    return false;
+                    return 1f;
 
                 int troopsNotInTroopListCount = LaunchedAssaultShuttles;
                 troopsNotInTroopListCount += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
                 float troopsPresentRatio = (float)(Owner.TroopList.Count + troopsNotInTroopListCount) / Owner.TroopCapacity;
-                return troopsPresentRatio < 0.5f;
+                return troopsPresentRatio;
             }
         }
 
@@ -306,7 +318,7 @@ namespace Ship_Game.Ships
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
-                foreach (ShipModule hangar in AllActiveHangars.FilterBy(hangar => !hangar.IsSupplyBay))
+                foreach (ShipModule hangar in AllActiveHangars)
                 {
                     Ship hangarShip = hangar.GetHangarShip();
                     if (hangarShip == null)
@@ -338,6 +350,7 @@ namespace Ship_Game.Ships
                 return false;
             }
             RecoverAssaultShips();
+            RecoverSupplyShips();
             RecoverFighters();
             if (DoneRecovering)
             {
@@ -364,7 +377,7 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return false;
 
-            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() != null);
+            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() == null);
             if (hangar == null)
                 return false;
 
