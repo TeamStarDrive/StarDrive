@@ -200,8 +200,6 @@ namespace Ship_Game
 
         public void SpawnHomePlanet(Planet newOrbital)
         {
-            ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
-            ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
             newOrbital.Owner           = this;
             Capital                    = newOrbital;
             newOrbital.InitializeSliders(this);
@@ -2225,7 +2223,6 @@ namespace Ship_Game
                                 cyberneticMultiplier = .5f;
                                 break;
                             }
-
                         }
                     }
                     if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
@@ -2288,9 +2285,6 @@ namespace Ship_Game
                 if (this.AutoExplore)
                     this.AssignExplorationTasks();
             }
-
-
-            return;
         }
 
         private void UpdateRelationships()
@@ -2721,20 +2715,20 @@ namespace Ship_Game
 
         public Vector2 GetWeightedCenter()
         {
-            int num = 0;
+            int planets = 0;
             Vector2 vector2 = new Vector2();
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
-                for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
+                for (int x = 0; x < planet.Population / 1000.0; ++x)
                 {
-                    ++num;
+                    ++planets;
                     vector2 += planet.Center;
                 }
             }
-            if (num == 0)
-                num = 1;
-            return vector2 / (float)num;
+            if (planets == 0)
+                planets = 1;
+            return vector2 / planets;
         }
 
 
