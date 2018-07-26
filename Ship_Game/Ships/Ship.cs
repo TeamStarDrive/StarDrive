@@ -1324,7 +1324,7 @@ namespace Ship_Game.Ships
             AI.State        = AIState.Escort;
             AI.EscortTarget = escortTarget;
         }
-
+        
         public void DoDefense()
         {
             AI.State = AIState.SystemDefender;
