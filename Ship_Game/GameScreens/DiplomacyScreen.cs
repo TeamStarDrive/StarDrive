@@ -408,6 +408,18 @@ namespace Ship_Game
             }
             base.TransitionOnTime = TimeSpan.FromSeconds(1);
         }
+        
+        public static void Stole1stColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim");
+        public static void Stole2ndColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim 2");
+        public static void Stole3rdColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim 3");
+
+        private static void StoleColonyClaim(Planet claimedPlanet, Empire victim, string type)
+        {
+            var dipScreen =  new DiplomacyScreen(Empire.Universe, victim, Empire.Universe.PlayerEmpire, type, claimedPlanet.ParentSystem);
+
+            Empire.Universe.ScreenManager.AddScreen(dipScreen);
+        }
+
 
         private void DoNegotiationResponse(string answer)
         {
