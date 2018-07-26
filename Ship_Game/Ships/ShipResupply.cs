@@ -73,7 +73,7 @@ namespace Ship_Game.Ships
 
         private static bool ResupplyNeededLowTroops(Ship ship)
         {
-            if (ship.AI.HasPriorityOrder)
+            if (ship.AI.HasPriorityTarget)
                 return false;
 
             return ship.Carrier.TroopsMissingVsTroopCapacity < ResupplyTroopThreshold; 
@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
                                                                  && weapon.OrdinanceRequiredToFire > 0
                                                                  && !weapon.TruePD);
 
-            float ratioTheshold = ship.AI.HasPriorityOrder ? KineticEnergyRatioWithPriority 
+            float ratioTheshold = ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority 
                                                            : KineticEnergyRatioWithOutPriority;
 
             float ratio = (float)numKineticWeapons / numWeapons;
@@ -118,7 +118,7 @@ namespace Ship_Game.Ships
 
             int productionThreshold;
 
-            if (ship.AI.HasPriorityOrder)
+            if (ship.AI.HasPriorityTarget)
                 productionThreshold = OrdnanceProductionThresholdPriority;
             else
                 productionThreshold = ship.InCombat ? OrdnanceProductionThresholdCombat 
@@ -135,7 +135,7 @@ namespace Ship_Game.Ships
 
         private static bool HealthOk(Ship ship)
         {
-            float threshold = ship.InCombat ? (DamageThreshold(ship.shipData.ShipCategory) * 1.2f).Clamped(0,1) : 1f;
+            float threshold = ship.InCombat ? (DamageThreshold(ship.shipData.ShipCategory) * 1.2f).Clamped(0,1) : 0.99f;
             return ship.HealthPercent >= threshold;
         }
 
