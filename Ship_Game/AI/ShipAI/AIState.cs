@@ -35,7 +35,7 @@ namespace Ship_Game.AI
 		Exterminate,
 	    BombardTroops,
         Scuttle,
-	    Scrap,
+        Scrap,
         ResupplyEscort
     }
 }

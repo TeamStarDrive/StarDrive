@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
-        public ShipRessuply Supply;
+        public ShipResupply Supply;
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
@@ -197,6 +197,7 @@ namespace Ship_Game.Ships
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
+
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
@@ -1857,7 +1858,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < ShipRessuply.ShipDestroyThreshold)
+            if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
