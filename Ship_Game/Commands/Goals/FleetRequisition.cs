@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
             if (planet1 == null)
                 return GoalStep.TryAgain;
             PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem()
+            planet1.ConstructionQueue.Add(new QueueItem(planet1)
             {
                 isShip        = true,
                 QueueNumber   = planet1.ConstructionQueue.Count,
@@ -62,18 +62,17 @@ namespace Ship_Game.Commands.Goals
         {
             if (fleet == null)
                 return GoalStep.GoalComplete;
-
+            bool allEmptyGuid = true; //goal never complete bug.
             using (fleet.DataNodes.AcquireWriteLock())
                 foreach (FleetDataNode current in fleet.DataNodes)
                 {
+
                     if (current.GoalGUID != guid) continue;
+                    allEmptyGuid = false; //fix older save games that have orphaned tasks
                     if (fleet.Ships.Count == 0)
                         fleet.Position = beingBuilt.Position +
                                          new Vector2(RandomMath.RandomBetween(-3000f, 3000f)
-                                             , RandomMath.RandomBetween(-3000f, 3000f));
-
-                    
-                    
+                                             , RandomMath.RandomBetween(-3000f, 3000f));                    
                     var ship = beingBuilt;
                     current.Ship = ship;
                     if (fleet.Position == Vector2.Zero)
@@ -81,11 +80,15 @@ namespace Ship_Game.Commands.Goals
                     ship.RelativeFleetOffset = current.FleetOffset;
                     current.GoalGUID = Guid.Empty;
                     fleet.AddShip(ship);
-                    ship.AI.SetPriorityOrder();
-                    ship.AI.OrderMoveToFleetPosition(
-                        fleet.Position + ship.FleetOffset, ship.fleet.Facing, 
-                        new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
-                }
+                    ship.AI.SetPriorityOrder(false);
+                    //ship.AI.OrderMoveToFleetPosition(
+                    //    fleet.Position + ship.FleetOffset, ship.fleet.Facing, 
+                    //    new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
+                    ship.AI.OrderMoveTowardsPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing, true, null);
+                    return GoalStep.GoalComplete;
+                } 
+            if (allEmptyGuid)
+                return GoalStep.GoalComplete;
             return GoalStep.TryAgain;
         }
     }

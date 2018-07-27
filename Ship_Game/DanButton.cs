@@ -85,8 +85,7 @@ namespace Ship_Game
 
 		public void DrawBlue(ScreenManager screenManager)
 		{
-			string str;
-			Color color;
+		    Color color;
 			Vector2 pos = this.TextPos;
 			if (GlobalStats.IsGerman)
 			{
@@ -95,7 +94,7 @@ namespace Ship_Game
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], this.r, Color.White);
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			str = (this.Toggled ? this.ToggledText : this.Text);
+			string str = (this.Toggled ? this.ToggledText : this.Text);
 			Vector2 vector2 = pos;
 			if (this.Hover)
 			{

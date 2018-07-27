@@ -6,314 +6,219 @@ namespace Ship_Game
 {
 	public sealed class ResearchQItem
 	{
-		public Rectangle container;
+	    public TreeNode Node;
 
-		private Rectangle Up;
+	    private readonly TexturedButton BtnUp;
+	    private readonly TexturedButton BtnDown;
+	    private readonly TexturedButton BtnCancel;
+	    private readonly ResearchScreenNew Screen;
+		private readonly Vector2 Pos;
 
-		private Rectangle Down;
-
-		private Rectangle Cancel;
-
-		private TexturedButton bup;
-
-		private TexturedButton bdown;
-
-		private TexturedButton bcancel;
-
-		public TreeNode Node;
-
-		private ResearchScreenNew screen;
-
-		public Vector2 pos;
-
-		public ResearchQItem(Vector2 Position, TreeNode Node, ResearchScreenNew screen)
+		public ResearchQItem(Vector2 position, TreeNode node, ResearchScreenNew screen)
 		{
-			this.pos = Position;
-			this.screen = screen;
-			this.container = new Rectangle((int)Position.X, (int)Position.Y, 320, 110);
-			this.Node = new TreeNode(new Vector2((float)this.container.X, (float)this.container.Y) + new Vector2(100f, 20f), Node.tech, screen);
-			this.Up = new Rectangle(this.container.X + 15, this.container.Y + this.container.Height / 2 - 33, 30, 30);
-			this.Down = new Rectangle(this.container.X + 15, this.container.Y + this.container.Height / 2 - 33 + 36, 30, 30);
-			this.Cancel = new Rectangle(this.container.X + 15 + 30 + 12, this.container.Y + this.container.Height / 2 - 15, 30, 30);
-			this.bup = new TexturedButton(this.Up, "ResearchMenu/button_queue_up", "ResearchMenu/button_queue_up_hover", "ResearchMenu/button_queue_up_press");
-			this.bdown = new TexturedButton(this.Down, "ResearchMenu/button_queue_down", "ResearchMenu/button_queue_down_hover", "ResearchMenu/button_queue_down_press");
-			this.bcancel = new TexturedButton(this.Cancel, "ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover", "ResearchMenu/button_queue_cancel_press");
+			Pos = position;
+			Screen = screen;
+			var container = new Rectangle((int)position.X, (int)position.Y, 320, 110);
+			Node = new TreeNode(container.PosVec() + new Vector2(100f, 20f), node.tech, screen);
+			var rup    = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);
+			var rdown  = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33 + 36, 30, 30);
+			var cancel = new Rectangle(container.X + 15 + 30 + 12, container.Y + container.Height / 2 - 15, 30, 30);
+			BtnUp     = new TexturedButton(rup,    "ResearchMenu/button_queue_up",     "ResearchMenu/button_queue_up_hover",     "ResearchMenu/button_queue_up_press");
+			BtnDown   = new TexturedButton(rdown,  "ResearchMenu/button_queue_down",   "ResearchMenu/button_queue_down_hover",   "ResearchMenu/button_queue_down_press");
+			BtnCancel = new TexturedButton(cancel, "ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover", "ResearchMenu/button_queue_cancel_press");
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager screenManager)
 		{
-			this.bup.Draw(ScreenManager);
-			this.bdown.Draw(ScreenManager);
-			this.bcancel.Draw(ScreenManager);
-			this.Node.DrawGlow(ScreenManager);
-			this.Node.Draw(ScreenManager);
+			BtnUp.Draw(screenManager);
+			BtnDown.Draw(screenManager);
+			BtnCancel.Draw(screenManager);
+			Node.DrawGlow(screenManager);
+			Node.Draw(screenManager);
 		}
 
-		public void Draw(Rectangle container, Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager screenManager, Rectangle container)
 		{
-			this.Node = new TreeNode(new Vector2((float)container.X, (float)container.Y) + new Vector2(100f, 20f), this.Node.tech, this.screen);
-			this.bup.r = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);
-			this.bdown.r = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33 + 36, 30, 30);
-			this.bcancel.r = new Rectangle(container.X + 15 + 30 + 12, container.Y + container.Height / 2 - 15, 30, 30);
-			this.bup.Draw(ScreenManager);
-			this.bdown.Draw(ScreenManager);
-			this.bcancel.Draw(ScreenManager);
-			this.Node.DrawGlow(ScreenManager);
-			this.Node.Draw(ScreenManager);
+			Node = new TreeNode(new Vector2(container.X, container.Y) + new Vector2(100f, 20f), Node.tech, Screen);
+			BtnUp.r     = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33, 30, 30);
+			BtnDown.r   = new Rectangle(container.X + 15, container.Y + container.Height / 2 - 33 + 36, 30, 30);
+			BtnCancel.r = new Rectangle(container.X + 15 + 30 + 12, container.Y + container.Height / 2 - 15, 30, 30);
+			BtnUp.Draw(screenManager);
+			BtnDown.Draw(screenManager);
+			BtnCancel.Draw(screenManager);
+			Node.DrawGlow(screenManager);
+			Node.Draw(screenManager);
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			if (this.bup.HandleInput(input))
-			{
-				if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
-				{
-					int indexOfThis = 0;
-					int i = 0;
-					foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
-					{
-						if ((entry.item as ResearchQItem).Node.tech.UID != this.Node.tech.UID)
-						{
-							i++;
-						}
-						else
-						{
-							indexOfThis = i;
-							break;
-						}
-					}
-					if (indexOfThis != 0)
-					{
-						bool AboveisPrereq = false;
-						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.data.ResearchQueue[indexOfThis - 1]].LeadsTo)
-						{
-							if (dependent.UID != this.Node.tech.UID)
-							{
-								continue;
-							}
-							AboveisPrereq = true;
-							break;
-						}
-						if (!AboveisPrereq)
-						{
-							this.screen.qcomponent.QSL.Entries.Clear();
-							this.screen.qcomponent.QSL.Copied.Clear();
-							string toswitch = EmpireManager.Player.data.ResearchQueue[indexOfThis - 1];
-							EmpireManager.Player.data.ResearchQueue[indexOfThis - 1] = this.Node.tech.UID;
-							EmpireManager.Player.data.ResearchQueue[indexOfThis] = toswitch;
-							foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-							{
-								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
-							}
-						}
-						else
-						{
-							GameAudio.PlaySfxAsync("UI_Misc20");
-						}
-					}
-					else
-					{
-						bool CurrentIsPrereq = false;
-						foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.ResearchTopic].LeadsTo)
-						{
-							if (dependent.UID != this.Node.tech.UID)
-							{
-								continue;
-							}
-							CurrentIsPrereq = true;
-							break;
-						}
-						if (!CurrentIsPrereq)
-						{
-							this.screen.qcomponent.QSL.Entries.Clear();
-							this.screen.qcomponent.QSL.Copied.Clear();
-							this.screen.qcomponent.CurrentResearch = null;
-							string toswitch = EmpireManager.Player.ResearchTopic;
-							EmpireManager.Player.ResearchTopic = this.Node.tech.UID;
-							EmpireManager.Player.data.ResearchQueue[0] = toswitch;
-							string resTop = EmpireManager.Player.ResearchTopic;
-							if (!string.IsNullOrEmpty(resTop))
-							{
-								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
-							}
-							foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-							{
-								this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
-							}
-						}
-						else
-						{
-							GameAudio.PlaySfxAsync("UI_Misc20");
-						}
-					}
-				}
-				else
-				{
-					GameAudio.PlaySfxAsync("UI_Misc20");
-				}
-				return true;
-			}
-			if (!this.bdown.HandleInput(input))
-			{
-				if (!this.bcancel.HandleInput(input))
-				{
-					return false;
-				}
-				string uid = this.Node.tech.UID;
-				if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
-				{
-					foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
-					{
-						if (entry.item != this)
-						{
-							continue;
-						}
-						this.screen.qcomponent.QSL.Entries.QueuePendingRemoval(entry);
-						this.screen.qcomponent.QSL.Copied.QueuePendingRemoval(entry);
-					}
-					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
-					{
-						this.RemoveTech(dependent.UID);
-					}
-					EmpireManager.Player.data.ResearchQueue.Remove(uid);
-				}
-				else if (EmpireManager.Player.data.ResearchQueue.Count == 0)
-				{
-					EmpireManager.Player.ResearchTopic = "";
-					this.screen.qcomponent.CurrentResearch = null;
-				}
-				else
-				{
-					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
-					{
-						this.RemoveTech(dependent.UID);
-					}
-					this.screen.qcomponent.QSL.Entries.ApplyPendingRemovals();
-					this.screen.qcomponent.QSL.Copied.ApplyPendingRemovals();
-					if (EmpireManager.Player.data.ResearchQueue.Count == 0)
-					{
-						EmpireManager.Player.ResearchTopic = "";
-						this.screen.qcomponent.CurrentResearch = null;
-					}
-					else
-					{
-						EmpireManager.Player.ResearchTopic = (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID;
-						this.screen.qcomponent.CurrentResearch = new ResearchQItem(this.screen.qcomponent.CurrentResearch.pos, (this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node, this.screen);
-						EmpireManager.Player.data.ResearchQueue.Remove((this.screen.qcomponent.QSL.Copied[0].item as ResearchQItem).Node.tech.UID);
-						this.screen.qcomponent.QSL.Entries.RemoveAt(0);
-						this.screen.qcomponent.QSL.Copied.RemoveAt(0);
-					}
-				}
-				return true;
-			}
-			if (this.Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
-			{
-				GameAudio.PlaySfxAsync("UI_Misc20");
-			}
-			else if (this.Node.tech.UID != EmpireManager.Player.ResearchTopic)
-			{
-				int indexOfThis = 0;
-				int i = 0;
-				foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
-				{
-					if ((entry.item as ResearchQItem).Node.tech.UID != this.Node.tech.UID)
-					{
-						i++;
-					}
-					else
-					{
-						indexOfThis = i;
-						break;
-					}
-				}
-				if (indexOfThis != EmpireManager.Player.data.ResearchQueue.Count - 1)
-				{
-					bool ThisIsPreReq = false;
-					foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.data.ResearchQueue[indexOfThis]].LeadsTo)
-					{
-						if (dependent.UID != EmpireManager.Player.data.ResearchQueue[indexOfThis + 1])
-						{
-							continue;
-						}
-						ThisIsPreReq = true;
-						break;
-					}
-					if (!ThisIsPreReq)
-					{
-						this.screen.qcomponent.QSL.Entries.Clear();
-						this.screen.qcomponent.QSL.Copied.Clear();
-						string toswitch = EmpireManager.Player.data.ResearchQueue[indexOfThis + 1];
-						EmpireManager.Player.data.ResearchQueue[indexOfThis + 1] = this.Node.tech.UID;
-						EmpireManager.Player.data.ResearchQueue[indexOfThis] = toswitch;
-						foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-						{
-							this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
-						}
-					}
-					else
-					{
-						GameAudio.PlaySfxAsync("UI_Misc20");
-					}
-				}
-				else
-				{
-					GameAudio.PlaySfxAsync("UI_Misc20");
-				}
-			}
-			else
-			{
-				bool ThisIsPreReq = false;
-				foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[EmpireManager.Player.ResearchTopic].LeadsTo)
-				{
-					if (dependent.UID != EmpireManager.Player.data.ResearchQueue[0])
-					{
-						continue;
-					}
-					ThisIsPreReq = true;
-					break;
-				}
-				if (!ThisIsPreReq)
-				{
-					this.screen.qcomponent.QSL.Entries.Clear();
-					this.screen.qcomponent.QSL.Copied.Clear();
-					this.screen.qcomponent.CurrentResearch = null;
-					string toswitch = EmpireManager.Player.data.ResearchQueue[0];
-					EmpireManager.Player.data.ResearchQueue[0] = EmpireManager.Player.ResearchTopic;
-					EmpireManager.Player.ResearchTopic = toswitch;
-					string resTop = EmpireManager.Player.ResearchTopic;
-					if (!string.IsNullOrEmpty(resTop))
-					{
-						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[resTop] as TreeNode);
-					}
-					foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-					{
-						this.screen.qcomponent.LoadQueue(this.screen.CompleteSubNodeTree[uid] as TreeNode);
-					}
-				}
-				else
-				{
-					GameAudio.PlaySfxAsync("UI_Misc20");
-				}
-			}
-			return true;
+			if (BtnUp.HandleInput(input))     return HandleResearchButtonUp();
+		    if (BtnDown.HandleInput(input))   return HandleResearchButtonDown();
+		    if (BtnCancel.HandleInput(input)) return HandleResearchButtonCancel();
+		    return false;
 		}
 
-		private void RemoveTech(string uid)
+        private void SwapQueueItems(int first, int second)
+        {
+            string tmp = EmpireManager.Player.data.ResearchQueue[first];
+            EmpireManager.Player.data.ResearchQueue[first] = Node.tech.UID;
+            EmpireManager.Player.data.ResearchQueue[second] = tmp;
+        }
+
+        private void SwapResearchTopic(int queueIndex)
+        {
+            string tmp = EmpireManager.Player.data.ResearchQueue[queueIndex];
+            EmpireManager.Player.data.ResearchQueue[queueIndex] = EmpireManager.Player.ResearchTopic;
+            EmpireManager.Player.ResearchTopic = tmp;
+        }
+
+        private bool HandleResearchButtonUp()
+        {
+            if (Node.tech.UID == EmpireManager.Player.ResearchTopic)
+            {
+                GameAudio.PlaySfxAsync("UI_Misc20");
+                return true;
+            }
+            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(q => q.Node.tech.UID == Node.tech.UID);
+            if (indexOfThis > 0) // move it up
+            {
+                if (AboveisPrereq(indexOfThis))
+                {
+                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    return true;
+                }
+                SwapQueueItems(indexOfThis - 1, indexOfThis);
+                Screen.qcomponent.ReloadResearchQueue();
+            }
+            else // set as current research item
+            {
+                if (CurrentIsPreReq())
+                {
+                    GameAudio.PlaySfxAsync("UI_Misc20");
+                    return true;
+                }
+                SwapResearchTopic(0);
+                Screen.qcomponent.ReloadResearchQueue();
+            }
+            return true;
+        }
+
+
+	    private bool HandleResearchButtonDown()
+	    {
+	        if (Node.tech.UID == EmpireManager.Player.ResearchTopic && EmpireManager.Player.data.ResearchQueue.Count == 0)
+	        {
+	            GameAudio.PlaySfxAsync("UI_Misc20");
+                return true;
+	        }
+	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic) // move tech down
+	        {
+	            int indexOfThis = Screen.qcomponent.QSL.IndexOf<ResearchQItem>(r => r.Node.tech.UID == Node.tech.UID);
+	            if (indexOfThis == -1 || indexOfThis == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(indexOfThis))
+	            {
+	                GameAudio.PlaySfxAsync("UI_Misc20");
+                    return true;
+	            }
+	            SwapQueueItems(indexOfThis + 1, indexOfThis);
+	            Screen.qcomponent.ReloadResearchQueue();
+	        }
+	        else // move ResearchTopic into the queue
+	        {
+	            if (ThisIsPreReq1())
+	            {
+	                GameAudio.PlaySfxAsync("UI_Misc20");
+                    return true;
+	            }
+	            SwapResearchTopic(0);
+	            Screen.qcomponent.ReloadResearchQueue();
+	        }
+	        return true;
+	    }
+
+	    private string ResearchUidAt(int index)        => EmpireManager.Player.data.ResearchQueue[index];
+        private Technology PlayerResearch              => ResourceManager.TechTree[EmpireManager.Player.ResearchTopic];
+        private Technology PlayerResearchAt(int index) => ResourceManager.TechTree[ResearchUidAt(index)];
+
+        private bool AboveisPrereq(int indexOfThis)
+	    {
+	        foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
+	            if (dependent.UID == Node.tech.UID)
+	                return true;
+	        return false;
+	    }
+
+	    private bool CurrentIsPreReq()
+	    {
+            foreach (Technology.LeadsToTech dependent in PlayerResearch.LeadsTo)
+	            if (dependent.UID == Node.tech.UID)
+                    return true;
+            return false;
+	    }
+
+        private bool ThisIsPreReq(int indexOfThis)
+	    {
+            Technology current = PlayerResearchAt(indexOfThis);
+            string next = ResearchUidAt(indexOfThis + 1);
+            foreach (Technology.LeadsToTech dependent in current.LeadsTo)
+	            if (dependent.UID == next)
+                    return true;
+            return false;
+	    }
+
+	    private bool ThisIsPreReq1()
+	    {
+            string first = ResearchUidAt(0);
+	        foreach (Technology.LeadsToTech dependent in PlayerResearch.LeadsTo)
+	            if (dependent.UID == first)
+                    return true;
+            return false;
+	    }
+
+
+
+        private bool HandleResearchButtonCancel()
+	    {
+	        if (Node.tech.UID != EmpireManager.Player.ResearchTopic)
+	        {
+	            Screen.qcomponent.QSL.RemoveItem(this);
+	            RemoveTech(Node.tech.UID);
+	        }
+	        else if (EmpireManager.Player.data.ResearchQueue.Count == 0)
+	        {
+	            EmpireManager.Player.ResearchTopic = "";
+	            Screen.qcomponent.CurrentResearch = null;
+	        }
+	        else
+	        {
+	            RemoveTech(Node.tech.UID);
+
+	            if (EmpireManager.Player.data.ResearchQueue.Count == 0)
+	            {
+	                EmpireManager.Player.ResearchTopic = "";
+	                Screen.qcomponent.CurrentResearch = null;
+	            }
+	            else
+	            {
+	                var qItem = Screen.qcomponent.QSL.FirstItem<ResearchQItem>();
+	                EmpireManager.Player.ResearchTopic = qItem.Node.tech.UID;
+	                Screen.qcomponent.CurrentResearch = new ResearchQItem(Screen.qcomponent.CurrentResearch.Pos, qItem.Node, Screen);
+	                EmpireManager.Player.data.ResearchQueue.Remove(qItem.Node.tech.UID);
+	                Screen.qcomponent.QSL.RemoveFirst();
+	            }
+	        }
+
+	        return true;
+	    }
+
+
+        private void RemoveTech(string uid)
 		{
 			foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[uid].LeadsTo)
 			{
-				this.RemoveTech(dependent.UID);
+				RemoveTech(dependent.UID);
 			}
 			EmpireManager.Player.data.ResearchQueue.Remove(uid);
-			foreach (ScrollList.Entry entry in this.screen.qcomponent.QSL.Entries)
-			{
-				if ((entry.item as ResearchQItem).Node.tech.UID != uid)
-				{
-					continue;
-				}
-				this.screen.qcomponent.QSL.Entries.QueuePendingRemoval(entry);
-				this.screen.qcomponent.QSL.Copied.QueuePendingRemoval(entry);
-			}
+            Screen.qcomponent.QSL.RemoveFirstIf<ResearchQItem>(rqi => rqi.Node.tech.UID == uid);
 		}
 	}
 }

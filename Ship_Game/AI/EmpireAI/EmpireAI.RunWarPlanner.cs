@@ -369,7 +369,7 @@ namespace Ship_Game.AI {
                 {
                     foreach (Tasks.MilitaryTask task in TaskList)
                     {
-                        if (task.GetTargetPlanet() != target)
+                        if (task.TargetPlanet != target)
                         {
                             continue;
                         }
@@ -390,12 +390,12 @@ namespace Ship_Game.AI {
             {
                 TaskList.ForEach(task =>
                 {
-                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null ||
-                        task.GetTargetPlanet().Owner != r.Key)
+                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet || task.TargetPlanet.Owner == null ||
+                        task.TargetPlanet.Owner != r.Key)
                     {
                         return;
                     }
-                    planetsWeAreInvading.Add(task.GetTargetPlanet());
+                    planetsWeAreInvading.Add(task.TargetPlanet);
                 }, false, false);
             }
             if (planetsWeAreInvading.Count < 3 && OwnerEmpire.GetPlanets().Count > 0)
@@ -538,6 +538,9 @@ namespace Ship_Game.AI {
 
         private void RunWarPlanner()
         {
+            if (OwnerEmpire.isPlayer)
+                return;
+
             float warWeight = 1 +
                               OwnerEmpire.getResStrat().MilitaryPriority;
             var weightedTargets = EmpireAttackWeights();
@@ -614,7 +617,7 @@ namespace Ship_Game.AI {
                 bool assault = true;
                 TaskList.ForEach(task =>
                 {
-                    if (task.GetTargetPlanet() == planet &&
+                    if (task.TargetPlanet == planet &&
                         task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
                     {
                         assault = false;

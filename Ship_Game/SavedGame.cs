@@ -221,10 +221,7 @@ namespace Ship_Game
                             {
                                 x          = tile.x,
                                 y          = tile.y,
-                                resbonus   = tile.resbonus,
-                                prodbonus  = tile.prodbonus,
                                 Habitable  = tile.Habitable,
-                                foodbonus  = tile.foodbonus,
                                 Biosphere  = tile.Biosphere,
                                 building   = tile.building,
                                 TroopsHere = tile.TroopsHere
@@ -249,8 +246,7 @@ namespace Ship_Game
                     }
                 }
                 SaveData.SolarSystemDataList.Add(sysSave);
-            }
-            
+            }            
             foreach (Empire e in EmpireManager.Empires)
             {
                 var empireToSave = new EmpireSaveData
@@ -354,11 +350,11 @@ namespace Ship_Game
                 foreach (MilitaryTask task in e.GetGSAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
-                    if (task.GetTargetPlanet() == null)
+                    if (task.TargetPlanet == null)
                     {
                         continue;
                     }
-                    task.TargetPlanetGuid = task.GetTargetPlanet().guid;
+                    task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
                 foreach (Goal g in e.GetGSAI().Goals)
                 {
@@ -422,23 +418,25 @@ namespace Ship_Game
                     {
                         sdata.IsPlayerShip = true;
                     }
-                    sdata.Hull          = ship.shipData.Hull;
-                    sdata.Power         = ship.PowerCurrent;
-                    sdata.Ordnance      = ship.Ordinance;
-                    sdata.yRotation     = ship.yRotation;
-                    sdata.Rotation      = ship.Rotation;
-                    sdata.InCombatTimer = ship.InCombatTimer;
-                    sdata.FoodCount = ship.GetFood();
-                    sdata.ProdCount = ship.GetProduction();
-                    sdata.PopCount  = ship.GetColonists();
-                    sdata.TroopList = ship.TroopList;
+                    sdata.Hull             = ship.shipData.Hull;
+                    sdata.Power            = ship.PowerCurrent;
+                    sdata.Ordnance         = ship.Ordinance;
+                    sdata.yRotation        = ship.yRotation;
+                    sdata.Rotation         = ship.Rotation;
+                    sdata.InCombatTimer    = ship.InCombatTimer;
+                    sdata.FoodCount        = ship.GetFood();
+                    sdata.ProdCount        = ship.GetProduction();
+                    sdata.PopCount         = ship.GetColonists();
+                    sdata.TroopList        = ship.TroopList;
+                    sdata.FightersLaunched = ship.FightersLaunched;
+                    sdata.TroopsLaunched   = ship.TroopsLaunched;
 
                     sdata.AreaOfOperation = ship.AreaOfOperation
                         .Select(r => new RectangleData(r)).ToArrayList();
                
                     sdata.AISave = new ShipAISave()
                     {
-                        FoodOrProd = ship.AI.FoodOrProd,
+                        FoodOrProd = ship.AI.GetTradeTypeString(),
                         state      = ship.AI.State
                     };
                     if (ship.AI.Target is Ship targetShip)
@@ -547,9 +545,9 @@ namespace Ship_Game
                     sdata.yRotation     = ship.yRotation;
                     sdata.Rotation      = ship.Rotation;
                     sdata.InCombatTimer = ship.InCombatTimer;
-                    sdata.AISave = new ShipAISave
+                    sdata.AISave        = new ShipAISave
                     {
-                        FoodOrProd      = ship.AI.FoodOrProd,
+                        FoodOrProd      = ship.AI.GetTradeTypeString(),
                         state           = ship.AI.State,
                         defaultstate    = ship.AI.DefaultAIState,
                         GoToStep        = ship.AI.GotoStep,
@@ -904,6 +902,8 @@ namespace Ship_Game
             [Serialize(22)] public Guid TetheredTo;
             [Serialize(23)] public Vector2 TetherOffset;
             [Serialize(24)] public Array<ProjectileSaveData> Projectiles;
+            [Serialize(25)] public bool FightersLaunched;
+            [Serialize(26)] public bool TroopsLaunched;
         }
 
         public class SolarSystemSaveData

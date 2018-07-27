@@ -136,6 +136,39 @@ namespace Ship_Game.Gameplay
         {
         }
 
+        public bool WarnedSystemListContains(Planet claimedPlanet) => WarnedSystemsList.Any(guid => guid == claimedPlanet.ParentSystem.guid);
+
+        public void StoleOurColonyClaim(Empire onwer, Planet claimedPlanet)
+        {
+            NumberStolenClaims++;
+            Anger_TerritorialConflict += 5f + (float) Math.Pow(5, NumberStolenClaims);            
+            StolenSystems.AddUnique(claimedPlanet.ParentSystem.guid);
+        }
+
+        public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
+        {
+            bool newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.guid);
+
+            if (newTheft && !HaveWarnedTwice)
+            {
+                DiplomacyScreen.Stole1stColonyClaim(claimedPlanet, victim);                
+                return;
+            }
+
+            if (!HaveWarnedTwice)
+            {
+                DiplomacyScreen.Stole2ndColonyClaim(claimedPlanet, victim);
+                HaveWarnedTwice = true;
+                return;
+            }
+
+            if (newTheft || !HaveWarnedThrice)
+                DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim);
+            HaveWarnedThrice = true;
+            
+            
+        }
+
         public float RiskAssesment (Empire us, Empire them, float riskLimit = 1)
         {
             if (!Known) return 0;
@@ -149,7 +182,7 @@ namespace Ship_Game.Gameplay
             foreach (var task in us.GetGSAI().TaskList)
             {
                 if (task.type != AI.Tasks.MilitaryTask.TaskType.DefendClaim) continue;
-                var p = task.GetTargetPlanet();
+                var p = task.TargetPlanet;
                 var ss = p.ParentSystem;
                 if (!s.Add(ss)) continue;
                 float test;

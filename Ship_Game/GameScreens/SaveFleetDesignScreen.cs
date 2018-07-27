@@ -44,11 +44,11 @@ namespace Ship_Game
             }
         }
 
-        protected override void SetSavesSL()
+        protected override void InitSaveList()
         {
             foreach (FileInfo info in Dir.GetFiles(Path))
             {
-                this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItemWithCancel(info);
+                this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
             }
             foreach (FileInfo info in Dir.GetFiles("Content/FleetDesigns"))
             {

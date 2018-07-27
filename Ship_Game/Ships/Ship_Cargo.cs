@@ -20,23 +20,28 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
 
-        public void AlterOrdinance(float amount)
+        public float ChangeOrdnance(float ordnance)
         {
-            Ordinance += amount;
-            Ordinance = Ordinance > OrdinanceMax ? OrdinanceMax : Ordinance < 0 ? 0 : Ordinance;            
+            float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamped(0, ordnance);
+            Ordinance = (Ordinance + ordnance).Clamped(0, OrdinanceMax);
+            return ordnanceLeft;
         }
+
         public float FighterLaunchCost => Mass / 5f;
+
         public bool ApplyFighterLaunchCost(bool pay = true)
         {
             float cost = FighterLaunchCost;
             if (!pay)
             {
-                Mothership.AlterOrdinance(cost);
+                Mothership.ChangeOrdnance(cost);
                 return true;
             }
 
-            if (!(Mothership.Ordinance - cost > 0)) return false;
-            Mothership.AlterOrdinance(-cost);
+            if (!(Mothership.Ordinance - cost > 0))
+                return false;
+
+            Mothership.ChangeOrdnance(-cost);
             return true;
         }
         private sealed class CargoContainer
@@ -86,7 +91,7 @@ namespace Ship_Game.Ships
 
             public float UnloadCargoRef(ref float cargo, float maxAmount)
             {
-                float unload = cargo.Clamp(0f, maxAmount);
+                float unload = cargo.Clamped(0f, maxAmount);
                 cargo      -= unload;
                 TotalCargo -= unload;
                 return unload;
@@ -94,7 +99,7 @@ namespace Ship_Game.Ships
 
             public float LoadCargoRef(ref float cargo, float amount)
             {
-                float load = amount.Clamp(0f, MaxCargo - TotalCargo);
+                float load = amount.Clamped(0f, MaxCargo - TotalCargo);
                 cargo      += load;
                 TotalCargo += load;
                 return load;
@@ -126,6 +131,17 @@ namespace Ship_Game.Ships
             if (cargoId == "Production")     return GetProduction();
             if (cargoId == "Colonists_1000") return GetColonists();
             return Cargo.GetOther(cargoId);
+        }
+        public float GetCargo(Goods good)
+        {
+            if (Cargo == null) return 0f;
+            switch (good)
+            {
+                case Goods.Food:       return GetFood();
+                case Goods.Production: return GetProduction();
+                case Goods.Colonists:  return GetColonists();
+                default:               return 0f;
+            }
         }
 
         public float GetColonists()  => Cargo?.Colonists * PassengerModifier ?? 0f;

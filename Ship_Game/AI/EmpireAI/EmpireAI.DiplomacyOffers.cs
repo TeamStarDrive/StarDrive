@@ -46,8 +46,8 @@ namespace Ship_Game.AI {
                     for (int i = TaskList.Count - 1; i >= 0; i--)
                     {
                         Tasks.MilitaryTask task = TaskList[i];
-                        if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
-                            task.GetTargetPlanet().Owner != Them)
+                        if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
+                            task.TargetPlanet.Owner != Them)
                         {
                             continue;
                         }
@@ -91,8 +91,8 @@ namespace Ship_Game.AI {
                         Them.GetGSAI()
                             .TaskList.ForEach(task =>
                             {
-                                if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
-                                    task.GetTargetPlanet().Owner != OwnerEmpire)
+                                if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
+                                    task.TargetPlanet.Owner != OwnerEmpire)
                                 {
                                     return;
                                 }
@@ -461,8 +461,8 @@ namespace Ship_Game.AI {
                 {
                     this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                     {
-                        if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
-                            task.GetTargetPlanet().Owner != Them)
+                        if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
+                            task.TargetPlanet.Owner != Them)
                         {
                             return;
                         }
@@ -504,8 +504,8 @@ namespace Ship_Game.AI {
                         Them.GetGSAI()
                             .TaskList.ForEach(task => //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
                             {
-                                if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null ||
-                                    task.GetTargetPlanet().Owner != this.OwnerEmpire)
+                                if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
+                                    task.TargetPlanet.Owner != this.OwnerEmpire)
                                 {
                                     return;
                                 }

@@ -18,6 +18,8 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
+        private Vector2 ClassifCursor;
+
         public void ChangeHull(ShipData hull)
         {
         #if SHIPYARD
@@ -25,29 +27,25 @@ namespace Ship_Game
         #endif
             if (hull == null) return;
             ModSel.ResetLists();
-
             RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
-                Animated     = hull.Animated,
-                CombatState  = hull.CombatState,
-                Hull         = hull.Hull,
-                IconPath     = hull.ActualIconPath,
-                ModelPath    = hull.HullModel,
-                Name         = hull.Name,
-                Role         = hull.Role,
-                ShipStyle    = hull.ShipStyle,
-                ThrusterList = hull.ThrusterList,
-                ShipCategory = hull.ShipCategory,
-                CarrierShip  = hull.CarrierShip,
-                BaseHull     = hull.BaseHull
+                Animated        = hull.Animated,
+                CombatState     = hull.CombatState,
+                Hull            = hull.Hull,
+                IconPath        = hull.ActualIconPath,
+                ModelPath       = hull.HullModel,
+                Name            = hull.Name,
+                Role            = hull.Role,
+                ShipStyle       = hull.ShipStyle,
+                ThrusterList    = hull.ThrusterList,
+                ShipCategory    = hull.ShipCategory,
+                ShieldsBehavior = hull.ShieldsBehavior,
+                CarrierShip     = hull.CarrierShip,
+                BaseHull        = hull.BaseHull
             };
             ActiveHull.UpdateBaseHull();
 
-            CarrierOnly  = hull.CarrierShip;
-            LoadCategory = hull.ShipCategory;
-            Fml = true;
-            Fmlevenmore = true;
 
             ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
@@ -73,10 +71,41 @@ namespace Ship_Game
                 if (data.Restrictions == Restrictions.IOE) TotalIOE++;
             #endif
             }
-            CombatState = hull.CombatState;
 
+            BindListsToActiveHull();
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
+        }
+
+        private void BindListsToActiveHull()
+        {
+            if (CategoryList == null)
+                return;
+
+            CategoryList.PropertyBinding = () => ActiveHull.ShipCategory;
+
+            if (ActiveHull.ShipCategory == ShipData.Category.Unclassified)
+            {
+                // Defaults based on hull types
+                // Freighter hull type defaults to Civilian behaviour when the hull is selected, player has to actively opt to change classification to disable flee/freighter behaviour
+                if (ActiveHull.Role == ShipData.RoleName.freighter)
+                    CategoryList.SetActiveValue(ShipData.Category.Civilian);
+                // Scout hull type defaults to Recon behaviour. Not really important, as the 'Recon' tag is going to supplant the notion of having 'Fighter' class hulls automatically be scouts, but it makes things easier when working with scout hulls without existing categorisation.
+                else if (ActiveHull.Role == ShipData.RoleName.scout)
+                    CategoryList.SetActiveValue(ShipData.Category.Recon);
+                else
+                    CategoryList.SetActiveValue(ShipData.Category.Unclassified);
+            }
+            else
+            {
+                CategoryList.SetActiveValue(ActiveHull.ShipCategory);
+            }
+
+            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
+            {
+                ShieldsBehaviorList.PropertyBinding = () => ActiveHull.ShieldsBehavior;
+                ShieldsBehaviorList.SetActiveValue(ActiveHull.ShieldsBehavior);
+            }
         }
 
         private bool CheckDesign()
@@ -107,7 +136,6 @@ namespace Ship_Game
         {
             ReallyExit();
         }
-        
 
         public override void ExitScreen()
         {
@@ -156,9 +184,10 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
+            ShieldsBehaviorList.HandleInput(input);
             CarrierOnlyBox.HandleInput(input);
             if (DesignRoleRect.HitTest(input.CursorPosition))
-                ShipData.CreateDesignRoleToolTip(Role, Fonts.Arial12, DesignRoleRect, true);
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
                 if (input.ArrowLeft)  ReorientActiveModule(ModuleOrientation.Left);
@@ -172,7 +201,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (HandleInputUndo(input))
+            if (HandleInputUndoRedo(input))
                 return true;
 
             HandleInputZoom(input);
@@ -239,7 +268,8 @@ namespace Ship_Game
 
         private MirrorSlot GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation)
         {
-            int center = 952;
+            int resoltionOffset = (int)slot.SlotReference.Position.X - 256;
+            int center = slot.PQ.X - resoltionOffset;
             int mirrorOffset = (xSize - 1) * 16;
             int mirrorX;
             int xPos = slot.PQ.X;
@@ -265,7 +295,7 @@ namespace Ship_Game
             }
         }
 
-        private float ConvertOrientationToFacing(ModuleOrientation orientation)
+        private static float ConvertOrientationToFacing(ModuleOrientation orientation)
         {
             switch (orientation)
             {
@@ -279,12 +309,10 @@ namespace Ship_Game
         private ShipModule GetMirrorModule(SlotStruct slot)
         {
             MirrorSlot mirrored = GetMirrorSlot(slot, slot.Root.Module.XSIZE, slot.Root.Orientation);
-            if (!IsMirrorSlotPresent(mirrored, slot))
-                return null;
-            return mirrored.Slot.Root.Module;
+            return !IsMirrorSlotPresent(mirrored, slot) ? null : mirrored.Slot.Root.Module;
         }
 
-        private bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
+        private static bool IsMirrorModuleValid(ShipModule module, ShipModule mirroredModule)
         {
             return mirroredModule       != null
                 && mirroredModule.UID   == module.UID
@@ -292,22 +320,20 @@ namespace Ship_Game
                 && mirroredModule.YSIZE == module.YSIZE;
         }
 
-        private bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
+        private static bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
         {
-            if (mirrored.Slot == null || slot.PQ.X == mirrored.Slot.PQ.X)
-                return false;
-            return true;
+            return mirrored.Slot != null && slot.PQ.X != mirrored.Slot.PQ.X;
         }
 
         private void SetFiringArc(SlotStruct slot, float arc)
         {
-            HighlightedModule.Facing = arc;
-            if (IsSymmetricDesignMode)
-            {
-                ShipModule mirroredModule = GetMirrorModule(slot);
-                if (IsMirrorModuleValid(HighlightedModule, mirroredModule))
-                    mirroredModule.Facing = (float)Math.Round(360 - arc);
-            }
+            slot.Module.Facing = arc;
+            if (!IsSymmetricDesignMode)
+                return;
+
+            ShipModule mirroredModule = GetMirrorModule(slot);
+            if (IsMirrorModuleValid(slot.Module, mirroredModule))
+                mirroredModule.Facing = 360 - arc;
         }
 
         private void HandleCameraMovement(InputState input)
@@ -357,21 +383,18 @@ namespace Ship_Game
         private bool HandleShipHullListSelection(InputState input)
         {
             HullSL.HandleInput(input);
-            int max = HullSL.indexAtTop + HullSL.entriesToDisplay;
-            for (int i = HullSL.indexAtTop; i < HullSL.Copied.Count && i < max; ++i)
+            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = HullSL.Copied[i];
                 if (e.item is ModuleHeader moduleHeader)
                 {
                     if (moduleHeader.HandleInput(input, e))
                         return true;
                 }
-                else if (e.clickRect.HitTest(input.CursorPosition))
+                else if (e.CheckHover(input))
                 {
-                    selector = new Selector(e.clickRect);
-                    e.clickRectHover = 1;
-                    selector = new Selector(e.clickRect);
-                    if (!input.InGameSelect) continue;
+                    selector = e.CreateSelector();
+                    if (!input.InGameSelect)
+                        continue;
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
                     {
@@ -382,9 +405,7 @@ namespace Ship_Game
                     ChangeHull(e.item as ShipData);
                     return true;
                 }
-                else e.clickRectHover = 0;
             }
-
             return false;
         }
 
@@ -491,7 +512,10 @@ namespace Ship_Game
                 return;
 
             if (!GetSlotUnderCursor(input, out SlotStruct slot))
+            { 
+                PlayNegativeSound();
                 return;
+            }
 
             if (!input.IsShiftKeyDown)
             {
@@ -514,24 +538,11 @@ namespace Ship_Game
             if (!input.RightMouseClick)
                 return;
 
-            ActiveModule = null;
             if (GetSlotUnderCursor(input, out SlotStruct slot))
-            {
-                if (slot.Module != null || slot.Parent != null)
-                {
-                    if (IsSymmetricDesignMode)
-                    {
-                        MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
-                        if (IsMirrorSlotPresent(mirrored, slot) 
-                            && mirrored.Slot.Root != slot.Root 
-                            && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
-                            ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module.XSIZE, mirrored.Slot.Root.Module.YSIZE);
-                    }
-                    ModuleGrid.ClearSlots(slot.Root, slot.Root.Module.XSIZE, slot.Root.Module.YSIZE);
-                    ModuleGrid.RecalculatePower();
-                    GameAudio.PlaySfxAsync("sub_bass_whoosh");
-                }
-            }
+                DeleteModuleAtSlot(slot);
+            else
+                ActiveModule = null;
+
         }
 
         private void HandleInputDebug(InputState input)
@@ -558,14 +569,14 @@ namespace Ship_Game
                 return;
             if (input.ScrollOut) TransitionZoom -= 0.1f;
             if (input.ScrollIn)  TransitionZoom += 0.1f;
-            TransitionZoom = TransitionZoom.Clamp(0.3f, 2.65f);
+            TransitionZoom = TransitionZoom.Clamped(0.3f, 2.65f);
         }
 
-        private bool HandleInputUndo(InputState input)
+        private bool HandleInputUndoRedo(InputState input)
         {
-            if (!input.Undo)
-                return false;
-            return true;
+            if (input.Undo) { ModuleGrid.Undo(); return true; }
+            if (input.Redo) { ModuleGrid.Redo(); return true; }
+            return false;
         }
 
         public void HandleSymmetricDesignButton()
@@ -582,7 +593,7 @@ namespace Ship_Game
         private void UpdateActiveCombatButton()
         {
             foreach (ToggleButton button in CombatStatusButtons)
-                button.Active = (CombatState == CombatStateFromAction(button));
+                button.Active = (ActiveHull.CombatState == CombatStateFromAction(button));
         }
 
         private void OnCombatButtonPressed(ToggleButton button)
@@ -590,7 +601,7 @@ namespace Ship_Game
             if (ActiveHull == null)
                 return;
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-            CombatState = CombatStateFromAction(button);
+            ActiveHull.CombatState = CombatStateFromAction(button);
             UpdateActiveCombatButton();
         }
 
@@ -670,7 +681,10 @@ namespace Ship_Game
                 if (slot.Position.X > highestX) highestX = slot.Position.X;
             }
 
-            float hullWidth = highestX - lowestX;
+            // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
+            // Maybe because they are long and narrow. This code is an enigma.
+            // Redfox is working on a fix for this
+            float hullWidth = (highestX - lowestX) * 2;
 
             // So, this attempts to zoom so the entire design is visible
             float UpdateCameraMatrix()
@@ -685,21 +699,21 @@ namespace Ship_Game
                 return center.Distance(hullEdge) + 10f;
             }
 
-            float visibleHullRadius = UpdateCameraMatrix();
-            if (visibleHullRadius >= hullWidth)
+            float visibleHullWidth = UpdateCameraMatrix();
+            if (visibleHullWidth >= hullWidth)
             {
-                while (visibleHullRadius > hullWidth)
+                while (visibleHullWidth > hullWidth)
                 {
                     CameraPosition.Z += 10f;
-                    visibleHullRadius = UpdateCameraMatrix();
+                    visibleHullWidth = UpdateCameraMatrix();
                 }
             }
             else
             {
-                while (visibleHullRadius < hullWidth)
+                while (visibleHullWidth < hullWidth)
                 {
                     CameraPosition.Z -= 10f;
-                    visibleHullRadius = UpdateCameraMatrix();
+                    visibleHullWidth = UpdateCameraMatrix();
                 }
             }
 
@@ -767,6 +781,7 @@ namespace Ship_Game
             Vector2 layoutEndV = EndLayout();
             SearchBar = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
             LoadContentFinish();
+            BindListsToActiveHull();
         }
 
         private void LoadContentFinish()
@@ -793,32 +808,36 @@ namespace Ship_Game
                 HullSL.AddItem(new ModuleHeader(cat, 240));
             }
 
-            foreach (ScrollList.Entry e in HullSL.Entries)
+            foreach (ScrollList.Entry e in HullSL.AllEntries)
             {
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
                     if ((hull.Value.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.GetHDict()[hull.Key] ||
-                        ((ModuleHeader) e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
+                        ((ModuleHeader)e.item).Text != Localizer.GetRole(hull.Value.Role, EmpireManager.Player))
                     {
                         continue;
                     }
 
-                    e.AddItem(hull.Value);
+                    e.AddSubItem(hull.Value);
                 }
             }
 
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            DropdownRect = new Rectangle((int)(ScreenWidth * 0.25f), (int)ClassifCursor.Y + 20, 100, 18);
+            DropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 100, 18);
 
             CategoryList = new CategoryDropDown(this, DropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            CarrierOnly = ActiveHull.CarrierShip;
-            CoBoxCursor = new Vector2(DropdownRect.X + 106, DropdownRect.Y);
-            CarrierOnlyBox = Checkbox(CoBoxCursor, () => CarrierOnly, "Carrier Only", 0);
+            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
+            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, ShieldsBehaviorRect);
+            foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
+                ShieldsBehaviorList.AddOption(item.ToString(), item);
+
+            CoBoxCursor = new Vector2(DropdownRect.X - 200, DropdownRect.Y);
+            CarrierOnlyBox = Checkbox(CoBoxCursor, () => ActiveHull.CarrierShip, "Carrier Only", 0);
 
             ShipStats = new Menu1(shipStatsPanel);
             StatsSub = new Submenu(shipStatsPanel);
@@ -842,17 +861,6 @@ namespace Ship_Game
             // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
             base.ExitScreen();
-        }
-
-        public void ResetLists()
-        {
-            WeaponSL.ResetOnNextDraw = true;
-            WeaponSL.indexAtTop = 0;
-        }
-
-        public void ResetModuleState()
-        {
-            ActiveModState = ModuleOrientation.Normal;
         }
 
         private void SaveChanges(object sender, EventArgs e)
@@ -894,14 +902,17 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
+        private ShipData CloneActiveHull(string newName)
+        {
+            ShipData hull = ActiveHull.GetClone();
+            hull.Name        = newName;
+            hull.ModuleSlots = CreateModuleSlots();
+            return hull;
+        }
+
         public void SaveShipDesign(string name)
         {
-            ShipData toSave = ActiveHull.GetClone();
-            toSave.Name         = name;
-            toSave.CombatState  = CombatState;
-            toSave.ShipCategory = CategoryList.ActiveValue;
-            toSave.CarrierShip  = CarrierOnly;
-            toSave.ModuleSlots  = CreateModuleSlots();
+            ShipData toSave = CloneActiveHull(name);
             SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/Saved Designs/{name}.xml");
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
@@ -914,20 +925,7 @@ namespace Ship_Game
 
         private void SaveWIP(object sender, EventArgs e)
         {
-            var toSave = new ShipData
-            {
-                Animated     = ActiveHull.Animated,
-                CombatState  = CombatState,
-                Hull         = ActiveHull.Hull,
-                IconPath     = ActiveHull.ActualIconPath,
-                ModelPath    = ActiveHull.ModelPath,
-                Name         = $"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}",
-                Role         = ActiveHull.Role,
-                ShipStyle    = ActiveHull.ShipStyle,
-                ThrusterList = ActiveHull.ThrusterList,
-                BaseHull     = ActiveHull.BaseHull,
-                ModuleSlots  = CreateModuleSlots()
-            };
+            ShipData toSave = CloneActiveHull($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
             SerializeShipDesign(toSave, $"{Dir.ApplicationData}/StarDrive/WIP/{toSave.Name}.xml");
         }
 

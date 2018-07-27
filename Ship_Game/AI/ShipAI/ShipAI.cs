@@ -20,7 +20,6 @@ namespace Ship_Game.AI
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
         private int StopNumber;
         public FleetDataNode FleetNode { get;  set; }         
-        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
 
         public static UniverseScreen UniverseScreen;
         public Ship Owner;
@@ -298,17 +297,82 @@ namespace Ship_Game.AI
 
         private void UpdateResupplyAI()
         {
-            if (State != AIState.Resupply && !HasPriorityOrder &&
-                Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] &&
-                Owner.DesignRole >= ShipData.RoleName.supply) //fbedard: ships will go for repair
-                if (Owner.fleet == null || Owner.fleet != null && !Owner.fleet.HasRepair)
-                    OrderResupplyNearest(false);
-            if (State == AIState.AwaitingOrders && Owner.NeedResupplyTroops)
-                OrderResupplyNearest(false);
-            if (Owner.NeedResupplyOrdnance)
-                OrderResupplyNearest(false);
-            if (State == AIState.Resupply && !HasPriorityOrder)
-                HasPriorityOrder = true;
+            if (Owner.Health < 0.1f || State == AI.AIState.Resupply)
+                return;
+
+            ResupplyReason resupplyReason = ShipResupply.Resupply(Owner);
+            if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
+            {
+                OrderReturnToHangar(); // dealing with hangar ships needing resupply
+                return;
+            }
+
+            if (Owner.loyalty.isFaction)
+                return;
+
+            Planet nearestRallyPoint = null;
+            switch (resupplyReason)
+            {
+                case ResupplyReason.LowOrdnance:
+                {
+                    if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
+                        return;
+
+                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    break;
+                }
+                case ResupplyReason.NoCommand:
+                case ResupplyReason.LowHealth:
+                {
+                    if (Owner.fleet == null || !Owner.fleet.HasRepair)
+                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    else
+                        return;
+
+                    break;
+                }
+                case ResupplyReason.LowTroops:
+                {
+                    nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
+                    break;
+                }
+                case ResupplyReason.NotNeeded:
+                    return;
+
+            }
+            HasPriorityOrder = true;
+            DecideWhereToResupply(nearestRallyPoint);
+        }
+
+        private void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
+        {
+            if (nearestRallyPoint != null)
+                OrderResupply(nearestRallyPoint, false);
+            else
+            {
+                nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+                if (nearestRallyPoint != null)
+                    OrderResupply(nearestRallyPoint, false);
+                else
+                    OrderFlee(true);
+            }
+        }
+
+        public void CheckSupplyStatus()
+        {
+            if (Owner.AI.State != AIState.Resupply)
+                return;
+
+            if (ShipResupply.DoneResupplying(Owner))
+            {
+                Owner.AI.HasPriorityOrder = false;
+                Owner.AI.State = AIState.AwaitingOrders;
+                return;
+            }
+
+            Owner.AI.OrderQueue.Clear();
+            Owner.AI.Target = null;
+            Owner.AI.PotentialTargets.Clear();
         }
 
         private void UpdateCombatStateAI(float elapsedTime)
@@ -319,7 +383,7 @@ namespace Ship_Game.AI
                 using (OrderQueue.AcquireWriteLock())
                 {
                     ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0 || Owner.Transporters.Count > 0)
+                    if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                     {
                         if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
                             (OrderQueue.IsEmpty ||
@@ -341,33 +405,30 @@ namespace Ship_Game.AI
                 foreach (Weapon purge in Owner.Weapons)
                     purge.ClearFireTarget();
 
-                if (Owner.GetHangars().Count > 0 && Owner.loyalty != UniverseScreen.player)
+                if (Owner.Carrier.HasHangars && Owner.loyalty != UniverseScreen.player)
                 {
-                    Array<ShipModule> array = Owner.GetHangars();
-                    for (int x = 0; x < array.Count; x++)
+                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
-                        ShipModule hangar = array[x];
-                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
-                            || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar)
-                            continue;
-                        hangar.GetHangarShip().AI.OrderReturnToHangar();
+                        Ship hangarShip = hangar.GetHangarShip();
+                        if (hangarShip != null && hangarShip.Active)
+                            hangarShip.AI.OrderReturnToHangar();
                     }
                 }
-                else if (Owner.GetHangars().Count > 0)
+                else if (Owner.Carrier.HasHangars)
                 {
-                    Array<ShipModule> array = Owner.GetHangars();
-                    for (int x = 0; x < array.Count; x++)
+                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
-                        ShipModule hangar = array[x];
-                        if (hangar.IsTroopBay
-                            || hangar.IsSupplyBay
-                            || hangar.GetHangarShip() == null
-                            || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar
-                            || hangar.GetHangarShip().AI.HasPriorityTarget
-                            || hangar.GetHangarShip().AI.HasPriorityOrder
-                        )
-                            continue;
-                        hangar.GetHangarShip().DoEscort(Owner);
+                        Ship hangarShip = hangar.GetHangarShip();
+                        if (hangarShip == null
+                            || hangarShip.AI.State == AIState.ReturnToHangar
+                            || hangarShip.AI.HasPriorityTarget
+                            || hangarShip.AI.HasPriorityOrder)
+                                continue;
+
+                        if (Owner.FightersLaunched)
+                            hangarShip.DoEscort(Owner);
+                        else
+                            hangarShip.AI.OrderReturnToHangar();
                     }
                 }
             }
@@ -378,6 +439,11 @@ namespace Ship_Game.AI
         private void AIStateRebase()
         {
             if (State != AIState.Rebase) return;
+            if (OrderQueue.IsEmpty)
+            {
+                OrderRebaseToNearest();
+                return;
+            }
             for (int x = 0; x < OrderQueue.Count; x++)
             {
                 ShipGoal goal = OrderQueue[x];
@@ -385,7 +451,7 @@ namespace Ship_Game.AI
                     continue;
                 OrderQueue.Clear();
                 State = AIState.AwaitingOrders;
-                break;
+                return;
             }
         }
 
@@ -483,20 +549,26 @@ namespace Ship_Game.AI
                         Vector2 vector2 = Vector2.Zero.PointFromRadians(Owner.fleet.Facing, 1f);
                         Vector2 fvec = Vector2.Zero.DirectionToTarget(vector2);
                         Vector2 wantedForward = Vector2.Normalize(fvec);
-                        var forward = new Vector2((float)Math.Sin((double)Owner.Rotation),
-                            -(float)Math.Cos((double)Owner.Rotation));
+                        var forward = new Vector2((float)Math.Sin(Owner.Rotation),
+                            -(float)Math.Cos(Owner.Rotation));
                         var right = new Vector2(-forward.Y, forward.X);
-                        var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        var angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
                         float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
                         if (angleDiff > 0.02f)
                             RotateToFacing(elapsedTime, angleDiff, facing);
                     }
-                    else if (State == AIState.Orbit || State == AIState.AwaitingOrders
+                    else if (State == AIState.FormationWarp || State == AIState.Orbit || State == AIState.AwaitingOrders
                              || !HasPriorityOrder && !HadPO
                              && State != AIState.HoldPosition)
                     {
+                        //if (State == AIState.FormationWarp)
+                        //{
+                        //    //OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
+                        //    Log.Warning($"Fleet formation warp should not be possible with nothing in order queue.");
+                        //    ClearOrdersNext = true;
+                        //}
+
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                            //PlotCourseToNew(Owner.fleet.Position + Owner.FleetOffset, Owner.Center);
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         else
                             lock (WayPointLocker)
@@ -504,9 +576,11 @@ namespace Ship_Game.AI
                                 ActiveWayPoints.Clear();
                                 ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
                                 //fbedard: set new order for ship returning to fleet
-                                State = AIState.AwaitingOrders;
+                                State = AIState.AwaitingOrders;                                
                                 if (Owner.fleet?.GetStack().Count > 0)
                                     ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                                else
+                                    OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
                             }
                     }
                 }
@@ -725,10 +799,10 @@ namespace Ship_Game.AI
             {
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
-                if (Owner.hasTransporter)
-                    for (int x = 0; x < Owner.Transporters.Count; x++)
+                if (Owner.Carrier.HasTransporters)
+                    for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++) // FB:change to foreach
                     {
-                        ShipModule module = Owner.Transporters[x];
+                        ShipModule module = Owner.Carrier.AllTransporters[x];
                         if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
                             module.TransporterPower >= Owner.PowerCurrent) continue;
                         if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
@@ -786,13 +860,9 @@ namespace Ship_Game.AI
             if (OrderQueue.NotEmpty)
                 OrderQueue.RemoveLast();
             switch (FoodOrProd) {
-                case "Pass":
-                    State = AIState.PassengerTransport;
-                    break;
-                case "Food":
-                case "Prod":
-                    State = AIState.SystemTrader;
-                    break;
+                case Goods.Colonists:  State = AIState.PassengerTransport; break;
+                case Goods.Food:
+                case Goods.Production: State = AIState.SystemTrader; break;
                 default:
                     State = DefaultAIState;
                     break;
@@ -902,9 +972,9 @@ namespace Ship_Game.AI
 
             if (Owner.OrdnanceStatus > ShipStatus.Average)
                 return;
-            if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
+            if (FriendliesNearby.Any(supply => supply.Carrier.HasSupplyBays && supply.OrdnanceStatus > ShipStatus.Poor))
                 return;
-            var resupplyPlanet = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+            var resupplyPlanet = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
             if (resupplyPlanet == null)
                 return;
             OrderResupply(resupplyPlanet, true);

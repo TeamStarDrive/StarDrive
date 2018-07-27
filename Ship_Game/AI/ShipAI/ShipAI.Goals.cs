@@ -56,6 +56,15 @@ namespace Ship_Game.AI {
                 DesiredFacing = facing;
                 TargetPlanet = targetPlanet;
             }
+
+            public static ShipGoal CreateLandTroopGoal(Planet targetPlanet)
+            {
+                ShipGoal goal = new ShipGoal(Plan.LandTroop, Vector2.Zero, 0f)
+                {
+                    TargetPlanet = targetPlanet
+                };
+                return goal;
+            }
         }
 
         public enum Plan

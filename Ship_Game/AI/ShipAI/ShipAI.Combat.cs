@@ -33,6 +33,11 @@ namespace Ship_Game.AI
         public bool HasPriorityTarget;
         private float TriggerDelay;
 
+        public void SetIntercepting()
+        {
+            Intercepting = true;
+        }
+
         public void FireOnTarget()
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 
@@ -116,7 +121,6 @@ namespace Ship_Game.AI
         public GameplayObject ScanForCombatTargets(Ship sensorShip, float radius)
         {
             BadGuysNear = false;
-            GameplayObject priorityTarget = null;
             FriendliesNearby.Clear();
             PotentialTargets.Clear();
             NearByShips.Clear();
@@ -133,8 +137,6 @@ namespace Ship_Game.AI
                         Target = TargetQueue.First();
                     }
                 }
-                else
-                    priorityTarget = Target;
             }
             UpdateTrackedProjectiles();
             if (Target is Ship target)
@@ -209,25 +211,19 @@ namespace Ship_Game.AI
             }
             if (Target is Ship shipTarget)
             {
-
                 if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
                 {
                     var sw = new ShipWeight(shipTarget, 1);
                     NearByShips.AddUnique(sw);
                 }
-
             }
             if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
             {
                 var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
-
                 NearByShips.AddUnique(sw);
             }
 
             SupplyShuttleLaunch(radius);
-            if (Owner.shipData.Role == ShipData.RoleName.supply && Owner.Mothership == null)
-                Owner.Die(null, true); //Destroy shuttle without mothership
-
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
             ShipWeight[] sortedList2 = NearByShips.FilterBy(weight => weight.Weight > -100)
@@ -256,7 +252,7 @@ namespace Ship_Game.AI
             if (sortedList2.Any())
                 targetShip = sortedList2.ElementAt(0).Ship;
 
-            if (Owner.Weapons.Count > 0 || Owner.GetHangars().Count > 0)
+            if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
                 return targetShip;
             return null;
         }
@@ -308,12 +304,12 @@ namespace Ship_Game.AI
             //fbedard: for launch only
             //CG Omergawd. yes i tried getting rid of the orderby and cleaning this up
             //but im not willing to test that change here. I think i did some of this a long while back.  
-            if (Owner.engineState == Ship.MoveState.Warp ||!Owner.HasSupplyBays ) return;
+            if (Owner.engineState == Ship.MoveState.Warp ||!Owner.Carrier.HasSupplyBays ) return;
 
             Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
                                                                   && ship.OrdnanceStatus < ShipStatus.Good
-                                                                  && ship!= Owner 
-                                                                  && (!ship.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
+                                                                  && ship != Owner
+                                                                  && (!ship.Carrier.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
                 .OrderBy(ship =>
                 {
                     var distance = Owner.Center.Distance(ship.Center);
@@ -323,98 +319,89 @@ namespace Ship_Game.AI
 
             if (sortedList.Length <= 0 ) return;            
 
-            var skip = 0;
+            var skipShip = 0;
             var inboundOrdinance = 0f;
-            //oh crap this is really messed up. 
-            foreach (ShipModule hangar in Owner.GetHangars().FilterBy(hangar => hangar.IsSupplyBay))
+            //oh crap this is really messed up.  FB: working on it.
+            foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.FilterBy(hangar => hangar.IsSupplyBay))
             {
-                if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
+                Ship supplyShipInSpace = hangar.GetHangarShip();
+                if (supplyShipInSpace != null && supplyShipInSpace.Active)
                 {
-                    if (hangar.GetHangarShip().AI.State != AIState.Ferrying &&
-                        hangar.GetHangarShip().AI.State != AIState.ReturnToHangar &&
-                        hangar.GetHangarShip().AI.State != AIState.Resupply &&
-                        hangar.GetHangarShip().AI.State != AIState.Scrap)
+                    if (SupplyShipIdle(supplyShipInSpace))
                     {
-                        if (sortedList[skip] != null)
+                        if (sortedList[skipShip] != null)
                         {
-                            var g1 = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-                            hangar.GetHangarShip().AI.EscortTarget = sortedList[skip];
-
-                            hangar.GetHangarShip().AI.IgnoreCombat = true;
-                            hangar.GetHangarShip().AI.OrderQueue.Clear();
-                            hangar.GetHangarShip().AI.OrderQueue.Enqueue(g1);
-                            hangar.GetHangarShip().AI.State = AIState.Ferrying;
+                            SetSupplyTarget(supplyShipInSpace);
+                            supplyShipInSpace.AI.State = AIState.Ferrying;
                             continue;
                         }
 
-                        hangar.GetHangarShip().AI.State =
-                            AIState.ReturnToHangar; //shuttle with no target
+                        supplyShipInSpace.AI.OrderReturnToHangar(); //shuttle with no target
                         continue;
                     }
-
-                    if (sortedList[skip] != null &&
-                        hangar.GetHangarShip().AI.EscortTarget == sortedList[skip] &&
-                        hangar.GetHangarShip().AI.State == AIState.Ferrying)
+                    // FB: check if the same ship needs more ordnance based on resupply class ordnance threshold
+                    if (sortedList[skipShip] != null &&
+                        supplyShipInSpace.AI.EscortTarget == sortedList[skipShip] &&
+                        supplyShipInSpace.AI.State == AIState.Ferrying)
                     {
-                        inboundOrdinance = inboundOrdinance + 100f;
-                        if ((inboundOrdinance + sortedList[skip].Ordinance) /
-                            sortedList[skip].OrdinanceMax > 0.5f)
+                        inboundOrdinance = inboundOrdinance + supplyShipInSpace.OrdinanceMax;
+                        if ((inboundOrdinance + sortedList[skipShip].Ordinance) /
+                            sortedList[skipShip].OrdinanceMax > ShipResupply.ResupplyShuttleOrdnanceThreshold)
                         {
-                            if (skip >= sortedList.Length - 1)
+                            if (skipShip >= sortedList.Length - 1)
                                 return;
-                            ;
-                            skip++;
+
+                            skipShip++;
                             inboundOrdinance = 0;
                         }
                     }
-
                     continue;
                 }
 
                 if (hangar.hangarShipUID.IsEmpty())                        
                     hangar.hangarShipUID = "Supply_Shuttle";
-                        
 
                 var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
-                if (!hangar.Active || hangar.hangarTimer > 0f ||
-                    Owner.Ordinance <= 100f || sortedList[skip] == null)
+                if (!hangar.Active || hangar.hangarTimer > 0f || sortedList[skipShip] == null)
                     continue;
 
-                if (supplyShuttle.Mass / 5f >
-                    Owner.Ordinance) //fbedard: New spawning cost
+                if (supplyShuttle.Mass / 5f > Owner.Ordinance) //fbedard: New spawning cost
                     continue;
-                Ship shuttle =
-                    Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
 
-
-                //shuttle.GetAI().DefaultAIState = AIState.Flee;
+                Ship shuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
                 shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
                 if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
                     shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.Speed;
-                Owner.Ordinance -= shuttle.Mass / 5f;
 
-                if (Owner.Ordinance >= 100f && Owner.OrdnanceStatus > ShipStatus.Critical)
+                Owner.ChangeOrdnance(-shuttle.Mass / 5f);
+                Owner.ChangeOrdnance(-shuttle.OrdinanceMax);
+                hangar.SetHangarShip(shuttle);
+                SetSupplyTarget(shuttle);
+                if (Owner.Ordinance >= shuttle.OrdinanceMax)
+                    shuttle.AI.State = AIState.Ferrying;
+                else // FB: Fatch ordnance from a colony when mothership doesnt have enough ordnance
                 {
-                    //inboundOrdinance        = inboundOrdinance + 100f;
-                    Owner.Ordinance         = Owner.Ordinance - 100f;
-                    hangar.SetHangarShip(shuttle);
-                    var g                   = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-                    shuttle.AI.EscortTarget = sortedList[skip];
-                    shuttle.AI.IgnoreCombat = true;
-                    shuttle.AI.OrderQueue.Clear();
-                    shuttle.AI.OrderQueue.Enqueue(g);
-                    shuttle.AI.State        = AIState.Ferrying;
+                    shuttle.ChangeOrdnance(-shuttle.OrdinanceMax);
+                    shuttle.AI.GoOrbitNearestPlanetAndResupply(false);
                 }
-                else //fbedard: Go fetch ordinance when mothership is low on ordinance
-                {
-                    shuttle.Ordinance       = 0f;
-                    hangar.SetHangarShip(shuttle);
-                    shuttle.AI.IgnoreCombat = true;
-                    shuttle.AI.State        = AIState.Resupply;
-                    shuttle.AI.OrderResupplyNearest(true);
-                }
-
                 break;
+            }
+
+            void SetSupplyTarget(Ship ship)
+            {
+                var goal = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
+                ship.AI.EscortTarget = sortedList[skipShip];
+                ship.AI.IgnoreCombat = true;
+                ship.AI.OrderQueue.Clear();
+                ship.AI.OrderQueue.Enqueue(goal);
+            }
+
+            bool SupplyShipIdle(Ship supplyShip)
+            {
+                return supplyShip.AI.State != AIState.Ferrying &&
+                       (supplyShip.AI.State != AIState.ReturnToHangar || supplyShip.Ordinance > 0) &&
+                       supplyShip.AI.State != AIState.Resupply &&
+                       supplyShip.AI.State != AIState.Scrap;
             }
         }
 

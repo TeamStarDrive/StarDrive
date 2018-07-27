@@ -35,7 +35,7 @@ namespace Ship_Game
             this.ExitScreen();
         }
 
-        protected override void SetSavesSL()
+        protected override void InitSaveList()
         {
             var serializer = new XmlSerializer(typeof(FleetDesign));
 
@@ -67,7 +67,7 @@ namespace Ship_Game
                 }
                 if (ok)
                 {
-                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItemWithCancel(info);
+                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
                 }
             }
         }

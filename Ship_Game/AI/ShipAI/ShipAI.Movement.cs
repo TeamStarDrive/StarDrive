@@ -16,6 +16,14 @@ namespace Ship_Game.AI {
         public Planet OrbitTarget;
         private float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
 
+        public void ClearWayPoints()
+        {
+            lock (ActiveWayPoints)
+            {
+                ActiveWayPoints.Clear();
+            }
+        }
+
         public void GoTo(Vector2 movePos, Vector2 facing)
         {
             GotoStep = 0;
@@ -38,9 +46,16 @@ namespace Ship_Game.AI {
 
         private void MakeFinalApproach(float elapsedTime, ShipGoal Goal)
         {
+            if (ActiveWayPoints.Count <= 0)
+            {
+                Log.Error("Ship Movement: active way points was empty during final approach");
+                ClearOrdersNext = true;
+                return;
+            }
             if (Goal.TargetPlanet != null)
                 lock (WayPointLocker)
                 {
+
                     ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Center);
                     Goal.MovePosition = Goal.TargetPlanet.Center;
                 }
@@ -90,13 +105,13 @@ namespace Ship_Game.AI {
                         rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
                     if (rotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (rotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -150,13 +165,13 @@ namespace Ship_Game.AI {
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -199,13 +214,13 @@ namespace Ship_Game.AI {
                     float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
                     if (RotAmount > 0f)
                     {
-                        if (Owner.yRotation > -Owner.maxBank)
+                        if (Owner.yRotation > -Owner.MaxBank)
                         {
                             Ship owner = Owner;
                             owner.yRotation = owner.yRotation - Owner.yBankAmount;
                         }
                     }
-                    else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                    else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     {
                         Ship ship = Owner;
                         ship.yRotation = ship.yRotation + Owner.yBankAmount;
@@ -227,45 +242,47 @@ namespace Ship_Game.AI {
         private void MoveToWithin1000(float elapsedTime, ShipGoal goal)
         {
             var distWaypt = 15000f; //fbedard
-            if (ActiveWayPoints.Count > 1)
-                distWaypt = Empire.ProjectorRadius / 2f;
+            lock (WayPointLocker)
+            {
+                if (ActiveWayPoints.Count > 1)
+                    distWaypt = Owner.loyalty.ProjectorRadius / 2f;
+            }
 
-            if (OrderQueue.NotEmpty && OrderQueue[1].Plan != Plan.MoveToWithin1000 && goal.TargetPlanet != null)
+            if (goal.TargetPlanet != null && OrderQueue.Count > 2 && OrderQueue[1].Plan != Plan.MoveToWithin1000)
                 lock (WayPointLocker)
                 {
-                    ActiveWayPoints.Last().Equals(goal.TargetPlanet.Center);
+                    //ActiveWayPoints.Last() = goal.TargetPlanet.Center;
                     goal.MovePosition = goal.TargetPlanet.Center;
                 }
             float speedLimit = (int) Owner.Speed;
             float distance = Owner.Center.Distance(goal.MovePosition);
-            if (ActiveWayPoints.Count <= 1)
-                if (distance < Owner.Speed)
-                    speedLimit = distance;
+            lock (WayPointLocker)
+            {
+                if (ActiveWayPoints.Count <= 1)
+                    if (distance < Owner.Speed)
+                        speedLimit = distance;
+            }
             ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
-            if (ActiveWayPoints.Count <= 1)
+            lock (WayPointLocker)
             {
-                if (distance <= 1500f)
-                    lock (WayPointLocker)
-                    {
-                        if (ActiveWayPoints.Count > 1)
-                            ActiveWayPoints.Dequeue();
-                        if (OrderQueue.NotEmpty)
-                            OrderQueue.RemoveFirst();
-                    }
-            }
-            else if (Owner.engineState == Ship.MoveState.Warp)
-            {
-                if (distance <= distWaypt)
-                    lock (WayPointLocker)
-                    {
+                if (ActiveWayPoints.Count <= 1)
+                {
+                    if (distance > 1500f) return;
+
+                    if (ActiveWayPoints.Count > 1)
                         ActiveWayPoints.Dequeue();
-                        if (OrderQueue.NotEmpty)
-                            OrderQueue.RemoveFirst();
-                    }
-            }
-            else if (distance <= 1500f)
-            {
-                lock (WayPointLocker)
+                    if (OrderQueue.NotEmpty)
+                        OrderQueue.RemoveFirst();
+                }
+                else if (Owner.engineState == Ship.MoveState.Warp)
+                {
+                    if (distance > distWaypt) return;
+
+                    ActiveWayPoints.Dequeue();
+                    if (OrderQueue.NotEmpty)
+                        OrderQueue.RemoveFirst();
+                }
+                else if (distance <= 1500f)
                 {
                     ActiveWayPoints.Dequeue();
                     if (OrderQueue.NotEmpty)
@@ -332,7 +349,22 @@ namespace Ship_Game.AI {
         {
             if (!Owner.loyalty.PathCache.TryGetValue(startp, out Map<Point, Empire.PatchCacheEntry> pathstart)
                 || !pathstart.TryGetValue(endp, out Empire.PatchCacheEntry pathend))
+            {
+                foreach (var paths in Owner.loyalty.PathCache.Values)
+                {
+                    if (!paths.TryGetValue(endp, out Empire.PatchCacheEntry path))
+                        continue;
+                    foreach(var wayPoint in path.Path)
+                    {
+                        if (wayPoint.X.AlmostEqual(startp.X,1000) && wayPoint.Y.AlmostEqual(startp.Y,1000))
+                        {
+                            Log.Info("could have used existing path");
+                        }
+                    }
+                }
+
                 return false;
+            }
 
             lock (WayPointLocker)
             {
@@ -356,7 +388,7 @@ namespace Ship_Game.AI {
 
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Empire.ProjectorRadius * 2)
+            if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Owner.loyalty.ProjectorRadius * 2)
             {
                 int reducer = Empire.Universe.reducer; //  (int)(Empire.ProjectorRadius );
                 int granularity = Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
@@ -397,53 +429,57 @@ namespace Ship_Game.AI {
                 var pathpoints = path.FindPath(startp, endp);
                 lock (WayPointLocker)
                 {
-                    if (pathpoints != null)
+                    if (pathpoints == null)
                     {
-                        var cacheAdd = new Array<Vector2>();
-                        //byte lastValue =0;
-                        int y = pathpoints.Count() - 1;
-                        for (int x = y; x >= 0; x -= 2)
-                        {
-                            PathFinderNode pnode = pathpoints[x];
+                        ActiveWayPoints.Enqueue(endPos);
+                        return;
+                    }
 
-                            var translated = new Vector2((pnode.X - granularity) * reducer,
-                                (pnode.Y - granularity) * reducer);
-                            if (translated == Vector2.Zero)
-                                continue;
-                            cacheAdd.Add(translated);
+                    var cacheAdd = new Array<Vector2>();
+                    //byte lastValue =0;
+                    int y = pathpoints.Count - 1;
+                    for (int x = y; x >= 0; x -= 2)
+                    {
+                        PathFinderNode pnode = pathpoints[x];
 
-                            if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius * 2
-                                && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius * 2)
-                                ActiveWayPoints.Enqueue(translated);
-                        }
+                        var worldPosition = new Vector2((pnode.X - granularity) * reducer,
+                            (pnode.Y - granularity) * reducer);
+                        if (worldPosition == Vector2.Zero)
+                            continue;
+                        cacheAdd.Add(worldPosition);
 
-                        var cache = Owner.loyalty.PathCache;
-                        if (!cache.ContainsKey(startp))
+                        if (Vector2.Distance(worldPosition, endPos) > Owner.loyalty.ProjectorRadius * 2
+                            && Vector2.Distance(worldPosition, startPos) > Owner.loyalty.ProjectorRadius * 2)
+                            ActiveWayPoints.Enqueue(worldPosition);
+                    }
+
+                    var cache = Owner.loyalty.PathCache;
+                    if (!cache.ContainsKey(startp))
+                    {
+                        using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
                         {
-                            using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
-                            {
-                                var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                                cache[startp] = new Map<Point, Empire.PatchCacheEntry> {{endp, endValue}};
-                                Owner.loyalty.pathcacheMiss++;
-                            }
-                        }
-                        else if (!cache[startp].ContainsKey(endp))
-                        {
-                            using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
-                            {
-                                var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                                cache[startp].Add(endp, endValue);
-                                Owner.loyalty.pathcacheMiss++;
-                            }
-                        }
-                        else
-                        {
-                            using (Owner.loyalty.LockPatchCache.AcquireReadLock())
-                            {
-                                PathCacheLookup(startp, endp, startPos, endPos);
-                            }
+                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                            cache[startp] = new Map<Point, Empire.PatchCacheEntry> {{endp, endValue}};
+                            Owner.loyalty.pathcacheMiss++;
                         }
                     }
+                    else if (!cache[startp].ContainsKey(endp))
+                    {
+                        using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
+                        {
+                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                            cache[startp].Add(endp, endValue);
+                            Owner.loyalty.pathcacheMiss++;
+                        }
+                    }
+                    else
+                    {
+                        using (Owner.loyalty.LockPatchCache.AcquireReadLock())
+                        {
+                            PathCacheLookup(startp, endp, startPos, endPos);
+                        }
+                    }
+
                     ActiveWayPoints.Enqueue(endPos);
                     return;
                 }
@@ -452,18 +488,19 @@ namespace Ship_Game.AI {
 
         }
         
-        private void RotateInLineWithVelocity(float elapsedTime, ShipGoal Goal)
+        private void RotateInLineWithVelocity(float elapsedTime, ShipGoal goal)
         {
             if (Owner.Velocity == Vector2.Zero)
             {
                 OrderQueue.RemoveFirst();
                 return;
             }
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(Vector2.Normalize(Owner.Velocity), forward));
-            float facing = Vector2.Dot(Vector2.Normalize(Owner.Velocity), right) > 0f ? 1f : -1f;
+
+            Vector2 ownerDir = Owner.Velocity.Normalized();
+            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 right = forward.RightVector();
+            float angleDiff = (float)Math.Acos(ownerDir.Dot(forward));
+            float facing = ownerDir.Dot(right) > 0f ? 1f : -1f;
             if (angleDiff <= 0.2f)
             {
                 OrderQueue.RemoveFirst();
@@ -475,13 +512,12 @@ namespace Ship_Game.AI {
         private void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
         {
             Vector2 p = Vector2.Zero.PointFromRadians(goal.DesiredFacing, 1f);
-            Vector2 fvec = Vector2.Zero.DirectionToTarget(p);
-            Vector2 wantedForward = Vector2.Normalize(fvec);
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
-            float facing = Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f;
+            Vector2 wantedForward = Vector2.Zero.DirectionToTarget(p);
+
+            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 right = forward.RightVector();
+            float angleDiff = (float) Math.Acos(wantedForward.Dot(forward));
+            float facing = wantedForward.Dot(right) > 0f ? 1f : -1f;
             if (angleDiff <= 0.02f)
             {
                 OrderQueue.RemoveFirst();
@@ -492,40 +528,21 @@ namespace Ship_Game.AI {
 
         private bool RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
         {
-            var turned = false;
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = Owner.Center.DirectionToTarget(goal.MovePosition);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(VectorToTarget, forward));
+            bool turned = false;
+            Vector2 forward = Owner.Rotation.RadiansToDirection();
+            Vector2 right = forward.RightVector();
+            Vector2 dir = Owner.Center.DirectionToTarget(goal.MovePosition);
+            float angleDiff = (float)Math.Acos(dir.Dot(forward));
             if (angleDiff > 0.2f)
             {
                 Owner.HyperspaceReturn();
-                RotateToFacing(elapsedTime, angleDiff, Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f);
+                RotateToFacing(elapsedTime, angleDiff, dir.Dot(right) > 0f ? 1f : -1f);
                 turned = true;
             }
             else if (OrderQueue.NotEmpty)
             {
                 OrderQueue.RemoveFirst();
             }
-            return turned;
-        }
-
-        private bool RotateToFaceMovePosition(float elapsedTime, Vector2 MovePosition)
-        {
-            var turned = false;
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
-            var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = Owner.Center.DirectionToTarget(MovePosition);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(VectorToTarget, forward));
-            if (angleDiff > Owner.rotationRadiansPerSecond * elapsedTime)
-            {
-                Owner.HyperspaceReturn();
-                RotateToFacing(elapsedTime, angleDiff, Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f);
-                turned = true;
-            }
-
             return turned;
         }
 
@@ -537,21 +554,18 @@ namespace Ship_Game.AI {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
             if (rotAmount > 0f)
             {
-                if (Owner.yRotation > -Owner.maxBank)
+                if (Owner.yRotation > -Owner.MaxBank)
                 {
-                    Ship owner = Owner;
-                    owner.yRotation = owner.yRotation - Owner.yBankAmount;
+                    Owner.yRotation -= Owner.yBankAmount;
                 }
             }
-            else if (rotAmount < 0f && Owner.yRotation < Owner.maxBank)
+            else if (rotAmount < 0f && Owner.yRotation < Owner.MaxBank)
             {
-                Ship ship = Owner;
-                ship.yRotation = ship.yRotation + Owner.yBankAmount;
+                Owner.yRotation += Owner.yBankAmount;
             }
             if (!float.IsNaN(rotAmount))
             {
-                Ship rotation = Owner;
-                rotation.Rotation = rotation.Rotation + rotAmount;
+                Owner.Rotation += rotAmount;
             }
         }
 
@@ -699,8 +713,8 @@ namespace Ship_Game.AI {
                                  WarpSpeed + "     Distance = " + Distance);
                     //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
 
-                    if (ActiveWayPoints.Count >= 2 && Distance > Empire.ProjectorRadius / 2 &&
-                        Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Empire.ProjectorRadius * 5)
+                    if (ActiveWayPoints.Count >= 2 && Distance > Owner.loyalty.ProjectorRadius / 2 &&
+                        Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
                     {
                         Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(ActiveWayPoints.ElementAt(1));
                         var angleDiffNext = (float) Math.Acos((double) Vector2.Dot(wantedForwardNext, forward));
@@ -758,9 +772,9 @@ namespace Ship_Game.AI {
             if (angleDiff > 0.025f) //Stuff for the ship visually banking on the Y axis when turning
             {
                 float RotAmount = Math.Min(angleDiff, facing * elapsedTime * Owner.rotationRadiansPerSecond);
-                if (RotAmount > 0f && Owner.yRotation > -Owner.maxBank)
+                if (RotAmount > 0f && Owner.yRotation > -Owner.MaxBank)
                     Owner.yRotation = Owner.yRotation - Owner.yBankAmount;
-                else if (RotAmount < 0f && Owner.yRotation < Owner.maxBank)
+                else if (RotAmount < 0f && Owner.yRotation < Owner.MaxBank)
                     Owner.yRotation = Owner.yRotation + Owner.yBankAmount;
                 Owner.isTurning = true;
                 Owner.Rotation = Owner.Rotation + (RotAmount > angleDiff ? angleDiff : RotAmount);
@@ -774,38 +788,7 @@ namespace Ship_Game.AI {
             }
             else //In a fleet
             {
-                if (Distance > 7500) //Not near destination
-                {
-                    float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove;
-                    speedLimit = Owner.fleet.Speed;
-
-                    #region FleetGrouping
-
-#if true
-                    if (Distance <= distanceFleetCenterToDistance)
-                    {
-                        float speedreduction = distanceFleetCenterToDistance - Distance;
-                        speedLimit = Owner.fleet.Speed - speedreduction;
-
-                        if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
-                    }
-                    else if (Distance > distanceFleetCenterToDistance && Distance > Owner.Speed)
-                    {
-                        float speedIncrease = Distance - distanceFleetCenterToDistance;
-                        speedLimit = Owner.fleet.Speed + speedIncrease;
-                    }
-#endif
-
-                    #endregion
-
-                    if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
-                    else if (Owner.engineState == Ship.MoveState.Warp)
-                        Owner.HyperspaceReturn(); //Fleet is not ready for warp
-                }
-                else if (Owner.engineState == Ship.MoveState.Warp)
-                {
-                    Owner.HyperspaceReturn(); //Near Destination
-                }
+                speedLimit = FleetGrouping(Distance);
             }
 
             if (speedLimit > Owner.velocityMaximum) speedLimit = Owner.velocityMaximum;
@@ -814,7 +797,48 @@ namespace Ship_Game.AI {
             Owner.Velocity = Owner.Velocity + Vector2.Normalize(forward) * (elapsedTime * speedLimit);
             if (Owner.Velocity.Length() > speedLimit) Owner.Velocity = Vector2.Normalize(Owner.Velocity) * speedLimit;
         }
-        
+
+        private float FleetGrouping(float Distance)
+        {
+            float speedLimit = Owner.fleet.Speed;
+            float distance = (Owner.Center + Owner.FleetOffset).Distance(Owner.fleet.Position + Owner.FleetOffset);
+            if (distance > 7500) //Not near destination
+            {
+                float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove - Owner.fleet.Position.Distance(Owner.fleet.Position + Owner.FleetOffset);
+                speedLimit = Owner.fleet.Speed;
+
+                #region FleetGrouping
+
+#if true
+                if (distance <= distanceFleetCenterToDistance)
+                {
+                    float speedreduction = distanceFleetCenterToDistance - Distance;
+                    speedLimit = Owner.fleet.Speed - speedreduction;
+
+                    if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
+                }
+                else if (distance > distanceFleetCenterToDistance)// && distance > 1000 )
+                {
+                    float speedIncrease = distance - distanceFleetCenterToDistance;
+                    speedLimit = Owner.fleet.Speed + speedIncrease;
+                }
+#endif
+
+                #endregion
+
+                if (Owner.fleet.ReadyForWarp) Owner.EngageStarDrive(); //Fleet is ready to Go into warp
+                else if (Owner.engineState == Ship.MoveState.Warp)
+                    Owner.HyperspaceReturn(); //Fleet is not ready for warp
+            }
+            else if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                Owner.HyperspaceReturn(); //Near Destination
+                HasPriorityOrder = false;
+            }
+
+            return speedLimit;
+        }
+
 
         public class WayPoints
         {

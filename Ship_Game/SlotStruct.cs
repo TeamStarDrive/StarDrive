@@ -147,5 +147,13 @@ namespace Ship_Game
                 && Module.YSIZE        == other.YSIZE
                 && Module.Restrictions == other.Restrictions;
         }
+
+        public bool IsSame(ShipModule module, ModuleOrientation orientation, float facing)
+        {
+            return Module != null
+                && Module.UID == module.UID
+                && Orientation == orientation
+                && Facing.AlmostEqual(facing);
+        }
     }
 }

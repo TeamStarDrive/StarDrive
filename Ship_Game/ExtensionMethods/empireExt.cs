@@ -1,29 +1,58 @@
 ﻿using System;
-using Ship_Game;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
     public static class GamePlayExtensions
     {
-        public static Array<Ship> GetTroopShips(this Empire empire, ref float troopStrength)
+        /// <summary>
+        /// Empire extension for getting available troops ships
+        /// </summary>
+        public static Array<Ship> GetAvailableTroopShips(this Empire empire)
         {
-            Array<Ship> troopShips = new Array<Ship>();
-            foreach (Ship ship in empire.GetShips())
+            var ships = new Array<Ship>();
+
+            BatchRemovalCollection<Ship> collection = empire.GetShips();
+            for (int x = 0; x < collection.Count; x++)
             {
-                if (ship.shipData.Role != ShipData.RoleName.troop
-                    || ship.fleet != null
-                    || ship.Mothership != null
+                Ship ship = collection[x];
+                if (!ship.Active
+                    || ship.shipData.Role != ShipData.RoleName.troop
+                    || ship.fleet         != null
+                    || ship.Mothership    != null
+                    || ship.AI.State      == AI.AIState.Scrap
                     || ship.AI.HasPriorityOrder)
                     continue;
-                troopShips.Add(ship);
-                for (int i = 0; i < ship.TroopList.Count; i++)
-                    if (ship.TroopList[i].GetOwner() == empire)
-                        troopStrength += ship.TroopList[i].Strength;
+                ships.Add(ship);
             }
-            return troopShips;
+
+            return ships;
         }
+        /// <summary>
+        /// Generic empire ship filter. Use this to help remember to move filter needs to extensions when needed.
+        /// </summary>
+        public static Array<Ship> GetShips(this Empire empire, Predicate<Ship> filter)
+        {
+            Array<Ship> ships = new Array<Ship>();
+            foreach (Ship ship in empire.GetShips())
+            {
+                if (!filter(ship)) continue;
+                
+                ships.Add(ship);
+            }
+            return ships;
+        }
+
+        public static float CalculateShipsValue(this Array<Ship> ships, Func<Ship,float> calculator)
+        {
+            float value =0;
+            foreach (Ship ship in ships)            
+                value += calculator(ship);
+            return value;
+        }
+
+
+
 
         public static Array<Troop> GetTroopUnits(this Empire empire, ref float TotalTroopStrength)
         {

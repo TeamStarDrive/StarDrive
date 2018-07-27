@@ -74,7 +74,7 @@ namespace Ship_Game.Commands.Goals
             if (planet1 == null)
                 return GoalStep.TryAgain;
             PlanetBuildingAt = planet1;
-            planet1.ConstructionQueue.Add(new QueueItem()
+            planet1.ConstructionQueue.Add(new QueueItem(planet1)
             {
                 isShip = true,
                 QueueNumber = planet1.ConstructionQueue.Count,
@@ -103,9 +103,9 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep OrderShipToAwaitOrders()
         {
-            if (beingBuilt != null)
+            if (beingBuilt == null)
             {
-                Log.Warning($"BeingBuilt was null at {type} completion");
+                Log.Warning($"BeingBuilt was null in {type} completion");
                 return GoalStep.GoalComplete;
             }
             beingBuilt.AI.State = AIState.AwaitingOrders;

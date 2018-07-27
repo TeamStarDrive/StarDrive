@@ -14,43 +14,6 @@ namespace Ship_Game
 {
     internal static class HelperFunctions
     {
-        // return number of solutions, false if no solutions or infinite solutions
-        // @note this is optimized quite well
-        public static bool CircleIntersection(Circle ca, Circle cb, out Vector2 intersect1, out Vector2 intersect2)
-        {
-            float dx = ca.Center.X - cb.Center.Y;
-            float dy = ca.Center.Y - cb.Center.Y;
-            float dist = (float)Math.Sqrt(dx * dx + dy * dy);
-            float r0 = ca.Radius;
-            float r1 = cb.Radius;
-            if (dist < 0.0001f || dist > r0 + r1 || dist < Math.Abs(r0 - r1))
-            {
-                intersect1 = Vector2.Zero;
-                intersect2 = Vector2.Zero;
-                return false;
-            }
-
-            // Determine the distance from point 0 to point 2
-            float a = (r0*r0 - r1*r1 + dist*dist) / (2.0f * dist);
-
-            // Determine the coordinates of point 2
-            float aDivDist = a / dist;
-            float x2 = ca.Center.X + dx * aDivDist;
-            float y2 = ca.Center.Y + dy * aDivDist;
-
-            // Determine the distance from point 2 to either of the intersection points.
-            float hDivDist = (float)Math.Sqrt(r0*r0 - a*a) / dist;
-
-            // Now determine the offsets of the intersection points from point 2
-            float rx = -dy * hDivDist;
-            float ry =  dx * hDivDist;
-
-            // Determine the absolute intersection points
-            intersect1 = new Vector2(x2 + rx, y2 + ry);
-            intersect2 = new Vector2(x2 - rx, y2 - ry);
-            return true;
-        }
-
         public static void ClampVectorToInt(ref Vector2 pos)
         {
             pos.X = (int)pos.X;
@@ -253,9 +216,9 @@ namespace Ship_Game
         public static string ParseText(SpriteFont font, string text, float maxLineWidth)
         {
             var result = new StringBuilder();
-            var wordArray = text.Split(' ');
+            string[] words = text.Split(' ');
             float length = 0.0f;
-            foreach (string word in wordArray)
+            foreach (string word in words)
             {
                 if (word != "\\n" && word != "\n")
                 {
@@ -273,15 +236,14 @@ namespace Ship_Game
             return result.ToString();
         }
 
-        public static void parseTextToSL(string text, float Width, SpriteFont font, ref ScrollList List)
+        public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
         {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            char[] chrArray = new char[] { ' ', '\n' };
-            string[] wordArray = text.Split(chrArray);
-            for (int i = 0; i < (int)wordArray.Length; i++)
+            string line = "";
+            string returnString = "";
+            string[] words = text.Split(' ', '\n');
+            for (int i = 0; i < words.Length; i++)
             {
-                string word = wordArray[i];
+                string word = words[i];
                 if (string.IsNullOrEmpty(word))
                 {
                     word = "\n";
@@ -292,7 +254,7 @@ namespace Ship_Game
                     returnString = string.Concat(returnString, line, '\n');
                     line = string.Empty;
                 }
-                else if (font.MeasureString(string.Concat(line, word)).Length() > Width)
+                else if (font.MeasureString(string.Concat(line, word)).Length() > width)
                 {
                     returnString = string.Concat(returnString, line, '\n');
                     line = string.Empty;
@@ -302,15 +264,15 @@ namespace Ship_Game
                     line = string.Concat(line, word, ' ');
                 }
             }
-            string[] lineArray = returnString.Split(new char[] { '\n' });
-            for (int i = 0; i < (int)lineArray.Length; i++)
+            string[] lines = returnString.Split('\n');
+            for (int i = 0; i < lines.Length; i++)
             {
-                string sent = lineArray[i];
+                string sent = lines[i];
                 if (sent.Length > 0)
                 {
                     List.AddItem(sent);
                 }
-                else if (string.IsNullOrEmpty(sent) && (int)lineArray.Length > i + 1 && !string.IsNullOrEmpty(lineArray[i + 1]))
+                else if (sent.IsEmpty() && lines.Length > i + 1 && lines[i + 1].NotEmpty())
                 {
                     List.AddItem("\n");
                 }
@@ -320,23 +282,8 @@ namespace Ship_Game
 
         public static int RoundTo(float amount1, int roundTo)
         {
-            int rounded = (int)(((double)amount1 + 0.5 * (double)roundTo) / (double)roundTo) * roundTo;
+            int rounded = (int)((amount1 + 0.5 * roundTo) / roundTo) * roundTo;
             return rounded;
-        }
-
-        // Added by McShooterz: module repair priority list
-        public static int ModulePriority(ShipModule shipModule)
-        {
-            switch (shipModule.ModuleType)
-            {
-                case ShipModuleType.Command:      return 0;
-                case ShipModuleType.PowerPlant:   return 1;
-                case ShipModuleType.PowerConduit: return 2;
-                case ShipModuleType.Engine:       return 3;
-                case ShipModuleType.Shield:       return 4;
-                case ShipModuleType.Armor:        return 6;
-                default:                          return 5;
-            }
         }
 
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
