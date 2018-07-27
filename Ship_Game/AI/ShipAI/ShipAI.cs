@@ -300,7 +300,7 @@ namespace Ship_Game.AI
             if (Owner.Health < 0.1f)
                 return;
 
-            ResupplyReason resupplyReason = ShipResupply.Resupply(Owner);
+            ResupplyReason resupplyReason = Owner.Supply.Resupply();
             if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
             {
                 OrderReturnToHangar(); // dealing with hangar ships needing resupply
@@ -391,7 +391,7 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            if (!ShipResupply.DoneResupplying(Owner, supplyType))
+            if (!Owner.Supply.DoneResupplying(supplyType))
                 return;
 
             Owner.AI.HasPriorityOrder = false;
