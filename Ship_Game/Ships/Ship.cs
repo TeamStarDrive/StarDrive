@@ -1324,16 +1324,6 @@ namespace Ship_Game.Ships
             AI.State        = AIState.Escort;
             AI.EscortTarget = escortTarget;
         }
-        /*
-        public void DoResupplyEscort(Ship escortTarget)
-        {
-            AI.OrderQueue.Clear();
-            AI.State = AIState.Escort;
-            AI.EscortTarget = escortTarget;
-            Speed = 0; //escortTarget.Speed;
-            AI.TerminateResupplyIfDone();
-        }
-        */
 
         public void DoDefense()
         {
