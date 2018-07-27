@@ -70,7 +70,7 @@ namespace Ship_Game.Ships
         private static bool ResupplyNeededLowOrdnance(Ship ship)
         {
             return OrdnanceLow(ship) && HighKineticToEnergyRatio(ship) 
-                                     && CanNotAddEnoughOrdnance(ship);
+                                     && InsufficientOrdnanceProduction(ship);
         }
 
         private static bool ResupplyNeededLowTroops(Ship ship)
@@ -110,7 +110,7 @@ namespace Ship_Game.Ships
             return ratio >= ratioTheshold;
         }
 
-        private static bool CanNotAddEnoughOrdnance(Ship ship)
+        private static bool InsufficientOrdnanceProduction(Ship ship)
         {
             if (ship.OrdAddedPerSecond < 1 || ship.OrdinanceMax > 0)
                 return true;

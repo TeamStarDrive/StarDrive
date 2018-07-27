@@ -357,9 +357,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                if (hangar.hangarShipUID.IsEmpty())                        
-                    hangar.hangarShipUID = "Supply_Shuttle";
-
+                hangar.hangarShipUID = Ship.GetSupplyShuttleName(Owner.loyalty);
                 var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
                 if (!hangar.Active || hangar.hangarTimer > 0f || sortedList[skipShip] == null)
                     continue;
