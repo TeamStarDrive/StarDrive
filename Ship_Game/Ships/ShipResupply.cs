@@ -1,6 +1,6 @@
 ﻿namespace Ship_Game.Ships
 {
-    public struct ShipRessuply
+    public struct ShipResupply
     {
         private readonly Ship Ship;
         private const float OrdnanceThresholdCombat            = 0.05f;
@@ -17,7 +17,7 @@
         public const float RepairDroneThreshold                = 0.75f; // internal modules percentage
         public const float RepairDroneRange                    = 20000f;
 
-        public ShipRessuply(Ship ship)
+        public ShipResupply(Ship ship)
         {
             Ship = ship;
         }

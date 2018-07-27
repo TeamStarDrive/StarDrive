@@ -357,11 +357,11 @@ namespace Ship_Game.AI
 
         private void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
         {
-            EscortTarget = supplyShip;
-            float minDistance = Owner.Radius + supplyShip.Radius;
-            var goal = new ShipGoal(Plan.ResupplyEscort, Vector2.Zero, 0f)
+            EscortTarget       = supplyShip;
+            float minDistance  = Owner.Radius + supplyShip.Radius;
+            var goal           = new ShipGoal(Plan.ResupplyEscort, Vector2.Zero, 0f)
             {
-                FacingVector = UniverseRandom.RandomBetween(0, 360),
+                FacingVector   = UniverseRandom.RandomBetween(0, 360),
                 VariableNumber = minDistance + UniverseRandom.RandomBetween(200, 1000),
                 VariableString = supplyType
             };

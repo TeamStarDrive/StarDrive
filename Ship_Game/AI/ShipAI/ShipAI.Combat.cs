@@ -345,7 +345,7 @@ namespace Ship_Game.AI
                     {
                         inboundOrdinance = inboundOrdinance + supplyShipInSpace.OrdinanceMax;
                         if ((inboundOrdinance + sortedList[skipShip].Ordinance) /
-                            sortedList[skipShip].OrdinanceMax > ShipRessuply.ResupplyShuttleOrdnanceThreshold)
+                            sortedList[skipShip].OrdinanceMax > ShipResupply.ResupplyShuttleOrdnanceThreshold)
                         {
                             if (skipShip >= sortedList.Length - 1)
                                 return;
