@@ -37,13 +37,7 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        protected override void Destroy()
-        {
-            ShipSL?.Dispose(ref ShipSL);
-            base.Destroy();
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             base.ScreenManager.SpriteBatch.Begin();
@@ -55,12 +49,11 @@ namespace Ship_Game
             sel.Draw(ScreenManager.SpriteBatch);
             selector?.Draw(ScreenManager.SpriteBatch);
             this.ShipSL.Draw(base.ScreenManager.SpriteBatch);
-            Vector2 bCursor = new Vector2((float)(this.sub_ships.Menu.X + 5), (float)(this.sub_ships.Menu.Y + 25));
-            for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+            var bCursor = new Vector2(sub_ships.Menu.X + 5, sub_ships.Menu.Y + 25);
+            foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = this.ShipSL.Copied[i];
                 Ship ship = ResourceManager.ShipsDict[e.item as string];
-                bCursor.Y = (float)e.clickRect.Y;
+                bCursor.Y = e.Y;
                 base.ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
@@ -69,7 +62,7 @@ namespace Ship_Game
                 {
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                 }
-                Rectangle moneyRect = new Rectangle(e.clickRect.X + 165, e.clickRect.Y, 21, 20);
+                Rectangle moneyRect = new Rectangle(e.X + 165, e.Y, 21, 20);
                 Vector2 moneyText = new Vector2((float)(moneyRect.X + 25), (float)(moneyRect.Y - 2));
                 base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
                 int refitCost = (int)(ship.GetCost(ship.loyalty) - this.Shiptorefit.GetCost(ship.loyalty));
@@ -100,8 +93,6 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-    
-
         public override bool HandleInput(InputState input)
         {
             this.ShipSL.HandleInput(input);
@@ -111,22 +102,21 @@ namespace Ship_Game
                 return true;
             }
             this.selector = null;
-            for (int i = this.ShipSL.indexAtTop; i < this.ShipSL.Copied.Count && i < this.ShipSL.indexAtTop + this.ShipSL.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = this.ShipSL.Copied[i];
-                if (e.clickRect.HitTest(input.CursorPosition))
+                if (e.CheckHover(input))
                 {
-                    this.selector = new Selector(e.clickRect);
+                    selector = e.CreateSelector();
                     if (input.InGameSelect)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        this.RefitTo = e.item as string;
+                        RefitTo = e.Get<string>();
                     }
                 }
             }
-            if (this.RefitTo != null)
+            if (RefitTo != null)
             {
-                if (this.RefitOne.Rect.HitTest(input.CursorPosition))
+                if (RefitOne.Rect.HitTest(input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2267));
                     if (input.InGameSelect)

@@ -45,7 +45,6 @@ namespace Ship_Game
         private bool AllSystemsGenerated;
         private float PercentLoaded;
         private int systemToMake;
-        public static float SetProjectorSize(float dataSizeX) => dataSizeX * .04f;
         
 
         public CreatingNewGameScreen(Empire empire, string universeSize, 
@@ -74,10 +73,10 @@ namespace Ship_Game
             ResourceManager.LoadEncounters();
             PlayerEmpire = empire;
             empire.Initialize();
-            empire.data.CurrentAutoColony    = empire.data.DefaultColonyShip;
-            empire.data.CurrentAutoFreighter = empire.data.DefaultSmallTransport;
-            empire.data.CurrentAutoScout     = empire.data.StartingScout;
-            empire.data.CurrentConstructor   = empire.data.DefaultConstructor;
+            empire.data.CurrentAutoScout     = empire.data.ScoutShip;
+            empire.data.CurrentAutoColony    = empire.data.ColonyShip;
+            empire.data.CurrentAutoFreighter = empire.data.FreighterShip;
+            empire.data.CurrentConstructor   = empire.data.ConstructorShip;
             Data = new UniverseData
             {
                 FTLSpeedModifier      = GlobalStats.FTLInSystemModifier,
@@ -99,11 +98,9 @@ namespace Ship_Game
                 case "TrulyEpic":   size = corners ? 144: 160; Data.Size = new Vector2(33554423); break;
             }
 
-            NumSystems = (int)(size * starNumModifier);
-
-            Empire.ProjectorRadius = CreatingNewGameScreen.SetProjectorSize(Data.Size.X);
-            Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
-
+            NumSystems = (int)(size * starNumModifier);           
+            //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
+            
             UniverseData.UniverseWidth = Data.Size.X * 2;
             Data.Size *= Scale;
             Data.EmpireList.Add(empire);
@@ -817,7 +814,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             ScreenManager.SpriteBatch.Begin();

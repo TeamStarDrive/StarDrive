@@ -145,10 +145,11 @@ namespace Ship_Game.AI
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-            
+            Vector2 interceptPoint = Vector2.Zero;
             if (Target != null)
             {
-                float distancetoTarget = Missile.Center.Distance(Target.Center);
+                interceptPoint = Missile.PredictImpact(Target);
+                float distancetoTarget = Missile.Center.Distance(interceptPoint);
                 if (Jammed)
                 {
                     MoveTowardsTargetJammed(elapsedTime);
@@ -167,7 +168,7 @@ namespace Ship_Game.AI
                 }
                 if (Missile.Weapon.TerminalPhaseAttack && distancetoTarget <= Missile.Weapon.TerminalPhaseDistance)
                 {
-                    Missile.GuidedMoveTowards(elapsedTime, Target.Center);
+                    Missile.GuidedMoveTowards(elapsedTime, interceptPoint);
                     Missile.Velocity *= Missile.Weapon.TerminalPhaseSpeedMod;
                     return;
                 }
@@ -191,8 +192,7 @@ namespace Ship_Game.AI
             }
             if (Target != null)
             {
-
-                Missile.GuidedMoveTowards(elapsedTime, Target.Center + LaunchJitter + TargetJitter);
+                Missile.GuidedMoveTowards(elapsedTime, interceptPoint + LaunchJitter + TargetJitter);
                 return;
             }
             MoveStraight(elapsedTime);

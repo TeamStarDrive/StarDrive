@@ -74,6 +74,34 @@ namespace Ship_Game
         {
             lock (this) return Values.ToArray();
         }
-        
+
+        public TKey MaxKeyByValues(Func<TValue, float> selector)
+        {            
+            TKey found = default(TKey);
+            float max = float.MinValue;
+            foreach(var kv in this)
+            {
+                float value = selector(kv.Value);
+                if (value <= max) continue;
+                max = value;
+                found = kv.Key;
+            }
+            return found;
+        }
+        public TKey MaxKeyByValuesFiltered(Func<TValue, float> selector, Predicate<TValue> filter)
+        {
+            TKey found = default(TKey);
+            float max = float.MinValue;
+            foreach (var kv in this)
+            {
+                if (!filter(kv.Value))
+                    continue;
+                float value = selector(kv.Value);
+                if (value <= max) continue;
+                max = value;
+                found = kv.Key;
+            }
+            return found;
+        }        
     }
 }

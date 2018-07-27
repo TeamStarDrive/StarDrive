@@ -6,6 +6,7 @@ namespace Ship_Game
 {
     public enum Goods
     {
+        None,
         Production,
         Food,
         Colonists,

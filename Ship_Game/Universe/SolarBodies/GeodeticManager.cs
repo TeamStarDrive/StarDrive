@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -21,9 +22,9 @@ namespace Ship_Game.Universe.SolarBodies
         private Shield Shield => SolarSystemBody.Shield;
         private Vector2 Center => SolarSystemBody.Center;
         private SceneObject SO => SolarSystemBody.SO;
-        private bool HasShipyard => SolarSystemBody.HasShipyard;
+        private bool HasSpacePort => SolarSystemBody.HasShipyard;
         private int DevelopmentLevel => SolarSystemBody.DevelopmentLevel;
-        private Map<System.Guid,Ship> Shipyards => SolarSystemBody.Shipyards;
+        private Map<System.Guid,Ship> Stations => SolarSystemBody.Shipyards;
         private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
         
         public GeodeticManager (Planet planet)
@@ -33,7 +34,7 @@ namespace Ship_Game.Universe.SolarBodies
         private int CountShipYards()
         {
             int shipYardCount =0;
-            foreach (var shipYard in Shipyards)
+            foreach (var shipYard in Stations)
             {
                 if (!shipYard.Value.shipData.IsShipyard) continue;
                 shipYardCount++;
@@ -256,92 +257,130 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void AffectNearbyShips()
+        public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
-            float repairPool = DevelopmentLevel * RepairPerTurn * 10 * (2 - SolarSystemBody.ShipBuildingModifier);
-            if (HasShipyard)
-            {
-                foreach (Ship ship in Shipyards.Values)
-                {      
-                        repairPool += ship.RepairRate;                   
-                }
-            }
+            float repairPool = CalcRepairPool();
+            // FB: I added here a minimum threshold of 5 troops to stay as garrison so the LoadTroops wont clean the colony
+            // But this should be made at a button for the player to decide how many troops he wants to leave as a garrison in ship colony screen
+            int garrisonSize = SolarSystemBody.Owner.isPlayer ? 5 : 0;
+
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
-                Ship ship = ParentSystem.ShipList[i];
-                if (ship != null && ship.loyalty.isFaction)
+                Ship ship         = ParentSystem.ShipList[i];
+                bool loyaltyMatch = ship.loyalty == Owner;
+
+                if (ship.loyalty.isFaction)
+                    AddTroopsForFactions(ship);
+
+                if (loyaltyMatch && ship.Position.InRadius(Center, 5000f))
                 {
-                    ship.Ordinance = ship.OrdinanceMax;
-                    if (ship.HasTroopBay)
-                    {
-                        if (Population > 0)
-                        {
-                            if (ship.TroopCapacity > ship.TroopList.Count)
-                            {
-                                ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
-                            }
-                            if (Owner != null && Population > 0)
-                            {
-                                SolarSystemBody.Population *= .5f;
-                                SolarSystemBody.Population -= 1000;
-                                SolarSystemBody.ProductionHere *= .5f;
-                                SolarSystemBody.FoodHere *= .5f;
-                            }
-                            if (Population < 0)
-                                SolarSystemBody.Population = 0;
-                        }
-                        else if (ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
-                        {
-                            ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
-                            ParentSystem.combatTimer = 0;
-                        }
-                    }
-                }
-
-                if (ship == null || ship.loyalty != Owner || !HasShipyard ||
-                    !ship.Position.InRadius(Center, 5000f)) continue;
-                ship.PowerCurrent = ship.PowerStoreMax;
-                ship.Ordinance = ship.OrdinanceMax;
-                    
-                //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
-                if (!ship.InCombat && repairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent < 90))
-                {
-                    int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
-                    ship.ApplyAllRepair(repairPool, repairLevel, repairShields:true);
-                }
-                else if (ship.AI.State == AIState.Resupply)
-                {
-
-                    ship.AI.OrderQueue.Clear();
-
-                    ship.AI.Target = null;
-                    ship.AI.PotentialTargets.Clear();
-                    ship.AI.HasPriorityOrder = false;
-                    ship.AI.State = AIState.AwaitingOrders;
-
-                }
-                //auto load troop
-                using (TroopsHere.AcquireWriteLock())
-                {
-                    if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
-                        TroopsHere.Any(troop => troop.GetOwner() != Owner))
-                        continue;
-                    foreach (var pgs in TilesList)
-                    {
-                        if (ship.TroopCapacity == 0 || ship.TroopList.Count >= ship.TroopCapacity)
-                            break;
-
-                        using (pgs.TroopsHere.AcquireWriteLock())
-                            if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
-                            {
-                                Troop troop = pgs.TroopsHere[0];
-                                ship.TroopList.Add(troop);
-                                pgs.TroopsHere.Clear();
-                                TroopsHere.Remove(troop);
-                            }
-                    }
+                    LoadTroops(ship, garrisonSize);
+                    SupplyShip(ship);
+                    RepairShip(ship, repairPool);
                 }
             }
+        }
+
+        private void SupplyShip(Ship ship)
+        {
+            if (ship.shipData.Role == ShipData.RoleName.platform) // platforms always get max ordnance to retain platforms Vanilla functionality
+            {
+                ship.ChangeOrdnance(ship.OrdinanceMax);
+                ship.AddPower(ship.PowerStoreMax);
+            }
+            else
+            {
+                float supply = DevelopmentLevel;
+                supply      *= HasSpacePort ? 5f : 2f;
+                supply      *= ship.InCombat ? 0.1f : 10f;
+                supply       = Math.Max(.1f, supply);
+                ship.AddPower(supply);
+                ship.ChangeOrdnance(supply);
+            }
+        }
+
+        private float CalcRepairPool()
+        {
+            float repairPool = DevelopmentLevel * RepairPerTurn * 10 * (2 - SolarSystemBody.ShipBuildingModifier);
+            foreach (Ship station in Stations.Values)
+            {
+                repairPool += station.RepairRate;
+            }
+            return repairPool;
+        }
+
+        private void RepairShip(Ship ship, float repairPool)
+        {
+            ship.AI.CheckSupplyStatus();
+            //Modified by McShooterz: Repair based on repair pool, if no combat in system
+            if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax)
+                return;
+                 
+            int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
+            ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
+        }
+
+        private void LoadTroops(Ship ship, int garrisonSize)
+        {
+            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity == 0 || ship.TroopCapacity <= ship.TroopList.Count || ship.InCombat)
+                return;
+
+            int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
+            using (TroopsHere.AcquireWriteLock())
+            {
+                if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
+                    TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                    return;
+                foreach (var pgs in TilesList)
+                {
+                    if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
+                        break;
+
+                    using (pgs.TroopsHere.AcquireWriteLock())
+                        if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
+                        {
+                            Troop troop = pgs.TroopsHere[0];
+                            ship.TroopList.Add(troop);
+                            pgs.TroopsHere.Clear();
+                            TroopsHere.Remove(troop);
+                        }
+                }
+            }
+        }
+
+        private void AddTroopsForFactions(Ship ship)
+        {
+            if (ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
+            {
+                ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
+                ParentSystem.combatTimer = 0;
+            }
+            /* FB: this code is unclear, why is it being run for all planets with pop > 0 ?
+            if (ship.Carrier.HasTroopBays)
+            {
+                if (Population > 0)
+                {
+                    if (ship.TroopCapacity > ship.TroopList.Count)
+                    {
+                        ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
+                    }
+                    if (Owner != null && Population > 0)
+                    {
+                        SolarSystemBody.Population *= .5f;
+                        SolarSystemBody.Population -= 1000;
+                        SolarSystemBody.ProductionHere *= .5f;
+                        SolarSystemBody.FoodHere *= .5f;
+                    }
+                    if (Population < 0)
+                        SolarSystemBody.Population = 0;
+                }
+                else if (ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
+                {
+                    ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
+                    ParentSystem.combatTimer = 0;
+                }
+            }
+            */
         }
     }
 }

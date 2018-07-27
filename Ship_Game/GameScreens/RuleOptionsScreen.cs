@@ -29,15 +29,15 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch)
+		public override void Draw(SpriteBatch batch)
 		{
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-		    spriteBatch.Begin();
+		    batch.Begin();
 		    {
 		        MainMenu.Draw(Color.Black);
-		        base.Draw(spriteBatch);
+		        base.Draw(batch);
 		    }
-		    spriteBatch.End();
+		    batch.End();
 		}
 
 	

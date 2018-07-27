@@ -29,6 +29,7 @@ namespace Ship_Game.AI
         TryAgain,     // goal step failed, so we should try again
         GoalComplete, // entire goal is complete and should be removed!
         RestartGoal,  // restart goal from scratch
+        GoalFailed,   // abort, abort!!
     }
 
     public abstract class Goal
@@ -134,6 +135,7 @@ namespace Ship_Game.AI
                 case GoalStep.GoToNextStep: ++Step; break;
                 case GoalStep.TryAgain: break;
                 case GoalStep.GoalComplete:
+                case GoalStep.GoalFailed:
                     empire?.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
             }            
@@ -192,6 +194,42 @@ namespace Ship_Game.AI
             public float Distance;
             public float JumpRange;
             public bool OutOfRange;
+            public bool CantColonize;            
+
+            public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
+            {
+                int commodities        = planet.CommoditiesPresent.Count;
+                Distance               = empireCenter.Distance(planet.Center);                
+                CantColonize           = IsBadWorld(planet, canColonizeBarren, commodities);
+                
+                float distanceInJumps  = Math.Max(Distance / 600000, 1);
+                JumpRange              = distanceInJumps;
+                Planet                 = planet;
+
+                float baseValue        = planet.EmpireBaseValue(empire);
+                Value                  = baseValue / distanceInJumps;
+                OutOfRange             = PlanetToFarToColonize(planet, empire);
+
+                if (Value < .3f)
+                    CantColonize = true;
+                
+                if (enemyStr > 0)
+                    Value *= (empire.currentMilitaryStrength - enemyStr) / empire.currentMilitaryStrength;
+            }
+
+            private static bool IsBadWorld(Planet planetList, bool canColonizeBarren, int commodities) =>
+                planetList.Type == "Barren"
+                && !canColonizeBarren && commodities == 0;
+
+            private static bool PlanetToFarToColonize(Planet planetList, Empire empire)
+            {
+                AO closestAO = empire.GetGSAI().AreasOfOperations
+                    .FindMin(ao => ao.Center.SqDist(planetList.Center));
+                if (closestAO != null && planetList.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f))
+                    return true;
+                return false;
+            }
+
         }
     }
 }

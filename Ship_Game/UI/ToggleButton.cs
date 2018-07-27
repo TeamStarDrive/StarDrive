@@ -162,39 +162,39 @@ namespace Ship_Game.UI
         //hack... until this is all straightend out to allow override of base draw.
         public void Draw(ScreenManager screenManager) => Draw(screenManager.SpriteBatch);
         
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (Pressed)
             {
-                spriteBatch.Draw(PressTexture, Rect, Color.White);
+                batch.Draw(PressTexture, Rect, Color.White);
             }
             else if (Hover)
             {
-                spriteBatch.Draw(HoverTexture, Rect, Color.White);                
+                batch.Draw(HoverTexture, Rect, Color.White);                
             }
             else if (Active)
             {
-                spriteBatch.Draw(ActiveTexture, Rect, Color.White);
+                batch.Draw(ActiveTexture, Rect, Color.White);
             }
             else
             {
-                spriteBatch.Draw(InactiveTexture, Rect, Color.White);
+                batch.Draw(InactiveTexture, Rect, Color.White);
             }
 
             if (IconTexture == null)
             {
                 if (Active)
                 {
-                    spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
                     return;
                 }
 
-                spriteBatch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
+                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
             }
             else
             {
                 Rectangle iconRect = IconActive == null ? IconRect : Rect;
-                spriteBatch.Draw(IconActive ?? IconTexture, iconRect, Color.White);            
+                batch.Draw(IconActive ?? IconTexture, iconRect, Color.White);            
             }
         }
 
@@ -216,9 +216,9 @@ namespace Ship_Game.UI
                         ToolTip.TextLast = string.Empty;
                     }
 
-                    ToolTip.TipTimer = 0;                    
+                    ToolTip.TipTimer = 0;
                 }
-                Hover = false;                
+                Hover = false;
                 return false;
             }
             if (!Hover)
@@ -228,7 +228,7 @@ namespace Ship_Game.UI
                     ToolTip.CreateTooltip(WhichToolTip);
             }
             Hover = true;
-            
+
             if (input.LeftMouseClick)
             {
                 OnClick?.Invoke(this);

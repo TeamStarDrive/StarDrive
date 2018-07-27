@@ -41,38 +41,34 @@ namespace Ship_Game
         protected override void Destroy()
         {
             VideoPlayer?.Dispose(ref VideoPlayer);
-            HelpCategories?.Dispose(ref HelpCategories);
-            HelpEntries?.Dispose(ref HelpEntries);
             base.Destroy();
         } 
          
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            base.Draw(spriteBatch);
+            base.Draw(batch);
 
             ScreenManager.SpriteBatch.Begin();
             HelpCategories.Draw(ScreenManager.SpriteBatch);
             Vector2 bCursor;
-            for (int i = HelpCategories.indexAtTop; i < HelpCategories.Copied.Count 
-                && i < HelpCategories.indexAtTop + HelpCategories.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in HelpCategories.VisibleExpandedEntries)
             {
-                bCursor = new Vector2(Rect.X + 35, Rect.Y + 20);
-                ScrollList.Entry e = HelpCategories.Copied[i];
-                bCursor.Y = e.clickRect.Y;
-                if (!(e.item is ModuleHeader))
+                bCursor = new Vector2(Rect.X + 35, e.Y);
+                if (e.item is ModuleHeader header)
                 {
-                    bCursor.X = bCursor.X + 15f;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, 
-                        ((HelpTopic) e.item).Title, bCursor, (e.clickRectHover == 1 ? Color.Orange : Color.White));
-                    bCursor.Y = bCursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, 
-                        ((HelpTopic) e.item).ShortDescription, bCursor, (e.clickRectHover == 1 ? Color.White : Color.Orange));
+                    header.Draw(ScreenManager, bCursor);
                 }
-                else
+                else if (e.item is HelpTopic help)
                 {
-                    ((ModuleHeader) e.item).Draw(ScreenManager, bCursor);
+                    bCursor.X += 15f;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
+                        help.Title, bCursor, (e.Hovered ? Color.Orange : Color.White));
+
+                    bCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12,
+                        help.ShortDescription, bCursor, (e.Hovered ? Color.White : Color.Orange));
                 }
             }
             bCursor = new Vector2(TextRect.X, TextRect.Y + 20);
@@ -100,13 +96,12 @@ namespace Ship_Game
                 }
             }
             HelpEntries.Draw(ScreenManager.SpriteBatch);
-            for (int i = HelpEntries.indexAtTop; i < HelpEntries.Copied.Count && i < HelpEntries.indexAtTop + HelpEntries.entriesToDisplay; i++)
+            foreach (ScrollList.Entry e in HelpEntries.VisibleExpandedEntries)
             {
-                ScrollList.Entry e = HelpEntries.Copied[i];
-                bCursor.Y = e.clickRect.Y;
+                bCursor.Y = e.Y;
                 bCursor.X = (int)bCursor.X;
                 bCursor.Y = (int)bCursor.Y;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (string) e.item, bCursor, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (string)e.item, bCursor, Color.White);
             }
             if (VideoPlayer != null && VideoPlayer.State != MediaState.Playing)
             {
@@ -176,24 +171,16 @@ namespace Ship_Game
                     }
                 }
             }
-            for (int i = 0; i < HelpCategories.Copied.Count; i++)
+
+            foreach (ScrollList.Entry e in HelpCategories.AllExpandedEntries)
             {
-                ScrollList.Entry e = HelpCategories.Copied[i];
-                if (e.item is ModuleHeader)                
-                    ((ModuleHeader) e.item).HandleInput(input, e);
-                else if (!e.clickRect.HitTest(input.CursorPosition))                
-                    e.clickRectHover = 0;                
-                else
+                if (e.item is ModuleHeader header)                
+                    header.HandleInput(input, e);
+                else if (e.CheckHover(input))
                 {
-                    if (e.clickRectHover == 0)                    
-                        GameAudio.PlaySfxAsync("sd_ui_mouseover");
-                    
-                    e.clickRectHover = 1;
                     if (input.LeftMouseClick && e.item is HelpTopic)
                     {
-                        HelpEntries.Entries.Clear();
-                        HelpEntries.Copied.Clear();
-                        HelpEntries.indexAtTop = 0;
+                        HelpEntries.Reset();
                         ActiveTopic = (HelpTopic) e.item;                        
                         if (ActiveTopic.Text != null)
                         {
@@ -219,7 +206,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            HelpEntries.Copied.Clear();
+                            HelpEntries.Reset();
                             VideoPlayer = new VideoPlayer();
                             ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
                             VideoPlayer.Play(ActiveVideo);
@@ -268,7 +255,7 @@ namespace Ship_Game
                 if (categories.Add(halp.Category))
                 {
                     ScrollList.Entry e = HelpCategories.AddItem(new ModuleHeader(halp.Category, 295));
-                    e.AddItem(halp);
+                    e.AddSubItem(halp);
                 }
             }
         }
