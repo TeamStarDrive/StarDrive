@@ -321,7 +321,14 @@ namespace Ship_Game.AI
                 case ResupplyReason.LowOrdnance:
                 {
                     if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
+                    {
+                        /*Ship supplyship = FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays,
+                            supply => -supply.Center.SqDist(Owner.Center));
+
+                        Owner.DoResupplyEscort(supplyship);*/
                         return;
+                        }
+
 
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
