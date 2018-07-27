@@ -307,7 +307,7 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp ||!Owner.Carrier.HasSupplyBays ) return;
 
             Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
-                                                                  && ship.OrdnanceStatus < ShipStatus.Average
+                                                                  && ship.AI.State == AIState.ResupplyEscort
                                                                   && ship != Owner)       
                 .OrderBy(ship =>
                 {
