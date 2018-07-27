@@ -26,7 +26,6 @@ namespace Ship_Game
     [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
     public class Array<T> : IList<T>, IReadOnlyList<T>
     {
-        protected static readonly int SizeOf = typeof(T).SizeOfRef();
         protected T[] Items;
         public int Count { get; protected set; }
 
@@ -194,17 +193,14 @@ namespace Ship_Game
             }
         }
 
-        // If TRUE, Array<T> will grow by 2.0x during Add/Insert
-        // else, growth is 1.5x
-        // 1.5x may use less memory, but can potentially cause more reallocations
-        // This should be tested to measure memory usage and GC pressure
-        private const bool AgressiveGrowth = true;
 
         private void Grow(int capacity)
         {
             if (capacity >= 4)
             {
-                capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
+                // Array<T> will grow by 2.0x during Add/Insert
+                // In our tests this had less GC pressure and reallocations than 1.5x
+                capacity *= 2;
 
                 int rem = capacity & 3; // align capacity to a multiple of 4
                 if (rem != 0) capacity += 4 - rem;
@@ -319,12 +315,36 @@ namespace Ship_Game
             if (count != 0) Memory.HybridCopy(array, arrayIndex, Items, count);
         }
 
+        // Removes a single occurance of item
         public bool Remove(T item)
         {
             int i = IndexOf(item);
             if (i < 0) return false;
             RemoveAt(i);
             return true;
+        }
+
+        // Removes a single occurance of item matching predicate
+        public bool RemoveFirstIf(Predicate<T> predicate)
+        {
+            int i = FirstIndexOf(predicate);
+            if (i < 0) return false;
+            RemoveAt(i);
+            return true;
+        }
+
+        // Removes all items matching the predicate
+        public bool RemoveAllIf(Predicate<T> predicate)
+        {
+            bool itemsWereRemoved = false;
+            for (int i = Count-1; i >= 0; --i)
+            {
+                if (!predicate(Items[i]))
+                    continue;
+                RemoveAt(i);
+                itemsWereRemoved = true;
+            }
+            return itemsWereRemoved;
         }
 
         // does a fast removal by swapping the item with the last element in the array
@@ -352,6 +372,18 @@ namespace Ship_Game
                 EqualityComparer<T> c = EqualityComparer<T>.Default;
                 for (int i = 0; i < count; ++i)
                     if (c.Equals(items[i], item)) return i;
+                return -1;
+            }
+        }
+
+        public int FirstIndexOf(Predicate<T> predicate)
+        {
+            unchecked
+            {
+                int count = Count;
+                T[] items = Items;
+                for (int i = 0; i < count; ++i)
+                    if (predicate(items[i])) return i;
                 return -1;
             }
         }
@@ -390,6 +422,18 @@ namespace Ship_Game
             T item       = Items[--Count];
             Items[Count] = default(T);
             return item;
+        }
+
+        public bool TryPopLast(out T item)
+        {
+            if (Count == 0)
+            {
+                item = default(T);
+                return false;
+            }
+            item         = Items[--Count];
+            Items[Count] = default(T);
+            return true;
         }
 
         // This is slower than RemoveDuplicateRefs if T is a class

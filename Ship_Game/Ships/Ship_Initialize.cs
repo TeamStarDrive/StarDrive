@@ -108,6 +108,80 @@ namespace Ship_Game.Ships
             return ship;
         }
 
+        public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
+        {
+            save.data.Hull = save.Hull; // @todo Why is this modified here?
+            Ship ship = CreateShipFromShipData(empire, save.data, fromSave: true);
+            if (ship == null) // happens if module creation failed
+                return null;
+            ship.InitializeFromSaveData(save);
+            return ship;
+        }
+
+        private void InitializeFromSaveData(SavedGame.ShipSaveData save)
+        {
+            guid             = save.guid;
+            Position         = save.Position;
+            PlayerShip       = save.IsPlayerShip;
+            experience       = save.experience;
+            kills            = save.kills;
+            PowerCurrent     = save.Power;
+            yRotation        = save.yRotation;
+            Ordinance        = save.Ordnance;
+            Rotation         = save.Rotation;
+            Velocity         = save.Velocity;
+            isSpooling       = save.AfterBurnerOn;
+            InCombatTimer    = save.InCombatTimer;
+            TetherGuid       = save.TetheredTo;
+            TetherOffset     = save.TetherOffset;
+            InCombat         = InCombatTimer > 0f;
+            TroopsLaunched   = save.TroopsLaunched;
+            FightersLaunched = save.FightersLaunched;
+
+            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty 
+                            ? save.TroopList[0].Name : save.Name;
+            
+            if (!ResourceManager.ShipTemplateExists(save.Name))
+            {
+                save.data.Hull = save.Hull;
+                ResourceManager.AddShipTemplate(save.data, fromSave: true);
+            }
+
+            if (save.TroopList != null)
+            {
+                foreach (Troop t in save.TroopList)
+                {
+                    t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
+                    TroopList.Add(t);
+                }
+            }
+
+            if (save.AreaOfOperation != null)
+            {
+                foreach (Rectangle aoRect in save.AreaOfOperation)
+                    AreaOfOperation.Add(aoRect);
+            }
+
+            InitializeAIFromAISave(save.AISave);
+            LoadFood(save.FoodCount);
+            LoadProduction(save.ProdCount);
+            LoadColonists(save.PopCount);
+
+            switch (AI.State)
+            {
+                case AIState.SystemTrader:
+                    bool hasCargo = save.FoodCount > 0f || save.ProdCount > 0f;
+                    AI.OrderTradeFromSave(hasCargo, save.AISave.startGuid, save.AISave.endGuid);
+                    break;
+                case AIState.PassengerTransport:
+                    AI.OrderTransportPassengersFromSave();
+                    break;
+            }
+
+            foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
+                Projectile.Create(this, pdata);
+        }
+
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
@@ -262,7 +336,7 @@ namespace Ship_Game.Ships
         public void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
         {
             InitializeAI();
-            AI.FoodOrProd         = aiSave.FoodOrProd;
+            AI.SetTradeType(aiSave.FoodOrProd);
             AI.State              = aiSave.state;
             AI.DefaultAIState     = aiSave.defaultstate;
             AI.GotoStep           = aiSave.GoToStep;
@@ -352,9 +426,6 @@ namespace Ship_Game.Ships
                 troopList.SetShip(this);
                 TroopBoardingDefense += troopList.Strength;
             }
-            MechanicalBoardingDefense *= (1 + TroopList.Count / 10);
-            if (MechanicalBoardingDefense < 1f)
-                MechanicalBoardingDefense = 1f;
         }
 
         private void SpawnTroopsForNewShip(ShipModule module)
@@ -374,14 +445,18 @@ namespace Ship_Game.Ships
 
             for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
             {
-                int numTroopHangars = ModuleSlotList.Count(hangarbay => hangarbay.IsTroopBay);
+                int numHangarsBays = Carrier.AllTroopBays.Length;
 
-                string type = redshirtType;
-                if (numTroopHangars < TroopList.Count)
+                string type = troopType;
+                if (numHangarsBays  < TroopList.Count + 1) //FB: if you have more troop_capcacity than hangars, consider adding some tanks
                 {
                     type = troopType; // ex: "Space Marine"
-                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numTroopHangars / 2)
-                        type = tankType;
+                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numHangarsBays)
+                        type = tankType; 
+                    // number of tanks will be up to number of hangars bays you have. If you have 8 barracks and 8 hangar bays
+                    // you will get 8 infentry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
+                    // If you have  16 barracks and 4 bays, you'll still get 4 tanks and 12 infantry. 
+                    // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
                 }
                 TroopList.Add(ResourceManager.CreateTroop(type, loyalty));
             }
@@ -395,8 +470,6 @@ namespace Ship_Game.Ships
             WarpThrust                = 0f;
             PowerStoreMax             = 0f;
             PowerFlowMax              = 0f;
-            ModulePowerDraw           = 0f;
-            ShieldPowerDraw           = 0f;
             shield_max                = 0f;
             shield_power              = 0f;
             armor_max                 = 0f;
@@ -412,6 +485,8 @@ namespace Ship_Game.Ships
             FTLSpoolTime              = 0f;
             RangeForOverlay           = 0f;
             Size                      = Calculatesize();
+            BaseCost                  = GetBaseCost();
+            MaxBank                   = GetMaxBank(MaxBank);
 
             foreach (Weapon w in Weapons)
             {
@@ -419,7 +494,7 @@ namespace Ship_Game.Ships
                 if (weaponRange > RangeForOverlay)
                     RangeForOverlay = weaponRange;
             }
-
+            Carrier = CarrierBays.Create(this, ModuleSlotList);
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             ActiveInternalSlotCount  = InternalSlotCount;
@@ -437,8 +512,6 @@ namespace Ship_Game.Ships
         {
             if (!fromSave)
                 TroopList.Clear();
-            Hangars.Clear();
-            Transporters.Clear();
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
@@ -448,41 +521,26 @@ namespace Ship_Game.Ships
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
-                if (!fromSave && module.TroopsSupplied > 0)
-                    SpawnTroopsForNewShip(module);
-                TroopCapacity += module.TroopCapacity;
+                if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
+                TroopCapacity             += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
-                if (MechanicalBoardingDefense < 1f)
-                    MechanicalBoardingDefense = 1f;
 
                 if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
                 if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
-                if (module.ECM > ECMValue) ECMValue = module.ECM.Clamp(0f, 1f);
+                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
 
-                if (module.ModuleType == ShipModuleType.Construction)
+                switch (module.ModuleType)
                 {
-                    isConstructor = true;
-                    shipData.Role = ShipData.RoleName.construction;
-                }
-                else if (module.ModuleType == ShipModuleType.PowerConduit)
-                {
-                    module.IconTexturePath = GetConduitGraphic(module);
-                }
-                else if (module.ModuleType == ShipModuleType.Hangar)
-                {
-                    Hangars.Add(module);
-                    HasTroopBay |= module.IsTroopBay;
-                }
-                else if (module.ModuleType == ShipModuleType.Transporter)
-                {
-                    Transporters.Add(module);
-                    hasTransporter = true;
-                    hasOrdnanceTransporter |= module.TransporterOrdnance > 0;
-                    hasAssaultTransporter  |= module.TransporterTroopAssault > 0;
-                }
-                else if (module.ModuleType == ShipModuleType.Colony)
-                {
-                    isColonyShip = true;
+                    case ShipModuleType.Construction:
+                        isConstructor = true;
+                        shipData.Role = ShipData.RoleName.construction;
+                        break;
+                    case ShipModuleType.PowerConduit:
+                        module.IconTexturePath = GetConduitGraphic(module);
+                        break;
+                    case ShipModuleType.Colony:
+                        isColonyShip = true;
+                        break;
                 }
 
                 if (module.InstalledWeapon?.isRepairBeam == true)
@@ -495,7 +553,7 @@ namespace Ship_Game.Ships
                 HasRepairModule |= module.IsRepairModule;
 
                 float massModifier = 1f;
-                if (module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                if (module.Is(ShipModuleType.Armor) && loyalty != null)
                     massModifier = loyalty.data.ArmourMassModifier;
                 Mass += module.Mass * massModifier;
 
@@ -508,13 +566,11 @@ namespace Ship_Game.Ships
                 PowerCurrent  += module.ActualPowerStoreMax;
                 PowerFlowMax  += module.ActualPowerFlowMax;
                 shield_max    += module.ActualShieldPowerMax;
-                if (module.ModuleType == ShipModuleType.Armor)
+                if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
                 CargoSpaceMax += module.Cargo_Capacity;
                 OrdinanceMax  += module.OrdinanceCapacity;
-                if (module.ModuleType == ShipModuleType.Shield) ShieldPowerDraw += module.PowerDraw;
-                else                                            ModulePowerDraw += module.PowerDraw;
                 if (module.FTLSpoolTime > FTLSpoolTime)
                     FTLSpoolTime = module.FTLSpoolTime;
 
@@ -523,6 +579,12 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
+
+            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+
+            if (shipData.Role == ShipData.RoleName.troop)
+                TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity 
+            MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
             shipStatusChanged = true;
             SensorRange += sensorBonus;            
             DesignRole = GetDesignRole();
@@ -537,6 +599,26 @@ namespace Ship_Game.Ships
             // @todo Do we need to recalculate this every time? This whole thing looks fishy
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
+        }
+
+        private float GetBaseCost()
+        {
+            return ModuleSlotList.Sum(t => t.Cost);
+        }
+
+        private float GetMaxBank(float mBank)
+        {
+            switch (shipData.Role)
+            {
+                default:
+                    return mBank;
+                case ShipData.RoleName.drone:
+                case ShipData.RoleName.scout:
+                case ShipData.RoleName.fighter:
+                    return mBank * 2.1f;
+                case ShipData.RoleName.corvette:
+                    return mBank * 1.5f;
+            }
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Ship_Game.Ships
 
         private void DrawSparseModuleGrid(UniverseScreen us)
         {
-            if (false && SparseModuleGrid.Length != 0)
+            if (SparseModuleGrid.Length != 0)
             {
                 for (int y = 0; y < GridHeight; ++y)
                 {
@@ -132,13 +132,13 @@ namespace Ship_Game.Ships
             Texture2D concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
             Texture2D lightningBolt = ResourceManager.Texture("UI/lightningBolt");
                         
-            if (us.DebugWin != null)
+            if (false && us.DebugWin != null)
             {
                 for (int i = 0; i < Projectiles.Count; i++)
                 {
                     Projectile projectile = Projectiles[i];
                     if (projectile == null) continue;
-                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius);
+                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
                     //us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
                 }
             }
@@ -181,7 +181,7 @@ namespace Ship_Game.Ships
                     if (slot.XSIZE == slot.YSIZE)
                     {
                         us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (us.Debug)
+                        if (us.Debug && this == us.SelectedShip)
                             us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
                     }
                     else
@@ -194,7 +194,7 @@ namespace Ship_Game.Ships
                         }
 
                         us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (us.Debug)
+                        if (us.Debug && this == us.SelectedShip)
                             us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
                     }
 
@@ -212,7 +212,7 @@ namespace Ship_Game.Ships
                         us.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
                     }
 
-                    if (us.Debug)
+                    if (us.Debug && (us.DebugWin?.IsOpen ?? false))
                     {
                         // draw blue marker on all active external modules
                         if (slot.isExternal && slot.Active)
@@ -232,10 +232,8 @@ namespace Ship_Game.Ships
                     us.DrawWeaponArc(slot, posOnScreen, slotRotation);
             }
 
-            if (us.Debug)
-            {
+            if (false && us.Debug)
                 DrawSparseModuleGrid(us);
-            }
         }
 
 
@@ -413,14 +411,14 @@ namespace Ship_Game.Ships
             screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             foreach (ShipModule slot in ModuleSlotList)
             {
-                if (slot.Active && slot.ModuleType == ShipModuleType.Shield && slot.ShieldPower >= 1f)
+                if (slot.Active && slot.Is(ShipModuleType.Shield) && slot.ShieldPower >= 1f)
                 {
                     screen.ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
 
                     float shieldRate = .001f + slot.ShieldPower / slot.ActualShieldPowerMax;                    
-                    screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen,
-                        new Color(0f, 1f, 0f, shieldRate * 0.8f));
+                    screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
+                        Shield.GetBubbleColor(shieldRate, slot.ShieldBubbleColor));
                 }
             }
             screen.ScreenManager.SpriteBatch.End();

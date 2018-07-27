@@ -42,15 +42,17 @@ namespace Ship_Game.Ships
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
 
+        public ShieldsWarpBehavior ShieldsBehavior = ShieldsWarpBehavior.FullPower;
+
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
         [XmlIgnore] [JsonIgnore] public float BaseStrength;
         [XmlIgnore] [JsonIgnore] public bool BaseCanWarp;
         [XmlArray(ElementName = "ModuleSlotList")] public ModuleSlotData[] ModuleSlots;
-        [XmlIgnore] [JsonIgnore] public bool hullUnlockable;
-        [XmlIgnore] [JsonIgnore] public bool allModulesUnlocakable = true;
-        [XmlIgnore] [JsonIgnore] public bool unLockable;        
-        public HashSet<string> techsNeeded = new HashSet<string>();
+        [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
+        [XmlIgnore] [JsonIgnore] public bool AllModulesUnlocakable = true;
+        [XmlIgnore] [JsonIgnore] public bool UnLockable;
+        [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
         [XmlIgnore] [JsonIgnore] public int TechScore;
 
         //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
@@ -94,7 +96,7 @@ namespace Ship_Game.Ships
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private struct CModuleSlot
         {
-            public readonly float PosX, PosY, Health, ShieldPower, Facing;
+            public readonly float PosX, PosY, Health, ShieldPower, ShieldUpChance, ShieldPowerBeforeWarp, Facing;
             public readonly CStrView InstalledModuleUID;
             public readonly CStrView HangarshipGuid;
             public readonly CStrView State;
@@ -115,6 +117,7 @@ namespace Ship_Game.Ships
             public readonly CStrView Role;
             public readonly CStrView CombatState;
             public readonly CStrView ShipCategory;
+            public readonly CStrView ShieldsBehavior;
 
             public readonly int TechScore;
             public readonly float BaseStrength;
@@ -184,18 +187,19 @@ namespace Ship_Game.Ships
                     CarrierShip    = s->CarrierShip != 0,
                     BaseStrength   = s->BaseStrength,
                     BaseCanWarp    = s->BaseCanWarp != 0,
-                    hullUnlockable = s->HullUnlockable != 0,
-                    unLockable     = s->UnLockable != 0,
+                    HullUnlockable = s->HullUnlockable != 0,
+                    UnLockable     = s->UnLockable != 0,
                     TechScore      = s->TechScore,
                     IsOrbitalDefense          = s->IsOrbitalDefense != 0,
                     SelectionGraphic          = s->SelectionGraphic.AsInterned,
-                    allModulesUnlocakable     = s->AllModulesUnlockable != 0,
+                    AllModulesUnlocakable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
-                Enum.TryParse(s->Role.AsString,          out ship.Role);
-                Enum.TryParse(s->CombatState.AsString,    out ship.CombatState);
-                Enum.TryParse(s->ShipCategory.AsString,   out ship.ShipCategory);
-                Enum.TryParse(s->DefaultAIState.AsString, out ship.DefaultAIState);
+                Enum.TryParse(s->Role.AsString,            out ship.Role);
+                Enum.TryParse(s->CombatState.AsString,     out ship.CombatState);
+                Enum.TryParse(s->ShipCategory.AsString,    out ship.ShipCategory);
+                Enum.TryParse(s->ShieldsBehavior.AsString, out ship.ShieldsBehavior);
+                Enum.TryParse(s->DefaultAIState.AsString,  out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
                 ship.ModuleSlots = new ModuleSlotData[s->ModuleSlotsLen];
@@ -203,15 +207,17 @@ namespace Ship_Game.Ships
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     var slot = new ModuleSlotData();
-                    slot.Position           = new Vector2(msd->PosX, msd->PosY);
-                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull;
-                    slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
-                    slot.Health             = msd->Health;
-                    slot.ShieldPower        = msd->ShieldPower;
-                    slot.Facing             = msd->Facing;
+                    slot.Position              = new Vector2(msd->PosX, msd->PosY);
+                    slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull;
+                    slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
+                    slot.Health                = msd->Health;
+                    slot.ShieldPower           = msd->ShieldPower;
+                    slot.ShieldUpChance        = msd->ShieldUpChance;
+                    slot.ShieldPowerBeforeWarp = msd->ShieldPowerBeforeWarp;
+                    slot.Facing                = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.Orientation        = msd->State.AsInterned;                    
-                    slot.SlotOptions        = msd->SlotOptions.AsInterned;   
+                    slot.Orientation           = msd->State.AsInterned;                    
+                    slot.SlotOptions           = msd->SlotOptions.AsInterned;   
                     
                     ship.ModuleSlots[i] = slot;
                 }
@@ -233,9 +239,9 @@ namespace Ship_Game.Ships
                 }
 
                 // @todo Remove conversion to HashSet
-                ship.techsNeeded = new HashSet<string>();
+                ship.TechsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
-                    ship.techsNeeded.Add(s->Techs[i].AsInterned);
+                    ship.TechsNeeded.Add(s->Techs[i].AsInterned);
 
                 ship.UpdateBaseHull();                
                 return ship;
@@ -302,91 +308,7 @@ namespace Ship_Game.Ships
             Bomber,
             Fighter,            
             Kamikaze
-        }
-        public static void CreateDesignRoleToolTip(RoleName role, SpriteFont roleFont, Rectangle designRoleRect, bool AlwaysShow = false)
-        {
-            var text = $"Autoassigned Role Change\n{RoleDesignString(role)}";
-            var spacing = roleFont.MeasureString(text);
-            var pos = new Vector2(designRoleRect.Left,
-                designRoleRect.Y - spacing.Y - designRoleRect.Height - roleFont.LineSpacing);
-            ToolTip.CreateTooltip(text, pos, AlwaysShow);
-        }
-        public static string RoleDesignString(RoleName role)
-        {
-            string roleInfo = "";
-            switch (role)
-            {
-                case RoleName.disabled:
-                    break;
-                case RoleName.platform:
-                    roleInfo = "Has Platform hull";
-                    break;
-                case RoleName.station:
-                    roleInfo = "Has Station hull";
-                    break;
-                case RoleName.construction:
-                    roleInfo = "Has construction role";
-                    break;
-                case RoleName.colony:
-                    roleInfo = "Has Colony Module";
-                    break;
-                case RoleName.supply:
-                    roleInfo = "Has supply role";
-                    break;
-                case RoleName.freighter:
-                    roleInfo = "Has freighter hull";
-                    break;
-                case RoleName.troop:
-                    break;
-                case RoleName.troopShip:
-                    roleInfo = "10% of the ship space taken by troop launch bays";
-                    break;
-                case RoleName.support:
-                    roleInfo = "10% of ship space taken by support modules";
-                    break;
-                case RoleName.bomber:
-                    roleInfo = "10% of ship space taken by bomb modules";
-                    break;
-                case RoleName.carrier:
-                    roleInfo = "10% of ship space taken by hangar modules";
-                    break;
-                case RoleName.fighter:
-                    roleInfo = "Has fighter hull";
-                    break;
-                case RoleName.scout:
-                    roleInfo = "Fighter hull with no weapons";
-                    break;
-                case RoleName.gunboat:
-                    roleInfo = "Not assigned";
-                    break;
-                case RoleName.drone:
-                    roleInfo = "Has Drone hull";
-                    break;
-                case RoleName.corvette:
-                    roleInfo = "Has corvette hull";
-                    break;
-                case RoleName.frigate:
-                    roleInfo = "Has Frigate hull";
-                    break;
-                case RoleName.destroyer:
-                    roleInfo = "Has destroyer role";
-                    break;
-                case RoleName.cruiser:
-                    roleInfo = "Has cruiser role";
-                    break;
-                case RoleName.capital:
-                    roleInfo = "Has Capital hull";
-                    break;
-                case RoleName.prototype:
-                    roleInfo = "Has Colony Module";
-                    break;
-                default:
-                    {
-                        break;
-                    }
-            }
-            return roleInfo;
-        }
+        }       
 
         public enum RoleName
         {

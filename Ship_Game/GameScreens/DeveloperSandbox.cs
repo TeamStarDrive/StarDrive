@@ -19,11 +19,11 @@ namespace Ship_Game
             Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            spriteBatch.Begin();
-            base.Draw(spriteBatch);
-            spriteBatch.End();
+            batch.Begin();
+            base.Draw(batch);
+            batch.End();
         }
 
         public override bool HandleInput(InputState input)

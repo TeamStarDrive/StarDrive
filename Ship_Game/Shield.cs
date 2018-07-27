@@ -133,7 +133,7 @@ namespace Ship_Game
 
         public void HitShield(ShipModule module, Beam beam)
         {
-            float intensity = 10f.Clamp(1, beam.DamageAmount / module.ShieldPower);
+            float intensity = 10f.Clamped(1, beam.DamageAmount / module.ShieldPower);
 
             Rotation     = module.Center.RadiansToTarget(beam.ActualHitDestination);
             Radius       = module.ShieldHitRadius;
@@ -153,7 +153,7 @@ namespace Ship_Game
         {
             GameAudio.PlaySfxAsync("sd_impact_shield_01", module.GetParent().SoundEmitter);
 
-            float intensity = 10f.Clamp(1, proj.DamageAmount / module.ShieldPower);
+            float intensity = 10f.Clamped(1, proj.DamageAmount / module.ShieldPower);
 
             Rotation     = module.Center.RadiansToTarget(proj.Center);
             Radius       = module.ShieldHitRadius;
@@ -168,6 +168,29 @@ namespace Ship_Game
             Light.Enabled      = true;
 
             CreateShieldHitParticles(module.GetCenter3D, proj.Center, beamFlash: false);
+        }
+
+        public static Color GetBubbleColor(float shieldRate, string colorName = "Green")
+        {
+            float alpha = shieldRate * 0.8f;
+            switch (colorName)
+            {
+                default:
+                case "Green": return new Color(0f, 1f, 0f, alpha);
+                case "Red": return new Color(1f, 0f, 0f, alpha);
+                case "Blue": return new Color(0f, 0f, 1f, alpha);
+                case "Yellow": return new Color(1f, 1f, 0f, alpha);
+            }
+        }
+
+        public static float GetReactivationDelayMultiplier(ShieldsWarpBehavior behavior)
+        {
+            switch (behavior)
+            {
+                default: return 2.5f;
+                case ShieldsWarpBehavior.Hibernate: return 2f;
+                case ShieldsWarpBehavior.ShutDown: return 1f;
+            }
         }
     }
 }

@@ -12,6 +12,8 @@ namespace Ship_Game.AI
     {
         private void RunMilitaryPlanner()
         {
+            if (OwnerEmpire.isPlayer)
+                return;
             var shipCountLimit = GlobalStats.ShipCountLimit;
             RunGroundPlanner();
             NumberOfShipGoals = 0;
@@ -171,7 +173,7 @@ namespace Ship_Game.AI
             public float RatioCarriers  = 0;
             public float RatioSupport   = 0;
             public float RatioTroopShip = 0;
-            public float CapFighters;
+            public float CapFighters = 1;
             public float CapCorvettes;
             public float CapFrigates;
             public float CapCruisers;
@@ -189,7 +191,7 @@ namespace Ship_Game.AI
             public float NumCapitals;
             public float NumTroops;
             public float NumSupport;
-            public float TotalUpkeep;
+            public float TotalUpkeep =1;
             public float TotalMilShipCount;
             private readonly EmpireAI EmpireAI;
             private Empire OwnerEmpire  => EmpireAI.OwnerEmpire;
@@ -206,22 +208,24 @@ namespace Ship_Game.AI
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {                
                 EmpireAI = eAI;
-                RatioFighters     = .5f;
-                for (int i = 0; i < OwnerEmpire.GetShips().Count; i++)
+                RatioFighters = 0.5f;
+
+                var availableShips = OwnerEmpire.GetShips().FilterBy(item => 
+                    !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
+                    || item.shipData.Role == ShipData.RoleName.prototype
+                    || item.shipData.Role < ShipData.RoleName.troopShip
+                    ));
+
+                for (int i = 0; i < availableShips.Length; i++)
                 {
-                    Ship item = OwnerEmpire.GetShips()[i];
-                    if (item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
-                        || item.AI.State == AIState.Scrap || item.shipData.Role == ShipData.RoleName.prototype
-                        || item.shipData.Role < ShipData.RoleName.troopShip
-                        ) continue;
-
-                    ShipData.RoleName str = item.DesignRole;
-                    float upkeep;
-
-                    upkeep = item.GetMaintCost();
-                    if (upkeep < .1) continue;
+                    Ship item = availableShips[i];
+             
+                    ShipData.RoleName roleName = item.DesignRole;
+                    float upkeep = item.GetMaintCost();
+                    if (upkeep < .01)
+                        continue;
                     //carrier
-                    switch (str)
+                    switch (roleName)
                     {
                         case ShipData.RoleName.carrier:
                             SetCountsTrackRole(ref NumCarriers, ref CapCarriers, upkeep);
@@ -305,17 +309,21 @@ namespace Ship_Game.AI
                     , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
             }
 
-            private float SetCounts(float roleCount, float roleUpkeep, float capacity, float ratio, float totalRatio)
+            private void AddInconstructionToCounts()
+            {
+
+            }
+
+            private int SetCounts(float roleCount, float roleUpkeep, float capacity, float ratio, float totalRatio)
             {
 
                 if (ratio < .01f) return 0;
-                //float normalizedRatioed = ratio / totalRatio;
+                
                 float shipUpkeep = Math.Max(roleUpkeep, 1) / Math.Max(roleCount, 1);                
-                //float possible = capacity / shipUpkeep;
-                //return possible * normalizedRatioed;
-                float mainRatio = shipUpkeep * ratio / TotalUpkeep;
+                float mainRatio = shipUpkeep * ratio / Math.Max(TotalUpkeep , 1);
                 float possible = capacity * mainRatio / shipUpkeep;
-                return possible;
+
+                return (int)Math.Round(possible);
 
                 
             }
@@ -408,7 +416,7 @@ namespace Ship_Game.AI
                                           && ship.Mothership == null && ship.Active
                                           && ship.shipData.HullRole >= ShipData.RoleName.fighter &&
                                           ship.GetMaintCost(OwnerEmpire) > 0)
-                        .OrderBy(ship => ship.shipData.techsNeeded.Count)
+                        .OrderBy(ship => ship.shipData.TechsNeeded.Count)
 
                 )
                 {
@@ -456,16 +464,16 @@ namespace Ship_Game.AI
             //Find ship to build
            
             var pickRoles = new Map<ShipData.RoleName, float>();
-
-            PickRoles(ref buildRatios.NumFighters , buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
-            PickRoles(ref buildRatios.NumCorvettes, buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);            
+            PickRoles(ref buildRatios.NumCarriers, buildRatios.DesiredCarriers, ShipData.RoleName.carrier, pickRoles);
+            PickRoles(ref buildRatios.NumTroops, buildRatios.DesiredTroops, ShipData.RoleName.troopShip, pickRoles);
+            PickRoles(ref buildRatios.NumSupport, buildRatios.DesiredSupport, ShipData.RoleName.support, pickRoles);                        
             PickRoles(ref buildRatios.NumFrigates , buildRatios.DesiredFrigates, ShipData.RoleName.frigate, pickRoles);
             PickRoles(ref buildRatios.NumBombers  , buildRatios.DesiredBombers, ShipData.RoleName.bomber, pickRoles);
             PickRoles(ref buildRatios.NumCruisers , buildRatios.DesiredCruisers, ShipData.RoleName.cruiser, pickRoles);
             PickRoles(ref buildRatios.NumCapitals , buildRatios.DesiredCapitals, ShipData.RoleName.capital, pickRoles);
-            PickRoles(ref buildRatios.NumCarriers , buildRatios.DesiredCarriers, ShipData.RoleName.carrier, pickRoles);            
-            PickRoles(ref buildRatios.NumTroops   , buildRatios.DesiredTroops, ShipData.RoleName.troopShip, pickRoles);
-            PickRoles(ref buildRatios.NumSupport  , buildRatios.DesiredSupport, ShipData.RoleName.support,  pickRoles);
+            PickRoles(ref buildRatios.NumFighters, buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
+            PickRoles(ref buildRatios.NumCorvettes, buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);
+
 
 
 
@@ -482,8 +490,9 @@ namespace Ship_Game.AI
     
         private static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
              rolesPicked)
-        {
-            if (numShips > desiredShips) return;            
+        {            
+            if (numShips >= desiredShips)
+                return;            
             rolesPicked.Add(role,  numShips / desiredShips);
         }
         public string PickFromCandidates(ShipData.RoleName role) => PickFromCandidates(role, false, ShipModuleType.Dummy);
@@ -501,7 +510,7 @@ namespace Ship_Game.AI
 
                 if (role != ship.DesignRole)
                     continue;
-                maxTech = Math.Max(maxTech, ship.shipData.techsNeeded.Count);
+                maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
 
                 potentialShips.Add(ship);
                 if (efficiency)
@@ -517,7 +526,7 @@ namespace Ship_Game.AI
                 {
                     if (efficiency)
                         return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                    return ships.shipData.techsNeeded.Count >= nearmax;
+                    return ships.shipData.TechsNeeded.Count >= nearmax;
                 });
                 int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length - 1);
 

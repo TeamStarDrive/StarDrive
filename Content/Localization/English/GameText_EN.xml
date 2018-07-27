@@ -473,7 +473,7 @@
     </Token>
     <Token>
       <Index>120</Index>
-      <Text>Command Module</Text>
+      <Text>Powered Command</Text>
     </Token>
     <Token>
       <Index>121</Index>
@@ -889,7 +889,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>218</Index>
-      <Text>Toggles whether this ship's fighters should be launched or recovered to hangars</Text>
+      <Text>When active, all avaialble fighters will launch and escort the carrier. If not active, fighters will launch only for combat and return to their hangars for resupply when combat ends.</Text>
     </Token>
     <Token>
       <Index>219</Index>
@@ -954,7 +954,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>235</Index>
-      <Text>Indicates the number of troops stationed on this ship and this ship's maximum troop capacity</Text>
+      <Text>Indicates the number of troops stationed on this ship (Green for your troops, Red for other troops) and this ship's maximum troop capacity. If the Ship has Assault bays, you will see the number of available assault shuttles in Blue.</Text>
     </Token>
     <Token>
       <Index>236</Index>
@@ -1080,7 +1080,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>266</Index>
-      <Text>Toggles whether this ship's shuttles should be launched or recovered to hangars</Text>
+      <Text>Toggles whether this ship's assault shuttles should be launched and escort the troop ship or recovered to hangars</Text>
     </Token>
 
     <!-- Gameplay Main Menu -->
@@ -4696,8 +4696,20 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1981</Index>
+      <Text>This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number of ships being rearmed, repaired or rebuit.</Text>
+    </Token>
+    <Token>
+      <Index>1982</Index>
+      <Text>In order to complete your design and build it, you must fill all the ship's slots</Text>
+    </Token>
+    <Token>
+      <Index>1983</Index>
+      <Text>A functional ship needs a command module (a cockpit, bridge, or CIC). It also must get power from the ship's reactors</Text>
+    </Token>
+    <Token>
       <Index>1984</Index>
-      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M).</Text>
+      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M)</Text>
     </Token>
     <Token>
       <Index>1985</Index>
@@ -4914,7 +4926,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2037</Index>
-      <Text>This technology unlocks a unique "Shipyard" space station that boosts ship production by 25% at the planet where it is constructed.  </Text>
+      <Text>This technology unlocks a unique "Shipyard" space station that boosts ship production by 25% at the planet where it is constructed. Building more than 4 shipyards at the same colony will yield very high upkeep.</Text>
     </Token>
     <Token>
       <Index>2038</Index>
@@ -6683,7 +6695,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4043</Index>
-      <Text>Add ship designs to this fleet from the panel on the right. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.
+      <Text>
+        Add ship designs to this fleet from the panel on the right. Use 'Shift' key to place multiple ships of the same type. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.
       </Text>
     </Token>
     <Token>
@@ -8109,7 +8122,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6190</Index>
-      <Text>Total Off</Text>
+      <Text>Ship Offense</Text>
     </Token>
     
   <!-- SD Code Mod, TOOLTIP TEXT -->	

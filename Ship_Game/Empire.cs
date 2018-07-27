@@ -15,7 +15,7 @@ namespace Ship_Game
 {
     public sealed class Empire : IDisposable
     {
-        public static float ProjectorRadius = 150000f;
+        public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
         public readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
@@ -106,9 +106,9 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         private float leftoverResearch;
-        public float exportPTrack;
-        public float exportFTrack;
-        public float averagePLanetStorage;
+        //public float exportPTrack;
+        //public float exportFTrack;        //Removed by Gretman, these were only used for legacy debug visualization
+        //public float averagePLanetStorage;
         [XmlIgnore][JsonIgnore] public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
         [XmlIgnore][JsonIgnore] public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
         [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
@@ -137,7 +137,10 @@ namespace Ship_Game
 
         public Planet[] RallyShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
 
-        public Planet[] BestRallyShipYards => RallyPoints.FilterBy(planet =>
+        public Planet RallyShipYardNearestTo(Vector2 position) =>
+            RallyPoints.FindMaxFiltered(planet => planet.HasShipyard, planet => -position.SqDist(planet.Center));
+
+        public Planet[] BestBuildPlanets => RallyPoints.FilterBy(planet =>
         planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
         && planet.DevelopmentLevel > 2
         && planet.colonyType != Planet.ColonyType.Research
@@ -197,8 +200,6 @@ namespace Ship_Game
 
         public void SpawnHomePlanet(Planet newOrbital)
         {
-            ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
-            ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
             newOrbital.Owner           = this;
             Capital                    = newOrbital;
             newOrbital.InitializeSliders(this);
@@ -241,7 +242,7 @@ namespace Ship_Game
 
                 foreach (Planet planet in systemCheck.PlanetList)
                 {
-                    if (planet.Owner != this || !planet.HasShipyard) continue;
+                    if (planet.Owner != this) continue;
                     rallyPlanets.Add(planet);
                 }
 
@@ -476,7 +477,7 @@ namespace Ship_Game
             if (TechnologyDict.TryGetValue(tech, out TechEntry techEntry))
                 return techEntry;
             Log.Error($"Attempt to find tech {tech} failed");
-            return null;
+            return TechEntry.None;
 
         }
 
@@ -1402,17 +1403,6 @@ namespace Ship_Game
             using (OwnedPlanets.AcquireReadLock())
             {
                 float newBuildM = 0f;
-                int planetcount = GetPlanets().Count;
-                exportFTrack = 0;
-                exportPTrack = 0;
-                averagePLanetStorage = 0;
-                foreach (Planet planet in OwnedPlanets)
-                {
-                    exportFTrack += planet.ExportFSWeight;
-                    exportPTrack += planet.ExportPSWeight;
-                    averagePLanetStorage += (int)planet.MaxStorage;
-                }
-                averagePLanetStorage /= planetcount;
                 
                 foreach (Planet planet in OwnedPlanets)
                 {
@@ -1557,11 +1547,11 @@ namespace Ship_Game
             }
             
            
-            if (shipData.techsNeeded.Count > 0)
+            if (shipData.TechsNeeded.Count > 0)
             {
-                if (!shipData.unLockable) return false;
+                if (!shipData.UnLockable) return false;
 
-                foreach (string shipTech in shipData.techsNeeded)
+                foreach (string shipTech in shipData.TechsNeeded)
                 {                    
                     if (ShipTechs.Contains(shipTech)) continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];
@@ -1647,8 +1637,8 @@ namespace Ship_Game
         {
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet item_0 in this.OwnedPlanets)
-                    num += item_0.GrossFood;
+                foreach (Planet p in OwnedPlanets)
+                    num += p.NetFoodPerTurn;
             return num;
         }
 
@@ -1812,7 +1802,7 @@ namespace Ship_Game
                 SensorNodes.Add(new InfluenceNode()
                 {
                     Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
-                    Radius = Empire.ProjectorRadius * this.data.SensorModifier,
+                    Radius = ProjectorRadius * this.data.SensorModifier,
                     Known = true
                 });
             this.Inhibitors.Clear();
@@ -1945,8 +1935,8 @@ namespace Ship_Game
                     influenceNode2.Radius = isFaction
                         ? 1f
                         : this == Universe.PlayerEmpire
-                            ? Empire.ProjectorRadius / 5f * empire.data.SensorModifier
-                            : Empire.ProjectorRadius / 3f * empire.data.SensorModifier;
+                            ? ProjectorRadius / 5f * empire.data.SensorModifier
+                            : ProjectorRadius / 3f * empire.data.SensorModifier;
                     foreach (Building building in planet.BuildingList)                    
                         influenceNode2.Radius = Math.Max(influenceNode2.Radius, building.SensorRange * data.SensorModifier);                   
                     
@@ -2233,7 +2223,6 @@ namespace Ship_Game
                                 cyberneticMultiplier = .5f;
                                 break;
                             }
-
                         }
                     }
                     if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
@@ -2296,9 +2285,6 @@ namespace Ship_Game
                 if (this.AutoExplore)
                     this.AssignExplorationTasks();
             }
-
-
-            return;
         }
 
         private void UpdateRelationships()
@@ -2640,54 +2626,39 @@ namespace Ship_Game
                     switch (type)
                     {
                         case 1:
-                            {                                
-                                ship.AI.FoodOrProd = "Food";
-                                ship.AI.State = AIState.SystemTrader;
-                                ship.AI.OrderTrade(0.1f);
-                                type++;
-                                break;
-                            }
+                            ship.AI.FoodOrProd = Goods.Food;
+                            ship.AI.State = AIState.SystemTrader;
+                            ship.AI.OrderTrade(0.1f);
+                            ++type;
+                            break;
                         case 2:
-                            {
-                                ship.AI.FoodOrProd = "Prod";
-                                ship.AI.State = AIState.SystemTrader;
-                                ship.AI.OrderTrade(0.1f);
-                                type++;
-                                break;
-                            }
-                        
+                            ship.AI.FoodOrProd = Goods.Production;
+                            ship.AI.State = AIState.SystemTrader;
+                            ship.AI.OrderTrade(0.1f);
+                            ++type;
+                            break;
                         default:
                             ship.AI.State = AIState.PassengerTransport;
                             ship.TradingFood = false;
                             ship.TradingProd = false;
-                            ship.AI.FoodOrProd = "";
+                            ship.AI.FoodOrProd = Goods.Colonists;
                             ship.AI.OrderTransportPassengers(0.1f);
-                            type =1;                            
+                            type = 1;                            
                             break;
                     }
                     if (ship.AI.start == null && ship.AI.end == null)
                         assignedShips.Add(ship);
-
-
-
                 }
-
-
             }
             unusedFreighters.AddRange(assignedShips);
             freighters = 0; // unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
             foreach (Goal goal in EmpireAI.Goals)
             {
-                if (goal is IncreaseFreighters)
+                if (goal is IncreaseFreighters || goal is IncreasePassengerShips)
                 {
                     ++freighters;
-                    goalLimt--;
-                }
-                else if (goal is IncreasePassengerShips)
-                {
-                    goalLimt--;
-                    ++freighters;
+                    --goalLimt;
                 }
             }
             moneyForFreighters -= freighters * avgmaint;
@@ -2744,20 +2715,20 @@ namespace Ship_Game
 
         public Vector2 GetWeightedCenter()
         {
-            int num = 0;
+            int planets = 0;
             Vector2 vector2 = new Vector2();
             using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
-                for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
+                for (int x = 0; x < planet.Population / 1000.0; ++x)
                 {
-                    ++num;
+                    ++planets;
                     vector2 += planet.Center;
                 }
             }
-            if (num == 0)
-                num = 1;
-            return vector2 / (float)num;
+            if (planets == 0)
+                planets = 1;
+            return vector2 / planets;
         }
 
 

@@ -672,14 +672,8 @@ namespace Ship_Game.AI {
 
         private void RunAgentManager()
         {
-            //float spyincomemodifer = .01f; // ((int)Empire.Universe.GameDifficulty + 1) * .0033f;
-            //int income = (int) ((this.OwnerEmpire.Money * spyincomemodifer) *
-            //                    (1 - this.OwnerEmpire.data.TaxRate)); //-this.empire.GrossTaxes*5 );//* .2f);
-            //if (income < 0 || this.OwnerEmpire.data.SpyBudget > this.OwnerEmpire.Money * .75f)
-            //    income = 0;
-
-            //this.spyBudget = income + this.OwnerEmpire.data.SpyBudget;
-            //this.OwnerEmpire.Money -= income;
+            if (OwnerEmpire.isPlayer)
+                return;
             spyBudget = OwnerEmpire.data.SpyBudget;
             string name = OwnerEmpire.data.DiplomaticPersonality.Name;
             if (spyBudget > 50 && name != null)
