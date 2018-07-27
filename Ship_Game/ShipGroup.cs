@@ -342,7 +342,8 @@ namespace Ship_Game
         
         public MoveStatus IsFleetAssembled(float radius, Vector2 position = default(Vector2))
         {
-            if (position == default(Vector2)) position = Position;
+            if (position == default(Vector2))
+                position = Position;
             MoveStatus moveStatus = MoveStatus.Assembled;
             bool inCombat = false;
             for (int index = 0; index < Ships.Count; index++)
@@ -374,6 +375,10 @@ namespace Ship_Game
             {
                 var ship = Ships[x];
                 if (ship.Center.OutsideRadius(position, radius)) continue;
+
+                if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)                
+                    ship.AI.HasPriorityOrder = false;                
+
                 if (ship.InCombat) return CombatStatus.InCombat;
                 if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
             }

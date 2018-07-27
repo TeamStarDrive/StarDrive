@@ -190,7 +190,7 @@ namespace Ship_Game.AI.Tasks {
                     {
                         if (ao == area) continue;
                         if (ao.GetOffensiveForcePool().Contains(ship))
-                            Log.Error("Ship {0} in another AO {1}", ship.Name, ao.GetPlanet().Name);
+                            Log.Info($"Ship {ship.Name} in another AO {ao.GetPlanet().Name}");
                     }
                 if ((ship.shipData.Role == ShipData.RoleName.station ||
                      ship.shipData.Role == ShipData.RoleName.platform)
@@ -443,13 +443,9 @@ namespace Ship_Game.AI.Tasks {
                 EndTask();
                 return;
             }
-            //if (IsToughNut)
-            //{
-            //    //DoToughNutRequisition();
-            //    //return;
-            //}
+          
             int landingSpots = TargetPlanet.GetGroundLandingSpots();
-            //MinimumTaskForceStrength = minimumEscortStrength;
+          
             MinimumTaskForceStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
             
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
