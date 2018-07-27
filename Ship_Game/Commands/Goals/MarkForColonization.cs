@@ -81,7 +81,7 @@ namespace Ship_Game.Commands.Goals
                     {
                         if (held != guid)
                             continue;
-                        HasEscort = escort.WhichFleet != -1;
+                        HasEscort = escort.Step > 2 && str < 10;
                         WaitingForEscort = !HasEscort;
                         return false;
                     }
@@ -226,7 +226,7 @@ namespace Ship_Game.Commands.Goals
         private GoalStep FinalStep()
         {
             NeedsEscort();
-            if (!HasEscort)
+            if (!HasEscort && WaitingForEscort)
                 return GoalStep.TryAgain;
             if (!IsValid()) return GoalStep.GoalComplete;
 

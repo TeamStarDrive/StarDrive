@@ -13,8 +13,7 @@ namespace Ship_Game.AI
         private void RunMilitaryPlanner()
         {
             if (OwnerEmpire.isPlayer)
-                return;
-            var shipCountLimit = GlobalStats.ShipCountLimit;
+                return;            
             RunGroundPlanner();
             NumberOfShipGoals = 0;
             foreach (Planet p in OwnerEmpire.GetPlanets())
@@ -24,38 +23,11 @@ namespace Ship_Game.AI
 
                 NumberOfShipGoals++;
             }
-
-            float numgoals                       = 0f;
-            float underConstruction              = 0f;
-            float troopStrengthUnderConstruction = 0f;
-
-
-            /*so what im trying to do here: risk assesment.
-            //find the highest defense and assault task and overall threat. 
-            //use thhat to determine the amount of taxes to be used for ship building.
-            if these values are greater than the "triggerpoint" then set them to 0. 
-            the idea here is that if they are too high now then use those resources to make better tech
-            and hopefully get more bang for the buck later. 
-            */
-            float offenseNeeded = 0;
-            
-            foreach (KeyValuePair<Empire, Relationship> rel in OwnerEmpire.AllRelations)
-            {
-                offenseNeeded = Math.Max(offenseNeeded,  (rel.Key.currentMilitaryStrength / OwnerEmpire.currentMilitaryStrength) ) ;// rel.Value.Risk.MaxRisk);                
-            }
-
-            //increase ship goals if a lot of ships are needed.
-            //NumberOfShipGoals += (int)(offenseNeeded);
-            offenseNeeded = Math.Max(offenseNeeded, OwnerEmpire.getResStrat().MilitaryRatio); 
-            offenseNeeded = OwnerEmpire.ResearchTopic.IsEmpty() ? offenseNeeded : Math.Min(offenseNeeded,1f);
-            float capacity = BuildCapacity * offenseNeeded;
-            
-            //this is the meat of the deal here. rolebuildinfo contains all the capacity distribution logic for shipbuilding.
-            //it will also scrap when things are bad. 
+            int shipCountLimit        = GlobalStats.ShipCountLimit;
             RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, false);
-            numgoals = buildRatios.CountShipsUnderConstruction();
+            float goalsInConstruction = buildRatios.CountShipsUnderConstruction();
 
-            while (capacity > 0 && numgoals < NumberOfShipGoals
+            while (goalsInConstruction < NumberOfShipGoals
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
                        || OwnerEmpire.empireShipTotal < OwnerEmpire.EmpireShipCountReserve))
             {
@@ -66,9 +38,8 @@ namespace Ship_Game.AI
                 if (Recyclepool > 0)
                     Recyclepool--;
 
-                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
-                capacity = capacity - ResourceManager.ShipsDict[s].GetMaintCost(OwnerEmpire);                
-                numgoals = numgoals + 1f;
+                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));              
+                goalsInConstruction = goalsInConstruction + 1f;
             }
             
             Goals.ApplyPendingRemovals();            
@@ -76,7 +47,6 @@ namespace Ship_Game.AI
             //this where the global AI attack stuff happenes.
             using (TaskList.AcquireReadLock())
             {
-
                 int toughNutCount = 0;
 
                 foreach (var task in TaskList)
@@ -85,7 +55,6 @@ namespace Ship_Game.AI
                     task.Evaluate(OwnerEmpire);
                 }
                 Toughnuts = toughNutCount;
-
             }
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();
