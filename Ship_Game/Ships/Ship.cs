@@ -1324,7 +1324,17 @@ namespace Ship_Game.Ships
             AI.State        = AIState.Escort;
             AI.EscortTarget = escortTarget;
         }
-        
+        /*
+        public void DoResupplyEscort(Ship escortTarget)
+        {
+            AI.OrderQueue.Clear();
+            AI.State = AIState.Escort;
+            AI.EscortTarget = escortTarget;
+            Speed = 0; //escortTarget.Speed;
+            AI.TerminateResupplyIfDone();
+        }
+        */
+
         public void DoDefense()
         {
             AI.State = AIState.SystemDefender;
@@ -2146,15 +2156,14 @@ namespace Ship_Game.Ships
 
         public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one
         {
-            string assaultShuttleName;
-            if (empire.data.DefaultAssaultShuttle.IsEmpty())
-            {
-                assaultShuttleName = empire.BoardingShuttle.Name; // this is the deafult one in case nothing is found in empire data
-                Empire.Universe?.DebugWin?.DebugLogText($"GetAssaultShuttle: ({empire.Name}) Using Default Shuttle. empire.data.DefaultAssaultShuttle Was Empty", DebugModes.Normal);                
-            }
-            else
-                assaultShuttleName = empire.data.DefaultAssaultShuttle;
-            return assaultShuttleName;
+            return  empire.data.DefaultAssaultShuttle.IsEmpty() ? empire.BoardingShuttle.Name 
+                                                                : empire.data.DefaultAssaultShuttle;
+        }
+
+        public static string GetSupplyShuttleName(Empire empire) // this will get the name of a Supply Shuttle if defined in race.xml or use deafult one
+        {
+            return empire.data.DefaultSupplyShuttle.IsEmpty() ? empire.SupplyShuttle.Name
+                                                              : empire.data.DefaultSupplyShuttle;
         }
 
         public ShipStatus HealthStatus

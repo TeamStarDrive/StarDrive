@@ -120,6 +120,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> SupportShipTech = new Array<string>();
         [XmlIgnore][JsonIgnore] public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
+        [XmlIgnore][JsonIgnore] public Ship SupplyShuttle   => ResourceManager.ShipsDict["Supply_Shuttle"];
         [XmlIgnore][JsonIgnore] public Planet[] RallyPoints = Empty<Planet>.Array;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
