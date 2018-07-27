@@ -311,7 +311,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void RepairShip(Ship ship, float repairPool)
         {
-            ship.AI.CheckSupplyStatus();
+            ship.AI.TerminateResupplyIfDone();
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
             if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax)
                 return;
