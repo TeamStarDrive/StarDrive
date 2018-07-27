@@ -35,7 +35,8 @@ namespace Ship_Game.Ships
         {
             if (ship.DesignRole < ShipData.RoleName.colony || ship.DesignRole == ShipData.RoleName.troop
                                                            || ship.DesignRole == ShipData.RoleName.supply
-                                                           || ship.AI.State == AI.AIState.Resupply)
+                                                           || ship.AI.State == AI.AIState.Resupply
+                                                           || ship.AI.State == AI.AIState.ResupplyEscort)
                 return ResupplyReason.NotNeeded;
 
             if (!ship.hasCommand)
@@ -56,9 +57,19 @@ namespace Ship_Game.Ships
             return ResupplyReason.NotNeeded;
         }
 
-        public static bool DoneResupplying(Ship ship)
+        public static bool DoneResupplying(Ship ship, SupplyType supplyType = SupplyType.All)
         {
-            return HealthOk(ship) && OrdnanceOk(ship) && TroopsOk(ship);
+            switch (supplyType)
+            {
+                default:
+                    return HealthOk(ship) && OrdnanceOk(ship) && TroopsOk(ship);
+                case SupplyType.Rearm:
+                    return OrdnanceOk(ship);
+                case SupplyType.Repair:
+                    return HealthOk(ship);
+                case SupplyType.Troops:
+                    return TroopsOk(ship);
+            }
         }
 
         private static bool ResupplyNeededLowHealth(Ship ship)
@@ -102,7 +113,7 @@ namespace Ship_Game.Ships
                                                                  && !weapon.TruePD);
 
             float ratioTheshold = ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority 
-                                                           : KineticEnergyRatioWithOutPriority;
+                                                            : KineticEnergyRatioWithOutPriority;
 
             float ratio = (float)numKineticWeapons / numWeapons;
             if (ship.AI.HasPriorityTarget && ratio < 1f)
@@ -112,7 +123,7 @@ namespace Ship_Game.Ships
 
         private static bool InsufficientOrdnanceProduction(Ship ship)
         {
-            if (ship.OrdAddedPerSecond < 1 || ship.OrdinanceMax > 0)
+            if (ship.OrdAddedPerSecond < 1 && ship.OrdinanceMax > 0)
                 return true;
 
             if (ship.OrdinanceMax < 1)
@@ -137,14 +148,14 @@ namespace Ship_Game.Ships
 
         private static bool HealthOk(Ship ship)
         {
-            float threshold = ship.InCombat ? (DamageThreshold(ship.shipData.ShipCategory) * 1.2f).Clamped(0,1) : 0.99f;
-            return ship.HealthPercent >= threshold;
+            float threshold = ship.InCombat ? (DamageThreshold(ship.shipData.ShipCategory) * 1.2f).Clamped(0,1) : 0.9f;
+            return ship.HealthPercent >= threshold && ship.hasCommand;
         }
 
         private static bool OrdnanceOk(Ship ship)
         {
-            float threshold = ship.InCombat ? OrdnanceThresholdCombat * 2 
-                                            : OrdnanceThresholdNonCombat;
+            float threshold = ship.InCombat ? OrdnanceThresholdCombat * 4 
+                                            : 0.99f;
 
             return ship.OrdnancePercent >= threshold;
         }
@@ -166,5 +177,13 @@ namespace Ship_Game.Ships
         LowTroops,
         FighterReactorsDamaged,
         NoCommand
+    }
+
+    public enum SupplyType
+    {
+        All,
+        Rearm,
+        Repair,
+        Troops
     }
 }
