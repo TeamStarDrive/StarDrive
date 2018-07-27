@@ -726,7 +726,7 @@ namespace Ship_Game.AI {
             using (FriendliesNearby.AcquireReadLock())
             {
                 Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, 20000f),
+                    filter: ship => ShipNeedsRepair(ship, ShipRessuply.RepairDroneRange),
                     selector: ship => ship.InternalSlotsHealthPercent);
 
                 if (repairMe == null) return;
@@ -747,7 +747,7 @@ namespace Ship_Game.AI {
         private bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
         {
             return target.Active && target != dontHealSelf
-                    && target.InternalSlotsHealthPercent < ShipResupply.RepairDroneThreshold
+                    && target.InternalSlotsHealthPercent < ShipRessuply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
         private void DoOrdinanceTransporterLogic(ShipModule module)
@@ -880,7 +880,7 @@ namespace Ship_Game.AI {
                                      || EscortTarget.AI.State == AIState.Resupply
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit
-                                     || EscortTarget.SupplyShipCanSupply)
+                                     || !EscortTarget.SupplyShipCanSupply)
             {
                 State = AIState.AwaitingOrders;
                 IgnoreCombat = false;

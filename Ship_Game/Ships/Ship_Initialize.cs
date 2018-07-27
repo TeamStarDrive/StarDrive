@@ -495,6 +495,7 @@ namespace Ship_Game.Ships
                     RangeForOverlay = weaponRange;
             }
             Carrier = CarrierBays.Create(this, ModuleSlotList);
+            Supply  = new ShipRessuply(this);
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             ActiveInternalSlotCount  = InternalSlotCount;

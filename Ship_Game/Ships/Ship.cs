@@ -54,6 +54,7 @@ namespace Ship_Game.Ships
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
+        public ShipRessuply Supply;
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
@@ -1856,7 +1857,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
+            if (InternalSlotsHealthPercent < ShipRessuply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
@@ -2144,13 +2145,13 @@ namespace Ship_Game.Ships
                 troopShip => ship.Center.SqDist(troopShip.Center));
         }
 
-        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one
+        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use default one
         {
             return  empire.data.DefaultAssaultShuttle.IsEmpty() ? empire.BoardingShuttle.Name 
                                                                 : empire.data.DefaultAssaultShuttle;
         }
 
-        public static string GetSupplyShuttleName(Empire empire) // this will get the name of a Supply Shuttle if defined in race.xml or use deafult one
+        public static string GetSupplyShuttleName(Empire empire) // this will get the name of a Supply Shuttle if defined in race.xml or use default one
         {
             return empire.data.DefaultSupplyShuttle.IsEmpty() ? empire.SupplyShuttle.Name
                                                               : empire.data.DefaultSupplyShuttle;
