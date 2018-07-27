@@ -307,9 +307,8 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp ||!Owner.Carrier.HasSupplyBays ) return;
 
             Ship[] sortedList = FriendliesNearby.FilterBy(ship => ship.shipData.Role != ShipData.RoleName.supply 
-                                                                  && ship.OrdnanceStatus < ShipStatus.Good
-                                                                  && ship != Owner
-                                                                  && (!ship.Carrier.HasSupplyBays || ship.OrdnanceStatus > ShipStatus.Poor ))       
+                                                                  && ship.AI.State == AIState.ResupplyEscort
+                                                                  && ship != Owner)       
                 .OrderBy(ship =>
                 {
                     var distance = Owner.Center.Distance(ship.Center);
@@ -358,9 +357,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                if (hangar.hangarShipUID.IsEmpty())                        
-                    hangar.hangarShipUID = "Supply_Shuttle";
-
+                hangar.hangarShipUID = Ship.GetSupplyShuttleName(Owner.loyalty);
                 var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
                 if (!hangar.Active || hangar.hangarTimer > 0f || sortedList[skipShip] == null)
                     continue;

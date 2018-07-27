@@ -297,10 +297,10 @@ namespace Ship_Game.AI
 
         private void UpdateResupplyAI()
         {
-            if (Owner.Health < 0.1f || State == AI.AIState.Resupply)
+            if (Owner.Health < 0.1f)
                 return;
 
-            ResupplyReason resupplyReason = ShipResupply.Resupply(Owner);
+            ResupplyReason resupplyReason = Owner.Supply.Resupply();
             if (resupplyReason != ResupplyReason.NotNeeded && Owner.Mothership?.Active == true)
             {
                 OrderReturnToHangar(); // dealing with hangar ships needing resupply
@@ -310,25 +310,37 @@ namespace Ship_Game.AI
             if (Owner.loyalty.isFaction)
                 return;
 
+            ProcessResupply(resupplyReason);
+        }
+
+        private void ProcessResupply(ResupplyReason resupplyReason)
+        {
             Planet nearestRallyPoint = null;
             switch (resupplyReason)
             {
                 case ResupplyReason.LowOrdnance:
                 {
                     if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
-                        return;
+                    {
+                        Ship supplyShip = FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays,
+                                                                           supply => -supply.Center.SqDist(Owner.Center));
 
+                        SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
+                        return;
+                    }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 }
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
                 {
-                    if (Owner.fleet == null || !Owner.fleet.HasRepair)
-                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-                    else
+                    if (Owner.fleet != null && Owner.fleet.HasRepair)
+                    {
+                        Ship supplyShip =  Owner.fleet.GetShips.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
+                        SetUpSupplyEscort(supplyShip, supplyType: "Repair");
                         return;
-
+                    }
+                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 }
                 case ResupplyReason.LowTroops:
@@ -338,10 +350,26 @@ namespace Ship_Game.AI
                 }
                 case ResupplyReason.NotNeeded:
                     return;
-
             }
             HasPriorityOrder = true;
             DecideWhereToResupply(nearestRallyPoint);
+        }
+
+        private void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
+        {
+            EscortTarget       = supplyShip;
+            float minDistance  = Owner.Radius + supplyShip.Radius;
+            var goal           = new ShipGoal(Plan.ResupplyEscort, Vector2.Zero, 0f)
+            {
+                FacingVector   = UniverseRandom.RandomBetween(0, 360),
+                VariableNumber = minDistance + UniverseRandom.RandomBetween(200, 1000),
+                VariableString = supplyType
+            };
+
+            State = AIState.ResupplyEscort;
+            IgnoreCombat = true;
+            OrderQueue.Clear();
+            OrderQueue.Enqueue(goal);
         }
 
         private void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -358,21 +386,20 @@ namespace Ship_Game.AI
             }
         }
 
-        public void CheckSupplyStatus()
+        public void TerminateResupplyIfDone(SupplyType supplyType = SupplyType.All)
         {
-            if (Owner.AI.State != AIState.Resupply)
+            if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            if (ShipResupply.DoneResupplying(Owner))
-            {
-                Owner.AI.HasPriorityOrder = false;
-                Owner.AI.State = AIState.AwaitingOrders;
+            if (!Owner.Supply.DoneResupplying(supplyType))
                 return;
-            }
 
-            Owner.AI.OrderQueue.Clear();
-            Owner.AI.Target = null;
-            Owner.AI.PotentialTargets.Clear();
+            Owner.AI.HasPriorityOrder = false;
+            if (OrderQueue.NotEmpty)
+                OrderQueue.RemoveFirst();
+
+            Owner.AI.State = AIState.AwaitingOrders;
+            Owner.AI.IgnoreCombat = false;
         }
 
         private void UpdateCombatStateAI(float elapsedTime)
@@ -743,6 +770,9 @@ namespace Ship_Game.AI
                         break;
                     case Plan.LandTroop:
                         DoLandTroop(elapsedTime, toEvaluate);
+                        break;
+                    case Plan.ResupplyEscort:
+                        DoResupplyEscort(elapsedTime, toEvaluate);
                         break;
                     default:
                         break;
