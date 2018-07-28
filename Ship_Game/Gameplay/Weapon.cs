@@ -443,8 +443,8 @@ namespace Ship_Game.Gameplay
 
         public Vector2 AdjustTargetting(int level = -1)
         {
-            if (Module == null || Module.AccuracyPercent > 0.9999f) 
-                return Vector2.Zero; //|| Tag_PD || TruePD
+            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD) 
+                return Vector2.Zero; //|| Tag_PD 
 
             //calaculate level. 
             int trackingPower = (int)(Owner?.TrackingPower ?? 1);                        
