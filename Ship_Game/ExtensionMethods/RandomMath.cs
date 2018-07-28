@@ -52,6 +52,11 @@ namespace Ship_Game
             return items[InRange(items.Count)];
         }
 
+        public static T RandItem<T>(T[] items)
+        {
+            return items[InRange(items.Length)];
+        }
+
         public static Vector2 RandomDirection()
         {
             float angle = RandomBetween(0f, 6.28318548f);
