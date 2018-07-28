@@ -87,6 +87,8 @@ namespace Ship_Game.AI
             if (OffensiveForcePool.Contains(ship))
             {
                 Log.Warning("offensive forcepool already contains this ship. not adding");
+                foreach (var ao in Owner.GetGSAI().AreasOfOperations)                                    
+                    ao.RemoveShip(ship);                
                 return false;
             }
             if (ship.fleet != null)

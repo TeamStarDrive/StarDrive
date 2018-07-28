@@ -19,9 +19,11 @@ namespace Ship_Game.AI {
                 var baseVal = 2;
                 var difMod = (int)Empire.Universe.GameDifficulty;
                 difMod = (int)(difMod * OwnerEmpire.getResStrat().ExpansionRatio);
-                int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;                
+                int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
 
-                return baseVal + difMod + econmicPersonalityMod;
+                //int waiting = Goals.FilterBy(g => g.type == GoalType.Colonize && (g as MarkForColonization)?.WaitingForEscort == true).Length;
+
+                return baseVal + difMod + econmicPersonalityMod;// + waiting;
             }
         }
 
@@ -55,7 +57,8 @@ namespace Ship_Game.AI {
             if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoColonize)
                 return;
                 Planet[] markedPlanets = GetMarkedPlanets();
-            if (markedPlanets.Length > DesiredColonyGoals) return;            
+            if (markedPlanets.Length > DesiredColonyGoals)
+                return;            
 
             var allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
 
@@ -149,10 +152,10 @@ namespace Ship_Game.AI {
         }
 
         private Planet[] GetMarkedPlanets()
-        {
+        {            
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
-                if (g.type == GoalType.Colonize)
+                if (g.type == GoalType.Colonize) 
                     list.Add(g.GetMarkedPlanet());
             return list.ToArray();
         }

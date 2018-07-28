@@ -190,7 +190,7 @@ namespace Ship_Game.AI.Tasks {
                     {
                         if (ao == area) continue;
                         if (ao.GetOffensiveForcePool().Contains(ship))
-                            Log.Error("Ship {0} in another AO {1}", ship.Name, ao.GetPlanet().Name);
+                            Log.Info($"Ship {ship.Name} in another AO {ao.GetPlanet().Name}");
                     }
                 if ((ship.shipData.Role == ShipData.RoleName.station ||
                      ship.shipData.Role == ShipData.RoleName.platform)
@@ -443,13 +443,9 @@ namespace Ship_Game.AI.Tasks {
                 EndTask();
                 return;
             }
-            //if (IsToughNut)
-            //{
-            //    //DoToughNutRequisition();
-            //    //return;
-            //}
+          
             int landingSpots = TargetPlanet.GetGroundLandingSpots();
-            //MinimumTaskForceStrength = minimumEscortStrength;
+          
             MinimumTaskForceStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
             
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
@@ -624,8 +620,8 @@ namespace Ship_Game.AI.Tasks {
 
         private bool RequisitionClaimForce()
         {
-            AO closestAO = null;
-            if ((closestAO = FindClosestAO(MinimumTaskForceStrength)) == null) return false; 
+            AO closestAO = null;            
+
             float tfstrength = 0f;
             Array<Ship> elTaskForce = new Array<Ship>();
             int shipCount = 0;
@@ -633,12 +629,15 @@ namespace Ship_Game.AI.Tasks {
 
             if (strengthNeeded < 1)
                 strengthNeeded = Owner.GetGSAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center, 125000, Owner);
-
-            foreach (Ship ship in closestAO.GetOffensiveForcePool().OrderBy(str => str.GetStrength()))
+            //var ships = Owner.GetShips().ToArray();
+            var ships = Owner.GetShips().FilterBy(s => s.GetStrength() > 0
+                                                              && !s.InCombat
+                                                              && !s.AI.HasPriorityOrder
+                                                              && s.fleet == null);
+            ships.SortByDistance(TargetPlanet.Center);
+            foreach (Ship ship in ships)
             {
                 if (shipCount >= 3 && tfstrength > strengthNeeded * 2)
-                    //(strengthNeeded < Owner.currentMilitaryStrength * .02f &&
-                    //                   strengthNeeded < tfstrength))
                     break;
 
                 if (ship.GetStrength() <= 0f || ship.InCombat || ship.fleet != null)
@@ -681,20 +680,11 @@ namespace Ship_Game.AI.Tasks {
         {
             var aos = Owner.GetGSAI().AreasOfOperations;
             if (aos.Count == 0) return null;
-            if (aos == null)
-            {
-                Log.Error("{0} has no areas of operation", Owner.Name);
-                return null;
-            }
+        
             AO closestAO =
                 aos.FindMaxFiltered(ao => ao.GetPoolStrength() >strWanted ,
                     ao => -ao.Center.SqDist(AO)) ??
-                aos.FindMin(ao => ao.Center.SqDist(AO));
-            if (closestAO == null)
-            {               
-                Log.Error("{0} : no areas of operation found", Owner.Name);
-                return null;
-            }
+                aos.FindMin(ao => ao.Center.SqDist(AO));            
             return closestAO;
         }
         private Fleet FindClosestCoreFleet(float strWanted = 100)

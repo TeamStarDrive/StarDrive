@@ -628,13 +628,8 @@ namespace Ship_Game.AI
 
         private void DoClaimDefense(Tasks.MilitaryTask task)
         {
-            if (!StillCombatEffective(task))
-            {
-                task.IsCoreFleetTask = false;
-                FleetTask = null;
-                TaskStep = 0;
+            if (EndInvalidTask(task.TargetPlanet.Owner != null))
                 return;
-            }
             switch (TaskStep)
             {
                 case 0:
@@ -648,25 +643,21 @@ namespace Ship_Game.AI
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!HasArrivedAtRallySafely(5000))
+                    if (!ArrivedAtCombatRally(task))
                         break;
                     TaskStep = 3;
                     break;
                 case 3:
-                    if (DoOrbitTaskArea(task))
-                    {                        
-                        TaskStep = 4;
-                        break;
-                    }
-                    AttackEnemyStrengthClumpsInAO(task);
+                    if (!DoOrbitTaskArea(task))                    
+                        AttackEnemyStrengthClumpsInAO(task);
+                    TaskStep = 4;
                     break;
 
-                case 4:
-                    if (EndInvalidTask(task.TargetPlanet.Owner != null))
-                        break;
+                case 4:                   
                     if (!IsFleetSupplied())
-                        this.TaskStep = 5;
-
+                        TaskStep = 5;
+                    //if (Ships.Any(s => s.Speed < 1))
+                    //    Log.Error("");
                     if (ShipsOffMission(task))
                         this.TaskStep = 3;
                     break;
@@ -902,6 +893,7 @@ namespace Ship_Game.AI
         private bool DoOrbitTaskArea(MilitaryTask task)
         {
             CombatStatus status = FleetInAreaInCombat(task.AO, task.AORadius);
+          
             if (status < CombatStatus.ClearSpace) return false;
 
             DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius);
@@ -997,17 +989,17 @@ namespace Ship_Game.AI
                 float attackStr = 0.0f;
                 for (int x = availableShips.Count - 1; x >= 0; x--)
                 {
-                    if (attackStr > kv.Value * 2) break;                    
+                    if (attackStr > kv.Value * 3) break;                    
 
                     Ship ship       = availableShips[x];
-                    if (ship.AI.HasPriorityOrder)
+                    if (ship.AI.HasPriorityOrder || ship.InCombat)
                     {
                         availableShips.RemoveAtSwapLast(x);
                         continue;
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
                     float facing    = ship.Center.RadiansToTarget(kv.Key);
-                    ship.AI.OrderThrustTowardsPosition(kv.Key, facing, vFacing, false);
+                    ship.AI.OrderMoveTowardsPosition(kv.Key, facing, false, null);
                     ship.ForceCombatTimer();
                                         
                     availableShips.RemoveAtSwapLast(x);
@@ -1049,9 +1041,9 @@ namespace Ship_Game.AI
         }
         private bool ShipsOffMission(MilitaryTask task)
         {
-            return Ships.Any(ship => !ship.AI.HasPriorityOrder
+            return AllButRearShips.Any(ship => !ship.AI.HasPriorityOrder
                                      && (!ship.InCombat
-                                         || FindAveragePosition().OutsideRadius(ship.Center, FindAveragePosition().Distance(task.AO))));
+                                         && ship.Center.OutsideRadius(task.AO, task.AORadius)));
         }
         
         private void SetFleetCombatWeights()
