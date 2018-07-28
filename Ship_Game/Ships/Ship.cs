@@ -54,6 +54,7 @@ namespace Ship_Game.Ships
         private ShipModule[] Shields;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
+        public ShipResupply Supply;
         public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
@@ -197,6 +198,7 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
 
+
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
             radius = Math.Min(radius, SensorRange);
@@ -245,6 +247,7 @@ namespace Ship_Game.Ships
 
         public float EmpTolerance => Size + BonusEMP_Protection;
         public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
+        public float HealthPercent => Health / HealthMax;
 
         public void DebugDamage(float percent)
         {
@@ -1855,7 +1858,7 @@ namespace Ship_Game.Ships
             Ordinance = Math.Min(Ordinance, OrdinanceMax);
 
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
-            if (InternalSlotsHealthPercent < 0.5f)
+            if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
             Mass = Math.Max(Size * 0.5f, Mass);
@@ -2143,17 +2146,16 @@ namespace Ship_Game.Ships
                 troopShip => ship.Center.SqDist(troopShip.Center));
         }
 
-        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use deafult one
+        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use default one
         {
-            string assaultShuttleName;
-            if (empire.data.DefaultAssaultShuttle.IsEmpty())
-            {
-                assaultShuttleName = empire.BoardingShuttle.Name; // this is the deafult one in case nothing is found in empire data
-                Empire.Universe?.DebugWin?.DebugLogText($"GetAssaultShuttle: ({empire.Name}) Using Default Shuttle. empire.data.DefaultAssaultShuttle Was Empty", DebugModes.Normal);                
-            }
-            else
-                assaultShuttleName = empire.data.DefaultAssaultShuttle;
-            return assaultShuttleName;
+            return  empire.data.DefaultAssaultShuttle.IsEmpty() ? empire.BoardingShuttle.Name 
+                                                                : empire.data.DefaultAssaultShuttle;
+        }
+
+        public static string GetSupplyShuttleName(Empire empire) // this will get the name of a Supply Shuttle if defined in race.xml or use default one
+        {
+            return empire.data.DefaultSupplyShuttle.IsEmpty() ? empire.SupplyShuttle.Name
+                                                              : empire.data.DefaultSupplyShuttle;
         }
 
         public ShipStatus HealthStatus

@@ -376,6 +376,8 @@ namespace Ship_Game
             return false;
         }
 
+        public int TotalTurnsInConstruction => ConstructionQueue.Count > 0 ? NumberOfTurnsUntilCompleted(ConstructionQueue.Last) : 0;
+
         private int NumberOfTurnsUntilCompleted(QueueItem item)
         {
             int totalTurns = 0;

@@ -13,119 +13,21 @@ namespace Ship_Game.AI
         private void RunMilitaryPlanner()
         {
             if (OwnerEmpire.isPlayer)
-                return;
-            var shipCountLimit = GlobalStats.ShipCountLimit;
+                return;            
             RunGroundPlanner();
             NumberOfShipGoals = 0;
             foreach (Planet p in OwnerEmpire.GetPlanets())
             {
-                if(p.WorkerPercentage > .75 || p.GetMaxProductionPotential() < 2f)                
+                if (p.DevelopmentLevel < 3 || p.TotalTurnsInConstruction > 10)
                     continue;
+
                 NumberOfShipGoals++;
             }
-        
-            float numgoals                       = 0f;
-            float underConstruction              = 0f;
-            float troopStrengthUnderConstruction = 0f;
-            foreach (Goal g in Goals)
-            {
-                if (g is BuildOffensiveShips || g is BuildDefensiveShips)
-                {
+            int shipCountLimit        = GlobalStats.ShipCountLimit;
+            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, false);
+            float goalsInConstruction = buildRatios.CountShipsUnderConstruction();
 
-                    underConstruction = underConstruction +
-                                        ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
-
-                    foreach (var t in ResourceManager.ShipsDict[g.ToBuildUID].TroopList)
-                        troopStrengthUnderConstruction = troopStrengthUnderConstruction + t.Strength;
-
-                    numgoals = numgoals + 1f;
-                }
-                if (!(g is BuildConstructionShip))                
-                    continue;
-                
-                               
-                    underConstruction = underConstruction +
-                                        ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
-                
-            }
-
-            /*so what im trying to do here: risk assesment.
-            //find the highest defense and assault task and overall threat. 
-            //use thhat to determine the amount of taxes to be used for ship building.
-            if these values are greater than the "triggerpoint" then set them to 0. 
-            the idea here is that if they are too high now then use those resources to make better tech
-            and hopefully get more bang for the buck later. 
-            */         
-            float offenseNeeded = 0;
-            
-            foreach (KeyValuePair<Empire, Relationship> rel in OwnerEmpire.AllRelations)
-            {
-                offenseNeeded = Math.Max(offenseNeeded,  (rel.Key.currentMilitaryStrength / OwnerEmpire.currentMilitaryStrength) ) ;// rel.Value.Risk.MaxRisk);                
-            }
-
-            //increase ship goals if a lot of ships are needed.
-            //NumberOfShipGoals += (int)(offenseNeeded);
-            offenseNeeded = Math.Max(offenseNeeded, OwnerEmpire.getResStrat().MilitaryRatio); 
-            offenseNeeded = OwnerEmpire.ResearchTopic.IsEmpty() ? offenseNeeded : Math.Min(offenseNeeded,.75f);
-            float capacity = BuildCapacity;
-            
-            //for certain things use the savings to pay for surplus
-            bool ignoreDebt    = OwnerEmpire.Money > 0 && offenseNeeded > .2f && OwnerEmpire.data.TaxRate < .75f;            
-                        
-            float maintenance = OwnerEmpire.GetTotalShipMaintenance();
-            capacity -= maintenance;                          
-            
-            //scrap crap if needed
-            if(!ignoreDebt && capacity < 0)
-            {            
-                float howMuchWeAreScrapping = 0f;
-                foreach (Ship ship1 in OwnerEmpire.GetShips())
-                {
-                    if (ship1.AI.State != AIState.Scrap)
-                        continue;
-                    howMuchWeAreScrapping = howMuchWeAreScrapping + ship1.GetMaintCost(OwnerEmpire);
-
-                }
-                if (howMuchWeAreScrapping < Math.Abs(capacity))
-                {
-                    var added = 0f;
-                    foreach (Goal g in Goals
-                        .Where(goal => goal is BuildOffensiveShips ||
-                                       goal is BuildDefensiveShips)
-                        .OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID]
-                            .GetMaintCost(OwnerEmpire)))
-                    {
-                        bool flag = false;
-                        if (g.GetPlanetWhereBuilding() == null)
-                            continue;
-                        foreach (QueueItem shipToRemove in g.GetPlanetWhereBuilding().ConstructionQueue)
-                        {
-                            if (shipToRemove.Goal != g || shipToRemove.productionTowards > 0f)
-                                continue;
-
-                            g.GetPlanetWhereBuilding().ConstructionQueue.QueuePendingRemoval(shipToRemove);
-                            Goals.QueuePendingRemoval(g);                            
-                             added += g.beingBuilt?.GetMaintCost(OwnerEmpire) 
-                                ??  ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(OwnerEmpire);
-                            flag = true;
-                            break;
-                        }
-                        if (flag)
-                            g.GetPlanetWhereBuilding().ConstructionQueue.ApplyPendingRemovals();
-                        if (howMuchWeAreScrapping + added >= Math.Abs(capacity))
-                            break;
-                    }
-
-                    Goals.ApplyPendingRemovals();
-                    capacity = capacity + howMuchWeAreScrapping + added;
-                }                
-            }
-            //this is the meat of the deal here. rolebuildinfo contains all the capacity distribution logic for shipbuilding.
-            //it will also scrap when things are bad. 
-            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, ignoreDebt);
-
-
-            while (capacity > 0 && numgoals < NumberOfShipGoals
+            while (goalsInConstruction < NumberOfShipGoals
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
                        || OwnerEmpire.empireShipTotal < OwnerEmpire.EmpireShipCountReserve))
             {
@@ -136,9 +38,8 @@ namespace Ship_Game.AI
                 if (Recyclepool > 0)
                     Recyclepool--;
 
-                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
-                capacity = capacity - ResourceManager.ShipsDict[s].GetMaintCost(OwnerEmpire);                
-                numgoals = numgoals + 1f;
+                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));              
+                goalsInConstruction = goalsInConstruction + 1f;
             }
             
             Goals.ApplyPendingRemovals();            
@@ -146,7 +47,6 @@ namespace Ship_Game.AI
             //this where the global AI attack stuff happenes.
             using (TaskList.AcquireReadLock())
             {
-
                 int toughNutCount = 0;
 
                 foreach (var task in TaskList)
@@ -155,7 +55,6 @@ namespace Ship_Game.AI
                     task.Evaluate(OwnerEmpire);
                 }
                 Toughnuts = toughNutCount;
-
             }
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();
@@ -222,43 +121,9 @@ namespace Ship_Game.AI
              
                     ShipData.RoleName roleName = item.DesignRole;
                     float upkeep = item.GetMaintCost();
-                    if (upkeep < .01)
-                        continue;
-                    //carrier
-                    switch (roleName)
-                    {
-                        case ShipData.RoleName.carrier:
-                            SetCountsTrackRole(ref NumCarriers, ref CapCarriers, upkeep);
-                            break;
-                        case ShipData.RoleName.troopShip:
-                            SetCountsTrackRole(ref NumTroops, ref CapTroops, upkeep);
-                            break;
-                        case ShipData.RoleName.support:
-                            SetCountsTrackRole(ref NumSupport, ref CapSupport, upkeep);
-                            break;
-                        case ShipData.RoleName.bomber:
-                            SetCountsTrackRole(ref NumBombers, ref CapBombers, upkeep);
-                            break;
-                        case ShipData.RoleName.capital:
-                            SetCountsTrackRole(ref NumCapitals,ref CapCapitals, upkeep);
-                            break;
-                        case ShipData.RoleName.fighter:
-                            SetCountsTrackRole(ref NumFighters, ref CapFighters, upkeep);
-                            break;
-                        case ShipData.RoleName.corvette:
-                        case ShipData.RoleName.gunboat:
-                            SetCountsTrackRole(ref NumCorvettes, ref CapCorvettes, upkeep);
-                            break;
-                        case ShipData.RoleName.frigate:
-                        case ShipData.RoleName.destroyer:
-                            SetCountsTrackRole(ref NumFrigates, ref CapFrigates, upkeep);
-                            break;
-                        case ShipData.RoleName.cruiser:
-                            SetCountsTrackRole(ref NumCruisers, ref CapCruisers, upkeep);
-                            break;
-                    }
+                    CountShips(upkeep, roleName);
                 }
-
+                
                 //Set ratio of capacity by class
                 float totalRatio;
 
@@ -309,9 +174,60 @@ namespace Ship_Game.AI
                     , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
             }
 
-            private void AddInconstructionToCounts()
+            public int CountShipsUnderConstruction()
             {
+                int underConstruction = 0;
+                foreach (Goal g in EmpireAI.Goals)
+                {
+                    if (g.UID != "BuildOffensiveShips")
+                        continue;
+                    if (g.beingBuilt == null)
+                        continue;
+                    var upKeep = g.beingBuilt.GetMaintCost();
+                    var role = g.beingBuilt.DesignRole;
+                    CountShips(upKeep, role);
+                    underConstruction++;                    
+                }
+                return underConstruction;
+            }
 
+            private void CountShips(float upkeep, ShipData.RoleName roleName)
+            {
+                if (upkeep < .01)
+                    return;
+                //carrier
+                switch (roleName)
+                {
+                    case ShipData.RoleName.carrier:
+                        SetCountsTrackRole(ref NumCarriers, ref CapCarriers, upkeep);
+                        break;
+                    case ShipData.RoleName.troopShip:
+                        SetCountsTrackRole(ref NumTroops, ref CapTroops, upkeep);
+                        break;
+                    case ShipData.RoleName.support:
+                        SetCountsTrackRole(ref NumSupport, ref CapSupport, upkeep);
+                        break;
+                    case ShipData.RoleName.bomber:
+                        SetCountsTrackRole(ref NumBombers, ref CapBombers, upkeep);
+                        break;
+                    case ShipData.RoleName.capital:
+                        SetCountsTrackRole(ref NumCapitals, ref CapCapitals, upkeep);
+                        break;
+                    case ShipData.RoleName.fighter:
+                        SetCountsTrackRole(ref NumFighters, ref CapFighters, upkeep);
+                        break;
+                    case ShipData.RoleName.corvette:
+                    case ShipData.RoleName.gunboat:
+                        SetCountsTrackRole(ref NumCorvettes, ref CapCorvettes, upkeep);
+                        break;
+                    case ShipData.RoleName.frigate:
+                    case ShipData.RoleName.destroyer:
+                        SetCountsTrackRole(ref NumFrigates, ref CapFrigates, upkeep);
+                        break;
+                    case ShipData.RoleName.cruiser:
+                        SetCountsTrackRole(ref NumCruisers, ref CapCruisers, upkeep);
+                        break;
+                }
             }
 
             private int SetCounts(float roleCount, float roleUpkeep, float capacity, float ratio, float totalRatio)
@@ -319,8 +235,8 @@ namespace Ship_Game.AI
 
                 if (ratio < .01f) return 0;
                 
-                float shipUpkeep = Math.Max(roleUpkeep, 1) / Math.Max(roleCount, 1);                
-                float mainRatio = shipUpkeep * ratio / Math.Max(TotalUpkeep , 1);
+                float shipUpkeep = Math.Max(roleUpkeep, 1) / Math.Max(roleCount, 1);
+                float mainRatio = shipUpkeep * ratio;// / Math.Max(TotalUpkeep , 1);
                 float possible = capacity * mainRatio / shipUpkeep;
 
                 return (int)Math.Round(possible);
@@ -420,15 +336,15 @@ namespace Ship_Game.AI
 
                 )
                 {
-                    if (!CheckRoleAndScrap(ref NumFighters, desiredFighters, ship, ShipData.RoleName.fighter) &&
-                        !CheckRoleAndScrap(ref NumCarriers, desiredCarriers, ship, ShipData.RoleName.carrier) &&
-                        !CheckRoleAndScrap(ref NumTroops, desiredTroops, ship, ShipData.RoleName.troopShip) &&
-                        !CheckRoleAndScrap(ref NumBombers, desiredBombers, ship, ShipData.RoleName.bomber) &&
+                    if (!CheckRoleAndScrap(ref NumFighters , desiredFighters, ship, ShipData.RoleName.fighter) &&
+                        !CheckRoleAndScrap(ref NumCarriers , desiredCarriers, ship, ShipData.RoleName.carrier) &&
+                        !CheckRoleAndScrap(ref NumTroops   , desiredTroops, ship, ShipData.RoleName.troopShip) &&
+                        !CheckRoleAndScrap(ref NumBombers  , desiredBombers, ship, ShipData.RoleName.bomber) &&
                         !CheckRoleAndScrap(ref NumCorvettes, desiredCorvettes, ship, ShipData.RoleName.corvette) &&
-                        !CheckRoleAndScrap(ref NumFrigates, desiredFrigates, ship, ShipData.RoleName.frigate) &&
-                        !CheckRoleAndScrap(ref NumCruisers, desiredCruisers, ship, ShipData.RoleName.cruiser) &&
-                        !CheckRoleAndScrap(ref NumCapitals, desiredCapitals, ship, ShipData.RoleName.capital) &&
-                        !CheckRoleAndScrap(ref NumSupport, desiredSupport, ship, ShipData.RoleName.support))
+                        !CheckRoleAndScrap(ref NumFrigates , desiredFrigates, ship, ShipData.RoleName.frigate) &&
+                        !CheckRoleAndScrap(ref NumCruisers , desiredCruisers, ship, ShipData.RoleName.cruiser) &&
+                        !CheckRoleAndScrap(ref NumCapitals , desiredCapitals, ship, ShipData.RoleName.capital) &&
+                        !CheckRoleAndScrap(ref NumSupport  , desiredSupport, ship, ShipData.RoleName.support))
                         continue;
                     if (NumFighters <= desiredFighters
                         && NumCorvettes <= desiredCorvettes
@@ -448,7 +364,7 @@ namespace Ship_Game.AI
 
             private static bool CheckRoleAndScrap(ref float numShips, float desiredShips, Ship ship, ShipData.RoleName role)
             {
-                if (numShips <= desiredShips || ship.DesignRole != role || ship.fleet?.IsCoreFleet == false)
+                if (numShips <= desiredShips + 1 || ship.DesignRole != role || ship.fleet?.IsCoreFleet == false)
                     return false;
                 numShips--;
                 ship.AI.OrderScrapShip();

@@ -197,10 +197,10 @@ namespace Ship_Game
                         starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
 
                         Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
-                        Data.MasterShipList.Add(ship3);
+                        //Data.MasterShipList.Add(ship3);
 
-                        empire.AddShip(ship3);
-                        empire.GetForcePool().Add(ship3);
+                        //empire.AddShip(ship3);
+                        //empire.GetForcePool().Add(ship3);
                     }
                 }
             }
@@ -422,91 +422,100 @@ namespace Ship_Game
             }
 
             // This section added by Gretman
-            if (Mode != RaceDesignScreen.GameMode.Corners)
-            {
-                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
-                {
-                    if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                        solarSystem2.Position = GenerateRandomSysPos(Data.Size.X / 4f);
-                }
-
-                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)    //Unaltered Vanilla stuff
-                {
-                    if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
-                        solarSystem2.Position = GenerateRandomSysPos(350000f);
-                }
-            }
+            if (Mode != RaceDesignScreen.GameMode.Corners)            
+                SoloarSystemSpacing(Data.SolarSystemsList);            
             else
             {
-                short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
-                foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
-                {
-                    if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                    {
-                        if (solarSystem2.isStartingSystem)
-                        {
-
-                            //Corner Values
-                            //0 = Top Left
-                            //1 = Top Right
-                            //2 = Bottom Left
-                            //3 = Bottom Right
-
-                            //Put the 4 Home Planets into their corners, nessled nicely back a bit
-                            float RandomoffsetX = RandomMath.RandomBetween(0, 19) / 100;   //Do want some variance in location, but still in the back
-                            float RandomoffsetY = RandomMath.RandomBetween(0, 19) / 100;
-                            float MinOffset = 0.04f;   //Minimum Offset
-                                                       //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
-
-                            float CornerOffset = 0.75f;  //Additional Offset for being in corner
-                                                         //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
-                            switch (whichcorner)
-                            {
-                                case 0:
-                                    solarSystem2.Position = new Vector2(
-                                                            (-Data.Size.X + (Data.Size.X * (MinOffset + RandomoffsetX))),
-                                                            (-Data.Size.Y + (Data.Size.Y * (MinOffset + RandomoffsetX))));
-                                    ClaimedSpots.Add(solarSystem2.Position);
-                                    break;
-                                case 1:
-                                    solarSystem2.Position = new Vector2(
-                                                            (Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
-                                                            (-Data.Size.Y + (Data.Size.Y * (MinOffset + RandomoffsetX))));
-                                    ClaimedSpots.Add(solarSystem2.Position);
-                                    break;
-                                case 2:
-                                    solarSystem2.Position = new Vector2(
-                                                            (-Data.Size.X + (Data.Size.X * (MinOffset + RandomoffsetX))),
-                                                            (Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
-                                    ClaimedSpots.Add(solarSystem2.Position);
-                                    break;
-                                case 3:
-                                    solarSystem2.Position = new Vector2(
-                                                            (Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
-                                                            (Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
-                                    ClaimedSpots.Add(solarSystem2.Position);
-                                    break;
-                            }
-                        }
-                        else solarSystem2.Position = GenerateRandomCorners(whichcorner);   //This will distribute the extra planets from "/SolarSystems/Random" evenly
-                        whichcorner += 1;
-                        if (whichcorner > 3) whichcorner = 0;
-                    }
-                }
+                short whichcorner = StartingPositionCorners();
 
                 foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
                 {
                     //This will distribute all the rest of the planets evenly
-                    if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
-                    {
-                        solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
-                        whichcorner += 1;   //Only change which corner if a system is actually created
-                        if (whichcorner > 3) whichcorner = 0;
-                    }
+                    if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                        continue;
+                    solarSystem2.Position = GenerateRandomCorners(whichcorner);
+                    whichcorner += 1;   //Only change which corner if a system is actually created
+                    if (whichcorner > 3) whichcorner = 0;
                 }
             }// Done breaking stuff -- Gretman
 
             ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
+        }
+
+        private void SoloarSystemSpacing(Array<SolarSystem> solarSystems)
+        {
+            foreach (SolarSystem solarSystem2 in solarSystems)
+            {
+                float spacing = 350000f;
+                if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                    spacing = Data.Size.X / (2f - 1f / (Data.EmpireList.Count - 1));
+                solarSystem2.Position = GenerateRandomSysPos(spacing);
+            }
+        }
+
+        private short StartingPositionCorners()
+        {
+            short whichcorner = (short) RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
+            foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
+            {
+                if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                {
+                    if (solarSystem2.isStartingSystem)
+                    {
+                        //Corner Values
+                        //0 = Top Left
+                        //1 = Top Right
+                        //2 = Bottom Left
+                        //3 = Bottom Right
+
+                        //Put the 4 Home Planets into their corners, nessled nicely back a bit
+                        float RandomoffsetX =
+                            RandomMath.RandomBetween(0, 19) / 100; //Do want some variance in location, but still in the back
+                        float RandomoffsetY = RandomMath.RandomBetween(0, 19) / 100;
+                        float MinOffset = 0.04f; //Minimum Offset
+                        //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
+
+                        float CornerOffset = 0.75f; //Additional Offset for being in corner
+                        //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
+                        switch (whichcorner)
+                        {
+                            case 0:
+                                solarSystem2.Position = new Vector2(
+                                    (-Data.Size.X + (Data.Size.X * (MinOffset + RandomoffsetX))),
+                                    (-Data.Size.Y + (Data.Size.Y * (MinOffset + RandomoffsetX))));
+                                ClaimedSpots.Add(solarSystem2.Position);
+                                break;
+                            case 1:
+                                solarSystem2.Position = new Vector2(
+                                    (Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
+                                    (-Data.Size.Y + (Data.Size.Y * (MinOffset + RandomoffsetX))));
+                                ClaimedSpots.Add(solarSystem2.Position);
+                                break;
+                            case 2:
+                                solarSystem2.Position = new Vector2(
+                                    (-Data.Size.X + (Data.Size.X * (MinOffset + RandomoffsetX))),
+                                    (Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                ClaimedSpots.Add(solarSystem2.Position);
+                                break;
+                            case 3:
+                                solarSystem2.Position = new Vector2(
+                                    (Data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
+                                    (Data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                ClaimedSpots.Add(solarSystem2.Position);
+                                break;
+                        }
+                    }
+                    else
+                        solarSystem2.Position =
+                            GenerateRandomCorners(
+                                whichcorner); //This will distribute the extra planets from "/SolarSystems/Random" evenly
+
+                    whichcorner += 1;
+                    if (whichcorner > 3) whichcorner = 0;
+                }
+            }
+
+            return whichcorner;
         }
 
         private void Worker()
@@ -534,9 +543,12 @@ namespace Ship_Game
 
         public Vector2 GenerateRandomSysPos(float spacing)
         {
+            float safteyBreak = 1;
             Vector2 sysPos;
             do {
+                spacing *= safteyBreak;
                 sysPos = RandomMath.Vector2D(Data.Size.X - 100000f);
+                safteyBreak *= .97f;
             } while (!SystemPosOK(sysPos, spacing));
 
             ClaimedSpots.Add(sysPos);
