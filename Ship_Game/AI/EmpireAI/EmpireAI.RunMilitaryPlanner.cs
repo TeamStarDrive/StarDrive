@@ -455,7 +455,7 @@ namespace Ship_Game.AI
             if (sortedList.Length == 0)
                 return name;
 
-            int newRand = RandomMath.IntBetween(0, sortedList.Length - 1);
+            int newRand = RandomMath.InRange(sortedList.Length); 
             ship        = sortedList[newRand];
             name        = ship.Name;
             if (Empire.Universe?.showdebugwindow ?? false)
@@ -512,7 +512,7 @@ namespace Ship_Game.AI
             if (sortedShipList.Length == 0)
                 return name;
 
-            int newRand     = RandomMath.IntBetween(0, sortedShipList.Length - 1);
+            int newRand     = RandomMath.InRange(sortedShipList.Length);
             Ship pickedShip = sortedShipList[newRand];
             name            = pickedShip.Name;
 
