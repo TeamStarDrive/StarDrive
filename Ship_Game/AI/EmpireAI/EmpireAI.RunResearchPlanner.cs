@@ -490,10 +490,13 @@ namespace Ship_Game.AI {
             TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
             {
                 if (econ.GetLookAheadType(techtype) >0 &&
-                 techtype != TechnologyType.Economic) return true;                
-                if (econ.Tech.HullsUnlocked.Count == 0) return true;
-                if (moneyNeeded < 1f) return true;
-                if (availableTechs.Count == 1) return true;
+                 techtype != TechnologyType.Economic) return true;
+
+                if (econ.Tech.HullsUnlocked.Count == 0
+                    || moneyNeeded < 1f
+                    || availableTechs.Count == 1)
+                    return true;
+
                 foreach(var hull in econ.Tech.HullsUnlocked)
                 {
                     if(!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;

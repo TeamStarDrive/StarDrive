@@ -139,7 +139,7 @@ namespace Ship_Game
         public Planet[] RallyShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
 
         public Planet RallyShipYardNearestTo(Vector2 position) => RallyPoints.Length == 0 ? null :
-            RallyPoints.FindMaxFiltered(planet => planet.HasShipyard, planet => -position.SqDist(planet.Center));
+            RallyPoints.FindMaxFiltered(planet => planet?.HasShipyard ?? false, planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
 
         public Planet[] BestBuildPlanets => RallyPoints.FilterBy(planet =>
         planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
