@@ -103,7 +103,8 @@ namespace Ship_Game.AI {
             Refit,
             LandTroop,
             MoveToWithin7500,
-            BombTroops
+            BombTroops,
+            ResupplyEscort
         }
     }
 }

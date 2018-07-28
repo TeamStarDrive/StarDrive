@@ -20,6 +20,8 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
 
+        public float OrdnancePercent => Ordinance / OrdinanceMax;
+
         public float ChangeOrdnance(float ordnance)
         {
             float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamped(0, ordnance);
