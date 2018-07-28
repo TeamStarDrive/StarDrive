@@ -442,26 +442,25 @@ namespace Ship_Game.AI
             }
             float nearmax = maxTech * .80f;
             bestEfficiency *= .80f;
-            if (potentialShips.Count > 0)
+            if (potentialShips.Count <= 0)
+                return name;
+
+            Ship[] sortedList = potentialShips.FilterBy(ships =>
             {
-                Ship[] sortedList = potentialShips.FilterBy(ships =>
-                {
-                    if (efficiency)
-                        return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                    return ships.shipData.TechsNeeded.Count >= nearmax;
-                });
-                int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length - 1);
+                if (efficiency)
+                    return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
+                return ships.shipData.TechsNeeded.Count >= nearmax;
+            });
 
+            if (sortedList.Length == 0)
+                return name;
 
-                newRand = Math.Max(0, newRand);
-                newRand = Math.Min(sortedList.Length - 1, newRand);
-
-                ship = sortedList[newRand];
-                name = ship.Name;
-                if (Empire.Universe?.showdebugwindow ?? false)
-                    Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
-                             $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
-            }
+            int newRand = RandomMath.IntBetween(0, sortedList.Length - 1);
+            ship        = sortedList[newRand];
+            name        = ship.Name;
+            if (Empire.Universe?.showdebugwindow ?? false)
+                Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
+                         $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
 
             return name;
         }
@@ -469,7 +468,7 @@ namespace Ship_Game.AI
         public string PickFromCandidatesByStrength(ShipData.RoleName role, ShipModuleType targetModule = ShipModuleType.Dummy)
         {
             var potentialShips = new Array<Ship>();
-            bool specificModuleWanted = targetModule != ShipModuleType.Dummy ? true : false;
+            bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
             string name = "";
             float bestModuleRatio = 0;
             float highestStrength = 0;
@@ -510,16 +509,26 @@ namespace Ship_Game.AI
                        && ships.shipData.BaseStrength <= levelAdjust.MaxStrength;
             });
 
-            int newRand     = (int)RandomMath.RandomBetween(0, sortedShipList.Length - 1);
-            newRand         = Math.Max(0, newRand);  //FB why is this needed?
-            newRand         = Math.Min(sortedShipList.Length - 1, newRand); //FB why is this needed?
+            if (sortedShipList.Length == 0)
+                return name;
+
+            int newRand     = RandomMath.IntBetween(0, sortedShipList.Length - 1);
             Ship pickedShip = sortedShipList[newRand];
             name            = pickedShip.Name;
 
             if (Empire.Universe?.showdebugwindow ?? false)
+            {
+                Log.Info($"Sorted Ship List ({sortedShipList.Length})");
+                int i = 0;
+                foreach (Ship loggedShip in sortedShipList)
+                {
+                    i++;
+                    Log.Info($"{i}) Name: {loggedShip.Name}, Stength: {loggedShip.BaseStrength}");
+                }
                 Log.Info($"Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}  " +
-                         $"Strength: {pickedShip.BaseStrength} Name: {pickedShip.Name} ");
-
+                         $"Strength: {pickedShip.BaseStrength} Name: {pickedShip.Name} . " +
+                         $"Min STR: {levelAdjust.MinStrength}, Max STR: {levelAdjust.MaxStrength}.");
+            }
             return name;
         }
 
@@ -554,7 +563,6 @@ namespace Ship_Game.AI
                 {
                     MinStrength = minStrength,
                     MaxStrength = maxStrength
-
                 };
             }
         }

@@ -397,7 +397,6 @@ namespace Ship_Game.AI {
             DebugLog($" : {GetBestCombatShip?.Name}");
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
-
             availableTechs = BestShiptechs(modifier, allAvailableShipTechs, availableTechs);
 
 
@@ -489,19 +488,23 @@ namespace Ship_Game.AI {
             TechEntry researchTech = null;
             TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
             {
-                if (econ.GetLookAheadType(techtype) >0 &&
-                 techtype != TechnologyType.Economic) return true;                
-                if (econ.Tech.HullsUnlocked.Count == 0) return true;
-                if (moneyNeeded < 1f) return true;
-                if (availableTechs.Count == 1) return true;
-                foreach(var hull in econ.Tech.HullsUnlocked)
+                if (econ.TechnologyType == techtype)
                 {
-                    if(!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
-                    switch (hullData.HullRole) {
-                        case ShipData.RoleName.station:
-                            return true;
-                        case ShipData.RoleName.platform:
-                            return true;
+                    if (econ.GetLookAheadType(techtype) > 0 &&
+                    techtype != TechnologyType.Economic) return true;
+                    if (econ.Tech.HullsUnlocked.Count == 0) return true;
+                    if (moneyNeeded < 1f) return true;
+                    if (availableTechs.Count == 1) return true;
+                    foreach (var hull in econ.Tech.HullsUnlocked)
+                    {
+                        if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                        switch (hullData.HullRole)
+                        {
+                            case ShipData.RoleName.station:
+                                return true;
+                            case ShipData.RoleName.platform:
+                                return true;
+                        }
                     }
                 }
                 return false;
