@@ -753,7 +753,11 @@ namespace Ship_Game
                 {
                     for (int y = 0; y < 5; ++y)
                     {
-                        bool habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
+                        bool habitableTile;
+                        if (Owner.Capital == null)
+                            habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
+                        else
+                            habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < 75;
                         TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                     }
                 }
