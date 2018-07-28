@@ -423,39 +423,35 @@ namespace Ship_Game.AI
             {
                 if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null) continue;
 
-
                 if (role != ship.DesignRole)
                     continue;
                 maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
 
                 potentialShips.Add(ship);
                 if (efficiency)
-                {
                     bestEfficiency = Math.Max(bestEfficiency, ship.PercentageOfShipByModules(targetModule));
-                }
+
             }
             float nearmax = maxTech * .80f;
             bestEfficiency *= .80f;
-            if (potentialShips.Count > 0)
+            if (potentialShips.Count <= 0)
+                return name;
+
+            Ship[] bestShips = potentialShips.FilterBy(ships =>
             {
-                Ship[] sortedList = potentialShips.FilterBy(ships =>
-                {
-                    if (efficiency)
-                        return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                    return ships.shipData.TechsNeeded.Count >= nearmax;
-                });
-                int newRand = (int)RandomMath.RandomBetween(0, sortedList.Length - 1);
+                if (efficiency)
+                    return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
+                return ships.shipData.TechsNeeded.Count >= nearmax;
+            });
 
+            if (bestShips.Length == 0)
+                return name;
 
-                newRand = Math.Max(0, newRand);
-                newRand = Math.Min(sortedList.Length - 1, newRand);
-
-                ship = sortedList[newRand];
-                name = ship.Name;
-                if (Empire.Universe?.showdebugwindow ?? false)
-                    Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
-                             $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
-            }
+            ship = RandomMath.RandItem(bestShips);
+            name = ship.Name;
+            if (Empire.Universe?.showdebugwindow ?? false)
+                Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
+                         $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
 
             return name;
         }
