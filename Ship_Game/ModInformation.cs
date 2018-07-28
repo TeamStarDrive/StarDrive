@@ -46,6 +46,7 @@ namespace Ship_Game
 
         //added by Fat Bastard
         public bool UseShieldWarpBehavior;
+        public bool AiPickShipsByStrength;
         
         public float ShipyardBonus;
         public float UpkeepBaseline;
