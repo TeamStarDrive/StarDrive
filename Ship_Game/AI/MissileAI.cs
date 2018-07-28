@@ -15,7 +15,7 @@ namespace Ship_Game.AI
         private bool Jammed;
         private bool EcmRun;
         private Vector2 LaunchJitter;
-        private readonly Vector2 TargetJitter;
+        private Vector2 TargetJitter;
         private readonly int Level;
         private float TargettingTimer;
 
@@ -47,9 +47,11 @@ namespace Ship_Game.AI
             }
 
             TargetJitter = missile.Weapon.AdjustTargetting(Level) + target?.JitterPosition() ?? Vector2.Zero;
-            LaunchJitter = TargetJitter * 10f;
-            TargettingTimer = Math.Max(Level * .02f, .17f);
+            LaunchJitter = TargetJitter * 2;
+            TargettingTimer = TargetTimerReset;
         }
+
+        private float TargetTimerReset => Math.Min(.1f + Level * .1f, .9f);
 
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
@@ -105,6 +107,7 @@ namespace Ship_Game.AI
         private void MoveStraight(float elapsedTime)
         {
             Missile.Velocity = Missile.Rotation.RadiansToDirection() * Missile.Speed; 
+            
             Missile.Velocity = Missile.Velocity.Normalized() * Missile.VelocityMax;
         }
 
@@ -147,8 +150,10 @@ namespace Ship_Game.AI
         {
             Vector2 interceptPoint = Vector2.Zero;
             if (Target != null)
-            {
-                interceptPoint = Missile.PredictImpact(Target);
+            {                
+                if (Missile.Velocity != Vector2.Zero)                
+                    interceptPoint = Missile.PredictImpact(Target);
+                
                 float distancetoTarget = Missile.Center.Distance(interceptPoint);
                 if (Jammed)
                 {
@@ -175,24 +180,27 @@ namespace Ship_Game.AI
             }
             ThinkTimer -= elapsedTime;
             
-            if ((TargettingTimer += elapsedTime) > .5f)
+            if ((TargettingTimer += elapsedTime) >1)
             {
-                LaunchJitter /= 2f;                
-                TargettingTimer = Math.Max(Level * .1f, .49f);
+                if (Target != null)
+                {                    
+                    LaunchJitter /= 2;
+                    TargetJitter = Missile.Weapon.AdjustTargetting(Level) + Target.JitterPosition();
+                }
+                TargettingTimer = TargetTimerReset;
             }
 
             if (ThinkTimer <= 0f)
-            {                               
+            {
                 if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().dying)
                 {
                     Target = null;
                     ChooseTarget();
                 }
-
             }
-            if (Target != null)
+            if (Target != null )
             {
-                Missile.GuidedMoveTowards(elapsedTime, interceptPoint + LaunchJitter + TargetJitter);
+                Missile.GuidedMoveTowards(elapsedTime, (interceptPoint + LaunchJitter + TargetJitter));
                 return;
             }
             MoveStraight(elapsedTime);
