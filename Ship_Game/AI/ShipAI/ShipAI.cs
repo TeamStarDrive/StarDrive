@@ -319,7 +319,6 @@ namespace Ship_Game.AI
             switch (resupplyReason)
             {
                 case ResupplyReason.LowOrdnance:
-                {
                     if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
                     {
                         Ship supplyShip = FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays,
@@ -330,10 +329,8 @@ namespace Ship_Game.AI
                     }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
-                }
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
-                {
                     if (Owner.fleet != null && Owner.fleet.HasRepair)
                     {
                         Ship supplyShip =  Owner.fleet.GetShips.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
@@ -342,12 +339,9 @@ namespace Ship_Game.AI
                     }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
-                }
                 case ResupplyReason.LowTroops:
-                {
                     nearestRallyPoint = Owner.loyalty.RallyShipYards.FindMax(p => p.TroopsHere.Count);
                     break;
-                }
                 case ResupplyReason.NotNeeded:
                     return;
             }
