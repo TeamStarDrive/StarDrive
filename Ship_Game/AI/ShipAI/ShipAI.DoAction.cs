@@ -565,7 +565,7 @@ namespace Ship_Game.AI {
             }
             else
             {
-                Owner.Velocity *= 0.75f; //Small propensity to not drift
+                //Owner.Velocity *= 0.75f; //Small propensity to not drift
             }
 
             if (angleDiff <= 0.02f)
