@@ -565,7 +565,7 @@ namespace Ship_Game.AI {
             }
             else
             {
-                Owner.Velocity *= 0.75f; //Small propensity to not drift
+                //Owner.Velocity *= 0.75f; //Small propensity to not drift
             }
 
             if (angleDiff <= 0.02f)
@@ -726,8 +726,8 @@ namespace Ship_Game.AI {
             using (FriendliesNearby.AcquireReadLock())
             {
                 Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, 20000f),
-                    selector: ship => ship.Health / ship.HealthMax);
+                    filter: ship => ShipNeedsRepair(ship, ShipResupply.RepairDroneRange),
+                    selector: ship => ship.InternalSlotsHealthPercent);
 
                 if (repairMe == null) return;
                 Vector2 target = w.Center.DirectionToTarget(repairMe.Center);
@@ -740,14 +740,14 @@ namespace Ship_Game.AI {
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
                     filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),                    
-                    selector: ship => ship.Health / ship.HealthMax);
+                    selector: ship => ship.InternalSlotsHealthPercent);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);
         }
         private bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
         {
             return target.Active && target != dontHealSelf
-                    && target.Health / target.HealthMax < .9f
+                    && target.InternalSlotsHealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
         private void DoOrdinanceTransporterLogic(ShipModule module)
@@ -859,7 +859,8 @@ namespace Ship_Game.AI {
             if (EscortTarget == null || !EscortTarget.Active  
                                      || EscortTarget.AI.State == AIState.Resupply 
                                      || EscortTarget.AI.State == AIState.Scrap 
-                                     || EscortTarget.AI.State == AIState.Refit)
+                                     || EscortTarget.AI.State == AIState.Refit
+                                     || EscortTarget.OrdnancePercent >= 0.99f)
             {
                 OrderReturnToHangar();
                 return;
@@ -868,7 +869,43 @@ namespace Ship_Game.AI {
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
+                EscortTarget.AI.TerminateResupplyIfDone();
                 OrderReturnToHangar();
+            }
+        }
+
+        private void DoResupplyEscort(float elapsedTime, ShipGoal goal)
+        {
+            if (EscortTarget == null || !EscortTarget.Active
+                                     || EscortTarget.AI.State == AIState.Resupply
+                                     || EscortTarget.AI.State == AIState.Scrap
+                                     || EscortTarget.AI.State == AIState.Refit
+                                     || !EscortTarget.SupplyShipCanSupply)
+            {
+                State = AIState.AwaitingOrders;
+                IgnoreCombat = false;
+                return;
+            }
+
+            var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, (int)goal.FacingVector);
+            DebugTargetCircle(escortVector, Owner.Radius);
+            float distanceToEscortSpot = Owner.Center.Distance(escortVector);
+            float supplyShipVelocity   = EscortTarget.Velocity.Length();
+            float escortVelocity       = Owner.velocityMaximum;
+            if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
+                escortVelocity  = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
+
+            if (distanceToEscortSpot > 50)
+                ThrustTowardsPosition(escortVector, elapsedTime, escortVelocity.Clamped(0, Owner.velocityMaximum));
+            else
+                Owner.Velocity = Vector2.Zero;
+
+            switch (goal.VariableString)
+            {
+                default:       TerminateResupplyIfDone(); break;
+                case "Rearm":  TerminateResupplyIfDone(SupplyType.Rearm); break;
+                case "Repair": TerminateResupplyIfDone(SupplyType.Repair); break;
+                case "Troops": TerminateResupplyIfDone(SupplyType.Troops); break;
             }
         }
 
