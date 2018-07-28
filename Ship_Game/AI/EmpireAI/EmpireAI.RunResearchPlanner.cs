@@ -488,9 +488,6 @@ namespace Ship_Game.AI {
             TechEntry researchTech = null;
             TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
             {
-                if (econ.TechnologyType != techType)
-                    return false;
-
                 if (techType != TechnologyType.Economic
                     && econ.GetLookAheadType(techType) > 0)
                     return true;
