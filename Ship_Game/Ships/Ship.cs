@@ -198,7 +198,6 @@ namespace Ship_Game.Ships
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost { get; private set; }
 
-
         public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
         {
             radius = Math.Min(radius, SensorRange);
