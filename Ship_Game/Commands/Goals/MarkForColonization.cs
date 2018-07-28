@@ -15,6 +15,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "MarkForColonization";
         public override string UID => ID;
         private bool HasEscort;
+        public bool WaitingForEscort { get; private set; }
+
         public MarkForColonization() : base(GoalType.Colonize)
         {
             Steps = new Func<GoalStep>[]
@@ -33,29 +35,7 @@ namespace Ship_Game.Commands.Goals
             colonyShip = null;
         }
 
-        private static int GetConstructionQueueTurnsRemaining(Planet p)
-        {
-            int totalTurns = 0;
-            foreach (QueueItem queueItem in p.ConstructionQueue)
-            {
-                float remainingWork = queueItem.Cost - queueItem.productionTowards;
-                int turnsUntilItemComplete = (int)(remainingWork / p.NetProductionPerTurn);
-                totalTurns += turnsUntilItemComplete;
-
-            }
-            return totalTurns;
-        }
-
-        private static Planet FindPlanetForConstruction(Empire e)
-        {
-            var candidates = new Array<Planet>();
-            foreach (Planet p in e.GetPlanets())
-            {
-                if (p.HasShipyard && p.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
-                    candidates.Add(p);
-            }
-            return candidates.FindMin(p => GetConstructionQueueTurnsRemaining(p));
-        }
+        private static Planet FindPlanetForConstruction(Empire e) => e.BestBuildPlanets.FindMin(p => p.TotalTurnsInConstruction);            
 
         private bool IsValid()
         {
@@ -87,6 +67,7 @@ namespace Ship_Game.Commands.Goals
 
         private bool NeedsEscort()
         {
+            WaitingForEscort = HasEscort = false;
             if (empire.isPlayer || empire.isFaction) return false;
             
             float str = empire.GetGSAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 100000f, empire);
@@ -100,7 +81,8 @@ namespace Ship_Game.Commands.Goals
                     {
                         if (held != guid)
                             continue;
-                        HasEscort = escort.WhichFleet != -1;
+                        HasEscort = escort.Step > 2 && str < 10;
+                        WaitingForEscort = !HasEscort;
                         return false;
                     }
                 }
@@ -133,6 +115,7 @@ namespace Ship_Game.Commands.Goals
             {
                 empire.GetGSAI().TaskList.Add(militaryTask);
             }
+            WaitingForEscort = true;
             return true;
         }
 
@@ -242,7 +225,8 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep FinalStep()
         {
-            if (!HasEscort && NeedsEscort())
+            NeedsEscort();
+            if (!HasEscort && WaitingForEscort)
                 return GoalStep.TryAgain;
             if (!IsValid()) return GoalStep.GoalComplete;
 
