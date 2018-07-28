@@ -1571,7 +1571,7 @@ namespace Ship_Game
                     float farmers = CalculateFoodWorkers();
                     score += building.PlusFlatFoodAmount / maxPopulation;   //Percentage of population this will feed
                     score += 1.5f - (Fertility + PlusFoodPerColonist);      //Bonus for low Effective Fertility
-                    if (farmers == 0 || farmers > 0.8) score += 0.333f;     //Bonus if planet is having a hard time feeding itself
+                    if (farmers == 0 || farmers > 0.75f) score += 0.333f;   //Bonus if planet is having a hard time feeding itself
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
                 }
@@ -1591,9 +1591,7 @@ namespace Ship_Game
                 if (building.PlusFoodPerColonist < 0) score = building.PlusFoodPerColonist * maxPopulation * 2; //for negative value
                 else
                 {
-                    float adjustedFoodPerCol = (building.PlusFoodPerColonist - PlusFoodPerColonist).Clamped(0.05f, 10);    //Take already existing FoodPerCol into account
-                    score += adjustedFoodPerCol * CalculateFoodWorkers() * maxPopulation - FlatFoodAdded;  //Food that will be created at current farmer rate
-                    score += Fertility - 0.5f;  //Bonus for high fertility planets
+                    score += building.PlusFoodPerColonist * CalculateFoodWorkers() * (maxPopulation - FlatFoodAdded);  //Food that will be created by this at current farmer rate
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
                     if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
                 }
@@ -1613,11 +1611,12 @@ namespace Ship_Game
                 else
                 {
                     if (Owner.data.Traits.Cybernetic > 0)
-                        score += building.PlusFlatProductionAmount / maxPopulation;   //Percentage of the filthy Opteris population this will feed
+                        score += building.PlusFlatProductionAmount / maxPopulation;     //Percentage of the filthy Opteris population this will feed
                     float farmers = CalculateFoodWorkers();
-                    score += farmers;   //Bonus the fewer workers there are available
-                    score += 1.5f - (MineralRichness + PlusProductionPerColonist);     //Bonus for low richness planets
-                    score += (building.PlusFlatProductionAmount - PlusFlatProductionPerTurn) - ((MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation));   //How much flat Prod compared to labor prod
+                    score += (PopulationBillion / maxPopulation).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
+                    score += 1.5f - (MineralRichness + PlusProductionPerColonist);      //Bonus for low richness planets
+                    float currentOutput = (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation) + PlusFlatProductionPerTurn;  //Current Prod Output from labor and FlatProd
+                    score += building.PlusFlatProductionAmount / currentOutput;         //Percentage of output this building will provide
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
 
@@ -1636,9 +1635,8 @@ namespace Ship_Game
                 else
                 {
                     float farmers = CalculateFoodWorkers();
-                    float adjustedProdPerCol = (building.PlusProdPerColonist - PlusProductionPerColonist).Clamped(0.05f, 10);    //Take already existing ProdPerCol into account
                     score += 1 - farmers;   //Bonus the more workers there are available
-                    score += adjustedProdPerCol * (maxPopulation * (1 - farmers));    //Prod this building will add
+                    score += building.PlusProdPerColonist * (maxPopulation * (1 - farmers));    //Prod this building will add
                     if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
                 }
 
@@ -1801,11 +1799,11 @@ namespace Ship_Game
             if (building.AllowShipBuilding || building.Name == "Space Port")        //Had to also add the name, because some parts of the code look at the name instead of the 'AllowShipBuilding' tag
             {
                 //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
-                float farmers = CalculateFoodWorkers();
+                float farmers = CalculateFoodWorkers().Clamped(0.333f, 0.9f);
                 float prodFromLabor = ((1 - farmers) * maxPopulation * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist));
                 float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
-                if (prodFromLabor + prodFromFlat > 5.0f) score += prodFromLabor + prodFromFlat - 5.0f;
+                if (prodFromLabor + prodFromFlat > 5.0f) score += (prodFromLabor + prodFromFlat) / 5;
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
             }
@@ -1871,10 +1869,7 @@ namespace Ship_Game
             //1 minus cost divided by highestCost gives a decimal value that is higher for smaller construction cost. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. -Gretman
             if (highestCost <= 0) highestCost = 150;    //Fallback in case of negative highestCost
-            return score * (1f - cost / highestCost).Clamped(0.001f, 10);
-            //1 minus cost divided by 400 gives a decimal value that is higher for smaller <cost>. This will make buildings with lower cost more desirable,
-            //but never disqualify a building that had a positive score to begin with. In the unlikely case that its cost is greater than 400, it will
-            //be negative after the calculation, and will get cleaned up by the clamp.  -Gretman            
+            return score * (1f - cost / highestCost).Clamped(0.001f, 10);          
         }
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
