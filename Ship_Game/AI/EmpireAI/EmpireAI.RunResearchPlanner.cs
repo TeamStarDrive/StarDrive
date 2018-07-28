@@ -465,22 +465,22 @@ namespace Ship_Game.AI {
             }
         }
 
-        private TechEntry GetScriptedTech(string command1, string techType, Array<TechEntry> availableTechs, float moneyNeeded)
+        private TechEntry GetScriptedTech(string command1, string stringTechType, Array<TechEntry> availableTechs, float moneyNeeded)
         {
-            TechnologyType techtype;
+            TechnologyType techType;
             try
             {
-                techtype = (TechnologyType) Enum.Parse(typeof(TechnologyType), techType);
+                techType = (TechnologyType) Enum.Parse(typeof(TechnologyType), stringTechType);
             }
             catch
             {
                 Log.Error($"techType not found : ");
                 return null;
             }
-            DebugLog($"\nFind : {techtype.ToString()}");
-            if (OwnerEmpire.data.Traits.TechTypeRestrictions(techtype))
+            DebugLog($"\nFind : {techType.ToString()}");
+            if (OwnerEmpire.data.Traits.TechTypeRestrictions(techType))
             {
-                DebugLog($"Trait Restricted : {techtype.ToString()}");
+                DebugLog($"Trait Restricted : {techType.ToString()}");
                 return null;
             }
 
@@ -488,33 +488,37 @@ namespace Ship_Game.AI {
             TechEntry researchTech = null;
             TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
             {
-                if (econ.TechnologyType == techtype)
+                if (econ.TechnologyType != techType)
+                    return false;
+
+                if (techType != TechnologyType.Economic
+                    && econ.GetLookAheadType(techType) > 0)
+                    return true;
+
+                if (econ.Tech.HullsUnlocked.Count == 0
+                    || moneyNeeded < 1f
+                    || availableTechs.Count == 1)
+                    return true;
+
+                foreach (var hull in econ.Tech.HullsUnlocked)
                 {
-                    if (econ.GetLookAheadType(techtype) > 0 &&
-                    techtype != TechnologyType.Economic) return true;
-                    if (econ.Tech.HullsUnlocked.Count == 0) return true;
-                    if (moneyNeeded < 1f) return true;
-                    if (availableTechs.Count == 1) return true;
-                    foreach (var hull in econ.Tech.HullsUnlocked)
+                    if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                    switch (hullData.HullRole)
                     {
-                        if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
-                        switch (hullData.HullRole)
-                        {
-                            case ShipData.RoleName.station:
-                                return true;
-                            case ShipData.RoleName.platform:
-                                return true;
-                        }
+                        case ShipData.RoleName.station:
+                            return true;
+                        case ShipData.RoleName.platform:
+                            return true;
                     }
                 }
                 return false;
             });
             
-            LogFinalScriptTechs(command1, techtype, filteredTechs);
+            LogFinalScriptTechs(command1, techType, filteredTechs);
             researchTech = ChooseScriptTech(command1, filteredTechs);
             if (researchTech == null)
             {
-                DebugLog($"{techtype.ToString()} : No Tech found");
+                DebugLog($"{techType.ToString()} : No Tech found");
                 return null;
             }
             
