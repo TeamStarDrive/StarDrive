@@ -45,8 +45,8 @@ namespace Ship_Game
         public bool ConstructionModule;
 
         //added by Fat Bastard
-        public bool UseShieldWarpBehavior;
-        public bool AiPickShipsByStrength;
+        public bool UseShieldWarpBehavior; // Player can set shield to turn off at warp, but upon exit they will have activation chance
+        public bool AiPickShipsByStrength; // The Ai will pick ships to build based on their Strength and game difficulty level
         
         public float ShipyardBonus;
         public float UpkeepBaseline;
