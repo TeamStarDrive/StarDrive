@@ -10,7 +10,7 @@ namespace Ship_Game
         [Serialize(0)] public string Name;
         [Serialize(1)] public int TraitName;
         [Serialize(2)] public string VideoPath = "";
-        [Serialize(3)] public string ShipType = "Pollops";
+        [Serialize(3)] public string ShipType = "";
         [Serialize(4)] public string Singular;
         [Serialize(5)] public string Plural;
         [Serialize(6)] public bool Pack;

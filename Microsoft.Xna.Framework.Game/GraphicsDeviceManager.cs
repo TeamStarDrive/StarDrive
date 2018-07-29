@@ -713,72 +713,66 @@ namespace Microsoft.Xna.Framework
     private static bool IsValidShaderProfile(ShaderProfile capsShaderProfile, ShaderProfile minimumShaderProfile)
     {
       if (capsShaderProfile == ShaderProfile.PS_2_B && minimumShaderProfile == ShaderProfile.PS_2_A)
-        return false;
+          return false;
       return capsShaderProfile >= minimumShaderProfile;
     }
-
+        
     private void AddDevices(GraphicsAdapter adapter, DeviceType deviceType, DisplayMode mode, GraphicsDeviceInformation baseDeviceInfo, List<GraphicsDeviceInformation> foundDevices)
     {
-      for (int index1 = 0; index1 < GraphicsDeviceManager.ValidBackBufferFormats.Length; ++index1)
-      {
-        SurfaceFormat backBufferFormat = GraphicsDeviceManager.ValidBackBufferFormats[index1];
-        if (adapter.CheckDeviceType(deviceType, mode.Format, backBufferFormat, this.IsFullScreen))
+        for (int i = 0; i < ValidBackBufferFormats.Length; ++i)
         {
-          GraphicsDeviceInformation deviceInformation1 = baseDeviceInfo.Clone();
-          if (this.IsFullScreen)
-          {
-            deviceInformation1.PresentationParameters.BackBufferWidth = mode.Width;
-            deviceInformation1.PresentationParameters.BackBufferHeight = mode.Height;
-            deviceInformation1.PresentationParameters.FullScreenRefreshRateInHz = mode.RefreshRate;
-          }
-          else if (this.useResizedBackBuffer)
-          {
-            deviceInformation1.PresentationParameters.BackBufferWidth = this.resizedBackBufferWidth;
-            deviceInformation1.PresentationParameters.BackBufferHeight = this.resizedBackBufferHeight;
-          }
-          else
-          {
-            deviceInformation1.PresentationParameters.BackBufferWidth = this.PreferredBackBufferWidth;
-            deviceInformation1.PresentationParameters.BackBufferHeight = this.PreferredBackBufferHeight;
-          }
-          deviceInformation1.PresentationParameters.BackBufferFormat = backBufferFormat;
-          deviceInformation1.PresentationParameters.AutoDepthStencilFormat = this.ChooseDepthStencilFormat(adapter, deviceType, mode.Format);
-          if (this.PreferMultiSampling)
-          {
-            for (int index2 = 0; index2 < GraphicsDeviceManager.multiSampleTypes.Length; ++index2)
+            SurfaceFormat format = ValidBackBufferFormats[i];
+            if (!adapter.CheckDeviceType(deviceType, mode.Format, format, IsFullScreen)) continue;
+            GraphicsDeviceInformation deviceInfo = baseDeviceInfo.Clone();
+            if (IsFullScreen)
             {
-              int qualityLevels = 0;
-              MultiSampleType multiSampleType = GraphicsDeviceManager.multiSampleTypes[index2];
-              if (adapter.CheckDeviceMultiSampleType(deviceType, backBufferFormat, this.IsFullScreen, multiSampleType, out qualityLevels))
-              {
-                GraphicsDeviceInformation deviceInformation2 = deviceInformation1.Clone();
-                deviceInformation2.PresentationParameters.MultiSampleType = multiSampleType;
-                if (!foundDevices.Contains(deviceInformation2))
-                {
-                  foundDevices.Add(deviceInformation2);
-                  break;
-                }
-                break;
-              }
+                deviceInfo.PresentationParameters.BackBufferWidth = mode.Width;
+                deviceInfo.PresentationParameters.BackBufferHeight = mode.Height;
+                deviceInfo.PresentationParameters.FullScreenRefreshRateInHz = mode.RefreshRate;
             }
-          }
-          else if (!foundDevices.Contains(deviceInformation1))
-            foundDevices.Add(deviceInformation1);
+            else if (useResizedBackBuffer)
+            {
+                deviceInfo.PresentationParameters.BackBufferWidth = resizedBackBufferWidth;
+                deviceInfo.PresentationParameters.BackBufferHeight = resizedBackBufferHeight;
+            }
+            else
+            {
+                deviceInfo.PresentationParameters.BackBufferWidth = PreferredBackBufferWidth;
+                deviceInfo.PresentationParameters.BackBufferHeight = PreferredBackBufferHeight;
+            }
+            deviceInfo.PresentationParameters.BackBufferFormat = format;
+            deviceInfo.PresentationParameters.AutoDepthStencilFormat = ChooseDepthStencilFormat(adapter, deviceType, mode.Format);
+            if (PreferMultiSampling)
+            {
+                for (int j = 0; j < multiSampleTypes.Length; ++j)
+                {
+                    MultiSampleType multiSampleType = multiSampleTypes[j];
+                    if (adapter.CheckDeviceMultiSampleType(deviceType, format, IsFullScreen, multiSampleType, out int _))
+                    {
+                        GraphicsDeviceInformation info2 = deviceInfo.Clone();
+                        info2.PresentationParameters.MultiSampleType = multiSampleType;
+                        if (!foundDevices.Contains(info2))
+                            foundDevices.Add(info2);
+                        break;
+                    }
+                }
+            }
+            else if (!foundDevices.Contains(deviceInfo))
+                foundDevices.Add(deviceInfo);
         }
-      }
     }
 
     private DepthFormat ChooseDepthStencilFormat(GraphicsAdapter adapter, DeviceType deviceType, SurfaceFormat adapterFormat)
     {
       if (adapter.CheckDeviceFormat(deviceType, adapterFormat, TextureUsage.None, QueryUsages.None, ResourceType.DepthStencilBuffer, this.PreferredDepthStencilFormat))
         return this.PreferredDepthStencilFormat;
-      if (Array.IndexOf<DepthFormat>(GraphicsDeviceManager.depthFormatsWithStencil, this.PreferredDepthStencilFormat) >= 0)
+      if (Array.IndexOf(depthFormatsWithStencil, this.PreferredDepthStencilFormat) >= 0)
       {
-        DepthFormat depthFormat = this.ChooseDepthStencilFormatFromList(GraphicsDeviceManager.depthFormatsWithStencil, adapter, deviceType, adapterFormat);
+        DepthFormat depthFormat = this.ChooseDepthStencilFormatFromList(depthFormatsWithStencil, adapter, deviceType, adapterFormat);
         if (depthFormat != DepthFormat.Unknown)
           return depthFormat;
       }
-      DepthFormat depthFormat1 = this.ChooseDepthStencilFormatFromList(GraphicsDeviceManager.depthFormatsWithoutStencil, adapter, deviceType, adapterFormat);
+      DepthFormat depthFormat1 = this.ChooseDepthStencilFormatFromList(depthFormatsWithoutStencil, adapter, deviceType, adapterFormat);
       if (depthFormat1 != DepthFormat.Unknown)
         return depthFormat1;
       return DepthFormat.Depth24;
@@ -806,10 +800,10 @@ namespace Microsoft.Xna.Framework
       switch (this.device.GraphicsDeviceStatus)
       {
         case GraphicsDeviceStatus.Lost:
-          Thread.Sleep((int) GraphicsDeviceManager.deviceLostSleepTime.TotalMilliseconds);
+          Thread.Sleep((int) deviceLostSleepTime.TotalMilliseconds);
           return false;
         case GraphicsDeviceStatus.NotReset:
-          Thread.Sleep((int) GraphicsDeviceManager.deviceLostSleepTime.TotalMilliseconds);
+          Thread.Sleep((int) deviceLostSleepTime.TotalMilliseconds);
           try
           {
             this.ChangeDevice(false);

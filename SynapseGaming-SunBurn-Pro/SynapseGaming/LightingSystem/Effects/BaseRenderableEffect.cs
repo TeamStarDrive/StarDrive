@@ -149,7 +149,7 @@ namespace SynapseGaming.LightingSystem.Effects
             set => this._UpdatedByBatch = false;
         }
 
-        private static int NumEffectsCreated;
+        //private static int NumEffectsCreated;
 
         internal BaseRenderableEffect(GraphicsDevice device, string embeddedEffect)
             : base(device, LightingSystemManager.Instance.EmbeddedEffect(embeddedEffect))
