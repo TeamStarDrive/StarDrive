@@ -15,6 +15,7 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
         protected override LightingEffect Read(ContentReader input, LightingEffect instance)
         {
             var service = (IGraphicsDeviceService)input.ContentManager.ServiceProvider.GetService(typeof(IGraphicsDeviceService));
+            Console.WriteLine($"Read LightningEffect {input.AssetName} {instance?.MaterialName}");
             var fx = new LightingEffect(service.GraphicsDevice);
             fx.MaterialName             = input.ReadString();
             fx.MaterialFile             = input.ReadString();
