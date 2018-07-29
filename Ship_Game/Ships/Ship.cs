@@ -2799,7 +2799,7 @@ namespace Ship_Game.Ships
         public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
         {
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
-            if (valueToCheck >= maxValue)
+            if (valueToCheck > maxValue)
             {
                 //if (valueToCheck > maxValue)
                 //    Log.Error($"MaxValue of check as greater than value to check");
