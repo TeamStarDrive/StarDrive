@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using SgMotion;
@@ -8,12 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
-using System.Reflection;
-using System.Runtime;
-using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
-using SgMotion.Controllers;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -78,12 +72,12 @@ namespace Ship_Game
         public static ScreenManager ScreenManager;
 
         // All references to Game1.Instance.Content were replaced by this property
-        public static GameContentManager ContentManager => Game1.Instance.Content;
+        public static GameContentManager RootContent => Game1.Instance.Content;
         private static string LastFailedTexture = "";
 
-        public static Technology GetTreeTech(string techUID)
+        public static Technology GetTreeTech(string techUid)
         {
-            TechTree.TryGetValue(techUID, out Technology technology);
+            TechTree.TryGetValue(techUid, out Technology technology);
             return technology;
         }
 
@@ -140,7 +134,6 @@ namespace Ship_Game
                     hull.UnLockable = true;
             }
 
-            int x = 0;
             var purge = new HashSet<string>();
             foreach (var kv in ShipsDict)
             {
@@ -206,7 +199,6 @@ namespace Ship_Game
                     {
                         var tech = TechTree[techname];
                         shipData.TechScore += tech.RootNode ==0 ? (int)tech.Cost : 0;
-                        x++;
                     }
                 }
                 else
@@ -216,12 +208,7 @@ namespace Ship_Game
                     purge.Add(shipData.Name);
                     shipData.BaseStrength = 0;
                 }
-
             }
-
-            //Log.Info("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
-            //foreach (string purger in purge)
-            //    Log.Info("These are Designs" + purger);
         }
 
         public static void LoadItAll()
@@ -271,13 +258,13 @@ namespace Ship_Game
         {
             if (!GlobalStats.TestLoad) return;
 
-            Log.ShowConsoleWindow(2000);
+            Log.ShowConsoleWindow();
             TestHullLoad();
             //TestCompressedTextures();
             //TestTechTextures();
 
             Log.HideConsoleWindow();
-            ContentManager.EnableLoadInfoLog = false;
+            RootContent.EnableLoadInfoLog = false;
         }
 
         private static void TestHullLoad()
@@ -285,13 +272,13 @@ namespace Ship_Game
             if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes:true))
                 return;
 
-            ContentManager.EnableLoadInfoLog = true;
+            RootContent.EnableLoadInfoLog = true;
             foreach (ShipData hull in HullsDict.Values.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
             {
                 try
                 {
                     Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n", Log.Importance.Regular);
-                    hull.LoadModel();
+                    hull.PreLoadModel();
                 }
                 catch (Exception e)
                 {
@@ -301,8 +288,9 @@ namespace Ship_Game
             }
             HelperFunctions.CollectMemory();
             Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
-            ContentManager.EnableLoadInfoLog = false;
+            RootContent.EnableLoadInfoLog = false;
         }
+
         private static void TestCompressedTextures()
         {
             if (!Log.TestMessage("Test - Checking For Uncompressed Texture \n", waitForYes:true))
@@ -310,8 +298,7 @@ namespace Ship_Game
             foreach (KeyValuePair<string, Texture2D> textDic in TextureDict)
             {
                 Texture2D tex  = textDic.Value;
-                TextureUsage texUsage   = tex.TextureUsage;
-                SurfaceFormat texFormat  = tex.Format;
+                SurfaceFormat texFormat = tex.Format;
                 if (texFormat != SurfaceFormat.Color)
                     continue;
                 Log.TestMessage($"Uncompressed Texture {textDic.Key}", Log.Importance.Important);
@@ -320,6 +307,7 @@ namespace Ship_Game
             
             Log.TestMessage("Test - Checking For Uncompressed Texture Finished", waitForEnter: true);
         }
+
         private static void TestTechTextures()
         {
             if (!Log.TestMessage("Test - Checking For Tech Texture Existence \n", waitForYes: true))
@@ -337,11 +325,12 @@ namespace Ship_Game
 
             Log.TestMessage("Test - Checking For Tech Texture Existence Finished", waitForEnter: true);
         }
+
         public static bool PreLoadModels(Empire empire)
         {
             if (!GlobalStats.PreLoad)
                 return true;
-            Log.Warning($"\nPreloading Ship Models for {empire.Name}.\n");
+            Log.Warning($"\nPreloading Ship Models for {empire.Name}. ");
             try
             {
                 foreach (KeyValuePair<string, TechEntry> kv in empire.TechnologyDict)
@@ -354,7 +343,6 @@ namespace Ship_Game
                 Log.Error(e, "Model PreLoad failed");
                 Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1464/xna-texture-loading-consumes-excessive");
                 return false;
-                
             }
             HelperFunctions.CollectMemory();
             return true;
@@ -395,27 +383,46 @@ namespace Ship_Game
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        public static FileInfo[] GatherFilesUnified(string dir, string ext, bool uniqueFileNames = false)
+        public static FileInfo[] GatherFilesUnified(string dir, string ext)
         {
             if (!GlobalStats.HasMod)
                 return Dir.GetFiles("Content/" + dir, ext);
 
             var infos = new Map<string, FileInfo>();
 
-            string contentPath = Path.GetFullPath("Content/");
-            foreach (FileInfo file in Dir.GetFiles("Content/" + dir, ext))
+            // For XML files we allow subfolders such as Buildings/Colonization/Aeroponics.xml
+            // Which means the unification has to be done via `file.Name`
+            // For other files such as XNB textures, we use the full path normalized to relative content path
+            // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
+            bool fileNames = ext == "xml";
+
+            FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, ext);
+            string vanillaPath = Path.GetFullPath("Content/");
+            foreach (FileInfo file in vanilla)
             {
-                string fileName = uniqueFileNames ? file.Name : file.FullName.Substring(contentPath.Length);
-                infos[fileName] = file; 
+                string name = fileNames ? file.Name : file.FullName.Substring(vanillaPath.Length);
+                infos[name] = file; 
             }
 
             // now pull everything from the modfolder and replace all matches
-            contentPath = Path.GetFullPath(GlobalStats.ModPath);
-            foreach (FileInfo file in Dir.GetFiles(GlobalStats.ModPath + dir, ext))
+            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
+            string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
+            foreach (FileInfo file in mod)
             {
-
-                string fileName = uniqueFileNames ? file.Name : file.FullName.Substring(contentPath.Length);
-                infos[fileName] = file;
+                string name = fileNames ? file.Name : file.FullName.Substring(fullModPath.Length);
+                #if false
+                if (infos.TryGetValue(name, out FileInfo existing))
+                {
+                    string newName = GlobalStats.ModPath + file.FullName.Substring(fullModPath.Length);
+                    string existingName = existing.FullName;
+                    if (existingName.StartsWith(fullModPath))
+                        existingName = GlobalStats.ModPath + existingName.Substring(fullModPath.Length);
+                    else
+                        existingName = existingName.Substring(vanillaPath.Length);
+                    Log.Info($"ModReplace {existingName,64} -> {newName}");
+                }
+                #endif
+                infos[name] = file;
             }
 
             return infos.Values.ToArray();
@@ -439,10 +446,10 @@ namespace Ship_Game
             {
                 var s = new XmlSerializer(typeof(T));
                 foreach (FileInfo info in files)
-                    if (LoadEntity(s, info, @where, out T entity))
+                    if (LoadEntity(s, info, where, out T entity))
                         result.Add(entity);
             }
-            else Log.Error($"{@where}: No files in '{dir}'");
+            else Log.Error($"{where}: No files in '{dir}'");
             return result;
         }
 
@@ -473,7 +480,7 @@ namespace Ship_Game
             return list;
         }
 
-        private static Array<T> LoadEntities<T>(string dir, string id, bool  uniqueFileNames = false) where T : class
+        private static Array<T> LoadEntities<T>(string dir, string id) where T : class
         {
             return LoadEntities<T>(GatherFilesUnified(dir, "xml"), id);
         }
@@ -495,9 +502,9 @@ namespace Ship_Game
             public InfoPair(FileInfo info, T entity) { Info = info; Entity = entity; }
         }
 
-        private static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false, bool uniqueFileNames = false) where T : class
+        private static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
         {
-            var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml", uniqueFileNames);
+            var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml");
             var list = new Array<InfoPair<T>>(files.Length);
             var s = new XmlSerializer(typeof(T));
             foreach (FileInfo info in files)
@@ -642,16 +649,9 @@ namespace Ship_Game
 
         }
 
-        private static SceneObject SceneObjectFromStaticMesh(GameContentManager contentManager, string modelName, int maxSubmeshes = 0)
+        private static SceneObject SceneObjectFromStaticMesh(GameContentManager content, string modelName, int maxSubmeshes = 0)
         {
-            if (!contentManager.Meshes.TryGetValue(modelName, out StaticMesh staticMesh))
-            {
-                Log.Info($"Loading model for {modelName}");
-                staticMesh = contentManager.Load<StaticMesh>(modelName);
-                contentManager.Meshes[modelName] = staticMesh;                
-            }
-            
-                
+            StaticMesh staticMesh = content.LoadStaticMesh(modelName);
             if (staticMesh == null)
                 return null;
             
@@ -676,29 +676,15 @@ namespace Ship_Game
                     0, mesh.VertexStride);
                 so.Add(renderable);
             }
-            
             return so;
         }
 
-        private static SceneObject SceneObjectFromModel(GameContentManager contentManager, string modelName, int maxSubmeshes = 0, bool justLoad = false)
+        private static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubmeshes = 0)
         {
-            if (!contentManager.Models.TryGetValue(modelName, out Model model))
-            {
-                // special backwards compatibility with mods...
-                // basically, all old mods put their models into "Mod Models/" folder because
-                // the old model loading system didn't handle Unified resource paths...                
-                if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
-                {
-                    string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
-                    if (File.Exists(modModelPath)) model = contentManager.Load<Model>(modModelPath);
-                }
-                if (model == null) model = contentManager.Load<Model>(modelName);
-                contentManager.Models[modelName] = model;  
-            }
-            if (model == null || justLoad)
-            {                
+            Model model = content.LoadModel(modelName);
+            if (model == null)
                 return null;
-            }            
+
             SceneObject so = DynamicObject(modelName);
             int count = SubmeshCount(maxSubmeshes, model.Meshes.Count);
 
@@ -709,46 +695,48 @@ namespace Ship_Game
             return so;
         }
 
-        private static SceneObject SceneObjectFromSkinnedModel(GameContentManager contentManager, string modelName, bool justLoad = false)
+        private static SceneObject SceneObjectFromSkinnedModel(GameContentManager content, string modelName)
         {
-            if (!contentManager.SkinnedModels.TryGetValue(modelName, out SkinnedModel skinned))
-            {
-                skinned = contentManager.Load<SkinnedModel>(modelName);
-                contentManager.SkinnedModels[modelName] = skinned;                
-            }            
-            if (skinned == null || justLoad)
+            SkinnedModel skinned = content.LoadSkinnedModel(modelName);
+            if (skinned == null)
                 return null;
             
             var so = new SceneObject(skinned.Model, modelName)
             {
                 ObjectType = ObjectType.Dynamic
             };
-
             return so;
         }
 
-        public static SceneObject GetSceneMesh(GameContentManager contentManager, string modelName, bool animated = false, bool justLoad = false)
+        public static void PreloadModel(GameContentManager content, string modelName, bool animated)
         {
-            contentManager = contentManager ?? ContentManager;
+            content = content ?? RootContent;
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(contentManager, modelName);            
-            return animated ? SceneObjectFromSkinnedModel(contentManager, modelName, justLoad) : SceneObjectFromModel(contentManager, modelName, justLoad: justLoad);
+                content.LoadStaticMesh(modelName);
+            else if (animated)
+                content.LoadSkinnedModel(modelName);
+            else
+                content.LoadModel(modelName);
         }
 
-        public static SceneObject GetPlanetarySceneMesh(GameContentManager contentManager, string modelName)
+        public static SceneObject GetSceneMesh(GameContentManager content, string modelName, bool animated = false)
+        {
+            content = content ?? RootContent;
+            if (RawContentLoader.IsSupportedMesh(modelName))
+                return SceneObjectFromStaticMesh(content, modelName);
+            else if (animated)
+                return SceneObjectFromSkinnedModel(content, modelName);
+            else 
+                return SceneObjectFromModel(content, modelName);
+        }
+
+        public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
         {            
             if (RawContentLoader.IsSupportedMesh(modelName))
-                return SceneObjectFromStaticMesh(contentManager, modelName, 1);
-            return SceneObjectFromModel(contentManager, modelName, 1);
+                return SceneObjectFromStaticMesh(content, modelName, 1);
+            return SceneObjectFromModel(content, modelName, 1);
         }
 
-        
-        public static SkinnedModel GetSkinnedModel(GameContentManager contentManager, string path, bool justLoad = false)
-        {
-            if (contentManager.SkinnedModels.TryGetValue(path, out SkinnedModel model))
-                return model;
-            return contentManager.SkinnedModels[path] = contentManager.Load<SkinnedModel>(path);
-        }
 
         public static FileInfo[] GetAllXnbModelFiles(string folder)
         {
@@ -783,7 +771,7 @@ namespace Ship_Game
                     {
                         FileInfo file = files[i];
                         string relativePath = file.RelPath().Replace("Content\\", "");
-                        var model = ContentManager.Load<Model>(relativePath);
+                        var model = RootContent.Load<Model>(relativePath);
 
                         string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
                         string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "obj");
@@ -832,7 +820,7 @@ namespace Ship_Game
         private static void LoadTexture(FileInfo info)
         {
             string relPath = info.CleanResPath(false);
-            var tex = ContentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
+            var tex = RootContent.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
             relPath = info.CleanResPath();
             string texName = relPath.Substring("Textures/".Length);
             lock (TextureDict)
@@ -847,7 +835,7 @@ namespace Ship_Game
             var allFiles = new Array<FileInfo>();
             foreach (string ext in exts)
             {
-                allFiles.AddRange(GatherFilesUnified(dir, ext, false));
+                allFiles.AddRange(GatherFilesUnified(dir, ext));
             }
             return allFiles.ToArray();
         }
@@ -897,7 +885,7 @@ namespace Ship_Game
                 return tex;
             try
             {
-                tex = ContentManager.Load<Texture2D>("Textures/" + textureName);
+                tex = RootContent.Load<Texture2D>("Textures/" + textureName);
                 TextureDict[textureName] = tex;
             }
             catch (Exception)
@@ -914,7 +902,7 @@ namespace Ship_Game
 
             string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
             if (File.Exists(modTexPath + ".xnb"))
-                return TextureDict[textureName] = ContentManager.Load<Texture2D>(modTexPath);
+                return TextureDict[textureName] = RootContent.Load<Texture2D>(modTexPath);
 
             return null;
         }
@@ -979,7 +967,7 @@ namespace Ship_Game
             {
                 foreach (Artifact art in arts)
                 {
-                    art.Name = String.Intern(art.Name);
+                    art.Name = string.Intern(art.Name);
                     ArtifactsDict[art.Name] = art;
                 }
             }
@@ -987,9 +975,9 @@ namespace Ship_Game
 
         private static void LoadBuildings() // Refactored by RedFox
         {
-            foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings", uniqueFileNames: true))
+            foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings"))
             {
-                BuildingsDict[String.Intern(newB.Name)] = newB;
+                BuildingsDict[string.Intern(newB.Name)] = newB;
             }
         }
 
@@ -1064,14 +1052,14 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesUnified("Flags", "xnb"))
             {
-                var tex = ContentManager.Load<Texture2D>(info.CleanResPath());
+                var tex = RootContent.Load<Texture2D>(info.CleanResPath());
                 FlagTextures.Add(new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex));
             }
         }
 
         private static void LoadGoods() // Refactored by RedFox
         {
-            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods", uniqueFileNames: true))
+            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
             {
                 Good good = pair.Entity;
                 good.UID = String.Intern(pair.Info.NameNoExt());
@@ -1168,7 +1156,7 @@ namespace Ship_Game
                     // only accept "prefixNN" format, because there are a bunch of textures in the asteroids folder
                     if (!nameNoExt.StartsWith(modelPrefix) || !int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                         continue;
-                    models.Add(ContentManager.Load<Model>(info.CleanResPath()));
+                    models.Add(RootContent.Load<Model>(info.CleanResPath()));
                 }
                 catch (Exception e)
                 {
@@ -1218,7 +1206,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    LargeStars.Add(ContentManager.Load<Texture2D>(info.CleanResPath()));
+                    LargeStars.Add(RootContent.Load<Texture2D>(info.CleanResPath()));
                 }
                 catch (Exception e)
                 {
@@ -1233,7 +1221,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    MediumStars.Add(ContentManager.Load<Texture2D>(info.CleanResPath()));
+                    MediumStars.Add(RootContent.Load<Texture2D>(info.CleanResPath()));
                 }
                 catch (Exception e)
                 {
@@ -1248,7 +1236,7 @@ namespace Ship_Game
             foreach (FileInfo info in Dir.GetFiles("Content/Nebulas", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
-                var tex = ContentManager.Load<Texture2D>("Nebulas/" + nameNoExt);
+                var tex = RootContent.Load<Texture2D>("Nebulas/" + nameNoExt);
                 if      (tex.Width == 2048) BigNebulas.Add(tex);
                 else if (tex.Width == 1024) MedNebulas.Add(tex);
                 else                        SmallNebulas.Add(tex);
@@ -1268,7 +1256,7 @@ namespace Ship_Game
             string path = projectileDir + nameNoExt;
             try
             {
-                var projModel = ContentManager.Load<Model>(path);
+                var projModel = RootContent.Load<Model>(path);
                 ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
                 ProjectileModelDict[nameNoExt] = projModel;
             }
@@ -1301,7 +1289,7 @@ namespace Ship_Game
                 string nameNoExt = info.NameNoExt();
                 try
                 {
-                    var projModel = ContentManager.Load<Model>(info.CleanResPath());
+                    var projModel = RootContent.Load<Model>(info.CleanResPath());
                     
                     ProjectileMeshDict[nameNoExt] = projModel.Meshes[0];
                     ProjectileModelDict[nameNoExt] = projModel;
@@ -1319,7 +1307,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
             {
-                var tex = ContentManager.Load<Texture2D>(info.CleanResPath());
+                var tex = RootContent.Load<Texture2D>(info.CleanResPath());
                 ProjTextDict[info.NameNoExt()] = tex;
             }
         }
@@ -1338,7 +1326,7 @@ namespace Ship_Game
 
         private static void LoadShipModules()
         {
-            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules", uniqueFileNames: true))
+            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
             {
                 // Added by gremlin support techlevel disabled folder.
                 if (pair.Info.DirectoryName?.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
@@ -1527,7 +1515,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesModOrVanilla("SmallStars", "xnb"))
             {
-                var tex = ContentManager.Load<Texture2D>(info.CleanResPath());
+                var tex = RootContent.Load<Texture2D>(info.CleanResPath());
                 SmallStars.Add(tex);
             }
         }
@@ -1584,7 +1572,7 @@ namespace Ship_Game
         private static void LoadTechTree()
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
-            Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly, uniqueFileNames: true);
+            Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
 
             var duplicateTech = new Map<string, Technology>();
 
@@ -1817,7 +1805,7 @@ namespace Ship_Game
 
         private static void LoadTroops()
         {
-            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops", uniqueFileNames: true))
+            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
             {
                 Troop troop = pair.Entity;
                 troop.Name = pair.Info.NameNoExt();
@@ -1834,7 +1822,7 @@ namespace Ship_Game
         private static void LoadWeapons() // Refactored by RedFox
         {
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
-            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly, uniqueFileNames: true))
+            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
                 Weapon wep = pair.Entity;
                 wep.UID = String.Intern(pair.Info.NameNoExt());
@@ -1883,7 +1871,7 @@ namespace Ship_Game
                 SoundEffectDict = new Map<string, SoundEffect>();
                 foreach (FileInfo info in sfxFiles)
                 {
-                    var se = ContentManager.Load<SoundEffect>(info.CleanResPath());
+                    var se = RootContent.Load<SoundEffect>(info.CleanResPath());
                     SoundEffectDict[info.NameNoExt()] = se;
                 }
             }
