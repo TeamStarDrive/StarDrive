@@ -133,7 +133,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_5, renderableMeshes, Enum7.flag_0);
             class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_6, renderableMeshes, Enum7.flag_0 | Enum7.flag_1);
             FrameShadowRenderTargetGroups.Clear();
-            IShadowMapManager manager2 = (IShadowMapManager)ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
+            var manager2 = (IShadowMapManager)ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
             if (manager2 == null)
             {
                 GetDefaultShadows(FrameShadowRenderTargetGroups, FrameLights);
