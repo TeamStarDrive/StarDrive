@@ -344,7 +344,6 @@ namespace Ship_Game
                 Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1464/xna-texture-loading-consumes-excessive");
                 return false;
             }
-            HelperFunctions.CollectMemory();
             return true;
         }
 
@@ -1002,6 +1001,16 @@ namespace Ship_Game
             else
             {
                 Empires.AddRange(LoadEntities<EmpireData>("Races", "LoadEmpires"));
+            }
+
+            // Fix empires with invalid ShipType
+            foreach (EmpireData e in Empires)
+            {
+                if (e.Traits.ShipType.IsEmpty())
+                {
+                    Log.Warning($"Empire {e.Traits.Name} invalid ShipType '{e.Traits.ShipType}'. Using {e.Traits.Name} instead.");
+                    e.Traits.ShipType = e.Traits.Name;
+                }
             }
         }
 

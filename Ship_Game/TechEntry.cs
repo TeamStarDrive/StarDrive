@@ -218,7 +218,7 @@ namespace Ship_Game
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
         {
-            if (!Discovered)
+            if (!Discovered || Tech.HullsUnlocked.IsEmpty)
                 return;
 
             foreach (var hullName in Tech.HullsUnlocked)

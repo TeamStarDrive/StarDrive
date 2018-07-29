@@ -538,6 +538,8 @@ namespace Ship_Game
                 }
             }
 
+            HelperFunctions.CollectMemory();
+
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
