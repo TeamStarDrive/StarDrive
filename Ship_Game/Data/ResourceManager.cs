@@ -330,7 +330,7 @@ namespace Ship_Game
         {
             if (!GlobalStats.PreLoad)
                 return true;
-            Log.Warning($"\nPreloading Ship Models for {empire.Name}. ");
+            Log.Warning($"Preloading Ship Models for {empire.Name}. ");
             try
             {
                 foreach (KeyValuePair<string, TechEntry> kv in empire.TechnologyDict)
