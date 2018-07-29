@@ -1544,6 +1544,22 @@ namespace Ship_Game
             ResearcherPercentage += labor - (workers * labor);//Leftovers go to Research
         }
 
+        private float EvaluateBuildingScrapWeight(Building building, float income)
+        {
+            float score = 0;
+            if (building.Maintenance != 0)
+            {
+                score += building.Maintenance;
+
+                //This is where the logic for how bad the planet is doing will go + the value of this planet to the empire and all that.
+                //For now, just testing with base of just being able to justify its own Maintenance cost
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} Maintenance : Score was {-score}");
+            }
+
+            return score;
+        }
+
         private float EvaluateBuildingMaintenance(Building building, float income)
         {
             float score = 0;
@@ -1570,7 +1586,7 @@ namespace Ship_Game
                 {
                     float farmers = CalculateFoodWorkers();
                     score += building.PlusFlatFoodAmount / maxPopulation;   //Percentage of population this will feed
-                    score += 1.5f - (Fertility + PlusFoodPerColonist);      //Bonus for low Effective Fertility
+                    score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
                     if (farmers == 0 || farmers > 0.75f) score += 0.333f;   //Bonus if planet is having a hard time feeding itself
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
@@ -1616,7 +1632,7 @@ namespace Ship_Game
                     score += (PopulationBillion / maxPopulation).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
                     score += 1.5f - (MineralRichness + PlusProductionPerColonist);      //Bonus for low richness planets
                     float currentOutput = (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation) + PlusFlatProductionPerTurn;  //Current Prod Output from labor and FlatProd
-                    score += building.PlusFlatProductionAmount / currentOutput;         //Percentage of output this building will provide
+                    score += (building.PlusFlatProductionAmount - currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
 
@@ -1908,14 +1924,20 @@ namespace Ship_Game
             float combatScore = (building.Strength + building.Defense + building.CombatStrength + building.SoftAttack + building.HardAttack) / 100;
 
             float weaponDPS = 0;
-            if (building.isWeapon && building.theWeapon != null)
-                weaponDPS = (building.theWeapon.DamageAmount / building.theWeapon.fireDelay) / 500;
+            if (building.isWeapon && !String.IsNullOrEmpty(building.Weapon))
+            {
+                Weapon theWeapon = ResourceManager.WeaponsDict[building.Weapon];
+                weaponDPS = (theWeapon.DamageAmount / theWeapon.fireDelay) / 500;
+            }
 
             float shieldScore = building.PlanetaryShieldStrengthAdded / 1000;
 
             float allowTroops = 0;
             if (building.AllowInfantry)
-                allowTroops = 1;
+            {
+                if (colonyType == ColonyType.Military) allowTroops = 2.5f;
+                else allowTroops = 1.0f;
+            }
 
             //Shield, weapon, and/or allowtroop weighting go here (which is why they are all seperate values)
 
@@ -2003,14 +2025,55 @@ namespace Ship_Game
             }
         }
 
+        private void ScrapBuildings(float income)
+        {
+            float buildingValue = 0.0f;
+            float costWeight = 0.0f;
+            float maxPopulation = (MaxPopulation + MaxPopBonus) / 1000f;
+
+            for (int i = 0; i < BuildingList.Count; i++)
+            {
+                buildingValue = 0;
+                costWeight = 0;
+                if (BuildingList[i].Name == "Biospheres" || !BuildingList[i].Scrappable || BuildingList[i].IsPlayerAdded) continue;
+
+                costWeight     = EvaluateBuildingScrapWeight(BuildingList[i], income);
+
+                buildingValue += EvaluateBuildingFlatFood(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingFoodPerCol(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingFlatProd(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingProdPerCol(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingProdPerRichness(BuildingList[i]);
+                buildingValue += EvaluateBuildingStorage(BuildingList[i]);
+                buildingValue += EvaluateBuildingPopulationGrowth(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingPlusMaxPopulation(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingFlatResearch(BuildingList[i], income);
+                buildingValue += EvaluateBuildingResearchPerCol(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingCreditsPerCol(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingPlusTaxPercent(BuildingList[i]);
+                buildingValue += EvaluateBuildingAllowShipBuilding(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingTerraforming(BuildingList[i]);
+                //buildingValue -= EvaluateBuildingFertilityLoss(building, maxPopulation);  //Because the damage has already been done...
+
+                if (buildingValue < costWeight)
+                {
+                    Log.Info($"{Owner.PortraitName} SCRAPPED {BuildingList[i].Name} on planet {Name}     buildingValue: {buildingValue}    costWeight: {costWeight}");
+                    BuildingList[i].ScrapBuilding(this);
+                }
+                else if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {BuildingList[i].Name}  buildingValue: {buildingValue}    costWeight: {costWeight}");
+            }
+        }
+
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
             BuildOutpostifAble();   //If there is no Outpost or Capital, build it
 
-            if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!
+            if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!            
 
-            float income = GrossMoneyPT - TotalMaintenanceCostsPerTurn;
+            float income = MaxPopulationBillion * (Owner.data.TaxRate).Clamped(0.1f, 0.4f) ;    //If taxes go way up, dont want the governors to go too crazy
+            income += income * PlusTaxPercentage;
+            income += income * Owner.data.Traits.TaxMod;
             income -= SbProduction.GetTotalConstructionQueueMaintenance();
 
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
@@ -2109,40 +2172,9 @@ namespace Ship_Game
 
                         break;
                     }
-
-                    //Leaving there here for reference -Gretman
-                    /*
-                    //Added by McShooterz: Colony build troops
-                    if (false && Owner.isPlayer && colonyType == ColonyType.Military)
-                    {
-                        bool addTroop = false;
-                        foreach (PlanetGridSquare planetGridSquare in TilesList)
-                        {
-                            if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops)
-                            {
-                                addTroop = true;
-                                break;
-                            }
-                        }
-                        if (addTroop && AllowInfantry)
-                        {
-                            foreach (string troopType in ResourceManager.TroopTypes)
-                            {
-                                if (!Owner.WeCanBuildTroop(troopType))
-                                    continue;
-                                QueueItem qi = new QueueItem(this);
-                                qi.isTroop = true;
-                                qi.troopType = troopType;
-                                qi.Cost = ResourceManager.GetTroopCost(troopType);
-                                qi.productionTowards = 0f;
-                                qi.NotifyOnEmpty = false;
-                                ConstructionQueue.Add(qi);
-                                break;
-                            }
-                        }
-                    }
-                    */
             } //End Gov type Switch
+
+            ScrapBuildings(income);
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
                 colonyType != ColonyType.Research) 
@@ -2260,47 +2292,6 @@ namespace Ship_Game
                 }
             }
 
-            #endregion
-
-            #region Scrap
-            /*
-            {
-                using (ConstructionQueue.AcquireReadLock())
-                    foreach (PlanetGridSquare PGS in TilesList)
-                    {
-                        bool qitemTest = PGS.QItem != null;
-                        if (qitemTest && PGS.QItem.IsPlayerAdded)
-                            continue;
-                        if (PGS.building != null && PGS.building.IsPlayerAdded)
-                            continue;
-                        if ((qitemTest && PGS.QItem.Building.Name == "Biospheres") ||
-                            (PGS.building != null && PGS.building.Name == "Biospheres"))
-                            continue;
-                        if ((PGS.building != null && PGS.building.PlusFlatProductionAmount > 0) ||  //Why are these duplicated? Why check the same thing twice?
-                            (PGS.building != null && PGS.building.PlusFlatProductionAmount > 0))
-                            continue;
-                        if ((PGS.building != null && PGS.building.PlusFlatFoodAmount > 0) ||
-                            (PGS.building != null && PGS.building.PlusFlatFoodAmount > 0))
-                            continue;
-                        if ((PGS.building != null && PGS.building.PlusFlatResearchAmount > 0) ||
-                            (PGS.building != null && PGS.building.PlusFlatResearchAmount > 0))
-                            continue;
-                        if (PGS.building != null && !qitemTest && PGS.building.Scrappable &&
-                            !WeCanAffordThis(PGS.building, colonyType)
-                        ) 
-                        {
-                            PGS.building.ScrapBuilding(this);
-                        }
-                        if (qitemTest && !WeCanAffordThis(PGS.QItem.Building, colonyType))
-                        {
-                            ProductionHere += PGS.QItem.productionTowards;
-                            ConstructionQueue.QueuePendingRemoval(PGS.QItem);
-                            PGS.QItem = null;
-                        }
-                    }
-
-                ConstructionQueue.ApplyPendingRemovals();
-            }*/
             #endregion
         }
 
