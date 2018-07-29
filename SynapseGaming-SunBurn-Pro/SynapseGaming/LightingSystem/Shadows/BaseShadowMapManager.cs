@@ -192,9 +192,9 @@ namespace SynapseGaming.LightingSystem.Shadows
         /// single default group (recommended: true for deferred rendering and false for forward).</param>
         public void BuildShadows(List<ShadowRenderTargetGroup> rendertargetgroups, List<ILight> lights, bool usedefaultgrouping)
         {
-            GraphicsDevice graphicsDevice = GraphicsDeviceManager.GraphicsDevice;
+            GraphicsDevice device = GraphicsDeviceManager.GraphicsDevice;
             if (DefaultRenderTarget == null)
-                DefaultRenderTarget = new RenderTarget2D(graphicsDevice, 16, 16, 1, SurfaceFormat.Color);
+                DefaultRenderTarget = new RenderTarget2D(device, 16, 16, 1, SurfaceFormat.Color);
             rendertargetgroups.Clear();
             ShadowGroups.Clear();
             RenderTargetCache.Clear();
@@ -217,10 +217,10 @@ namespace SynapseGaming.LightingSystem.Shadows
                     else
                         continue;
 
-                    shadowMap.Build(graphicsDevice, SceneState, shadowgroup, this, shadowQuality);
-                    if (shadowMap.CustomRenderTarget is RenderTarget2D)
+                    shadowMap.Build(device, SceneState, shadowgroup, this, shadowQuality);
+                    if (shadowMap.CustomRenderTarget is RenderTarget2D rt2)
                     {
-                        rt = shadowMap.CustomRenderTarget as RenderTarget2D;
+                        rt = rt2;
                     }
                     else
                     {
@@ -247,7 +247,7 @@ namespace SynapseGaming.LightingSystem.Shadows
             {
                 ShadowRenderTargetGroup renderTargetGroup = keyValuePair.Value;
                 RenderTarget rt = keyValuePair.Key;
-                renderTargetGroup.Build(graphicsDevice, rt == DefaultRenderTarget ? null : rt, ShadowCache.DepthBuffer);
+                renderTargetGroup.Build(device, rt == DefaultRenderTarget ? null : rt, ShadowCache.DepthBuffer);
                 rendertargetgroups.Add(renderTargetGroup);
             }
         }

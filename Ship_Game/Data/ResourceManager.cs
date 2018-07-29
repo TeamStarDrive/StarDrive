@@ -1166,7 +1166,7 @@ namespace Ship_Game
                 try
                 {
                     // only accept "prefixNN" format, because there are a bunch of textures in the asteroids folder
-                    if (!nameNoExt.StartsWith(modelPrefix) || !Int32.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
+                    if (!nameNoExt.StartsWith(modelPrefix) || !int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                         continue;
                     models.Add(ContentManager.Load<Model>(info.CleanResPath()));
                 }
