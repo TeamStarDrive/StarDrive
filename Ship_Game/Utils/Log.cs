@@ -65,20 +65,30 @@ namespace Ship_Game
             }
         }
 
+        private static void WriteToLog(string text)
+        {
+            if (LogFile.BaseStream.CanWrite)
+            {
+                LogFile.WriteLine(text);
+                LogFile.Flush();
+            }
+        }
 
         // just echo info to console, don't write to logfile
         // not used in release builds or if there's no debugger attached
         [Conditional("DEBUG")] public static void Info(string text)
         {
             if (GlobalStats.VerboseLogging)
-            {
-                LogFile.WriteLine(text);
-                LogFile.Flush();
-            }
+                WriteToLog(text);
             if (!HasDebugger) return;
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(text);
         }
+        [Conditional("DEBUG")] public static void Info(string format, params object[] args)
+        {
+            Info(string.Format(format, args));
+        }
+
         [Conditional("DEBUG")] public static void Info(ConsoleColor color, string text)
         {
             if (!HasDebugger) return;
@@ -97,8 +107,7 @@ namespace Ship_Game
         public static void Warning(string warning)
         {
             string text = "Warning: " + warning;
-            LogFile.WriteLine(text);
-            LogFile.Flush();            
+            WriteToLog(text);
             if (!HasDebugger) return;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
@@ -109,8 +118,7 @@ namespace Ship_Game
             var t = new StackTrace();
 
             string text = $"Warning:  {warning}\n{t}";
-            LogFile.WriteLine(text);
-            LogFile.Flush();
+            WriteToLog(text);
             if (!HasDebugger)
             {
                 return;
@@ -124,8 +132,7 @@ namespace Ship_Game
             bool waitForEnter = false,
             bool waitForYes = false)
         {
-            LogFile.WriteLine(testMessage);
-            LogFile.Flush();
+            WriteToLog(testMessage);
             if (!HasActiveConsole)
             {
                 return false;
@@ -184,8 +191,7 @@ namespace Ship_Game
                 return;
 
             string text = "(!) Error: " + error;
-            LogFile.WriteLine(text);
-            LogFile.Flush();
+            WriteToLog(text);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Error);
@@ -211,8 +217,7 @@ namespace Ship_Game
                 return;
 
             string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace ?? "");
-            LogFile.WriteLine(withStack);
-            LogFile.Flush();
+            WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
@@ -233,8 +238,7 @@ namespace Ship_Game
 
             string text = CurryExceptionMessage(ex, error);
             string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
-            LogFile.WriteLine(withStack);
-            LogFile.Flush();
+            WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
@@ -330,15 +334,15 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        public static void OpenURL(string URL)
+        public static void OpenURL(string url)
         {
             if (SteamManager.isInitialized)
             {
-                SteamManager.ActivateOverlayWebPage(URL);
+                SteamManager.ActivateOverlayWebPage(url);
             }
             else
             {
-                Process.Start(URL);
+                Process.Start(url);
             }
         }
 
@@ -359,7 +363,7 @@ namespace Ship_Game
 
         public static bool HasActiveConsole => GetConsoleWindow() != IntPtr.Zero;
 
-        public static void ShowConsoleWindow(int bufferHeight = 300)
+        public static void ShowConsoleWindow(int bufferHeight = 2000)
         {
             var handle = GetConsoleWindow();
             if (handle == IntPtr.Zero)

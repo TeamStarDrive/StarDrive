@@ -244,7 +244,7 @@ namespace Ship_Game.Ships
             if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
                 return;
 
-            GameContentManager content = ResourceManager.ContentManager;
+            GameContentManager content = ResourceManager.RootContent;
             foreach (Thruster t in ThrusterList)
             {
                 t.LoadAndAssignDefaultEffects(content);

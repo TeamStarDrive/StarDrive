@@ -541,17 +541,15 @@ namespace Ship_Game
             try
             {
                 shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath);
-                shipSO.World = worldMatrix;
-                ModelPath = modelPath;
-                AddObject(shipSO);
+
             }
             catch (Exception)
             {
                 shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath, animated:true);
-                shipSO.World = worldMatrix;
-                ModelPath = modelPath;
-                AddObject(shipSO);
             }
+            shipSO.World = worldMatrix;
+            ModelPath = modelPath;
+            AddObject(shipSO);
         }
 
 

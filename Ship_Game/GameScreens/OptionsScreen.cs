@@ -57,7 +57,6 @@ namespace Ship_Game
             GlobalStats.SaveSettings();
         }
 
-        // this will call Game1.Instance.ApplyGraphics
         public void ApplyGraphicSettings()
         {
             SaveGlobalStats();

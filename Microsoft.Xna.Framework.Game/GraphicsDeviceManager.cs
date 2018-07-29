@@ -297,15 +297,13 @@ namespace Microsoft.Xna.Framework
 
     public GraphicsDeviceManager(Game game)
     {
-      if (game == null)
-        throw new ArgumentNullException("game", Resources.GameCannotBeNull);
-      this.game = game;
+      this.game = game ?? throw new ArgumentNullException(nameof(game), Resources.GameCannotBeNull);
       if (game.Services.GetService(typeof (IGraphicsDeviceManager)) != null)
         throw new ArgumentException(Resources.GraphicsDeviceManagerAlreadyPresent);
-      game.Services.AddService(typeof (IGraphicsDeviceManager), (object) this);
-      game.Services.AddService(typeof (IGraphicsDeviceService), (object) this);
-      game.Window.ClientSizeChanged += new EventHandler(this.GameWindowClientSizeChanged);
-      game.Window.ScreenDeviceNameChanged += new EventHandler(this.GameWindowScreenDeviceNameChanged);
+      game.Services.AddService(typeof (IGraphicsDeviceManager), this);
+      game.Services.AddService(typeof (IGraphicsDeviceService), this);
+      game.Window.ClientSizeChanged += GameWindowClientSizeChanged;
+      game.Window.ScreenDeviceNameChanged += GameWindowScreenDeviceNameChanged;
     }
 
     public void ApplyChanges()
@@ -501,30 +499,22 @@ namespace Microsoft.Xna.Framework
 
     protected virtual void OnDeviceCreated(object sender, EventArgs args)
     {
-      if (this.deviceCreated == null)
-        return;
-      this.deviceCreated(sender, args);
+        deviceCreated?.Invoke(sender, args);
     }
 
     protected virtual void OnDeviceDisposing(object sender, EventArgs args)
     {
-      if (this.deviceDisposing == null)
-        return;
-      this.deviceDisposing(sender, args);
+        deviceDisposing?.Invoke(sender, args);
     }
 
     protected virtual void OnDeviceReset(object sender, EventArgs args)
     {
-      if (this.deviceReset == null)
-        return;
-      this.deviceReset(sender, args);
+        deviceReset?.Invoke(sender, args);
     }
 
     protected virtual void OnDeviceResetting(object sender, EventArgs args)
     {
-      if (this.deviceResetting == null)
-        return;
-      this.deviceResetting(sender, args);
+        deviceResetting?.Invoke(sender, args);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -663,59 +653,60 @@ namespace Microsoft.Xna.Framework
 
     private void AddDevices(bool anySuitableDevice, List<GraphicsDeviceInformation> foundDevices)
     {
-      IntPtr handle = this.game.Window.Handle;
+      IntPtr handle = game.Window.Handle;
       foreach (GraphicsAdapter adapter in GraphicsAdapter.Adapters)
       {
-        if (anySuitableDevice || this.IsWindowOnAdapter(handle, adapter))
-        {
-          foreach (DeviceType validDeviceType in GraphicsDeviceManager.ValidDeviceTypes)
+          if (!anySuitableDevice && !IsWindowOnAdapter(handle, adapter))
+              continue;
+          foreach (DeviceType validDeviceType in ValidDeviceTypes)
           {
-            try
-            {
-              if (adapter.IsDeviceTypeAvailable(validDeviceType))
+              try
               {
-                GraphicsDeviceCapabilities capabilities = adapter.GetCapabilities(validDeviceType);
-                if (capabilities.DeviceCapabilities.IsDirect3D9Driver)
-                {
-                  if (GraphicsDeviceManager.IsValidShaderProfile(capabilities.MaxPixelShaderProfile, this.MinimumPixelShaderProfile))
+                  if (!adapter.IsDeviceTypeAvailable(validDeviceType))
+                      continue;
+                  GraphicsDeviceCapabilities capabilities = adapter.GetCapabilities(validDeviceType);
+                  if (!capabilities.DeviceCapabilities.IsDirect3D9Driver)
+                      continue;
+                  if (!IsValidShaderProfile(capabilities.MaxPixelShaderProfile, MinimumPixelShaderProfile))
+                      continue;
+                  if (!IsValidShaderProfile(capabilities.MaxVertexShaderProfile, MinimumVertexShaderProfile))
+                      continue;
+                  var baseDeviceInfo = new GraphicsDeviceInformation
                   {
-                    if (GraphicsDeviceManager.IsValidShaderProfile(capabilities.MaxVertexShaderProfile, this.MinimumVertexShaderProfile))
-                    {
-                      GraphicsDeviceInformation baseDeviceInfo = new GraphicsDeviceInformation();
-                      baseDeviceInfo.Adapter = adapter;
-                      baseDeviceInfo.DeviceType = validDeviceType;
-                      baseDeviceInfo.PresentationParameters.DeviceWindowHandle = IntPtr.Zero;
-                      baseDeviceInfo.PresentationParameters.EnableAutoDepthStencil = true;
-                      baseDeviceInfo.PresentationParameters.BackBufferCount = 1;
-                      baseDeviceInfo.PresentationParameters.PresentOptions = PresentOptions.None;
-                      baseDeviceInfo.PresentationParameters.SwapEffect = SwapEffect.Discard;
-                      baseDeviceInfo.PresentationParameters.FullScreenRefreshRateInHz = 0;
-                      baseDeviceInfo.PresentationParameters.MultiSampleQuality = 0;
-                      baseDeviceInfo.PresentationParameters.MultiSampleType = MultiSampleType.None;
-                      baseDeviceInfo.PresentationParameters.IsFullScreen = this.IsFullScreen;
-                      baseDeviceInfo.PresentationParameters.PresentationInterval = this.SynchronizeWithVerticalRetrace ? PresentInterval.One : PresentInterval.Immediate;
-                      for (int index = 0; index < GraphicsDeviceManager.ValidAdapterFormats.Length; ++index)
+                      Adapter    = adapter,
+                      DeviceType = validDeviceType,
+                      PresentationParameters =
                       {
-                        this.AddDevices(adapter, validDeviceType, adapter.CurrentDisplayMode, baseDeviceInfo, foundDevices);
-                        if (this.isFullScreen)
-                        {
-                          foreach (DisplayMode mode in adapter.SupportedDisplayModes[GraphicsDeviceManager.ValidAdapterFormats[index]])
-                          {
-                            if (mode.Width >= 640 && mode.Height >= 480)
-                              this.AddDevices(adapter, validDeviceType, mode, baseDeviceInfo, foundDevices);
-                          }
-                        }
+                          DeviceWindowHandle        = IntPtr.Zero,
+                          EnableAutoDepthStencil    = true,
+                          BackBufferCount           = 1,
+                          PresentOptions            = PresentOptions.None,
+                          SwapEffect                = SwapEffect.Discard,
+                          FullScreenRefreshRateInHz = 0,
+                          MultiSampleQuality        = 0,
+                          MultiSampleType           = MultiSampleType.None,
+                          IsFullScreen              = IsFullScreen,
+                          PresentationInterval = SynchronizeWithVerticalRetrace
+                              ? PresentInterval.One
+                              : PresentInterval.Immediate
                       }
-                    }
+                  };
+                  for (int index = 0; index < ValidAdapterFormats.Length; ++index)
+                  {
+                      AddDevices(adapter, validDeviceType, adapter.CurrentDisplayMode, baseDeviceInfo, foundDevices);
+                      if (!isFullScreen)
+                          continue;
+                      foreach (DisplayMode mode in adapter.SupportedDisplayModes[ValidAdapterFormats[index]])
+                      {
+                          if (mode.Width >= 640 && mode.Height >= 480)
+                              AddDevices(adapter, validDeviceType, mode, baseDeviceInfo, foundDevices);
+                      }
                   }
-                }
               }
-            }
-            catch (DeviceNotSupportedException)
-            {
-            }
+              catch (DeviceNotSupportedException)
+              {
+              }
           }
-        }
       }
     }
 

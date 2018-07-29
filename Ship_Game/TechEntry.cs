@@ -223,11 +223,12 @@ namespace Ship_Game
 
             foreach (var hullName in Tech.HullsUnlocked)
             {
-                
-                if (!ResourceManager.GetHull(hullName.Name, out ShipData shipData)) continue;
-                if (shipData?.ShipStyle != empire.data.Traits.ShipType) continue;
-                //if (shipData.Role < ShipData.RoleName.cruiser) continue;
-                shipData?.LoadModel();
+                if (ResourceManager.GetHull(hullName.Name, out ShipData shipData) &&
+                    shipData.ShipStyle == empire.data.Traits.ShipType)
+                {
+                    Log.Warning($"Preloading {hullName.Name}");
+                    shipData.PreLoadModel();
+                }
             }
         }
 
