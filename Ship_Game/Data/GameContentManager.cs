@@ -7,15 +7,17 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SgMotion;
+using SynapseGaming.LightingSystem.Processors;
 
 namespace Ship_Game
 {
-    public sealed class GameContentManager : ContentManager
+    public sealed class GameContentManager : ContentManager, IEffectCache
     {
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
         private Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
+        private Map<string, Effect> LoadedEffects = new Map<string, Effect>();
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
@@ -53,6 +55,7 @@ namespace Ship_Game
             GameContentManager mgr = this;
             do
             {
+                lock (LoadSync)
                 if (mgr.LoadedAssets.TryGetValue(assetNameNoExt, out asset))
                     return true;
             }
@@ -72,12 +75,37 @@ namespace Ship_Game
             return false;
         }
 
+        public bool TryGetEffect<T>(string assetName, out T asset) where T : Effect
+        {
+            GameContentManager mgr = this;
+            do
+            {
+                lock (LoadSync)
+                if (mgr.LoadedEffects.TryGetValue(assetName, out Effect effect) && effect is T assetObj)
+                {
+                    asset = assetObj;
+                    return true;
+                }
+            }
+            while ((mgr = mgr.Parent) != null);
+            asset = null;
+            return false;
+        }
+
+        public void AddEffect(string assetName, Effect effect) 
+        {
+            lock (LoadSync)
+                LoadedEffects.Add(assetName, effect);
+            RecordDisposableObject(effect);
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
             LoadedAssets     = null;
             DisposableAssets = null;
             RawContent       = null;
+            LoadedEffects    = null;
         }
 
         private static T GetField<T>(object obj, string name)

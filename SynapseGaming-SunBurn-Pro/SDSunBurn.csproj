@@ -173,6 +173,7 @@
     <Compile Include="SynapseGaming\LightingSystem\Lights\ILightFactory.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Lights\LightGroup.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Lights\LightRig.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\IEffectCache.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadowSource.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowSource.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowMapSurface.cs" />

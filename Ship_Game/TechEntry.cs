@@ -226,7 +226,7 @@ namespace Ship_Game
                 if (ResourceManager.GetHull(hullName.Name, out ShipData shipData) &&
                     shipData.ShipStyle == empire.data.Traits.ShipType)
                 {
-                    Log.Warning($"Preloading {hullName.Name}");
+                    //Log.Warning($"Preloading {hullName.Name}");
                     shipData.PreLoadModel();
                 }
             }
