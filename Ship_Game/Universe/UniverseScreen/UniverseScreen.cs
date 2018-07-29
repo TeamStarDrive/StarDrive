@@ -527,14 +527,16 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
-            foreach (var empire in EmpireManager.Empires)
-                if(!ResourceManager.PreLoadModels(empire))
+
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                if (!ResourceManager.PreLoadModels(empire))
                 {
                     ExitScreen();
                     Game1.Instance.Exit();
                     return;
                 }
-
+            }
 
             ProcessTurnsThread = new Thread(ProcessTurns);
             ProcessTurnsThread.Name = "Universe.ProcessTurns()";
