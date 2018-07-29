@@ -1585,9 +1585,9 @@ namespace Ship_Game
                 else
                 {
                     float farmers = CalculateFoodWorkers();
-                    score += building.PlusFlatFoodAmount / maxPopulation;   //Percentage of population this will feed
+                    score += ((building.PlusFlatFoodAmount / maxPopulation) * 1.5f).Clamp(0.0f, 1.0f);   //Percentage of population this will feed, weighted
                     score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
-                    if (farmers == 0 || farmers > 0.75f) score += 0.333f;   //Bonus if planet is having a hard time feeding itself
+                    if (farmers == 0 || farmers > 0.66f) score += 0.333f;   //Bonus if planet is spending a lot of labor feeding itself
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > maxPopulation) score = 0;   //Dont want this if a lot would go to waste
                 }
@@ -1629,14 +1629,37 @@ namespace Ship_Game
                     if (Owner.data.Traits.Cybernetic > 0)
                         score += building.PlusFlatProductionAmount / maxPopulation;     //Percentage of the filthy Opteris population this will feed
                     float farmers = CalculateFoodWorkers();
-                    score += (PopulationBillion / maxPopulation).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
-                    score += 1.5f - (MineralRichness + PlusProductionPerColonist);      //Bonus for low richness planets
-                    float currentOutput = (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation) + PlusFlatProductionPerTurn;  //Current Prod Output from labor and FlatProd
-                    score += (building.PlusFlatProductionAmount - currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
+                    score += (0.5f - (PopulationBillion / maxPopulation)).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
+                    score += 1.5f - (MineralRichness + (PlusProductionPerColonist / 2));      //Bonus for low richness planets
+                    float currentOutput = (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation) + PlusFlatProductionPerTurn;  //Current Prod Output
+                    score += (building.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FlatProd : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapFlatProd(Building building, float maxPopulation)
+        {
+            float score = 0;
+            if (building.PlusFlatProductionAmount != 0)
+            {
+                if (building.PlusFlatProductionAmount < 0) score = building.PlusFlatProductionAmount * 2; //for negative value
+                else
+                {
+                    if (Owner.data.Traits.Cybernetic > 0)
+                        score += building.PlusFlatProductionAmount / maxPopulation;     //Percentage of the filthy Opteris population this will feed
+                    float farmers = CalculateFoodWorkers();
+                    score += 1.5f - (MineralRichness + (PlusProductionPerColonist / 2));      //Bonus for low richness planets
+                    float currentOutput = (MineralRichness + PlusProductionPerColonist) * ((1 - farmers) * maxPopulation) + PlusFlatProductionPerTurn;  //Current Prod Output
+                    score += (building.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
+                    if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
+                }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} FlatProd : Score was {score}");
             }
 
             return score;
@@ -2057,7 +2080,7 @@ namespace Ship_Game
 
                 if (buildingValue < costWeight)
                 {
-                    Log.Info($"{Owner.PortraitName} SCRAPPED {BuildingList[i].Name} on planet {Name}     buildingValue: {buildingValue}    costWeight: {costWeight}");
+                    Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {BuildingList[i].Name} on planet {Name}     buildingValue: {buildingValue}    costWeight: {costWeight}");
                     BuildingList[i].ScrapBuilding(this);
                 }
                 else if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {BuildingList[i].Name}  buildingValue: {buildingValue}    costWeight: {costWeight}");
