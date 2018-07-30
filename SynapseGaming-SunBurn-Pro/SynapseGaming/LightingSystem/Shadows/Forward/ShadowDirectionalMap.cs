@@ -21,7 +21,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override Effect CreateEffect()
     {
-      return new Class36(this.Device);
+      return new ShadowEffect(this.Device);
     }
   }
 }
