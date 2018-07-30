@@ -703,185 +703,101 @@ namespace Ship_Game
             Dispose();
         }
 
+
+
+        private class DiplomacyItemsLayout
+        {
+            private readonly ScrollList List;
+            private ScrollList.Entry Current;
+            private Vector2 Cursor;
+
+            public DiplomacyItemsLayout(ScrollList list, Rectangle rect)
+            {
+                List = list;
+                Current = null;
+                Cursor = new Vector2((rect.X + 10), (rect.Y + Fonts.Pirulen12.LineSpacing + 2));
+            }
+
+            private void AddItem(int tokenId, string response)
+            {
+                Current = List.AddItem(new ItemToOffer(tokenId, response, Cursor));
+                Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
+            }
+
+            public void AddSubItem(string name, string response, string inquiry)
+            {
+                var item = new ItemToOffer(name, response, Cursor) { SpecialInquiry = inquiry };
+                Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
+                Current.AddSubItem(item);
+            }
+
+            public void AddCategory(int categoryId, Action populateSubItems)
+            {
+                AddItem(categoryId, "");
+                Cursor.X += 10f;
+                populateSubItems();
+                Cursor.X -= 10f;
+            }
+
+            public void AddRelationItems(Relationship relations)
+            {
+                if (!relations.AtWar)
+                {
+                    if (!relations.Treaty_NAPact)      AddItem(1214, "NAPact");
+                    if (!relations.Treaty_Trade)       AddItem(1215, "TradeTreaty");
+                    if (!relations.Treaty_OpenBorders) AddItem(1216, "OpenBorders");
+
+                    if (relations.Treaty_Trade && relations.Treaty_NAPact && !relations.Treaty_Alliance)
+                        AddItem(2045, "OfferAlliance");
+                }
+                else
+                {
+                    AddItem(1213, "Peace Treaty");
+                }
+            }
+        }
+
+        private static void FillItems(Empire empire, Empire other, ScrollList list, Rectangle rect)
+        {
+            list.Reset();
+            var layout = new DiplomacyItemsLayout(list, rect);
+
+            layout.AddRelationItems(empire.GetRelations(other));
+
+            layout.AddCategory(1217, () =>
+            {
+                foreach (KeyValuePair<string, TechEntry> technology in empire.GetTDict())
+                {
+                    // Added by McShooterz: prevent root nodes from being traded
+                    if (!technology.Value.Unlocked || other.GetTDict()[technology.Key].Unlocked ||
+                        !other.HavePreReq(technology.Key) || technology.Value.Tech.RootNode == 1)
+                        continue;
+                    Technology tech = ResourceManager.TechTree[technology.Key];
+                    layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int)tech.Cost}", "Tech", technology.Key);
+                }
+            });
+
+            layout.AddCategory(1218, () =>
+            {
+                foreach (Artifact artifact in empire.data.OwnedArtifacts)
+                    layout.AddSubItem(Localizer.Token(artifact.NameIndex), "Artifacts", artifact.Name);
+            });
+
+            layout.AddCategory(1219, () =>
+            {
+                foreach (Planet p in empire.GetPlanets())
+                    layout.AddSubItem(p.Name, "Colony", p.Name);
+            });
+        }
+
         private void FillOurItems()
         {
-            OurItemsSL.Reset();
-
-            var newCurs = new Vector2((UsRect.X + 10), (UsRect.Y + Fonts.Pirulen12.LineSpacing + 2));
-
-            ScrollList.Entry AddItem(int tokenId, string response)
-            {
-                ScrollList.Entry entry = OurItemsSL.AddItem(new ItemToOffer(tokenId, response, newCurs));
-                newCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-                return entry;
-            }
-
-
-            Relationship relations = playerEmpire.GetRelations(them);
-            if (!relations.AtWar)
-            {
-                if (!relations.Treaty_NAPact)      AddItem(1214, "NAPact");
-                if (!relations.Treaty_Trade)       AddItem(1215, "TradeTreaty");
-                if (!relations.Treaty_OpenBorders) AddItem(1216, "OpenBorders");
-
-                if (relations.Treaty_Trade && relations.Treaty_NAPact && !relations.Treaty_Alliance)
-                    AddItem(2045, "OfferAlliance");
-            }
-            else
-            {
-                AddItem(1213, "Peace Treaty");
-            }
-
-            ScrollList.Entry e = AddItem(1217, "");
-
-            ItemToOffer AddSubItem(string words, string response)
-            {
-                var subItem = new ItemToOffer(words, response, newCurs);
-                newCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-                e.AddSubItem(subItem);
-                return subItem;
-            }
-            ItemToOffer AddSubItemId(int tokenId, string response)
-                => AddSubItem(Localizer.Token(tokenId), response);
-
-            newCurs.X += 10f;
-            foreach (KeyValuePair<string, TechEntry> technology in playerEmpire.GetTDict())
-            {
-                // Added by McShooterz: prevent root nodes from being traded
-                if (!technology.Value.Unlocked || them.GetTDict()[technology.Key].Unlocked ||
-                    !them.HavePreReq(technology.Key) || technology.Value.Tech.RootNode == 1)
-                    continue;
-
-                Technology tech = ResourceManager.TechTree[technology.Key];
-                ItemToOffer item1 = AddSubItemId(tech.NameIndex, "Tech");
-                item1.Words += ": " + (int)tech.Cost;
-                item1.SpecialInquiry = technology.Key;
-            }
-            newCurs.X -= 10f;
-
-            e = AddItem(1218, "");
-
-            newCurs.X += 10f;
-            foreach (Artifact artifact in playerEmpire.data.OwnedArtifacts)
-            {
-                ItemToOffer item1 = AddSubItemId(artifact.NameIndex, "Artifacts");
-                item1.SpecialInquiry = artifact.Name;
-            }
-            newCurs.X -= 10f;
-
-            e = AddItem(1219, "");
-            
-            newCurs.X += 10f;
-            foreach (Planet p in playerEmpire.GetPlanets())
-            {
-                ItemToOffer item1 = AddSubItem(p.Name, "Colony");
-                item1.SpecialInquiry = p.Name;
-            }
-            newCurs.X -= 10f;
+            FillItems(playerEmpire, them, OurItemsSL, UsRect);
         }
 
         private void FillTheirItems()
         {
-            ItemToOffer item;
-            TheirItemsSL.Reset();
-            var newCurs = new Vector2((ThemRect.X + 10), (ThemRect.Y + Fonts.Pirulen12.LineSpacing + 2));
-
-            ScrollList.Entry AddItem(int tokenId, string response)
-            {
-                ScrollList.Entry entry = TheirItemsSL.AddItem(new ItemToOffer(tokenId, response, newCurs));
-                newCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-                return entry;
-            }
-
-            if (!playerEmpire.GetRelations(them).AtWar)
-            {
-                if (!playerEmpire.GetRelations(them).Treaty_NAPact)
-                {
-                    item = new ItemToOffer(Localizer.Token(1214), newCurs)
-                    {
-                        Response = "NAPact"
-                    };
-                    TheirItemsSL.AddItem(item);
-                    newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-                }
-                if (!playerEmpire.GetRelations(them).Treaty_Trade)
-                {
-                    item = new ItemToOffer(Localizer.Token(1215), newCurs);
-                    TheirItemsSL.AddItem(item);
-                    item.Response = "TradeTreaty";
-                    newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-                }
-                if (!playerEmpire.GetRelations(them).Treaty_OpenBorders)
-                {
-                    item = new ItemToOffer(Localizer.Token(1216), newCurs)
-                    {
-                        Response = "OpenBorders"
-                    };
-                    TheirItemsSL.AddItem(item);
-                    newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-                }
-                if (playerEmpire.GetRelations(them).Treaty_Trade && playerEmpire.GetRelations(them).Treaty_NAPact && !playerEmpire.GetRelations(them).Treaty_Alliance)
-                {
-                    item = new ItemToOffer(Localizer.Token(2045), newCurs)
-                    {
-                        Response = "OfferAlliance"
-                    };
-                    TheirItemsSL.AddItem(item);
-                    newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-                }
-            }
-            else
-            {
-                ItemToOffer item1 = new ItemToOffer(Localizer.Token(1213), newCurs);
-                TheirItemsSL.AddItem(item1);
-                item1.Response = "Peace Treaty";
-                newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            }
-            item = new ItemToOffer(Localizer.Token(1217), newCurs);
-            ScrollList.Entry e = TheirItemsSL.AddItem(item);
-            newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            newCurs.X = newCurs.X + 10f;
-            foreach (KeyValuePair<string, TechEntry> Technology in them.GetTDict())
-            {
-                //added by McShooterz: Prevents Racial techs from being traded
-                if (!Technology.Value.Unlocked || playerEmpire.GetTDict()[Technology.Key].Unlocked || !playerEmpire.HavePreReq(Technology.Key) || Technology.Value.Tech.RootNode == 1)
-                {
-                    continue;
-                }
-                ItemToOffer item1 = new ItemToOffer(Localizer.Token(ResourceManager.TechTree[Technology.Key].NameIndex), newCurs);
-                item1.Words += ": " + (int)ResourceManager.TechTree[Technology.Key].Cost;
-                e.AddSubItem(item1);
-                item1.Response = "Tech";
-                item1.SpecialInquiry = Technology.Key;
-                newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            }
-            newCurs.X = newCurs.X - 10f;
-            item = new ItemToOffer(Localizer.Token(1218), newCurs);
-            e = TheirItemsSL.AddItem(item);
-            newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            newCurs.X = newCurs.X + 10f;
-            foreach (Ship_Game.Artifact Artifact in them.data.OwnedArtifacts)
-            {
-                ItemToOffer item1 = new ItemToOffer(Localizer.Token(Artifact.NameIndex), newCurs);
-                e.AddSubItem(item1);
-                item1.Response = "Artifacts";
-                item1.SpecialInquiry = Artifact.Name;
-                newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            }
-            newCurs.X = newCurs.X - 10f;
-            item = new ItemToOffer(Localizer.Token(1219), newCurs);
-            e = TheirItemsSL.AddItem(item);
-            newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            newCurs.X = newCurs.X + 10f;
-            foreach (Planet p in them.GetPlanets())
-            {
-                ItemToOffer item1 = new ItemToOffer(p.Name, newCurs);
-                e.AddSubItem(item1);
-                item1.Response = "Colony";
-                item1.SpecialInquiry = p.Name;
-                newCurs.Y = newCurs.Y + (float)(Fonts.Arial12Bold.LineSpacing + 5);
-            }
-            newCurs.X = newCurs.X - 10f;
+            FillItems(them, playerEmpire, TheirItemsSL, ThemRect);
         }
 
         public string GetDialogue(float attitude)
