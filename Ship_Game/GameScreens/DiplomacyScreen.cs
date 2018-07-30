@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Ship_Game
 {
@@ -790,13 +791,15 @@ namespace Ship_Game
             });
         }
 
-        private void FillOurItems()
+        private void CreateOurOffer()
         {
+            OurOffer = new Offer();
             FillItems(playerEmpire, them, OurItemsSL, UsRect);
         }
 
-        private void FillTheirItems()
+        private void CreateTheirOffer()
         {
+            TheirOffer = new Offer() { Them = them };
             FillItems(them, playerEmpire, TheirItemsSL, ThemRect);
         }
 
@@ -807,32 +810,14 @@ namespace Ship_Game
             {
                 switch (them.GetRelations(playerEmpire).ActiveWar.GetWarScoreState())
                 {
-                    case WarState.ColdWar:
-                    {
-                        return GetDialogueByName("Greeting_AtWar");
-                    }
-                    case WarState.LosingBadly:
-                    {
-                        return GetDialogueByName("AtWar_Losing");
-                    }
-                    case WarState.LosingSlightly:
-                    {
-                        return GetDialogueByName("AtWar_Losing");
-                    }
-                    case WarState.EvenlyMatched:
-                    {
-                        return GetDialogueByName("Greeting_AtWar");
-                    }
-                    case WarState.WinningSlightly:
-                    {
-                        return GetDialogueByName("AtWar_Winning");
-                    }
-                    case WarState.Dominating:
-                    {
-                        return GetDialogueByName("AtWar_Winning");
-                    }
+                    case WarState.ColdWar:         return GetDialogueByName("Greeting_AtWar");
+                    case WarState.LosingBadly:     return GetDialogueByName("AtWar_Losing");
+                    case WarState.LosingSlightly:  return GetDialogueByName("AtWar_Losing");
+                    case WarState.EvenlyMatched:   return GetDialogueByName("Greeting_AtWar");
+                    case WarState.WinningSlightly: return GetDialogueByName("AtWar_Winning");
+                    case WarState.Dominating:      return GetDialogueByName("AtWar_Winning");
+                    default:                       return GetDialogueByName("Greeting_AtWar");
                 }
-                return GetDialogueByName("Greeting_AtWar");
             }
             else
             {
@@ -840,88 +825,48 @@ namespace Ship_Game
                 {
                     if (dialogLine.DialogType == whichDialogue)
                     {
-                        if ((double)attitude >= 40.0 && (double)attitude < 60.0)
+                        if (attitude >= 40.0 && attitude < 60.0)
                             return dialogLine.Neutral;
-                        if ((double)attitude >= 60.0)
+                        if (attitude >= 60.0)
                             return dialogLine.Friendly;
-                        else
-                            return dialogLine.Hostile;
+                        return dialogLine.Hostile;
                     }
                 }
                 return "";
             }
         }
 
-        public string GetDialogueByName(string Name)
+        public string GetDialogueByName(string name)
         {
-            string resp = "";
+            var sb = new StringBuilder();
             foreach (DialogLine dl in them.dd.Dialogs)
             {
-                if (dl.DialogType != Name)
-                {
+                if (dl.DialogType != name)
                     continue;
-                }
-                if (!string.IsNullOrEmpty(dl.Default))
+
+                if (dl.Default.NotEmpty())
+                    sb.Append(dl.Default);
+
+                switch (them.data.DiplomaticPersonality.Name ?? "")
                 {
-                    resp = string.Concat(resp, dl.Default);
+                    case "Aggressive": sb.Append(dl.DL_Agg);  break;
+                    case "Ruthless":   sb.Append(dl.DL_Ruth); break;
+                    case "Honorable":  sb.Append(dl.DL_Hon);  break;
+                    case "Xenophobic": sb.Append(dl.DL_Xeno); break;
+                    case "Pacifist":   sb.Append(dl.DL_Pac);  break;
+                    case "Cunning":    sb.Append(dl.DL_Cunn); break;
                 }
-                string name = them.data.DiplomaticPersonality.Name;
-                string str = name;
-                if (name != null)
+
+                switch (them.data.EconomicPersonality.Name ?? "")
                 {
-                    if (str == "Aggressive")
-                    {
-                        resp = string.Concat(resp, dl.DL_Agg);
-                    }
-                    else if (str == "Ruthless")
-                    {
-                        resp = string.Concat(resp, dl.DL_Ruth);
-                    }
-                    else if (str == "Honorable")
-                    {
-                        resp = string.Concat(resp, dl.DL_Hon);
-                    }
-                    else if (str == "Xenophobic")
-                    {
-                        resp = string.Concat(resp, dl.DL_Xeno);
-                    }
-                    else if (str == "Pacifist")
-                    {
-                        resp = string.Concat(resp, dl.DL_Pac);
-                    }
-                    else if (str == "Cunning")
-                    {
-                        resp = string.Concat(resp, dl.DL_Cunn);
-                    }
-                }
-                string name1 = them.data.EconomicPersonality.Name;
-                string str1 = name1;
-                if (name1 == null)
-                {
-                    continue;
-                }
-                if (str1 == "Expansionists")
-                {
-                    resp = string.Concat(resp, dl.DL_Exp);
-                }
-                else if (str1 == "Technologists")
-                {
-                    resp = string.Concat(resp, dl.DL_Tech);
-                }
-                else if (str1 == "Militarists")
-                {
-                    resp = string.Concat(resp, dl.DL_Mil);
-                }
-                else if (str1 == "Industrialists")
-                {
-                    resp = string.Concat(resp, dl.DL_Ind);
-                }
-                else if (str1 == "Generalists")
-                {
-                    resp = string.Concat(resp, dl.DL_Gen);
+                    case "Expansionists":  sb.Append(dl.DL_Exp);  break;
+                    case "Technologists":  sb.Append(dl.DL_Tech); break;
+                    case "Militarists":    sb.Append(dl.DL_Mil);  break;
+                    case "Industrialists": sb.Append(dl.DL_Ind);  break;
+                    case "Generalists":    sb.Append(dl.DL_Gen);  break;
                 }
             }
-            return resp;
+            return sb.ToString();
         }
 
         public override bool HandleInput(InputState input)
@@ -932,7 +877,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(48);
             if (new Rectangle(FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + FearRect.Width, 14).HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(49);
-            if (Exit.HandleInput(input) && dState != DiplomacyScreen.DialogState.TheirOffer)
+            if (Exit.HandleInput(input) && dState != DialogState.TheirOffer)
             {
                 ExitScreen();
                 return true;
@@ -947,7 +892,7 @@ namespace Ship_Game
                     if (DeclareWar != null && DeclareWar.HandleInput(input))
                     {
                         StatementsSL.Reset();
-                        dState = DiplomacyScreen.DialogState.End;
+                        dState = DialogState.End;
                         if (playerEmpire.GetRelations(them).Treaty_NAPact)
                         {
                             TheirText = GetDialogueByName("WarDeclared_FeelsBetrayed");
@@ -965,6 +910,7 @@ namespace Ship_Game
                 }
                 else if (DeclareWar != null && DeclareWar.R.HitTest(input.CursorPosition))
                     ToolTip.CreateTooltip(128);
+
                 if (Discuss != null && Discuss.HandleInput(input))
                 {
                     StatementsSL.Reset();
@@ -974,23 +920,20 @@ namespace Ship_Game
                         if (statementSet.Name == "Ordinary Discussion")
                         {
                             int n = 1;
-                            Vector2 Cursor = TextCursor;
-                            foreach (DialogOption dialogOption1 in statementSet.DialogOptions)
+                            Vector2 cursor = TextCursor;
+                            foreach (DialogOption opt1 in statementSet.DialogOptions)
                             {
-                                string str = dialogOption1.Words;
-                                if (!string.IsNullOrEmpty(dialogOption1.SpecialInquiry))
-                                    str = GetDialogueByName(dialogOption1.SpecialInquiry);
-                                DialogOption dialogOption2 = new DialogOption(n, str, Cursor, Fonts.Consolas18);
-                                dialogOption2.Words = parseText(str, (float)(DialogRect.Width - 20), Fonts.Consolas18);
-                                StatementsSL.AddItem((object)dialogOption2);
-                                dialogOption2.Response = dialogOption1.Response;
-                                Cursor.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
-                                ++n;
+                                string str = opt1.SpecialInquiry.NotEmpty() ? GetDialogueByName(opt1.SpecialInquiry) : opt1.Words;
+                                var o2 = new DialogOption(n++, str, cursor, Fonts.Consolas18);
+                                o2.Words = parseText(str, (DialogRect.Width - 20), Fonts.Consolas18);
+                                o2.Response = opt1.Response;
+                                StatementsSL.AddItem(o2);
+                                cursor.Y += (Fonts.Consolas18.LineSpacing + 5);
                             }
                         }
                     }
                 }
-                if (dState == DiplomacyScreen.DialogState.Discuss)
+                if (dState == DialogState.Discuss)
                 {
                     StatementsSL.HandleInput(input);
                     foreach (DialogOption option in StatementsSL.AllItems<DialogOption>())
@@ -1002,172 +945,22 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (dState == DiplomacyScreen.DialogState.Negotiate)
+                if (dState == DialogState.Negotiate)
                 {
                     if ((!TheirOffer.IsBlank() || !OurOffer.IsBlank() || TheirOffer.Alliance) && SendOffer.HandleInput(input))
                     {
                         DoNegotiationResponse(them.GetGSAI().AnalyzeOffer(OurOffer, TheirOffer, playerEmpire, Attitude));
-                        OurOffer = new Offer();
-                        TheirOffer = new Offer();
-                        TheirOffer.Them = them;
+                        OurOffer   = new Offer();
+                        TheirOffer = new Offer { Them = them };
                     }
+
                     OfferTextSL.HandleInput(input);
                     OurItemsSL.HandleInput(input);
-
-                    // Note: ItemToOffer.HandleInput CAN modify OurItemsSL entries
-                    //       so we need to grab a copy
-                    ScrollList.Entry[] entries = OurItemsSL.AllExpandedEntries.ToArray();
-                    foreach (ScrollList.Entry e in entries)
-                    {
-                        var ourOffer = (ItemToOffer)e.item;
-                        switch (ourOffer.HandleInput(input, e))
-                        {
-                            case "NAPact":
-                                OurOffer.NAPact   = !OurOffer.NAPact;
-                                TheirOffer.NAPact = OurOffer.NAPact;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (theirOffer.Response == "NAPact")
-                                        theirOffer.Selected = ourOffer.Selected;
-                                }
-                                continue;
-                            case "We Declare War":
-                                OurOffer.NAPact   = !OurOffer.NAPact;
-                                TheirOffer.NAPact = OurOffer.NAPact;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (theirOffer.Response == "NAPact")
-                                        theirOffer.Selected = ourOffer.Selected;
-                                }
-                                continue;
-                            case "Peace Treaty":
-                                OurOffer.PeaceTreaty   = !OurOffer.PeaceTreaty;
-                                TheirOffer.PeaceTreaty = OurOffer.PeaceTreaty;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (theirOffer.Response == "Peace Treaty")
-                                        theirOffer.Selected = ourOffer.Selected;
-                                }
-                                continue;
-                            case "OfferAlliance":
-                                OurOffer.Alliance   = !OurOffer.Alliance;
-                                TheirOffer.Alliance = OurOffer.Alliance;
-                                foreach (ItemToOffer theirOffer in TheirItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (theirOffer.Response == "OfferAlliance")
-                                        theirOffer.Selected = ourOffer.Selected;
-                                }
-                                continue;
-                            case "OpenBorders":
-                                OurOffer.OpenBorders = !OurOffer.OpenBorders;
-                                continue;
-                            case "Tech":
-                                if (ourOffer.Selected)
-                                    OurOffer.TechnologiesOffered.Add(ourOffer.SpecialInquiry);
-                                else
-                                    OurOffer.TechnologiesOffered.Remove(ourOffer.SpecialInquiry);
-                                continue;
-                            case "Artifacts":
-                                if (ourOffer.Selected)
-                                    OurOffer.ArtifactsOffered.Add(ourOffer.SpecialInquiry);
-                                else
-                                    OurOffer.ArtifactsOffered.Remove(ourOffer.SpecialInquiry);
-                                continue;
-                            case "Colony":
-                                if (ourOffer.Selected)
-                                    OurOffer.ColoniesOffered.Add(ourOffer.SpecialInquiry);
-                                else
-                                    OurOffer.ColoniesOffered.Remove(ourOffer.SpecialInquiry);
-                                continue;
-                            case "TradeTreaty":
-                                OurOffer.TradeTreaty   = !OurOffer.TradeTreaty;
-                                TheirOffer.TradeTreaty = OurOffer.TradeTreaty;
-                                foreach (ScrollList.Entry entry in TheirItemsSL.AllExpandedEntries)
-                                {
-                                    if ((entry.item as ItemToOffer).Response == "TradeTreaty")
-                                        (entry.item as ItemToOffer).Selected = ourOffer.Selected;
-                                }
-                                continue;
-                        }
-                    }
-
                     TheirItemsSL.HandleInput(input);
 
-                    // Note: ItemToOffer.HandleInput CAN modify OurItemsSL entries
-                    //       so we need to grab a copy
-                    ScrollList.Entry[] theirEntries = TheirItemsSL.AllExpandedEntries.ToArray();
-                    foreach (ScrollList.Entry e in theirEntries)
-                    {
-                        var theirOffer = (ItemToOffer)e.item;
-                        switch (theirOffer.HandleInput(input, e))
-                        {
-                            case "NAPact":
-                                TheirOffer.NAPact = !TheirOffer.NAPact;
-                                OurOffer.NAPact   = TheirOffer.NAPact;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (ourOffer.Response == "NAPact")
-                                        ourOffer.Selected = theirOffer.Selected;
-                                }
-                                continue;
-                            case "Declare War":
-                                if (theirOffer.Selected)
-                                    TheirOffer.EmpiresToWarOn.Add(theirOffer.SpecialInquiry);
-                                else
-                                    TheirOffer.EmpiresToWarOn.Remove(theirOffer.SpecialInquiry);
-                                continue;
-                            case "Peace Treaty":
-                                TheirOffer.PeaceTreaty = !TheirOffer.PeaceTreaty;
-                                OurOffer.PeaceTreaty   = TheirOffer.PeaceTreaty;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (ourOffer.Response == "Peace Treaty")
-                                        ourOffer.Selected = theirOffer.Selected;
-                                }
-                                continue;
-                            case "OfferAlliance":
-                                TheirOffer.Alliance = !TheirOffer.Alliance;
-                                OurOffer.Alliance   = TheirOffer.Alliance;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (ourOffer.Response == "OfferAlliance")
-                                        ourOffer.Selected = theirOffer.Selected;
-                                }
-                                continue;
-                            case "Colony":
-                                if (theirOffer.Selected)
-                                    TheirOffer.ColoniesOffered.Add(theirOffer.SpecialInquiry);
-                                else
-                                    TheirOffer.ColoniesOffered.Remove(theirOffer.SpecialInquiry);
-                                continue;
-                            case "Tech":
-                                if (theirOffer.Selected)
-                                    TheirOffer.TechnologiesOffered.Add(theirOffer.SpecialInquiry);
-                                else
-                                    TheirOffer.TechnologiesOffered.Remove(theirOffer.SpecialInquiry);
-                                continue;
-                            case "Artifacts":
-                                if (theirOffer.Selected)
-                                    TheirOffer.ArtifactsOffered.Add(theirOffer.SpecialInquiry);
-                                else
-                                    TheirOffer.ArtifactsOffered.Remove(theirOffer.SpecialInquiry);
-                                continue;
-                            case "OpenBorders":
-                                TheirOffer.OpenBorders = !TheirOffer.OpenBorders;
-                                continue;
-                            case "TradeTreaty":
-                                TheirOffer.TradeTreaty = !TheirOffer.TradeTreaty;
-                                OurOffer.TradeTreaty   = TheirOffer.TradeTreaty;
-                                foreach (ItemToOffer ourOffer in OurItemsSL.VisibleExpandedItems<ItemToOffer>())
-                                {
-                                    if (ourOffer.Response == "TradeTreaty")
-                                        ourOffer.Selected = theirOffer.Selected;
-                                }
-                                continue;
-                            default:
-                                continue;
-                        }
-                    }
+                    HandleItemToOffer(input, OurItemsSL, TheirItemsSL, OurOffer, TheirOffer);
+                    HandleItemToOffer(input, TheirItemsSL, OurItemsSL, TheirOffer, OurOffer);
+
                     if (ap.HandleInput(input))
                     {
                         ap.ToggleOn = true;
@@ -1193,10 +986,8 @@ namespace Ship_Game
                 if (Negotiate.HandleInput(input))
                 {
                     dState = DialogState.Negotiate;
-                    OurOffer   = new Offer();
-                    TheirOffer = new Offer(){ Them = them };
-                    FillOurItems();
-                    FillTheirItems();
+                    CreateOurOffer();
+                    CreateTheirOffer();
                 }
             }
             if (dState == DialogState.TheirOffer)
@@ -1227,6 +1018,64 @@ namespace Ship_Game
                 return true;
             }
             return base.HandleInput(input);
+        }
+
+        private void HandleItemToOffer(InputState input, ScrollList ours, ScrollList theirs, Offer ourOffer, Offer theirOffer)
+        {
+            // Note: ItemToOffer.HandleInput CAN modify OurItemsSL entries
+            //       so we need to grab a copy
+            ScrollList.Entry[] entries = ours.AllExpandedEntries.ToArray();
+            foreach (ScrollList.Entry e in entries)
+            {
+                var item = (ItemToOffer)e.item;
+                string response = item.HandleInput(input, e);
+                ProcessResponse(item, response, theirs, ourOffer, theirOffer);
+            }
+        }
+
+        private static ItemToOffer FindItemToOffer(ScrollList items, string response)
+        {
+            foreach (ItemToOffer item in items.VisibleExpandedItems<ItemToOffer>())
+                if (item.Response == response)
+                    return item;
+            return null;
+        }
+
+        private void ProcessResponse(ItemToOffer item, string response, ScrollList theirs, Offer ourOffer, Offer theirOffer)
+        {
+            switch (response)
+            {
+                case "NAPact":
+                    ourOffer.NAPact  = !ourOffer.NAPact;
+                    theirOffer.NAPact = ourOffer.NAPact;
+                    FindItemToOffer(theirs, "NAPact").Selected = item.Selected;
+                    return;
+                case "We Declare War":
+                    ourOffer.NAPact  = !ourOffer.NAPact;
+                    theirOffer.NAPact = ourOffer.NAPact;
+                    FindItemToOffer(theirs, "NAPact").Selected = item.Selected;
+                    return;
+                case "Peace Treaty":
+                    ourOffer.PeaceTreaty = !ourOffer.PeaceTreaty;
+                    theirOffer.PeaceTreaty = ourOffer.PeaceTreaty;
+                    FindItemToOffer(theirs, "Peace Treaty").Selected = item.Selected;
+                    return;
+                case "OfferAlliance":
+                    ourOffer.Alliance  = !ourOffer.Alliance;
+                    theirOffer.Alliance = ourOffer.Alliance;
+                    FindItemToOffer(theirs, "OfferAlliance").Selected = item.Selected;
+                    return;
+                case "OpenBorders": ourOffer.OpenBorders = !ourOffer.OpenBorders;            return;
+                case "Declare War": item.ChangeSpecialInquiry(ourOffer.EmpiresToWarOn);      return;
+                case "Tech":        item.ChangeSpecialInquiry(ourOffer.TechnologiesOffered); return;
+                case "Artifacts":   item.ChangeSpecialInquiry(ourOffer.ArtifactsOffered);    return;
+                case "Colony":      item.ChangeSpecialInquiry(ourOffer.ColoniesOffered);     return;
+                case "TradeTreaty":
+                    ourOffer.TradeTreaty  = !ourOffer.TradeTreaty;
+                    theirOffer.TradeTreaty = ourOffer.TradeTreaty;
+                    FindItemToOffer(theirs, "TradeTreaty").Selected = item.Selected;
+                    return;
+            }
         }
 
         public override void LoadContent()
