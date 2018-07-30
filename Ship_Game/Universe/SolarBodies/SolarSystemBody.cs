@@ -748,16 +748,15 @@ namespace Ship_Game
                 MineralRichness = 0.0f;
             else
             {
-                if (!(Fertility > 0)) return;
+                if (Fertility <= 0 && Owner.Capital == null)
+                    return;
+
+                float chance = Owner.Capital == null ? HabitalTileChance : 75; // homeworlds always get 75% habitable chance per tile
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
-                        bool habitableTile;
-                        if (Owner.Capital == null)
-                            habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
-                        else
-                            habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < 75;
+                        bool habitableTile =  (int)RandomMath.RandomBetween(0.0f, 100f) < chance;
                         TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                     }
                 }
