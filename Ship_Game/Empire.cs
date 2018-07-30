@@ -138,8 +138,16 @@ namespace Ship_Game
 
         public Planet[] RallyShipYards => RallyPoints.FilterBy(sy => sy.HasShipyard);
 
-        public Planet RallyShipYardNearestTo(Vector2 position) => RallyPoints.Length == 0 ? null :
-            RallyPoints.FindMaxFiltered(planet => planet?.HasShipyard ?? false, planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
+        public Planet RallyShipYardNearestTo(Vector2 position)
+        {
+            Planet p = RallyPoints.Length == 0
+                ? null
+                : RallyPoints.FindMaxFiltered(planet => planet?.HasShipyard ?? false,
+                    planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
+            if (p == null)
+                Log.Warning($"RallyShipYardNearestTo Had null elements: RallyPoints {RallyPoints.Length}");
+            return p;
+        }
 
         public Planet[] BestBuildPlanets => RallyPoints.FilterBy(planet =>
         planet.HasShipyard && planet.ParentSystem.combatTimer <= 0
@@ -267,6 +275,8 @@ namespace Ship_Game
             }
             rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.GrossProductionPerTurn));
             RallyPoints = rallyPlanets.ToArray();
+            if (RallyPoints.Length == 0)
+                Log.Error("SetRallyPoint: No Planets found");
         }
 
         public int GetUnusedKeyForFleet()
@@ -570,9 +580,12 @@ namespace Ship_Game
                 ships.AddRange(ao.GetOffensiveForcePool());
             }
             if(!onlyAO)
-                ships.AddRange(ForcePool);
+                ships.AddRange(ForcePool); 
             return ships;
         }
+
+
+
         public BatchRemovalCollection<Ship> GetProjectors()
         {
             return OwnedProjectors;
