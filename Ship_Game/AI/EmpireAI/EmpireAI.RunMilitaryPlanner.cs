@@ -114,7 +114,7 @@ namespace Ship_Game.AI
                     CountShips(upkeep, roleName);
                 }
                 var ratios = new FleetRatios(OwnerEmpire);
-                float upKeepAllotment = Math.Min(TotalUpkeep, 1f) / Math.Min(TotalMilShipCount, 1);
+                float upKeepAllotment = Math.Max(TotalUpkeep, 1f) / Math.Max(TotalMilShipCount, 1);
                 DesiredFighters  = ratios.ApplyFighterRatio(NumFighters, upKeepAllotment, capacity);
                 DesiredCorvettes = ratios.ApplyRatioCorvettes(NumCorvettes, upKeepAllotment, capacity);
                 DesiredFrigates  = ratios.ApplyRatioFrigates(NumFrigates, upKeepAllotment, capacity);

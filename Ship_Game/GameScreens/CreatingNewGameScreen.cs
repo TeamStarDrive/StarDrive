@@ -197,7 +197,7 @@ namespace Ship_Game
                         starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
 
                         Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
-                        //Data.MasterShipList.Add(ship3);
+                        Data.MasterShipList.Add(ship3);
 
                         //empire.AddShip(ship3);
                         //empire.GetForcePool().Add(ship3);
