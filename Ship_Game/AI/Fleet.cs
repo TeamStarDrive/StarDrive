@@ -519,7 +519,7 @@ namespace Ship_Game.AI
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
-                    SetFleetCombatWeights();
+                    SetRestrictedCombatWeights(5000);
                     TaskStep = 1;
                     break;
                 case 1:
@@ -633,7 +633,7 @@ namespace Ship_Game.AI
             switch (TaskStep)
             {
                 case 0:
-                    SetFleetCombatWeights();
+                    SetLooseCombatWeights();
                     FleetTaskGatherAtRally(task);
                     TaskStep = 1;
                     break;
@@ -688,7 +688,7 @@ namespace Ship_Game.AI
                         break;
                     }
 
-                    SetFleetCombatWeights();
+                    SetRestrictedCombatWeights(task.AORadius);
                     TaskStep = 2;                   
                     break;
                 case 2:
@@ -834,7 +834,7 @@ namespace Ship_Game.AI
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
-                    SetFleetCombatWeights();
+                    SetRestrictedCombatWeights(task.AORadius);
                     this.TaskStep = 1;
                     break;
                 case 1:
@@ -1046,7 +1046,7 @@ namespace Ship_Game.AI
                                          && ship.Center.OutsideRadius(task.AO, task.AORadius)));
         }
         
-        private void SetFleetCombatWeights()
+        private void SetRestrictedCombatWeights(float ordersRadius)
         {
             for (int x = 0; x < Ships.Count; x++)
             {
@@ -1054,11 +1054,21 @@ namespace Ship_Game.AI
 
                 ship.AI.FleetNode.AssistWeight   = 1f;
                 ship.AI.FleetNode.DefenderWeight = 1f;
-                ship.AI.FleetNode.OrdersRadius   = ship.maxWeaponsRange;
+                ship.AI.FleetNode.OrdersRadius   = ordersRadius;
+            }
+        }
+        private void SetLooseCombatWeights()
+        {
+            for (int x = 0; x < Ships.Count; x++)
+            {
+                var ship = Ships[x];
+
+                ship.AI.FleetNode.AssistWeight = 1f;
+                ship.AI.FleetNode.DefenderWeight = 1f;
+                ship.AI.FleetNode.OrdersRadius = ship.SensorRange;
             }
         }
 
-        
 
         private void WaitingForPlanetAssault(MilitaryTask task)
         {
