@@ -1339,7 +1339,7 @@ namespace Ship_Game
 
         private void BuildShipyardifAble()
         {
-            if (RecentCombat) return;
+            if (RecentCombat || !HasShipyard) return;
             if (Owner != Empire.Universe.PlayerEmpire
                 && !Shipyards.Any(ship => ship.Value.shipData.IsShipyard)
                 && Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
@@ -1598,6 +1598,25 @@ namespace Ship_Game
             return score;
         }
 
+        private float EvaluateBuildingScrapFlatFood(Building building, float maxPopulation)
+        {
+            float score = 0;
+            if (building.PlusFlatFoodAmount != 0 && Owner.data.Traits.Cybernetic == 0)
+            {
+                if (building.PlusFlatFoodAmount < 0) score = building.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
+                else
+                {
+                    float farmers = CalculateFoodWorkers();
+                    score += ((building.PlusFlatFoodAmount / maxPopulation) * 1.5f).Clamp(0.0f, 1.0f);   //Percentage of population this is feeding, weighted
+                    score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
+                }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} FlatFood : Score was {score}");
+            }
+
+            return score;
+        }
+
         private float EvaluateBuildingFoodPerCol(Building building, float maxPopulation)
         {
             float score = 0;
@@ -1680,6 +1699,24 @@ namespace Ship_Game
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapProdPerCol(Building building, float maxPopulation)
+        {
+            float score = 0;
+            if (building.PlusProdPerColonist != 0)
+            {
+                if (building.PlusProdPerColonist < 0) score = building.PlusProdPerColonist * maxPopulation * 2;
+                else
+                {
+                    float farmers = CalculateFoodWorkers();
+                    score += building.PlusProdPerColonist * (maxPopulation * (1 - farmers));    //Prod this building is contributing
+                }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} ProdPerCol : Score was {score}");
             }
 
             return score;
@@ -1783,6 +1820,21 @@ namespace Ship_Game
             return score;
         }
 
+        private float EvaluateBuildingScrapFlatResearch(Building building, float income)
+        {
+            float score = 0;
+            if (building.PlusFlatResearchAmount != 0)
+            {
+                if (building.PlusFlatResearchAmount < 0) score += building.PlusFlatResearchAmount * 2;
+                else score += building.PlusFlatResearchAmount;
+
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} FlatResearch : Score was {score}");
+            }
+
+            return score;
+        }
+
         private float EvaluateBuildingResearchPerCol(Building building, float maxPopulation)
         {
             float score = 0;
@@ -1799,6 +1851,23 @@ namespace Ship_Game
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapResearchPerCol(Building building, float maxPopulation)
+        {
+            float score = 0;
+            if (building.PlusResearchPerColonist != 0)
+            {
+                if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
+                else
+                {
+                    score += building.PlusResearchPerColonist * (((1 - CalculateFoodWorkers()) / 2) * maxPopulation);
+                }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} ResPerCol : Score was {score}");
             }
 
             return score;
@@ -1857,6 +1926,20 @@ namespace Ship_Game
             {
                 //Still working on this one...
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} Terraform : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapTerraforming(Building building)
+        {
+            float score = 0;
+            if (building.PlusTerraformPoints != 0)
+            {
+                if (Fertility >= 1.0f)  score += -2.0f;     //Are we done yet?
+                else                    score += 2.0f;
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} Terraform : Score was {score}");
             }
 
             return score;
@@ -2062,20 +2145,20 @@ namespace Ship_Game
 
                 costWeight     = EvaluateBuildingScrapWeight(BuildingList[i], income);
 
-                buildingValue += EvaluateBuildingFlatFood(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingScrapFlatFood(BuildingList[i], maxPopulation);
                 buildingValue += EvaluateBuildingFoodPerCol(BuildingList[i], maxPopulation);
-                buildingValue += EvaluateBuildingFlatProd(BuildingList[i], maxPopulation);
-                buildingValue += EvaluateBuildingProdPerCol(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingScrapFlatProd(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingScrapProdPerCol(BuildingList[i], maxPopulation);
                 buildingValue += EvaluateBuildingProdPerRichness(BuildingList[i]);
                 buildingValue += EvaluateBuildingStorage(BuildingList[i]);
                 buildingValue += EvaluateBuildingPopulationGrowth(BuildingList[i], maxPopulation);
                 buildingValue += EvaluateBuildingPlusMaxPopulation(BuildingList[i], maxPopulation);
-                buildingValue += EvaluateBuildingFlatResearch(BuildingList[i], income);
-                buildingValue += EvaluateBuildingResearchPerCol(BuildingList[i], maxPopulation);
+                buildingValue += EvaluateBuildingScrapFlatResearch(BuildingList[i], income);
+                buildingValue += EvaluateBuildingScrapResearchPerCol(BuildingList[i], maxPopulation);
                 buildingValue += EvaluateBuildingCreditsPerCol(BuildingList[i], maxPopulation);
                 buildingValue += EvaluateBuildingPlusTaxPercent(BuildingList[i]);
                 buildingValue += EvaluateBuildingAllowShipBuilding(BuildingList[i], maxPopulation);
-                buildingValue += EvaluateBuildingTerraforming(BuildingList[i]);
+                buildingValue += EvaluateBuildingScrapTerraforming(BuildingList[i]);
                 //buildingValue -= EvaluateBuildingFertilityLoss(building, maxPopulation);  //Because the damage has already been done...
 
                 if (buildingValue < costWeight)
