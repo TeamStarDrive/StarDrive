@@ -1337,7 +1337,7 @@ namespace Ship_Game.AI
         {
             if (ship == null) return false;
             if (ship.Active && ship.fleet != this)
-                Log.Error("{0} : not equal {1}", ship.fleet?.Name, Name);
+                Log.Warning($"{ship.fleet?.Name ?? "No Fleet"} : not equal {Name}");
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
                 Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", Debug.DebugModes.Normal);                
             ship.fleet = null;

@@ -15,7 +15,11 @@ namespace Ship_Game
         /// <summary>This is safe to reference everywhere, because an empty array is fully immutable</summary>
         public static readonly T[] Array = new T[0];
     }
-
+    public static class EmptyArray<T>
+    {
+        /// <summary>This is safe to reference everywhere, because an empty array is fully immutable</summary>
+        public static readonly Array<T> Array = new Array<T>(0);
+    }
     /// <summary>
     /// This is a custom version of List, to make debugging easier
     /// and optimize for game relate performance requirements
