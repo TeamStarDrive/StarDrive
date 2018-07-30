@@ -70,7 +70,7 @@ namespace Ship_Game
         public Matrix CloudMatrix;
         public bool HasEarthLikeClouds;
         public string SpecialDescription;
-        public bool HasShipyard;
+        public bool HasShipyard;        //This is terrably named. This should be 'HasStarPort'
         public string Name;
         public string Description;
         public Empire Owner;
