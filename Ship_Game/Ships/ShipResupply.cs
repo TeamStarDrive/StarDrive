@@ -4,7 +4,7 @@
     {
         private readonly Ship Ship;
         private const float OrdnanceThresholdCombat            = 0.05f;
-        private const float OrdnanceThresholdNonCombat         = 0.25f;
+        private const float OrdnanceThresholdNonCombat         = 0.15f;
         private const float ResupplyTroopThreshold             = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
@@ -99,6 +99,10 @@
 
         private bool OrdnanceLow()
         {
+            if (Ship.shipData.ShipCategory == ShipData.Category.Kamikaze
+                && Ship.loyalty.isPlayer)
+                return false; // only player manual command will convince player Kamikaze to resupply
+
             float threshold = Ship.InCombat ? OrdnanceThresholdCombat
                                             : OrdnanceThresholdNonCombat;
             return Ship.OrdnancePercent < threshold;

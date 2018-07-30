@@ -168,6 +168,7 @@ namespace Ship_Game.AI.Tasks
                 if (fleet == null) return;
                 foreach (Ship ship in fleet.Ships)
                 {
+                    Fleet.RemoveShip(ship);
                     if (ship?.Active ?? false)
                         Owner.ForcePoolAdd(ship);
                 }

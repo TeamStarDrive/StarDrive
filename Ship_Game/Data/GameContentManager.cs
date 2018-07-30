@@ -7,28 +7,27 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SgMotion;
+using SynapseGaming.LightingSystem.Processors;
 
 namespace Ship_Game
 {
-    public sealed class GameContentManager : ContentManager
+    public sealed class GameContentManager : ContentManager, IEffectCache
     {
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
         private Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
+        private Map<string, Effect> LoadedEffects = new Map<string, Effect>();
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
+
+        // Enables verbose logging for all asset loads
+        public bool EnableLoadInfoLog { get; set; }
 
         private RawContentLoader RawContent;
 
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
         private readonly object LoadSync = new object();
-
-        public Map<string, Model> Models;
-        public Map<string, StaticMesh> Meshes;
-        public Map<string, SkinnedModel> SkinnedModels;
-        public Array<Model> RoidsModels = new Array<Model>();
-        public Array<Model> JunkModels = new Array<Model>();
 
         static GameContentManager()
         {
@@ -41,11 +40,6 @@ namespace Ship_Game
             LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
             DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
             RawContent       = new RawContentLoader(this);
-            SkinnedModels = new Map<string, SkinnedModel>();
-            Meshes = new Map<string, StaticMesh>();
-            Models = new Map<string, Model>();
-            JunkModels = new Array<Model>();
-            RoidsModels = new Array<Model>();
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
@@ -56,13 +50,12 @@ namespace Ship_Game
 
         private object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
 
-        public bool EnableLoadInfoLog { get; set; }
-
         private bool TryGetAsset(string assetNameNoExt, out object asset)
         {
             GameContentManager mgr = this;
             do
             {
+                lock (LoadSync)
                 if (mgr.LoadedAssets.TryGetValue(assetNameNoExt, out asset))
                     return true;
             }
@@ -82,17 +75,37 @@ namespace Ship_Game
             return false;
         }
 
+        public bool TryGetEffect<T>(string assetName, out T asset) where T : Effect
+        {
+            GameContentManager mgr = this;
+            do
+            {
+                lock (LoadSync)
+                if (mgr.LoadedEffects.TryGetValue(assetName, out Effect effect) && effect is T assetObj)
+                {
+                    asset = assetObj;
+                    return true;
+                }
+            }
+            while ((mgr = mgr.Parent) != null);
+            asset = null;
+            return false;
+        }
+
+        public void AddEffect(string assetName, Effect effect) 
+        {
+            lock (LoadSync)
+                LoadedEffects.Add(assetName, effect);
+            RecordDisposableObject(effect);
+        }
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
             LoadedAssets     = null;
             DisposableAssets = null;
             RawContent       = null;
-            Meshes = null;
-            SkinnedModels = null;
-            Models = null;
-
-
+            LoadedEffects    = null;
         }
 
         private static T GetField<T>(object obj, string name)
@@ -188,77 +201,127 @@ namespace Ship_Game
                 DisposableAssets.Add(disposable);
         }
 
+        private struct AssetName
+        {
+            public readonly string OriginalName;
+            public readonly string NoExt;     // XNA friendly name without an extension
+            public readonly string Extension; // ".obj" or ".png" for raw resource loader
+
+            public bool NonXnaAsset => Extension.Length > 0 && Extension != "xnb";
+
+            public AssetName(string assetName)
+            {
+                if (assetName.IsEmpty())
+                    throw new ArgumentNullException(nameof(assetName));
+
+                OriginalName = assetName;
+                NoExt = assetName;
+                Extension = "";
+                if (assetName[assetName.Length - 4] == '.')
+                {
+                    Extension = assetName.Substring(assetName.Length - 3).ToLower();
+                    NoExt     = assetName.Substring(0, assetName.Length - 4);
+                }
+
+                NoExt = NoExt.Replace("\\", "/"); // normalize path
+
+                if (NoExt.StartsWith("./"))
+                    NoExt = NoExt.Substring(2);
+
+                // starts with active mod, eg: "Mods/MyMod/" ?
+                if (GlobalStats.HasMod && NoExt.StartsWith(GlobalStats.ModPath))
+                {
+                    // We only remove the Mod prefix for the active mod
+                    NoExt = NoExt.Substring(GlobalStats.ModPath.Length);
+                }
+                //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
+                //    assetNoExt = assetNoExt.Substring("Content/".Length);
+
+            #if true // #if DEBUG
+                // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
+                if (NoExt.Contains("..") || NoExt.Contains("./"))
+                    throw new ArgumentException($"Asset name cannot contain relative paths: '{NoExt}'");
+
+                // absolute paths would break all the modding support, so forbid that as well
+                if (NoExt.Contains(":/"))
+                    throw new ArgumentException($"Asset name cannot contain absolute paths: '{NoExt}'");
+            #endif
+            }
+        }
+
+
         // Load the asset with the given name or path
         // Path must be relative to project root, such as:
         // "Textures/mytexture" or "Textures/mytexture.xnb"
         public override T Load<T>(string assetName)
         {
-            if (LoadedAssets == null) throw new ObjectDisposedException(ToString());
-            if (assetName.IsEmpty())  throw new ArgumentNullException(nameof(assetName));
-
-            string extension  = "";
-            string assetNoExt = assetName;
-            string assetWext = assetName;
-            if (assetName[assetName.Length - 4] == '.')
-            {
-                extension = assetName.Substring(assetName.Length - 3).ToLower();
-                assetNoExt = assetName.Substring(0, assetName.Length - 4);
-            }
-            else assetWext += ".xnb";
-
-            assetNoExt = assetNoExt.Replace("\\", "/"); // normalize path
-
-            if (assetNoExt.StartsWith("./"))
-                assetNoExt = assetNoExt.Substring(2);
-
-            // starts with active mod, eg: "Mods/MyMod/" ?
-            if (GlobalStats.HasMod && assetNoExt.StartsWith(GlobalStats.ModPath))
-            {
-                // We only remove the Mod prefix for the active mod
-                assetNoExt = assetNoExt.Substring(GlobalStats.ModPath.Length);
-            }
-            //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
-            //    assetNoExt = assetNoExt.Substring("Content/".Length);
-
-        #if true // #if DEBUG
-            // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
-            if (assetNoExt.Contains("..") || assetNoExt.Contains("./"))
-                throw new ArgumentException($"Asset name cannot contain relative paths: '{assetNoExt}'");
-
-            // absolute paths would break all the modding support, so forbid that as well
-            if (assetNoExt.Contains(":/"))
-                throw new ArgumentException($"Asset name cannot contain absolute paths: '{assetNoExt}'");
-        #endif
+            var asset = new AssetName(assetName);
+            if (LoadedAssets == null)
+                throw new ObjectDisposedException(ToString());
 
             if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {assetNoExt}");
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(T).Name}> {asset.NoExt}");
 
-            if (TryGetAsset(assetNoExt, out object existing))
+            if (TryGetAsset(asset.NoExt, out object existing))
             {
                 if (existing is T assetObj)
                     return assetObj;
-                throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
+                throw new ContentLoadException($"Asset '{asset.NoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            T asset = (extension.Length > 0 && extension != "xnb") //(T)RawContent.LoadAsset(assetWext, extension); // 
-                ? (T)RawContent.LoadAsset(assetName, extension) 
-                : ReadAsset<T>(assetNoExt, RecordDisposableObject); //
+            T loaded;
+            if (asset.NonXnaAsset)
+                loaded = (T)RawContent.LoadAsset(asset.OriginalName, asset.Extension);
+            else
+                loaded = ReadAsset<T>(asset.NoExt, RecordDisposableObject);
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
-#if false
-                string[] keys;
-                lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
-                foreach (string key in keys)
+            #if false
+                SlowCheckForResourceLeaks(asset.NoExt);
+            #endif
+            lock (LoadSync) LoadedAssets.Add(asset.NoExt, loaded);
+            return loaded;
+        }
+
+        public StaticMesh LoadStaticMesh(string modelName)
+        {
+            return Load<StaticMesh>(modelName);
+        }
+
+        public Model LoadModel(string modelName)
+        {
+            // special backwards compatibility with mods...
+            // basically, all old mods put their models into "Mod Models/" folder because
+            // the old model loading system didn't handle Unified resource paths...                
+            if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
+            {
+                string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
+                if (File.Exists(modModelPath))
                 {
-                    if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) || 
-                        assetNoExt.EndsWith(key, StringComparison.OrdinalIgnoreCase))
-                    {
-                        Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
-                    }
+                    var model = Load<Model>(modModelPath);
+                    if (model != null) return model;
                 }
-#endif
-            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);            
-            return asset;
+            }
+            return Load<Model>(modelName);
+        }
+
+        public SkinnedModel LoadSkinnedModel(string modelName)
+        {
+            return Load<SkinnedModel>(modelName);
+        }
+
+        private void SlowCheckForResourceLeaks(string assetNoExt)
+        {
+            string[] keys;
+            lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
+            foreach (string key in keys)
+            {
+                if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) ||
+                    assetNoExt.EndsWith(key, StringComparison.OrdinalIgnoreCase))
+                {
+                    Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
+                }
+            }
         }
 
         protected override Stream OpenStream(string assetName)
