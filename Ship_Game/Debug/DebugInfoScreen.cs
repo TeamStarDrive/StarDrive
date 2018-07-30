@@ -598,10 +598,8 @@ namespace Ship_Game.Debug
         private void InputDebug()
         {
             DrawString($"RightMouseHeld {Screen.Input.RightMouseHeld()}");
-           
-            //if (!MouseWasHeld) MouseWasHeld = Screen.Input.RightMouseWasHeld;
-            //if (Screen.Input.RightMouseClick)
-            //    MouseWasHeld = false;
+
+            DrawString($"Mouse Moved {Screen.Input.MouseMoved}");
             DrawString($"RightMouseWasHeld {Screen.Input.RightMouseWasHeld}");
 
             DrawString($"RightMouseTimer {Screen.Input.ReadRightMouseDownTime}");
