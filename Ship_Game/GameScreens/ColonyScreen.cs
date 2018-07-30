@@ -1821,7 +1821,6 @@ namespace Ship_Game
             currentMouse = Mouse.GetState();
             Vector2 MousePos = new Vector2((float)currentMouse.X, (float)currentMouse.Y);
             buildSL.HandleInput(input);
-            buildSL.Update();
             build.HandleInput(this);
             if (p.Owner != EmpireManager.Player)
             {
