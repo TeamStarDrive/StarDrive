@@ -142,12 +142,17 @@ namespace Ship_Game.AI
             MarkedForExploration.Add(nearesttoHome);
             return nearesttoHome;
         }
-
-        public void RemoveShipFromForce(Ship ship, AO ao = null)
+        public void RemoveShipFromForce(Ship ship) => RemoveShipFromForce(ship, null);
+        public void RemoveShipFromForce(Ship ship, AO ao)
         {
             if (ship == null) return;
             OwnerEmpire.ForcePoolRemove(ship);
-            ao?.RemoveShip(ship);
+            if (ao == null)
+                foreach (var aos in AreasOfOperations)
+                    aos.RemoveShip(ship);
+            else
+                ao.RemoveShip(ship);
+
             DefensiveCoordinator.Remove(ship);
 
         }
