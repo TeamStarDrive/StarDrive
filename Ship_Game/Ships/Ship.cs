@@ -2799,10 +2799,9 @@ namespace Ship_Game.Ships
         public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
         {
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
-            if (valueToCheck >= maxValue)
+            if (valueToCheck > maxValue)
             {
-                //if (valueToCheck > maxValue)
-                //    Log.Error($"MaxValue of check as greater than value to check");
+                Log.Info($"MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
@@ -2812,7 +2811,7 @@ namespace Ship_Game.Ships
         }
         //if the shipstatus enum is added to then "5" will need to be changed.
         //it should count all but "NotApplicable"
-        private const int ShipStatusCount = 5;
+        private const int ShipStatusCount = 6;
     }
     
     public enum ShipStatus
@@ -2822,6 +2821,7 @@ namespace Ship_Game.Ships
         Average,        
         Good,
         Excellent,
+        Maximum,
         NotApplicable
     }
 }
