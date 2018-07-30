@@ -11,7 +11,7 @@ using EmbeddedResources;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects;
 
-internal class Class36 : BaseSkinnedEffect, IAddressableEffect, ITransparentEffect, ITerrainEffect, Interface3, IShadowGenerateEffect
+internal class ShadowEffect : BaseSkinnedEffect, IAddressableEffect, ITransparentEffect, ITerrainEffect, Interface3, IShadowGenerateEffect
 {
     private static Matrix[] matrix_12 = new Matrix[3];
     private static Vector4[] vector4_2 = new Vector4[3];
@@ -218,7 +218,7 @@ internal class Class36 : BaseSkinnedEffect, IAddressableEffect, ITransparentEffe
         set => EffectHelper.smethod_5(value, ref this.int_0, ref this.effectParameter_27);
     }
 
-    public Class36(GraphicsDevice graphicsdevice)
+    public ShadowEffect(GraphicsDevice graphicsdevice)
       : base(graphicsdevice, "ShadowEffect")
     {
         this.TransparencyParam = this.Parameters["_TransparencyClipReference"];
@@ -334,6 +334,6 @@ internal class Class36 : BaseSkinnedEffect, IAddressableEffect, ITransparentEffe
 
     protected override Effect Create(GraphicsDevice device)
     {
-        return new Class36(device);
+        return new ShadowEffect(device);
     }
 }

@@ -15,7 +15,18 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
         protected override LightingEffect Read(ContentReader input, LightingEffect instance)
         {
             var service = (IGraphicsDeviceService)input.ContentManager.ServiceProvider.GetService(typeof(IGraphicsDeviceService));
-            var fx = new LightingEffect(service.GraphicsDevice);
+
+            LightingEffect fx;
+            if (input.ContentManager is IEffectCache cache)
+            {
+                if (cache.TryGetEffect(input.AssetName, out fx))
+                {
+                    //Console.WriteLine($"Using CACHED LightingEffect {input.AssetName}");
+                    return fx;
+                }
+            }
+            //Console.WriteLine($"Read LightningEffect {input.AssetName}");
+            fx = new LightingEffect(service.GraphicsDevice);
             fx.MaterialName             = input.ReadString();
             fx.MaterialFile             = input.ReadString();
             fx.ProjectFile              = input.ReadString();
@@ -53,6 +64,10 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             BlockUtil.SkipBlock(input);
             if (input.ReadInt32() != 1234)
                 throw new Exception("Error loading asset.");
+
+            if (input.ContentManager is IEffectCache cache2)
+                cache2.AddEffect(input.AssetName, fx);
+
             return fx;
         }
     }

@@ -396,14 +396,8 @@ namespace Ship_Game
             {
                 this.SaveShipData("New Ship");
             }
-            if (input.ScrollIn)
-            {
-                tscale = tscale + 1f;
-            }
-            if (input.ScrollOut)
-            {
-                tscale = tscale - 1f;
-            }
+            if (input.ScrollIn)  tscale += 1f;
+            if (input.ScrollOut) tscale -= 1f;
             if (input.Right)
             {
                 this.heat = 1f;
@@ -541,17 +535,15 @@ namespace Ship_Game
             try
             {
                 shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath);
-                shipSO.World = worldMatrix;
-                ModelPath = modelPath;
-                AddObject(shipSO);
+
             }
             catch (Exception)
             {
                 shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath, animated:true);
-                shipSO.World = worldMatrix;
-                ModelPath = modelPath;
-                AddObject(shipSO);
             }
+            shipSO.World = worldMatrix;
+            ModelPath = modelPath;
+            AddObject(shipSO);
         }
 
 
@@ -633,7 +625,9 @@ namespace Ship_Game
             this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             this.designInputState.Update(gameTime);
             this.HandleInput();
-            this.thruster.Update(new Vector3(this.tPos.X, this.tPos.Y, 30f), new Vector3(0f, -1f, 0f), new Vector3(this.tscale, this.tscale, this.tscale), this.heat, 0.002f, Color.OrangeRed, Color.Blue, camPos);
+            thruster.tscale = tscale;
+            thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);
+            this.thruster.Update(new Vector3(0f, -1f, 0f), this.heat, 0.002f, camPos);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
