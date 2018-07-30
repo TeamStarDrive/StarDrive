@@ -39,7 +39,7 @@ namespace Ship_Game
         private float RightDblClickTimer = 0f;
         public bool RightMouseDoubleClick  { get; private set; }
         public bool LeftMouseDoubleClick { get; private set; }
-
+        public bool MouseMoved;
 
         // Mouse Clicks
         public bool RightMouseClick    => MouseButtonClicked(MouseCurr.RightButton, MousePrev.RightButton);
@@ -308,36 +308,37 @@ namespace Ship_Game
         }
         public void Update(GameTime gameTime)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-            KeysPrev        = KeysCurr;
-            GamepadPrev     = GamepadCurr;
-            MousePrev       = MouseCurr;
+            KeysPrev = KeysCurr;
+            GamepadPrev = GamepadCurr;
+            MousePrev = MouseCurr;
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
-            MouseCurr       = Mouse.GetState();
-            CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
-            KeysCurr        = Keyboard.GetState();
-
+            MouseCurr = Mouse.GetState();
+            CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
+            KeysCurr = Keyboard.GetState();
+            MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
             if (ExitScreenTimer >= 0)
             {
                 ExitScreenTimer -= elapsedTime;
                 return;
             }
+            if (MouseMoved)
+            {
+                RightDblClickTimer = LeftDblClickTimer  = 0;
+            }
             SetMouseDrag();
-
             RightMouseDoubleClick = RightDblClickTimer > 0 && RightMouseClick;
             RightDblClickTimer = RightMouseDoubleClick ? 0 : RightDblClickTimer;
 
             LeftMouseDoubleClick = LeftDblClickTimer > 0 && LeftMouseClick;
             LeftDblClickTimer = LeftMouseDoubleClick ? 0 : LeftDblClickTimer;
-                
             UpdateTimers(elapsedTime);
 
             StartRighthold = UpdateHoldStartPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            EndRightHold   = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            StartLeftHold  = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
-            EndLeftHold    = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
-
+            EndRightHold = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
+            StartLeftHold = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
+            EndLeftHold = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
         }
     }
 }

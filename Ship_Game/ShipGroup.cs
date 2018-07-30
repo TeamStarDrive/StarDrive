@@ -407,7 +407,7 @@ namespace Ship_Game
                 for (int i = 0; i < Ships.Count; i++)     //Modified this so speed of a fleet is only set in one place -Gretman
                 {
                     Ship ship = Ships[i];
-                    if (ship.Inhibited || ship.EnginesKnockedOut || !ship.Active)
+                    if (ship.Inhibited || ship.EnginesKnockedOut || !ship.Active || ship.AI.State != AIState.FormationWarp)
                         continue;
                     if (ship.Speed < slowestSpeed) slowestSpeed = ship.Speed;
                 }

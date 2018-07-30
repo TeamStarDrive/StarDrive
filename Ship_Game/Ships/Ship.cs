@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
         public Vector2 Acceleration { get; private set; }
 
         public Vector2 projectedPosition;
-        private Array<Thruster> ThrusterList = new Array<Thruster>();
+        private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp   = true;
@@ -139,8 +139,6 @@ namespace Ship_Game.Ships
         private AudioHandle DroneSfx;
         public float ShieldRechargeTimer;
         public bool InCombat;
-        private Vector3 pointat;
-        private Vector3 scalefactors;
         public float xRotation;
         public MoveState engineState;
         public float ScreenRadius;
@@ -1184,16 +1182,6 @@ namespace Ship_Game.Ships
                 difference = Math.Abs(angleToMouse - facing);
             }
             return difference < halfArc;
-        }
-
-        public void AddThruster(Thruster t)
-        {
-            ThrusterList.Add(new Thruster
-            {
-                Parent = this,
-                tscale = t.tscale,
-                XMLPos = t.XMLPos
-            });
         }
 
         public SceneObject GetSO()
@@ -2799,10 +2787,9 @@ namespace Ship_Game.Ships
         public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
         {
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
-            if (valueToCheck >= maxValue)
+            if (valueToCheck > maxValue)
             {
-                //if (valueToCheck > maxValue)
-                //    Log.Error($"MaxValue of check as greater than value to check");
+                Log.Info($"MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
@@ -2812,7 +2799,7 @@ namespace Ship_Game.Ships
         }
         //if the shipstatus enum is added to then "5" will need to be changed.
         //it should count all but "NotApplicable"
-        private const int ShipStatusCount = 5;
+        private const int ShipStatusCount = 6;
     }
     
     public enum ShipStatus
@@ -2822,6 +2809,7 @@ namespace Ship_Game.Ships
         Average,        
         Good,
         Excellent,
+        Maximum,
         NotApplicable
     }
 }
