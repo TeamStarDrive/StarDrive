@@ -22,7 +22,7 @@ namespace Ship_Game.Gameplay
 
         public Moon(GameContentManager contentManager = null) : base(GameObjectType.Moon)
         {
-            ContentManager = ResourceManager.ContentManager;
+            ContentManager = ResourceManager.RootContent;
         }
 
         public override void Initialize()

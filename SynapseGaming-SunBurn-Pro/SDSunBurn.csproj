@@ -74,7 +74,7 @@
     <Compile Include="Class32.cs" />
     <Compile Include="Class34.cs" />
     <Compile Include="Class35.cs" />
-    <Compile Include="Class36.cs" />
+    <Compile Include="ShadowEffect.cs" />
     <Compile Include="BlockUtil.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\FullFrameQuad.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\TransparencyMode.cs" />
@@ -173,6 +173,7 @@
     <Compile Include="SynapseGaming\LightingSystem\Lights\ILightFactory.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Lights\LightGroup.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Lights\LightRig.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\IEffectCache.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadowSource.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowSource.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowMapSurface.cs" />

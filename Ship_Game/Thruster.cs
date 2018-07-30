@@ -66,18 +66,18 @@ namespace Ship_Game
 
         public void Draw(ref Matrix view, ref Matrix project)
         {
-            this.matrices_combined[0] = this.world_matrix;
-            this.matrices_combined[1] = (this.world_matrix * view) * project;
-            this.matrices_combined[2] = this.inverse_scale_transpose;
-            Effect.CurrentTechnique = this.technique;
-            this.shader_matrices.SetValue(this.matrices_combined);
-            this.v4colors[0] = this.colors[0].ToVector4();
-            this.v4colors[1] = this.colors[1].ToVector4();
-            this.v4colors[0].W = this.heat;
-            this.thrust_color.SetValue(this.v4colors);
-            this.effect_tick.SetValue(this.tick);
-            this.effect_noise.SetValue(this.Noise);
-            this.model.Meshes[0].Draw();
+            matrices_combined[0] = world_matrix;
+            matrices_combined[1] = (world_matrix * view) * project;
+            matrices_combined[2] = inverse_scale_transpose;
+            Effect.CurrentTechnique = technique;
+            shader_matrices.SetValue(matrices_combined);
+            v4colors[0] = colors[0].ToVector4();
+            v4colors[1] = colors[1].ToVector4();
+            v4colors[0].W = heat;
+            thrust_color.SetValue(v4colors);
+            effect_tick.SetValue(tick);
+            effect_noise.SetValue(Noise);
+            model.Meshes[0].Draw();
         }
 
         public void InitializeForViewing()
@@ -131,71 +131,46 @@ namespace Ship_Game
             world_matrix    = Matrix.Identity;
         }
 
-
-        public void prepare_effect(ref Matrix view, ref Matrix project, Effect effect)
-        {
-            this.matrices_combined[0] = this.world_matrix;
-            this.matrices_combined[1] = (this.world_matrix * view) * project;
-            this.matrices_combined[2] = this.inverse_scale_transpose;
-            this.shader_matrices.SetValue(this.matrices_combined);
-            this.v4colors[0] = this.colors[0].ToVector4();
-            this.v4colors[1] = this.colors[1].ToVector4();
-            this.v4colors[0].W = this.heat;
-            this.thrust_color.SetValue(this.v4colors);
-            this.effect_tick.SetValue(this.tick);
-            this.effect_noise.SetValue(this.Noise);
-            effect.CommitChanges();
-        }
-
-        public void set_technique(Effect effect)
-        {
-            effect.CurrentTechnique = this.technique;
-        }
-
         public void SetPosition()
         {
-            Vector2 centerPoint = this.Parent.Center;
-            double angle = (double)(offsetAngle.ToRadians() + this.Parent.Rotation + 1.57079637f);
-            float distance = this.distanceToParentCenter;
-            this.ThrusterCenter.Y = centerPoint.Y + distance * -(float)Math.Sin(angle);
-            this.ThrusterCenter.X = centerPoint.X + distance * -(float)Math.Cos(angle);
-            float xDistance = 256f - this.XMLPos.X;
-            float zPos = (float)Math.Sin((double)this.Parent.yRotation) * xDistance + 15f;
-            this.WorldPos = new Vector3(this.ThrusterCenter, zPos);
+            double angle = (offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f);
+            float distance = distanceToParentCenter;
+            ThrusterCenter.Y = Parent.Center.Y + distance * -(float)Math.Sin(angle);
+            ThrusterCenter.X = Parent.Center.X + distance * -(float)Math.Cos(angle);
+            float xDistance = 256f - XMLPos.X;
+            float zPos = (float)Math.Sin(Parent.yRotation) * xDistance + 15f;
+            WorldPos = new Vector3(ThrusterCenter, zPos);
         }
 
-        public void SetPosition(Vector2 Center)
+        public void SetPosition(Vector2 center)
         {
-            Vector2 centerPoint = Center;
-            double angle = (double)(offsetAngle.ToRadians() + this.Parent.Rotation + 1.57079637f);
-            float distance = this.distanceToParentCenter;
-            this.ThrusterCenter.Y = centerPoint.Y + distance * -(float)Math.Sin(angle);
-            this.ThrusterCenter.X = centerPoint.X + distance * -(float)Math.Cos(angle);
-            float zPos = -(float)Math.Sin((double)(this.Parent.yRotation / distance)) + 10f;
-            this.WorldPos = new Vector3(this.ThrusterCenter, zPos);
+            double angle = (double)(offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f);
+            float distance = distanceToParentCenter;
+            ThrusterCenter.Y = center.Y + distance * -(float)Math.Sin(angle);
+            ThrusterCenter.X = center.X + distance * -(float)Math.Cos(angle);
+            float zPos = -(float)Math.Sin((double)(Parent.yRotation / distance)) + 10f;
+            WorldPos = new Vector3(ThrusterCenter, zPos);
         }
 
-        public void Update(Vector3 Put_me_at, Vector3 Point_me_at, Vector3 Scale_factors, float thrustsize, float thrustspeed, Color color_at_exhaust, Color color_at_end, Vector3 camera_position)
+        public void Update(Vector3 direction, float thrustsize, float thrustspeed, Vector3 camera_position)
         {
-            this.heat = MathHelper.Clamp(thrustsize, 0f, 1f);
-            Thruster thruster = this;
-            thruster.tick = thruster.tick + thrustspeed;
-            this.colors[0] = color_at_end;
-            this.colors[1] = color_at_exhaust;
-            this.world_matrix = Matrix.Identity;
-            this.world_matrix.Forward = Point_me_at;
-            this.dir_to_camera.X = Put_me_at.X - camera_position.X;
-            this.dir_to_camera.Y = Put_me_at.Y - camera_position.Y;
-            this.dir_to_camera.Z = Put_me_at.Z - camera_position.Z;
-            Vector3.Cross(ref Point_me_at, ref this.dir_to_camera, out this.Up);
-            this.Up.Normalize();
-            Vector3.Cross(ref Point_me_at, ref this.Up, out this.Right);
-            this.world_matrix.Right = this.Right;
-            this.world_matrix.Up = this.Up;
-            Matrix.CreateScale(ref Scale_factors, out this.scale);
-            Matrix.Multiply(ref this.world_matrix, ref this.scale, out this.world_matrix);
-            this.inverse_scale_transpose = Matrix.Transpose(Matrix.Invert(this.world_matrix));
-            this.world_matrix.Translation = Put_me_at;
+            var scaleFactors = new Vector3(tscale);
+            heat = MathHelper.Clamp(thrustsize, 0f, 1f);
+            tick = tick + thrustspeed;
+            colors[0] = Color.LightBlue; // END
+            colors[1] = Color.OrangeRed; // EXHAUST
+            world_matrix = Matrix.Identity;
+            world_matrix.Forward = direction;
+            dir_to_camera = WorldPos - camera_position;
+            Vector3.Cross(ref direction, ref dir_to_camera, out Up);
+            Up.Normalize();
+            Vector3.Cross(ref direction, ref Up, out Right);
+            world_matrix.Right = Right;
+            world_matrix.Up = Up;
+            Matrix.CreateScale(ref scaleFactors, out scale);
+            Matrix.Multiply(ref world_matrix, ref scale, out world_matrix);
+            inverse_scale_transpose = Matrix.Transpose(Matrix.Invert(world_matrix));
+            world_matrix.Translation = WorldPos;
         }
     }
 }

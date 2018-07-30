@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -87,9 +88,13 @@ namespace Ship_Game.AI
             if (OffensiveForcePool.Contains(ship))
             {
                 Log.Warning("offensive forcepool already contains this ship. not adding");
-                foreach (var ao in Owner.GetGSAI().AreasOfOperations)                                    
-                    ao.RemoveShip(ship);                
-                return false;
+                foreach (var ao in Owner.GetGSAI().AreasOfOperations)
+                {
+                    ao.RemoveShip(ship);                    
+                }
+                ship.ClearFleet();                
+                Owner.AddShip(ship);
+                return true;
             }
             if (ship.fleet != null)
                 Log.Error("corefleet ship in {0}" , ship.fleet.Name);
@@ -302,6 +307,29 @@ namespace Ship_Game.AI
                 TurnsToRelax = 1;
             }
             AOFull = ThreatLevel < CoreFleet.GetStrength() && OffensiveForcePool.Count > 0;
+        }
+
+        public FleetShips GetFleetShips()
+        {
+            var fleetShips = new FleetShips(Owner);
+            foreach (Ship ship in OffensiveForcePool)
+            {                
+                if (ShipsWaitingForCoreFleet.ContainsRef(ship))
+                {
+                    Log.Error("AO: ship is in waiting list amd offensiveList. removing from waiting");
+                    ShipsWaitingForCoreFleet.Remove(ship);
+                }
+
+                if (Empire.Universe.Debug)
+                    foreach (AO ao in Owner.GetGSAI().AreasOfOperations)
+                    {
+                        if (ao == this) continue;
+                        if (ao.GetOffensiveForcePool().Contains(ship))
+                            Log.Info($"Ship {ship.Name} in another AO {ao.GetPlanet().Name}");
+                    }
+                fleetShips.AddShip(ship);
+            }
+            return fleetShips;
         }
 
         public void Dispose()

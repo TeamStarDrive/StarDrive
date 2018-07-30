@@ -244,7 +244,7 @@ namespace Ship_Game.Ships
             if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
                 return;
 
-            GameContentManager content = ResourceManager.ContentManager;
+            GameContentManager content = ResourceManager.RootContent;
             foreach (Thruster t in ThrusterList)
             {
                 t.LoadAndAssignDefaultEffects(content);
@@ -398,10 +398,10 @@ namespace Ship_Game.Ships
             }
             //end: ship subclass initializations. 
 
-            // FB: this IF statement so that ships loaded from save wont initialize twice, causing internlslot issues. This is a Workaround
+            // FB: this IF statement so that ships loaded from save wont initialize twice, causing internalslot issues. This is a Workaround
             // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
             if (!loadingFromSavegame)
-                InitializeStatus(loadingFromSavegame); 
+                InitializeStatus(false); 
             
             SetSystem(System);
             InitExternalSlots();

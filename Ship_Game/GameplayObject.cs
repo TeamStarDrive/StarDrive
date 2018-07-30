@@ -59,6 +59,11 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
+        // current rotation converted into a direction vector
+        [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
+        [XmlIgnore][JsonIgnore] public Vector3 Direction3D => Rotation.RadiansToDirection3D();
+
+
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
