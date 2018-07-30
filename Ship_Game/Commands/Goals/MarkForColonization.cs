@@ -207,7 +207,9 @@ namespace Ship_Game.Commands.Goals
         private GoalStep Step2()
         {
             if (!IsValid()) return GoalStep.GoalComplete;
-            if (!HasEscort) NeedsEscort();
+            NeedsEscort();
+            if (!HasEscort && WaitingForEscort)
+                return GoalStep.TryAgain;
             if (markedPlanet.Owner != null) // Planet is owned by someone?
             {
                 foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
