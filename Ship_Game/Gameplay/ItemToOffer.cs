@@ -40,6 +40,14 @@ namespace Ship_Game.Gameplay
 	    {
 	    }
 
+        public void ChangeSpecialInquiry(Array<string> items)
+        {
+            if (Selected)
+                items.Add(SpecialInquiry);
+            else
+                items.Remove(SpecialInquiry);
+        }
+
         public void Draw(SpriteBatch spriteBatch, SpriteFont font)
 		{
 			Color orange;
