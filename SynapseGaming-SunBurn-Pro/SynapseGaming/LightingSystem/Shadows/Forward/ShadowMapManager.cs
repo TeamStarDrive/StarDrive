@@ -16,8 +16,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
   /// </summary>
   public class ShadowMapManager : BaseShadowMapManager
   {
-    private DisposablePool<ShadowCubeMap> class22_1 = new DisposablePool<ShadowCubeMap>();
-    private DisposablePool<ShadowDirectionalMap> class22_2 = new DisposablePool<ShadowDirectionalMap>();
+    private DisposablePool<ShadowCubeMap> CubeMapsPool = new DisposablePool<ShadowCubeMap>();
+    private DisposablePool<ShadowDirectionalMap> DirectionalMapsPool = new DisposablePool<ShadowDirectionalMap>();
 
     /// <summary>Creates a new ShadowMapManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
@@ -59,7 +59,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override IShadowMap CreateDirectionalShadowMap(IShadowSource shadowsource)
     {
-      return this.class22_2.New();
+      return this.DirectionalMapsPool.New();
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override IShadowMap CreatePointShadowMap(IShadowSource shadowsource)
     {
-      return this.class22_1.New();
+      return this.CubeMapsPool.New();
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     /// <returns></returns>
     protected override IShadowMap CreateSpotShadowMap(IShadowSource shadowsource)
     {
-      return this.class22_1.New();
+      return this.CubeMapsPool.New();
     }
 
     /// <summary>
@@ -92,8 +92,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     public override void EndFrameRendering()
     {
       base.EndFrameRendering();
-      this.class22_1.Clear();
-      this.class22_2.Clear();
+      this.CubeMapsPool.Clear();
+      this.DirectionalMapsPool.Clear();
     }
 
     /// <summary>
@@ -103,8 +103,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     public override void Unload()
     {
       base.Unload();
-      this.class22_1.Clear();
-      this.class22_2.Clear();
+      this.CubeMapsPool.Clear();
+      this.DirectionalMapsPool.Clear();
     }
   }
 }

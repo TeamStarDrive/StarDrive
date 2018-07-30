@@ -591,7 +591,7 @@ namespace Ship_Game
                 ShipObj = ResourceManager.GetSceneMesh(TransientContent, hull.ModelPath, hull.Animated);
                 if (hull.Animated) // Support animated meshes if we use them at all
                 {
-                    SkinnedModel model = ResourceManager.GetSkinnedModel(TransientContent, hull.ModelPath);
+                    SkinnedModel model = TransientContent.LoadSkinnedModel(hull.ModelPath);
                     ShipAnim = new AnimationController(model.SkeletonBones);
                     ShipAnim.StartClip(model.AnimationClips["Take 001"]);
                 }
