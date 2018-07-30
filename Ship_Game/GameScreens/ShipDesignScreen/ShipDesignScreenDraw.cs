@@ -131,7 +131,8 @@ namespace Ship_Game
                 }
                 case ModuleOrientation.Normal:
                 {
-                    if (slot?.SlotReference.Position.X > 256f)
+                    if (slot?.SlotReference.Position.X > 256f
+                        && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
                     break;
                 }
