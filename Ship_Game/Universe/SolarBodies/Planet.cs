@@ -2136,7 +2136,7 @@ namespace Ship_Game
 
                 buildingValue += EvaluateBuildingScrapFlatFood(bldg);
                 buildingValue += EvaluateBuildingFoodPerCol(bldg);
-                buildingValue += EvaluateBuildingScrapFlatProd(bldg);
+                buildingValue += EvaluateBuildingFlatProd(bldg);
                 buildingValue += EvaluateBuildingScrapProdPerCol(bldg);
                 buildingValue += EvaluateBuildingProdPerRichness(bldg);
                 buildingValue += EvaluateBuildingStorage(bldg);
