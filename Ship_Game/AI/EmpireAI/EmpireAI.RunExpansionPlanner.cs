@@ -65,7 +65,7 @@ namespace Ship_Game.AI {
             if (allPlanetsRanker.Count < 1)
                 return;
 
-            DesiredPlanets = allPlanetsRanker.SortedBy(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet).ToArray();
+            DesiredPlanets = allPlanetsRanker.Sorted(v => -(v.Value - (v.OutOfRange ? 1 :0))).Select(p => p.Planet).ToArray();
 
             if (DesiredPlanets.Length == 0)
                 return;
