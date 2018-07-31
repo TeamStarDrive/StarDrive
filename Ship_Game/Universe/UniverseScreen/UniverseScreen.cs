@@ -185,8 +185,6 @@ namespace Ship_Game
         private ClickableSystem tippedSystem;
         private bool ShowingSysTooltip;
         private bool ShowingPlanetToolTip;
-        private float ClickTimer;
-        private float ClickTimer2;
         private float zTime;
         private float MusicCheckTimer;
         private int ArmageddonCounter;
