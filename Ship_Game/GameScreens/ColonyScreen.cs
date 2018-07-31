@@ -1917,7 +1917,7 @@ namespace Ship_Game
             else
             {
                 editHoverState = 1;
-                if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseClick)
                 {
                     PlanetName.HandlingInput = true;
                 }
@@ -1977,7 +1977,7 @@ namespace Ship_Game
                     p.ResLocked = false;
                 }
             }
-            HandleSlider();
+            HandleSlider(input);
             if (p.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
             {
                 if (playerDesignsToggle.Rect.HitTest(input.CursorPosition))
@@ -2016,7 +2016,7 @@ namespace Ship_Game
                     if (FoodLock.Locked)
                     {
                         FoodLock.Hover = false;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.FoodLocked = false;
                             FoodLock.Locked = false;
@@ -2026,7 +2026,7 @@ namespace Ship_Game
                     else
                     {
                         FoodLock.Hover = true;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.FoodLocked = true;
                             FoodLock.Locked = true;
@@ -2044,7 +2044,7 @@ namespace Ship_Game
                     if (ProdLock.Locked)
                     {
                         ProdLock.Hover = false;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ProdLocked = false;
                             ProdLock.Locked = false;
@@ -2054,7 +2054,7 @@ namespace Ship_Game
                     else
                     {
                         ProdLock.Hover = true;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ProdLocked = true;
                             ProdLock.Locked = true;
@@ -2072,7 +2072,7 @@ namespace Ship_Game
                     if (ResLock.Locked)
                     {
                         ResLock.Hover = false;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ResLocked = false;
                             ResLock.Locked = false;
@@ -2082,7 +2082,7 @@ namespace Ship_Game
                     else
                     {
                         ResLock.Hover = true;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ResLocked = true;
                             ResLock.Locked = true;
@@ -2248,7 +2248,7 @@ namespace Ship_Game
                     ClickedTroop = true;
                     ActiveBuildingEntry = null;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseClick)
                 {
                     ClickedTroop = true;
                     ActiveBuildingEntry = null;
@@ -2485,7 +2485,7 @@ namespace Ship_Game
             QSL.HandleInput(input, p);
         }
 
-        private void HandleSlider()
+        private void HandleSlider(InputState input)
         {
             Vector2 mousePos = new Vector2((float)currentMouse.X, (float)currentMouse.Y);
             if (p.Owner.data.Traits.Cybernetic == 0)
@@ -2568,7 +2568,7 @@ namespace Ship_Game
                 {
                     ColonySliderFood.cursor.X = ColonySliderFood.sRect.X;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     draggingSlider1 = false;
                 }
@@ -2625,7 +2625,7 @@ namespace Ship_Game
                 {
                     ColonySliderProd.cursor.X = ColonySliderProd.sRect.X;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     draggingSlider2 = false;
                 }
@@ -2685,7 +2685,7 @@ namespace Ship_Game
                 {
                     ColonySliderRes.cursor.X = ColonySliderRes.sRect.X;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     draggingSlider3 = false;
                 }

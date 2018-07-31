@@ -84,7 +84,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (HitTest(input.MouseScreenPos))
+            if (HitTest(input.CursorPosition))
             {
                 if (OnClick != null)
                 {

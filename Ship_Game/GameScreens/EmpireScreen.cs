@@ -665,7 +665,7 @@ namespace Ship_Game
             {
                 var entry = (EmpireScreenEntry)e.item;
                 entry.HandleInput(input, base.ScreenManager);
-                if (entry.TotalEntrySize.HitTest(MousePos) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                if (input.LeftMouseClick)
                 {
                     if (SelectedPlanet != entry.p)
                     {

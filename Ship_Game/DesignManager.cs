@@ -87,7 +87,7 @@ namespace Ship_Game
                 {
                     this.selector = e.CreateSelector();
 
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
                         this.EnterNameArea.Text = ((Ship)e.item).Name;
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -134,7 +134,7 @@ namespace Ship_Game
             else
             {
                 this.EnterNameArea.Hover = true;
-                if (this.currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseClick)
                 {
                     this.EnterNameArea.HandlingInput = true;
                 }
