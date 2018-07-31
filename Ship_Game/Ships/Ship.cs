@@ -1676,7 +1676,7 @@ namespace Ship_Game.Ships
                     AI.CombatAI.UpdateCombatAI(this);
 
                     float direction = AI.CombatState == CombatState.ShortRange ? 1f : -1f; // ascending : descending
-                    Weapon[] sortedByRange = Weapons.SortedBy(weapon => direction*weapon.GetModifiedRange());
+                    //Weapon[] sortedByRange = Weapons.Sorted(weapon => direction*weapon.GetModifiedRange());
 
                     foreach (Weapon weapon in Weapons)
                     {

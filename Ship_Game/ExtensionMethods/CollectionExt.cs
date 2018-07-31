@@ -403,7 +403,7 @@ namespace Ship_Game
             }
         }
 
-        public static void Sort<T, TKey>(this T[] array, Func<T, TKey> keyPredicate) where T : class
+        public static void Sort<T, TKey>(this T[] array, Func<T, TKey> keyPredicate)
         {
             if (array.Length <= 1)
                 return;
@@ -420,18 +420,43 @@ namespace Ship_Game
         /// The ordering of elements is decided by the keyPredicate.
         /// If you want descending, just negate keyPredicate result!
         /// </summary>
-        public static T[] Sorted<T, TKey>(this IEnumerable<T> items, Func<T, TKey> keyPredicate) where T : class
+        public static T[] Sorted<T, TKey>(this IEnumerable<T> items, Func<T, TKey> keyPredicate)
         {
             T[] array = ToArray(items);
-            if (array.Length <= 1)
-                return array;
-
-            var keys = new TKey[array.Length];
-            for (int i = 0; i < array.Length; ++i)
-                keys[i] = keyPredicate(array[i]);
-
-            Array.Sort(keys, array, 0, array.Length);
+            Sort(array, keyPredicate);
             return array;
+        }
+        public static T[] Sorted<T, TKey>(this T[] items, Func<T, TKey> keyPredicate)
+        {
+            T[] array = items.CloneArray();
+            Sort(array, keyPredicate);
+            return array;
+        }
+
+        public static T[] Sorted<T, TKey>(this IEnumerable<T> items, bool ascending, Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(items, keyPredicate);
+            if (!ascending) Reverse(sorted);
+            return sorted;
+        }
+        public static T[] Sorted<T, TKey>(this T[] items, bool ascending, Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(items, keyPredicate);
+            if (!ascending) Reverse(sorted);
+            return sorted;
+        }
+
+        public static T[] SortedDescending<T, TKey>(this IEnumerable<T> items, Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(items, keyPredicate);
+            Reverse(sorted);
+            return sorted;
+        }
+        public static T[] SortedDescending<T, TKey>(this T[] items, Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(items, keyPredicate);
+            Reverse(sorted);
+            return sorted;
         }
 
         public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameplayObject
@@ -444,6 +469,31 @@ namespace Ship_Game
                 keys[i] = array[i].Center.SqDist(fromPos);
 
             Array.Sort(keys, array, 0, array.Length);
+        }
+
+        public static void Reverse<T>(this T[] mutableItems)
+        {
+            int i = 0;
+            int j = mutableItems.Length - 1;
+            while (i < j)
+            {
+                T temp = mutableItems[i];
+                mutableItems[i] = mutableItems[j];
+                mutableItems[j] = temp;
+                ++i;
+                --j;
+            }
+        }
+
+        public static T[] Reversed<T>(this T[] immutableItems)
+        {
+            var result = new T[immutableItems.Length];
+            int src = immutableItems.Length - 1;
+            for (int dst = 0; dst < result.Length; ++dst, --src)
+            {
+                result[dst] = immutableItems[src];
+            }
+            return result;
         }
 
         // this will mess up the ordering of your items due to SwapLast optimization and it will shrink the array by 1 element
