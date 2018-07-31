@@ -173,7 +173,7 @@ namespace Ship_Game
             if (!Visible)
                 return false;
 
-            if (!Rect.HitTest(input.MouseScreenPos))
+            if (!Rect.HitTest(input.CursorPosition))
             {
                 State = PressState.Default;
                 return false;
