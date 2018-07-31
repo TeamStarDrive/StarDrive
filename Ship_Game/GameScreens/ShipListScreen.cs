@@ -438,6 +438,11 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
+        private void AddShipEntry(Ship ship)
+        {
+            ShipSL.AddItem(new ShipListScreenEntry(ship, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
+        }
+
         public void ResetList(int omit)
         {
             ShipSL.Reset();
@@ -445,127 +450,54 @@ namespace Ship_Game
                 return;
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
-                if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
-                {
+                if ((!ship.IsPlayerDesign && HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
                     continue;
-                }
-                ShipListScreenEntry entry;
-                switch (omit)  //fbedard
+                switch (omit)  // fbedard
                 {
                     case 1:
-                    {
-                        if (ship.shipData.Role <= ShipData.RoleName.station)
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role > ShipData.RoleName.station)
+                            AddShipEntry(ship);
+                        break;
                     case 2:
-                    {
-                        if ((ship.shipData.Role != ShipData.RoleName.fighter) && (ship.shipData.Role != ShipData.RoleName.scout))
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role == ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.scout)
+                            AddShipEntry(ship);
+                        break;
                     case 3:
-                    {
-                        if ((ship.shipData.Role != ShipData.RoleName.frigate) && (ship.shipData.Role != ShipData.RoleName.destroyer))
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role == ShipData.RoleName.frigate || ship.shipData.Role == ShipData.RoleName.destroyer)
+                            AddShipEntry(ship);
+                        break;
                     case 4:
-                    {
-                        if (ship.shipData.Role != ShipData.RoleName.cruiser)
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role == ShipData.RoleName.cruiser)
+                            AddShipEntry(ship);
+                        break;
                     case 5:
-                    {
-                        if (ship.shipData.Role != ShipData.RoleName.capital && ship.shipData.Role != ShipData.RoleName.carrier)
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role == ShipData.RoleName.capital || ship.shipData.Role == ShipData.RoleName.carrier)
+                            AddShipEntry(ship);
+                        break;
                     case 6:
-                    {
-                        if (ship.fleet == null)
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.fleet != null)
+                            AddShipEntry(ship);
+                        break;
                     case 7:
-                    {
-                        if (!ship.IsPlayerDesign)
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.IsPlayerDesign)
+                            AddShipEntry(ship);
+                        break;
                     case 8:
-                    {
-                        if ((ship.shipData.Role != ShipData.RoleName.freighter) && (!ship.isConstructor) && (ship.shipData.ShipCategory != ShipData.Category.Civilian))
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role == ShipData.RoleName.freighter || ship.isConstructor || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                            AddShipEntry(ship);
+                        break;
                     case 9:
-                    {
-                        if ((ship.shipData.Role > ShipData.RoleName.construction))
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
+                        if (ship.shipData.Role <= ShipData.RoleName.construction)
+                            AddShipEntry(ship);
+                        break;
                     case 10:
-                    {
-                        if ((ship.shipData.Role != ShipData.RoleName.corvette && ship.shipData.Role != ShipData.RoleName.gunboat))
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
-                    case 11: 
-                    {
-                        if (ship.fleet != null || ship.shipData.Role <= ShipData.RoleName.station)
-                        {
-                            continue;
-                        }
-                        entry = new ShipListScreenEntry(ship, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 30, this);
-                        this.ShipSL.AddItem(entry);
-                        continue;
-                    }
-                    default:
-                    {
-                        continue;
-                    }
+                        if (ship.shipData.Role == ShipData.RoleName.corvette || ship.shipData.Role == ShipData.RoleName.gunboat)
+                            AddShipEntry(ship);
+                        break;
+                    case 11:
+                        if (ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station)
+                            AddShipEntry(ship);
+                        break;
                 }
             }
             this.SelectedShip = null;
