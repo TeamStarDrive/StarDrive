@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using static System.Math;
 
@@ -52,11 +48,15 @@ namespace Ship_Game.Gameplay
             TargetVel = info.Vel;
         }
 
-        public ImpactPredictor(Gameplay.Projectile proj, GameplayObject target)
+        public ImpactPredictor(Projectile proj, GameplayObject target)
         {
             Pos = proj.Center;
             Vel = proj.Velocity;
             Speed = proj.Speed;
+            // guided missiles should not account for speed, since they are
+            // ramming devices and always have more velocity
+            //if (proj.Weapon.Tag_Guided)
+            //    Speed = 0.5f;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
