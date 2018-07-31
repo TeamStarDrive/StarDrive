@@ -169,13 +169,13 @@ namespace Ship_Game
             }
             if (this.ActiveModule != null)
             {
-                batch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                batch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
                 
                 
                 for (int i = 0; i < ActiveModule.XSIZE; i++)
                 for (int j = 0; j < ActiveModule.YSIZE; j++)
                 {
-                    var pq = new PrimitiveQuad(new Rectangle(Input.MouseCurr.X + i * 16, this.mouseStateCurrent.Y + j * 16, 16, 16));
+                    var pq = new PrimitiveQuad(new Rectangle(Input.MouseCurr.X + i * 16, Input.MouseCurr.Y + j * 16, 16, 16));
                     pq.Draw(batch, Color.White);
                 }
 
@@ -424,15 +424,13 @@ namespace Ship_Game
             {
                 return;
             }
-            this.mouseStateCurrent = Mouse.GetState();
-            this.mousePos = Vector2.Zero;
             if (Input.LeftMouseClick)
             {
-                this.SelectionBox = new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 0, 0);
+                this.SelectionBox = new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 0, 0);
             }
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed)
+            if (Input.LeftMouseDown)
             {
-                this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, this.mouseStateCurrent.X - this.SelectionBox.X, this.mouseStateCurrent.Y - this.SelectionBox.Y);
+                this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, Input.MouseCurr.X - this.SelectionBox.X, Input.MouseCurr.Y - this.SelectionBox.Y);
             }
             else if (Input.LeftMouseClick)
             {
@@ -450,23 +448,20 @@ namespace Ship_Game
             {
                 this.SelectionBox = new Rectangle(-1, -1, 0, 0);
             }
-            this.mouseStatePrevious = this.mouseStateCurrent;
             if (this.applyThruster)
             {
-                this.tPos = new Vector2((float)(this.mouseStateCurrent.X - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(this.mouseStateCurrent.Y - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
+                this.tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
+                                        Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
             }
         }
 
         public void HandleMouseInput()
         {
-            this.mouseStateCurrent = Mouse.GetState();
-            this.mousePos = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y);
             if (Input.LeftMouseClick)
             {
                 this.ShowOverlay = !this.ShowOverlay;
                 GameAudio.PlaySfxAsync("analogue_click2");
             }
-            this.mouseStatePrevious = this.mouseStateCurrent;
         }
 
         public override void LoadContent()
