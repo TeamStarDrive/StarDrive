@@ -81,22 +81,27 @@ namespace Ship_Game.Debug
                 bool flag = false;
                 foreach (Ship ship in empire.GetShips())
                 {
-                    if (!empire.GetForcePool().Contains(ship))
-                    {
-                        foreach (AO ao in empire.GetGSAI().AreasOfOperations)
-                            if (ao.GetOffensiveForcePool().Contains(ship) && ship?.DesignRole != ShipData.RoleName.troop && ship?.BaseStrength > 0)
-                            {
-                                ShipsInAOPool++;
-                                flag = true;
-                            }
-                        if (flag)
-                            continue;
+                    if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
+                    if (empire.GetForcePool().Contains(ship)) continue;
 
-                        if (empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
-                            ++ShipsinDefforcepool;
-                        else if (ship != null && (!ship.loyalty.GetForcePool().Contains(ship)))
-                            ++Shipsnotinforcepool;
+                    foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                        if (ao.GetOffensiveForcePool().Contains(ship) || ao.GetWaitingShips().Contains(ship) || ao.GetCoreFleet() == ship.fleet)
+                        {
+                            ShipsInAOPool++;
+                            flag = true;
+                        }
+                    if (flag)
+                        continue;
+
+                    if (empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
+                    {
+                        ++ShipsinDefforcepool;
+                        continue;
                     }
+
+                   
+                    ++Shipsnotinforcepool;
+
                 }
             }
         }
