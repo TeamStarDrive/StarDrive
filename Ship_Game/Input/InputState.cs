@@ -58,11 +58,14 @@ namespace Ship_Game
 
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
+        public float CursorX => CursorPosition.X;
+        public float CursorY => CursorPosition.Y;
+
         private Vector2 MouseRightClickPos = Vector2.Zero;
-        private Vector2 MouseLeftClickPos = Vector2.Zero;
+        private Vector2 MouseLeftClickPos  = Vector2.Zero;
         public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
-        private bool MouseLeftDrag = false;
-        private bool MouseRightDrag = false;
+        private bool MouseLeftDrag;
+        private bool MouseRightDrag;
         private void SetMouseDrag()
         {
             MouseLeftDrag =  MouseCursorDragCheck(MouseLeftDrag, ref MouseLeftClickPos, MouseCurr.LeftButton);
