@@ -84,7 +84,7 @@ namespace Ship_Game.AI {
         {
             float budget = OwnerEmpire.Money * percentOfIncome * risk;
             
-            budget = Math.Max(0, budget);
+            budget = Math.Max(1, budget);
             area = budget;
             return budget;
         }
