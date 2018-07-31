@@ -266,14 +266,6 @@ namespace Ship_Game
             }
         }
 
-        private bool InputIsDoubleClick()
-        {
-            if (ClickTimer < TimerDelay)
-                return true;
-            ClickTimer = 0f;
-            return false;
-        }
-
         private void HandleFleetButtonClick(InputState input)
         {
             InputCheckPreviousShip();
@@ -305,20 +297,20 @@ namespace Ship_Game
                     }
                     else if (SelectedShipList.Count > 1)
                         shipListInfoUI.SetShipList(SelectedShipList, true);
+
                     SelectedSomethingTimer = 3f;
-                    if (!InputIsDoubleClick())
+
+                    if (Input.LeftMouseDoubleClick)
+                    {
+                        ViewingShip = false;
+                        AdjustCamTimer = 0.5f;
+                        CamDestination = SelectedFleet.FindAveragePosition().ToVec3(CamPos.Z);
+                        if (viewState < UnivScreenState.SystemView)
+                            CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+
+                        CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
                         return;
-                    ViewingShip    = false;
-                    AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3(CamPos.Z);
-                    if (viewState < UnivScreenState.SystemView)
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
-
-                 
-                    
-                    CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
-
-                    return;
+                    }
                 }
             }
         }
@@ -593,17 +585,18 @@ namespace Ship_Game
                 else if (SelectedShipList.Count > 1)
                     shipListInfoUI.SetShipList(SelectedShipList, true);
 
-                if (SelectedFleet != null && ClickTimer < TimerDelay)
+                if (SelectedFleet != null)
                 {
-                    ViewingShip = false;
-                    AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
+                    if (Input.LeftMouseDoubleClick)
+                    {
+                        ViewingShip = false;
+                        AdjustCamTimer = 0.5f;
+                        CamDestination = SelectedFleet.FindAveragePosition().ToVec3();
 
-                    if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                        if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                            CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                    }
                 }
-                else if (SelectedFleet != null)
-                    ClickTimer = 0.0f;
             }
         }
         
