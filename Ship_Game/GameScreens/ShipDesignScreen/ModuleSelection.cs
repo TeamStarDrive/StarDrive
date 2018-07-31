@@ -117,6 +117,13 @@ namespace Ship_Game
             cursorPos.X = cursorPos.X + Fonts.Arial8Bold.MeasureString(text).X;
         }
 
+        private void DrawString(ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
+        {
+            if (font == null) font = Fonts.Arial8Bold;
+            ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, color);
+            cursorPos.X = cursorPos.X + font.MeasureString(text).X;
+        }
+
         private void DrawActiveModuleData()
         {
             //ActiveModSubMenu.Draw();
@@ -558,6 +565,16 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length != 0)
             {
+                if (mod.hangarShipUID == "#BEST SHIP#")
+                {
+                    modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
+                    Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                    //string bestShip = "Hangar will launch the strongest ship avaialble in your Empire";
+                    string bestShip = ParseText("Hangar will launch the strongest ship avaialble in your Empire"
+                                                , ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12);
+                    DrawString(ref bestShipSelectionPos, bestShip, Color.AliceBlue, Fonts.Arial12);
+                    return;
+                }
                 Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
                 if (ship == null) return;
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
