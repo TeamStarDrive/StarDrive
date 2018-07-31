@@ -44,7 +44,7 @@ namespace Ship_Game.Ships
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
-
+        public bool DynamicHangar { get; private set; } 
 
 
         public float BombTimer;
@@ -386,6 +386,16 @@ namespace Ship_Game.Ships
                     if (OrdinanceCapacity < 50)
                         OrdinanceCapacity = 50;
                 }
+            }
+        }
+
+        public void InitHangar()
+        {
+            if (hangarShipUID == "#BEST SHIP#" || !Parent.loyalty.isPlayer)
+            {
+                DynamicHangar = true;
+                Ship bestShipToLaunch = GetHangarBestShip();
+                hangarShipUID = bestShipToLaunch?.Name;
             }
         }
 
@@ -776,44 +786,53 @@ namespace Ship_Game.Ships
             if (hangarTimer > 0f || (hangarShip != null && (hangarShip == null || hangarShip.Active)))
                 return;
 
-            string startingscout = Parent.loyalty.data.StartingShip;
-
-            Ship ship = ResourceManager.GetShipTemplate(hangarShipUID, false);
-            if (!Parent.loyalty.isFaction && (hangarShipUID == startingscout
-                                                   || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
-            {
-                ship = ResourceManager.GetShipTemplate(startingscout);
-                foreach (string shipsWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
-                {
-                    var shipWeCanBuild = ResourceManager.GetShipTemplate(shipsWeCanBuild);
-                    if (shipWeCanBuild.Size > MaximumHangarShipSize) continue;
-
-                    if (!PermittedHangarRoles.Contains(shipWeCanBuild.shipData.GetRole()))
-                    {
-                        continue;
-                    }
-                    
-                    if (ship.BaseStrength < shipWeCanBuild.BaseStrength || ship.Size < shipWeCanBuild.Size)
-                        ship = shipWeCanBuild;
-                }
-                hangarShipUID = ship.Name;
-            }
-            if (ship == null || (!Parent.loyalty.isFaction && ship.Mass / 5f > Parent.Ordinance))  //fbedard: New spawning cost
-                return;
+            Ship bestShipToLaunch = GetHangarBestShip();
+            hangarShipUID = bestShipToLaunch.Name;
 
             SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
             if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-            {
                 hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
-            }
+
             hangarShip.Mothership = Parent;
             HangarShipGuid = GetHangarShip().guid;
 
             hangarTimer = hangarTimerConstant;
-            Parent.Ordinance -= hangarShip.Mass / 5f;
+            Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
+        }
+
+        private Ship GetHangarBestShip()
+        {
+            if (Parent.loyalty.Id == -1 || Parent.loyalty.isFaction) // ID -1 since there is a loyalty without a race when saving s ship
+                return ResourceManager.GetShipTemplate(hangarShipUID, false);
+
+            string defaultShip = Parent.loyalty.data.StartingScout;
+            Ship ship = ResourceManager.GetShipTemplate(defaultShip, false);
+            if (!DynamicHangar)
+            {
+                if (Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID))
+                    ship = ResourceManager.GetShipTemplate(hangarShipUID, false);
+
+                return ship;
+            }
+
+            foreach (string shipWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
+            {
+                Ship potentialShip = ResourceManager.GetShipTemplate(shipWeCanBuild);
+                if (potentialShip.Size > MaximumHangarShipSize
+                    || !PermittedHangarRoles.Contains(potentialShip.shipData.GetRole())
+                    || potentialShip.BaseStrength <= ship.BaseStrength
+                    || potentialShip.Mass / 5f > Parent.Ordinance)
+                    continue;
+
+                ship = potentialShip; // found a better ship to launch
+            }
+            if (Empire.Universe?.showdebugwindow ?? false)
+                Log.Info($"Chosen Hull for Hangar launch: {ship.shipData.Hull}  " +
+                         $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
+            return ship;
         }
 
         public void SetAttributes()
