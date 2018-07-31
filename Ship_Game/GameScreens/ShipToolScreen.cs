@@ -42,14 +42,6 @@ namespace Ship_Game
 
         private Vector2 aspect;
 
-        private Vector2 mousePos = new Vector2(0f, 0f);
-
-        private MouseState mouseStateCurrent;
-
-        private MouseState mouseStatePrevious;
-
-        public string TestTexture = "Textures/Modules/Armor";
-
         private Array<Ship> StartingShipList = new Array<Ship>();
 
         private bool ShowOverlay = true;
@@ -85,8 +77,6 @@ namespace Ship_Game
         private string HullName = "Hull Name";
 
         private int selectedShip = 0;
-
-        private Rectangle RbBox = new Rectangle();
 
         private ShipModule ActiveModule;
 
@@ -179,15 +169,16 @@ namespace Ship_Game
             }
             if (this.ActiveModule != null)
             {
-                batch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
-                for (int i = 0; i < this.ActiveModule.XSIZE; i++)
+                batch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                
+                
+                for (int i = 0; i < ActiveModule.XSIZE; i++)
+                for (int j = 0; j < ActiveModule.YSIZE; j++)
                 {
-                    for (int j = 0; j < this.ActiveModule.YSIZE; j++)
-                    {
-                        PrimitiveQuad pq = new PrimitiveQuad(new Rectangle(this.mouseStateCurrent.X + i * 16, this.mouseStateCurrent.Y + j * 16, 16, 16));
-                        pq.Draw(batch, Color.White);
-                    }
+                    var pq = new PrimitiveQuad(new Rectangle(Input.MouseCurr.X + i * 16, this.mouseStateCurrent.Y + j * 16, 16, 16));
+                    pq.Draw(batch, Color.White);
                 }
+
             }
             Vector2 InfoPos = new Vector2((float)(this.SaveHullButton.r.X - 50), (float)(this.SaveHullButton.r.Y - 20));
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
@@ -435,7 +426,7 @@ namespace Ship_Game
             }
             this.mouseStateCurrent = Mouse.GetState();
             this.mousePos = Vector2.Zero;
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Released)
+            if (Input.LeftMouseClick)
             {
                 this.SelectionBox = new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 0, 0);
             }
@@ -443,7 +434,7 @@ namespace Ship_Game
             {
                 this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, this.mouseStateCurrent.X - this.SelectionBox.X, this.mouseStateCurrent.Y - this.SelectionBox.Y);
             }
-            else if (this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+            else if (Input.LeftMouseClick)
             {
                 foreach (SlotStruct slot in this.SlotList)
                 {
@@ -455,13 +446,9 @@ namespace Ship_Game
                     slot.Restrictions = this.DesignState;
                 }
             }
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Released)
+            if (Input.LeftMouseUp)
             {
                 this.SelectionBox = new Rectangle(-1, -1, 0, 0);
-            }
-            if (this.mouseStateCurrent.RightButton == ButtonState.Pressed)
-            {
-                ButtonState rightButton = this.mouseStatePrevious.RightButton;
             }
             this.mouseStatePrevious = this.mouseStateCurrent;
             if (this.applyThruster)
@@ -474,7 +461,7 @@ namespace Ship_Game
         {
             this.mouseStateCurrent = Mouse.GetState();
             this.mousePos = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y);
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Released && this.mousePos.X > (float)this.RbBox.X && this.mousePos.Y > (float)this.RbBox.Y && this.mousePos.X < (float)(this.RbBox.X + this.RbBox.Width) && this.mousePos.Y < (float)(this.RbBox.Y + this.RbBox.Height))
+            if (Input.LeftMouseClick)
             {
                 this.ShowOverlay = !this.ShowOverlay;
                 GameAudio.PlaySfxAsync("analogue_click2");

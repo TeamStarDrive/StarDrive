@@ -1520,7 +1520,7 @@ namespace Ship_Game
                     SelectionBox = new Rectangle(0, 0, -1, -1);
                     return;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released && input.MousePrev.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseClick)
                 {
                     if (input.MouseCurr.X < SelectionBox.X)
                     {
