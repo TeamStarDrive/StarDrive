@@ -1025,7 +1025,12 @@ namespace Ship_Game.AI {
         public bool ClearOrdersNext;
         public bool HasPriorityOrder;
         public bool HadPO;        
-
+        public void ClearPriorityOrder()
+        {
+            HasPriorityOrder = false;
+            Intercepting = false;
+            HasPriorityTarget = false;
+        }
         public void SetPriorityOrderWithClear() => SetPriorityOrder(true);
         public void SetPriorityOrder(bool clearOrders)
         {
