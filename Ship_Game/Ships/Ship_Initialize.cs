@@ -542,6 +542,9 @@ namespace Ship_Game.Ships
                     case ShipModuleType.Colony:
                         isColonyShip = true;
                         break;
+                    case ShipModuleType.Hangar:
+                        module.InitHangar();
+                        break;
                 }
 
                 if (module.InstalledWeapon?.isRepairBeam == true)
