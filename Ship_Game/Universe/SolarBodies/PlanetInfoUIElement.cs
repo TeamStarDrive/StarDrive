@@ -698,7 +698,7 @@ namespace Ship_Game
                 {
                     this.ColonySliderFood.cursor.X = this.ColonySliderFood.sRect.X;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     this.draggingSlider1 = false;
                 }
@@ -758,7 +758,7 @@ namespace Ship_Game
                 {
                     this.ColonySliderProd.cursor.X = this.ColonySliderProd.sRect.X;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     this.draggingSlider2 = false;
                 }
@@ -818,7 +818,7 @@ namespace Ship_Game
                 {
                     this.ColonySliderRes.cursor.X = this.ColonySliderRes.sRect.X;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     this.draggingSlider3 = false;
                 }
