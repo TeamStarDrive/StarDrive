@@ -646,10 +646,12 @@ namespace Ship_Game.AI
                     if (!ArrivedAtCombatRally(task))
                         break;
                     TaskStep = 3;
+                    CancleFleetMoveInArea(task.AO, task.AORadius * 10f);
                     break;
                 case 3:
                     if (!DoOrbitTaskArea(task))                    
                         AttackEnemyStrengthClumpsInAO(task);
+
                     TaskStep = 4;
                     break;
 
@@ -898,6 +900,17 @@ namespace Ship_Game.AI
 
             DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius);
             return true;
+        }
+
+        private void CancleFleetMoveInArea(Vector2 pos, float radius )
+        {
+            foreach(var ship in Ships)
+            {
+                if (ship.Center.OutsideRadius(pos, radius)) continue;
+                if (ship.AI.State != AIState.FormationWarp) continue;
+                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.ClearPriorityOrder();
+            }
         }
 
         private void SetPriorityOrderTo(Array<Ship> ships)
