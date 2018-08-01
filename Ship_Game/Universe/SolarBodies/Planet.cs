@@ -1655,34 +1655,13 @@ namespace Ship_Game
                         score += building.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
                     score += (0.5f - (PopulationBillion / MaxPopulationBillion)).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
                     score += 1.5f - (MineralRichness + (PlusProductionPerColonist / 2));      //Bonus for low richness planets
+                    score += (0.75f - MineralRichness).Clamped(0.0f, 0.75f);      //More Bonus for really low richness planets
                     float currentOutput = (MineralRichness + PlusProductionPerColonist) * LeftoverWorkers() + PlusFlatProductionPerTurn;  //Current Prod Output
                     score += (building.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FlatProd : Score was {score}");
-            }
-
-            return score;
-        }
-
-        private float EvaluateBuildingScrapFlatProd(Building building)
-        {
-            float score = 0;
-            if (building.PlusFlatProductionAmount != 0)
-            {
-                if (building.PlusFlatProductionAmount < 0) score = building.PlusFlatProductionAmount * 2; //for negative value
-                else
-                {
-                    if (Owner.data.Traits.Cybernetic > 0)
-                        score += building.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
-                    score += 1.5f - (MineralRichness + (PlusProductionPerColonist / 2));      //Bonus for low richness planets
-                    float currentOutput = (MineralRichness + PlusProductionPerColonist) * LeftoverWorkers() + PlusFlatProductionPerTurn;  //Current Prod Output
-                    score += (building.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
-                    if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
-                }
-
-                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} FlatProd : Score was {score}");
             }
 
             return score;
@@ -1844,7 +1823,7 @@ namespace Ship_Game
             if (building.PlusResearchPerColonist != 0)
             {
                 if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
-                else score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2) * MaxPopulationBillion;    //Reasonable extrapolation of how much research this will reliably produce
+                else score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} ResPerCol : Score was {score}");
             }
@@ -1890,7 +1869,7 @@ namespace Ship_Game
                 float prodFromLabor = labor * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist);
                 float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
-                if (prodFromLabor + prodFromFlat > 5.0f) score += ((prodFromLabor + prodFromFlat) / 5).Clamped(0.0f, 2.0f);
+                if (prodFromLabor + prodFromFlat > 10.0f) score += ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
                 if (PopulationBillion / MaxPopulationBillion < 0.5f) score = 0; //Dont think about ship building until we have most of our population
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
@@ -1949,7 +1928,7 @@ namespace Ship_Game
 
         private int ExistingMilitaryBuildings()
         {
-            return BuildingsCanBuild.Count(building => 
+            return BuildingList.Count(building => 
                         building.CombatStrength > 0 && 
                         building.Name != "Outpost" &&
                         building.Name != "Capital City" && 
@@ -1959,7 +1938,7 @@ namespace Ship_Game
         private int DesiredMilitaryBuildings()
         {
             //This is a temporary quality rating. This will be replaced by an "importance to the Empire" calculation from the military planner at some point (hopefully soon). -Gretman
-            float quality = Fertility + MineralRichness + MaxPopulationBillion + 1.5f;
+            float quality = Fertility + MineralRichness + MaxPopulationBillion / 2;
             if (Fertility > 1.6) quality += 1.5f;
             if (MineralRichness > 1.6) quality += 1.5f;
 
@@ -1976,7 +1955,7 @@ namespace Ship_Game
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
-            if (Name == "Drell VII") Debugger.Break();
+            if (Name == "Drell VxII") Debugger.Break();
 
             float buildingValue = 0.0f;    //End result value for entire building
 
@@ -2004,11 +1983,9 @@ namespace Ship_Game
             return buildingValue;
         }
 
-        private float EvaluateMilitaryBuilding(Building building, float income, float highestCost)
+        private float EvaluateMilitaryBuilding(Building building, float income)
         {
-            float upkeep = -EvaluateBuildingMaintenance(building, income);
-
-            float combatScore = (building.Strength + building.Defense + building.CombatStrength + building.SoftAttack + building.HardAttack) / 100;
+            float combatScore = (building.Strength + building.Defense + building.CombatStrength + building.SoftAttack + building.HardAttack) / 100f;
 
             float weaponDPS = 0;
             if (building.isWeapon && !String.IsNullOrEmpty(building.Weapon))
@@ -2022,14 +1999,13 @@ namespace Ship_Game
             float allowTroops = 0;
             if (building.AllowInfantry)
             {
-                if (colonyType == ColonyType.Military) allowTroops = 2.5f;
-                else allowTroops = 1.0f;
+                if (colonyType == ColonyType.Military) allowTroops = 1.0f;
+                else allowTroops = 0.5f;
             }
 
             //Shield, weapon, and/or allowtroop weighting go here (which is why they are all seperate values)
 
-            float finalRating = upkeep + combatScore + weaponDPS + shieldScore + allowTroops;
-            if (finalRating > 0) finalRating = FactorForConstructionCost(finalRating, building.Cost, highestCost);
+            float finalRating = combatScore + weaponDPS + shieldScore + allowTroops;
 
             if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated military building {building.Name} : Score was {finalRating}");
             return finalRating;
@@ -2057,21 +2033,23 @@ namespace Ship_Game
 
         private void ChooseAndBuildMilitary(float income)
         {
+            if (Name == ExtraInfoOnPlanet && false) Debugger.Break();
+
             if (BuildingsCanBuild.Count == 0) return;
             if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
             {
-                Building bestMBuilding = null;
-                Building bldg = null;
+                Building bestMBuilding = null;                
                 float bestValue = 0.0f;
-                float mBuildingScore = 0.0f;
                 float highestCost = BuildingsCanBuild.FindMax(building => building.Cost).Cost;
                 for (int i = 0; i < BuildingsCanBuild.Count; i++)
                 {
-                    bldg = BuildingsCanBuild[i];
+                    Building bldg = BuildingsCanBuild[i];
                     if (bldg.CombatStrength == 0 || bldg.MaxPopIncrease > 0) continue;
                     if (bldg.Name == "Outpost" || bldg.Name == "Capital City") continue;
 
-                    mBuildingScore = EvaluateMilitaryBuilding(bldg, income, highestCost);
+                    float mBuildingScore = -EvaluateBuildingMaintenance(bldg, income);
+                    mBuildingScore += EvaluateMilitaryBuilding(bldg, income);
+                    mBuildingScore = FactorForConstructionCost(mBuildingScore, bldg.Cost, highestCost);
                     if (mBuildingScore > bestValue)
                     {
                         bestMBuilding = bldg;
@@ -2149,6 +2127,7 @@ namespace Ship_Game
                 buildingValue += EvaluateBuildingAllowShipBuilding(bldg);
                 buildingValue += EvaluateBuildingScrapTerraforming(bldg);
                 //buildingValue -= EvaluateBuildingFertilityLoss(building, maxPopulation);  //Because the damage has already been done...
+                if (bldg.CombatStrength > 0) buildingValue += EvaluateMilitaryBuilding(bldg, income);
 
                 if (buildingValue < costWeight)
                 {
