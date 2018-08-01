@@ -1655,7 +1655,7 @@ namespace Ship_Game
                         score += building.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
                     score += (0.5f - (PopulationBillion / MaxPopulationBillion)).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
                     score += 1.5f - (MineralRichness + (PlusProductionPerColonist / 2));      //Bonus for low richness planets
-                    score += (0.75f - MineralRichness).Clamped(0.0f, 0.75f);      //More Bonus for really low richness planets
+                    score += (0.66f - MineralRichness).Clamped(0.0f, 0.66f);      //More Bonus for really low richness planets
                     float currentOutput = (MineralRichness + PlusProductionPerColonist) * LeftoverWorkers() + PlusFlatProductionPerTurn;  //Current Prod Output
                     score += (building.PlusFlatProductionAmount / currentOutput).Clamped(0.0f, 2.0f);         //How much more this building will produce compared to labor prod
                     if (score < building.PlusFlatProductionAmount * 0.1f) score = building.PlusFlatProductionAmount * 0.1f; //A little production is always useful
@@ -2033,8 +2033,6 @@ namespace Ship_Game
 
         private void ChooseAndBuildMilitary(float income)
         {
-            if (Name == ExtraInfoOnPlanet && false) Debugger.Break();
-
             if (BuildingsCanBuild.Count == 0) return;
             if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
             {
