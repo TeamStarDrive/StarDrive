@@ -8,61 +8,73 @@ namespace Ship_Game.Gameplay
 {
 	public sealed class ItemToOffer
 	{
-		public object Target;
-
-		public int number;
-
-		public bool Selected;
-
-		public string words;
-
-		private Rectangle ClickRect;
-
+	    public string Words;
 		public string SpecialInquiry = "";
-
 		public string Response;
 
-		public bool Hover;
+	    public bool Selected;
+        private bool Hover;
+	    private Rectangle ClickRect;
 
-		public ItemToOffer()
+        public override string ToString()
+        {
+            return $"Response:\"{Response}\"  Words:\"{Words}\"  Inquiry:\"{SpecialInquiry}\"";
+        }
+
+        public ItemToOffer(string words, Vector2 cursor)
 		{
+		    SpriteFont font = Fonts.Arial12Bold;
+            Words = words;
+			int width = (int)font.MeasureString(words).X;
+			ClickRect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
 		}
 
-		public ItemToOffer(string w, Vector2 Cursor, SpriteFont Font)
-		{
-			this.words = w;
-			int width = (int)Font.MeasureString(w).X;
-			this.ClickRect = new Rectangle((int)Cursor.X, (int)Cursor.Y, width, Font.LineSpacing);
-		}
+	    public ItemToOffer(string words, string response, Vector2 cursor)
+            : this(words, cursor)
+	    {
+            Response = response;
+	    }
 
-		public void Draw(SpriteBatch spriteBatch, SpriteFont Font)
+	    public ItemToOffer(int localization, string response, Vector2 cursor)
+            : this(Localizer.Token(localization), response, cursor)
+	    {
+	    }
+
+        public void ChangeSpecialInquiry(Array<string> items)
+        {
+            if (Selected)
+                items.Add(SpecialInquiry);
+            else
+                items.Remove(SpecialInquiry);
+        }
+
+        public void Draw(SpriteBatch spriteBatch, SpriteFont font)
 		{
 			Color orange;
 			SpriteBatch spriteBatch1 = spriteBatch;
-			SpriteFont font = Font;
-			string str = this.words;
-			Vector2 vector2 = new Vector2((float)this.ClickRect.X, (float)this.ClickRect.Y);
-			if (this.Selected)
+			string str = Words;
+			Vector2 vector2 = new Vector2(ClickRect.X, ClickRect.Y);
+			if (Selected)
 			{
 				orange = Color.Orange;
 			}
 			else
 			{
-				orange = (this.Hover ? Color.White : new Color(255, 255, 255, 220));
+				orange = (Hover ? Color.White : new Color(255, 255, 255, 220));
 			}
 			spriteBatch1.DrawString(font, str, vector2, orange);
 		}
 
 		public string HandleInput(InputState input, ScrollList.Entry e)
 		{
-			if (!this.ClickRect.HitTest(input.CursorPosition))
+			if (!ClickRect.HitTest(input.CursorPosition))
 			{
-				this.Hover = false;
+				Hover = false;
 			}
 			else
 			{
-				this.Hover = true;
-				string response = (e.item as ItemToOffer).Response;
+				Hover = true;
+				string response = ((ItemToOffer) e.item).Response;
 				string str = response;
 				if (response != null)
 				{
@@ -87,7 +99,7 @@ namespace Ship_Game.Gameplay
 						ToolTip.CreateTooltip(133);
 					}
 				}
-				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+				if (input.LeftMouseClick)
 				{
 					Selected = !Selected;
                     e.Expand(!e.Expanded);
@@ -97,9 +109,9 @@ namespace Ship_Game.Gameplay
 			return null;
 		}
 
-		public void Update(Vector2 Cursor)
+		public void Update(Vector2 cursor)
 		{
-			this.ClickRect.Y = (int)Cursor.Y;
+			ClickRect.Y = (int)cursor.Y;
 		}
 	}
 }
