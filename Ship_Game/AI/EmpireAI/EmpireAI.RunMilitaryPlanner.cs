@@ -8,6 +8,8 @@ using Ship_Game.Ships;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
 {
+    using static ShipBuilder;
+
     public sealed partial class EmpireAI
     {
         private void RunMilitaryPlanner()
@@ -306,70 +308,15 @@ namespace Ship_Game.AI
             PickRoles(ref buildRatios.NumFighters, buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
             PickRoles(ref buildRatios.NumCorvettes, buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);
 
-
-
-
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
-                string buildThis = PickFromCandidates(kv.Key);
+                string buildThis = ShipBuilder.PickFromCandidates(kv.Key, OwnerEmpire); 
                 if (string.IsNullOrEmpty(buildThis)) continue;
                 buildRatios.IncrementShipCount(kv.Key);
                 return buildThis;
             }
            
             return null;  //Find nothing to build !
-        }
-    
-        private static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
-             rolesPicked)
-        {            
-            if (numShips >= desiredShips)
-                return;            
-            rolesPicked.Add(role,  numShips / desiredShips);
-        }
-        public string PickFromCandidates(ShipData.RoleName role) => PickFromCandidates(role, false, ShipModuleType.Dummy);
-        public string PickFromCandidates(ShipData.RoleName role, bool efficiency, ShipModuleType targetModule)
-        {
-            var potentialShips = new Array<Ship>();
-            string name = "";
-            Ship ship;
-            int maxTech = 0;
-            float bestEfficiency = 0;
-            foreach (string shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
-            {
-                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null) continue;
-
-                if (role != ship.DesignRole)
-                    continue;
-                maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
-
-                potentialShips.Add(ship);
-                if (efficiency)
-                    bestEfficiency = Math.Max(bestEfficiency, ship.PercentageOfShipByModules(targetModule));
-
-            }
-            float nearmax = maxTech * .80f;
-            bestEfficiency *= .80f;
-            if (potentialShips.Count <= 0)
-                return name;
-
-            Ship[] bestShips = potentialShips.FilterBy(ships =>
-            {
-                if (efficiency)
-                    return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                return ships.shipData.TechsNeeded.Count >= nearmax;
-            });
-
-            if (bestShips.Length == 0)
-                return name;
-
-            ship = RandomMath.RandItem(bestShips);
-            name = ship.Name;
-            if (Empire.Universe?.showdebugwindow ?? false)
-                Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
-                         $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
-
-            return name;
         }
     }
 }
