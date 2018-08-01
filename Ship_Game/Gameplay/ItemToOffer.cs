@@ -99,7 +99,7 @@ namespace Ship_Game.Gameplay
 						ToolTip.CreateTooltip(133);
 					}
 				}
-				if (input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+				if (input.LeftMouseClick)
 				{
 					Selected = !Selected;
                     e.Expand(!e.Expanded);
