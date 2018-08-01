@@ -75,6 +75,9 @@ namespace Ship_Game
         public static GameContentManager RootContent => Game1.Instance.Content;
         private static string LastFailedTexture = "";
 
+        // Fat Bastard: This is used to signal Fighter Hangars to launch the best ship they can, dynamically.
+        public static readonly string DynamicLaunchDummyShip = "Dynamic Launch";
+
         public static Technology GetTreeTech(string techUid)
         {
             TechTree.TryGetValue(techUid, out Technology technology);

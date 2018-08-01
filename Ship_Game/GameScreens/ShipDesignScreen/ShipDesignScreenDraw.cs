@@ -222,14 +222,16 @@ namespace Ship_Game
             Color color = Color.Black;
             color.A     = 140;
 
+            Color shipNameColor = slot.Module.hangarShipUID == ResourceManager.DynamicLaunchDummyShip ? Color.Gold : Color.White;
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
-            DrawString(center, 0, 0.4f, Color.White, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+            DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
             if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
+            shipNameColor = slot.Module.hangarShipUID == ResourceManager.DynamicLaunchDummyShip ? Color.Gold : Color.White;
             Vector2 mirroredCenter = mirrored.Slot.Center();
             DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
-            DrawString(mirroredCenter, 0, 0.4f, Color.White, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+            DrawString(mirroredCenter, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)

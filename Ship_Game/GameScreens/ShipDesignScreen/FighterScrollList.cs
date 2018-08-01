@@ -34,7 +34,7 @@ namespace Ship_Game
         private void Populate()
         {
             Reset();
-            AddItem(ResourceManager.GetShipTemplate(EmpireManager.Player.data.StartingShip));
+            AddItem(ResourceManager.GetShipTemplate(ResourceManager.DynamicLaunchDummyShip));
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship fighter)) continue;
@@ -116,7 +116,8 @@ namespace Ship_Game
                 bCursor.Y = e.Y;
                 spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
+                Color color = ship.Name == ResourceManager.DynamicLaunchDummyShip ? Color.Gold : Color.White;
+                spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, color);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
             }
             SelectionBox?.Draw(spriteBatch);

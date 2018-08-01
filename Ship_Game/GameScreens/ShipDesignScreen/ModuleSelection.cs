@@ -565,14 +565,13 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length != 0)
             {
-                if (mod.hangarShipUID == "#BEST SHIP#")
+                if (mod.hangarShipUID == ResourceManager.DynamicLaunchDummyShip)
                 {
                     modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                     Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                    //string bestShip = "Hangar will launch the strongest ship avaialble in your Empire";
-                    string bestShip = ParseText("Hangar will launch the strongest ship avaialble in your Empire"
-                                                , ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12);
-                    DrawString(ref bestShipSelectionPos, bestShip, Color.AliceBlue, Fonts.Arial12);
+                    string bestShip = ParseText("Hangar will launch more advanced ships, as they become avaialble in your empire"
+                                                , ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12Bold);
+                    DrawString(ref bestShipSelectionPos, bestShip, Color.Gold, Fonts.Arial12Bold);
                     return;
                 }
                 Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);

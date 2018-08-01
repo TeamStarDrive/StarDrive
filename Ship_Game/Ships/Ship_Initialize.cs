@@ -66,7 +66,6 @@ namespace Ship_Game.Ships
                     }
                 }
 
-
                 module.HangarShipGuid = slotData.HangarshipGuid;
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
