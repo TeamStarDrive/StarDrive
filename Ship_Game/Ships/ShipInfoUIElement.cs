@@ -530,7 +530,7 @@ namespace Ship_Game.Ships
                     return false;
                 if (DoubleClickTimer > 0)
                     DoubleClickTimer -= 0.01666f;
-                if (ShipInfoRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released && DoubleClickTimer > 0)
+                if (input.LeftMouseClick)
                 {
                     Empire.Universe.ViewingShip = false;
                     Empire.Universe.AdjustCamTimer = 0.5f;
@@ -539,7 +539,7 @@ namespace Ship_Game.Ships
                     if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                         Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                 }
-                else if (ElementRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                else if (input.LeftMouseClick)
                     DoubleClickTimer = 0.25f;    
                 OrderButtonInput(input);
                 foreach (ShipInfoUIElement.TippedItem tippedItem in ToolTipItems)

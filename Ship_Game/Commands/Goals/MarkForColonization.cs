@@ -42,37 +42,22 @@ namespace Ship_Game.Commands.Goals
             if (markedPlanet.Owner == null) return true;
             foreach (var relationship in empire.AllRelations)
                 empire.GetGSAI().CheckClaim(relationship, GetMarkedPlanet());
-            
-            using (empire.GetGSAI().TaskList.AcquireReadLock())
-            {
-                foreach (MilitaryTask task in empire.GetGSAI().TaskList)
-                {
-                    foreach (Guid held in task.HeldGoals)
-                    {
-                        if (held != guid)
-                            continue;
-
-                        empire.GetGSAI().TaskList.QueuePendingRemoval(task);
-                        break;
-                    }
-                }
-            }
+                        
+            RemoveEscortTask();
 
             if (colonyShip == null) return false;
             var planet = empire.FindNearestRallyPoint(colonyShip.Center);
             if (planet != null)
+            {
                 colonyShip.AI.OrderRebase(planet, true);
+                return false;
+            }
+            colonyShip.AI.State = AIState.AwaitingOrders;
             return false;
         }
 
-        private bool NeedsEscort()
+        private MilitaryTask GetClaimTask()
         {
-            WaitingForEscort = HasEscort = false;
-            if (empire.isPlayer || empire.isFaction) return false;
-            
-            float str = empire.GetGSAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 100000f, empire);
-            if (str < 10)
-                return false;
             using (empire.GetGSAI().TaskList.AcquireReadLock())
             {
                 foreach (MilitaryTask escort in empire.GetGSAI().TaskList)
@@ -80,13 +65,47 @@ namespace Ship_Game.Commands.Goals
                     foreach (Guid held in escort.HeldGoals)
                     {
                         if (held != guid)
-                            continue;
-                        HasEscort = escort.Step > 2 && str < 10;
-                        WaitingForEscort = !HasEscort;
-                        return false;
+                            continue;                      
+                        return escort;
                     }
                 }
             }
+            return null;
+        }
+
+        private void RemoveEscortTask()
+        {
+            MilitaryTask defendClaim = GetClaimTask();
+            if (defendClaim != null)            
+                empire.GetGSAI().TaskList.QueuePendingRemoval(defendClaim);
+        }
+
+
+        private TaskStatus EscortStatus(float enemyStrength)
+        {
+            MilitaryTask defendClaim = GetClaimTask();
+            if (defendClaim != null)
+            {
+                HasEscort = defendClaim.Step > 2 && enemyStrength < 10;
+                WaitingForEscort = !HasEscort;
+                return TaskStatus.Running;
+            }
+            return TaskStatus.Canceled;
+        }
+
+        private bool NeedsEscort()
+        {
+            WaitingForEscort = HasEscort = false;
+            if (empire.isPlayer || empire.isFaction) return false;
+            
+            float str = empire.GetGSAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 150000f, empire);
+            if (str < 10)
+                return false;
+            WaitingForEscort = true;
+
+            if (EscortStatus(str) == TaskStatus.Running)            
+                return true;
+            
             
             if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
                 empire.data.DiplomaticPersonality.Trustworthiness < 50)
@@ -96,9 +115,7 @@ namespace Ship_Game.Commands.Goals
                 var task =
                     new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
                 task.SetTargetPlanet(markedPlanet);
-                    empire.GetGSAI().TaskList.Add(task);
-                    
-                
+                    empire.GetGSAI().TaskList.Add(task);                                    
             }
 
             var militaryTask = new MilitaryTask
@@ -206,16 +223,11 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep Step2()
         {
-            if (!IsValid()) return GoalStep.GoalComplete;
+            if (!IsValid())
+                return GoalStep.GoalComplete;
             NeedsEscort();
             if (!HasEscort && WaitingForEscort)
                 return GoalStep.TryAgain;
-            if (markedPlanet.Owner != null) // Planet is owned by someone?
-            {
-                foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                    empire.GetGSAI().CheckClaim(them, markedPlanet);
-                return GoalStep.TryAgain;
-            }
 
             colonyShip = FindIdleColonyShip();
             if (colonyShip == null)
@@ -227,10 +239,12 @@ namespace Ship_Game.Commands.Goals
 
         private GoalStep FinalStep()
         {
+            if (!IsValid())
+                return GoalStep.GoalComplete;
+
             NeedsEscort();
             if (!HasEscort && WaitingForEscort)
                 return GoalStep.TryAgain;
-            if (!IsValid()) return GoalStep.GoalComplete;
 
             if (colonyShip == null) // @todo This is a workaround for a bug
                 return GoalStep.RestartGoal;
@@ -241,9 +255,9 @@ namespace Ship_Game.Commands.Goals
             if (markedPlanet.Owner == null)
                 return GoalStep.TryAgain;
 
-            foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetGSAI().CheckClaim(them, markedPlanet);
-            colonyShip.AI.State = AIState.AwaitingOrders;
+            //foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
+            //    empire.GetGSAI().CheckClaim(them, markedPlanet);
+            //colonyShip.AI.State = AIState.AwaitingOrders;
             return GoalStep.GoalComplete;
         }
     }

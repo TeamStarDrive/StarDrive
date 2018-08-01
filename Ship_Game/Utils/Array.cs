@@ -600,12 +600,11 @@ namespace Ship_Game
             Array.Sort(keys, items, 0, count);
         }
 
-        public T[] SortedBy<TKey>(Func<T, TKey> keyPredicate)
+        public T[] Sorted<TKey>(Func<T, TKey> keyPredicate)
         {
             int count = Count;
             if (count <= 1)
                 return Empty<T>.Array;
-
 
             var items = new T[count];
             Memory.HybridCopy(items, 0, Items, count);
@@ -616,6 +615,20 @@ namespace Ship_Game
 
             Array.Sort(keys, items, 0, items.Length);
             return items;
+        }
+
+        public T[] Sorted<TKey>(bool ascending, Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(keyPredicate);
+            if (!ascending) sorted.Reverse();
+            return sorted;
+        }
+
+        public T[] SortedDescending<TKey>(Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(keyPredicate);
+            sorted.Reverse();
+            return sorted;
         }
 
         public void RemoveAll(Predicate<T> match)
