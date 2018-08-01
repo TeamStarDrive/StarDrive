@@ -101,6 +101,11 @@ namespace Ship_Game
         }
 
         [XmlIgnore][JsonIgnore] 
+        public bool IsInFrustum =>
+            Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
+            Empire.Universe.Frustum.Contains(Center, 2000f);
+
+        [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";
 
         public void SetSystem(SolarSystem system)
