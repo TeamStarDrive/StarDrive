@@ -474,7 +474,7 @@ namespace Ship_Game.Gameplay
 
         private void DebugTargetCircle()
         {
-            Empire.Universe?.DebugWin?.DrawGPObjects(Debug.DebugModes.Targeting, this, Owner);
+            Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
         private void ArmourPiercingTouch(ShipModule module, Ship parent)

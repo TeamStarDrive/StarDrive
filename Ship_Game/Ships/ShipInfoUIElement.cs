@@ -527,7 +527,7 @@ namespace Ship_Game.Ships
                 if (Ship == null)
                     return false;
 
-                if (input.LeftMouseDoubleClick && ElementRect.HitTest(input.CursorPosition))
+                if (input.LeftMouseDoubleClick && ShipInfoRect.HitTest(input.CursorPosition))
                 {
                     Empire.Universe.ViewingShip = false;
                     Empire.Universe.AdjustCamTimer = 0.5f;

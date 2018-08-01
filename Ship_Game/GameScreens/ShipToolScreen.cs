@@ -455,15 +455,6 @@ namespace Ship_Game
             }
         }
 
-        public void HandleMouseInput()
-        {
-            if (Input.LeftMouseClick)
-            {
-                this.ShowOverlay = !this.ShowOverlay;
-                GameAudio.PlaySfxAsync("analogue_click2");
-            }
-        }
-
         public override void LoadContent()
         {
             ScreenManager.RemoveAllObjects();

@@ -6,8 +6,10 @@ using Ship_Game.Commands;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Debug;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class ShipAI
     {
 
@@ -75,10 +77,28 @@ namespace Ship_Game.AI {
                 Owner.Carrier.AssaultPlanet(invadeThis);
         }
 
-        private void DebugTargetCircle(Vector2 center, float radius)
+        private void DrawDebugTarget(Vector2 pip, float radius)
         {
-            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, center, radius, Owner.loyalty.EmpireColor, Owner);
+            if (DebugInfoScreen.Mode == DebugModes.Targeting && Empire.Universe?.DebugWin?.IgnoreThisShip(Owner) == true)
+            {
+                Empire.Universe.DebugWin.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0.033f);
+                Empire.Universe.DebugWin.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0.033f);
+            }
         }
+
+
+        // Make it smooth!
+        private Vector2 SmoothTargetPip;
+        private Vector2 PredictImpactToTarget()
+        {
+            Vector2 pip = Owner.PredictImpact(Target);
+            if (true || SmoothTargetPip.Distance(pip) > 10000f)
+                SmoothTargetPip = pip;
+            else
+                SmoothTargetPip = SmoothTargetPip.OffSetTo(pip, 50f);
+            return SmoothTargetPip;
+        }
+
         private void DoAttackRun(float elapsedTime)
         {
             float spacerdistance = Owner.Radius + Target.Radius;
@@ -86,10 +106,10 @@ namespace Ship_Game.AI {
             if (spacerdistance > adjustedWeaponRange)
                 spacerdistance = adjustedWeaponRange;
 
-            Vector2 interceptPoint = Owner.PredictImpact(Target);
+            Vector2 interceptPoint = PredictImpactToTarget();
             float distanceToTarget = Owner.Center.Distance(interceptPoint);                                   
 
-            if (distanceToTarget > Owner.maxWeaponsRange * 2) //spacerdistance && distanceToTarget > adjustedWeaponRange)
+            if (distanceToTarget > Owner.maxWeaponsRange * 2f) //spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
@@ -102,7 +122,7 @@ namespace Ship_Game.AI {
                 }
                 Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
                 MoveInDirection(direction, elapsedTime);
-                DebugTargetCircle(interceptPoint, spacerdistance);
+                DrawDebugTarget(interceptPoint, spacerdistance);
                 return;
             }
             RunTimer -= elapsedTime;
@@ -113,7 +133,7 @@ namespace Ship_Game.AI {
                 {
                     Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
                     MoveInDirection(direction, elapsedTime);
-                    DebugTargetCircle(interceptPoint, Owner.Radius);
+                    DrawDebugTarget(interceptPoint, Owner.Radius);
                     return;
                 }
                 AttackRunStarted = false;
@@ -130,7 +150,7 @@ namespace Ship_Game.AI {
                 AttackVector     = strafeVector.PointFromAngle(AttackRunAngle, spacerdistance);
                 var attackSetup  = Owner.Center.DirectionToTarget(AttackVector);
                 MoveInDirection(attackSetup, elapsedTime);
-                DebugTargetCircle(AttackVector, spacerdistance);
+                //DrawDebugTarget(AttackVector, spacerdistance);
                 //if (RunTimer < 3)
                 return;
             }
@@ -635,9 +655,11 @@ namespace Ship_Game.AI {
             //    return;
             //}
 
+            const float orbitalSpeedLimit = 500f;
+
             if (distance > 15000f)
             {
-                ThrustTowardsPosition(orbitTarget.Center, elapsedTime, Owner.Speed);
+                ThrustTowardsPosition(orbitTarget.Center, elapsedTime, Owner.velocityMaximum);
                 OrbitPos = orbitTarget.Center;
                 return;
             }
@@ -669,7 +691,7 @@ namespace Ship_Game.AI {
                     HasPriorityOrder = false;
             }
             else
-                ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
+                ThrustTowardsPosition(OrbitPos, elapsedTime, orbitalSpeedLimit);
         }
 
         private void DoRebase(ShipGoal Goal)
@@ -889,7 +911,7 @@ namespace Ship_Game.AI {
             }
 
             var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, (int)goal.FacingVector);
-            DebugTargetCircle(escortVector, Owner.Radius);
+            DrawDebugTarget(escortVector, Owner.Radius);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.Velocity.Length();
             float escortVelocity       = Owner.velocityMaximum;
