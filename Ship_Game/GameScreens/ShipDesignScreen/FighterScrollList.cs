@@ -34,7 +34,7 @@ namespace Ship_Game
         private void Populate()
         {
             Reset();
-            AddItem("#BEST SHIP#");
+            AddItem(ResourceManager.GetShipTemplate(EmpireManager.Player.data.StartingShip));
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship fighter)) continue;
@@ -58,16 +58,6 @@ namespace Ship_Game
                 
                 foreach (Entry e in VisibleExpandedEntries)
                 {
-                    if (e.item == $"#BEST SHIP#")
-                    {
-                        if (!e.CheckHover(input))
-                            continue;
-                        SelectionBox = e.CreateSelector();
-                        if (!input.InGameSelect)
-                            continue;
-                        ActiveModule.hangarShipUID = "#BEST SHIP#";
-                        GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    }
                     if (!(e.item is Ship ship)) continue;
                     if (FighterSubMenu.Menu.HitTest(Screen.Input.CursorPosition))
                     {
@@ -121,15 +111,6 @@ namespace Ship_Game
             var bCursor = new Vector2(FighterSubMenu.Menu.X + 15, (FighterSubMenu.Menu.Y + 25));
             foreach (Entry e in VisibleEntries)
             {
-                if (e.item != null && e.item == $"#BEST SHIP#")
-                {
-                    bCursor.Y = e.Y;
-                    var bestShipCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, (string)e.item, bestShipCursor, Color.CadetBlue);
-                    bestShipCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    continue;
-                }
-
                 if (!(e.item is Ship ship))
                     continue;
                 bCursor.Y = e.Y;

@@ -585,6 +585,7 @@ namespace Ship_Game.Ships
             }
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity 

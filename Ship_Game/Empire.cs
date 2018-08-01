@@ -13,6 +13,8 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    using static ShipBuilder;
+     
     public sealed class Empire : IDisposable
     {
         public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
@@ -1527,8 +1529,8 @@ namespace Ship_Game
 
             if (Universe != null && isPlayer)
                 Universe.aw.UpdateDropDowns();            
-            PreferredAuxillaryShips[ShipData.RoleName.bomber] = EmpireAI.PickFromCandidates(ShipData.RoleName.bomber, true, ShipModuleType.Bomb);
-            PreferredAuxillaryShips[ShipData.RoleName.carrier] = EmpireAI.PickFromCandidates(ShipData.RoleName.bomber, true, ShipModuleType.Hangar);
+            PreferredAuxillaryShips[ShipData.RoleName.bomber] = PickFromCandidates(ShipData.RoleName.bomber, this, ShipModuleType.Bomb);
+            PreferredAuxillaryShips[ShipData.RoleName.carrier] = PickFromCandidates(ShipData.RoleName.bomber, this, ShipModuleType.Hangar);
         }
         
         public float GetTotalBuildingMaintenance()
