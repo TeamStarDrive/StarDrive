@@ -46,8 +46,7 @@ namespace Ship_Game.Gameplay
             }
 
             Hover = true;
-            if (input.MouseCurr.LeftButton == ButtonState.Pressed &&
-                input.MousePrev.LeftButton == ButtonState.Released)	        
+            if (input.LeftMouseClick)	        
                 return Response;
 
             return null;

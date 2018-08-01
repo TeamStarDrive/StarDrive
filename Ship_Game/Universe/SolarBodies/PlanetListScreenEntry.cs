@@ -218,7 +218,7 @@ namespace Ship_Game
                 //i++;
                 if (statusRect.HitTest(MousePos))
                 {
-                    ToolTip.CreateTooltip(Localizer.Token(336) + ": " + troops.ToString());
+                    ToolTip.CreateTooltip($"{Localizer.Token(336)}: {troops}");
                 }
 
             }
@@ -231,16 +231,15 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.planet.Name, rpos, TextColor);
             rpos.Y = rpos.Y + (float)(Fonts.Arial20Bold.LineSpacing - 3);
             Vector2 FertilityCursor = new Vector2((float)(this.FertRect.X + 35), (float)(this.FertRect.Y + this.FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.Fertility.ToString("#.0"), FertilityCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.Fertility.String(1), FertilityCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
             Vector2 RichCursor = new Vector2((float)(this.RichRect.X + 35), (float)(this.RichRect.Y + this.RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.MineralRichness.ToString("#.0"), RichCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.planet.MineralRichness.String(1), RichCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
             Vector2 PopCursor = new Vector2((float)(this.PopRect.X + 60), (float)(this.PopRect.Y + this.PopRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
             float population = this.planet.Population / 1000f;
-            string str = population.ToString("#.0");
             float maxPopulation = (this.planet.MaxPopulation + this.planet.MaxPopBonus) / 1000f;
-            spriteBatch1.DrawString(arial12Bold, string.Concat(str, " / ", maxPopulation.ToString("#.0")), PopCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
+            spriteBatch1.DrawString(arial12Bold, $"{population.String(1)} / {maxPopulation.String(1)}", PopCursor, (this.planet.Habitable ? Color.White : Color.LightPink));
             Vector2 OwnerCursor = new Vector2((float)(this.OwnerRect.X + 20), (float)(this.OwnerRect.Y + this.OwnerRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
             SpriteBatch spriteBatch2 = ScreenManager.SpriteBatch;
             SpriteFont spriteFont = Fonts.Arial12Bold;
