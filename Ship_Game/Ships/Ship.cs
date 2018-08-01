@@ -1481,7 +1481,8 @@ namespace Ship_Game.Ships
                     data.HangarshipGuid = module.GetHangarShip().guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.hangarShipUID;
+                    data.SlotOptions = module.DynamicHangar ? ResourceManager.DynamicLaunchDummyShip 
+                                                            : module.hangarShipUID;
 
                 slots[i] = data;
             }
