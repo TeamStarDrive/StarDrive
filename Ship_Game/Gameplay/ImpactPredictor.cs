@@ -22,6 +22,7 @@ namespace Ship_Game.Gameplay
         private readonly float Speed; // interception speed (projectile speed)
         private readonly Vector2 TargetPos; // Target position
         private readonly Vector2 TargetVel; // Target velocity
+        private readonly Vector2 TargetAcc; // Target acceleration
 
         public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, Vector2 targetPos, Vector2 targetVel)
         {
@@ -30,6 +31,7 @@ namespace Ship_Game.Gameplay
             Speed = speed;
             TargetPos = targetPos;
             TargetVel = targetVel;
+            TargetAcc = Vector2.Zero;
         }
 
         public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, GameplayObject target)
@@ -40,6 +42,7 @@ namespace Ship_Game.Gameplay
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
+            TargetAcc = info.Acc;
         }
 
         public ImpactPredictor(Ships.Ship ourShip, GameplayObject target)
@@ -50,9 +53,10 @@ namespace Ship_Game.Gameplay
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
+            TargetAcc = info.Acc;
         }
 
-        public ImpactPredictor(Gameplay.Projectile proj, GameplayObject target)
+        public ImpactPredictor(Projectile proj, GameplayObject target)
         {
             Pos = proj.Center;
             Vel = proj.Velocity;
@@ -60,6 +64,7 @@ namespace Ship_Game.Gameplay
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
+            TargetAcc = info.Acc;
         }
 
         private static TargetInfo GetTargetInfo(GameplayObject target)
@@ -215,19 +220,6 @@ namespace Ship_Game.Gameplay
                 time = newTime;
             }
             return predictedPos;
-        }
-
-        public Vector2 Predict(Vector2 targetAccel)
-        {
-            //Vector2 quad = PredictImpactQuad(targetAccel);
-            Vector2 iter = PredictImpactIter(targetAccel);
-            //Log.Info("PIP quad: {0}", quad);
-            //Log.Info("PIP iter: {0}", iter);
-
-            //Vector2 error = quad-iter;
-            //if (error.Length() > 100000)
-            //    return iter;
-            return iter;
         }
 
         public Vector2 Predict()
