@@ -1385,6 +1385,8 @@ namespace Ship_Game.AI
                     RemoveShip(ship);
                     continue;
                 }
+                if (ship.AI.State == AIState.FormationWarp)
+                    SetCombatMoveAtPositon(ship, Position, 7500);
                 AddShip(ship, true);
                 ReadyForWarp = ReadyForWarp && ship.ShipReadyForWarp();                
             }
