@@ -57,7 +57,7 @@ namespace Ship_Game
 
         private void HandleInputNotLookingAtPlanet(InputState input)
         {
-            mouseWorldPos = UnprojectToWorldPosition(input.MouseScreenPos);
+            mouseWorldPos = UnprojectToWorldPosition(input.CursorPosition);
             if (input.DeepSpaceBuildWindow) InputOpenDeepSpaceBuildWindow();
 
             if (input.FTLOverlay)       ToggleUIComponent("sd_ui_accept_alt3", ref showingFTLOverlay);
@@ -448,10 +448,10 @@ namespace Ship_Game
                 workersPanel.HandleInput(input);
             if (IsActive)
                 EmpireUI.HandleInput(input);
-            if (ShowingPlanetToolTip && input.MouseScreenPos.OutsideRadius(tippedPlanet.ScreenPos, tippedPlanet.Radius))
+            if (ShowingPlanetToolTip && input.CursorPosition.OutsideRadius(tippedPlanet.ScreenPos, tippedPlanet.Radius))
                 ResetToolTipTimer(ref ShowingPlanetToolTip);
 
-            if (ShowingSysTooltip && input.MouseScreenPos.OutsideRadius(tippedPlanet.ScreenPos, tippedSystem.Radius))
+            if (ShowingSysTooltip && input.CursorPosition.OutsideRadius(tippedPlanet.ScreenPos, tippedSystem.Radius))
                 ResetToolTipTimer(ref ShowingSysTooltip);
 
             if (!LookingAtPlanet)
@@ -1512,7 +1512,7 @@ namespace Ship_Game
             if (input.RightMouseClick)
                 for (int index = 0; index < SelectedShip.AreaOfOperation.Count; ++index)
                 {
-                    if (SelectedShip.AreaOfOperation[index].HitTest(UnprojectToWorldPosition(input.MouseScreenPos)))
+                    if (SelectedShip.AreaOfOperation[index].HitTest(UnprojectToWorldPosition(input.CursorPosition)))
                         SelectedShip.AreaOfOperation.Remove(SelectedShip.AreaOfOperation[index]);
                 }
 

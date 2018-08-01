@@ -294,7 +294,7 @@ namespace Ship_Game
             {
                 var entry = e.Get<ShipListScreenEntry>();
                 entry.HandleInput(input);
-                if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
+                if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     if (ClickTimer >= ClickDelay)
                     {
