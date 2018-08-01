@@ -347,6 +347,7 @@ namespace Ship_Game.Ships
                 module.ShieldUpChance = slot.ShieldUpChance;
                 module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
             }
+
             return module;
         }
 
@@ -391,7 +392,8 @@ namespace Ship_Game.Ships
 
         public void InitHangar()
         {
-            if (hangarShipUID == Parent.loyalty.data.StartingShip || !Parent.loyalty.isPlayer)
+            // for the AI , all hangars are dynamic. It makes the AI carriers better
+            if (hangarShipUID == ResourceManager.DynamicLaunchDummyShip || !Parent.loyalty.isPlayer)
                 DynamicHangar = true;
         }
 
