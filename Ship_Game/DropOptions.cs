@@ -123,7 +123,7 @@ namespace Ship_Game
 
         private static bool IsMouseHoveringOver(Rectangle rect)
         {
-            return rect.HitTest(Game1.Instance.ScreenManager.input.MouseScreenPos);
+            return rect.HitTest(Game1.Instance.ScreenManager.input.CursorPosition);
         }
 
         private string WrappedString(string text)

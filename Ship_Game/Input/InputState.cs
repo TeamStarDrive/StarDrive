@@ -57,9 +57,9 @@ namespace Ship_Game
         public bool RightMouseHeldDown => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
         public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
         public bool LeftMouseHeldUp    => MouseCurr.LeftButton  != ButtonState.Pressed && MousePrev.LeftButton  != ButtonState.Pressed;
-        public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
-        //mouse position
+        // Mouse position
+        public Vector2 CursorPosition { get; private set; }
         private Vector2 MouseRightClickPos = Vector2.Zero;
         private Vector2 MouseLeftClickPos = Vector2.Zero;
         public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
@@ -213,8 +213,6 @@ namespace Ship_Game
             return LeftMouseHeld();
         }
 
-        public Vector2 CursorPosition { get ; private set; }
-
         public bool Undo              => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
         public bool Redo              => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
         public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
@@ -238,8 +236,6 @@ namespace Ship_Game
         public bool MenuSelect => KeyPressed(Keys.Space)  || KeyPressed(Keys.Enter)    || GamepadClicked(Buttons.A) || GamepadClicked(Buttons.Start);
         public bool MenuUp     => KeyPressed(Keys.Up)     || GamepadClicked(Buttons.DPadUp)   || LeftStickFlickUp;
         public bool MenuDown   => KeyPressed(Keys.Down)   || GamepadClicked(Buttons.DPadDown) || LeftStickFlickDown;
-
-        public Vector2 NormalizedCursorPosition { get; set; }
 
         public bool OpenMap => KeyPressed(Keys.M);
 

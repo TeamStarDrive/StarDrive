@@ -109,7 +109,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            var mousePos = input.MouseScreenPos;
             if (input.MenuSelect && !PauseMenu)
             {
                 Accepted?.Invoke(this, EventArgs.Empty);
@@ -124,7 +123,7 @@ namespace Ship_Game
             }
             foreach (UIButton b in this.Buttons)
             {
-                if (!b.Rect.HitTest(mousePos))
+                if (!b.Rect.HitTest(input.CursorPosition))
                 {
                     b.State = UIButton.PressState.Default;
                 }

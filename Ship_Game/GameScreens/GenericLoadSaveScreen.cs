@@ -222,7 +222,7 @@ namespace Ship_Game
                 else
                 {
                     EnterNameArea.Hover = true;
-                    if (currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    if (input.LeftMouseClick)
                     {
                         EnterNameArea.HandlingInput = true;
                         EnterNameArea.Text = "";
