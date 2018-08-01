@@ -59,8 +59,8 @@ namespace Ship_Game.Gameplay
             Speed = proj.Speed;
             // guided missiles should not account for speed, since they are
             // ramming devices and always have more velocity
-            //if (proj.Weapon.Tag_Guided)
-            //    Speed = 0.5f;
+            if (proj.Weapon.Tag_Guided)
+                Speed = 1.0f;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
