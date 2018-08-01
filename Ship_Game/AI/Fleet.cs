@@ -646,7 +646,7 @@ namespace Ship_Game.AI
                     if (!ArrivedAtCombatRally(task))
                         break;
                     TaskStep = 3;
-                    CancleFleetMoveInArea(task.AO, task.AORadius * 10f);
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
                     if (!DoOrbitTaskArea(task))                    
@@ -681,7 +681,7 @@ namespace Ship_Game.AI
         {
             if (CoreFleetSubTask == null) TaskStep = 1;
 
-            switch (this.TaskStep)
+            switch (TaskStep)
             {               
                 case 1:
                     if (EndInvalidTask(!MoveFleetToNearestCluster(task)))
@@ -706,12 +706,13 @@ namespace Ship_Game.AI
                         CoreFleetSubTask = null;
                         break;
                     }
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     TaskStep = 4;
                     break;
                 case 4:
                     if (!IsFleetSupplied())
                     {
-                        this.TaskStep = 5;
+                        TaskStep = 5;
                         break;
                     }
                     if (ShipsOffMission(CoreFleetSubTask))                    
@@ -837,7 +838,7 @@ namespace Ship_Game.AI
                 case 0:
                     FleetTaskGatherAtRally(task);
                     SetRestrictedCombatWeights(task.AORadius);
-                    this.TaskStep = 1;
+                    TaskStep = 1;
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(5000))
@@ -856,7 +857,8 @@ namespace Ship_Game.AI
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))
                         DoOrbitTaskArea(task);
-
+                    else
+                        CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     TaskStep = 4;
                     break;
                 case 4:
@@ -902,7 +904,7 @@ namespace Ship_Game.AI
             return true;
         }
 
-        private void CancleFleetMoveInArea(Vector2 pos, float radius )
+        private void CancelFleetMoveInArea(Vector2 pos, float radius )
         {
             foreach(var ship in Ships)
             {
