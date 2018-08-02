@@ -1615,6 +1615,7 @@ namespace Ship_Game
                     float farmers = CalculateFoodWorkers();
                     score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamp(0.0f, 1.0f);   //Percentage of population this is feeding, weighted
                     score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
+                    if (score < 0) score = 0;       //No penalty for a little bit of extra food production
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} FlatFood : Score was {score}");
@@ -1675,30 +1676,11 @@ namespace Ship_Game
                 if (building.PlusProdPerColonist < 0) score = building.PlusProdPerColonist * MaxPopulationBillion * 2;
                 else
                 {
-                    //score += 1 - CalculateFoodWorkers(); ;   //Bonus the more workers there are available
-                    score += building.PlusProdPerColonist * LeftoverWorkers();    //Prod this building will add
-                    if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
-                }
-
-                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
-            }
-
-            return score;
-        }
-
-        private float EvaluateBuildingScrapProdPerCol(Building building)
-        {
-            float score = 0;
-            if (building.PlusProdPerColonist != 0)
-            {
-                if (building.PlusProdPerColonist < 0) score = building.PlusProdPerColonist * MaxPopulationBillion * 2;
-                else
-                {
                     score += building.PlusProdPerColonist * LeftoverWorkers();    //Prod this building is contributing
                     if (score < building.PlusProdPerColonist * 0.1f) score = building.PlusProdPerColonist * 0.1f; //A little production is always useful
                 }
 
-                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} ProdPerCol : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ProdPerCol : Score was {score}");
             }
 
             return score;
@@ -1727,7 +1709,7 @@ namespace Ship_Game
             float score = 0;
             if (building.StorageAdded != 0)
             {
-                float desiredStorage = 50.0f;
+                float desiredStorage = 70.0f;
                 if (Fertility + PlusFoodPerColonist >= 2.5f || MineralRichness + PlusProductionPerColonist >= 2.5f || PlusFlatProductionPerTurn > 5) desiredStorage += 100.0f;  //Potential high output
                 if (HasShipyard) desiredStorage += 100.0f;      //For buildin' ships 'n shit
                 if (MaxStorage < desiredStorage) score += (building.StorageAdded * 0.002f);  //If we need more storage, rate this building
@@ -1823,15 +1805,20 @@ namespace Ship_Game
             if (building.PlusResearchPerColonist != 0)
             {
                 if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
-                else score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
+                else
+                {
+                    score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
+                    if (PlusResearchPerColonist <= 0.25f) score += building.PlusResearchPerColonist; //Encourage some research source on all colonies
+                }
 
-                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} ResPerCol : Score was {score}");
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
             }
 
             return score;
         }
 
         private float EvaluateBuildingCreditsPerCol(Building building)
+
         {
             float score = 0;
             if (building.CreditsPerColonist != 0)
@@ -1955,7 +1942,7 @@ namespace Ship_Game
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
-            if (Name == "Drell VxII") Debugger.Break();
+            if (Name == "Drell IVx") Debugger.Break();
 
             float buildingValue = 0.0f;    //End result value for entire building
 
@@ -2094,7 +2081,7 @@ namespace Ship_Game
 
         private void ScrapBuildings(float income)
         {
-            if (Name == "Drell VIII") Debugger.Break();
+            if (Name == "Drell IVx") Debugger.Break();
 
             float buildingValue = 0.0f;
             float costWeight = 0.0f;
@@ -2106,14 +2093,14 @@ namespace Ship_Game
                 buildingValue = 0;
                 costWeight = 0;
                 bldg = BuildingList[i];
-                if (bldg.Name == "Biospheres" || !bldg.Scrappable || bldg.IsPlayerAdded) continue; //|| bldg.Name == "Space Port"
+                if (bldg.Name == "Biospheres" || !bldg.Scrappable || bldg.IsPlayerAdded) continue;
 
                 costWeight     = EvaluateBuildingScrapWeight(bldg, income);
 
                 buildingValue += EvaluateBuildingScrapFlatFood(bldg);
                 buildingValue += EvaluateBuildingFoodPerCol(bldg);
                 buildingValue += EvaluateBuildingFlatProd(bldg);
-                buildingValue += EvaluateBuildingScrapProdPerCol(bldg);
+                buildingValue += EvaluateBuildingProdPerCol(bldg);
                 buildingValue += EvaluateBuildingProdPerRichness(bldg);
                 buildingValue += EvaluateBuildingStorage(bldg);
                 buildingValue += EvaluateBuildingPopulationGrowth(bldg);
