@@ -69,6 +69,23 @@ namespace Ship_Game
                                Max(min.Y, Min(v.Y, max.Y)));
         }
 
+        // Angle normalized to [0, 360] degrees
+        public static float NormalizedAngle(this float angle)
+        {
+            float result = angle;
+            if (result >= 360f)
+            {
+                do   { result -= 360f; }
+                while (result >= 360f);
+            }
+            else if (result < 0f)
+            {
+                do   { result += 360f; }
+                while (result < 0f);
+            }
+            return result;
+        }
+
         // Basic Linear Interpolation
         public static float LerpTo(this float minValue, float maxValue, float amount)
         {

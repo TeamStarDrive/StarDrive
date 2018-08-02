@@ -48,7 +48,7 @@ namespace Ship_Game
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
             Range                   = weapon.Range;
-            Duration = weapon.BeamDuration;// > 0f ? weapon.BeamDuration : 2f;
+            Duration                = weapon.BeamDuration;
             Thickness               = weapon.BeamThickness;
             WeaponEffectType        = weapon.WeaponEffectType;
             WeaponType              = weapon.WeaponType;
@@ -69,8 +69,6 @@ namespace Ship_Game
                 WanderPath = Vector2.Normalize(destination - target.Center) * 8f;
             if (float.IsNaN(WanderPath.X))
                 WanderPath = Vector2.Zero;
-
-            
             
             ActualHitDestination    = Destination;                        
             Initialize();

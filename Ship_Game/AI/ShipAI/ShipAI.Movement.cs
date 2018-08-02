@@ -311,40 +311,6 @@ namespace Ship_Game.AI {
             MoveTowardsPosition(goal.fleet.Position + Owner.FleetOffset, elapsedTime, speedLimit);
         }
 
-        private void OrbitShip(Ship ship, float elapsedTime)
-        {
-            OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
-            if (Vector2.Distance(OrbitPos, Owner.Center) < 1500f)
-            {
-                ShipAI orbitalAngle = this;
-                orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle + 15f;
-                if (OrbitalAngle >= 360f)
-                {
-                    ShipAI artificialIntelligence = this;
-                    artificialIntelligence.OrbitalAngle = artificialIntelligence.OrbitalAngle - 360f;
-                }
-                OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
-            }
-            ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
-        }
-
-        private void OrbitShipLeft(Ship ship, float elapsedTime)
-        {
-            OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
-            if (Vector2.Distance(OrbitPos, Owner.Center) < 1500f)
-            {
-                ShipAI orbitalAngle = this;
-                orbitalAngle.OrbitalAngle = orbitalAngle.OrbitalAngle - 15f;
-                if (OrbitalAngle >= 360f)
-                {
-                    ShipAI artificialIntelligence = this;
-                    artificialIntelligence.OrbitalAngle = artificialIntelligence.OrbitalAngle - 360f;
-                }
-                OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
-            }
-            ThrustTowardsPosition(OrbitPos, elapsedTime, Owner.Speed);
-        }
-
         private bool PathCacheLookup(Point startp, Point endp, Vector2 startv, Vector2 endv)
         {
             if (!Owner.loyalty.PathCache.TryGetValue(startp, out Map<Point, Empire.PatchCacheEntry> pathstart)

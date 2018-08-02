@@ -75,7 +75,5 @@ namespace Ship_Game.Gameplay
         {
             screen.DrawCircleProjected(Obj.Center, Obj.Radius, Color, 2);
         }
-        public static bool operator==(DebugGameObject a, GameplayObject b)  { return a?.Obj == b; }
-        public static bool operator !=(DebugGameObject a, GameplayObject b) { return a?.Obj != b; }
     }
 }

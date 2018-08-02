@@ -44,8 +44,6 @@ namespace Ship_Game
 
         private Array<Ship> StartingShipList = new Array<Ship>();
 
-        private bool ShowOverlay = true;
-
         private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
 
         private UITextEntry ShipNameBox;
