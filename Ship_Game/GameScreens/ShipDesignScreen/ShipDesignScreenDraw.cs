@@ -522,7 +522,6 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235, Color.White));
             }
 
-            //strength = defense > offense ? offense * 2 : defense + offense;
             strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed);
             if (strength > 0)     DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6190), ":"), strength, 227, Color.White));
 
