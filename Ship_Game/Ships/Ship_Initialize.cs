@@ -502,6 +502,14 @@ namespace Ship_Game.Ships
             Speed                    = velocityMaximum;
             rotationRadiansPerSecond = Speed / Size;
             ShipMass                 = Mass;
+
+            BaseStrength = CalculateShipStrength();
+            CurrentStrength = BaseStrength;
+
+            // @todo Do we need to recalculate this every time? This whole thing looks fishy
+            if (shipData.BaseStrength <= 0f)
+                shipData.BaseStrength = BaseStrength;
+
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;
             UpdateShields();
@@ -597,12 +605,7 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
             shipData.BaseCanWarp = WarpThrust > 0;
             BaseCanWarp = WarpThrust > 0;
-            BaseStrength = CalculateShipStrength();
-            CurrentStrength = BaseStrength;
 
-            // @todo Do we need to recalculate this every time? This whole thing looks fishy
-            if (shipData.BaseStrength <= 0f)
-                shipData.BaseStrength = BaseStrength;
         }
 
         private float GetBaseCost()

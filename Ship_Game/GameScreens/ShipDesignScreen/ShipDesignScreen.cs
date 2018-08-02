@@ -170,6 +170,9 @@ namespace Ship_Game
             ActiveModule = CreateDesignModule(template, orientation, facing);
             ActiveModState = orientation;
             ActiveModule.SetAttributes();
+            if (ActiveModule.ModuleType == ShipModuleType.Hangar
+                && !ActiveModule.IsSupplyBay && !ActiveModule.IsTroopBay)
+                ActiveModule.hangarShipUID = ResourceManager.DynamicLaunchDummyShip;
         }
 
         private void ResetActiveModule()

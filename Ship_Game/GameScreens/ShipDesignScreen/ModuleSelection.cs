@@ -569,7 +569,7 @@ namespace Ship_Game
                 {
                     modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                     Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                    string bestShip = ParseText("Hangar will launch more advanced ships, as they become avaialble in your empire"
+                    string bestShip = ParseText("Hangar will launch more advanced ships, as they become available in your empire"
                                                 , ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12Bold);
                     DrawString(ref bestShipSelectionPos, bestShip, Color.Gold, Fonts.Arial12Bold);
                     return;
