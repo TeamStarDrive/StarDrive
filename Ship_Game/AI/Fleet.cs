@@ -240,7 +240,7 @@ namespace Ship_Game.AI
                 Ship s = Ships[x];
                 if (!s.InCombat)
                 {
-                    lock (s.AI.WayPointLocker)
+                    lock (s.AI.WayPoints.WayPointLocker)
                         s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), true);
                 }
 

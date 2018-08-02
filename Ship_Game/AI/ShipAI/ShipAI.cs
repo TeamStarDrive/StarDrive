@@ -34,13 +34,13 @@ namespace Ship_Game.AI
         public SafeQueue<ShipGoal> OrderQueue                 = new SafeQueue<ShipGoal>();        
         public Array<ShipWeight> NearByShips = new Array<ShipWeight>();
         public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();        
-        public object WayPointLocker;
+        
 
         public ShipAI(Ship owner)
         {
             Owner = owner;
             State = AIState.AwaitingOrders;
-            WayPointLocker = new object();
+            WayPoints = new Ships.AI.WayPoints(Owner);
         }
 
         private void Colonize(Planet TargetPlanet)
@@ -483,10 +483,9 @@ namespace Ship_Game.AI
             {
                 if (Owner.fleet == null)
                 {
-                    lock (WayPointLocker)
-                    {
-                        ActiveWayPoints.Clear();
-                    }
+                    
+                    WayPoints.Clear();
+                    
                     AIState state = State;
                     if (state <= AIState.MoveTo)
                     {
@@ -592,17 +591,16 @@ namespace Ship_Game.AI
                         if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                             ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
                         else
-                            lock (WayPointLocker)
-                            {
-                                ActiveWayPoints.Clear();
-                                ActiveWayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
-                                //fbedard: set new order for ship returning to fleet
-                                State = AIState.AwaitingOrders;                                
-                                if (Owner.fleet?.GetStack().Count > 0)
-                                    ActiveWayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
-                                else
-                                    OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
-                            }
+                        {
+                            WayPoints.Clear();
+                            WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+                            //fbedard: set new order for ship returning to fleet
+                            State = AIState.AwaitingOrders;
+                            if (Owner.fleet?.GetStack().Count > 0)
+                                WayPoints.Enqueue(Owner.fleet.GetStack().Peek().MovePosition + Owner.FleetOffset);
+                            else
+                                OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
+                        }
                     }
                 }
             }
