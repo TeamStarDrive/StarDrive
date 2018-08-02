@@ -118,7 +118,7 @@ namespace Ship_Game.Gameplay
                 Module  = weapon.Module,
             };
             projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false);
-            projectile.Duration = pdata.Duration; // apply duration after default init
+            projectile.Duration = pdata.Duration; // apply duration from save data
             return projectile;
         }
 
@@ -166,11 +166,6 @@ namespace Ship_Game.Gameplay
         
             if (Weapon.IsRepairDrone)   DroneAI   = new DroneAI(this);
             else if (Weapon.Tag_Guided) MissileAI = new MissileAI(this, target);
-            //else // unguided projectile
-            //{
-            //    if (Owner?.loyalty.data.Traits.Blind > 0 && UniverseRandom.IntBetween(0, 10) <= 1)
-            //        Miss = true;
-            //}
             
             LoadContent();
             Initialize();
@@ -598,15 +593,12 @@ namespace Ship_Game.Gameplay
 
             if (FiretrailEmitter != null && InFrustrum)
             {
-                //float durationLimit = InitialDuration * (WeaponEffectType == "Plasma" ? 0.7f : 0.97f);
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
                     FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
                 }
-                //FiretrailEmitter.Update(elapsedTime, newPosition);
-
             }
-            if (TrailEmitter != null && InFrustrum )
+            if (TrailEmitter != null && InFrustrum)
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
