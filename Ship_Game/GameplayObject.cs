@@ -67,9 +67,6 @@ namespace Ship_Game
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
-        public bool IsProjectile => (Type & GameObjectType.Proj) != 0;
-        public bool IsShip => (Type & GameObjectType.Ship) != 0;
-
         protected GameplayObject(GameObjectType typeFlags)
         {
             Type = typeFlags;
