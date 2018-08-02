@@ -413,7 +413,6 @@ namespace Ship_Game.Ships
 
                 return biggestRole;
             }
-
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
