@@ -310,7 +310,7 @@ namespace Ship_Game.AI
 
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
-                string buildThis = ShipBuilder.PickFromCandidates(kv.Key, OwnerEmpire); 
+                string buildThis = PickFromCandidates(kv.Key, OwnerEmpire); 
                 if (string.IsNullOrEmpty(buildThis)) continue;
                 buildRatios.IncrementShipCount(kv.Key);
                 return buildThis;
