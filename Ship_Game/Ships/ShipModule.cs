@@ -392,7 +392,9 @@ namespace Ship_Game.Ships
 
         public void InitHangar()
         {
-            // for the AI , all hangars are dynamic. It makes the AI carriers better
+            // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
+            if (Parent.loyalty.isFaction)
+                return;
             if (hangarShipUID == ResourceManager.DynamicLaunchDummyShip || !Parent.loyalty.isPlayer)
                 DynamicHangar = true;
         }
@@ -1095,7 +1097,7 @@ namespace Ship_Game.Ships
 
             float def = 0f;
 
-            def += ActualMaxHealth * ((Is(ShipModuleType.Armor) ? (XSIZE) : 1f) / (slotCount * 4));
+            def += ActualMaxHealth / 200;
 
             // FB: Added Shield related calcs
             float shieldsMax = ActualShieldPowerMax;
@@ -1161,9 +1163,7 @@ namespace Ship_Game.Ships
             // FB: Reactors should also have some value
             def += ActualPowerFlowMax / 100;
 
-            // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
-            def  = Area > 1 ? def / (Area / 2f) : def;
-            def *= 0.5f; // So defense will have more chance to be lower than offense, otherwise defense is not calculated in the total offense of the ship
+            def += TroopCapacity * 50;
 
             return def;
         }
@@ -1224,9 +1224,6 @@ namespace Ship_Game.Ships
                 // FB: Field of Fire is also important
                 off *= FieldOfFire > 60 ? FieldOfFire / 60f : 1f;
 
-                // FB: A weapon which can be installed on Internal slots is quite valuable.
-                off *= Restrictions.ToString().Contains("I") ? 2f : 1f;
-
                 int allRoles = 0;
                 int restrictedRoles = 0;
                 foreach (ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
@@ -1241,17 +1238,23 @@ namespace Ship_Game.Ships
                 //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
                 off *= w.OffPowerMod;
             }
-            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() && hangarShipUID != "NotApplicable" && !IsSupplyBay && !IsTroopBay)
-            {
-                if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
-                {
-                    off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
-                }
-                else off += 100f;
-            }
 
-            // FB: Normalize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
-            off = Area > 1 ? off / (Area / 2f) : off;
+            off += IsTroopBay ? 50 : 0;
+            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() 
+                                                    && hangarShipUID != "NotApplicable" 
+                                                    && !IsSupplyBay 
+                                                    && !IsTroopBay)
+            {
+                if (hangarShipUID == ResourceManager.DynamicLaunchDummyShip)
+                    off += MaximumHangarShipSize * 2;
+                else
+                {
+                    if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
+                        off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
+                    else
+                        off += 100f;
+                }
+            }
 
             return off;
         }

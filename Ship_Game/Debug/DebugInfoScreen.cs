@@ -398,6 +398,7 @@ namespace Ship_Game.Debug
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
                 DrawString("Strength: " + ship.BaseStrength);
+                DrawString("Max Velocity " + ship.velocityMaximum);
                 DrawString("HP: " + ship.Health + " / " + ship.HealthMax);
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);

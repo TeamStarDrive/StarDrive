@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -63,6 +59,36 @@ namespace Ship_Game.AI
                          $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
 
             return name;
+        }
+
+        public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
+                                                ShipData.RoleName role, float velocity)
+        {
+            float weaponRatio = (float)numWeaponSlots / shipSize;
+            float modifiedStrength;
+            if (defense > offense && weaponRatio < 0.2f)
+                modifiedStrength = offense * 2;
+            else
+                modifiedStrength = offense + defense;
+
+            float speedModifier = 1f;
+            switch (role)
+            {
+                case ShipData.RoleName.fighter when velocity > 575:
+                    speedModifier = 2f;
+                    break;
+                case ShipData.RoleName.corvette when velocity > 475:
+                    speedModifier = 2.2f;
+                    break;
+                case ShipData.RoleName.frigate when velocity > 375:
+                    speedModifier = 2.4f;
+                    break;
+                case ShipData.RoleName.cruiser when velocity > 250:
+                    speedModifier = 2.6f;
+                    break;
+            }
+
+            return modifiedStrength * speedModifier;
         }
     }
 }
