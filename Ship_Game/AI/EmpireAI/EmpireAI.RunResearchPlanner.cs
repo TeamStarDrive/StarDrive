@@ -690,10 +690,14 @@ namespace Ship_Game.AI {
             }
 
             var hullSorter = new SortedList<int, Array<Ship>>();
-            
+
             //This is part that chooses the bestShip hull
             /* takes the first entry from the least techs needed list. then sorts it the hull role needed
              */
+            //try to fix sentry bug :https://sentry.io/blackboxmod/blackbox/issues/533939032/events/26436104750/
+            if (techSorter.Count == 0)
+                return false;
+            
             int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter ,h=> (int)h.shipData.HullRole );
             //sort roles
             var roleSorter = new SortedList<int, Array<Ship>>();
