@@ -740,7 +740,7 @@ namespace Ship_Game
 
         private bool QueueFleetMovement(Vector2 movePosition, float facing, ShipGroup fleet)
         {
-            if (!Input.QueueAction || fleet.Ships[0].AI.ActiveWayPoints.Count == 0) return false;
+            if (!Input.QueueAction || fleet.Ships[0].AI.WayPoints.Count() == 0) return false;
 
             Vector2 vectorToTarget =
                 Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(facing, 1f));
