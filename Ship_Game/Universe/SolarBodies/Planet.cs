@@ -2639,7 +2639,9 @@ namespace Ship_Game
         {
             if (TroopsHere.Count <= 0)
                 return 0;
-            return (int)TroopsHere.Sum(troop => troop.Strength);
+
+            float totalTroopStrength = TroopsHere.Sum(troop => troop.Strength);
+            return (int)totalTroopStrength;
         }
 
         public enum GoodState
