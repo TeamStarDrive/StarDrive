@@ -1960,6 +1960,7 @@
     <Content Include="Content\Buildings\Capital.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Buildings\Gun Emplacement.xml" />
     <Content Include="Content\Buildings\Outpost.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
