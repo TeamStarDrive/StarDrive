@@ -1250,5 +1250,10 @@
       <Title>Empty slots</Title>
       <Data>1982</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>249</TIP_ID>
+      <Title>Injury level inflicted to invading troops</Title>
+      <Data>1980</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

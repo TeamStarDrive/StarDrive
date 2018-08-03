@@ -1690,7 +1690,9 @@
     <None Include="Content\Textures\UI\icon_hangar.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Textures\UI\icon_injury.xnb" />
+    <None Include="Content\Textures\UI\icon_injury.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Deploy\Config\config_develop" />
     <None Include="Deploy\Config\Deploy.cmd" />
     <None Include="Deploy\Config\include_develop" />
@@ -1961,7 +1963,9 @@
     <Content Include="Content\Buildings\Capital.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Buildings\Gun Emplacement.xml" />
+    <Content Include="Content\Buildings\Gun Emplacement.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Buildings\Outpost.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
