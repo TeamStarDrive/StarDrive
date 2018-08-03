@@ -621,11 +621,14 @@ namespace Ship_Game
                 if (system.isVisible && viewState <= UnivScreenState.SystemView)
                 {
                     system.VisibilityUpdated = true;
-                    for (int i = 0; i < system.AsteroidsList.Count; i++)
+                    if (!GlobalStats.DisableAsteroids)
                     {
-                        Asteroid asteroid = system.AsteroidsList[i];
-                        asteroid.So.Visibility = ObjectVisibility.Rendered;
-                        asteroid.Update(elapsedTime);
+                        for (int i = 0; i < system.AsteroidsList.Count; i++)
+                        {
+                            Asteroid asteroid = system.AsteroidsList[i];
+                            asteroid.So.Visibility = ObjectVisibility.Rendered;
+                            asteroid.Update(elapsedTime);
+                        }
                     }
                     for (int i = 0; i < system.MoonList.Count; i++)
                     {
@@ -638,10 +641,13 @@ namespace Ship_Game
                 else if (system.VisibilityUpdated)
                 {
                     system.VisibilityUpdated = false;
-                    for (int i = 0; i < system.AsteroidsList.Count; i++)
+                    if (!GlobalStats.DisableAsteroids)
                     {
-                        Asteroid asteroid = system.AsteroidsList[i];
-                        asteroid.So.Visibility = ObjectVisibility.None;
+                        for (int i = 0; i < system.AsteroidsList.Count; i++)
+                        {
+                            Asteroid asteroid = system.AsteroidsList[i];
+                            asteroid.So.Visibility = ObjectVisibility.None;
+                        }
                     }
                     for (int i = 0; i < system.MoonList.Count; i++)
                     {
@@ -767,10 +773,13 @@ namespace Ship_Game
                 }
                 if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
                 {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
+                    if (!GlobalStats.DisableAsteroids)
                     {
-                        asteroid.So.Visibility = ObjectVisibility.Rendered;
-                        asteroid.Update(elapsedTime);
+                        foreach (Asteroid asteroid in system.AsteroidsList)
+                        {
+                            asteroid.So.Visibility = ObjectVisibility.Rendered;
+                            asteroid.Update(elapsedTime);
+                        }
                     }
                     foreach (Moon moon in system.MoonList)
                     {
@@ -780,9 +789,12 @@ namespace Ship_Game
                 }
                 else
                 {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
+                    if (!GlobalStats.DisableAsteroids)
                     {
-                        asteroid.So.Visibility = ObjectVisibility.None;
+                        foreach (Asteroid asteroid in system.AsteroidsList)
+                        {
+                            asteroid.So.Visibility = ObjectVisibility.None;
+                        }
                     }
                     foreach (Moon moon in system.MoonList)
                     {
@@ -799,6 +811,48 @@ namespace Ship_Game
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                         asteroid.Update(elapsedTime);
+                }
+
+                if (GlobalStats.DisableAsteroids && !AsteroidsDisabled)
+                {
+                    UnloadAsteroids();
+                    AsteroidsDisabled = true;
+                }
+
+                if (!GlobalStats.DisableAsteroids && AsteroidsDisabled)
+                {
+                    ReloadAsteroids();
+                    AsteroidsDisabled = false;
+                }
+            }
+        }
+
+        private void UnloadAsteroids()
+        {
+            foreach (SolarSystem solarSystem in SolarSystemList)
+            {
+                foreach (Asteroid asteroid in solarSystem.AsteroidsList)
+                {
+                    if (asteroid.So != null)
+                    {
+                        asteroid.So.Clear();
+                        ScreenManager.RemoveObject(asteroid.So);
+                    }
+                }
+            }
+        }
+
+        private void ReloadAsteroids()
+        {
+            foreach (SolarSystem solarSystem in SolarSystemList)
+            {
+                foreach (Asteroid asteroid in solarSystem.AsteroidsList)
+                {
+                    if (!GlobalStats.DisableAsteroids)
+                    {
+                        asteroid.Initialize();
+                        AddObject(asteroid.So);
+                    }
                 }
             }
         }
