@@ -395,7 +395,7 @@ namespace Ship_Game.Ships
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
             if (Parent.loyalty.isFaction)
                 return;
-            if (hangarShipUID == ResourceManager.DynamicLaunchDummyShip || !Parent.loyalty.isPlayer)
+            if (ShipBuilder.IsDynamicLaunch(hangarShipUID) || !Parent.loyalty.isPlayer)
                 DynamicHangar = true;
         }
 
@@ -1244,7 +1244,7 @@ namespace Ship_Game.Ships
                                                     && !IsSupplyBay 
                                                     && !IsTroopBay)
             {
-                if (hangarShipUID == ResourceManager.DynamicLaunchDummyShip)
+                if (ShipBuilder.IsDynamicLaunch(hangarShipUID))
                     off += MaximumHangarShipSize * 2;
                 else
                 {
