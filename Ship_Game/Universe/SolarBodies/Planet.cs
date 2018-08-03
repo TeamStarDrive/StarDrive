@@ -2545,7 +2545,7 @@ namespace Ship_Game
                 }
             }
             // Added by Fat Bastard - add troops' strength to Defensive Strength
-            TotalDefensiveStrength += TotalTroopStrength();
+            TotalDefensiveStrength += TotalTroopStrength;
 
             //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
@@ -2635,14 +2635,19 @@ namespace Ship_Game
             return events;
         }
 
-        private int TotalTroopStrength()
+        public int TotalTroopStrength
         {
-            if (TroopsHere.Count <= 0)
-                return 0;
+            get
+            {
+                if (TroopsHere.Count <= 0)
+                    return 0;
 
-            float totalTroopStrength = TroopsHere.Sum(troop => troop.Strength);
-            return (int)totalTroopStrength;
+                float totalTroopStrength = TroopsHere.Sum(troop => troop.Strength);
+                return (int)totalTroopStrength;
+            }
         }
+
+        public int TotalInvadeInjure => BuildingList.FilterBy(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
 
         public enum GoodState
         {
