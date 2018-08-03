@@ -1812,7 +1812,7 @@ namespace Ship_Game
             foreach (Ship ship in SelectedShipList)
             {
                 if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null && ship.fleet == null)  //fbedard: cannot add ships from hangar in fleet
-                    fleet.Ships.Add(ship);
+                    fleet.AddShip(ship);
             }
             fleet.AutoArrange();
             InputCheckPreviousShip();

@@ -813,6 +813,7 @@ namespace Ship_Game.AI {
         {
             if (ClearOrders)
             {
+                State = AIState.AwaitingOrders;
                 OrderQueue.Clear();
                 WayPoints.Clear();                
             }
