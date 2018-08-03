@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -565,7 +566,7 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length != 0)
             {
-                if (mod.hangarShipUID == ResourceManager.DynamicLaunchDummyShip)
+                if (ShipBuilder.IsDynamicLaunch(mod.hangarShipUID))
                 {
                     modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                     Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
@@ -647,7 +648,7 @@ namespace Ship_Game
             DrawStat(ref cursor, "Delay", delay, 183);
 
             
-            DrawStat(ref cursor, "EMP", (1f / delay) * w.EMPDamage, 110);
+            DrawStat(ref cursor, "EMP", w.EMPDamage, 110);
             float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
             DrawStat(ref cursor, "Siphon", siphon, 184);
             
