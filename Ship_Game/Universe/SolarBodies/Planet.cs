@@ -2544,7 +2544,10 @@ namespace Ship_Game
                     building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
                 }
             }
-            //Added by Gretman -- This will keep a planet from still having sheilds even after the shield building has been scrapped.
+            // Added by Fat Bastard - add troops' strength to Defensive Strength
+            TotalDefensiveStrength += TotalTroopStrength();
+
+            //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
             if (shipyard && (colonyType != ColonyType.Research || Owner.isPlayer))
@@ -2630,6 +2633,13 @@ namespace Ship_Game
                 }
             }
             return events;
+        }
+
+        private int TotalTroopStrength()
+        {
+            if (TroopsHere.Count <= 0)
+                return 0;
+            return (int)TroopsHere.Sum(troop => troop.Strength);
         }
 
         public enum GoodState
