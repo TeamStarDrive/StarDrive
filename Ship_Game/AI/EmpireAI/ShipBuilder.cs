@@ -90,5 +90,17 @@ namespace Ship_Game.AI
 
             return modifiedStrength * speedModifier;
         }
+
+        public static bool IsDynamicLaunch(string compare)
+        {
+            if (Enum.TryParse(compare, out DynamicHangarLaunch result))
+                return result == DynamicHangarLaunch.DynamicLaunch;
+
+            return false;
+        }
+    }
+    public enum DynamicHangarLaunch
+    {
+        DynamicLaunch
     }
 }
