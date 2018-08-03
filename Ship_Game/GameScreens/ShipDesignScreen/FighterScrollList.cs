@@ -125,10 +125,5 @@ namespace Ship_Game
             FighterSubMenu.Draw();
             base.Draw(spriteBatch);
         }
-
-        public void DrawBestShipitem()
-        {
-
-        }
     }
 }
