@@ -130,9 +130,8 @@ namespace Ship_Game
             ProdLock    = new ColonyScreen.Lock();
             flagRect    = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
             DefenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 112, 22, 22);
-            InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112, 22, 22);
-
-            this.ShieldRect = new Rectangle(this.LeftRect.X + 13, this.Housing.Y + 112 + 75, 22, 22);
+            InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 53, 22, 22);
+            ShieldRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 75, 22, 22);
         }
 
         public override void Draw(GameTime gameTime)
@@ -142,13 +141,19 @@ namespace Ship_Game
             string str;
             string str1;
             MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-            this.ToolTipItems.Clear();
+            ToolTipItems.Clear();
             PlanetInfoUIElement.TippedItem def = new PlanetInfoUIElement.TippedItem()
             {
                 r = this.DefenseRect,
                 TIP_ID = 31
             };
-            this.ToolTipItems.Add(def);
+            ToolTipItems.Add(def);
+            PlanetInfoUIElement.TippedItem injury = new PlanetInfoUIElement.TippedItem()
+            {
+                r = InjuryRect,
+                TIP_ID = 249
+            };
+            ToolTipItems.Add(injury);
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
