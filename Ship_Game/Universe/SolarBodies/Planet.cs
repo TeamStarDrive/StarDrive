@@ -1882,8 +1882,8 @@ namespace Ship_Game
             float score = 0;
             if (building.PlusTerraformPoints != 0)
             {
-                if (Fertility >= 1.0f)  score += -2.0f;     //Are we done yet?
-                else                    score += 2.0f;
+                if (Fertility >= 1.0f)  score -= building.Maintenance;     //Are we done yet?
+                else                    score += building.Maintenance;
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} Terraform : Score was {score}");
             }
@@ -1906,6 +1906,21 @@ namespace Ship_Game
                     if (foodFromFlat + foodFromLabor < Consumption) score += fertLost * 10;
                     else score += fertLost * 4;
                 }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FertLossOnBuild : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapFertilityLoss(Building building)
+        {
+            float score = 0;
+            if (building.MinusFertilityOnBuild != 0 && Owner.data.Traits.Cybernetic == 0)
+            {
+                if (building.MinusFertilityOnBuild < 0) score += building.MinusFertilityOnBuild * 2;    //Negative MinusFertilityOnBuild is reversed if the building is removed. 
+
+                //There is no logic for a score penalty due to loss of Fertility... because the damage has already been done  =(
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FertLossOnBuild : Score was {score}");
             }
@@ -2111,7 +2126,7 @@ namespace Ship_Game
                 buildingValue += EvaluateBuildingPlusTaxPercent(bldg, income);
                 buildingValue += EvaluateBuildingAllowShipBuilding(bldg);
                 buildingValue += EvaluateBuildingScrapTerraforming(bldg);
-                //buildingValue -= EvaluateBuildingFertilityLoss(building, maxPopulation);  //Because the damage has already been done...
+                buildingValue -= EvaluateBuildingScrapFertilityLoss(bldg);  //Yes, -= because it is calculated as negative in the function
                 if (bldg.CombatStrength > 0) buildingValue += EvaluateMilitaryBuilding(bldg, income);
 
                 if (buildingValue < costWeight)
