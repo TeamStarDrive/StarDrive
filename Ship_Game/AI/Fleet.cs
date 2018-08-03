@@ -142,11 +142,6 @@ namespace Ship_Game.AI
             RightFlank.Clear();
             ScreenFlank.Clear();
             RearFlank.Clear();
-            AllFlanks.Add(CenterFlank);
-            AllFlanks.Add(LeftFlank);
-            AllFlanks.Add(RightFlank);
-            AllFlanks.Add(ScreenFlank);
-            AllFlanks.Add(RearFlank);
         }
 
         private void ResetFlankLists()
@@ -154,30 +149,30 @@ namespace Ship_Game.AI
             ClearFlankList();
 
             var mainShipList = new Array<Ship>(Ships);
-            
-            ShipData.RoleName largest = mainShipList.FindMax(role => (int)role.DesignRole)?.DesignRole ?? ShipData.RoleName.disabled;
-
+            var largestShip = mainShipList.FindMax(ship => (int)(ship.DesignRole));
+            ShipData.RoleName largestCombat = largestShip.DesignRole;                                            
+     
             for (int i = mainShipList.Count - 1; i >= 0; i--)
             {
                 Ship ship = mainShipList[i];
 
-                if (ship.DesignRole >= ShipData.RoleName.fighter && (int)ship.DesignRole > (int)largest - 1)
+                if (ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole == largestCombat)
                 {
-                    this.ScreenShips.Add(ship);
+                    ScreenShips.Add(ship);
                     mainShipList.RemoveSwapLast(ship);
                 }
                 else if (ship.DesignRole            == ShipData.RoleName.troop ||
                          ship.DesignRole            == ShipData.RoleName.freighter ||
                          ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                         ship.DesignRole            == ShipData.RoleName.troopShip
+                         ship.DesignRole            == ShipData.RoleName.troopShip 
                 )
                 {
-                    this.RearShips.Add(ship);
+                    RearShips.Add(ship);
                     mainShipList.RemoveSwapLast(ship);
                 }
-                else if (ship.shipData.Role < ShipData.RoleName.fighter)
+                else if (ship.DesignRole < ShipData.RoleName.fighter)
                 {
-                    this.CenterShips.Add(ship);
+                    CenterShips.Add(ship);
                     mainShipList.RemoveSwapLast(ship);
                 }
                 else
@@ -194,11 +189,11 @@ namespace Ship_Game.AI
             int totalShips = this.CenterShips.Count;
             foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.Size))
             {
-                if (totalShips < 4) this.CenterShips.Add(ship);
-                else if (totalShips < 8) this.LeftShips.Add(ship);
-                else if (totalShips < 12) this.RightShips.Add(ship);
-                else if (totalShips < 16) this.ScreenShips.Add(ship);
-                else if (totalShips < 20 && this.RearShips.Count == 0) this.RearShips.Add(ship);
+                if (totalShips < 4) CenterShips.Add(ship);
+                else if (totalShips < 8) LeftShips.Add(ship);
+                else if (totalShips < 12) RightShips.Add(ship);
+                else if (totalShips < 16) ScreenShips.Add(ship);
+                else if (totalShips < 20 && RearShips.Count == 0) RearShips.Add(ship);
 
                 ++totalShips;
                 if (totalShips != 16) continue;
@@ -206,7 +201,30 @@ namespace Ship_Game.AI
                 ship.FleetCombatStatus = FleetCombatStatus.Maintain;
                 totalShips = 0;
             }
+   
         }
+        private enum FlankType
+        {
+            Left,
+            Right
+        }
+
+        private void FlankToCenterOffset(Array<Squad> flank, FlankType flankType)
+        {
+            if (flank.IsEmpty) return;
+            int centerSquadCount = Math.Max(1, CenterFlank.Count);
+            for (int x = 0; x < flank.Count; x++)
+            {
+                Squad squad = flank[x];
+                var offset = centerSquadCount * 1400 + x * 1400;
+                if (flankType == FlankType.Left)
+                    offset *= -1;
+                squad.Offset = new Vector2(offset, 0f);
+            }
+        }
+
+        private void LeftFlankToCenterOffset() => FlankToCenterOffset(LeftFlank, FlankType.Left);
+        private void RightFlankToCenterOffset() => FlankToCenterOffset(RightFlank, FlankType.Right);
 
         public void AutoArrange()
         {
@@ -219,32 +237,34 @@ namespace Ship_Game.AI
             RightFlank  = SortSquadBySpeed(RightShips);
             ScreenFlank = SortSquadBySpeed(ScreenShips);
             RearFlank   = SortSquadBySpeed(RearShips);
-
+            AllFlanks.Add(CenterFlank);
+            AllFlanks.Add(LeftFlank);
+            AllFlanks.Add(RightFlank);
+            AllFlanks.Add(ScreenFlank);
+            AllFlanks.Add(RearFlank);
             Position = FindAveragePosition();
 
             ArrangeSquad(CenterFlank, Vector2.Zero);
             ArrangeSquad(ScreenFlank, new Vector2(0.0f, -2500f));
             ArrangeSquad(RearFlank  , new Vector2(0.0f, 2500f));
 
-            for (int index = 0; index < LeftFlank.Count; ++index)            
-                LeftFlank[index].Offset = new Vector2(-CenterFlank.Count * 1400 - (LeftFlank.Count == 1 ? 1400 : index * 1400), 0.0f);
-            
+            LeftFlankToCenterOffset();
+            RightFlankToCenterOffset();
 
-            for (int index = 0; index < RightFlank.Count; ++index)            
-                RightFlank[index].Offset = new Vector2(CenterFlank.Count * 1400 + (RightFlank.Count == 1 ? 1400 : index * 1400), 0.0f);
             
-
-            AutoAssembleFleet(0.0f);
             for (int x = 0; x < Ships.Count; x++)
             {
                 Ship s = Ships[x];
-                if (!s.InCombat)
-                {
-                    lock (s.AI.WayPoints.WayPointLocker)
-                        s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), true);
-                }
-
-                AddShipToDataNode(s);
+                AddShipToDataNode(s);                
+            }
+            AutoAssembleFleet(0.0f);
+            for (int x =0; x < Ships.Count;x++)
+            {
+                Ship s = Ships[x];
+                //if (s.InCombat)
+                //    continue;
+                lock (s.AI.WayPoints.WayPointLocker)
+                    s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), true);
             }
         }
 
@@ -270,21 +290,39 @@ namespace Ship_Game.AI
             ship.AI.FleetNode          = fleetDataNode;
         }
 
-        private Array<Squad> SortSquadBySpeed(Array<Ship> allShips) => SortSquad(allShips, false);
-        private Array<Squad> SortSquadBySize(Array<Ship> allShips) => SortSquad(allShips, true);
+        private enum SquadSortType
+        {
+            Size,
+            Speed
+        }
 
-        private Array<Squad> SortSquad(Array<Ship> allShips, bool sizeOverSpeed)
+        private Array<Squad> SortSquadBySpeed(Array<Ship> allShips) => SortSquad(allShips, SquadSortType.Speed);
+        private Array<Squad> SortSquadBySize(Array<Ship> allShips) => SortSquad(allShips, SquadSortType.Size);
+
+        private Array<Squad> SortSquad(Array<Ship> allShips, SquadSortType sort)
         {
             var destSquad = new Array<Squad>();
             if (allShips.IsEmpty) return destSquad;
-            Ship[] orderedShips = allShips.OrderByDescending(ship => sizeOverSpeed ? ship.Size: ship.Speed).ToArray();            
-            Squad squad         = new Squad { Fleet = this };
+            allShips.Sort(ship =>
+            {
+                switch (sort)
+                {
+                    case SquadSortType.Size:
+                        return -ship.Size;
+                    case SquadSortType.Speed:
+                        return -ship.Speed;
+                    default:
+                        return 0;
+                }
+            });
 
-            for (int index = 0; index < orderedShips.Length; ++index)
+            Squad squad = new Squad { Fleet = this };
+            destSquad.Add(squad);
+            for (int x = 0; x < allShips.Count; ++x)
             {
                 if (squad.Ships.Count < 4)
-                    squad.Ships.Add(orderedShips[index]);
-                if (squad.Ships.Count != 4 && index != orderedShips.Length - 1) continue;
+                    squad.Ships.Add(allShips[x]);
+                if (squad.Ships.Count != 4 && x != allShips.Count - 1) continue;
 
                 squad = new Squad { Fleet = this };
                 destSquad.Add(squad);                
