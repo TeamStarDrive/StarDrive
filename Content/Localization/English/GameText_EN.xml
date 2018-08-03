@@ -4696,6 +4696,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1980</Index>
+      <Text>Every troop invading this planet will suffer the damage indicated here upon landing. This might destroy weak troops upon planet atmospheric entry.</Text>
+    </Token>
+    <Token>
       <Index>1981</Index>
       <Text>This shows the hangar status of the ship. Green is the number of ships currently launched, White is the number of ships ready to launch and Red is the number of ships being rearmed, repaired or rebuit.</Text>
     </Token>
