@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {
@@ -141,6 +143,7 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
                 return;
 
+            PrepShipHangars(Owner.loyalty);
             for (int i = 0; i < AllActiveHangars.Length; ++i)
                 AllActiveHangars[i].ScrambleFighters();
         }
@@ -447,6 +450,31 @@ namespace Ship_Game.Ships
                             break;
                         }
                 Owner.TroopList.Remove(to);
+            }
+        }
+
+        public void PrepShipHangars(Empire empire) // This will set dynamic hangar UIDs to the best ships
+        {
+            if (empire.Id == -1 || empire.isFaction) // ID -1 since there is a loyalty without a race when saving s ship
+                return;
+
+            string defaultShip = empire.data.StartingShip;
+
+            foreach (ShipModule hangar in AllFighterHangars.FilterBy(hangar => hangar.Active && hangar.GetHangarShip() == null))
+            {
+                if (!hangar.DynamicHangar)
+                {
+                    if (empire.ShipsWeCanBuild.Contains(hangar.hangarShipUID))
+                        continue;
+
+                    hangar.hangarShipUID = defaultShip;
+                }
+
+                ShipData.RoleName biggetRole = hangar.BiggestPermittedHangarRole;
+                string selectedShip = ShipBuilder.PickFromCandidates(biggetRole, empire, maxSize: hangar.MaximumHangarShipSize);
+                hangar.hangarShipUID = selectedShip ?? defaultShip;
+                if (Empire.Universe?.showdebugwindow ?? false)
+                    Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
             }
         }
     }
