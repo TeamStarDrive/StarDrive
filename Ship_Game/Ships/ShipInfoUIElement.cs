@@ -374,7 +374,7 @@ namespace Ship_Game.Ships
                 var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_pack"), packRect, Color.White);
                 var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
-                float damageModifier = Ship.DamageModifier * 100f;
+                float damageModifier = Ship.PackDamageModifier * 100f;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
                 if (packRect.HitTest(mousePos))
                 {

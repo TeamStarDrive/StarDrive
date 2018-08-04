@@ -738,7 +738,7 @@ namespace Ship_Game.Gameplay
             if (Owner == null)
                 return;
             if (Owner.loyalty.data.Traits.Pack)
-                projectile.DamageAmount += projectile.DamageAmount * Owner.DamageModifier;
+                projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
             //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
             //    return;
