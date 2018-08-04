@@ -558,7 +558,7 @@ namespace Ship_Game.AI
                     }
                     else if (Target != null)
                     {
-                        OrbitShip(Target as Ship, elapsedTime);
+                        OrbitShip(Target as Ship, elapsedTime, Orbit.Right);
                     }
                 }
                 else
@@ -964,7 +964,7 @@ namespace Ship_Game.AI
                 Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
                 EscortTarget != Owner.Mothership)
             {
-                OrbitShip(EscortTarget, elapsedTime);
+                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
                 return;
             }
             // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
@@ -974,14 +974,14 @@ namespace Ship_Game.AI
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
             if(!Owner.InCombat )
             {
-                OrbitShip(EscortTarget, elapsedTime);
+                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
                 return;
             }
             
             if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
             {
                 Owner.AI.HasPriorityOrder = true;
-                OrbitShip(EscortTarget, elapsedTime);
+                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
             }            
         }
 
