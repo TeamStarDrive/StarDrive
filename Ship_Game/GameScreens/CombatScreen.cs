@@ -479,7 +479,7 @@ namespace Ship_Game
                 batch.DrawRectangle(levelRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
                 cursor = new Vector2((levelRect.X + levelRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
                     (1 + levelRect.Y + levelRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Level.ToString(), cursor, Color.Yellow);
+                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Level.ToString(), cursor, Color.Gold);
 
                 if (ActiveTroop != null && ActiveTroop == pgs)
                 {
