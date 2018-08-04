@@ -261,8 +261,8 @@ namespace Ship_Game.AI
             for (int x =0; x < Ships.Count;x++)
             {
                 Ship s = Ships[x];
-                //if (s.InCombat)
-                //    continue;
+                if (s.InCombat)
+                    continue;
                 lock (s.AI.WayPoints.WayPointLocker)
                     s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), true);
             }
