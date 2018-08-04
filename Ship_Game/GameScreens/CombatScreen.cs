@@ -472,7 +472,15 @@ namespace Ship_Game
                 var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
                                          (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
                 batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString("0."), cursor, Color.White);
-                
+
+                //Fat Bastard - show TroopLevel
+                var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                batch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
+                batch.DrawRectangle(levelRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
+                cursor = new Vector2((levelRect.X + levelRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
+                    (1 + levelRect.Y + levelRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Level.ToString(), cursor, Color.Yellow);
+
                 if (ActiveTroop != null && ActiveTroop == pgs)
                 {
                     if (ActiveTroop.TroopsHere[0].AvailableAttackActions > 0)

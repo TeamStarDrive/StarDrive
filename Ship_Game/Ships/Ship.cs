@@ -763,7 +763,6 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-
         public ShipData BaseHull => shipData.BaseHull;
 
         public void SetShipData(ShipData data)
