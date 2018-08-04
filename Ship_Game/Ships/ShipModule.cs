@@ -779,7 +779,7 @@ namespace Ship_Game.Ships
 
                     HangarShipGuid = hangarShip.guid;
                     hangarTimer = hangarTimerConstant;
-                    Parent.Ordinance -= hangarShip.Mass / 5f;
+                    Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
                 }
             }
         }
