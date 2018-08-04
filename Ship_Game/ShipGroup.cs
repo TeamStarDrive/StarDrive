@@ -100,12 +100,11 @@ namespace Ship_Game
             Facing = facing;
             foreach (Ship ship in Ships)
             {
-                if (ship.AI.State == AIState.AwaitingOrders || forceAssembly)
-                {
-                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                    float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
-                }
+                if (ship.AI.State != AIState.AwaitingOrders && !forceAssembly)
+                    continue;
+                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                float distance = ship.RelativeFleetOffset.Length();
+                ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
             }
         }
         public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner,  float facingRadians, Vector2 fVec,  Empire owner)
