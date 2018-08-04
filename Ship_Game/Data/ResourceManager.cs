@@ -611,10 +611,7 @@ namespace Ship_Game
                     newB.IsSensor = true;
                 }
             }
-            if (template.isWeapon)
-            {
-                newB.theWeapon = CreateWeapon(template.Weapon);
-            }
+            newB.CreateWeapon();
             return newB;
         }
 
