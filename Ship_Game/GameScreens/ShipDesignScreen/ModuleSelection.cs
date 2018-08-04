@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -115,6 +116,13 @@ namespace Ship_Game
             if (font == null) font = Fonts.Arial8Bold;
             ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, Color.SpringGreen);
             cursorPos.X = cursorPos.X + Fonts.Arial8Bold.MeasureString(text).X;
+        }
+
+        private void DrawString(ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
+        {
+            if (font == null) font = Fonts.Arial8Bold;
+            ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, color);
+            cursorPos.X = cursorPos.X + font.MeasureString(text).X;
         }
 
         private void DrawActiveModuleData()
@@ -558,6 +566,15 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length != 0)
             {
+                if (ShipBuilder.IsDynamicLaunch(mod.hangarShipUID))
+                {
+                    modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
+                    Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                    string bestShip = ParseText("Hangar will launch more advanced ships, as they become available in your empire"
+                                                , ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12Bold);
+                    DrawString(ref bestShipSelectionPos, bestShip, Color.Gold, Fonts.Arial12Bold);
+                    return;
+                }
                 Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
                 if (ship == null) return;
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
@@ -631,7 +648,7 @@ namespace Ship_Game
             DrawStat(ref cursor, "Delay", delay, 183);
 
             
-            DrawStat(ref cursor, "EMP", (1f / delay) * w.EMPDamage, 110);
+            DrawStat(ref cursor, "EMP", w.EMPDamage, 110);
             float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
             DrawStat(ref cursor, "Siphon", siphon, 184);
             
