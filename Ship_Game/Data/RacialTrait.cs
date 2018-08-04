@@ -279,14 +279,10 @@ namespace Ship_Game
 
         public void ApplyTraitToShip(Ship ship)
         {
-            if (Pack)
-            {
-                ship.DamageModifier = -0.25f;
+            if (!Pack)
+                return;
 
-                ship.DamageModifier = ship.DamageModifier + 0.05f * ship.AI.FriendliesNearby.Count;
-                if (ship.DamageModifier > 0.5f)
-                    ship.DamageModifier = 0.5f;
-            }
+            ship.ApplyPackDamageModifier();
         }
     }
 }
