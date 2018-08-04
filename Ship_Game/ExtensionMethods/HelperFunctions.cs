@@ -307,7 +307,6 @@ namespace Ship_Game
             GC.Collect();
         }
 
-
         public static string GetNumberString(float stat)
         {
             if (Math.Abs(stat) < 1000f) return stat.ToString("#.#"); // 950.7
