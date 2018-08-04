@@ -1191,7 +1191,7 @@ namespace Ship_Game.Ships
             return off;
         }
 
- public static float DefaultFacingFor(ModuleOrientation orientation)
+        public static float DefaultFacingFor(ModuleOrientation orientation)
         {
             switch (orientation)
             {
