@@ -455,7 +455,7 @@ namespace Ship_Game
                     sdata.AISave.GoToStep = ship.AI.GotoStep;
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
                     sdata.AISave.ActiveWayPoints = new Array<Vector2>();
-                    foreach (Vector2 waypoint in ship.AI.ActiveWayPoints)
+                    foreach (Vector2 waypoint in ship.AI.WayPoints.GetWayPoints())
                     {
                         sdata.AISave.ActiveWayPoints.Add(waypoint);
                     }

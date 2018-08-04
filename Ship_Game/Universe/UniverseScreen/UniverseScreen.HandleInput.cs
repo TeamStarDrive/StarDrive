@@ -540,7 +540,7 @@ namespace Ship_Game
                     ship.ClearFleet();
                 }
 
-                if (fleet != null && fleet.Ships.Count == 0)
+                if (fleet != null && fleet.Ships.Count > 0)
                 {
                     fleet = new Fleet();
                     fleet.Name = str + " Fleet";
@@ -727,7 +727,7 @@ namespace Ship_Game
 
         private bool QueueFleetMovement(Vector2 movePosition, float facing, ShipGroup fleet)
         {
-            if (!Input.QueueAction || fleet.Ships[0].AI.ActiveWayPoints.Count == 0) return false;
+            if (!Input.QueueAction || fleet.Ships[0].AI.WayPoints.Count() == 0) return false;
 
             Vector2 vectorToTarget =
                 Vector2.Zero.DirectionToTarget(fleet.Position.PointFromRadians(facing, 1f));
@@ -1787,12 +1787,24 @@ namespace Ship_Game
 
         private void AddSelectedShipsToFleet(Fleet fleet)
         {
-            foreach (Ship ship in SelectedShipList)
+            using (fleet.Ships.AcquireWriteLock())
             {
-                if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null && ship.fleet == null)  //fbedard: cannot add ships from hangar in fleet
-                    fleet.Ships.Add(ship);
+                
+                foreach (Ship ship in SelectedShipList)
+                {
+                    ship.ClearFleet();
+                    if (ship.loyalty == player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
+                    {                        
+                        ship.AI.OrderQueue.Clear();
+                        ship.AI.ClearWayPoints();
+                        ship.AI.ClearPriorityOrder();
+                        fleet.Ships.Add(ship);
+                    }
+                }
+                //fleet.StoredFleetDistancetoMove = 0;
+                fleet.StoredFleetPosition = Vector2.Zero;
+                fleet.AutoArrange();                
             }
-            fleet.AutoArrange();
             InputCheckPreviousShip();
 
             SelectedShip = (Ship)null;

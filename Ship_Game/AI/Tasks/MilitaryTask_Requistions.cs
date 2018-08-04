@@ -672,7 +672,10 @@ namespace Ship_Game.AI.Tasks {
             AO ao = FindClosestAO();
             
             var forcePool = Owner.GetShipsFromOffensePools();
-            forcePool.Sort(s => s.Center.Distance(ao.Center));
+
+            //fix sentry bug: https://sentry.io/blackboxmod/blackbox/issues/626773068/
+            if (!forcePool.IsEmpty)
+                forcePool.Sort(s => s.Center.Distance(ao.Center));
             FleetShips fleetShips = new FleetShips(Owner);
             foreach (var ship in forcePool)
                 fleetShips.AddShip(ship);
