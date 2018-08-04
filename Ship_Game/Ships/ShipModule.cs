@@ -506,7 +506,7 @@ namespace Ship_Game.Ships
 
         public void DebugDamageCircle()
         {
-            Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
+            Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
