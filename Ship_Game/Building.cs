@@ -89,7 +89,7 @@ namespace Ship_Game
                 return;
 
             TheWeapon = ResourceManager.WeaponsDict[Weapon];
-            Offense = TheWeapon.CalculateWeaponOffense();
+            Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
         }
 
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;

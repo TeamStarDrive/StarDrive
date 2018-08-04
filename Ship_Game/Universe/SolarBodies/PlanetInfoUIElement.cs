@@ -103,7 +103,7 @@ namespace Ship_Game
             this.clickRect = new Rectangle(this.ElementRect.X + this.ElementRect.Width - 16, this.ElementRect.Y + this.ElementRect.Height / 2 - 11, 11, 22);
             this.LeftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
             this.RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
-            this.PlanetIconRect = new Rectangle(this.LeftRect.X + 55, this.Housing.Y + 120, 80, 80);
+            this.PlanetIconRect = new Rectangle(this.LeftRect.X + 75, this.Housing.Y + 120, 80, 80);
             this.Inspect = new SkinnableButton(new Rectangle(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2 - 16, this.PlanetIconRect.Y, 32, 32), "UI/viewPlanetIcon")
             {
                 HoverColor = this.tColor,
@@ -507,9 +507,10 @@ namespace Ship_Game
             // Added by Fat Bastard - display total space offense of the planet
             if (p.TotalSpaceOffense > 0)
             {
+                string offenseNumberString = HelperFunctions.GetNumberString((float) Math.Round(p.TotalSpaceOffense,0));
                 ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_offense"], OffenseRect, Color.White);
                 Vector2 offensePos = new Vector2((OffenseRect.X + OffenseRect.Width + 2), (OffenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.TotalSpaceOffense.ToString(fmt), offensePos, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, offenseNumberString, offensePos, Color.White);
             }
 
             if (p.ShieldStrengthMax > 0f)
