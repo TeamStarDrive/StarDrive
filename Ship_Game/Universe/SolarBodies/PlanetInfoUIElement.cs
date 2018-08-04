@@ -60,6 +60,7 @@ namespace Ship_Game
 
         private Rectangle DefenseRect;
         private Rectangle InjuryRect;
+        private Rectangle OffenseRect;
 
         private Rectangle ShieldRect;
 
@@ -130,6 +131,7 @@ namespace Ship_Game
             ProdLock    = new ColonyScreen.Lock();
             flagRect    = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
             DefenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 112, 22, 22);
+            OffenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 22, 22, 22);
             InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 53, 22, 22);
             ShieldRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 75, 22, 22);
         }
@@ -154,6 +156,12 @@ namespace Ship_Game
                 TIP_ID = 249
             };
             ToolTipItems.Add(injury);
+            PlanetInfoUIElement.TippedItem offense = new PlanetInfoUIElement.TippedItem()
+            {
+                r = OffenseRect,
+                TIP_ID = 250
+            };
+            ToolTipItems.Add(offense);
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
@@ -496,14 +504,22 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.TotalInvadeInjure.ToString(fmt), injurePos, Color.White);
             }
 
-            if (this.p.ShieldStrengthMax > 0f)
+            // Added by Fat Bastard - display total space offense of the planet
+            if (p.TotalSpaceOffense > 0)
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_planetshield"], this.ShieldRect, Color.Green);
-                Vector2 shieldPos = new Vector2((float)(this.ShieldRect.X + this.ShieldRect.Width + 2), (float)(this.ShieldRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.ShieldStrengthCurrent.ToString(this.fmt), shieldPos, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_offense"], OffenseRect, Color.White);
+                Vector2 offensePos = new Vector2((OffenseRect.X + OffenseRect.Width + 2), (OffenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.TotalSpaceOffense.ToString(fmt), offensePos, Color.White);
             }
-            this.Inspect.Draw(this.ScreenManager);
-            this.Invade.Draw(this.ScreenManager);
+
+            if (p.ShieldStrengthMax > 0f)
+            {
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_planetshield"], ShieldRect, Color.Green);
+                Vector2 shieldPos = new Vector2((ShieldRect.X + ShieldRect.Width + 2), (ShieldRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.ShieldStrengthCurrent.ToString(fmt), shieldPos, Color.White);
+            }
+            Inspect.Draw(ScreenManager);
+            Invade.Draw(ScreenManager);
         }
 
         public override bool HandleInput(InputState input)
