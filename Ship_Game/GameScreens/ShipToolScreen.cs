@@ -44,8 +44,6 @@ namespace Ship_Game
 
         private Array<Ship> StartingShipList = new Array<Ship>();
 
-        private bool ShowOverlay = true;
-
         private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
 
         private UITextEntry ShipNameBox;
@@ -452,15 +450,6 @@ namespace Ship_Game
             {
                 this.tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
                                         Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
-            }
-        }
-
-        public void HandleMouseInput()
-        {
-            if (Input.LeftMouseClick)
-            {
-                this.ShowOverlay = !this.ShowOverlay;
-                GameAudio.PlaySfxAsync("analogue_click2");
             }
         }
 

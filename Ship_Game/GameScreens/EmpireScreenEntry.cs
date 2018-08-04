@@ -640,7 +640,7 @@ namespace Ship_Game
 				}
 				ToolTip.CreateTooltip(69);
 			}
-			if (input.LeftMouseClick)
+		    if (p.Owner.data.Traits.Cybernetic == 0 && foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
 			{
 				this.foodDropDown.Toggle();
 				Planet planet1 = this.p;
@@ -651,7 +651,7 @@ namespace Ship_Game
 				}
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 			}
-			if (input.LeftMouseClick)
+		    if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
 			{
 				this.prodDropDown.Toggle();
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
