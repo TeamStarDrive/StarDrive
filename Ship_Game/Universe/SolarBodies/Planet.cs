@@ -258,10 +258,10 @@ namespace Ship_Game
         }
 
         private void DebugImportFood(float predictedFood, string text) =>                   
-            Empire.Universe.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
         
         private void DebugImportProd(float predictedFood, string text) =>                    
-            Empire.Universe.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
         
         public Goods ImportPriority()
         {

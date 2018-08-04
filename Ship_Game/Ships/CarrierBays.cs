@@ -102,9 +102,14 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return 0f;
 
-                float troopStrength =  AllTroopBays.FilterBy(hangar => hangar.GetHangarShip()?.Active == true)
-                                         .Select(hangar => hangar.GetHangarShip())
-                                         .Select(hangarShip => hangarShip.TroopList[0].Strength).Sum();
+                //try to fix sentry bug : https://sentry.io/blackboxmod/blackbox/issues/628038060/
+                float troopStrength = AllTroopBays.Sum(hangar =>
+                {
+                    var ship = hangar.GetHangarShip();
+                    if (ship?.Active != true || ship.TroopList.IsEmpty) return 0;
+                    return ship.TroopList[0].Strength;
+                });
+                
                 return troopStrength;
             }
         }

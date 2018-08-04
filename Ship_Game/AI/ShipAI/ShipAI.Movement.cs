@@ -12,17 +12,12 @@ namespace Ship_Game.AI {
         public Vector2 MovePosition;
         private float DesiredFacing;
         private Vector2 FinalFacingVector;
-        public Queue<Vector2> ActiveWayPoints = new Queue<Vector2>();
+        
         public Planet OrbitTarget;
         private float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
-
-        public void ClearWayPoints()
-        {
-            lock (ActiveWayPoints)
-            {
-                ActiveWayPoints.Clear();
-            }
-        }
+        public Ships.AI.WayPoints WayPoints;
+        public void ClearWayPoints() => WayPoints.Clear();
+    
 
         public void GoTo(Vector2 movePos, Vector2 facing)
         {
@@ -45,18 +40,16 @@ namespace Ship_Game.AI {
         }
 
         private void MakeFinalApproach(float elapsedTime, ShipGoal Goal)
-        {
-            if (ActiveWayPoints.Count <= 0)
+        {            
+            if (WayPoints.Count() <= 0)
             {
                 Log.Error("Ship Movement: active way points was empty during final approach");
                 ClearOrdersNext = true;
                 return;
             }
             if (Goal.TargetPlanet != null)
-                lock (WayPointLocker)
+                lock (WayPoints.WayPointLocker)
                 {
-
-                    ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Center);
                     Goal.MovePosition = Goal.TargetPlanet.Center;
                 }
             Owner.HyperspaceReturn();
@@ -242,35 +235,35 @@ namespace Ship_Game.AI {
         private void MoveToWithin1000(float elapsedTime, ShipGoal goal)
         {
             var distWaypt = 15000f; //fbedard
-            lock (WayPointLocker)
+            lock (WayPoints.WayPointLocker)
             {
-                if (ActiveWayPoints.Count > 1)
+                if (WayPoints.Count() > 1)
                     distWaypt = Owner.loyalty.ProjectorRadius / 2f;
             }
 
             if (goal.TargetPlanet != null && OrderQueue.Count > 2 && OrderQueue[1].Plan != Plan.MoveToWithin1000)
-                lock (WayPointLocker)
+                lock (WayPoints.WayPointLocker)
                 {
                     //ActiveWayPoints.Last() = goal.TargetPlanet.Center;
                     goal.MovePosition = goal.TargetPlanet.Center;
                 }
             float speedLimit = (int) Owner.Speed;
             float distance = Owner.Center.Distance(goal.MovePosition);
-            lock (WayPointLocker)
+            lock (WayPoints.WayPointLocker)
             {
-                if (ActiveWayPoints.Count <= 1)
+                if (WayPoints.Count() <= 1)
                     if (distance < Owner.Speed)
                         speedLimit = distance;
             }
             ThrustTowardsPosition(goal.MovePosition, elapsedTime, speedLimit);
-            lock (WayPointLocker)
+            lock (WayPoints.WayPointLocker)
             {
-                if (ActiveWayPoints.Count <= 1)
+                if (WayPoints.Count() <= 1)
                 {
                     if (distance > 1500f) return;
 
-                    if (ActiveWayPoints.Count > 1)
-                        ActiveWayPoints.Dequeue();
+                    if (WayPoints.Count() > 1)
+                        WayPoints.Dequeue();
                     if (OrderQueue.NotEmpty)
                         OrderQueue.RemoveFirst();
                 }
@@ -278,13 +271,13 @@ namespace Ship_Game.AI {
                 {
                     if (distance > distWaypt) return;
 
-                    ActiveWayPoints.Dequeue();
+                    WayPoints.Dequeue();
                     if (OrderQueue.NotEmpty)
                         OrderQueue.RemoveFirst();
                 }
                 else if (distance <= 1500f)
                 {
-                    ActiveWayPoints.Dequeue();
+                    WayPoints.Dequeue();
                     if (OrderQueue.NotEmpty)
                         OrderQueue.RemoveFirst();
                 }
@@ -332,7 +325,7 @@ namespace Ship_Game.AI {
                 return false;
             }
 
-            lock (WayPointLocker)
+            lock (WayPoints.WayPointLocker)
             {
                 if (pathend.Path.Count > 2)
                 {
@@ -341,12 +334,12 @@ namespace Ship_Game.AI {
                     {
                         Vector2 point = pathend.Path[x];
                         if (point != Vector2.Zero)
-                            ActiveWayPoints.Enqueue(point);
+                            WayPoints.Enqueue(point);
                     }
                 }
                 if (endv == Vector2.Zero)
                     Log.Error("pathcache error. end = {0},{1}", endv.X.ToString(), endv.Y.ToString());
-                ActiveWayPoints.Enqueue(endv);
+                WayPoints.Enqueue(endv);
             }
             ++pathend.CacheHits;
             return true;
@@ -393,11 +386,11 @@ namespace Ship_Game.AI {
                 };
 
                 var pathpoints = path.FindPath(startp, endp);
-                lock (WayPointLocker)
+                lock (WayPoints.WayPointLocker)
                 {
                     if (pathpoints == null)
                     {
-                        ActiveWayPoints.Enqueue(endPos);
+                        WayPoints.Enqueue(endPos);                        
                         return;
                     }
 
@@ -416,7 +409,7 @@ namespace Ship_Game.AI {
 
                         if (Vector2.Distance(worldPosition, endPos) > Owner.loyalty.ProjectorRadius * 2
                             && Vector2.Distance(worldPosition, startPos) > Owner.loyalty.ProjectorRadius * 2)
-                            ActiveWayPoints.Enqueue(worldPosition);
+                            WayPoints.Enqueue(worldPosition);
                     }
 
                     var cache = Owner.loyalty.PathCache;
@@ -446,11 +439,11 @@ namespace Ship_Game.AI {
                         }
                     }
 
-                    ActiveWayPoints.Enqueue(endPos);
+                    WayPoints.Enqueue(endPos);
                     return;
                 }
             }
-            ActiveWayPoints.Enqueue(endPos);
+            WayPoints.Enqueue(endPos);
 
         }
         
@@ -578,12 +571,10 @@ namespace Ship_Game.AI {
 
         private void StopWithBackwardsThrust(float elapsedTime, ShipGoal Goal)
         {
-            if (Goal.TargetPlanet != null)
-                lock (WayPointLocker)
-                {
-                    ActiveWayPoints.Last().Equals(Goal.TargetPlanet.Center);
+            if (Goal.TargetPlanet != null && WayPoints.LastPointEquals(Goal.TargetPlanet.Center))
+                lock (WayPoints.WayPointLocker)                                    
                     Goal.MovePosition = Goal.TargetPlanet.Center;
-                }
+                
             if (Owner.loyalty == EmpireManager.Player)
                 HadPO = true;
             HasPriorityOrder = false;
@@ -592,10 +583,9 @@ namespace Ship_Game.AI {
             if (Distance < 200f) //fbedard
             {
                 //OrderQueue.RemoveFirst();
-                lock (WayPointLocker)
-                {
-                    ActiveWayPoints.Clear();
-                }
+                                  
+                WayPoints.Clear();
+                
                 Owner.Velocity = Vector2.Zero;
                 if (Owner.loyalty == EmpireManager.Player)
                     HadPO = true;
@@ -612,11 +602,9 @@ namespace Ship_Game.AI {
             {
                 Owner.Velocity = Vector2.Zero;
                 OrderQueue.RemoveFirst();
-                if (ActiveWayPoints.Count > 0)
-                    lock (WayPointLocker)
-                    {
-                        ActiveWayPoints.Dequeue();
-                    }
+                if (WayPoints.Count() > 0)
+                    WayPoints.Dequeue();
+                    
                 return;
             }
             Vector2 velocity = Owner.Velocity;
@@ -679,18 +667,18 @@ namespace Ship_Game.AI {
                     //             warpSpeed + "     Distance = " + distance);
                     //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
 
-                    if (ActiveWayPoints.Count >= 2 && distance > Owner.loyalty.ProjectorRadius / 2 &&
-                        Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
+                    if (WayPoints.Count() >= 2 && distance > Owner.loyalty.ProjectorRadius / 2 &&
+                        Vector2.Distance(Owner.Center, WayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
+
                     {
-                        Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(ActiveWayPoints.ElementAt(1));
+
+                        Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(WayPoints.ElementAt(1));
                         float angleDiffNext = (float) Math.Acos(Vector2.Dot(wantedForwardNext, forward));
                         if (angleDiff > angleDiffNext || angleDiffNext < turnRate * 0.5)
                             //Angle to next waypoint is better than angle to this one, just cut the corner.
+
                         {
-                            lock (WayPointLocker)
-                            {
-                                ActiveWayPoints.Dequeue();
-                            }
+                            WayPoints.Dequeue();
                             if (OrderQueue.NotEmpty) OrderQueue.RemoveFirst();
                             return;
                         }
@@ -727,7 +715,8 @@ namespace Ship_Game.AI {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f && ActiveWayPoints.Count <= 1 &&
+            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f && WayPoints.Count() <= 1 &&
+
                      Owner.engineState == Ship.MoveState.Warp)
             {
                 Owner.HyperspaceReturn();
@@ -806,11 +795,11 @@ namespace Ship_Game.AI {
         }
 
 
-        public class WayPoints
-        {
-            public Planet planet { get; set; }
-            public Ship ship { get; set; }
-            public Vector2 location { get; set; }
-        }
+        //public class WayPoints
+        //{
+        //    public Planet planet { get; set; }
+        //    public Ship ship { get; set; }
+        //    public Vector2 location { get; set; }
+        //}
     }
 }

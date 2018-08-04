@@ -217,6 +217,8 @@ namespace Ship_Game.AI
             }
             else if (FleetNode != null && Owner.fleet != null)
             {
+                if (Target == null)
+                    Log.Error($"doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
                 var fleetPositon = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
                 if (Target.Center.OutsideRadius(fleetPositon, FleetNode.OrdersRadius))
                 {
