@@ -2075,8 +2075,6 @@ namespace Ship_Game
 
             StatTrackerUpdatePopulation();
 
-            Research = 0;
-            MaxResearchPotential = 0;
             UpdateEmpireResearchAmount();
 
             if (data.TurnsBelowZero > 25 && Money < 0.0 && !Universe.Debug)
@@ -2233,6 +2231,8 @@ namespace Ship_Game
 
         private void UpdateEmpireResearchAmount()
         {
+            Research = 0;
+            MaxResearchPotential = 0;
             foreach (Planet planet in OwnedPlanets)
             {
                 Research += planet.NetResearchPerTurn;

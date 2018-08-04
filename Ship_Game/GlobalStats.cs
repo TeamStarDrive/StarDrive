@@ -103,7 +103,7 @@ namespace Ship_Game
         public static float spaceroadlimit          = .025f;
         public static int FreighterLimit            = 50;
         public static int ScriptedTechWithin        = 6;
-        public static bool perf;
+        
         public static float DefensePlatformLimit    = .025f;
         public static ReaderWriterLockSlim UiLocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         public static int BeamOOM                   = 0;
@@ -115,6 +115,10 @@ namespace Ship_Game
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
+
+        //Dev Options
+        public static bool RestrictAIPlayerInteraction;
+        public static bool DisableAIEmpires;
 
         ////////////////////////////////
         // From old Config
@@ -175,36 +179,37 @@ namespace Ship_Game
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;
        
             ExtendedVersion = $"BlackBox : {Version}";
-            GetSetting("GravityWellRange",       ref GravityWellRange);
+            GetSetting("GravityWellRange"      , ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
-            GetSetting("perf",                   ref perf);
-            GetSetting("AutoSaveFreq",           ref AutoSaveFreq);
-            GetSetting("ForceFullSim",           ref ForceFullSim);
-            GetSetting("WindowMode",             ref WindowMode);
-            GetSetting("AntiAliasSamples",       ref AntiAlias);
-            GetSetting("PostProcessBloom",       ref RenderBloom);
-            GetSetting("TextureQuality",         ref TextureQuality);   
-            GetSetting("TextureSampling",        ref TextureSampling);  
-            GetSetting("MaxAnisotropy",          ref MaxAnisotropy);    
-            GetSetting("ShadowQuality",          ref ShadowQuality); 
-            GetSetting("ShadowDetail",           ref ShadowDetail);
-            GetSetting("EffectDetail",           ref EffectDetail);
-            GetSetting("AutoErrorReport",        ref AutoErrorReport);
-            GetSetting("ActiveMod",              ref ModName);
-            GetSetting("CameraPanSpeed",         ref CameraPanSpeed);
-            GetSetting("VerboseLogging",         ref VerboseLogging);
-            GetSetting("TestLoad",               ref TestLoad);
-            GetSetting("PreLoad",                ref PreLoad);
-            GetSetting("DamageIntensity",        ref DamageIntensity);
+            GetSetting("perf"                  , ref RestrictAIPlayerInteraction);
+            GetSetting("AutoSaveFreq"          , ref AutoSaveFreq);
+            GetSetting("ForceFullSim"          , ref ForceFullSim);
+            GetSetting("WindowMode"            , ref WindowMode);
+            GetSetting("AntiAliasSamples"      , ref AntiAlias);
+            GetSetting("PostProcessBloom"      , ref RenderBloom);
+            GetSetting("TextureQuality"        , ref TextureQuality);   
+            GetSetting("TextureSampling"       , ref TextureSampling);  
+            GetSetting("MaxAnisotropy"         , ref MaxAnisotropy);    
+            GetSetting("ShadowQuality"         , ref ShadowQuality); 
+            GetSetting("ShadowDetail"          , ref ShadowDetail);
+            GetSetting("EffectDetail"          , ref EffectDetail);
+            GetSetting("AutoErrorReport"       , ref AutoErrorReport);
+            GetSetting("ActiveMod"             , ref ModName);
+            GetSetting("CameraPanSpeed"        , ref CameraPanSpeed);
+            GetSetting("VerboseLogging"        , ref VerboseLogging);
+            GetSetting("TestLoad"              , ref TestLoad);
+            GetSetting("PreLoad"               , ref PreLoad);
+            GetSetting("DamageIntensity"       , ref DamageIntensity);
+            GetSetting("DisableAIEmpires"      , ref DisableAIEmpires);
             Statreset();
 
         #if DEBUG
             VerboseLogging = true;
-        #endif
+#endif
 
-        #if PERF 
-            perf = true;
-        #endif
+#if PERF
+            RestrictAIPlayerInteraction = true;
+#endif
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
             GetSetting("Language", ref Language);
@@ -282,7 +287,7 @@ namespace Ship_Game
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             WriteSetting(config, "GravityWellRange",       GravityWellRange);
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
-            WriteSetting(config, "perf", perf);
+            WriteSetting(config, "perf", RestrictAIPlayerInteraction);
             WriteSetting(config, "AutoSaveFreq",     AutoSaveFreq);
             WriteSetting(config, "ForceFullSim",     ForceFullSim);
             WriteSetting(config, "WindowMode",       WindowMode);
