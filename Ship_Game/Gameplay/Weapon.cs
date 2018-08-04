@@ -463,10 +463,9 @@ namespace Ship_Game.Gameplay
 
             //reduce or increase jitter based on weapon and trait characteristics. 
             
-            if (isBeam)      adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));    
-            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            if (isBeam || Tag_Energy) adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));    
+            if (Tag_Kinetic) adjust          *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
 
-            if (Owner?.loyalty?.data.Traits.Blind > 0) adjust *= 2f;
             adjust *= CalculateBaseAccuracy();
             
             return RandomMath2.Vector2D(adjust);
