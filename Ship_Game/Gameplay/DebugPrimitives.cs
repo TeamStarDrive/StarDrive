@@ -14,7 +14,7 @@ namespace Ship_Game.Gameplay
             Color = color;
             LifeTime = lifeTime;
         }
-        public bool Update(float gameDeltaTime)
+        public virtual bool Update(float gameDeltaTime)
         {
             LifeTime -= gameDeltaTime;
             return LifeTime <= 0f;
@@ -53,6 +53,27 @@ namespace Ship_Game.Gameplay
         public override void Draw(UniverseScreen screen)
         {
             screen.DrawLineWideProjected(StartInWorld, EndInWorld, Color, Width);
+        }
+    }
+
+    // A little special, since the position changes every frame
+    public class DebugGameObject : DebugPrimitive
+    {
+        private readonly GameplayObject Obj;
+        public DebugGameObject(GameplayObject obj,
+            Color color, float lifeTime) : base(color, lifeTime)
+        {
+            Obj = obj;
+        }
+        public override bool Update(float gameDeltaTime)
+        {
+            if (!Obj.Active || !Obj.IsInFrustum)
+                return false;
+            return base.Update(gameDeltaTime);
+        }
+        public override void Draw(UniverseScreen screen)
+        {
+            screen.DrawCircleProjected(Obj.Center, Obj.Radius, Color, 2);
         }
     }
 }

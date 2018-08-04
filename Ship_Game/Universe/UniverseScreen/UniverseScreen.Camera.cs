@@ -134,11 +134,17 @@ namespace Ship_Game
                         break;
                     }
                 }
-                workersPanel = SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null
-                    ? new ColonyScreen(this, SelectedPlanet, EmpireUI)
-                    : (SelectedPlanet.Owner == null
-                        ? new UnexploredPlanetScreen(this, SelectedPlanet)
-                        : (PlanetScreen) new UnownedPlanetScreen(this, SelectedPlanet));
+
+                if (SelectedPlanet.Owner == player || flag || Debug)
+                {
+                    if (SelectedPlanet.Owner != null)
+                        workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
+                    else
+                        workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
+                }
+                else
+                    workersPanel = new UnownedPlanetScreen(this, SelectedPlanet);
+
                 LookingAtPlanet = true;
                 transitionStartPosition = CamPos;
                 CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
@@ -153,8 +159,9 @@ namespace Ship_Game
                 if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                     previousSelection = SelectedShip;
                 SelectedShip = null;
-                SelectedShipList.Clear();
                 SelectedItem = null;
+                SelectedShipList.Clear();
+
             }
         }
 

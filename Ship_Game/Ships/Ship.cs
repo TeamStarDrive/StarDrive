@@ -724,8 +724,9 @@ namespace Ship_Game.Ships
         public float GetSTLSpeed()
         {
             //Added by McShooterz: hull bonus speed
-            float speed = Thrust / Mass + Thrust / Mass * loyalty.data.SubLightModifier;
-            return  Math.Min(speed, 2500);
+            float thrustWeightRatio = Thrust / Mass;
+            float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
+            return Math.Min(speed, 2500);
         }
 
         public void TetherToPlanet(Planet p)

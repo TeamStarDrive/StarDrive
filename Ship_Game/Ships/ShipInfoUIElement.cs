@@ -61,8 +61,6 @@ namespace Ship_Game.Ships
 
         private bool ShowModules = true;
 
-        private const string Fmt = "0";
-        private float DoubleClickTimer = .25f;
 
         public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
@@ -311,7 +309,7 @@ namespace Ship_Game.Ships
             SpriteBatch spriteBatch         = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold          = Fonts.Arial12Bold;
             float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
-            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(Fmt), defPos, Color.White);
+            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.String(0), defPos, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             DrawTroopStatus();
 
@@ -528,9 +526,8 @@ namespace Ship_Game.Ships
             {
                 if (Ship == null)
                     return false;
-                if (DoubleClickTimer > 0)
-                    DoubleClickTimer -= 0.01666f;
-                if (input.LeftMouseClick)
+
+                if (input.LeftMouseDoubleClick && ShipInfoRect.HitTest(input.CursorPosition))
                 {
                     Empire.Universe.ViewingShip = false;
                     Empire.Universe.AdjustCamTimer = 0.5f;
@@ -539,10 +536,10 @@ namespace Ship_Game.Ships
                     if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                         Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                 }
-                else if (input.LeftMouseClick)
-                    DoubleClickTimer = 0.25f;    
+
                 OrderButtonInput(input);
-                foreach (ShipInfoUIElement.TippedItem tippedItem in ToolTipItems)
+
+                foreach (TippedItem tippedItem in ToolTipItems)
                 {
                     if (tippedItem.r.HitTest(input.CursorPosition))
                         ToolTip.CreateTooltip(tippedItem.TIP_ID);
