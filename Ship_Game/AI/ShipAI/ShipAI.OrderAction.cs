@@ -819,7 +819,7 @@ namespace Ship_Game.AI {
             }
             FinalFacingVector = fVec;
             DesiredFacing = desiredFacing;
-            WayPoints.EnqueueWayPointDirectlyToPosition(position, fVec, desiredFacing);
+            OrderMoveTowardsPosition(position, desiredFacing, true, null);
         }
 
         public void OrderToOrbit(Planet toOrbit, bool ClearOrders)
