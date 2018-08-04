@@ -76,7 +76,7 @@ namespace Ship_Game
                                     deltaTime = (float) zgameTime.ElapsedGameTime.TotalSeconds;
                                 }
                             }
-                            if (GlobalStats.perf)
+                            if (GlobalStats.RestrictAIPlayerInteraction)
                             {
                                 if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
                                     ++GameSpeed;

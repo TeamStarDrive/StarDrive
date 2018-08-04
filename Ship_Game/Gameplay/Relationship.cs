@@ -233,7 +233,7 @@ namespace Ship_Game.Gameplay
             }
 
             
-            if (GlobalStats.perf && Empire.Universe.PlayerEmpire == Them)
+            if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == Them)
                 return;
             float angerMod = 1+ ((int)Empire.Universe.GameDifficulty+1) * .2f;
             Amount *= angerMod;
@@ -564,7 +564,7 @@ namespace Ship_Game.Gameplay
             if (us.data.Defeated)
                 return;
 
-            if (GlobalStats.perf && Empire.Universe.PlayerEmpire == them)
+            if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
                 return;
 
             Risk.UpdateRiskAssessment(us);
