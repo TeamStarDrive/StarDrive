@@ -106,10 +106,6 @@ namespace Ship_Game
         [Serialize(91)] public int Aquatic;
         [Serialize(92)] public int Burrowers;
 
-        public RacialTrait()
-        {
-        }
-
         public RacialTrait GetClone()
         {
             return (RacialTrait)MemberwiseClone();
@@ -117,19 +113,13 @@ namespace Ship_Game
 
         public static string GetFoodType(RacialTrait trait)
         {
-            if (trait == null) return "Food";
-            if (trait.Cybernetic > 0) return "Production";
-            return "Food";
+            return trait?.Cybernetic > 0 ? "Production" : "Food";
         }
 
         public bool TechTypeRestrictions(TechnologyType techType)
         {
-            if (Cybernetic > 0 && techType ==
-                (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization"))
-            {
-                return true;
-            }
-            return false;
+            return Cybernetic > 0 && techType ==
+                   (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization");
         }
 
         public void TechUnlocks(TechEntry techEntry, Empire empire)
