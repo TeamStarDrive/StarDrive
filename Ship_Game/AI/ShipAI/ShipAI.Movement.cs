@@ -667,25 +667,16 @@ namespace Ship_Game.AI {
                     //             warpSpeed + "     Distance = " + distance);
                     //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
 
-<<<<<<< local
-                    if (WayPoints.Count() >= 2 && Distance > Owner.loyalty.ProjectorRadius / 2 &&
+                    if (WayPoints.Count() >= 2 && distance > Owner.loyalty.ProjectorRadius / 2 &&
                         Vector2.Distance(Owner.Center, WayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
-=======
-                    if (ActiveWayPoints.Count >= 2 && distance > Owner.loyalty.ProjectorRadius / 2 &&
-                        Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Owner.loyalty.ProjectorRadius * 5)
->>>>>>> other
+
                     {
-<<<<<<< local
+
                         Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(WayPoints.ElementAt(1));
-                        var angleDiffNext = (float) Math.Acos((double) Vector2.Dot(wantedForwardNext, forward));
-                        if (angleDiff > angleDiffNext || angleDiffNext < TurnRate * 0.5
-                        ) //Angle to next waypoint is better than angle to this one, just cut the corner.
-=======
-                        Vector2 wantedForwardNext = Owner.Center.DirectionToTarget(ActiveWayPoints.ElementAt(1));
                         float angleDiffNext = (float) Math.Acos(Vector2.Dot(wantedForwardNext, forward));
                         if (angleDiff > angleDiffNext || angleDiffNext < turnRate * 0.5)
                             //Angle to next waypoint is better than angle to this one, just cut the corner.
->>>>>>> other
+
                         {
                             WayPoints.Dequeue();
                             if (OrderQueue.NotEmpty) OrderQueue.RemoveFirst();
@@ -724,11 +715,8 @@ namespace Ship_Game.AI {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-<<<<<<< local
-            else if (!HasPriorityOrder && !HasPriorityTarget && Distance < 1000f && WayPoints.Count() <= 1 &&
-=======
-            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f && ActiveWayPoints.Count <= 1 &&
->>>>>>> other
+            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1000f && WayPoints.Count() <= 1 &&
+
                      Owner.engineState == Ship.MoveState.Warp)
             {
                 Owner.HyperspaceReturn();
