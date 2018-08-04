@@ -65,6 +65,7 @@ namespace Ship_Game
         [Serialize(57)] public float ShipRepair;
         [Serialize(58)] public BuildingCategory Category = BuildingCategory.General;
         [Serialize(59)] public bool IsPlayerAdded = false;
+        [Serialize(60)] public int InvadeInjurePoints;
 
         [XmlIgnore][JsonIgnore] public Weapon theWeapon;
 

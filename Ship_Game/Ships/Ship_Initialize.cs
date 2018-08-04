@@ -66,7 +66,6 @@ namespace Ship_Game.Ships
                     }
                 }
 
-
                 module.HangarShipGuid = slotData.HangarshipGuid;
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
@@ -503,6 +502,14 @@ namespace Ship_Game.Ships
             Speed                    = velocityMaximum;
             rotationRadiansPerSecond = Speed / Size;
             ShipMass                 = Mass;
+
+            BaseStrength = CalculateShipStrength();
+            CurrentStrength = BaseStrength;
+
+            // @todo Do we need to recalculate this every time? This whole thing looks fishy
+            if (shipData.BaseStrength <= 0f)
+                shipData.BaseStrength = BaseStrength;
+
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;
             UpdateShields();
@@ -541,6 +548,9 @@ namespace Ship_Game.Ships
                         break;
                     case ShipModuleType.Colony:
                         isColonyShip = true;
+                        break;
+                    case ShipModuleType.Hangar:
+                        module.InitHangar();
                         break;
                 }
 
@@ -582,6 +592,7 @@ namespace Ship_Game.Ships
             }
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity 
@@ -594,12 +605,7 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
             shipData.BaseCanWarp = WarpThrust > 0;
             BaseCanWarp = WarpThrust > 0;
-            BaseStrength = CalculateShipStrength();
-            CurrentStrength = BaseStrength;
 
-            // @todo Do we need to recalculate this every time? This whole thing looks fishy
-            if (shipData.BaseStrength <= 0f)
-                shipData.BaseStrength = BaseStrength;
         }
 
         private float GetBaseCost()

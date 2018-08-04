@@ -342,7 +342,8 @@ namespace Ship_Game
             var list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
-                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
+                if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops 
+                    && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
                     list.Add(planetGridSquare);
             }
             if (list.Count > 0)
@@ -355,6 +356,9 @@ namespace Ship_Game
 
                     eventLocation.TroopsHere.Add(this);
                     planet.TroopsHere.Add(this);
+                    if (Owner != planet.Owner)
+                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, StrengthMax);
+
                     SetPlanet(planet);
                     if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 
                         || eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction)

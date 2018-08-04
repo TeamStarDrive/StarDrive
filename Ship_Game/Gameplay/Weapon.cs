@@ -181,7 +181,7 @@ namespace Ship_Game.Gameplay
             get
             {
                 float damage = DamageAmount;
-                return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
+                return damage + damage * SalvoCount * ProjectileCount + damage *(isBeam ? 90f : 0f);
             }
         }
 

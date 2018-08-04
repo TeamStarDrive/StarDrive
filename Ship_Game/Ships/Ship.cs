@@ -1482,7 +1482,8 @@ namespace Ship_Game.Ships
                     data.HangarshipGuid = module.GetHangarShip().guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.hangarShipUID;
+                    data.SlotOptions = module.DynamicHangar ? DynamicHangarLaunch.DynamicLaunch.ToString()
+                                                            : module.hangarShipUID;
 
                 slots[i] = data;
             }
@@ -2679,15 +2680,20 @@ namespace Ship_Game.Ships
         private int DPS;
         public float CalculateShipStrength()
         {
-            float offense = 0f;
-            float defense = 0f;
-            bool fighters = false;
-            bool weapons = false;
+            float offense      = 0f;
+            float defense      = 0f;
+            bool fighters      = false;
+            bool weapons       = false;
+            int numWeaponSlots = 0;
 
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //ShipModule template = GetModuleTemplate(slot.UID);
-                weapons  |= slot.InstalledWeapon != null;
+                if (slot.InstalledWeapon != null)
+                {
+                    weapons         = true;
+                    numWeaponSlots += slot.Area;
+                }
                 fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
 
                 offense += slot.CalculateModuleOffense();
@@ -2698,8 +2704,8 @@ namespace Ship_Game.Ships
             DPS = (int)offense;
 
             if (!fighters && !weapons) offense = 0f;
-            if (defense > offense) defense = offense;
-            return offense + defense;
+
+            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, velocityMaximum) ;
         }
 
         private void ApplyRepairToShields(float repairPool)
