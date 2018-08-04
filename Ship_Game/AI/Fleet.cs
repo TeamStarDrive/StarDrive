@@ -330,7 +330,7 @@ namespace Ship_Game.AI
             return destSquad;
         }
 
-        private void ArrangeSquad(Array<Squad> squad, Vector2 squadOffset)
+        private static void ArrangeSquad(Array<Squad> squad, Vector2 squadOffset)
         {
             int leftSide  = 0;
             int rightSide = 0;
