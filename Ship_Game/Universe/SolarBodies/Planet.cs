@@ -2508,11 +2508,11 @@ namespace Ship_Game
                 if (RecentCombat)
                     continue;
 
-                building.CombatStrength = ResourceManager.BuildingsDict[building.Name].CombatStrength;
-                building.Strength       = ResourceManager.BuildingsDict[building.Name].Strength;
+                building.CombatStrength = (building.CombatStrength + 1).Clamped(0, ResourceManager.BuildingsDict[building.Name].CombatStrength);
+                building.Strength       = (building.Strength + 1).Clamped(0,ResourceManager.BuildingsDict[building.Name].Strength);
             }
 
-            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
+            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
 
             //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
