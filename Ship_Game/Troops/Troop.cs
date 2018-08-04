@@ -357,7 +357,7 @@ namespace Ship_Game
                     eventLocation.TroopsHere.Add(this);
                     planet.TroopsHere.Add(this);
                     if (Owner != planet.Owner)
-                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, StrengthMax);
+                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, GetStrengthMax());
 
                     SetPlanet(planet);
                     if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 
