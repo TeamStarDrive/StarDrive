@@ -306,5 +306,16 @@ namespace Ship_Game
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
+
+
+        public static string GetNumberString(float stat)
+        {
+            if (Math.Abs(stat) < 1000f) return stat.ToString("#.#"); // 950.7
+            if (Math.Abs(stat) < 10000f) return stat.ToString("#");   // 9500
+            float single = stat / 1000f;
+            if (Math.Abs(single) < 100f) return single.ToString("#.##") + "k"; // 57.75k
+            if (Math.Abs(single) < 1000f) return single.ToString("#.#") + "k";  // 950.7k
+            return single.ToString("#") + "k"; // 1000k
+        }
     }
 }
