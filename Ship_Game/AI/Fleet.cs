@@ -53,8 +53,7 @@ namespace Ship_Game.AI
         public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
-        public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid}";
-
+        public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid}";        
         //This file refactored by Gretman
 
         public Fleet()
@@ -84,25 +83,28 @@ namespace Ship_Game.AI
                 Log.WarningWithCallStack($"Ship Was Null for {Name}");
                 return;
             }
-
-            if (InvalidFleetShip(shiptoadd)) return;
-
-            FleetShipAddsRepair(shiptoadd);
-            FleetShipAddsOrdnanceSupplyShuttles(shiptoadd);
-
-            if (updateOnly && Ships.Contains(shiptoadd)) return;
-
-            //This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
-            //This should likely be two different checks. There is also the possibilty that the ship is in another
-            //Fleet ship list. 
-            if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
+            using (Ships.AcquireWriteLock())
             {
-                Log.Warning("ship already in a fleet");
-                return; // recover
-            }       
+                if (InvalidFleetShip(shiptoadd)) return;
+
+                FleetShipAddsRepair(shiptoadd);
+                FleetShipAddsOrdnanceSupplyShuttles(shiptoadd);
+
+                if (updateOnly && Ships.Contains(shiptoadd)) return;
+
+                //This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
+                //This should likely be two different checks. There is also the possibilty that the ship is in another
+                //Fleet ship list. 
+                if (shiptoadd.fleet != null || Ships.Contains(shiptoadd))
+                {
+                    Log.Warning("ship already in a fleet");
+                    return; // recover
+                }
+
+                AddShipToNodes(shiptoadd);
+                AssignPositions(Facing);
+            }
             
-            AddShipToNodes(shiptoadd);
-            AssignPositions(Facing);            
         }
 
         private void FleetShipAddsRepair(Ship ship)
@@ -258,13 +260,17 @@ namespace Ship_Game.AI
                 AddShipToDataNode(s);                
             }
             AutoAssembleFleet(0.0f);
-            for (int x =0; x < Ships.Count;x++)
+
+            for (int x = 0; x < Ships.Count; x++)
             {
                 Ship s = Ships[x];
                 if (s.InCombat)
-                    continue;
-                lock (s.AI.WayPoints.WayPointLocker)
-                    s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), true);
+                    continue;                
+                s.AI.OrderQueue.Clear();
+                s.AI.WayPoints.Clear();
+                s.AI.State = AIState.AwaitingOrders;
+                s.AI.OrderAllStop();
+                s.AI.OrderThrustTowardsPosition(Position + s.FleetOffset, Facing, new Vector2(0.0f, -1f), false);
             }
         }
 
