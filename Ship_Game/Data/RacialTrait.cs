@@ -263,17 +263,13 @@ namespace Ship_Game
                 }
             }
             if (HistoryTraitMilitaristic)
-            {
                 Militaristic = 1;
-            }
+
             if (HistoryTraitPackMentality)
-            {
                 Pack = true;
-            }
+
             if (HistoryTraitPrototypeFlagship)
-            {
                 Prototype = 1;
-            }
           
         }
 
