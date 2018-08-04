@@ -1255,5 +1255,10 @@
       <Title>Injury level inflicted to invading troops</Title>
       <Data>1980</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>250</TIP_ID>
+      <Title>Planet's space offense</Title>
+      <Data>1979</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
