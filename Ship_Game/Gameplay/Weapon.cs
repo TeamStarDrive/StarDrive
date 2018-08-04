@@ -363,7 +363,7 @@ namespace Ship_Game.Gameplay
             CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
             Owner.InCombatTimer = 15f;
-            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             return true;
         }
@@ -378,7 +378,7 @@ namespace Ship_Game.Gameplay
             --SalvosToFire;
 
             Owner.InCombatTimer = 15f;
-            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             return true;
         }
@@ -703,7 +703,7 @@ namespace Ship_Game.Gameplay
                 || targetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(this, targetShip))
                 return;
 
-            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             Owner.PowerCurrent -= BeamPowerCostPerSecond * BeamDuration;
             Owner.InCombatTimer = 15f;
