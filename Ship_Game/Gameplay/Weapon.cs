@@ -224,31 +224,13 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay
-        {
-            get
-            {
-                return fireDelay + SalvoTimer;
-            }
-        }
+        public float NetFireDelay => fireDelay + SalvoTimer;
 
         [XmlIgnore][JsonIgnore]
-        public float OrdnanceUsagePerSecond
-        {
-            get
-            { 
-                return OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
-            }
-        }
+        public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
 
-        [XmlIgnore][JsonIgnore]
-        public float PowerFireUsagePerSecond // only usage during fire, not power maintenance 
-        {
-            get
-            {
-                return (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
-            }
-        }
+        [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
+        public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
         // modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
