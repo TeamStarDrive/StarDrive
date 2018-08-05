@@ -100,12 +100,11 @@ namespace Ship_Game
             Facing = facing;
             foreach (Ship ship in Ships)
             {
-                if (ship.AI.State == AIState.AwaitingOrders || forceAssembly)
-                {
-                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                    float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
-                }
+                if (ship.AI.State != AIState.AwaitingOrders && !forceAssembly)
+                    continue;
+                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                float distance = ship.RelativeFleetOffset.Length();
+                ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
             }
         }
         public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner,  float facingRadians, Vector2 fVec,  Empire owner)
@@ -374,17 +373,24 @@ namespace Ship_Game
             for (int x = 0; x < Ships.Count; ++x)
             {
                 var ship = Ships[x];
-                if (ship.Center.OutsideRadius(position, radius)) continue;
-
-                if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)                
-                    ship.AI.HasPriorityOrder = false;                
-
-                if (ship.InCombat) return CombatStatus.InCombat;
-                if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
-            }
+                CombatStatus status = SetCombatMoveAtPositon(ship, position, radius);
+                if (status != CombatStatus.ClearSpace)
+                    return status;
+            }             
             return CombatStatus.ClearSpace;
         }
+        protected CombatStatus SetCombatMoveAtPositon(Ship ship, Vector2 position, float radius)
+        {
+            if (ship.Center.OutsideRadius(position, radius))
+                return CombatStatus.ClearSpace;
 
+            if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
+                ship.AI.HasPriorityOrder = false;
+
+            if (ship.InCombat) return CombatStatus.InCombat;
+            if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
+            return CombatStatus.ClearSpace;
+        }
         public void Dispose()
         {
             Destroy();
