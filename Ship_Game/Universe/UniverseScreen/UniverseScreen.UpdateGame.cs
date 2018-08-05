@@ -15,6 +15,7 @@ namespace Ship_Game
     {
         private void ProcessTurns()
         {
+            Log.FatalError = false;
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
             {
@@ -96,7 +97,11 @@ namespace Ship_Game
                 catch (Exception ex)
                 {
                     if (++failedLoops > 1)
+                    {
+                        Log.FatalError = true;
                         throw; // the loop is having a cyclic crash, no way to recover
+                    }
+                    Log.FatalError = false;
                     Log.Error(ex, "ProcessTurns crashed");
                 }
                 finally
