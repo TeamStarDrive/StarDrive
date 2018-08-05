@@ -24,7 +24,7 @@ namespace Ship_Game
         private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         private const int ErrorThreshold = 100;
         private static bool IsTerminating;
-        public static bool FatalError = false;
+        public static bool FatalError = true;
         static Log()
         {            
             string init = "\r\n\r\n";
@@ -222,7 +222,7 @@ namespace Ship_Game
             {
                 var fatal = FatalError ? ErrorLevel.Fatal : ErrorLevel.Error;
                 CaptureEvent(text, fatal, ex);
-                FatalError = false;
+                FatalError = true;
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
