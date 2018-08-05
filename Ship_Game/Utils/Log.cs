@@ -24,7 +24,7 @@ namespace Ship_Game
         private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         private const int ErrorThreshold = 100;
         private static bool IsTerminating;
-
+        public static bool FatalError = false;
         static Log()
         {            
             string init = "\r\n\r\n";
@@ -220,7 +220,9 @@ namespace Ship_Game
             WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text, ErrorLevel.Fatal, ex);
+                var fatal = FatalError ? ErrorLevel.Fatal : ErrorLevel.Error;
+                CaptureEvent(text, fatal, ex);
+                FatalError = false;
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
