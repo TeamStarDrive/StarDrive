@@ -637,7 +637,7 @@ namespace Ship_Game
                             continue;
                         foreach (Vector2 waypoint in shipData.AISave.ActiveWayPoints)
                         {
-                            ship.AI.ActiveWayPoints.Enqueue(waypoint);
+                            ship.AI.WayPoints.Enqueue(waypoint);
                         }
                         foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                         {

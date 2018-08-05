@@ -6,8 +6,10 @@ using Ship_Game.Commands;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Debug;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class ShipAI
     {
 
@@ -75,10 +77,16 @@ namespace Ship_Game.AI {
                 Owner.Carrier.AssaultPlanet(invadeThis);
         }
 
-        private void DebugTargetCircle(Vector2 center, float radius)
+        private void DrawDebugTarget(Vector2 pip, float radius)
         {
-            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, center, radius, Owner.loyalty.EmpireColor, Owner);
+            if (DebugInfoScreen.Mode == DebugModes.Targeting && Empire.Universe?.DebugWin?.IgnoreThisShip(Owner) == true)
+            {
+                Empire.Universe.DebugWin.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0.033f);
+                Empire.Universe.DebugWin.DrawLine(DebugModes.Targeting, Target.Center, pip, 1f, Owner.loyalty.EmpireColor, 0.033f);
+            }
         }
+
+
         private void DoAttackRun(float elapsedTime)
         {
             float spacerdistance = Owner.Radius + Target.Radius;
@@ -89,7 +97,7 @@ namespace Ship_Game.AI {
             Vector2 interceptPoint = Owner.PredictImpact(Target);
             float distanceToTarget = Owner.Center.Distance(interceptPoint);                                   
 
-            if (distanceToTarget > Owner.maxWeaponsRange * 2) //spacerdistance && distanceToTarget > adjustedWeaponRange)
+            if (distanceToTarget > Owner.maxWeaponsRange * 2f) //spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
                 RunTimer = 0f;
                 AttackRunStarted = false;
@@ -102,7 +110,7 @@ namespace Ship_Game.AI {
                 }
                 Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
                 MoveInDirection(direction, elapsedTime);
-                DebugTargetCircle(interceptPoint, spacerdistance);
+                DrawDebugTarget(interceptPoint, spacerdistance);
                 return;
             }
             RunTimer -= elapsedTime;
@@ -113,7 +121,7 @@ namespace Ship_Game.AI {
                 {
                     Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
                     MoveInDirection(direction, elapsedTime);
-                    DebugTargetCircle(interceptPoint, Owner.Radius);
+                    DrawDebugTarget(interceptPoint, Owner.Radius);
                     return;
                 }
                 AttackRunStarted = false;
@@ -130,7 +138,7 @@ namespace Ship_Game.AI {
                 AttackVector     = strafeVector.PointFromAngle(AttackRunAngle, spacerdistance);
                 var attackSetup  = Owner.Center.DirectionToTarget(AttackVector);
                 MoveInDirection(attackSetup, elapsedTime);
-                DebugTargetCircle(AttackVector, spacerdistance);
+                //DrawDebugTarget(AttackVector, spacerdistance);
                 //if (RunTimer < 3)
                 return;
             }
@@ -209,6 +217,8 @@ namespace Ship_Game.AI {
             }
             else if (FleetNode != null && Owner.fleet != null)
             {
+                if (Target == null)
+                    Log.Error($"doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
                 var fleetPositon = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
                 if (Target.Center.OutsideRadius(fleetPositon, FleetNode.OrdersRadius))
                 {
@@ -238,13 +248,13 @@ namespace Ship_Game.AI {
                     DoNonFleetArtillery(elapsedTime);
                     break;
                 case CombatState.OrbitLeft:
-                    OrbitShipLeft(Target as Ship, elapsedTime);
+                    OrbitShip(Target as Ship, elapsedTime, Orbit.Left);
                     break;
                 case CombatState.BroadsideLeft:
                     DoNonFleetBroadsideLeft(elapsedTime);
                     break;
                 case CombatState.OrbitRight:
-                    OrbitShip(Target as Ship, elapsedTime);
+                    OrbitShip(Target as Ship, elapsedTime, Orbit.Right);
                     break;
                 case CombatState.BroadsideRight:
                     DoNonFleetBroadsideRight(elapsedTime);
@@ -623,21 +633,31 @@ namespace Ship_Game.AI {
             RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(forward));
         }
 
+        private const float OrbitalSpeedLimit = 500f;
+        private enum Orbit { Left, Right }
+
+        // Orbit drones around a ship
+        private void OrbitShip(Ship ship, float elapsedTime, Orbit direction)
+        {
+            OrbitPos = ship.Center.PointOnCircle(OrbitalAngle, 1500f);
+            if (OrbitPos.Distance(Owner.Center) < 1500f)
+            {
+                float deltaAngle = direction == Orbit.Left ? -15f : +15f;
+                OrbitalAngle = (OrbitalAngle + deltaAngle).NormalizedAngle();
+                OrbitPos = ship.Position.PointOnCircle(OrbitalAngle, 2500f);
+            }
+            ThrustTowardsPosition(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+        }
+
         private void DoOrbit(Planet orbitTarget, float elapsedTime) //fbedard: my version of DoOrbit, fastest possible?
         {
             if (Owner.velocityMaximum < 1)
                 return;
-            float distance = orbitTarget.Center.Distance(Owner.Center);
-            //if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && distance < Empire.ProjectorRadius * 2)
-            //{
-            //    OrbitPos = orbitTarget.Center;
-            //    OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, OrbitTarget);
-            //    return;
-            //}
 
+            float distance = orbitTarget.Center.Distance(Owner.Center);
             if (distance > 15000f)
             {
-                ThrustTowardsPosition(orbitTarget.Center, elapsedTime, Owner.Speed);
+                ThrustTowardsPosition(orbitTarget.Center, elapsedTime, Owner.velocityMaximum);
                 OrbitPos = orbitTarget.Center;
                 return;
             }
@@ -649,8 +669,7 @@ namespace Ship_Game.AI {
                 if (distanceToOrbitSpot <= radius || Owner.Speed < 1f)
                 {
                     OrbitalAngle += ((float) Math.Asin(Owner.yBankAmount * 10f)).ToDegrees();
-                    if (OrbitalAngle >= 360f)
-                        OrbitalAngle -= 360f;
+                    OrbitalAngle = OrbitalAngle.NormalizedAngle();
                 }
                 FindNewPosTimer = elapsedTime * 10f;
                 OrbitPos = orbitTarget.Center.PointOnCircle(OrbitalAngle, radius);
@@ -889,7 +908,7 @@ namespace Ship_Game.AI {
             }
 
             var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, (int)goal.FacingVector);
-            DebugTargetCircle(escortVector, Owner.Radius);
+            DrawDebugTarget(escortVector, Owner.Radius);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.Velocity.Length();
             float escortVelocity       = Owner.velocityMaximum;
@@ -935,7 +954,7 @@ namespace Ship_Game.AI {
                     Owner.QueueTotalRemoval();
                     return;
                 }
-                OrbitShip(EscortTarget, elapsedTime);
+                OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
             }
         }
     }
