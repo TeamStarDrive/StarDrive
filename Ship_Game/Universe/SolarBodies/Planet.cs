@@ -443,13 +443,7 @@ namespace Ship_Game
         public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
 
         public void Update(float elapsedTime)
-        {
-            if (!Habitable)
-            {                
-                UpdatePosition(elapsedTime);
-                return;
-            }
-
+        {       
             Guid[] keys = Shipyards.Keys.ToArray();
             for (int x = 0; x < keys.Length; x++)
             {
@@ -458,6 +452,11 @@ namespace Ship_Game
                 if (shipyard == null || !shipyard.Active //Remove this null check later. 
                                      || shipyard.Size == 0)
                     Shipyards.Remove(key);
+            }
+            if (!Habitable)
+            {
+                UpdatePosition(elapsedTime);
+                return;
             }
 
             TroopManager.Update(elapsedTime);
