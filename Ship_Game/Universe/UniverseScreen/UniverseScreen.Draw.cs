@@ -647,26 +647,7 @@ namespace Ship_Game
             }
             if (Debug)
             {
-                var lines = new Array<string>();
-                lines.Add("Comparisons:      " + GlobalStats.Comparisons);
-                lines.Add("Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter);
-                lines.Add("Modules Moved:    " + GlobalStats.ModulesMoved);
-                lines.Add("Modules Updated:  " + GlobalStats.ModuleUpdates);
-                lines.Add("Arc Checks:       " + GlobalStats.WeaponArcChecks);
-                lines.Add("Beam Tests:       " + GlobalStats.BeamTests);
-                lines.Add("Memory:           " + Memory);
-                lines.Add("");
-                lines.Add("Ship Count:       " + MasterShipList.Count);
-                lines.Add("Ship Time:        " + Perfavg2);
-                lines.Add("Empire Time:      " + EmpireUpdatePerf);
-                lines.Add("PreEmpire Time:   " + PreEmpirePerf);
-                lines.Add("Post Empire Time: " + perfavg4);
-                lines.Add("");
-                lines.Add("Total Time:       " + perfavg5);
-
-                Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 250f,
-                    44f);
-                DrawLinesToScreen(pos, lines);
+                DebugGameInfo();
             }
             if (IsActive)
                 ToolTip.Draw(ScreenManager.SpriteBatch);
@@ -675,6 +656,33 @@ namespace Ship_Game
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
             // the game logic can be updated
             DrawCompletedEvt.Set();
+        }
+
+        private void DebugGameInfo()
+        {
+            Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 250f,
+                44f);
+
+            var lines = new Array<string>();
+            lines.Add("Comparisons:      " + GlobalStats.Comparisons);
+            lines.Add("Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter);
+            lines.Add("Modules Moved:    " + GlobalStats.ModulesMoved);
+            lines.Add("Modules Updated:  " + GlobalStats.ModuleUpdates);
+            lines.Add("Arc Checks:       " + GlobalStats.WeaponArcChecks);
+            lines.Add("Beam Tests:       " + GlobalStats.BeamTests);
+            lines.Add("Memory:           " + Memory);
+            lines.Add("");
+            lines.Add("Ship Count:       " + MasterShipList.Count);
+            lines.Add("Ship Time:        " + Perfavg2);
+            lines.Add("Empire Time:      " + EmpireUpdatePerf);
+            lines.Add("PreEmpire Time:   " + PreEmpirePerf);
+            lines.Add("Post Empire Time: " + perfavg4);
+            lines.Add("");
+            lines.Add("Total Time:       " + perfavg5);
+      
+            DrawLinesToScreen(pos, lines, Fonts.Arial12Bold);
+
+
         }
 
         private void DrawFleetIcons(GameTime gameTime)
