@@ -16,6 +16,7 @@ namespace Ship_Game
         {
             switch (numDecimals)
             {
+                case 0:  return ((int)number).ToString();
                 case 1:  return number.ToString("0.#", CultureInfo.InvariantCulture);
                 case 2:  return number.ToString("0.##", CultureInfo.InvariantCulture);
                 default: return number.ToString("0.###", CultureInfo.InvariantCulture);

@@ -1,4 +1,5 @@
-﻿namespace Ship_Game.Ships
+﻿using Ship_Game.AI;
+namespace Ship_Game.Ships
 {
     public struct ShipResupply
     {
@@ -40,8 +41,8 @@
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
                                                            || Ship.DesignRole == ShipData.RoleName.supply
-                                                           || Ship.AI.State == AI.AIState.Resupply
-                                                           || Ship.AI.State == AI.AIState.ResupplyEscort)
+                                                           || Ship.AI.State == AIState.Resupply
+                                                           || Ship.AI.State == AIState.ResupplyEscort)
                 return ResupplyReason.NotNeeded;
 
             if (!Ship.hasCommand)

@@ -26,6 +26,9 @@ namespace Ship_Game
                         return; // this thread is aborting
 
                     float deltaTime = (float) zgameTime.ElapsedGameTime.TotalSeconds;
+                    PieMenuTimer += deltaTime;
+                    pieMenu.Update(zgameTime);
+
                     if (Paused)
                     {
                         ++FrameId;
@@ -40,17 +43,9 @@ namespace Ship_Game
                             }
                             ship.Update(0);
                         }
-                        ClickTimer += deltaTime;
-                        ClickTimer2 += deltaTime;
-                        pieMenu.Update(zgameTime);
-                        PieMenuTimer += deltaTime;
                     }
                     else
                     {
-                        ClickTimer += deltaTime;
-                        ClickTimer2 += deltaTime;
-                        pieMenu.Update(zgameTime);
-                        PieMenuTimer += deltaTime;
                         NotificationManager.Update(deltaTime);
                         AutoSaveTimer -= deltaTime;
 
