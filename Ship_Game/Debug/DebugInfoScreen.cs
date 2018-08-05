@@ -63,8 +63,6 @@ namespace Ship_Game.Debug
         public static sbyte Loadmodels = 0;
         public static DebugModes Mode { get; private set; }
         private readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
-        private readonly Array<GameplayObject> GPObjects = new Array<GameplayObject>();
-        private int CircleTimer = 0;
         private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
 
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
@@ -160,7 +158,6 @@ namespace Ship_Game.Debug
 
         public override void Update()
         {
-            CircleTimer--;
         }
 
         private void SetTextCursor(float x, float y, Color color)
@@ -212,7 +209,6 @@ namespace Ship_Game.Debug
                 DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
                 DrawString($"Ships not in Any Pool: {Shipsnotinforcepool} In Defenspool: {ShipsinDefforcepool} InAoPools: {ShipsInAOPool} ");
-                DrawGPObjects();
                 DrawDebugPrimitives((float)gameTime.ElapsedGameTime.TotalSeconds);
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
@@ -398,6 +394,7 @@ namespace Ship_Game.Debug
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
                 DrawString("Strength: " + ship.BaseStrength);
+                DrawString("Max Velocity " + ship.velocityMaximum);
                 DrawString("HP: " + ship.Health + " / " + ship.HealthMax);
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
@@ -617,9 +614,9 @@ namespace Ship_Game.Debug
             if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
                 return false;
             ResearchText.Clear();
-            CircleTimer = 0;
-            if      (input.WasKeyPressed(Keys.Left))  --Mode;
-            else  ++Mode;
+
+            if (input.WasKeyPressed(Keys.Left)) --Mode;
+            else                                ++Mode;
 
             if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
             else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
@@ -668,31 +665,31 @@ namespace Ship_Game.Debug
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
         {
             if (mode != Mode) return;
-            lock (Primitives)
-                Primitives.Add(new DebugCircle(worldPos, radius, Color.Yellow, lifeTime));
+            lock (Primitives) Primitives.Add(new DebugCircle(worldPos, radius, Color.Yellow, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, float lifeTime)
         {
             if (mode != Mode) return;
-            lock (Primitives)
-                Primitives.Add(new DebugCircle(worldPos, radius, color, lifeTime));
+            lock (Primitives) Primitives.Add(new DebugCircle(worldPos, radius, color, lifeTime));
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, Ship ship = null)
+        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color)
         {
-            if (mode != Mode || ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship)
-                return;
-            lock (Primitives)
-                Primitives.Add(new DebugCircle(worldPos, radius, color, 0f));
+            if (mode != Mode) return;
+            lock (Primitives) Primitives.Add(new DebugCircle(worldPos, radius, color, 0f));
+        }
+
+        public bool IgnoreThisShip(Ship ship)
+        {
+            return ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship;
         }
 
         public void DrawLine(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld, 
                                               float width, Color color, float lifeTime)
         {
             if (mode != Mode) return;
-            lock (Primitives)
-                Primitives.Add(new DebugLine(startInWorld, endInWorld, width, color, lifeTime));
+            lock (Primitives) Primitives.Add(new DebugLine(startInWorld, endInWorld, width, color, lifeTime));
         }
 
         private void DrawDebugPrimitives(float gameDeltaTime)
@@ -709,45 +706,17 @@ namespace Ship_Game.Debug
             }
         }
 
-        TimeSpan LastHit = TimeSpan.MaxValue;
-        public void DrawGPObjects(DebugModes mode, GameplayObject gameplay, Ship ship = null)
-        {
-            if (mode != Mode) return;
-            if (ship != null && Screen.SelectedShip != null && Screen.SelectedShip != ship) return;            
-            GPObjects.Add(gameplay);
-            var time = Screen.GameTime.TotalGameTime;
-            if (LastHit == time)
-                return;
-            CircleTimer += 20;
-            LastHit = time;
 
-        }
-        private void DrawGPObjects()
+        public void DrawGameObject(DebugModes mode, GameplayObject obj)
         {
-            var circles = GPObjects;
-            for (int x = 0; x < circles.Count; x++)
+            if (mode != Mode)
+                return;
+
+            if (obj.IsInFrustum)
             {
-                try
-                {
-                    var circle = circles[x];
-                    if (!circle.Active) continue;
-                    Screen.DrawCircleProjected(circle.Center, circle.Radius, 3, Color.Red, 3);
-                }
-                catch { }
+                lock (Primitives)
+                    Primitives.Add(new DebugGameObject(obj, Color.Red, 0f/*transient*/));
             }
-            if (Screen.Paused) return;
-            CircleTimer = Math.Max(0, --CircleTimer);
-            
-
-            int test = Math.DivRem(CircleTimer, 20, out int rem);
-
-            if (rem >5 )
-                return;
-            if (circles.Count > 0)
-                circles.PopLast();
-            if (CircleTimer == 0)
-                circles.Clear();
-           
         }
     }
 }

@@ -173,6 +173,7 @@ namespace Ship_Game.Gameplay
         public string ExplosionPath = "";
         public string ExplosionAnimation = "";
         public float ECM = 0;
+
         // When ships are off-screen, we do cheap and dirty invisible damage calculation
         [XmlIgnore][JsonIgnore]
         public float InvisibleDamageAmount
@@ -180,9 +181,10 @@ namespace Ship_Game.Gameplay
             get
             {
                 float damage = DamageAmount;
-                return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
+                return damage + damage * SalvoCount * ProjectileCount + damage *(isBeam ? 90f : 0f);
             }
         }
+
         public void InitializeTemplate()
         {
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
@@ -497,7 +499,7 @@ namespace Ship_Game.Gameplay
             Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
             Vector2 jitter = target.JitterPosition() + AdjustTargetting();
 
-            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, target).Predict();
+            pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target).Predict();
             Vector2 jitteredtarget = SetDestination(pip, ownerCenter, 4000) + jitter;
             pip = SetDestination(jitteredtarget, ownerCenter, ownerCenter.Distance(pip));
 
