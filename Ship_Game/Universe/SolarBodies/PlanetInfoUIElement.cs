@@ -493,31 +493,31 @@ namespace Ship_Game
             textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(res).X;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, res, textPos, new Color(255, 239, 208));
 
-            DrawData(DefenseRect, ((float)p.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
+            DrawPlanetStats(DefenseRect, ((float)p.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
 
             // Added by Fat Bastard - display total injury level inflicted automatically to invading troops
             if (p.TotalInvadeInjure > 0)
-                DrawData(InjuryRect, ((float)p.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
+                DrawPlanetStats(InjuryRect, ((float)p.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
 
             // Added by Fat Bastard - display total space offense of the planet
             if (p.TotalSpaceOffense > 0)
             {
                 string offenseNumberString = HelperFunctions.GetNumberString((float) Math.Round(p.TotalSpaceOffense,0));
-                DrawData(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
+                DrawPlanetStats(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
             }
 
             if (p.ShieldStrengthMax > 0f)
-                DrawData(ShieldRect, p.ShieldStrengthCurrent.String(1), "NewUI/icon_planetshield", Color.White, Color.Green);
+                DrawPlanetStats(ShieldRect, p.ShieldStrengthCurrent.String(1), "NewUI/icon_planetshield", Color.White, Color.Green);
 
             Inspect.Draw(ScreenManager);
             Invade.Draw(ScreenManager);
         }
 
-        private void DrawData(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
+        private void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
         {
             SpriteFont font = Fonts.Arial12Bold;
+            Vector2 pos     = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(texturePath), rect, texcolor);
-            Vector2 pos = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data, pos, color);
         }
 
