@@ -96,7 +96,7 @@ namespace Ship_Game
         {
             get
             {
-                Building template = ResourceManager.BuildingsDict[Name];
+                Building template = ResourceManager.GetBuildingTemplate(Name);
                 return template.Strength;
             }
         }

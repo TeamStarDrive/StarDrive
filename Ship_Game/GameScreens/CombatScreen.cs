@@ -468,7 +468,7 @@ namespace Ship_Game
 
                 var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, 
                                                  Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                DrawTroopData(batch, strengthRect, pgs, pgs.TroopsHere[0].Strength.ToString("0."), Color.White);
+                DrawTroopData(batch, strengthRect, pgs, pgs.TroopsHere[0].Strength.String(1), Color.White);
 
                 //Fat Bastard - show TroopLevel
                 if (pgs.TroopsHere[0].Level > 0)
