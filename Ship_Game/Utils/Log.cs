@@ -58,9 +58,9 @@ namespace Ship_Game
             {
             #if DEBUG
                 Raven.Environment = "Staging";
-            #else
-                Raven.Environment = "Release";
-            #endif
+#else
+                Raven.Environment = GlobalStats.Version.Contains("_TEST_") ? "Test" : "Release";
+#endif
                 HideConsoleWindow();
             }
         }
