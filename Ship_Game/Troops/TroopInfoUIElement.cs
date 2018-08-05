@@ -88,85 +88,28 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Attack"], this.SoftAttackRect, Color.White);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/attack_hard"], this.HardAttackRect, Color.White);
-            SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
-            Troop troop = pgs.TroopsHere[0];
-            Vector2 strPos = new Vector2((DefenseRect.X + DefenseRect.Width + 2), (DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            if (troop != null)
+            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+            Color color = Color.White;
+            if (pgs.TroopsHere.Count > 0) // draw troop_stats
             {
+                Troop troop = pgs.TroopsHere[0];
                 if (troop.Strength < troop.ActualStrengthMax)
-                    DrawinfoData(spriteBatch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), Color.White);
+                    DrawinfoData(spriteBatch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
                 else
-                    DrawinfoData(spriteBatch, DefenseRect, troop.ActualStrengthMax.String(1), Color.White);
-            }
+                    DrawinfoData(spriteBatch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
 
-            else
-            {
-                DrawinfoData(spriteBatch, DefenseRect, pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1), Color.White);
-            }
-
-
-
-                ;
-
-
-            bool Troop = false;
-            if (this.pgs.TroopsHere.Count > 0)
-             {
-                Troop = true;
-            }
-
-
-
-            
-            Vector2 defPos = new Vector2((DefenseRect.X + DefenseRect.Width + 2), (DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (Troop
-                ? pgs.TroopsHere[0].Strength.String(1) + "/" + pgs.TroopsHere[0].ActualStrengthMax.String(1)
-                : pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1))
-                , defPos, Color.White);
-
-            defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.SoftAttackRect.Y + 8 - Fonts.Arial12Bold.LineSpacing / 2));
-            //SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
-            if (this.pgs.TroopsHere.Count > 0)
-            {
-                int softAttack = this.pgs.TroopsHere[0].GetSoftAttack();
-                str = softAttack.ToString(this.fmt);
-            }
-            else
-            {
-                str = this.pgs.building.SoftAttack.ToString();
-            }
-            spriteBatch.DrawString(arial12Bold, str, defPos, Color.White);
-            defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.HardAttackRect.Y + 8 - Fonts.Arial12Bold.LineSpacing / 2));
-            SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
-            SpriteFont spriteFont = Fonts.Arial12Bold;
-            if (this.pgs.TroopsHere.Count > 0)
-            {
-                int hardAttack = this.pgs.TroopsHere[0].GetHardAttack();
-                str1 = hardAttack.ToString(this.fmt);
-            }
-            else
-            {
-                str1 = this.pgs.building.HardAttack.ToString();
-            }
-            spriteBatch1.DrawString(spriteFont, str1, defPos, Color.White);
-            if (this.pgs.TroopsHere.Count == 0)
-            {
-                this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85 + 16, this.LeftRect.Y + 5 + 16, 64, 64);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", this.pgs.building.Icon, "_64x64")], this.ItemDisplayRect, Color.White);
-            }
-            else
-            {
-                this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85 + 16, this.LeftRect.Y + 5 + 16, 64, 64);
-                this.pgs.TroopsHere[0].Draw(this.ScreenManager.SpriteBatch, this.ItemDisplayRect);
-                if (this.pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
+                DrawinfoData(spriteBatch, SoftAttackRect, troop.GetSoftAttack().ToString(), color, 5, 8);
+                DrawinfoData(spriteBatch, HardAttackRect, troop.GetHardAttack().ToString(), color, 5, 8);
+                ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
+                pgs.TroopsHere[0].Draw(ScreenManager.SpriteBatch, ItemDisplayRect);
+                if (pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
                 {
-                    this.LaunchTroop = null;
+                    LaunchTroop = null;
                 }
                 else
                 {
-                    this.LaunchTroop = new DanButton(new Vector2((float)(slant.leftRect.X + 5), (float)(this.ElementRect.Y + this.ElementRect.Height + 15)), string.Concat(Localizer.Token(1435), (this.pgs.TroopsHere[0].AvailableMoveActions >= 1 ? "" : string.Concat(" (", this.pgs.TroopsHere[0].MoveTimer.ToString("0"), ")"))));
-                    this.LaunchTroop.DrawBlue(this.ScreenManager);
+                    LaunchTroop = new DanButton(new Vector2((slant.leftRect.X + 5), (ElementRect.Y + ElementRect.Height + 15)), string.Concat(Localizer.Token(1435), (pgs.TroopsHere[0].AvailableMoveActions >= 1 ? "" : string.Concat(" (", pgs.TroopsHere[0].MoveTimer.ToString("0"), ")"))));
+                    LaunchTroop.DrawBlue(ScreenManager);
                 }
                 if (pgs.TroopsHere[0].Level > 0)
                 {
@@ -182,6 +125,20 @@ namespace Ship_Game
                 }
             }
 
+            else // draw building stats
+            {
+                if (pgs.building.Strength < pgs.building.StrengthMax)
+                    DrawinfoData(spriteBatch, DefenseRect, pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1), color, 2, 11);
+                else
+                    DrawinfoData(spriteBatch, DefenseRect, pgs.building.StrengthMax.String(1), color, 2, 11);
+
+                DrawinfoData(spriteBatch, SoftAttackRect, pgs.building.SoftAttack.ToString(), color, 5, 8);
+                DrawinfoData(spriteBatch, HardAttackRect, pgs.building.HardAttack.ToString(), color, 5, 8);
+                ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_"
+                                               , pgs.building.Icon, "_64x64")], ItemDisplayRect, color);
+            }
+
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
             {
                 string t1 = e.item as string;
@@ -191,10 +148,10 @@ namespace Ship_Game
         }
 
 
-        private void DrawinfoData(SpriteBatch batch, Rectangle rect, string data, Color color)
+        private void DrawinfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
         {
             SpriteFont font = Fonts.Arial12;
-            Vector2 pos = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
+            Vector2 pos = new Vector2((rect.X + rect.Width + xOffSet), (rect.Y + yOffSet - font.LineSpacing / 2));
             batch.DrawString(font, data, pos, color);
         }
 

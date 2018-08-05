@@ -2138,7 +2138,9 @@
     <Content Include="Content\SavedDesigns\Drone Scout.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\SavedDesigns\DynamicLaunch.xml" />
+    <Content Include="Content\SavedDesigns\DynamicLaunch.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\SavedDesigns\Heavy Drone.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
