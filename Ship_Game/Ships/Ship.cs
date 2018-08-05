@@ -2008,7 +2008,7 @@ namespace Ship_Game.Ships
                     return;
 
                 foreach (Troop troop in ownTroops)
-                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.GetStrengthMax());
+                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
             }
 
             float GetMechanicalDefenseRoll()
