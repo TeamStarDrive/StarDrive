@@ -2607,7 +2607,7 @@ namespace Ship_Game
             for (int index = 0; index < BuildingList.Count; ++index)
             {
                 Building building        = BuildingList[index];
-                Building template        = ResourceManager.BuildingsDict[BuildingList[index].Name];
+                Building template        = ResourceManager.GetBuildingTemplate(BuildingList[index].Name);
                 building.CombatStrength  = (building.CombatStrength + repairAmount).Clamped(0, template.CombatStrength);
                 building.Strength        = (building.Strength + repairAmount).Clamped(0, template.Strength);
             }
