@@ -533,9 +533,10 @@ namespace Ship_Game
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
             Troop troop = CopyTroop(TroopsDict[troopType]);
+            troop.SetOwner(forOwner);
             if (forOwner != null)
                 troop.Strength = troop.ActualStrengthMax;
-            troop.SetOwner(forOwner);
+
             return troop;
         }
 

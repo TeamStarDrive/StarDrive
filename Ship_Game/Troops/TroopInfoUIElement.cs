@@ -95,8 +95,12 @@ namespace Ship_Game
             {
                 Troop = true;
             }
-            Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (Troop ? this.pgs.TroopsHere[0].Strength.ToString(this.fmt) : this.pgs.building.Strength.ToString()), defPos, Color.White);
+            Vector2 defPos = new Vector2((DefenseRect.X + DefenseRect.Width + 2), (DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (Troop
+                ? pgs.TroopsHere[0].Strength.String(1) + "/" + pgs.TroopsHere[0].ActualStrengthMax.String(1)
+                : pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1))
+                , defPos, Color.White);
+
             defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.SoftAttackRect.Y + 8 - Fonts.Arial12Bold.LineSpacing / 2));
             SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
