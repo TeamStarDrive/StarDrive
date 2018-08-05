@@ -91,7 +91,7 @@ namespace Ship_Game
             Style = style;
         }
 
-        public override void PerformLegacyLayout(Vector2 pos)
+        private void PerformLegacyLayout(Vector2 pos)
         {
             SliderRect = new Rectangle((int)pos.X, (int)pos.Y + (int)Height/2 + 3, (int)Width - 20, 6);
             KnobRect = new Rectangle(SliderRect.X + (int)(SliderRect.Width * Value), 
@@ -101,11 +101,10 @@ namespace Ship_Game
 
         public override void Update()
         {
+            if (!Visible)
+                return;
             base.Update();
-            SliderRect = new Rectangle((int)Pos.X, (int)Pos.Y + (int)Height/2 + 3, (int)Width - 20, 6);
-            KnobRect = new Rectangle(SliderRect.X + (int)(SliderRect.Width * Value), 
-                                     SliderRect.Y + SliderRect.Height / 2 - SliderKnob.Height / 2, 
-                                     SliderKnob.Width, SliderKnob.Height);
+            PerformLegacyLayout(Pos);
         }
 
         public string StyledValue
@@ -146,7 +145,7 @@ namespace Ship_Game
         }
         public bool HandleInput(InputState input, ref float currentvalue, float dynamicMaxValue)
         {
-            Max = (float)Math.Min(500000, dynamicMaxValue);
+            Max = Math.Min(500000f, dynamicMaxValue);
            
             if (!Rect.HitTest(input.CursorPosition) || !input.LeftMouseHeld())
             {

@@ -18,7 +18,7 @@ namespace Ship_Game
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected Vector2 Margin = new Vector2(15, 15);
+        protected Vector2     Margin        = new Vector2(15f, 15f);
         protected LayoutStyle CurrentLayout = LayoutStyle.HorizontalEven;
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
@@ -26,9 +26,9 @@ namespace Ship_Game
         // @todo Remove this list of buttons. It's purely for backwards compatibility
         protected readonly Array<UIButton> Buttons = new Array<UIButton>();
 
-        protected bool LayoutStarted = false;
+        protected bool LayoutStarted;
         protected Vector2 LayoutCursor = Vector2.Zero;
-        protected Vector2 LayoutStep = Vector2.Zero;
+        protected Vector2 LayoutStep   = Vector2.Zero;
 
         public LayoutStyle Layout
         {
@@ -69,10 +69,16 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            // iterate input in reverse, so we handle topmost objects before
-            for (int i = Elements.Count - 1; i >= 0; --i)
-                if (Elements[i].HandleInput(input))
-                    return true;
+            if (Visible && Enabled)
+            {
+                // iterate input in reverse, so we handle topmost objects before
+                for (int i = Elements.Count - 1; i >= 0; --i)
+                {
+                    UIElementV2 e = Elements[i];
+                    if (e.Visible && e.Enabled && e.HandleInput(input))
+                        return true;
+                }
+            }
             return false;
         }
 
@@ -84,22 +90,19 @@ namespace Ship_Game
                 case LayoutStyle.HorizontalEven:
                 case LayoutStyle.HorizontalPacked: return new Vector2(1f, 0f);
                 case LayoutStyle.VerticalEven:
-                case LayoutStyle.VerticalPacked: return new Vector2(0f, 1f);
+                case LayoutStyle.VerticalPacked:   return new Vector2(0f, 1f);
             }
-        }
-
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            LayoutChildElements(pos);
         }
 
         public override void Update()
         {
+            if (!Visible)
+                return;
             base.Update(); // layout self first
             LayoutChildElements(Pos);
         }
 
-        public void LayoutChildElements(Vector2 pos)
+        private void LayoutChildElements(Vector2 pos)
         {
             if (Elements.IsEmpty)
                 return;
@@ -114,6 +117,7 @@ namespace Ship_Game
                 for (int i = 0; i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
+                    if (!e.Visible) continue;
                     e.Pos = cursor;
                     e.Update();
                     cursor += evenSpacing * direction;
@@ -124,6 +128,7 @@ namespace Ship_Game
                 for (int i = 0; i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
+                    if (!e.Visible) continue;
                     e.Pos = cursor;
                     e.Update();
                     cursor += (e.Size + Margin) * direction;
@@ -193,12 +198,17 @@ namespace Ship_Game
             LayoutStep    = new Vector2(xstep, 0f);
         }
 
+        private static int ElementSorter(UIElementV2 a, UIElementV2 b)
+        {
+            return a.ZOrder - b.ZOrder;
+        }
+
         // ends the layout process and sorts all elements by their ZOrder values
         // In case the end of the layout position needs to be tracked return it on layout end. 
         public Vector2 EndLayout()
         {
             LayoutStarted = false;
-            Elements.Sort((a,b) => a.ZOrder - b.ZOrder);
+            Elements.Sort(ElementSorter);
             return LayoutCursor;
         }
 
