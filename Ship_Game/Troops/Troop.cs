@@ -301,7 +301,8 @@ namespace Ship_Game
                 if (StrengthMax <= 0)
                     StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
 
-                return (StrengthMax + Level) * (1 + Owner?.data.Traits.GroundCombatModifier ?? 1f);
+                float modifiedStrength = (StrengthMax + Level) * (1 + Owner?.data.Traits.GroundCombatModifier ?? 1f);
+                return (float)Math.Round(modifiedStrength, 0);
             }
         }
 
