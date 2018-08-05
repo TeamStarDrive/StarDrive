@@ -87,11 +87,20 @@ namespace Ship_Game
         {
             if (!isWeapon)
                 return;
-
+            
             TheWeapon = ResourceManager.WeaponsDict[Weapon];
             Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
         }
-
+        
+        public float StrengthMax
+        {
+            get
+            {
+                Building template = ResourceManager.BuildingsDict[Name];
+                return template.Strength;
+            }
+        }
+        
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
