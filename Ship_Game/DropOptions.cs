@@ -195,6 +195,8 @@ namespace Ship_Game
 
         public override void Update()
         {
+            if (!Visible)
+                return;
             base.Update();
             if (PropertyRef != null) // ensure our drop-down list is in sync with the property binding!
             {
@@ -245,12 +247,6 @@ namespace Ship_Game
                 Reset();
             }
             return false;
-        }
-
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            Pos = pos;
-            Reset();
         }
 
         public void Reset()

@@ -89,20 +89,6 @@ namespace Ship_Game
         public Vector2 DrawLineToPlanet(Vector2 startInWorld, Vector2 endInWorld, Color color)
             => DrawLineProjected(startInWorld, endInWorld, color, 2500);
 
-        // non-projected draw to screen
-        public void DrawLinesToScreen(Vector2 posOnScreen, Array<string> lines, SpriteFont font)
-        {
-            BeginVLayout(posOnScreen);            
-            foreach (string line in lines)
-            {
-                if (line.Length != 0)
-                    Label(line, font, Color.White).Draw(ScreenManager.SpriteBatch);
-            }
-            
-            EndLayout();
-        }
-
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness = 1f)
