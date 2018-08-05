@@ -813,13 +813,13 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: heal builds and troops every turn
-        public void HealTroops()
+        public void HealTroops(int healAmount)
         {
             if (RecentCombat)
                 return;
             using (TroopsHere.AcquireReadLock())
                 foreach (Troop troop in TroopsHere)
-                    troop.Strength = (troop.Strength + 2).Clamped(0, troop.ActualStrengthMax);
+                    troop.Strength = (troop.Strength + healAmount).Clamped(0, troop.ActualStrengthMax);
         }
     }
 }

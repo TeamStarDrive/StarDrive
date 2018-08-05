@@ -130,10 +130,10 @@ namespace Ship_Game
             ResLock     = new ColonyScreen.Lock();
             ProdLock    = new ColonyScreen.Lock();
             flagRect    = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
-            DefenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 112, 22, 22);
-            OffenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 22, 22, 22);
-            InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 53, 22, 22);
-            ShieldRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 112 + 75, 22, 22);
+            DefenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114, 22, 22);
+            OffenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
+            InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
+            ShieldRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
         }
 
         public override void Draw(GameTime gameTime)
@@ -488,39 +488,37 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, Color.White);
                 }
             }
-            textPos = new Vector2((float)(this.ColonySliderRes.sRect.X + 180), (float)(this.ColonySliderRes.sRect.Y - 2));
-            string res = this.p.NetResearchPerTurn.ToString(this.fmt);
+            textPos = new Vector2((ColonySliderRes.sRect.X + 180), (ColonySliderRes.sRect.Y - 2));
+            string res = p.NetResearchPerTurn.ToString(fmt);
             textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(res).X;
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, res, textPos, new Color(255, 239, 208));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
-            Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.TotalDefensiveStrength.ToString(this.fmt), defPos, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, res, textPos, new Color(255, 239, 208));
+
+            DrawData(DefenseRect, ((float)p.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
 
             // Added by Fat Bastard - display total injury level inflicted automatically to invading troops
             if (p.TotalInvadeInjure > 0)
-            {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_injury"], InjuryRect, Color.White);
-                Vector2 injurePos = new Vector2((InjuryRect.X + InjuryRect.Width + 2), (InjuryRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.TotalInvadeInjure.ToString(fmt), injurePos, Color.White);
-            }
+                DrawData(InjuryRect, ((float)p.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
 
             // Added by Fat Bastard - display total space offense of the planet
             if (p.TotalSpaceOffense > 0)
             {
                 string offenseNumberString = HelperFunctions.GetNumberString((float) Math.Round(p.TotalSpaceOffense,0));
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_offense"], OffenseRect, Color.White);
-                Vector2 offensePos = new Vector2((OffenseRect.X + OffenseRect.Width + 2), (OffenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, offenseNumberString, offensePos, Color.White);
+                DrawData(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
             }
 
             if (p.ShieldStrengthMax > 0f)
-            {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_planetshield"], ShieldRect, Color.Green);
-                Vector2 shieldPos = new Vector2((ShieldRect.X + ShieldRect.Width + 2), (ShieldRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.ShieldStrengthCurrent.ToString(fmt), shieldPos, Color.White);
-            }
+                DrawData(ShieldRect, p.ShieldStrengthCurrent.String(1), "NewUI/icon_planetshield", Color.White, Color.Green);
+
             Inspect.Draw(ScreenManager);
             Invade.Draw(ScreenManager);
+        }
+
+        private void DrawData(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
+        {
+            SpriteFont font = Fonts.Arial12Bold;
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(texturePath), rect, texcolor);
+            Vector2 pos = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data, pos, color);
         }
 
         public override bool HandleInput(InputState input)
