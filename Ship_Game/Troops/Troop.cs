@@ -294,12 +294,15 @@ namespace Ship_Game
             Level++;
         }
 
-        // Added by McShooterz
-        public float GetStrengthMax()
+        public float ActualStrengthMax
         {
-            if (StrengthMax <= 0)
-                StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
-            return StrengthMax + Level*0.5f + StrengthMax*(Owner?.data.Traits.GroundCombatModifier ?? 0.0f);
+            get
+            {
+                if (StrengthMax <= 0)
+                    StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
+                float lala = (StrengthMax + Level) * (1 + Owner?.data.Traits.GroundCombatModifier ?? 1f);
+                return (StrengthMax + Level) * (1 + Owner?.data.Traits.GroundCombatModifier ?? 1f);
+            }
         }
 
         public float GetCost()
@@ -357,7 +360,7 @@ namespace Ship_Game
                     eventLocation.TroopsHere.Add(this);
                     planet.TroopsHere.Add(this);
                     if (Owner != planet.Owner)
-                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, StrengthMax);
+                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, ActualStrengthMax);
 
                     SetPlanet(planet);
                     if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 

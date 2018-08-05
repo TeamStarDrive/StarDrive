@@ -534,7 +534,7 @@ namespace Ship_Game
         {
             Troop troop = CopyTroop(TroopsDict[troopType]);
             if (forOwner != null)
-                troop.Strength += (int)(forOwner.data.Traits.GroundCombatModifier * troop.Strength);
+                troop.Strength = troop.ActualStrengthMax;
             troop.SetOwner(forOwner);
             return troop;
         }
