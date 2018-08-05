@@ -1590,7 +1590,7 @@ namespace Ship_Game
                 else
                 {
                     float farmers = CalculateFoodWorkers();
-                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamp(0.0f, 1.0f);   //Percentage of population this will feed, weighted
+                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.0f);   //Percentage of population this will feed, weighted
                     score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
                     if (farmers == 0 || farmers > 0.66f) score += 0.333f;   //Bonus if planet is spending a lot of labor feeding itself
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
@@ -1612,7 +1612,7 @@ namespace Ship_Game
                 else
                 {
                     float farmers = CalculateFoodWorkers();
-                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamp(0.0f, 1.0f);   //Percentage of population this is feeding, weighted
+                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.0f);   //Percentage of population this is feeding, weighted
                     score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
                     if (score < 0) score = 0;       //No penalty for a little bit of extra food production
                 }
