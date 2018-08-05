@@ -87,8 +87,8 @@ namespace Ship_Game
         {
             if (!isWeapon)
                 return;
-            
-            TheWeapon = ResourceManager.WeaponsDict[Weapon];
+
+            TheWeapon = ResourceManager.CreateWeapon(Weapon);
             Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
         }
         
