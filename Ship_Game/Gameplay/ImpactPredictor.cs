@@ -18,17 +18,15 @@ namespace Ship_Game.Gameplay
         private readonly float Speed; // interception speed (projectile speed)
         private readonly Vector2 TargetPos; // Target position
         private readonly Vector2 TargetVel; // Target velocity
+        private readonly Vector2 TargetAcc; // Target acceleration
 
-        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, Vector2 targetPos, Vector2 targetVel)
-        {
-            Pos = pos;
-            Vel = vel;
-            Speed = speed;
-            TargetPos = targetPos;
-            TargetVel = targetVel;
-        }
+        // This sets the maximum lookahead time in seconds
+        // Any impact time predictions beyond this are clamped
+        // @note This should be == max projectile health
+        private readonly float MaxPredictionTime; 
 
-        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, GameplayObject target)
+        // For weapon arc prediction
+        public ImpactPredictor(Vector2 pos, Vector2 vel, float speed, float range, GameplayObject target)
         {
             Pos = pos;
             Vel = vel;
@@ -36,8 +34,14 @@ namespace Ship_Game.Gameplay
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
+            TargetAcc = info.Acc;
+
+            // this will limit the pip from moving further than would be possible
+            float approxLifetime = range / speed;
+            MaxPredictionTime = approxLifetime * 1.1f;
         }
 
+        // This is used during interception / attack runs
         public ImpactPredictor(Ships.Ship ourShip, GameplayObject target)
         {
             Pos = ourShip.Center;
@@ -46,6 +50,9 @@ namespace Ship_Game.Gameplay
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
+            TargetAcc = info.Acc;
+            MaxPredictionTime = 0f;
+            MaxPredictionTime = TimeToTarget(target.Center) * 1.5f;
         }
 
         public ImpactPredictor(Projectile proj, GameplayObject target)
@@ -56,10 +63,12 @@ namespace Ship_Game.Gameplay
             // guided missiles should not account for speed, since they are
             // ramming devices and always have more velocity
             //if (proj.Weapon.Tag_Guided)
-            //    Speed = 0.5f;
+            //    Speed = 1.0f;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
+            TargetAcc = info.Acc;
+            MaxPredictionTime = Max(0.1f, proj.Duration);
         }
 
         private static TargetInfo GetTargetInfo(GameplayObject target)
@@ -104,6 +113,11 @@ namespace Ship_Game.Gameplay
             float timeToImpact1 = (bm - sqrt) / (2 * a);
             float timeToImpact2 = (bm + sqrt) / (2 * a);
 
+            #if DEBUG
+            if (float.IsNaN(timeToImpact1) || float.IsNaN(timeToImpact2))
+                Log.Error("timeToImpact was NaN!");
+            #endif
+
             // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
             // Take any of the remaining positive values (probably the smaller one).
             if (timeToImpact1 < 0f) return Max(0f, timeToImpact2);
@@ -128,10 +142,10 @@ namespace Ship_Game.Gameplay
         private float PredictImpactTimeAdjusted(Vector2 deltaV)
         {
             float impactTime = PredictImpactTime(deltaV);
-            if (impactTime > 20f) // projectile will probably never catch up to target
-                impactTime = 20f;
+            if (impactTime > MaxPredictionTime)
+                impactTime = MaxPredictionTime;
             else if (impactTime <= 0f)
-                impactTime = TimeToTarget(TargetPos);
+                impactTime = TimeToTarget(TargetPos); // default fallback
             return impactTime;
         }
 
@@ -215,19 +229,6 @@ namespace Ship_Game.Gameplay
                 time = newTime;
             }
             return predictedPos;
-        }
-
-        public Vector2 Predict(Vector2 targetAccel)
-        {
-            //Vector2 quad = PredictImpactQuad(targetAccel);
-            Vector2 iter = PredictImpactIter(targetAccel);
-            //Log.Info("PIP quad: {0}", quad);
-            //Log.Info("PIP iter: {0}", iter);
-
-            //Vector2 error = quad-iter;
-            //if (error.Length() > 100000)
-            //    return iter;
-            return iter;
         }
 
         public Vector2 Predict()

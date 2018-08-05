@@ -258,10 +258,10 @@ namespace Ship_Game
         }
 
         private void DebugImportFood(float predictedFood, string text) =>                   
-            Empire.Universe.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
         
         private void DebugImportProd(float predictedFood, string text) =>                    
-            Empire.Universe.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
         
         public Goods ImportPriority()
         {
@@ -2490,7 +2490,6 @@ namespace Ship_Game
                 ShieldStrengthMax += building.PlanetaryShieldStrengthAdded;
                 PlusCreditsPerColonist += building.CreditsPerColonist;
                 TerraformToAdd += building.PlusTerraformPoints;
-                TotalDefensiveStrength += building.CombatStrength;
                 PlusTaxPercentage += building.PlusTaxPercentage;
                 CommoditiesPresent.Add(building.Name);
                 if (building.AllowInfantry) AllowInfantry = true;
@@ -2506,13 +2505,16 @@ namespace Ship_Game
                 FlatFoodAdded += building.PlusFlatFoodAmount;
                 RepairPerTurn += building.ShipRepair;
                 //Repair if no combat
-                if(!RecentCombat)
-                {
-                    building.CombatStrength = Ship_Game.ResourceManager.BuildingsDict[building.Name].CombatStrength;
-                    building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
-                }
+                if (RecentCombat)
+                    continue;
+
+                building.CombatStrength = ResourceManager.BuildingsDict[building.Name].CombatStrength;
+                building.Strength       = ResourceManager.BuildingsDict[building.Name].Strength;
             }
-            //Added by Gretman -- This will keep a planet from still having sheilds even after the shield building has been scrapped.
+
+            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
+
+            //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
 
             if (shipyard && (colonyType != ColonyType.Research || Owner.isPlayer))
@@ -2599,6 +2601,8 @@ namespace Ship_Game
             }
             return events;
         }
+
+        public int TotalInvadeInjure => BuildingList.FilterBy(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
 
         public enum GoodState
         {

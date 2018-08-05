@@ -10,6 +10,7 @@ using Ship_Game.UI;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
+    using Ship_Game.AI;
     using static ShipMaintenance;
 
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
@@ -222,14 +223,16 @@ namespace Ship_Game
             Color color = Color.Black;
             color.A     = 140;
 
+            Color shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
-            DrawString(center, 0, 0.4f, Color.White, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+            DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
             if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
                 return;
 
+            shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
             Vector2 mirroredCenter = mirrored.Slot.Center();
             DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
-            DrawString(mirroredCenter, 0, 0.4f, Color.White, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+            DrawString(mirroredCenter, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
@@ -337,7 +340,7 @@ namespace Ship_Game
             float thrust                   = 0f;
             float afterThrust              = 0f;
             float cargoSpace               = 0f;
-            float size                     = 0f;
+            int size                       = 0;
             float cost                     = 0f;
             float warpThrust               = 0f;
             float turnThrust               = 0f;
@@ -367,16 +370,19 @@ namespace Ship_Game
             bool bEnergyWeapons            = false;
             int troopCount                 = 0;
             int fixedTargets               = 0;
+            int numWeaponSlots             = 0;
             HullBonus bonus                 = ActiveHull.Bonuses;
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 bool wasOffenseDefenseAdded = false;
-                size += 1f;
+                size += 1;
                 if (slot.Root.ModuleUID == null)
                     emptySlots = false;
                 if (slot.Module == null)
                     continue;
+                if (slot.Module.InstalledWeapon != null)
+                    numWeaponSlots += slot.Module.Area;
 
                 hitPoints     += slot.Module.ActualMaxHealth;
                 mass          += slot.Module.ActualMass(slot.InPowerRadius);
@@ -390,7 +396,7 @@ namespace Ship_Game
                 if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
                 {
                     offense  += slot.Module.CalculateModuleOffense();
-                    defense  += slot.Module.CalculateModuleDefense((int)size);
+                    defense  += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                     wasOffenseDefenseAdded = true;
                 }
                 if (!slot.Module.Powered)
@@ -516,7 +522,7 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235, Color.White));
             }
 
-            strength = defense > offense ? offense * 2 : defense + offense;
+            strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed);
             if (strength > 0)     DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6190), ":"), strength, 227, Color.White));
 
             Vector2 cursorReq = new Vector2((float) (StatsSub.Menu.X - 180), (float) (ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing) + 5 ));

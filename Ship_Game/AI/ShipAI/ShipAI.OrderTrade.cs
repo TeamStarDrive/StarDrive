@@ -303,8 +303,9 @@ namespace Ship_Game.AI
 
             float cargoSpace = Owner.GetCargo(good);
             cargoSpace = cargoSpace > 0 ? cargoSpace : Owner.CargoSpaceMax;
-            var sortPlanets = planets.Planets.OrderBy(planetCheck => TradeSort(Owner, planetCheck, good, cargoSpace, true));
-            
+            var sortPlanets =
+                planets.Planets.OrderBy(planetCheck => TradeSort(Owner, planetCheck, good, cargoSpace, true));
+
 
             foreach (Planet p in sortPlanets)
             {
@@ -327,7 +328,7 @@ namespace Ship_Game.AI
                              s.shipData.ShipCategory != ShipData.Category.Civilian) || s == Owner ||
                             s.isConstructor) continue;
                         if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == good)
-                        {                          
+                        {
                             float currenTrade = TradeSort(s, p, good, s.CargoSpaceMax, true);
                             if (currenTrade < thisTradeStr)
                                 faster = false;
@@ -336,6 +337,7 @@ namespace Ship_Game.AI
                                 flag = true;
                                 break;
                             }
+
                             cargoSpaceMax = cargoSpaceMax - s.CargoSpaceMax;
                         }
 
@@ -344,25 +346,24 @@ namespace Ship_Game.AI
                             flag = true;
                             break;
                         }
-
                     }
                 }
-               
+
                 if (!flag)
                 {
                     end = p;
                     break;
                 }
+
                 //if (faster)
                 //    potential = p;
             }
+
             if (end == null) return false;
 
             //FoodOrProd = goodSwitch;
-            lock (WayPointLocker)
-            {
-                ActiveWayPoints.Clear();
-            }
+
+            WayPoints.Clear();
 
             OrderQueue.Clear();
             //if (Owner.CargoSpaceFree / Owner.CargoSpaceMax > .25f) return true;
