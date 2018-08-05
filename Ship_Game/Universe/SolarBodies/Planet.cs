@@ -443,17 +443,22 @@ namespace Ship_Game
         public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
 
         public void Update(float elapsedTime)
-        {
-
-            Array<Guid> list = new Array<Guid>();
-            foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
+        {       
+            Guid[] keys = Shipyards.Keys.ToArray();
+            for (int x = 0; x < keys.Length; x++)
             {
-                if (!keyValuePair.Value?.Active ?? true //Remove this null check later. 
-                    || keyValuePair.Value.Size == 0)
-                    list.Add(keyValuePair.Key);
+                Guid key = keys[x];
+                Ship shipyard = Shipyards[key];
+                if (shipyard == null || !shipyard.Active //Remove this null check later. 
+                                     || shipyard.Size == 0)
+                    Shipyards.Remove(key);
             }
-            foreach (Guid key in list)
-                Shipyards.Remove(key);
+            if (!Habitable)
+            {
+                UpdatePosition(elapsedTime);
+                return;
+            }
+
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
@@ -462,57 +467,52 @@ namespace Ship_Game
                 //try
                 {
                     Building building = BuildingList[index1];
-                    if (building.isWeapon)
+                    if (!building.isWeapon)
+                        continue;
+                    building.WeaponTimer -= elapsedTime;
+                    if (building.WeaponTimer < 0 && ParentSystem.ShipList.Count > 0)
                     {
-                        building.WeaponTimer -= elapsedTime;
-                        if (building.WeaponTimer < 0 && ParentSystem.ShipList.Count > 0)
+                        if (Owner == null) continue;
+                        Ship target = null;
+                        Ship troop = null;
+                        float currentD = 0;
+                        float previousD = building.theWeapon.Range + 1000f;
+                        //float currentT = 0;
+                        float previousT = building.theWeapon.Range + 1000f;
+                        //this.system.ShipList.thisLock.EnterReadLock();
+                        for (int index2 = 0; index2 < ParentSystem.ShipList.Count; ++index2)
                         {
-                            if (Owner != null)
+                            Ship ship = ParentSystem.ShipList[index2];
+                            if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact))
+                                continue;
+                            currentD = Vector2.Distance(Center, ship.Center);
+                            if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                             {
-                                Ship target = null;
-                                Ship troop = null;
-                                float currentD = 0;
-                                float previousD = building.theWeapon.Range + 1000f;
-                                //float currentT = 0;
-                                float previousT = building.theWeapon.Range + 1000f;
-                                //this.system.ShipList.thisLock.EnterReadLock();
-                                for (int index2 = 0; index2 < ParentSystem.ShipList.Count; ++index2)
-                                {
-                                    Ship ship = ParentSystem.ShipList[index2];
-                                    if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact))
-                                        continue;
-                                    currentD = Vector2.Distance(Center, ship.Center);
-                                    if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
-                                    {
-                                        previousT = currentD;
-                                        troop = ship;
-                                        continue;
-                                    }
-                                    if (currentD < previousD && troop == null)
-                                    {
-                                        previousD = currentD;
-                                        target = ship;
-                                    }
-
-                                }
-
-                                if (troop != null)
-                                    target = troop;
-                                if (target != null)
-                                {
-                                    building.theWeapon.Center = Center;
-                                    building.theWeapon.FireFromPlanet(this, target);
-                                    building.WeaponTimer = building.theWeapon.fireDelay;
-                                    break;
-                                }
-
-
+                                previousT = currentD;
+                                troop = ship;
+                                continue;
                             }
+                            if (currentD < previousD && troop == null)
+                            {
+                                previousD = currentD;
+                                target = ship;
+                            }
+
+                        }
+
+                        if (troop != null)
+                            target = troop;
+                        if (target != null)
+                        {
+                            building.theWeapon.Center = Center;
+                            building.theWeapon.FireFromPlanet(this, target);
+                            building.WeaponTimer = building.theWeapon.fireDelay;
+                            break;
                         }
                     }
                 }
             }
-            for (int index = 0; index < Projectiles.Count; ++index)
+            for (int index = Projectiles.Count - 1; index >= 0; --index)
             {
                 Projectile projectile = Projectiles[index];
                 if (projectile.Active)
@@ -521,9 +521,8 @@ namespace Ship_Game
                         projectile.Update(elapsedTime);
                 }
                 else
-                    Projectiles.QueuePendingRemoval(projectile);
-            }
-            Projectiles.ApplyPendingRemovals();
+                    Projectiles.RemoveAtSwapLast(index);
+            }            
             UpdatePosition(elapsedTime);
         }
 
