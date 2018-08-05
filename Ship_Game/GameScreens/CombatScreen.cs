@@ -413,7 +413,7 @@ namespace Ship_Game
                 return;
 
             var activeSel = new Rectangle(pgs.TroopClickRect.X - 5, pgs.TroopClickRect.Y - 5, pgs.TroopClickRect.Width + 10, pgs.TroopClickRect.Height + 10);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Sthis.ScreenManager.SpriteBatchelection"), activeSel, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), activeSel, Color.White);
             foreach (PlanetGridSquare nearby in ReversedList)
             {
                 if (nearby != pgs && nearby.ShowAttackHover)
@@ -466,13 +466,15 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                 }
 
-                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, 
+                                                 Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                 DrawTroopData(batch, strengthRect, pgs, pgs.TroopsHere[0].Strength.ToString("0."), Color.White);
 
                 //Fat Bastard - show TroopLevel
                 if (pgs.TroopsHere[0].Level > 0)
                 {
-                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, 
+                                                  Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                     DrawTroopData(batch, levelRect, pgs, pgs.TroopsHere[0].Level.ToString(), Color.Gold);
                 }
 
