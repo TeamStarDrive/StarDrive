@@ -802,10 +802,14 @@ namespace Ship_Game
                     if (planet.HasShipyard && system.isVisible)
                         planet.Station.Update(elapsedTime);
                 }
-                if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+
+                if (!GlobalStats.DisableAsteroids)
                 {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
-                        asteroid.Update(elapsedTime);
+                    if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                    {
+                        foreach (Asteroid asteroid in system.AsteroidsList)
+                            asteroid.Update(elapsedTime);
+                    }
                 }
 
                 if (GlobalStats.DisableAsteroids && !AsteroidsDisabled)
