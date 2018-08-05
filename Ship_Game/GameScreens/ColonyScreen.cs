@@ -1201,7 +1201,7 @@ namespace Ship_Game
 
                 DrawMultiLine(ref bCursor, t.Description);
                 DrawTitledLine(ref bCursor, 338, t.TargetType);
-                DrawTitledLine(ref bCursor, 339, t.StrengthText);
+                DrawTitledLine(ref bCursor, 339, t.Strength + "/" + t.ActualStrengthMax);
                 DrawTitledLine(ref bCursor, 2218, t.GetHardAttack().ToString());
                 DrawTitledLine(ref bCursor, 2219, t.GetSoftAttack().ToString());
                 DrawTitledLine(ref bCursor, 6008, t.BoardingStrength.ToString());
