@@ -68,7 +68,7 @@ namespace Ship_Game
         [Serialize(60)] public int InvadeInjurePoints;
 
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
-        [XmlIgnore][JsonIgnore] public float Offense { get; private set; } = 0f;
+        [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
 
         public void SetPlanet(Planet p)
         {

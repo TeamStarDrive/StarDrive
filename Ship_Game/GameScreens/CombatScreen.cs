@@ -467,19 +467,14 @@ namespace Ship_Game
                 }
 
                 var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
-                batch.DrawRectangle(strengthRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
-                var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
-                                         (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString("0."), cursor, Color.White);
+                DrawTroopData(batch, strengthRect, pgs, pgs.TroopsHere[0].Strength.ToString("0."), Color.White);
 
                 //Fat Bastard - show TroopLevel
-                var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                batch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
-                batch.DrawRectangle(levelRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
-                cursor = new Vector2((levelRect.X + levelRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
-                    +(1 + levelRect.Y + levelRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Level.ToString(), cursor, Color.Gold);
+                if (pgs.TroopsHere[0].Level > 0)
+                {
+                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    DrawTroopData(batch, levelRect, pgs, pgs.TroopsHere[0].Level.ToString(), Color.Gold);
+                }
 
                 if (ActiveTroop != null && ActiveTroop == pgs)
                 {
@@ -554,6 +549,16 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+
+        private void DrawTroopData(SpriteBatch batch, Rectangle rect, PlanetGridSquare pgs, string data, Color color)
+        {
+            SpriteFont font = Fonts.Arial12;
+            batch.FillRectangle(rect, new Color(0, 0, 0, 200));
+            batch.DrawRectangle(rect, pgs.TroopsHere[0].GetOwner().EmpireColor);
+            var cursor = new Vector2((rect.X + rect.Width / 2) - font.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
+                (1 + rect.Y + rect.Height / 2 - font.LineSpacing / 2));
+            batch.DrawString(font, data, cursor, color);
         }
 
         public override bool HandleInput(InputState input)
