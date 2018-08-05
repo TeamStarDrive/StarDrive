@@ -113,7 +113,7 @@ namespace Ship_Game
         public float MaxPopBonus;
         public bool AllowInfantry;
         public float PlusFlatPopulationPerTurn;
-        public int TotalDefensiveStrength { get; private set; } = 0;
+        public int TotalDefensiveStrength { get; private set; }
         public float GrossMoneyPT;
         public float GrossIncome =>
                     (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
@@ -157,7 +157,7 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
-        public void HealTroops()                                          => TroopManager.HealTroops();
+        public void HealTroops(int healAmount)                                          => TroopManager.HealTroops(healAmount);
 
         private static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -663,7 +663,9 @@ namespace Ship_Game
             HarvestResources();
             ApplyProductionTowardsConstruction();
             GrowPopulation();
-            HealTroops();
+            HealTroops(2);
+            RepairBuildings(1);
+
             CalculateIncomingTrade();
         }
 
@@ -2503,12 +2505,6 @@ namespace Ship_Game
                 TotalMaintenanceCostsPerTurn += building.Maintenance;
                 FlatFoodAdded += building.PlusFlatFoodAmount;
                 RepairPerTurn += building.ShipRepair;
-                //Repair if no combat
-                if (RecentCombat)
-                    continue;
-
-                building.CombatStrength = (building.CombatStrength + 1).Clamped(0, ResourceManager.BuildingsDict[building.Name].CombatStrength);
-                building.Strength = (building.Strength + 1).Clamped(0, ResourceManager.BuildingsDict[building.Name].Strength);
             }
 
             TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
@@ -2602,6 +2598,20 @@ namespace Ship_Game
 
         public int TotalInvadeInjure   => BuildingList.FilterBy(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
         public float TotalSpaceOffense => BuildingList.FilterBy(b => b.isWeapon).Sum(b => b.Offense);
+
+        private void RepairBuildings(int repairAmount)
+        {
+            if (RecentCombat)
+                return;
+
+            for (int index = 0; index < BuildingList.Count; ++index)
+            {
+                Building building        = BuildingList[index];
+                Building template        = ResourceManager.BuildingsDict[BuildingList[index].Name];
+                building.CombatStrength  = (building.CombatStrength + repairAmount).Clamped(0, template.CombatStrength);
+                building.Strength        = (building.Strength + repairAmount).Clamped(0, template.Strength);
+            }
+        }
 
         public enum GoodState
         {
