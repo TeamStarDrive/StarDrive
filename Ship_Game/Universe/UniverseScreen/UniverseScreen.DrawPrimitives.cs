@@ -90,14 +90,16 @@ namespace Ship_Game
             => DrawLineProjected(startInWorld, endInWorld, color, 2500);
 
         // non-projected draw to screen
-        public void DrawLinesToScreen(Vector2 posOnScreen, Array<string> lines)
+        public void DrawLinesToScreen(Vector2 posOnScreen, Array<string> lines, SpriteFont font)
         {
+            BeginVLayout(posOnScreen);            
             foreach (string line in lines)
             {
                 if (line.Length != 0)
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, line, posOnScreen, Color.White);
-                posOnScreen.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                    Label(line, font, Color.White).Draw(ScreenManager.SpriteBatch);
             }
+            
+            EndLayout();
         }
 
 

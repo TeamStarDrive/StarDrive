@@ -1188,6 +1188,7 @@ namespace Ship_Game
                 return;
             try
             {
+
                 if (Universe.PlayerEmpire == this && !e.isFaction)
                 {
                     Universe.ScreenManager.AddScreen(new DiplomacyScreen(Universe, e, Universe.PlayerEmpire, "First Contact"));

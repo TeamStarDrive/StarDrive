@@ -177,7 +177,7 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
 
-        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+        public Vector2 LocalCenter;// => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
 
         // the actual hit radius is a bit bigger for some legacy reason
@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-            
+            LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -420,11 +420,12 @@ namespace Ship_Game.Ships
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-            
-            
-            Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X       += XSIZE * 8f - 264f;
-            offset.Y       += YSIZE * 8f - 264f;
+
+
+            //Vector2 offset = XMLPosition; // huge cache miss here
+            Vector2 offset = LocalCenter;
+            //offset.X       += XSIZE * 8f - 264f;
+            //offset.Y       += YSIZE * 8f - 264f;
             Vector2 pcenter = Parent.Center;
             float cx        = offset.X * cos - offset.Y * sin;
             float cy        = offset.X * sin + offset.Y * cos;
