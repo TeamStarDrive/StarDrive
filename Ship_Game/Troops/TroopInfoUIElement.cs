@@ -66,30 +66,31 @@ namespace Ship_Game
             this.ToolTipItems.Add(def);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime) // refactored by  Fat Bastard Aug 6, 2018
         {
-            string str;
-            string str1;
-            if (this.pgs == null)
+            if (pgs == null)
                 return;
 
-            if (this.pgs.TroopsHere.Count == 0 && this.pgs.building == null)
+            if (pgs.TroopsHere.Count == 0 && pgs.building == null)
                 return;
 
-            MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-            this.ScreenManager.SpriteBatch.FillRectangle(this.sel.Rect, Color.Black);
-            float x = (float)Mouse.GetState().X;
+            MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+            ScreenManager.SpriteBatch.FillRectangle(sel.Rect, Color.Black);
+
+            float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
-            Header slant = new Header(new Rectangle(this.sel.Rect.X, this.sel.Rect.Y, this.sel.Rect.Width, 41), (this.pgs.TroopsHere.Count > 0 ? this.pgs.TroopsHere[0].Name : Localizer.Token(this.pgs.building.NameTranslationIndex)));
-            Body body = new Body(new Rectangle(slant.leftRect.X, this.sel.Rect.Y + 44, this.sel.Rect.Width, this.sel.Rect.Height - 44));
-            slant.Draw(this.ScreenManager);
-            body.Draw(this.ScreenManager);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Attack"], this.SoftAttackRect, Color.White);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/attack_hard"], this.HardAttackRect, Color.White);
+            Vector2 mousePos = new Vector2(x, state.Y);
+            string slantText = pgs.TroopsHere.Count > 0 ? pgs.TroopsHere[0].Name : Localizer.Token(pgs.building.NameTranslationIndex);
+            Header slant     = new Header(new Rectangle(sel.Rect.X, sel.Rect.Y, sel.Rect.Width, 41), slantText);
+            Body body        = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
+            Color color      = Color.White;
+
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            Color color = Color.White;
+            slant.Draw(ScreenManager);
+            body.Draw(ScreenManager);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], DefenseRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Attack"], SoftAttackRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/attack_hard"], HardAttackRect, Color.White);
             if (pgs.TroopsHere.Count > 0) // draw troop_stats
             {
                 Troop troop = pgs.TroopsHere[0];
@@ -101,30 +102,9 @@ namespace Ship_Game
                 DrawinfoData(spriteBatch, SoftAttackRect, troop.GetSoftAttack().ToString(), color, 5, 8);
                 DrawinfoData(spriteBatch, HardAttackRect, troop.GetHardAttack().ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                pgs.TroopsHere[0].Draw(ScreenManager.SpriteBatch, ItemDisplayRect);
-                if (pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
-                {
-                    LaunchTroop = null;
-                }
-                else
-                {
-                    LaunchTroop = new DanButton(new Vector2((slant.leftRect.X + 5), (ElementRect.Y + ElementRect.Height + 15)), string.Concat(Localizer.Token(1435), (pgs.TroopsHere[0].AvailableMoveActions >= 1 ? "" : string.Concat(" (", pgs.TroopsHere[0].MoveTimer.ToString("0"), ")"))));
-                    LaunchTroop.DrawBlue(ScreenManager);
-                }
-                if (pgs.TroopsHere[0].Level > 0)
-                {
-                    for (int i = 0; i < pgs.TroopsHere[0].Level; i++)
-                    {
-                        var star = new Rectangle(LeftRect.X + LeftRect.Width - 20 - 12 * i, LeftRect.Y + 12, 12, 11);
-                        if (star.HitTest(MousePos))
-                        {
-                            ToolTip.CreateTooltip(127);
-                        }
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, Color.White);
-                    }
-                }
+                DrawLaunchButton(troop, slant);
+                DrawLevelStars(troop.Level, mousePos);
             }
-
             else // draw building stats
             {
                 if (pgs.building.Strength < pgs.building.StrengthMax)
@@ -139,20 +119,53 @@ namespace Ship_Game
                                                , pgs.building.Icon, "_64x64")], ItemDisplayRect, color);
             }
 
-            foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
-            {
-                string t1 = e.item as string;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.Y), Color.White);
-            }
-            DescriptionSL.Draw(ScreenManager.SpriteBatch);
+            DrawDescription(color);
         }
-
 
         private void DrawinfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
         {
             SpriteFont font = Fonts.Arial12;
             Vector2 pos = new Vector2((rect.X + rect.Width + xOffSet), (rect.Y + yOffSet - font.LineSpacing / 2));
             batch.DrawString(font, data, pos, color);
+        }
+
+        private void DrawLaunchButton(Troop troop, Header slant)
+        {
+            troop.Draw(ScreenManager.SpriteBatch, ItemDisplayRect);
+            if (troop.GetOwner() != EmpireManager.Player)
+                LaunchTroop = null;
+            else
+            {
+                string buttonText =  troop.AvailableAttackActions >= 1 ? "" : string.Concat(" (", troop.MoveTimer.ToString("0"), ")");
+                LaunchTroop = new DanButton(new Vector2(slant.leftRect.X + 5, ElementRect.Y + ElementRect.Height + 15), 
+                                            string.Concat(Localizer.Token(1435), buttonText));
+                LaunchTroop.DrawBlue(ScreenManager);
+            }
+        }
+
+        private void DrawLevelStars(int level, Vector2 mousePos)
+        {
+            if (level <= 0)
+                return;
+            Color color = level < 3 ? Color.White : Color.Gold;
+            for (int i = 0; i < level; i++)
+            {
+                var star = new Rectangle(LeftRect.X + LeftRect.Width - 20 - 12 * i, LeftRect.Y + 12, 12, 11);
+                if (star.HitTest(mousePos))
+                    ToolTip.CreateTooltip(127);
+
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, color);
+            }
+        }
+
+        private void DrawDescription(Color color)
+        {
+            foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
+            {
+                string t1 = e.item as string;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.Y), color);
+            }
+            DescriptionSL.Draw(ScreenManager.SpriteBatch);
         }
 
         public override bool HandleInput(InputState input)
