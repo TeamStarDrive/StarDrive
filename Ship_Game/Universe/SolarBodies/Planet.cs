@@ -113,7 +113,7 @@ namespace Ship_Game
         public float MaxPopBonus;
         public bool AllowInfantry;
         public float PlusFlatPopulationPerTurn;
-        public int TotalDefensiveStrength;
+        public int TotalDefensiveStrength { get; private set; }
         public float GrossMoneyPT;
         public float GrossIncome =>
                     (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
@@ -157,7 +157,7 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
-        public void HealTroops()                                          => TroopManager.HealTroops();
+        public void HealTroops(int healAmount)                                          => TroopManager.HealTroops(healAmount);
 
         private static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -476,9 +476,9 @@ namespace Ship_Game
                         Ship target = null;
                         Ship troop = null;
                         float currentD = 0;
-                        float previousD = building.theWeapon.Range + 1000f;
+                        float previousD = building.TheWeapon.Range + 1000f;
                         //float currentT = 0;
-                        float previousT = building.theWeapon.Range + 1000f;
+                        float previousT = building.TheWeapon.Range + 1000f;
                         //this.system.ShipList.thisLock.EnterReadLock();
                         for (int index2 = 0; index2 < ParentSystem.ShipList.Count; ++index2)
                         {
@@ -504,9 +504,9 @@ namespace Ship_Game
                             target = troop;
                         if (target != null)
                         {
-                            building.theWeapon.Center = Center;
-                            building.theWeapon.FireFromPlanet(this, target);
-                            building.WeaponTimer = building.theWeapon.fireDelay;
+                            building.TheWeapon.Center = Center;
+                            building.TheWeapon.FireFromPlanet(this, target);
+                            building.WeaponTimer = building.TheWeapon.fireDelay;
                             break;
                         }
                     }
@@ -663,7 +663,9 @@ namespace Ship_Game
             HarvestResources();
             ApplyProductionTowardsConstruction();
             GrowPopulation();
-            HealTroops();
+            HealTroops(2);
+            RepairBuildings(1);
+
             CalculateIncomingTrade();
         }
 
@@ -963,8 +965,8 @@ namespace Ship_Game
             float maintCost = GrossMoneyPT + Owner.data.Traits.TaxMod * GrossMoneyPT - building.Maintenance - (TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn * Owner.data.Traits.MaintMod);
             bool makingMoney = maintCost > 0;
 
-            int defensiveBuildings = BuildingList.Count(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded > 0 || combat.theWeapon != null);
-            int possibleoffensiveBuilding = BuildingsCanBuild.Count(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.theWeapon != null);
+            int defensiveBuildings = BuildingList.Count(combat => combat.SoftAttack > 0 || combat.PlanetaryShieldStrengthAdded > 0 || combat.TheWeapon != null);
+            int possibleoffensiveBuilding = BuildingsCanBuild.Count(b => b.PlanetaryShieldStrengthAdded > 0 || b.SoftAttack > 0 || b.TheWeapon != null);
             bool isdefensive = building.SoftAttack > 0 || building.PlanetaryShieldStrengthAdded > 0 || building.isWeapon;
             float defenseratio = 0;
             if (defensiveBuildings + possibleoffensiveBuilding > 0)
@@ -1133,7 +1135,7 @@ namespace Ship_Game
                         }
                         if (MedPri && DevelopmentLevel > 3 && makingMoney)
                         {
-                            if (DevelopmentLevel > 2 && needDefense && (building.theWeapon != null || building.Strength > 0))
+                            if (DevelopmentLevel > 2 && needDefense && (building.TheWeapon != null || building.Strength > 0))
                                 return true;
                             iftrue = true;
                         }
@@ -1205,7 +1207,7 @@ namespace Ship_Game
                                 || (building.ShipRepair > 0 && GrossProductionPerTurn > 1)
                                 || building.Strength > 0
                                 || (building.AllowInfantry && GrossProductionPerTurn > 1)
-                                || needDefense && (building.theWeapon != null || building.Strength > 0)
+                                || needDefense && (building.TheWeapon != null || building.Strength > 0)
                                 || (Owner.data.Traits.Cybernetic > 0 && (building.PlusProdPerRichness > 0 || building.PlusProdPerColonist > 0 || building.PlusFlatProductionAmount > 0))
                                 )
                                 iftrue = true;
@@ -2503,12 +2505,6 @@ namespace Ship_Game
                 TotalMaintenanceCostsPerTurn += building.Maintenance;
                 FlatFoodAdded += building.PlusFlatFoodAmount;
                 RepairPerTurn += building.ShipRepair;
-                //Repair if no combat
-                if (RecentCombat)
-                    continue;
-
-                building.CombatStrength = ResourceManager.BuildingsDict[building.Name].CombatStrength;
-                building.Strength       = ResourceManager.BuildingsDict[building.Name].Strength;
             }
 
             TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
@@ -2586,7 +2582,6 @@ namespace Ship_Game
 
         public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
         
-
         public bool EventsOnBuildings()
         {
             bool events = false;
@@ -2601,7 +2596,22 @@ namespace Ship_Game
             return events;
         }
 
-        public int TotalInvadeInjure => BuildingList.FilterBy(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
+        public int TotalInvadeInjure   => BuildingList.FilterBy(b => b.InvadeInjurePoints > 0).Sum(b => b.InvadeInjurePoints);
+        public float TotalSpaceOffense => BuildingList.FilterBy(b => b.isWeapon).Sum(b => b.Offense);
+
+        private void RepairBuildings(int repairAmount)
+        {
+            if (RecentCombat)
+                return;
+
+            for (int i = 0; i < BuildingList.Count; ++i)
+            {
+                Building building        = BuildingList[i];
+                Building template        = ResourceManager.GetBuildingTemplate(BuildingList[i].Name);
+                building.CombatStrength  = (building.CombatStrength + repairAmount).Clamped(0, template.CombatStrength);
+                building.Strength        = (building.Strength + repairAmount).Clamped(0, template.Strength);
+            }
+        }
 
         public enum GoodState
         {
@@ -2609,8 +2619,6 @@ namespace Ship_Game
             IMPORT,
             EXPORT,
         }
-
-
 
         public void Dispose()
         {

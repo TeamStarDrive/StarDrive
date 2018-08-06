@@ -69,7 +69,7 @@ namespace Ship_Game
 
         public Troop Clone()
         {
-            var t = (Troop)MemberwiseClone();
+            var t   = (Troop)MemberwiseClone();
             t.p     = null;
             t.Owner = null;
             t.ship  = null;
@@ -78,7 +78,7 @@ namespace Ship_Game
 
         public void DoAttack()
         {
-            Idle = false;
+            Idle       = false;
             WhichFrame = first_frame;
         }
 
@@ -118,8 +118,8 @@ namespace Ship_Game
                 return;
             }
 
-            float scale = drawRect.Width / 128f;
-            drawRect.Width = (int)(attack_width * scale);
+            float scale     = drawRect.Width / 128f;
+            drawRect.Width  = (int)(attack_width * scale);
             var sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
 
             Texture2D attackTexture = TextureAttackAnim;
@@ -130,9 +130,9 @@ namespace Ship_Game
             }
             sourceRect2.Y      -= idle_y_offset;
             sourceRect2.Height += idle_y_offset;
-            Rectangle r = drawRect;
-            r.Y      -= (int)(scale * idle_y_offset);
-            r.Height += (int)(scale * idle_y_offset);
+            Rectangle r         = drawRect;
+            r.Y                -= (int)(scale * idle_y_offset);
+            r.Height           += (int)(scale * idle_y_offset);
             spriteBatch.Draw(attackTexture, r, sourceRect2, Color.White);
         }
 
@@ -162,9 +162,9 @@ namespace Ship_Game
             }
             sourceRect2.Y      -= idle_y_offset;
             sourceRect2.Height += idle_y_offset;
-            Rectangle r = drawRect;
-            r.Height += (int)(scale * idle_y_offset);
-            r.Y      -= (int)(scale * idle_y_offset);
+            Rectangle r         = drawRect;
+            r.Height           += (int)(scale * idle_y_offset);
+            r.Y                -= (int)(scale * idle_y_offset);
             spriteBatch.Draw(attackTexture, r, sourceRect2, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
         }
 
@@ -179,10 +179,8 @@ namespace Ship_Game
             return fromRect;
         }
 
-        public int GetHardAttack()
-        {
-            return (int)(HardAttack + 0.1f * Level * HardAttack);
-        }
+        public int NetHardAttack => (int)(HardAttack + 0.1f * Level * HardAttack);
+        public int NetSoftAttack => (int)(SoftAttack + 0.1f * Level * SoftAttack);
 
         public Empire GetOwner()
         {
@@ -197,11 +195,6 @@ namespace Ship_Game
         public Ship GetShip()
         {
             return ship;
-        }
-
-        public int GetSoftAttack()
-        {
-            return (int)(SoftAttack + 0.1f * Level * SoftAttack);
         }
 
         public Ship Launch()
@@ -294,18 +287,23 @@ namespace Ship_Game
             Level++;
         }
 
-        // Added by McShooterz
-        public float GetStrengthMax()
+        public float ActualStrengthMax
         {
-            if (StrengthMax <= 0)
-                StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
-            return (StrengthMax + Level) + StrengthMax * (Owner?.data.Traits.GroundCombatModifier ?? 0.0f);
+            get
+            {
+                if (StrengthMax <= 0)
+                    StrengthMax = ResourceManager.GetTroopTemplate(Name).Strength;
+
+                float modifiedStrength = (StrengthMax + Level) * (1 + Owner?.data.Traits.GroundCombatModifier ?? 1f);
+                return (float)Math.Round(modifiedStrength, 0);
+            }
         }
 
         public float GetCost()
         {
             return Cost * UniverseScreen.GamePaceStatic;
         }
+
         public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile, Planet planet )
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
@@ -357,7 +355,7 @@ namespace Ship_Game
                     eventLocation.TroopsHere.Add(this);
                     planet.TroopsHere.Add(this);
                     if (Owner != planet.Owner)
-                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, GetStrengthMax());
+                        Strength = (Strength - planet.TotalInvadeInjure).Clamped(0, ActualStrengthMax);
 
                     SetPlanet(planet);
                     if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) 

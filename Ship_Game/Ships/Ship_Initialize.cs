@@ -186,11 +186,13 @@ namespace Ship_Game.Ships
         {
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                var stackTrace = new Exception();
-                MessageBox.Show(
-                    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
-                    "Ship spawn failed!", MessageBoxButtons.OK);
-                return null;
+                //var stackTrace = new Exception();
+                //MessageBox.Show(
+                //    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
+                //     "Ship spawn failed!", MessageBoxButtons.OK);
+                Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
+                if (!ResourceManager.ShipsDict.TryGetValue("Vulcan Scout", out template))  // try to spawn Vulcan Scout
+                     return null;
             }
 
             var ship = new Ship
@@ -282,9 +284,12 @@ namespace Ship_Game.Ships
 
         // Hangar Ship Creation
         public static Ship CreateShipFromHangar(ShipModule hangar, Empire owner, Vector2 p, Ship parent)
-        {            
+        {
             Ship ship = CreateShipAtPoint(hangar.hangarShipUID, owner, p);
-            if (ship == null) return null;
+
+            if (ship == null)
+                return null;
+
             ship.Mothership = parent;
             ship.Velocity = parent.Velocity;            
 
