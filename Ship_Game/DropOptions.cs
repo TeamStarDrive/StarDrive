@@ -148,6 +148,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             bool hover = IsMouseHoveringOver(Rect);
             if (hover) // draw border if mouse is hovering
                 batch.FillRectangle(Rect, new Color(128, 87, 43, 50));
@@ -197,6 +200,7 @@ namespace Ship_Game
         {
             if (!Visible)
                 return;
+
             base.Update();
             if (PropertyRef != null) // ensure our drop-down list is in sync with the property binding!
             {
