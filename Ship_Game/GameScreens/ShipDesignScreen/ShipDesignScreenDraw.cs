@@ -593,8 +593,8 @@ namespace Ship_Game
             {
                 if (GlobalStats.HardcoreRuleset)
                 {
-                    string massstring = GetNumberString(mass);
-                    string wmassstring = GetNumberString(warpableMass);
+                    string massstring = HelperFunctions.GetNumberString(mass);
+                    string wmassstring = HelperFunctions.GetNumberString(warpableMass);
                     string warpmassstring = string.Concat(massstring, "/", wmassstring);
                     if (mass > warpableMass)
                         DrawStatBad(ref cursor, "Warpable Mass:", warpmassstring, 153);
@@ -880,7 +880,7 @@ namespace Ship_Game
 
             public string ValueText => IsPercent ? Value.ToString("P1") : NumericText;
 
-            private string NumericText => GetNumberString(Value);
+            private string NumericText => HelperFunctions.GetNumberString(Value);
         }
 
         private static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
