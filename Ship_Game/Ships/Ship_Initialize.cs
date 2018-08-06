@@ -186,12 +186,12 @@ namespace Ship_Game.Ships
         {
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                var stackTrace = new Exception();
+                //var stackTrace = new Exception();
                 //MessageBox.Show(
                 //    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
                 //     "Ship spawn failed!", MessageBoxButtons.OK);
-                Log.Info($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
-                if (!ResourceManager.ShipsDict.TryGetValue(DynamicHangarLaunch.DynamicLaunch.ToString(), out template)) 
+                Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
+                if (!ResourceManager.ShipsDict.TryGetValue("Vulcan Scout", out template))  // try to spawn Vulcan Scout
                      return null;
             }
 

@@ -1068,7 +1068,7 @@ namespace Ship_Game
 
                 if (!entry.Hovered)
                 {
-                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Green);
                     position.X = (entry.Right - 100);
                     var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
@@ -1652,12 +1652,12 @@ namespace Ship_Game
         {
             SpriteFont font = Fonts.Arial12Bold;
             var levelRect   = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
-            var cursor      = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
+            var pos         = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
                                          (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
 
             ScreenManager.SpriteBatch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
             ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.GetOwner().EmpireColor);
-            ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), cursor, Color.Gold);
+            ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
         }
 
         private void DrawPGSIcons(PlanetGridSquare pgs)
@@ -1677,7 +1677,7 @@ namespace Ship_Game
             }
             float numFood = 0f;
             float numProd = 0f;
-            float numRes = 0f;
+            float numRes  = 0f;
             if (pgs.building != null)
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
