@@ -86,9 +86,9 @@ namespace Ship_Game
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             slant.Draw(ScreenManager);
             body.Draw(ScreenManager);
-            spriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, Color.White);
+            spriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
+            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
+            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
 
             if (pgs.TroopsHere.Count > 0) // draw troop_stats
             {
