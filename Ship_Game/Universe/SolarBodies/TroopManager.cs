@@ -437,8 +437,8 @@ namespace Ship_Game
                             if (combat.Attacker.TroopsHere.Count > 0)
                             {
                                 num1 = combat.Attacker.TroopsHere[0].Strength;
-                                num2 = combat.Attacker.TroopsHere[0].GetHardAttack();
-                                num3 = combat.Attacker.TroopsHere[0].GetSoftAttack();
+                                num2 = combat.Attacker.TroopsHere[0].NetHardAttack;
+                                num3 = combat.Attacker.TroopsHere[0].NetSoftAttack;
                             }
                             else
                             {
@@ -552,8 +552,8 @@ namespace Ship_Game
                     if (combat.Attacker.TroopsHere.Count > 0)
                     {
                         num1 = combat.Attacker.TroopsHere[0].Strength;
-                        num2 = combat.Attacker.TroopsHere[0].GetHardAttack();
-                        num3 = combat.Attacker.TroopsHere[0].GetSoftAttack();
+                        num2 = combat.Attacker.TroopsHere[0].NetHardAttack;
+                        num3 = combat.Attacker.TroopsHere[0].NetSoftAttack;
                     }
                     else
                     {
