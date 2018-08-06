@@ -413,7 +413,7 @@ namespace Ship_Game
                 return;
 
             var activeSel = new Rectangle(pgs.TroopClickRect.X - 5, pgs.TroopClickRect.Y - 5, pgs.TroopClickRect.Width + 10, pgs.TroopClickRect.Height + 10);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Sthis.ScreenManager.SpriteBatchelection"), activeSel, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), activeSel, Color.White);
             foreach (PlanetGridSquare nearby in ReversedList)
             {
                 if (nearby != pgs && nearby.ShowAttackHover)
@@ -435,20 +435,21 @@ namespace Ship_Game
             pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - (int)width / 2, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - (int)width / 2, (int)width, (int)width);
             if (pgs.TroopsHere.Count > 0)
             {
+                Troop troop = pgs.TroopsHere[0];
                 Rectangle troopClickRect = pgs.TroopClickRect;
-                if (pgs.TroopsHere[0].MovingTimer > 0f)
+                if (troop.MovingTimer > 0f)
                 {
-                    float amount = 1f - pgs.TroopsHere[0].MovingTimer;
-                    troopClickRect.X = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().X, pgs.TroopClickRect.X, amount);
-                    troopClickRect.Y = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().Y, pgs.TroopClickRect.Y, amount);
-                    troopClickRect.Width = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().Width, pgs.TroopClickRect.Width, amount);
-                    troopClickRect.Height = (int)MathHelper.Lerp(pgs.TroopsHere[0].GetFromRect().Height, pgs.TroopClickRect.Height, amount);
+                    float amount          = 1f - troop.MovingTimer;
+                    troopClickRect.X      = (int)MathHelper.Lerp(troop.GetFromRect().X, pgs.TroopClickRect.X, amount);
+                    troopClickRect.Y      = (int)MathHelper.Lerp(troop.GetFromRect().Y, pgs.TroopClickRect.Y, amount);
+                    troopClickRect.Width  = (int)MathHelper.Lerp(troop.GetFromRect().Width, pgs.TroopClickRect.Width, amount);
+                    troopClickRect.Height = (int)MathHelper.Lerp(troop.GetFromRect().Height, pgs.TroopClickRect.Height, amount);
                 }
-                pgs.TroopsHere[0].Draw(batch, troopClickRect);
+                troop.Draw(batch, troopClickRect);
                 var moveRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 38, 12, 12);
-                if (pgs.TroopsHere[0].AvailableMoveActions <= 0)
+                if (troop.AvailableMoveActions <= 0)
                 {
-                    int moveTimer = (int)pgs.TroopsHere[0].MoveTimer + 1;
+                    int moveTimer = (int)troop.MoveTimer + 1;
                     HelperFunctions.DrawDropShadowText1(ScreenManager, moveTimer.ToString(), new Vector2((moveRect.X + 4), moveRect.Y), Fonts.Arial12, Color.White);
                 }
                 else
@@ -456,9 +457,9 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Move"), moveRect, Color.White);
                 }
                 var attackRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 23, 12, 12);
-                if (pgs.TroopsHere[0].AvailableAttackActions <= 0)
+                if (troop.AvailableAttackActions <= 0)
                 {
-                    int attackTimer = (int)pgs.TroopsHere[0].AttackTimer + 1;
+                    int attackTimer = (int)troop.AttackTimer + 1;
                     HelperFunctions.DrawDropShadowText1(ScreenManager, attackTimer.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Fonts.Arial12, Color.White);
                 }
                 else
@@ -466,13 +467,18 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                 }
 
-                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
-                batch.DrawRectangle(strengthRect, pgs.TroopsHere[0].GetOwner().EmpireColor);
-                var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.TroopsHere[0].Strength.ToString("0.")).X / 2f,
-                                         (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                batch.DrawString(Fonts.Arial12, pgs.TroopsHere[0].Strength.ToString("0."), cursor, Color.White);
-                
+                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5, 
+                                                 Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                DrawTroopData(batch, strengthRect, troop, troop.Strength.String(1), Color.White);
+
+                //Fat Bastard - show TroopLevel
+                if (pgs.TroopsHere[0].Level > 0)
+                {
+                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52, 
+                                                  Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    DrawTroopData(batch, levelRect, troop, troop.Level.ToString(), Color.Gold);
+                }
+
                 if (ActiveTroop != null && ActiveTroop == pgs)
                 {
                     if (ActiveTroop.TroopsHere[0].AvailableAttackActions > 0)
@@ -546,6 +552,16 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+
+        private void DrawTroopData(SpriteBatch batch, Rectangle rect, Troop troop, string data, Color color)
+        {
+            SpriteFont font = Fonts.Arial12;
+            batch.FillRectangle(rect, new Color(0, 0, 0, 200));
+            batch.DrawRectangle(rect, troop.GetOwner().EmpireColor);
+            var cursor = new Vector2((rect.X + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
+                (1 + rect.Y + rect.Height / 2 - font.LineSpacing / 2));
+            batch.DrawString(font, data, cursor, color);
         }
 
         public override bool HandleInput(InputState input)
