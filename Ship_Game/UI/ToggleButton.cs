@@ -198,11 +198,6 @@ namespace Ship_Game.UI
             }
         }
 
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            Pos = pos;
-        }
-
         public override bool HandleInput(InputState input)
         {
             Pressed = false;
