@@ -2604,10 +2604,10 @@ namespace Ship_Game
             if (RecentCombat)
                 return;
 
-            for (int index = 0; index < BuildingList.Count; ++index)
+            for (int i = 0; i < BuildingList.Count; ++i)
             {
-                Building building        = BuildingList[index];
-                Building template        = ResourceManager.GetBuildingTemplate(BuildingList[index].Name);
+                Building building        = BuildingList[i];
+                Building template        = ResourceManager.GetBuildingTemplate(BuildingList[i].Name);
                 building.CombatStrength  = (building.CombatStrength + repairAmount).Clamped(0, template.CombatStrength);
                 building.Strength        = (building.Strength + repairAmount).Clamped(0, template.Strength);
             }
