@@ -87,6 +87,7 @@ namespace Ship_Game
         {
             if (!Visible)
                 return;
+
             base.Update();
             TextPos  = new Vector2(Rect.X + 15, Rect.Y + Rect.Height / 2 - Font.LineSpacing / 2);
             CheckPos = new Vector2(Rect.X + 5 - Font.MeasureString("x").X / 2f, 

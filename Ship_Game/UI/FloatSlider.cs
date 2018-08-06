@@ -103,6 +103,7 @@ namespace Ship_Game
         {
             if (!Visible)
                 return;
+
             base.Update();
             PerformLegacyLayout(Pos);
         }
@@ -121,6 +122,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             batch.DrawString(Fonts.Arial12Bold, Text, Pos, TextColor);
 
             var gradient = new Rectangle(SliderRect.X, SliderRect.Y, (int)(RelativeValue * SliderRect.Width), 6);

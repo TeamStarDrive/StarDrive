@@ -644,7 +644,7 @@ namespace Ship_Game
                     }
                 }
 
-                string text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                string text5 = Fonts.Arial12Bold.ParseText(Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                 batch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
 
                 GovernorDropdown.SetAbsPos(vector2_3.X, vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5);
