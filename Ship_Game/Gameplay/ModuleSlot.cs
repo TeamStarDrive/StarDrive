@@ -12,10 +12,12 @@ namespace Ship_Game.Gameplay
         public float Health;
         [XmlElement(ElementName = "Shield_Power")]
         public float ShieldPower;
-        [XmlElement(ElementName = "ShieldUpChance")]
-        public float ShieldUpChance;
-        [XmlElement(ElementName = "ShieldPowerBeforeWarp")]
-        public float ShieldPowerBeforeWarp;
+
+        // @todo This (XmlIgnore) prevents saving in ship design, while allowing saving for savegames (json). 
+        // Perhaps there's a better way to do this?
+        [XmlIgnore]  public float ShieldUpChance;
+        [XmlIgnore]  public float ShieldPowerBeforeWarp;
+
         [XmlElement(ElementName = "facing")]
         public float Facing;
         [XmlElement(ElementName = "state")]

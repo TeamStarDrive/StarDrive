@@ -1068,7 +1068,7 @@ namespace Ship_Game
 
                 if (!entry.Hovered)
                 {
-                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Green);
                     position.X = (entry.Right - 100);
                     var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
@@ -1198,12 +1198,14 @@ namespace Ship_Game
             {
                 spriteBatch.DrawString(Fonts.Arial20Bold, t.DisplayNameEmpire(p.Owner), bCursor, TextColor);
                 bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+                string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
+                                                                   : t.ActualStrengthMax.String(1);
 
                 DrawMultiLine(ref bCursor, t.Description);
                 DrawTitledLine(ref bCursor, 338, t.TargetType);
-                DrawTitledLine(ref bCursor, 339, t.StrengthText);
-                DrawTitledLine(ref bCursor, 2218, t.GetHardAttack().ToString());
-                DrawTitledLine(ref bCursor, 2219, t.GetSoftAttack().ToString());
+                DrawTitledLine(ref bCursor, 339, strength);
+                DrawTitledLine(ref bCursor, 2218, t.NetHardAttack.ToString());
+                DrawTitledLine(ref bCursor, 2219, t.NetSoftAttack.ToString());
                 DrawTitledLine(ref bCursor, 6008, t.BoardingStrength.ToString());
                 DrawTitledLine(ref bCursor, 6023, t.Level.ToString());
             }
@@ -1646,6 +1648,18 @@ namespace Ship_Game
             }
         }
 
+        private void DrawTroopLevel(Troop troop, Rectangle rect)
+        {
+            SpriteFont font = Fonts.Arial12Bold;
+            var levelRect   = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
+            var pos         = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
+                                         (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
+
+            ScreenManager.SpriteBatch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
+            ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.GetOwner().EmpireColor);
+            ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
+        }
+
         private void DrawPGSIcons(PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
@@ -1655,12 +1669,15 @@ namespace Ship_Game
             }
             if (pgs.TroopsHere.Count > 0)
             {
+                Troop troop        = pgs.TroopsHere[0];
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 48, pgs.ClickRect.Y, 48, 48);
-                pgs.TroopsHere[0].DrawIcon(ScreenManager.SpriteBatch, pgs.TroopClickRect);
+                troop.DrawIcon(ScreenManager.SpriteBatch, pgs.TroopClickRect);
+                if (troop.Level > 0)
+                    DrawTroopLevel(troop, pgs.TroopClickRect);
             }
             float numFood = 0f;
             float numProd = 0f;
-            float numRes = 0f;
+            float numRes  = 0f;
             if (pgs.building != null)
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
