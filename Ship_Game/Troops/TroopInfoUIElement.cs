@@ -8,11 +8,11 @@ namespace Ship_Game
     public sealed class TroopInfoUIElement : UIElement
     {
         private Rectangle SliderRect;
-        private Rectangle clickRect;
+        private Rectangle ClickRect;
         private UniverseScreen screen;
         private Rectangle LeftRect;
         private Rectangle RightRect;
-        private Rectangle flagRect;
+        private Rectangle FlagRect;
         private Rectangle DefenseRect;
         private Rectangle SoftAttackRect;
         private Rectangle HardAttackRect;
@@ -22,48 +22,46 @@ namespace Ship_Game
         private ScrollList DescriptionSL;
         public PlanetGridSquare pgs;
         private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-        private new Color tColor = new Color(255, 239, 208);
-        private string fmt = "0.#";
 
-        public TroopInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
+        public TroopInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            this.screen = screen;
-            this.ScreenManager = sm;
-            this.ElementRect = r;
-            this.sel = new Selector(r, Color.Black);
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.SliderRect = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
-            this.clickRect = new Rectangle(this.ElementRect.X + this.ElementRect.Width - 16, this.ElementRect.Y + this.ElementRect.Height / 2 - 11, 11, 22);
-            this.LeftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
-            this.RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
-            this.flagRect = new Rectangle(r.X + r.Width - 31, r.Y + 22 - 13, 26, 26);
-            this.DefenseRect = new Rectangle(this.LeftRect.X + 12, this.LeftRect.Y + 18, 22, 22);
-            this.SoftAttackRect = new Rectangle(this.LeftRect.X + 12, this.DefenseRect.Y + 22 + 5, 16, 16);
-            this.HardAttackRect = new Rectangle(this.LeftRect.X + 12, this.SoftAttackRect.Y + 16 + 5, 16, 16);
-            this.DefenseRect.X = this.DefenseRect.X - 3;
-            this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85, this.LeftRect.Y + 5, 128, 128);
-            Rectangle DesRect = new Rectangle(this.HardAttackRect.X, this.HardAttackRect.Y - 10, this.LeftRect.Width + 8, 95);
-            Submenu sub = new Submenu(DesRect);
-            this.DescriptionSL = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
-            TroopInfoUIElement.TippedItem def = new TroopInfoUIElement.TippedItem()
+            this.screen       = screen;
+            ScreenManager     = sm;
+            ElementRect       = r;
+            sel               = new Selector(r, Color.Black);
+            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            SliderRect        = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
+            ClickRect         = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
+            LeftRect          = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
+            RightRect         = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
+            FlagRect          = new Rectangle(r.X + r.Width - 31, r.Y + 22 - 13, 26, 26);
+            DefenseRect       = new Rectangle(LeftRect.X + 12, LeftRect.Y + 18, 22, 22);
+            SoftAttackRect    = new Rectangle(LeftRect.X + 12, DefenseRect.Y + 22 + 5, 16, 16);
+            HardAttackRect    = new Rectangle(LeftRect.X + 12, SoftAttackRect.Y + 16 + 5, 16, 16);
+            DefenseRect.X     = DefenseRect.X - 3;
+            ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
+            Rectangle desRect = new Rectangle(HardAttackRect.X, HardAttackRect.Y - 10, LeftRect.Width + 8, 95);
+            Submenu sub       = new Submenu(desRect);
+            DescriptionSL     = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
+            TippedItem def    = new TippedItem()
             {
-                r = this.DefenseRect,
+                r = DefenseRect,
                 TIP_ID = 33
             };
-            this.ToolTipItems.Add(def);
-            def = new TroopInfoUIElement.TippedItem()
+            ToolTipItems.Add(def);
+            def = new TippedItem()
             {
-                r = this.SoftAttackRect,
+                r = SoftAttackRect,
                 TIP_ID = 34
             };
-            this.ToolTipItems.Add(def);
-            def = new TroopInfoUIElement.TippedItem()
+            ToolTipItems.Add(def);
+            def = new TippedItem()
             {
-                r = this.HardAttackRect,
+                r = HardAttackRect,
                 TIP_ID = 35
             };
-            this.ToolTipItems.Add(def);
+            ToolTipItems.Add(def);
         }
 
         public override void Draw(GameTime gameTime) // refactored by  Fat Bastard Aug 6, 2018
@@ -88,9 +86,10 @@ namespace Ship_Game
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             slant.Draw(ScreenManager);
             body.Draw(ScreenManager);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], DefenseRect, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/Ground_Attack"], SoftAttackRect, Color.White);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Ground_UI/attack_hard"], HardAttackRect, Color.White);
+            spriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
+            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, Color.White);
+            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, Color.White);
+
             if (pgs.TroopsHere.Count > 0) // draw troop_stats
             {
                 Troop troop = pgs.TroopsHere[0];
@@ -115,8 +114,8 @@ namespace Ship_Game
                 DrawinfoData(spriteBatch, SoftAttackRect, pgs.building.SoftAttack.ToString(), color, 5, 8);
                 DrawinfoData(spriteBatch, HardAttackRect, pgs.building.HardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_"
-                                               , pgs.building.Icon, "_64x64")], ItemDisplayRect, color);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_"
+                                               , pgs.building.Icon, "_64x64")), ItemDisplayRect, color);
             }
 
             DrawDescription(color);
@@ -154,7 +153,7 @@ namespace Ship_Game
                 if (star.HitTest(mousePos))
                     ToolTip.CreateTooltip(127);
 
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_star"], star, color);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_star"), star, color);
             }
         }
 

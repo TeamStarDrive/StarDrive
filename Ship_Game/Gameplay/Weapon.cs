@@ -882,9 +882,7 @@ namespace Ship_Game.Gameplay
 
         public float CalculateWeaponOffense(ShipModule m = null)
         {
-
             float off = 0f;
-
             if (isBeam)
             {
                 off += DamageAmount * 90f * BeamDuration * (1f / fireDelay);
