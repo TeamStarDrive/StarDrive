@@ -559,7 +559,7 @@ namespace Ship_Game
             SpriteFont font = Fonts.Arial12;
             batch.FillRectangle(rect, new Color(0, 0, 0, 200));
             batch.DrawRectangle(rect, troop.GetOwner().EmpireColor);
-            var cursor = new Vector2((rect.X + rect.Width / 2) - font.MeasureString(troop.Strength.ToString("0.")).X / 2f,
+            var cursor = new Vector2((rect.X + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
                 (1 + rect.Y + rect.Height / 2 - font.LineSpacing / 2));
             batch.DrawString(font, data, cursor, color);
         }
