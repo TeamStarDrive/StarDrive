@@ -1198,10 +1198,12 @@ namespace Ship_Game
             {
                 spriteBatch.DrawString(Fonts.Arial20Bold, t.DisplayNameEmpire(p.Owner), bCursor, TextColor);
                 bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+                string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
+                                                                   : t.ActualStrengthMax.String(1);
 
                 DrawMultiLine(ref bCursor, t.Description);
                 DrawTitledLine(ref bCursor, 338, t.TargetType);
-                DrawTitledLine(ref bCursor, 339, t.Strength + "/" + t.ActualStrengthMax);
+                DrawTitledLine(ref bCursor, 339, strength);
                 DrawTitledLine(ref bCursor, 2218, t.GetHardAttack().ToString());
                 DrawTitledLine(ref bCursor, 2219, t.GetSoftAttack().ToString());
                 DrawTitledLine(ref bCursor, 6008, t.BoardingStrength.ToString());
