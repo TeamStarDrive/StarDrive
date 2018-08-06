@@ -99,8 +99,8 @@ namespace Ship_Game
                 else
                     DrawinfoData(spriteBatch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
 
-                DrawinfoData(spriteBatch, SoftAttackRect, troop.GetSoftAttack().ToString(), color, 5, 8);
-                DrawinfoData(spriteBatch, HardAttackRect, troop.GetHardAttack().ToString(), color, 5, 8);
+                DrawinfoData(spriteBatch, SoftAttackRect, troop.NetSoftAttack.ToString(), color, 5, 8);
+                DrawinfoData(spriteBatch, HardAttackRect, troop.NetHardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
                 DrawLaunchButton(troop, slant);
                 DrawLevelStars(troop.Level, mousePos);
