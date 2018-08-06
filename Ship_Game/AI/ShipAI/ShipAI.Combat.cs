@@ -545,7 +545,7 @@ namespace Ship_Game.AI
 
                     if (Owner.Ordinance > wepTemplate.OrdinanceRequiredToFire)
                     {
-                        Owner.Ordinance -= wepTemplate.OrdinanceRequiredToFire;
+                        Owner.ChangeOrdnance(-wepTemplate.OrdinanceRequiredToFire);
                         bomb.SetTarget(goal.TargetPlanet);
                         UniverseScreen.BombList.Add(bomb);
                         bombBay.BombTimer = wepTemplate.fireDelay;
