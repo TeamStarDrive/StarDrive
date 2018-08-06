@@ -61,8 +61,14 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             for (int i = 0; i < Elements.Count; ++i)
-                Elements[i].Draw(batch);
+            {
+                UIElementV2 e = Elements[i];
+                if (e.Visible) e.Draw(batch);
+            }
             if (ToolTip.Hotkey.IsEmpty())
                 ToolTip.Draw(batch);
         }
@@ -98,6 +104,7 @@ namespace Ship_Game
         {
             if (!Visible)
                 return;
+
             base.Update(); // layout self first
             LayoutChildElements(Pos);
         }
