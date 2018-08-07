@@ -423,8 +423,9 @@ namespace Ship_Game.AI
             }
             else
             {
-                foreach (Weapon purge in Owner.Weapons)
-                    purge.ClearFireTarget();
+                for (int x = 0; x < Owner.Weapons.Count; x++)                
+                    Owner.Weapons[x].ClearFireTarget();                     
+                
 
                 if (Owner.Carrier.HasHangars && Owner.loyalty != UniverseScreen.player)
                 {

@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
         public int Size;
         //public int CrewRequired;    //Not referenced in code, removing to save memory
         //public int CrewSupplied;    //Not referenced in code, removing to save memory
-        public float Ordinance;
+        public float Ordinance { get; private set; }
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
         public ShipAI AI { get; private set; }
@@ -2008,7 +2008,7 @@ namespace Ship_Game.Ships
                     return;
 
                 foreach (Troop troop in ownTroops)
-                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.GetStrengthMax());
+                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
             }
 
             float GetMechanicalDefenseRoll()
