@@ -29,7 +29,10 @@ namespace Ship_Game
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
         public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
         public float TransitionPosition   { get; protected set; } = 1f;
-        
+
+        public bool IsTransitioning => ScreenState == ScreenState.TransitionOn
+                                    || ScreenState == ScreenState.TransitionOff;
+
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
         // This is equivalent to PresentationParameters.BackBufferWidth

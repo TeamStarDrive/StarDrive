@@ -1640,12 +1640,13 @@ namespace Ship_Game
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             void AddOrdersBtn(string action, string icon, int toolTip)
             {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon, this)
                 {
                     Action       = action,
                     HasToolTip   = true,
                     WhichToolTip = toolTip
                 };
+                Add(button);
                 OrdersButtons.Add(button);
                 ordersBarPos.X += 29f;
             }
