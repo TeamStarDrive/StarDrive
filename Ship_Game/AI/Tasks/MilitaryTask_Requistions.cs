@@ -674,7 +674,7 @@ namespace Ship_Game.AI.Tasks {
             var forcePool = Owner.GetShipsFromOffensePools();
 
             //fix sentry bug: https://sentry.io/blackboxmod/blackbox/issues/626773068/
-            if (!forcePool.IsEmpty)
+            if (!forcePool.IsEmpty && ao != null)
                 forcePool.Sort(s => s.Center.Distance(ao.Center));
             FleetShips fleetShips = new FleetShips(Owner);
             foreach (var ship in forcePool)

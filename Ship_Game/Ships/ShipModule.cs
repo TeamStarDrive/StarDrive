@@ -14,24 +14,29 @@ namespace Ship_Game.Ships
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
+
+        public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
+        public bool CheckedConduits;
+        public bool Powered;
+        public int quadrant = -1;
+        public bool isExternal;
         public int XSIZE = 1;
         public int YSIZE = 1;
-        public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         private bool CanVisualizeDamage;
-        private ShipModuleDamageVisualization DamageVisualizer;
-        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
+        public float ShieldPower;
+        public short OrdinanceCapacity;
         private bool OnFire;
-        private const float OnFireThreshold = 0.15f;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
-
+        private const float OnFireThreshold = 0.15f;
+        private ShipModuleDamageVisualization DamageVisualizer;
+        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;        
         private Ship Parent;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public Restrictions Restrictions;
-        public float ShieldPower;
+        public Restrictions Restrictions;        
         private Shield shield;
         public Shield GetShield => shield;
         public string hangarShipUID;
@@ -39,8 +44,7 @@ namespace Ship_Game.Ships
         public Guid HangarShipGuid;
         public float hangarTimer;
         public bool isWeapon;
-        public Weapon InstalledWeapon;
-        public short OrdinanceCapacity;
+        public Weapon InstalledWeapon;        
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
@@ -55,11 +59,7 @@ namespace Ship_Game.Ships
 
         public float FieldOfFire;
         public int TargetValue;
-        public float TransporterTimer;
-        public bool CheckedConduits;
-        public bool Powered;
-        public int quadrant = -1;
-        public bool isExternal;
+        public float TransporterTimer;        
         public const int MaxPriority =6;
 
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
@@ -177,7 +177,7 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
 
-        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+        public Vector2 LocalCenter;// => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
 
         // the actual hit radius is a bit bigger for some legacy reason
@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-            
+            LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + YSIZE * 8f);
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -420,11 +420,14 @@ namespace Ship_Game.Ships
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-            
-            
-            Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X       += XSIZE * 8f - 264f;
-            offset.Y       += YSIZE * 8f - 264f;
+
+            //Position = new Vector2(pos.X - 264f, pos.Y - 264f);
+            //localcenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+
+            //Vector2 offset = XMLPosition; // huge cache miss here
+            Vector2 offset = LocalCenter;
+           // offset.X       += XSIZE * 8f - 264f;
+            //offset.Y       += YSIZE * 8f - 264f;
             Vector2 pcenter = Parent.Center;
             float cx        = offset.X * cos - offset.Y * sin;
             float cy        = offset.X * sin + offset.Y * cos;
@@ -779,7 +782,7 @@ namespace Ship_Game.Ships
 
                     HangarShipGuid = hangarShip.guid;
                     hangarTimer = hangarTimerConstant;
-                    Parent.Ordinance -= hangarShip.Mass / 5f;
+                    Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
                 }
             }
         }
@@ -1169,90 +1172,23 @@ namespace Ship_Game.Ships
 
         public float CalculateModuleOffense()
         {
-            float off = 0f;
-            if (InstalledWeapon != null)
-            {
-                Weapon w = InstalledWeapon;
-
-                if (w.isBeam)
-                {
-                    off += w.DamageAmount * 90f * w.BeamDuration * (1f / w.fireDelay);
-                    off += w.MassDamage * (1f / w.fireDelay) * .5f;
-                    off += w.PowerDamage * (1f / w.fireDelay);
-                    off += w.RepulsionDamage * (1f / w.fireDelay);
-                    off += w.SiphonDamage * (1f / w.fireDelay);
-                    off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
-                }
-                else
-                {
-                    off += w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay);
-                    off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .5f;
-                }
-
-                //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
-                off *= w.Tag_Guided ? 1.25f : 1f;
-
-                //FB: Kinetics which does also require more than minimal power to shoot is less effective
-                off *= w.Tag_Kinetic && w.PowerRequiredToFire > 10 * Area ? 0.5f : 1f;
-
-                //FB: Kinetics which does also require more than minimal power to maintain is less effective
-                off *= w.Tag_Kinetic && PowerDraw > 2 * Area ? 0.5f : 1f;
-
-                //FB: Range margins are less steep for missiles
-                off *= !w.Tag_Missile && !w.Tag_Torpedo ?  (w.Range / 4000) * (w.Range / 4000) : (w.Range / 4000);
-
-                // FB: simpler calcs for these. 
-                off *= w.EffectVsArmor > 1  ? 1f + (w.EffectVsArmor - 1f) / 2f : 1f;
-                off *= w.EffectVsArmor < 1 ? 1f - (1f - w.EffectVsArmor) / 2f : 1f;
-                off *= w.EffectVSShields > 1 ? 1f + (w.EffectVSShields - 1f) / 2f : 1f;
-                off *= w.EffectVSShields < 1 ? 1f - (1f - w.EffectVSShields) / 2f : 1f;
-
-                off *= w.TruePD ? .2f : 1f;
-                off *= w.Tag_Intercept && w.Tag_Missile ? .8f : 1f;
-                off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
-
-                // FB: offense calcs for damage radius
-                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : 1f;
-
-                // FB: Added shield pen chance
-                off *= 1 + w.ShieldPenChance / 100;
-
-                // FB: Turrets get some off
-                off *= ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
-
-                // FB: Field of Fire is also important
-                off *= FieldOfFire > 60 ? FieldOfFire / 60f : 1f;
-
-                int allRoles = 0;
-                int restrictedRoles = 0;
-                foreach (ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
-                {
-                    allRoles++;
-                    if (!w.TargetValid(role))
-                        restrictedRoles++;
-                }
-                float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
-                off *= restrictions;
-
-                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-                off *= w.OffPowerMod;
-            }
+            float off = InstalledWeapon?.CalculateWeaponOffense(this) ?? 0f;
 
             off += IsTroopBay ? 50 : 0;
-            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() 
-                                                    && hangarShipUID != "NotApplicable" 
-                                                    && !IsSupplyBay 
-                                                    && !IsTroopBay)
+            if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty() 
+                                                    || hangarShipUID == "NotApplicable" 
+                                                    || IsSupplyBay 
+                                                    || IsTroopBay)
+                return off;
+
+            if (ShipBuilder.IsDynamicLaunch(hangarShipUID))
+                off += MaximumHangarShipSize * 2;
+            else
             {
-                if (ShipBuilder.IsDynamicLaunch(hangarShipUID))
-                    off += MaximumHangarShipSize * 2;
+                if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
+                    off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
                 else
-                {
-                    if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
-                        off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
-                    else
-                        off += 100f;
-                }
+                    off += 100f;
             }
 
             return off;

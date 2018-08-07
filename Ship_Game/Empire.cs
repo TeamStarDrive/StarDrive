@@ -1201,11 +1201,12 @@ namespace Ship_Game
             if (!e.GetRelations(this).Known)
                 e.DoFirstContact(this);
 
-            if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
+            if (GlobalStats.RestrictAIPlayerInteraction && isPlayer)
                 return;
             try
             {
-                if (Universe.PlayerEmpire == this && !e.isFaction)
+
+                if (isPlayer && !e.isFaction)
                 {
                     Universe.ScreenManager.AddScreen(new DiplomacyScreen(Universe, e, Universe.PlayerEmpire, "First Contact"));
                 }
@@ -1220,7 +1221,7 @@ namespace Ship_Game
             }
             catch (ArgumentException error)
             {
-                Log.Error(error, "First ConTact Failed");
+                Log.WarningWithCallStack("First ConTact Failed");
             }
         }
 

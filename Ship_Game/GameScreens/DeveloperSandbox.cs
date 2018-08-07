@@ -10,7 +10,7 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        private UniverseScreen Universe;
+        //private UniverseScreen Universe;
 
         public DeveloperSandbox(GameScreen parent) : base(parent)
         {
