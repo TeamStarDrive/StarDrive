@@ -2759,7 +2759,7 @@ namespace Ship_Game.Ships
         {
             float modifier     = -0.25f;
             modifier          += 0.05f * AI.FriendliesNearby.Count;
-            PackDamageModifier = modifier.Clamped(0, 0.5f);
+            PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
         }
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
