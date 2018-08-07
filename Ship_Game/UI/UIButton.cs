@@ -32,9 +32,6 @@ namespace Ship_Game
         public readonly Color PressColor   = new Color(255, 240, 189);
         public string Tooltip;
 
-        public bool Visible = true;
-        public bool Enabled = true; // if false, button will be visible, but gray and not interactive
-
         public string ClickSfx = "echo_affirm";
 
         public delegate void ClickHandler(UIButton button);
@@ -205,11 +202,6 @@ namespace Ship_Game
             //         old system: true means click/event happened
             //         UIElementV2: true means input was handled/captured and should not propagate to other elements
             return false;
-        }
-
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            Pos = pos;
         }
 
         public override string ToString() => $"Button '{Launches}' visible:{Visible} enabled:{Enabled} state:{State}";
