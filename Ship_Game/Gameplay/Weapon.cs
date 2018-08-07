@@ -224,31 +224,13 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay
-        {
-            get
-            {
-                return fireDelay + SalvoTimer;
-            }
-        }
+        public float NetFireDelay => fireDelay + SalvoTimer;
 
         [XmlIgnore][JsonIgnore]
-        public float OrdnanceUsagePerSecond
-        {
-            get
-            { 
-                return OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
-            }
-        }
+        public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
 
-        [XmlIgnore][JsonIgnore]
-        public float PowerFireUsagePerSecond // only usage during fire, not power maintenance 
-        {
-            get
-            {
-                return (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
-            }
-        }
+        [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
+        public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
         // modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
@@ -363,7 +345,7 @@ namespace Ship_Game.Gameplay
             CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
             Owner.InCombatTimer = 15f;
-            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             return true;
         }
@@ -378,7 +360,7 @@ namespace Ship_Game.Gameplay
             --SalvosToFire;
 
             Owner.InCombatTimer = 15f;
-            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             return true;
         }
@@ -703,7 +685,7 @@ namespace Ship_Game.Gameplay
                 || targetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(this, targetShip))
                 return;
 
-            Owner.Ordinance    -= OrdinanceRequiredToFire;
+            Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
             Owner.PowerCurrent -= BeamPowerCostPerSecond * BeamDuration;
             Owner.InCombatTimer = 15f;
@@ -888,6 +870,7 @@ namespace Ship_Game.Gameplay
                 return false;
             return true;
         }
+
         public bool TargetValid(GameplayObject fireTarget)
         {
             if (fireTarget.Type == GameObjectType.ShipModule)
@@ -896,6 +879,78 @@ namespace Ship_Game.Gameplay
                 return TargetValid(((Ship)fireTarget).shipData.HullRole);
             return true;
         }
+
+        public float CalculateWeaponOffense(ShipModule m = null)
+        {
+            float off = 0f;
+            if (isBeam)
+            {
+                off += DamageAmount * 90f * BeamDuration * (1f / fireDelay);
+                off += MassDamage * (1f / fireDelay) * .5f;
+                off += PowerDamage * (1f / fireDelay);
+                off += RepulsionDamage * (1f / fireDelay);
+                off += SiphonDamage * (1f / fireDelay);
+                off += TroopDamageChance * (1f / fireDelay) * .2f;
+            }
+            else
+            {
+                off += DamageAmount * SalvoCount * ProjectileCount * (1f / fireDelay);
+                off += EMPDamage * SalvoCount * ProjectileCount * (1f / fireDelay) * .5f;
+            }
+
+            //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
+            off *= Tag_Guided ? 1.25f : 1f;
+
+            //FB: Range margins are less steep for missiles
+            off *= !Tag_Missile && !Tag_Torpedo ? (Range / 4000) * (Range / 4000) : (Range / 4000);
+
+            // FB: simpler calcs for these. 
+            off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
+            off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
+            off *= EffectVSShields > 1 ? 1f + (EffectVSShields - 1f) / 2f : 1f;
+            off *= EffectVSShields < 1 ? 1f - (1f - EffectVSShields) / 2f : 1f;
+
+            off *= TruePD ? .2f : 1f;
+            off *= Tag_Intercept && Tag_Missile ? .8f : 1f;
+            off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
+
+            // FB: offense calcs for damage radius
+            off *= DamageRadius > 24 && !TruePD ? DamageRadius / 24f : 1f;
+
+            // FB: Added shield pen chance
+            off *= 1 + ShieldPenChance / 100;
+
+            int allRoles = 0;
+            int restrictedRoles = 0;
+            foreach (ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
+            {
+                allRoles++;
+                if (!TargetValid(role))
+                    restrictedRoles++;
+            }
+            float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
+            off *= restrictions;
+
+            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+            off *= OffPowerMod;
+
+            if (m == null)
+                return off;
+
+            //FB: Kinetics which does also require more than minimal power to shoot is less effective
+            off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
+
+            //FB: Kinetics which does also require more than minimal power to maintain is less effective
+            off *= Tag_Kinetic && m.PowerDraw > 2 * m.Area ? 0.5f : 1f;
+            // FB: Turrets get some off
+            off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
+
+            // FB: Field of Fire is also important
+            off *= m.FieldOfFire > 60 ? m.FieldOfFire / 60f : 1f;
+
+            return off;
+        }
+
         public void Dispose()
         {
             Destroy();

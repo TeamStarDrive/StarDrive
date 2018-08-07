@@ -958,21 +958,21 @@ namespace Ship_Game
 
         protected void UpdatePosition(float elapsedTime)
         {
-            Zrotate += ZrotateAmount * elapsedTime;
-            if (!Empire.Universe.Paused)
-            {
-                OrbitalAngle += (float)Math.Asin(15.0 / OrbitalRadius);
-                if (OrbitalAngle >= 360.0f)
-                    OrbitalAngle -= 360f;
-            }
+            
+        
             PosUpdateTimer -= elapsedTime;
-            if (PosUpdateTimer <= 0.0f || ParentSystem.isVisible)
+            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.isVisible))
             {
                 PosUpdateTimer = 5f;
+                OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
+                if (OrbitalAngle >= 360.0f)
+                    OrbitalAngle -= 360f;
                 Center = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
             }
+
             if (ParentSystem.isVisible)
             {
+                Zrotate += ZrotateAmount * elapsedTime;
                 SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(Scale) *
                            Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) *
                            Matrix.CreateTranslation(new Vector3(Center, 2500f));
