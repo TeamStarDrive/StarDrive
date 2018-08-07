@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -185,7 +184,6 @@ namespace Ship_Game
         {
             CategoryList.HandleInput(input);
             ShieldsBehaviorList.HandleInput(input);
-            CarrierOnlyBox.HandleInput(input);
             if (DesignRoleRect.HitTest(input.CursorPosition))
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect);
             if (ActiveModule != null && ActiveModule.IsRotatable) 
@@ -225,8 +223,7 @@ namespace Ship_Game
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134);
-            if (SymmetricDesignButton.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(246);
+
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
@@ -239,7 +236,7 @@ namespace Ship_Game
             }
             if (input.DesignMirrorToggled)
             {
-                HandleSymmetricDesignButton();
+                OnSymmetricDesignToggle();
             }
                 
 
@@ -257,7 +254,7 @@ namespace Ship_Game
             HandleDeleteModule(input);
             HandlePlaceNewModule(input);
             HandleInputMoveArcs(input);
-            return false;
+            return base.HandleInput(input);
         }
 
         public bool GetSlotUnderCursor(InputState input, out SlotStruct slot)
@@ -318,6 +315,11 @@ namespace Ship_Game
                 && mirroredModule.UID   == module.UID
                 && mirroredModule.XSIZE == module.XSIZE
                 && mirroredModule.YSIZE == module.YSIZE;
+        }
+
+        private static bool IsMirrorSlotValid(SlotStruct slot, MirrorSlot mirrored)
+        {
+            return IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module);
         }
 
         private static bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
@@ -579,10 +581,10 @@ namespace Ship_Game
             return false;
         }
 
-        public void HandleSymmetricDesignButton()
+        public void OnSymmetricDesignToggle()
         {
             IsSymmetricDesignMode = !IsSymmetricDesignMode;
-            SymmetricDesignButton.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
+            BtnSymmetricDesign.Text = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
         }
 
         private static CombatState CombatStateFromAction(ToggleButton button)
@@ -718,7 +720,6 @@ namespace Ship_Game
             }
 
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
-            SideBar = new Rectangle(0, 0, 280, ScreenHeight);
       
             ClassifCursor = new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
@@ -753,7 +754,7 @@ namespace Ship_Game
  
             BeginHLayout(ScreenWidth - 150f, ScreenHeight - 47f, -142);
 
-            SaveButton = ButtonMedium(titleId:105, click: b =>
+            ButtonMedium(titleId:105, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.PlaySfxAsync("UI_Misc20");
@@ -763,20 +764,21 @@ namespace Ship_Game
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
 
-            LoadButton = ButtonMedium(titleId:8, click: b =>
+            ButtonMedium(titleId:8, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
 
-            ToggleOverlayButton = ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
+            ButtonMedium(titleId:106, clickSfx:"blip_click", click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
             });
 
-            SymmetricDesignButton = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
+            BtnSymmetricDesign = ButtonMedium(titleId: 1985, clickSfx: "blip_click", click: b =>
             {
-                HandleSymmetricDesignButton();
+                OnSymmetricDesignToggle();
             });
+            BtnSymmetricDesign.Tooltip = Localizer.Token(246);
 
             Vector2 layoutEndV = EndLayout();
             SearchBar = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
@@ -825,28 +827,26 @@ namespace Ship_Game
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            DropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 100, 18);
+            var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 100, 18);
 
-            CategoryList = new CategoryDropDown(this, DropdownRect);
+            CategoryList = new CategoryDropDown(this, dropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            ShieldsBehaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
-            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, ShieldsBehaviorRect);
+            var behaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
+            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, behaviorRect);
             foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
 
-            CoBoxCursor = new Vector2(DropdownRect.X - 200, DropdownRect.Y);
-            CarrierOnlyBox = Checkbox(CoBoxCursor, () => ActiveHull.CarrierShip, "Carrier Only", 0);
+            var carrierOnly = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
+            Checkbox(carrierOnly, () => ActiveHull.CarrierShip, "Carrier Only", 0);
 
             ShipStats = new Menu1(shipStatsPanel);
             StatsSub = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
-            ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs",
-                Fonts.Pirulen20,
-                Fonts.Pirulen16);
+            ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
-            Close = CloseButton(ScreenWidth - 27, 99);
+            CloseButton(ScreenWidth - 27, 99);
 
             OriginalZ = CameraPosition.Z;
         }
