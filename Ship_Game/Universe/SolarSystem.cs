@@ -62,18 +62,17 @@ namespace Ship_Game
 
         public void Update(float elapsedTime, UniverseScreen universe)
         {
-            //float elapsedTime = !Paused ? 0.01666667f : 0.0f;
-            float realTime = (float) Game1.Instance.GameTime.ElapsedRealTime.TotalMilliseconds;
+            float realTime = (float)Game1.Instance.GameTime.ElapsedRealTime.TotalSeconds;
             var player = EmpireManager.Player;
-            DangerTimer -= realTime;
+            DangerTimer -= realTime;            
             DangerUpdater -= realTime;
             if (DangerUpdater < 0.0)
             {
                 DangerUpdater = 10f;
-                DangerTimer = player.GetGSAI().ThreatMatrix.PingRadarStr(
-                                  Position, 100000f * player.ProjectorRadius, player) <= 0f
-                    ? 0.0f
-                    : 120f;
+
+                DangerTimer =  player.KnownShips.Any(s => s.Center.InRadius(Position, 150000))
+                    ? 120f
+                    : 0.0f;
             }
 
             combatTimer -= realTime;
