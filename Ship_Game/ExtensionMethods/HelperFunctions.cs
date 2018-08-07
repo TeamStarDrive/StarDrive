@@ -66,10 +66,6 @@ namespace Ship_Game
             return fleet;
         }
 
-        public static void CreateFleetFromDataAt(FleetDesign data, Empire owner, Vector2 position)
-        {
-            owner.FirstFleet = CreateFleetFromData(data, owner, position);
-        }
         public static Fleet CreateDefensiveFleetAt(string fleetUid, Empire owner, Vector2 position)
         {
             return CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position);
@@ -120,13 +116,9 @@ namespace Ship_Game
             }
         }
 
-        public static void DrawDropShadowImage(ScreenManager screenManager, Rectangle rect, string texture, Color topColor)
-        {
-            DrawDropShadowImage(screenManager, rect, ResourceManager.TextureDict[texture], topColor);
-        }
         public static void DrawDropShadowImage(ScreenManager screenManager, Rectangle rect, Texture2D texture, Color topColor)
         {
-            Rectangle offsetRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
+            var offsetRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
             screenManager.SpriteBatch.Draw(texture, offsetRect, Color.Black);
             screenManager.SpriteBatch.Draw(texture, rect, topColor);
         }
@@ -177,43 +169,7 @@ namespace Ship_Game
             }
         }
 
-        public static void DrawStroke(SpriteFont font, SpriteBatch sb, string text, Color backColor, Color frontColor, float scale, float rotation, Vector2 position)
-        {
-            var textSize = font.MeasureString(text);
-            Vector2 origin = new Vector2(textSize.X / 2f, textSize.Y / 2f);
-            sb.DrawString(font, text, position + new Vector2(1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
-            sb.DrawString(font, text, position + new Vector2(-1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
-            sb.DrawString(font, text, position + new Vector2(-1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
-            sb.DrawString(font, text, position + new Vector2(1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
-            sb.DrawString(font, text, position, frontColor, rotation, origin, scale, SpriteEffects.None, 1f);
-        }
-
-        public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
-        {
-            float x0 = c.X;
-            float y0 = c.Y;
-            float x1 = p1.X;
-            float y1 = p1.Y;
-            float x2 = p2.X;
-            float y2 = p2.Y;
-            float n = Math.Abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1));
-            float d = (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-            if (n / d > r)
-            {
-                return false;
-            }
-            if ((float)Math.Sqrt(((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1))) - r > d)
-            {
-                return false;
-            }
-            if ((float)Math.Sqrt(((x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2))) - r > d)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public static string ParseText(SpriteFont font, string text, float maxLineWidth)
+        public static string ParseText(this SpriteFont font, string text, float maxLineWidth)
         {
             var result = new StringBuilder();
             string[] words = text.Split(' ');
@@ -234,6 +190,17 @@ namespace Ship_Game
                 length = 0f;
             }
             return result.ToString();
+        }
+
+        public static Vector2 MeasureLines(this SpriteFont font, Array<string> lines)
+        {
+            var size = new Vector2();
+            foreach (string line in lines)
+            {
+                size.X = Math.Max(size.X, font.MeasureString(line).Length());
+                size.Y += font.LineSpacing + 2;
+            }
+            return size;
         }
 
         public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
@@ -305,6 +272,16 @@ namespace Ship_Game
             GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
+        }
+
+        public static string GetNumberString(float stat)
+        {
+            if (Math.Abs(stat) < 1000f) return stat.ToString("#.#"); // 950.7
+            if (Math.Abs(stat) < 10000f) return stat.ToString("#");   // 9500
+            float single = stat / 1000f;
+            if (Math.Abs(single) < 100f) return single.ToString("#.##") + "k"; // 57.75k
+            if (Math.Abs(single) < 1000f) return single.ToString("#.#") + "k";  // 950.7k
+            return single.ToString("#") + "k"; // 1000k
         }
     }
 }

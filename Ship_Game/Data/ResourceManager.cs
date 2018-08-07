@@ -533,9 +533,10 @@ namespace Ship_Game
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
             Troop troop = CopyTroop(TroopsDict[troopType]);
-            if (forOwner != null)
-                troop.Strength += (int)(forOwner.data.Traits.GroundCombatModifier * troop.Strength);
             troop.SetOwner(forOwner);
+            if (forOwner != null)
+                troop.Strength = troop.ActualStrengthMax;
+
             return troop;
         }
 
@@ -611,10 +612,7 @@ namespace Ship_Game
                     newB.IsSensor = true;
                 }
             }
-            if (template.isWeapon)
-            {
-                newB.theWeapon = CreateWeapon(template.Weapon);
-            }
+            newB.CreateWeapon();
             return newB;
         }
 
