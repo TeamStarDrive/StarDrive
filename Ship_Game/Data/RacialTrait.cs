@@ -105,6 +105,7 @@ namespace Ship_Game
         // Pointless variables
         [Serialize(91)] public int Aquatic;
         [Serialize(92)] public int Burrowers;
+        [Serialize(93)] public float SpyModifier;
 
         public RacialTrait GetClone()
         {
