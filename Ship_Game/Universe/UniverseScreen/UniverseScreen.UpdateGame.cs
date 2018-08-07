@@ -391,8 +391,7 @@ namespace Ship_Game
             DeepSpaceThread();
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);
-                //SystemUpdaterTaskBased(SolarSystemList[i]);
+                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);                
             }
 #else
             FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(this.DeepSpaceThread);
@@ -573,116 +572,7 @@ namespace Ship_Game
                 empire.granularity = granularity;
             }
         }
-
-        public void SystemUpdaterTaskBased(SolarSystem system)
-        {
-            float elapsedTime = !Paused ? 0.01666667f : 0.0f;
-            float realTime = zTime; 
-            {
-                system.DangerTimer -= realTime;
-                system.DangerUpdater -= realTime;
-                if (system.DangerUpdater < 0.0)
-                {
-                    system.DangerUpdater = 10f;
-                    system.DangerTimer = player.GetGSAI().ThreatMatrix.PingRadarStr(
-                                            system.Position, 100000f * GameScaleStatic, player) <= 0f
-                                       ? 0.0f : 120f;
-                }
-                system.combatTimer -= realTime;
-
-                if (system.combatTimer <= 0.0)
-                    system.CombatInSystem = false;
-                bool viewing = false;
-                Vector3 v3SystemPosition = system.Position.ToVec3();
-                Viewport.Project(v3SystemPosition, projection, view, Matrix.Identity);
-                if (Frustum.Contains(new BoundingSphere(v3SystemPosition, 100000f)) !=
-                    ContainmentType.Disjoint)
-                    viewing = true;
-                //WTF is this doing?
-                else if (viewState <= UnivScreenState.ShipView)
-                {
-                    var rect = new Rectangle((int)system.Position.X - 100000,
-                        (int)system.Position.Y - 100000, 200000, 200000);
-                    Vector3 position = Viewport.Unproject(new Vector3(500f, 500f, 0.0f), projection, view, Matrix.Identity);
-                    Vector3 direction = Viewport.Unproject(new Vector3(500f, 500f, 1f), projection, view, Matrix.Identity) - position;
-                    direction.Normalize();
-                    var ray = new Ray(position, direction);
-                    float num = -ray.Position.Z / ray.Direction.Z;
-                    var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                    var pos = new Vector2(vector3.X, vector3.Y);
-                    if (rect.HitTest(pos))
-                        viewing = true;
-                }
-                if (system.IsExploredBy(player) && viewing)
-                {
-                    system.isVisible = viewState <= UnivScreenState.SectorView;
-                }
-                if (system.isVisible && viewState <= UnivScreenState.SystemView)
-                {
-                    system.VisibilityUpdated = true;
-                    for (int i = 0; i < system.AsteroidsList.Count; i++)
-                    {
-                        Asteroid asteroid = system.AsteroidsList[i];
-                        asteroid.So.Visibility = ObjectVisibility.Rendered;
-                        asteroid.Update(elapsedTime);
-                    }
-                    for (int i = 0; i < system.MoonList.Count; i++)
-                    {
-                        Moon moon = system.MoonList[i];
-                        moon.So.Visibility = ObjectVisibility.Rendered;
-                        moon.UpdatePosition(elapsedTime);
-                    }
-
-                }
-                else if (system.VisibilityUpdated)
-                {
-                    system.VisibilityUpdated = false;
-                    for (int i = 0; i < system.AsteroidsList.Count; i++)
-                    {
-                        Asteroid asteroid = system.AsteroidsList[i];
-                        asteroid.So.Visibility = ObjectVisibility.None;
-                    }
-                    for (int i = 0; i < system.MoonList.Count; i++)
-                    {
-                        Moon moon = system.MoonList[i];
-                        moon.So.Visibility = ObjectVisibility.None;
-                    }
-                }
-                for (int i = 0; i < system.PlanetList.Count; i++)
-                {
-                    Planet planet = system.PlanetList[i];
-                    planet.Update(elapsedTime);
-                    if (planet.HasShipyard && system.isVisible)
-                        planet.Station.Update(elapsedTime);
-                }
-
-                for (int i = system.ShipList.Count - 1; i >= 0; --i)
-                {
-                    Ship ship = system.ShipList[i];
-                    if (!ship.ShipInitialized) continue;
-                    if (ship.System == null)
-                        continue;
-                    if (!ship.Active || ship.ModuleSlotsDestroyed) // added by gremlin ghost ship killer
-                    {
-                        ship.Die(null, true);
-                    }
-                    else
-                    {
-                        if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                        {
-                            ship.Inhibited = true;
-                            ship.InhibitedTimer = 10f;
-                        }
-                        //ship.PauseUpdate = true;
-                        ship.Update(elapsedTime);
-                        if (ship.PlayerShip)
-                            ship.ProcessInput(elapsedTime);
-                    }
-                }
-            }
-
-        }
-
+        
         private void DeepSpaceThread()
         {
             float elapsedTime = !Paused ? 0.01666667f : 0.0f;
