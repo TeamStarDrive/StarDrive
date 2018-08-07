@@ -247,7 +247,6 @@ namespace Ship_Game
 
         // for really specific debuggingD
         public static int FrameId;
-        private static bool AsteroidsDisabled;      //Added by Gretman
         
         private UniverseScreen() : base(null)
         {

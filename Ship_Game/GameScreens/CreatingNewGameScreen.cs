@@ -284,11 +284,8 @@ namespace Ship_Game
             {
                 asteroid.Position3D.X += wipSystem.Position.X;
                 asteroid.Position3D.Y += wipSystem.Position.Y;
-                if (!GlobalStats.DisableAsteroids)
-                {
-                    asteroid.Initialize();
-                    AddObject(asteroid.So);
-                }
+                asteroid.Initialize();
+                AddObject(asteroid.So);
             }
             foreach (Moon moon in wipSystem.MoonList)
             {
