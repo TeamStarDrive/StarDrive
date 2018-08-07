@@ -17,7 +17,7 @@ namespace Ship_Game
         {
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
-            {
+            {                
                 try
                 {
                     // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
@@ -86,8 +86,8 @@ namespace Ship_Game
                             
                             
                         }
-                    }
-                    failedLoops = 0; // no exceptions this turn
+                    }                    
+                    failedLoops = 0; // no exceptions this turn                    
                 }
                 catch (ThreadAbortException)
                 {
@@ -96,7 +96,10 @@ namespace Ship_Game
                 catch (Exception ex)
                 {
                     if (++failedLoops > 1)
+                    {                        
                         throw; // the loop is having a cyclic crash, no way to recover
+                    }
+                    
                     Log.Error(ex, "ProcessTurns crashed");
                 }
                 finally
@@ -388,7 +391,8 @@ namespace Ship_Game
             DeepSpaceThread();
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                SystemUpdaterTaskBased(SolarSystemList[i]);
+                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);
+                //SystemUpdaterTaskBased(SolarSystemList[i]);
             }
 #else
             FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(this.DeepSpaceThread);
@@ -716,85 +720,7 @@ namespace Ship_Game
 
             foreach (SolarSystem system in SolarSystemList)
             {
-                system.DangerTimer -= elapsedTime;
-                system.DangerUpdater -= elapsedTime;
-                foreach (KeyValuePair<Empire, SolarSystem.PredictionTimeout> predict in system.predictionTimeout)
-                    predict.Value.update(elapsedTime);
-
-                if (system.DangerUpdater < 0.0f)
-                {
-                    system.DangerUpdater = 10f;
-                    system.DangerTimer = player.GetGSAI()
-                                             .ThreatMatrix
-                                             .PingRadarStr(system.Position, 100000f * GameScaleStatic, player) <= 0.0
-                        ? 0.0f
-                        : 120f;
-                }
-                system.combatTimer -= elapsedTime;
-                if (system.combatTimer <= 0.0f)
-                    system.CombatInSystem = false;
-
-                bool inFrustrum = false;
-                if (Frustum.Contains(system.Position, 100000f))
-                    inFrustrum = true;
-                else if (viewState <= UnivScreenState.ShipView)
-                {
-                    Rectangle rect = new Rectangle((int) system.Position.X - 100000, (int) system.Position.Y - 100000,
-                        200000, 200000);
-                    Vector3 position =
-                        this.Viewport.Unproject(new Vector3(500f, 500f, 0.0f),
-                            this.projection, this.view, Matrix.Identity);
-                    Vector3 direction =
-                        this.Viewport.Unproject(new Vector3(500f, 500f, 1f),
-                            this.projection, this.view, Matrix.Identity) - position;
-                    direction.Normalize();
-                    Ray ray = new Ray(position, direction);
-                    float num = -ray.Position.Z / ray.Direction.Z;
-                    Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
-                        ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                    Vector2 pos = new Vector2(vector3.X, vector3.Y);
-                    if (rect.HitTest(pos))
-                        inFrustrum = true;
-                }
-                if (system.IsExploredBy(this.player) && inFrustrum)
-                {
-                    system.isVisible = CamHeight < GetZfromScreenState(UnivScreenState.GalaxyView);
-                }
-                if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
-                    {
-                        asteroid.So.Visibility = ObjectVisibility.Rendered;
-                        asteroid.Update(elapsedTime);
-                    }
-                    foreach (Moon moon in system.MoonList)
-                    {
-                        moon.So.Visibility = ObjectVisibility.Rendered;
-                        moon.UpdatePosition(elapsedTime);
-                    }
-                }
-                else
-                {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
-                    {
-                        asteroid.So.Visibility = ObjectVisibility.None;
-                    }
-                    foreach (Moon moon in system.MoonList)
-                    {
-                        moon.So.Visibility = ObjectVisibility.None;
-                    }
-                }
-                foreach (Planet planet in system.PlanetList)
-                {
-                    planet.Update(elapsedTime);
-                    if (planet.HasShipyard && system.isVisible)
-                        planet.Station.Update(elapsedTime);
-                }
-                if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
-                        asteroid.Update(elapsedTime);
-                }
+                system.Update(elapsedTime, this);
             }
         }
 
