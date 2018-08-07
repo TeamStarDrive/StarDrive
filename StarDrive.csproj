@@ -1694,6 +1694,9 @@
     <None Include="Content\Textures\UI\icon_injury.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\UI\icon_offense.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Deploy\Config\config_develop" />
     <None Include="Deploy\Config\Deploy.cmd" />
     <None Include="Deploy\Config\include_develop" />
@@ -2135,7 +2138,9 @@
     <Content Include="Content\SavedDesigns\Drone Scout.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\SavedDesigns\DynamicLaunch.xml" />
+    <Content Include="Content\SavedDesigns\DynamicLaunch.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\SavedDesigns\Heavy Drone.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
