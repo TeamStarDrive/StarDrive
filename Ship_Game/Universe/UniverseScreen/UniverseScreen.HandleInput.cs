@@ -1271,26 +1271,28 @@ namespace Ship_Game
                 }
                 SelectedShipList.ApplyPendingRemovals();
             }
-            if (isFleet)
+            if (!input.IsShiftKeyDown)
             {
-                foreach (Ship ship in SelectedShipList)
+                if (isFleet)
                 {
-                    if (ship?.fleet != fleet)
-                        SelectedShipList.QueuePendingRemoval(ship);
+                    foreach (Ship ship in SelectedShipList)
+                    {
+                        if (ship?.fleet != fleet)
+                            SelectedShipList.QueuePendingRemoval(ship);
+                    }
+                    SelectedShipList.ApplyPendingRemovals();
                 }
-                SelectedShipList.ApplyPendingRemovals();
-            }
-            
-            if (purgeSupply && !isFleet)
-            {
-                foreach (Ship ship in SelectedShipList)
-                {
-                    if (NonCombatShip(ship))
-                        SelectedShipList.QueuePendingRemoval(ship);
-                }
-                SelectedShipList.ApplyPendingRemovals();
-            }
 
+                if (purgeSupply && !isFleet)
+                {
+                    foreach (Ship ship in SelectedShipList)
+                    {
+                        if (NonCombatShip(ship))
+                            SelectedShipList.QueuePendingRemoval(ship);
+                    }
+                    SelectedShipList.ApplyPendingRemovals();
+                }
+            }
 
 
             shipListInfoUI.SetShipList(SelectedShipList, isFleet);

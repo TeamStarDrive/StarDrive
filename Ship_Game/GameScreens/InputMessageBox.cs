@@ -21,7 +21,9 @@ namespace Ship_Game.GameScreens
 
         public override void Draw(SpriteBatch batch)
         {
-            
+            if (!Visible)
+                return;
+
             batch.Begin();
             TextEntry.Draw(batch, Game1.Instance.GameTime);
             batch.End();
