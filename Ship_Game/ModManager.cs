@@ -18,7 +18,7 @@ namespace Ship_Game
         private Vector2 TitlePosition;
         private Vector2 EnternamePos;
         private UITextEntry EnterNameArea;
-        private UIButton Save;
+        private UIButton Load;
         private UIButton Disable;
         private UIButton Visit;
         private UIButton shiptool;
@@ -52,12 +52,49 @@ namespace Ship_Game
             ModsSL.Draw(ScreenManager.SpriteBatch);
             EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
                 Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
-            foreach (UIButton b in Buttons)
-            {
-                b.Draw(ScreenManager.SpriteBatch);
-            }
+
+            base.Draw(batch);
             selector?.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
+        }
+
+        private void OnLoadClicked(UIButton b)
+        {
+            if (SelectedMod == null)
+                return;
+            CurrentButton = b;
+            b.Text = "Loading";
+            LoadModTask();
+        }
+
+        private void OnVisitClicked(UIButton b)
+        {
+            if (string.IsNullOrEmpty(SelectedMod?.mi.URL)) try
+            {
+                SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+            }
+            catch
+            {
+                Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+            }
+            else try
+            {
+                SteamManager.ActivateOverlayWebPage(SelectedMod.mi.URL);
+            }
+            catch
+            {
+                Process.Start(SelectedMod.mi.URL);
+            }
+        }
+
+        private void OnShipToolClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new ShipToolScreen(this));
+        }
+
+        private void OnDisableClicked(UIButton b)
+        {
+            ClearMods();
         }
 
         public override bool HandleInput(InputState input)
@@ -65,79 +102,10 @@ namespace Ship_Game
             selector?.RemoveFromParent();
             selector = null;
             
-
             if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
             {
                 ExitScreen();
                 return true;    
-            }
-
-            if (!IsExiting) foreach (UIButton b in Buttons)
-            {
-                if (CurrentButton != null && b.Launches != "Visit")
-                    continue;
-                if (!b.Rect.HitTest(input.CursorPosition))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    b.State = UIButton.PressState.Hover;
-                    if (input.InGameSelect)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (!input.InGameSelect)
-                        continue;
-
-                    string launches = b.Launches;
-                    string str = launches;
-                    if (launches == null)
-                    {
-                        continue;
-                    }
-                    switch (str)
-                    {
-                        case "Load":
-                            if (SelectedMod == null)
-                                continue;
-                            CurrentButton = b;
-                            b.Text = "Loading";
-                            LoadModTask();
-                            break;
-                        case "Visit":
-                            if (string.IsNullOrEmpty(SelectedMod?.mi.URL)) try
-                            {
-                                SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
-                            }
-                            catch
-                            {
-                                Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
-                            }
-                            else try
-                            {
-                                SteamManager.ActivateOverlayWebPage(SelectedMod.mi.URL);
-                            }
-                            catch
-                            {
-                                Process.Start(SelectedMod.mi.URL);
-                            }
-                            break;
-                        default:
-                            if (CurrentButton == null)
-                            {
-                                if (str == "shiptool")
-                                {
-                                    ScreenManager.AddScreen(new ShipToolScreen(this));
-                                }
-                                else if (str == "Disable")
-                                {
-                                    ClearMods();
-                                }
-                            }
-                            break;
-                    }
-                }
             }
 
             if (CurrentButton != null)
@@ -158,17 +126,7 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 SelectedMod = (ModEntry)e.item;
                 EnterNameArea.Text = SelectedMod.ModName;
-
-                foreach (UIButton button in Buttons)
-                {
-                    if (button.Launches != "Visit")
-                        continue;
-                    if (string.IsNullOrEmpty(SelectedMod.mi.URL))
-                        button.Text = Localizer.Token(4015);
-                    else
-                        button.Text = "Goto Mod URL";
-                    break;
-                }
+                Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(4015) : "Goto Mod URL";
             }
             return base.HandleInput(input);
         }
@@ -200,30 +158,28 @@ namespace Ship_Game
             Rectangle sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             NameSave = new Submenu(sub);
             NameSave.AddTab(Localizer.Token(4013));
-            Vector2 cursor = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100);
             TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(Localizer.Token(4013));
             ModsSL = new ScrollList(AllSaves, 140);
 
-            loadMods();
+            LoadMods();
             EnternamePos  = TitlePosition;
-            EnterNameArea = new UITextEntry();
-            EnterNameArea.Text = "";
+            EnterNameArea = new UITextEntry {Text = ""};
             EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            Save     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Load", titleId:8);
-            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, "Visit", titleId:4015);
-            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, "shiptool", titleId:4044);
-            Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Disable", titleId:4016);
+            Load     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, titleId:8, click: OnLoadClicked);
+            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, titleId:4015, click: OnVisitClicked);
+            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, titleId:4044, click: OnShipToolClicked);
+            Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, titleId:4016, click:OnDisableClicked);
 
             base.LoadContent();
         }
 
-        private void loadMods()
+        private void LoadMods()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(ModInformation));
+            var ser = new XmlSerializer(typeof(ModInformation));
             foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
             {
                 if (!info.Name.EndsWith(".xml"))
