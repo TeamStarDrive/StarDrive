@@ -127,17 +127,17 @@ namespace Ship_Game
 
         private void DrawButtonsTransition()
         {
-            for (int k = Buttons.Count - 1; k >= 0; --k)
+            for (int i = Buttons.Count - 1; i >= 0; --i)
             {
-                float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * k / (float)Buttons.Count) / 0.5f, 0f, 1f);
+                float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * i / Buttons.Count) / 0.5f, 0f, 1f);
 
-                Rectangle r = Buttons[k].Rect;
+                Rectangle r = Buttons[i].Rect;
                 r.X += (int)(transitionOffset * 512f);
 
                 if (ScreenState == ScreenState.TransitionOn && transitionOffset.AlmostEqual(0f))
                     GameAudio.PlaySfxAsync("blip_click"); // buttons arrived!
 
-                Buttons[k].Draw(ScreenManager.SpriteBatch, r);
+                Buttons[i].Draw(ScreenManager.SpriteBatch, r);
             }
         }
 
