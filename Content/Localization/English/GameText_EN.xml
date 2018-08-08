@@ -225,7 +225,7 @@
     </Token>
     <Token>
       <Index>59</Index>
-      <Text>Races with ponderous and deliberate natures make terrible fighter pilots. As a result, their fighters take 25% more damage than normal</Text>
+      <Text>Races with ponderous and deliberate natures make terrible fighter pilots. As a result, their fighters suffer 25% dodge penalty</Text>
     </Token>
     <Token>
       <Index>60</Index>
@@ -4696,6 +4696,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1978</Index>
+      <Text>When marked, this ship can only be assigned to a Carrier Hangar. It cannot be build by a colony. Drones are Always assigned to a carrier hangar.</Text>
+    </Token>
+    <Token>
       <Index>1979</Index>
       <Text>The planet's space offense vs incoming ships is listed here.</Text>
     </Token>
@@ -6494,7 +6498,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>55</Index>
-      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy</Text>
+      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy penalty</Text>
     </Token>
 
     <Token>
