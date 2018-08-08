@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 namespace Ship_Game.GameScreens.ShipDesignScreen
 {
@@ -42,10 +41,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private ScrollList ShipDesigns;
 
-        private MouseState currentMouse;
-
-        private MouseState previousMouse;
-
         public string ShipToDelete = "";
 
         private Selector selector;
@@ -71,7 +66,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {            
             GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[this.ShipToDelete].Deleted = true;
-            this.Buttons.Clear();
             this.ShipsToLoad.Clear();
             this.ShipDesigns.Reset();
             ResourceManager.DeleteShip(this.ShipToDelete);
@@ -81,7 +75,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private void DeleteDataAccepted(object sender, EventArgs e)
         {
             GameAudio.EchoAffirmative();
-            this.Buttons.Clear();
             this.ShipsToLoad.Clear();
             this.ShipDesigns.Reset();
             ResourceManager.DeleteShip(this.ShipToDelete);
@@ -93,11 +86,11 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             GameTime gameTime = Game1.Instance.GameTime;
             
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();            
+            batch.Begin();            
             loadMenu.Draw();
             SaveShips.Draw();
-            ShipDesigns.Draw(ScreenManager.SpriteBatch);
-            EnterNameArea.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            ShipDesigns.Draw(batch);
+            EnterNameArea.Draw(Fonts.Arial20Bold, batch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             
             foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
@@ -112,78 +105,48 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 else if (e.item is Ship ship)
                 {
                     bCursor.X = bCursor.X + 15f;
-                    ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                     tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
                     var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.Orange);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                     ship.GetTechScore(out int[] scores);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", tCursor, Color.Orange);
                     
                     if (!ship.IsReadonlyDesign && !ship.FromSave)
                     {
-                        e.DrawCancel(ScreenManager.SpriteBatch, Input);
+                        e.DrawCancel(batch, Input);
                     }
                 }
                 else if (e.item is ShipData shipData)
                 {
                     bCursor.X = bCursor.X + 15f;                    
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.HullsDict[shipData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
-                    tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
+                    batch.Draw(ResourceManager.HullsDict[shipData.Hull].Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
+                    batch.DrawString(Fonts.Arial12Bold, shipData.Name, tCursor, Color.White);
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(shipData.Role, EmpireManager.Player), tCursor, Color.Orange);
 
-                    e.DrawCancel(ScreenManager.SpriteBatch, Input);
+                    e.DrawCancel(batch, Input);
                 }
             }
-            selector?.Draw(ScreenManager.SpriteBatch);
-            foreach (UIButton b in this.Buttons)
-            {
-                b.Draw(base.ScreenManager.SpriteBatch);
-            }
-            this.PlayerDesignsToggle.Draw(base.ScreenManager);
+            selector?.Draw(batch);
+            base.Draw(batch);
+            PlayerDesignsToggle.Draw(ScreenManager);
             ToolTip.Draw(batch);
-            base.ScreenManager.SpriteBatch.End();
+            batch.End();
         }
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = input.MouseCurr;
-            Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            this.ShipDesigns.HandleInput(input);
+            ShipDesigns.HandleInput(input);
             if (input.Escaped || input.RightMouseClick)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
-            }
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(MousePos))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    b.State = UIButton.PressState.Hover;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (this.currentMouse.LeftButton != ButtonState.Released || this.previousMouse.LeftButton != ButtonState.Pressed)
-                    {
-                        continue;
-                    }
-                    string launches = b.Launches;
-                    if (launches == null || launches != "Load")
-                    {
-                        continue;
-                    }
-                    this.LoadShipToScreen();
-                }
             }
             this.selector = null;
             foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
@@ -234,7 +197,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                 }
             }
-            this.previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
 
@@ -260,7 +222,10 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             PopulateEntries(path);
             EnternamePos = TitlePosition;
             EnterNameArea.Text = Localizer.Token(199);
-            Load = ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, "Load", titleId:8);
+            Load = ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, titleId:8, click: b =>
+            {
+                LoadShipToScreen();
+            });
 
             base.LoadContent();
         }
