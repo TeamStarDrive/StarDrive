@@ -127,6 +127,9 @@ namespace Ship_Game
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            // Update new UIElementV2
+            base.Update(Game1.Instance.DeltaTime);
+
             OtherScreenHasFocus = otherScreenHasFocus;
             if (!IsExiting)
             {

@@ -30,6 +30,6 @@ namespace Ship_Game
         /// Perform effect update
         /// </summary>
         /// <returns>TRUE if this Effect has finished</returns>
-        public abstract bool Update();
+        public abstract bool Update(float deltaTime);
     }
 }

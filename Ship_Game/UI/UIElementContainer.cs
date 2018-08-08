@@ -80,6 +80,16 @@ namespace Ship_Game
             return false;
         }
 
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            for (int i = 0; i < Elements.Count; ++i)
+            {
+                UIElementV2 e = Elements[i];
+                if (e.Visible) e.Update(deltaTime);
+            }
+        }
+
         private Vector2 LayoutDirection()
         {
             switch (CurrentLayout)
@@ -92,12 +102,12 @@ namespace Ship_Game
             }
         }
 
-        public override void Update()
+        public override void PerformLayout()
         {
             if (!Visible)
                 return;
 
-            base.Update(); // layout self first
+            base.PerformLayout(); // layout self first
             LayoutChildElements(Pos);
         }
 
@@ -118,7 +128,7 @@ namespace Ship_Game
                     UIElementV2 e = Elements[i];
                     if (!e.Visible) continue;
                     e.Pos = cursor;
-                    e.Update();
+                    e.PerformLayout();
                     cursor += evenSpacing * direction;
                 }
             }
@@ -129,7 +139,7 @@ namespace Ship_Game
                     UIElementV2 e = Elements[i];
                     if (!e.Visible) continue;
                     e.Pos = cursor;
-                    e.Update();
+                    e.PerformLayout();
                     cursor += (e.Size + Margin) * direction;
                 }
             }

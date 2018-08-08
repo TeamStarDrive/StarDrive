@@ -14,8 +14,9 @@ namespace Ship_Game
         {
         }
 
-        public virtual void Update(float elapsedTime)
+        public override void Update(float elapsedTime)
         {
+            base.Update(elapsedTime);
         }
     }
 }
