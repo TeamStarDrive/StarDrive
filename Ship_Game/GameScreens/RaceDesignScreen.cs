@@ -1955,9 +1955,7 @@ namespace Ship_Game
                 RaceSummary.DiplomacyMod           += t.trait.DiplomacyMod;
                 RaceSummary.EnergyDamageMod        += t.trait.EnergyDamageMod;
                 RaceSummary.MaintMod               += t.trait.MaintMod;
-                RaceSummary.ReproductionMod        += t.trait.ReproductionMod;// t.trait.ReproductionMod;
-                //this.RaceSummary.ReproductionMod += t.trait.PopGrowthMin;
-                //this.RaceSummary.ReproductionMod -= t.trait.PopGrowthMax;
+                RaceSummary.ReproductionMod        += t.trait.ReproductionMod;
                 RaceSummary.PopGrowthMax           += t.trait.PopGrowthMax;
                 RaceSummary.PopGrowthMin           += t.trait.PopGrowthMin;
                 RaceSummary.ResearchMod            += t.trait.ResearchMod;
@@ -1979,6 +1977,8 @@ namespace Ship_Game
                 RaceSummary.Spiritual              += t.trait.Spiritual;
                 RaceSummary.SpyMultiplier          += t.trait.SpyMultiplier;
                 RaceSummary.RepairMod              += t.trait.RepairMod;
+                RaceSummary.PassengerModifier      += t.trait.PassengerBonus;
+
                 if (t.trait.Pack)
                     RaceSummary.Pack = t.trait.Pack;
             }
