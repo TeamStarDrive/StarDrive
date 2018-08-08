@@ -78,7 +78,9 @@ namespace Ship_Game
         {
             ActiveHull.CarrierShip = ActiveHull.HullRole == ShipData.RoleName.drone;
             if (CarrierOnlyCheckBox != null) // it is null the first time ship design screen is loaded
-                CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone;
+                CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone
+                                              && ActiveHull.HullRole != ShipData.RoleName.platform
+                                              && ActiveHull.HullRole != ShipData.RoleName.station;
         }
 
         private void BindListsToActiveHull()
