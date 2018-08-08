@@ -38,7 +38,8 @@ namespace Ship_Game
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
 
 
-        public UIEffect Effect;
+        // Nullable to save memory
+        private Array<UIEffect> Effects;
 
 
         public void Show() => Visible = true;
@@ -159,14 +160,26 @@ namespace Ship_Game
                 container.Remove(this);
         }
 
-        protected Rectangle GetEffectRect()
+        public void AddEffect(UIEffect effect)
         {
-            Rectangle r = Rect;
-            if (Effect == null)
-                return r;
-            if (Effect.Update(ref r, 1f))
-                Effect = null;
-            return r;
+            Log.Assert(effect != null, "UIEffect cannot be null");
+            if (Effects == null)
+                Effects = new Array<UIEffect>();
+            Effects.Add(effect);
+        }
+
+        protected void UpdateEffects()
+        {
+            if (Effects == null)
+                return;
+            for (int i = 0; i < Effects.Count;)
+            {
+                if (Effects[i].Update()) 
+                    Effects.RemoveAt(i);
+                else ++i;
+            }
+            if (Effects.Count == 0)
+                Effects = null;
         }
 
         public virtual void Update()

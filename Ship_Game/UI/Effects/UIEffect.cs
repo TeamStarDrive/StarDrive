@@ -16,9 +16,10 @@ namespace Ship_Game
         protected readonly UIElementV2 Element;
 
         /// <summary>
-        /// Animation offset from 0f to 1f
+        /// Animation progress from 0f to 1f.
+        /// Values above 1f may occurr for exaggerated animations.
         /// </summary>
-        public float Offset { get; protected set; }
+        public float Animation { get; protected set; }
 
         protected UIEffect(UIElementV2 element)
         {
@@ -29,6 +30,6 @@ namespace Ship_Game
         /// Perform effect update
         /// </summary>
         /// <returns>TRUE if this Effect has finished</returns>
-        public abstract bool Update(ref Rectangle r, float effectSpeed);
+        public abstract bool Update();
     }
 }

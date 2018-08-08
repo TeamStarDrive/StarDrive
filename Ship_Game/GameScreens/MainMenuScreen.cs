@@ -445,8 +445,8 @@ namespace Ship_Game
                 Button(titleId: 5,      click: Exit_Clicked);
             EndLayout();
 
-            StartTransition<UIButton>(transitionIn: true);
-            OnExit += () => StartTransition<UIButton>(transitionIn: false);
+            StartTransition<UIButton>(512f, -1f);
+            OnExit += () => StartTransition<UIButton>(512f, +1f);
 
             ScreenManager.ClearScene();
 
