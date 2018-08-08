@@ -24,8 +24,6 @@ namespace Ship_Game
 
         private Submenu subAllDesigns;
         private ScrollList ShipDesigns;
-        private MouseState currentMouse;
-        private MouseState previousMouse;
 
         public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
         {
@@ -34,11 +32,6 @@ namespace Ship_Game
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-        }
-
-        protected override void Destroy()
-        {
-            base.Destroy();
         }
 
         public override void Draw(SpriteBatch batch)
@@ -64,16 +57,19 @@ namespace Ship_Game
                 e.DrawPlusEdit(batch);
             }
             selector?.Draw(batch);
-            foreach (UIButton b in this.Buttons)
-            {
-                b.Draw(batch);
-            }
+            base.Draw(batch);
             batch.End();
+        }
+
+        private void OnSaveClicked(UIButton b)
+        {
+            GlobalStats.TakingInput = false;
+            EnterNameArea.HandlingInput = false;
+            TrySave();
         }
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = input.MouseCurr;
             this.ShipDesigns.HandleInput(input);
             if (input.Escaped || input.RightMouseClick)
             {
@@ -94,38 +90,7 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(input.CursorPosition))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                    {
-                        GameAudio.PlaySfxAsync("mouse_over4");
-                    }
-                    b.State = UIButton.PressState.Hover;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                    {
-                        continue;
-                    }
-                    string text = b.Text;
-                    if (text == null || text != "Save")
-                    {
-                        continue;
-                    }
-                    GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    GlobalStats.TakingInput = false;
-                    this.EnterNameArea.HandlingInput = false;
-                    this.TrySave();
-                }
-            }
+
             this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y, 200, 30);
             if (!this.EnterNameArea.ClickableArea.HitTest(input.CursorPosition))
             {
@@ -152,20 +117,18 @@ namespace Ship_Game
                     EnterNameArea.HandlingInput = false;
                 }
             }
-            this.previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
 
         public override void LoadContent()
         {
-            this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
+            this.Window = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             this.SaveMenu = new Menu1(this.Window);
-            Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
+            var sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
             this.SaveShips = new Submenu(sub);
             this.SaveShips.AddTab("Save Ship Design");
-            Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-            Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
+            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.subAllDesigns = new Submenu(scrollList);
             this.subAllDesigns.AddTab("All Designs");
             this.ShipDesigns = new ScrollList(this.subAllDesigns);
@@ -177,9 +140,8 @@ namespace Ship_Game
             this.EnterNameArea.ClickableArea = new Rectangle((int)(this.EnternamePos.X + Fonts.Arial20Bold.MeasureString("Design Name: ").X), (int)this.EnternamePos.Y - 2, 256, Fonts.Arial20Bold.LineSpacing);
             this.EnterNameArea.Text = this.ShipName;
 
-            Save = ButtonSmall(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, "Save", "Save");
+            Save = ButtonSmall(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, "Save", OnSaveClicked);
 
-            Cursor.Y = Cursor.Y + (ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Height + 15);
             base.LoadContent();
         }
 

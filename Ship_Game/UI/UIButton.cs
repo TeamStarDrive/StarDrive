@@ -26,7 +26,6 @@ namespace Ship_Game
         public PressState  State = PressState.Default;
         public ButtonStyle Style = ButtonStyle.Default;
         public string Text;
-        public string Launches;
         public readonly Color DefaultColor = new Color(255, 240, 189);
         public readonly Color HoverColor   = new Color(255, 240, 189);
         public readonly Color PressColor   = new Color(255, 240, 189);
@@ -38,37 +37,28 @@ namespace Ship_Game
         public event ClickHandler OnClick;
 
         
-        public UIButton(UIElementV2 parent, Vector2 pos, string launches = "", string text = "") : base(parent, pos)
-        {
-            InitializeStyles();
-            Text     = text;
-            Launches = launches;
-            Size     = ButtonTexture().Size();
-        }
-
-        public UIButton(UIElementV2 parent, Vector2 pos, string text = "") : base(parent, pos)
+        public UIButton(UIElementV2 parent, Vector2 pos, string text) : base(parent, pos)
         {
             InitializeStyles();
             Text     = text;
             Size     = ButtonTexture().Size();
         }
 
-        public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string launches = "", string text = "") : base(parent, pos)
+        public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string text) : base(parent, pos)
         {
             InitializeStyles();
             Style    = style;
             Text     = text;
-            Launches = launches;
             Size     = ButtonTexture().Size();
         }
 
-        public UIButton(UIElementV2 parent, float x = 0f, float y = 0f, string launches = "", string text = "")
-            : this(parent, new Vector2(x, y), launches, text)
+        public UIButton(UIElementV2 parent, float x, float y, string text)
+            : this(parent, new Vector2(x, y), text)
         {
         }
 
-        public UIButton(UIElementV2 parent, ButtonStyle style, float x = 0f, float y = 0f, string launches = "", string text = "")
-            : this(parent, style, new Vector2(x, y), launches, text)
+        public UIButton(UIElementV2 parent, ButtonStyle style, float x, float y, string text)
+            : this(parent, style, new Vector2(x, y), text)
         {
         }
 
@@ -204,6 +194,6 @@ namespace Ship_Game
             return false;
         }
 
-        public override string ToString() => $"Button '{Launches}' visible:{Visible} enabled:{Enabled} state:{State}";
+        public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
     }
 }

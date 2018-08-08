@@ -618,7 +618,7 @@ namespace Ship_Game
                 if (fDrawAtWarp < 0)
                     DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, 176, Color.LightSkyBlue));
                 else if (fWarpTime > 900)
-                    DrawStatEnergy(ref cursor, "FTL Time", "INF", 176);
+                    DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
                 else
                     DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
             }
