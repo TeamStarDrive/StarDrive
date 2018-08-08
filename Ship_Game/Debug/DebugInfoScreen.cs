@@ -156,7 +156,7 @@ namespace Ship_Game.Debug
         private Color   TextColor   = Color.White;
         private SpriteFont TextFont = Fonts.Arial12Bold;
 
-        public override void Update()
+        public override void PerformLayout()
         {
         }
 
