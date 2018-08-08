@@ -105,10 +105,7 @@ namespace Ship_Game
         // Pointless variables
         [Serialize(91)] public int Aquatic;
         [Serialize(92)] public int Burrowers;
-
-        public RacialTrait()
-        {
-        }
+        [Serialize(93)] public float SpyModifier;
 
         public RacialTrait GetClone()
         {
@@ -117,19 +114,13 @@ namespace Ship_Game
 
         public static string GetFoodType(RacialTrait trait)
         {
-            if (trait == null) return "Food";
-            if (trait.Cybernetic > 0) return "Production";
-            return "Food";
+            return trait?.Cybernetic > 0 ? "Production" : "Food";
         }
 
         public bool TechTypeRestrictions(TechnologyType techType)
         {
-            if (Cybernetic > 0 && techType ==
-                (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization"))
-            {
-                return true;
-            }
-            return false;
+            return Cybernetic > 0 && techType ==
+                   (TechnologyType)Enum.Parse(typeof(TechnologyType), "Colonization");
         }
 
         public void TechUnlocks(TechEntry techEntry, Empire empire)
@@ -263,30 +254,22 @@ namespace Ship_Game
                 }
             }
             if (HistoryTraitMilitaristic)
-            {
                 Militaristic = 1;
-            }
+
             if (HistoryTraitPackMentality)
-            {
                 Pack = true;
-            }
+
             if (HistoryTraitPrototypeFlagship)
-            {
                 Prototype = 1;
-            }
           
         }
 
         public void ApplyTraitToShip(Ship ship)
         {
-            if (Pack)
-            {
-                ship.DamageModifier = -0.25f;
+            if (!Pack)
+                return;
 
-                ship.DamageModifier = ship.DamageModifier + 0.05f * ship.AI.FriendliesNearby.Count;
-                if (ship.DamageModifier > 0.5f)
-                    ship.DamageModifier = 0.5f;
-            }
+            ship.ApplyPackDamageModifier();
         }
     }
 }
