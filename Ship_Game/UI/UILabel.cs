@@ -6,6 +6,7 @@ namespace Ship_Game
     public class UILabel : UIElementV2
     {
         private string LabelText;
+        private Array<string> Lines; // multiline
         private SpriteFont LabelFont;
 
         public delegate void ClickHandler(UILabel label);
@@ -24,6 +25,16 @@ namespace Ship_Game
             {
                 LabelText = value;
                 Size = LabelFont.MeasureString(value);
+            }
+        }
+
+        public Array<string> MultilineText
+        {
+            get => Lines;
+            set
+            {
+                Lines = value;
+                Size = LabelFont.MeasureLines(Lines);
             }
         }
 
@@ -70,16 +81,34 @@ namespace Ship_Game
             Color = color;
         }
 
+        private void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
+        {
+            if (DropShadow)
+                HelperFunctions.DrawDropShadowText(batch, text, pos, LabelFont, color);
+            else
+                batch.DrawString(LabelFont, text, pos, color);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
-            if (LabelText.IsEmpty())
+            if (LabelText.IsEmpty() && (Lines == null || Lines.IsEmpty))
                 return;
 
             Color color = IsMouseOver ? Highlight : Color;
-            if (DropShadow)
-                HelperFunctions.DrawDropShadowText(batch, LabelText, Pos, LabelFont, color);
+            if (Lines != null && Lines.NotEmpty)
+            {
+                Vector2 cursor = Pos;
+                for (int i = 0; i < Lines.Count; ++i)
+                {
+                    string line = Lines[i];
+                    DrawLine(batch, line, cursor, color);
+                    cursor.Y += LabelFont.LineSpacing + 2;
+                }
+            }
             else
-                batch.DrawString(LabelFont, LabelText, Pos, color);
+            {
+                DrawLine(batch, LabelText, Pos, color);
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -104,11 +133,6 @@ namespace Ship_Game
             }
             IsMouseOver = false;
             return false;
-        }
-
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            Pos = pos;
         }
     }
 }

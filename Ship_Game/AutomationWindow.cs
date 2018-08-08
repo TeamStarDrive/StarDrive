@@ -57,6 +57,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             Rectangle r = ConstructionSubMenu.Menu;
             r.Y = r.Y + 25;
             r.Height = r.Height - 25;
