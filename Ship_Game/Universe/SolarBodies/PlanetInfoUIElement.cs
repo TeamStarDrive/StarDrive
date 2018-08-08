@@ -59,6 +59,8 @@ namespace Ship_Game
         private Rectangle Housing;
 
         private Rectangle DefenseRect;
+        private Rectangle InjuryRect;
+        private Rectangle OffenseRect;
 
         private Rectangle ShieldRect;
 
@@ -101,7 +103,7 @@ namespace Ship_Game
             this.clickRect = new Rectangle(this.ElementRect.X + this.ElementRect.Width - 16, this.ElementRect.Y + this.ElementRect.Height / 2 - 11, 11, 22);
             this.LeftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
             this.RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
-            this.PlanetIconRect = new Rectangle(this.LeftRect.X + 55, this.Housing.Y + 120, 80, 80);
+            this.PlanetIconRect = new Rectangle(this.LeftRect.X + 75, this.Housing.Y + 120, 80, 80);
             this.Inspect = new SkinnableButton(new Rectangle(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2 - 16, this.PlanetIconRect.Y, 32, 32), "UI/viewPlanetIcon")
             {
                 HoverColor = this.tColor,
@@ -124,12 +126,14 @@ namespace Ship_Game
             {
                 sRect = new Rectangle(this.RightRect.X, this.Housing.Y + 200, 145, 6)
             };
-            this.FoodLock = new ColonyScreen.Lock();
-            this.ResLock = new ColonyScreen.Lock();
-            this.ProdLock = new ColonyScreen.Lock();
-            this.flagRect = new Rectangle(r.X + r.Width - 60, this.Housing.Y + 63, 26, 26);
-            this.DefenseRect = new Rectangle(this.LeftRect.X + 13, this.Housing.Y + 112, 22, 22);
-            this.ShieldRect = new Rectangle(this.LeftRect.X + 13, this.Housing.Y + 112 + 75, 22, 22);
+            FoodLock    = new ColonyScreen.Lock();
+            ResLock     = new ColonyScreen.Lock();
+            ProdLock    = new ColonyScreen.Lock();
+            flagRect    = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
+            DefenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114, 22, 22);
+            OffenseRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
+            InjuryRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
+            ShieldRect  = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
         }
 
         public override void Draw(GameTime gameTime)
@@ -139,13 +143,25 @@ namespace Ship_Game
             string str;
             string str1;
             MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-            this.ToolTipItems.Clear();
+            ToolTipItems.Clear();
             PlanetInfoUIElement.TippedItem def = new PlanetInfoUIElement.TippedItem()
             {
                 r = this.DefenseRect,
                 TIP_ID = 31
             };
-            this.ToolTipItems.Add(def);
+            ToolTipItems.Add(def);
+            PlanetInfoUIElement.TippedItem injury = new PlanetInfoUIElement.TippedItem()
+            {
+                r = InjuryRect,
+                TIP_ID = 249
+            };
+            ToolTipItems.Add(injury);
+            PlanetInfoUIElement.TippedItem offense = new PlanetInfoUIElement.TippedItem()
+            {
+                r = OffenseRect,
+                TIP_ID = 250
+            };
+            ToolTipItems.Add(offense);
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
@@ -472,21 +488,37 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, Color.White);
                 }
             }
-            textPos = new Vector2((float)(this.ColonySliderRes.sRect.X + 180), (float)(this.ColonySliderRes.sRect.Y - 2));
-            string res = this.p.NetResearchPerTurn.ToString(this.fmt);
+            textPos = new Vector2((ColonySliderRes.sRect.X + 180), (ColonySliderRes.sRect.Y - 2));
+            string res = p.NetResearchPerTurn.ToString(fmt);
             textPos.X = textPos.X - Fonts.Arial12Bold.MeasureString(res).X;
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, res, textPos, new Color(255, 239, 208));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
-            Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.TotalDefensiveStrength.ToString(this.fmt), defPos, Color.White);
-            if (this.p.ShieldStrengthMax > 0f)
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, res, textPos, new Color(255, 239, 208));
+
+            DrawPlanetStats(DefenseRect, ((float)p.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
+
+            // Added by Fat Bastard - display total injury level inflicted automatically to invading troops
+            if (p.TotalInvadeInjure > 0)
+                DrawPlanetStats(InjuryRect, ((float)p.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
+
+            // Added by Fat Bastard - display total space offense of the planet
+            if (p.TotalSpaceOffense > 0)
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_planetshield"], this.ShieldRect, Color.Green);
-                Vector2 shieldPos = new Vector2((float)(this.ShieldRect.X + this.ShieldRect.Width + 2), (float)(this.ShieldRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.ShieldStrengthCurrent.ToString(this.fmt), shieldPos, Color.White);
+                string offenseNumberString = HelperFunctions.GetNumberString((float) Math.Round(p.TotalSpaceOffense,0));
+                DrawPlanetStats(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
             }
-            this.Inspect.Draw(this.ScreenManager);
-            this.Invade.Draw(this.ScreenManager);
+
+            if (p.ShieldStrengthMax > 0f)
+                DrawPlanetStats(ShieldRect, p.ShieldStrengthCurrent.String(1), "NewUI/icon_planetshield", Color.White, Color.Green);
+
+            Inspect.Draw(ScreenManager);
+            Invade.Draw(ScreenManager);
+        }
+
+        private void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
+        {
+            SpriteFont font = Fonts.Arial12Bold;
+            Vector2 pos     = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(texturePath), rect, texcolor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data, pos, color);
         }
 
         public override bool HandleInput(InputState input)
@@ -698,7 +730,7 @@ namespace Ship_Game
                 {
                     this.ColonySliderFood.cursor.X = this.ColonySliderFood.sRect.X;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     this.draggingSlider1 = false;
                 }
@@ -758,7 +790,7 @@ namespace Ship_Game
                 {
                     this.ColonySliderProd.cursor.X = this.ColonySliderProd.sRect.X;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     this.draggingSlider2 = false;
                 }
@@ -818,7 +850,7 @@ namespace Ship_Game
                 {
                     this.ColonySliderRes.cursor.X = this.ColonySliderRes.sRect.X;
                 }
-                if (input.MouseCurr.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     this.draggingSlider3 = false;
                 }

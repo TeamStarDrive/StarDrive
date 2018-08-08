@@ -6,12 +6,11 @@ namespace Ship_Game
 {
     public  class MessageBoxScreen : GameScreen
     {
-        private const string UsageText = "A button = Okay";
         private readonly bool PauseMenu;
         private string Message;
 
-        public UIButton Ok;
-        public UIButton Cancel;
+        private UIButton Ok;
+        private UIButton Cancel;
 
         private float Timer;
         private readonly bool Timed;
@@ -21,13 +20,13 @@ namespace Ship_Game
         public MessageBoxScreen(GameScreen parent, string message) : base(parent)
         {
             this.Message = message;
-            this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
+            this.Message = Fonts.Arial12Bold.ParseText(message, 250f);
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Ok     = ButtonSmall(0f, 0f, "OK", titleId: 15);
-            Cancel = ButtonSmall(0f, 0f, "Cancel", titleId:16);
+            Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
+            Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
         }
 
         public MessageBoxScreen(GameScreen parent, int localID, string oktext, string canceltext)
@@ -38,13 +37,13 @@ namespace Ship_Game
         public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
         {
             this.Message = message;
-            this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
+            this.Message = Fonts.Arial12Bold.ParseText(message, 250f);
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Ok     = ButtonSmall(0f, 0f, "OK", oktext);
-            Cancel = ButtonSmall(0f, 0f, "Cancel", canceltext);
+            Ok     = ButtonSmall(0f, 0f, oktext,     click: OnOkClicked);
+            Cancel = ButtonSmall(0f, 0f, canceltext, click: OnCancelClicked);
         }
 
         public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
@@ -57,13 +56,13 @@ namespace Ship_Game
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
-            Ok     = ButtonSmall(0f, 0f, "OK", titleId: 15);
-            Cancel = ButtonSmall(0f, 0f, "Cancel", titleId:16);
+            Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
+            Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
         }
 
         public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)
         {
-            this.PauseMenu = pauseMenu;
+            PauseMenu = pauseMenu;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -71,45 +70,50 @@ namespace Ship_Game
             base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
             if (!this.Timed)
             {
-                Rectangle r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135,
-                    base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
+                Rectangle r = new Rectangle(ScreenWidth / 2 - 135,
+                    ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
                 Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r.Y + 10));
-                base.ScreenManager.SpriteBatch.Begin();
-                base.ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
-                base.ScreenManager.SpriteBatch.DrawRectangle(r, Color.Orange);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
-
+                batch.Begin();
+                batch.FillRectangle(r, Color.Black);
+                batch.DrawRectangle(r, Color.Orange);
+                batch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
 
                 Ok.SetAbsPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
                 Cancel.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
-                foreach (UIButton b in this.Buttons)
-                {
-                    b.Draw(base.ScreenManager.SpriteBatch);
-                }
-                base.ScreenManager.SpriteBatch.End();
+                base.Draw(batch);
+                batch.End();
                 return;
             }
             this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat(this.Original, this.Toappend), 250f);
             //renamed r, textposition
-            Rectangle r2 = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 135, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
-            Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r2.Y + 10));
-            base.ScreenManager.SpriteBatch.Begin();
-            base.ScreenManager.SpriteBatch.FillRectangle(r2, Color.Black);
-            base.ScreenManager.SpriteBatch.DrawRectangle(r2, Color.Orange);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
+            Rectangle r2 = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
+            Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(Message).X / 2f, (float)(r2.Y + 10));
+            batch.Begin();
+            batch.FillRectangle(r2, Color.Black);
+            batch.DrawRectangle(r2, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
+
             Ok.SetAbsPos(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
             Cancel.SetAbsPos(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
+            base.Draw(batch);
+            batch.End();
+        }
 
-            foreach (UIButton b in this.Buttons)
-            {
-                b.Draw(base.ScreenManager.SpriteBatch);
-            }
-            base.ScreenManager.SpriteBatch.End();
+        private void OnOkClicked(UIButton b)
+        {
+            Accepted?.Invoke(this, EventArgs.Empty);
+            GameAudio.PlaySfxAsync("echo_affirm1");
+            ExitScreen();
+        }
+
+        private void OnCancelClicked(UIButton b)
+        {
+            Cancelled?.Invoke(this, EventArgs.Empty);
+            ExitScreen();
         }
 
         public override bool HandleInput(InputState input)
         {
-            var mousePos = input.MouseScreenPos;
             if (input.MenuSelect && !PauseMenu)
             {
                 Accepted?.Invoke(this, EventArgs.Empty);
@@ -122,52 +126,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(mousePos))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                    {
-                        GameAudio.PlaySfxAsync("mouse_over4");
-                    }
-                    b.State = UIButton.PressState.Hover;
-                    if (input.LeftMouseHeldDown)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (!input.LeftMouseClick)
-                    {
-                        continue;
-                    }
-                    string launches = b.Launches;
-                    string str = launches;
-                    if (launches == null)
-                    {
-                        continue;
-                    }
-                    if (str == "OK")
-                    {
-                        if (this.Accepted != null)
-                        {
-                            this.Accepted(this, EventArgs.Empty);
-                        }
-                        GameAudio.PlaySfxAsync("echo_affirm1");
-                        this.ExitScreen();
-                    }
-                    else if (str == "Cancel")
-                    {
-                        if (this.Cancelled != null)
-                        {
-                            this.Cancelled(this, EventArgs.Empty);
-                        }
-                        this.ExitScreen();
-                    }
-                }
-            }
             return base.HandleInput(input);
         }
 
@@ -176,17 +134,13 @@ namespace Ship_Game
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             MessageBoxScreen messageBoxScreen = this;
             messageBoxScreen.Timer = messageBoxScreen.Timer - elapsedTime;
-            if (this.Timed)
+            if (Timed)
             {
-                string fmt = "0";
-                this.Toappend = string.Concat(this.Timer.ToString(fmt), " ", Localizer.Token(17));
-                if (this.Timer <= 0f)
+                Toappend = string.Concat(Timer.String(0), " ", Localizer.Token(17));
+                if (Timer <= 0f)
                 {
-                    if (this.Cancelled != null)
-                    {
-                        this.Cancelled(this, EventArgs.Empty);
-                    }
-                    this.ExitScreen();
+                    Cancelled?.Invoke(this, EventArgs.Empty);
+                    ExitScreen();
                 }
             }
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);

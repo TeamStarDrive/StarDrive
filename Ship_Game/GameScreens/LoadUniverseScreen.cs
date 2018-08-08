@@ -177,18 +177,14 @@ namespace Ship_Game
                 }
 
                 if (pgs.building == null)
-                {
                     continue;
-                }
+
                 var building = ResourceManager.GetBuildingTemplate(pgs.building.Name);
                 pgs.building.Scrappable = building.Scrappable;
                 p.BuildingList.Add(pgs.building);
-                if (!pgs.building.isWeapon)
-                {
-                    continue;
-                }
-                pgs.building.theWeapon = ResourceManager.WeaponsDict[pgs.building.Weapon];
-            }            
+                pgs.building.CreateWeapon();
+            }
+
             return p;
         }
 
@@ -637,7 +633,7 @@ namespace Ship_Game
                             continue;
                         foreach (Vector2 waypoint in shipData.AISave.ActiveWayPoints)
                         {
-                            ship.AI.ActiveWayPoints.Enqueue(waypoint);
+                            ship.AI.WayPoints.Enqueue(waypoint);
                         }
                         foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                         {
@@ -803,7 +799,7 @@ namespace Ship_Game
                 p.ParentSystem = system;
                 p.InitializePlanetMesh(this);
             }
-            foreach (Asteroid roid in system.AsteroidsList)  AddObject(roid.So);
+            foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
             foreach (Moon moon in system.MoonList)           AddObject(moon.So);
 
             ++systemToMake;

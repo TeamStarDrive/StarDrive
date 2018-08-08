@@ -15,6 +15,7 @@ namespace Ship_Game
     {
         private void ProcessTurns()
         {
+            Log.FatalError = false;
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
             {
@@ -26,6 +27,9 @@ namespace Ship_Game
                         return; // this thread is aborting
 
                     float deltaTime = (float) zgameTime.ElapsedGameTime.TotalSeconds;
+                    PieMenuTimer += deltaTime;
+                    pieMenu.Update(zgameTime);
+
                     if (Paused)
                     {
                         ++FrameId;
@@ -40,17 +44,9 @@ namespace Ship_Game
                             }
                             ship.Update(0);
                         }
-                        ClickTimer += deltaTime;
-                        ClickTimer2 += deltaTime;
-                        pieMenu.Update(zgameTime);
-                        PieMenuTimer += deltaTime;
                     }
                     else
                     {
-                        ClickTimer += deltaTime;
-                        ClickTimer2 += deltaTime;
-                        pieMenu.Update(zgameTime);
-                        PieMenuTimer += deltaTime;
                         NotificationManager.Update(deltaTime);
                         AutoSaveTimer -= deltaTime;
 
@@ -101,7 +97,11 @@ namespace Ship_Game
                 catch (Exception ex)
                 {
                     if (++failedLoops > 1)
+                    {
+                        Log.FatalError = true;
                         throw; // the loop is having a cyclic crash, no way to recover
+                    }
+                    Log.FatalError = false;
                     Log.Error(ex, "ProcessTurns crashed");
                 }
                 finally
@@ -789,16 +789,20 @@ namespace Ship_Game
                         moon.So.Visibility = ObjectVisibility.None;
                     }
                 }
-                foreach (Planet planet in system.PlanetList)
+
+                for (int x = 0; x < system.PlanetList.Count; x++)
                 {
+                    Planet planet = system.PlanetList[x];
                     planet.Update(elapsedTime);
                     if (planet.HasShipyard && system.isVisible)
                         planet.Station.Update(elapsedTime);
                 }
+
                 if (system.isVisible && CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
                 {
-                    foreach (Asteroid asteroid in system.AsteroidsList)
-                        asteroid.Update(elapsedTime);
+                    for (int x = 0; x < system.AsteroidsList.Count; x++)
+                        system.AsteroidsList[x].Update(elapsedTime);
+
                 }
             }
         }

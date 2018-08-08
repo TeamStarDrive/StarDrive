@@ -8,16 +8,16 @@ namespace Ship_Game
     public sealed class HullBonus
     {
         public string Hull;
-        public float StartingCost; // additional cost to build
-        public float ArmoredBonus; // % damage reduction
-        public float SensorBonus; // % sensor range
-        public float SpeedBonus; // % speed increase
-        public float CargoBonus; // % cargo room
+        public float StartingCost;  // additional cost to build
+        public float ArmoredBonus;  // % damage reduction
+        public float SensorBonus;   // % sensor range
+        public float SpeedBonus;    // % speed increase
+        public float CargoBonus;    // % cargo room
         public float FireRateBonus; // % fire rate
-        public float RepairBonus; // % repair rate
-        public float CostBonus;  // % cost reduction
-        public float DamageBonus; // % weapon damage increase
-        public float ShieldBonus; // % shield power increase
+        public float RepairBonus;   // % repair rate
+        public float CostBonus;     // % cost reduction
+        public float DamageBonus;   // % weapon damage increase
+        public float ShieldBonus;   // % shield power increase
 
         public static HullBonus Default = new HullBonus { Hull = "" };
        
@@ -27,7 +27,7 @@ namespace Ship_Game
         public float CargoModifier    => 1.0f + CargoBonus;
         public float FireRateModifier => 1.0f + FireRateBonus;
         public float RepairModifier   => 1.0f + RepairBonus;
-        //public float CostModifier     => 1.0f + CostBonus;
+        public float CostModifier     => 1.0f + CostBonus;
         public float DamageModifier   => 1.0f + DamageBonus;
         public float ShieldModifier   => 1.0f + ShieldBonus;
     }

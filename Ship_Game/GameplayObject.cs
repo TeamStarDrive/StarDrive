@@ -59,11 +59,13 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
+        // current rotation converted into a direction vector
+        [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
+        [XmlIgnore][JsonIgnore] public Vector3 Direction3D => Rotation.RadiansToDirection3D();
+
+
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
-
-        public bool IsProjectile => (Type & GameObjectType.Proj) != 0;
-        public bool IsShip => (Type & GameObjectType.Ship) != 0;
 
         protected GameplayObject(GameObjectType typeFlags)
         {
@@ -94,6 +96,11 @@ namespace Ship_Game
             if (InSpatial)
                 UniverseScreen.SpaceManager.Remove(this);
         }
+
+        [XmlIgnore][JsonIgnore] 
+        public bool IsInFrustum =>
+            Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
+            Empire.Universe.Frustum.Contains(Center, 2000f);
 
         [XmlIgnore][JsonIgnore] 
         public string SystemName => System?.Name ?? "Deep Space";

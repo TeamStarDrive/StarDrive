@@ -397,6 +397,7 @@ namespace Ship_Game.AI {
             DebugLog($" : {GetBestCombatShip?.Name}");
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
+
             availableTechs = BestShiptechs(modifier, allAvailableShipTechs, availableTechs);
 
 
@@ -465,22 +466,22 @@ namespace Ship_Game.AI {
             }
         }
 
-        private TechEntry GetScriptedTech(string command1, string stringTechType, Array<TechEntry> availableTechs, float moneyNeeded)
+        private TechEntry GetScriptedTech(string command1, string techType, Array<TechEntry> availableTechs, float moneyNeeded)
         {
-            TechnologyType techType;
+            TechnologyType techtype;
             try
             {
-                techType = (TechnologyType) Enum.Parse(typeof(TechnologyType), stringTechType);
+                techtype = (TechnologyType) Enum.Parse(typeof(TechnologyType), techType);
             }
             catch
             {
                 Log.Error($"techType not found : ");
                 return null;
             }
-            DebugLog($"\nFind : {techType.ToString()}");
-            if (OwnerEmpire.data.Traits.TechTypeRestrictions(techType))
+            DebugLog($"\nFind : {techtype.ToString()}");
+            if (OwnerEmpire.data.Traits.TechTypeRestrictions(techtype))
             {
-                DebugLog($"Trait Restricted : {techType.ToString()}");
+                DebugLog($"Trait Restricted : {techtype.ToString()}");
                 return null;
             }
 
@@ -488,20 +489,18 @@ namespace Ship_Game.AI {
             TechEntry researchTech = null;
             TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
             {
-                if (techType != TechnologyType.Economic
-                    && econ.GetLookAheadType(techType) > 0)
-                    return true;
+                if (econ.GetLookAheadType(techtype) >0 &&
+                 techtype != TechnologyType.Economic) return true;
 
                 if (econ.Tech.HullsUnlocked.Count == 0
                     || moneyNeeded < 1f
                     || availableTechs.Count == 1)
                     return true;
 
-                foreach (var hull in econ.Tech.HullsUnlocked)
+                foreach(var hull in econ.Tech.HullsUnlocked)
                 {
-                    if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
-                    switch (hullData.HullRole)
-                    {
+                    if(!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                    switch (hullData.HullRole) {
                         case ShipData.RoleName.station:
                             return true;
                         case ShipData.RoleName.platform:
@@ -511,11 +510,11 @@ namespace Ship_Game.AI {
                 return false;
             });
             
-            LogFinalScriptTechs(command1, techType, filteredTechs);
+            LogFinalScriptTechs(command1, techtype, filteredTechs);
             researchTech = ChooseScriptTech(command1, filteredTechs);
             if (researchTech == null)
             {
-                DebugLog($"{techType.ToString()} : No Tech found");
+                DebugLog($"{techtype.ToString()} : No Tech found");
                 return null;
             }
             
@@ -691,10 +690,14 @@ namespace Ship_Game.AI {
             }
 
             var hullSorter = new SortedList<int, Array<Ship>>();
-            
+
             //This is part that chooses the bestShip hull
             /* takes the first entry from the least techs needed list. then sorts it the hull role needed
              */
+            //try to fix sentry bug :https://sentry.io/blackboxmod/blackbox/issues/533939032/events/26436104750/
+            if (techSorter.Count == 0)
+                return false;
+            
             int keyChosen = ChooseRole(techSorter[techSorter.Keys.First()], hullSorter ,h=> (int)h.shipData.HullRole );
             //sort roles
             var roleSorter = new SortedList<int, Array<Ship>>();

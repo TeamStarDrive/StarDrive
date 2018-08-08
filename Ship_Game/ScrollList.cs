@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -19,6 +20,8 @@ namespace Ship_Game
         Draggable
     }
 
+    [DebuggerTypeProxy(typeof(ScrollListDebugView))]
+    [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
     public class ScrollList
     {
         private readonly Submenu Parent;
@@ -91,14 +94,14 @@ namespace Ship_Game
         {
             var e = new Entry(this, o, false, false);
             Entries.Add(e);
-            Update();
+            UpdateListElements();
             return e;
         }
 
         public void AddItem(object o, bool plus, bool edit)
         {
             Entries.Add(new Entry(this, o, plus, edit));
-            Update();
+            UpdateListElements();
         }
 
         public void SetItems<T>(IEnumerable<T> newItems) where T : class
@@ -107,7 +110,7 @@ namespace Ship_Game
             ExpandedEntries.Clear();
             foreach (T item in newItems)
                 Entries.Add(new Entry(this, item, false, false));
-            Update();
+            UpdateListElements();
         }
 
         private bool RemoveSub(Entry e)
@@ -123,7 +126,7 @@ namespace Ship_Game
                 Entries.Remove(e);
 
             if (ExpandedEntries.Remove(e))
-                Update();
+                UpdateListElements();
         }
 
         private bool RemoveSubItem(Predicate<Entry> predicate)
@@ -141,7 +144,7 @@ namespace Ship_Game
                 Entries.RemoveFirstIf(ItemPredicate);
 
             if (ExpandedEntries.RemoveFirstIf(ItemPredicate))
-                Update();
+                UpdateListElements();
         }
 
         public void RemoveFirstIf<T>(Func<T, bool> predicate) where T : class
@@ -152,7 +155,7 @@ namespace Ship_Game
                 Entries.RemoveFirstIf(ItemPredicate);
 
             if (ExpandedEntries.RemoveFirstIf(ItemPredicate))
-                Update();
+                UpdateListElements();
         }
 
         public void RemoveFirst()
@@ -161,7 +164,7 @@ namespace Ship_Game
                 return;
             Entries.RemoveAt(0);
             ExpandedEntries.RemoveAt(0);
-            Update();
+            UpdateListElements();
         }
 
         public Entry EntryAt(int index) => Entries[index];
@@ -197,7 +200,7 @@ namespace Ship_Game
             Entry[] sorted = Entries.OrderBy(e => predicate(e.item as T)).ToArray();
             Entries.Clear();
             Entries.AddRange(sorted);
-            Update();
+            UpdateListElements();
         }
 
         public void SortDescending<T, TValue>(Func<T, TValue> predicate) where T : class
@@ -205,7 +208,7 @@ namespace Ship_Game
             Entry[] sorted = Entries.OrderByDescending(e => predicate(e.item as T)).ToArray();
             Entries.Clear();
             Entries.AddRange(sorted);
-            Update();
+            UpdateListElements();
         }
 
         public IReadOnlyList<Entry> AllEntries => Entries;
@@ -264,7 +267,7 @@ namespace Ship_Game
             Entries.Clear();
             ExpandedEntries.Clear();
             FirstVisibleIndex = 0;
-            Update();
+            UpdateListElements();
         }
 
         private void DrawScrollBar(SpriteBatch spriteBatch)
@@ -555,7 +558,7 @@ namespace Ship_Game
                 }
                 return false;
             });
-            Update();
+            UpdateListElements();
             return hit;
         }
 
@@ -595,7 +598,7 @@ namespace Ship_Game
                 }
                 return false;
             });
-            Update();
+            UpdateListElements();
             return hit;
         }
 
@@ -616,7 +619,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update()
+        private void UpdateListElements()
         {
             ExpandedEntries.Clear();
             foreach (Entry e in Entries)
@@ -742,7 +745,7 @@ namespace Ship_Game
                     if (List.FirstVisibleIndex < 0)
                         List.FirstVisibleIndex = 0;
                 }
-                List.Update();
+                List.UpdateListElements();
             }
 
             public bool WasClicked(InputState input)
@@ -891,6 +894,29 @@ namespace Ship_Game
                 if (all) Down  = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
                 if (all) Apply = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
                         Cancel = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
+            }
+        }
+    }
+
+    internal sealed class ScrollListDebugView
+    {
+        private readonly ScrollList List;
+
+        public ScrollListDebugView(ScrollList list)
+        {
+            List = list;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public ScrollList.Entry[] Items
+        {
+            get
+            {
+                IReadOnlyList<ScrollList.Entry> allEntries = List.AllEntries;
+                var items = new ScrollList.Entry[allEntries.Count];
+                for (int i = 0; i < items.Length; ++i)
+                    items[i] = allEntries[i];
+                return items;
             }
         }
     }

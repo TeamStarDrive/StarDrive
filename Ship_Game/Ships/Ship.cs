@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
         public Vector2 Acceleration { get; private set; }
 
         public Vector2 projectedPosition;
-        private Array<Thruster> ThrusterList = new Array<Thruster>();
+        private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp   = true;
@@ -94,12 +94,12 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public bool isThrusting;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
-        public float DamageModifier;
+        public float PackDamageModifier { get; private set; }
         public Empire loyalty;
         public int Size;
         //public int CrewRequired;    //Not referenced in code, removing to save memory
         //public int CrewSupplied;    //Not referenced in code, removing to save memory
-        public float Ordinance;
+        public float Ordinance { get; private set; }
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
         public ShipAI AI { get; private set; }
@@ -139,8 +139,6 @@ namespace Ship_Game.Ships
         private AudioHandle DroneSfx;
         public float ShieldRechargeTimer;
         public bool InCombat;
-        private Vector3 pointat;
-        private Vector3 scalefactors;
         public float xRotation;
         public MoveState engineState;
         public float ScreenRadius;
@@ -726,8 +724,9 @@ namespace Ship_Game.Ships
         public float GetSTLSpeed()
         {
             //Added by McShooterz: hull bonus speed
-            float speed = Thrust / Mass + Thrust / Mass * loyalty.data.SubLightModifier;
-            return  Math.Min(speed, 2500);
+            float thrustWeightRatio = Thrust / Mass;
+            float speed = thrustWeightRatio + thrustWeightRatio * loyalty.data.SubLightModifier;
+            return Math.Min(speed, 2500);
         }
 
         public void TetherToPlanet(Planet p)
@@ -763,7 +762,6 @@ namespace Ship_Game.Ships
             }
             return (int)cost;
         }
-
 
         public ShipData BaseHull => shipData.BaseHull;
 
@@ -1186,16 +1184,6 @@ namespace Ship_Game.Ships
             return difference < halfArc;
         }
 
-        public void AddThruster(Thruster t)
-        {
-            ThrusterList.Add(new Thruster
-            {
-                Parent = this,
-                tscale = t.tscale,
-                XMLPos = t.XMLPos
-            });
-        }
-
         public SceneObject GetSO()
         {
             return ShipSO;
@@ -1493,7 +1481,8 @@ namespace Ship_Game.Ships
                     data.HangarshipGuid = module.GetHangarShip().guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.hangarShipUID;
+                    data.SlotOptions = module.DynamicHangar ? DynamicHangarLaunch.DynamicLaunch.ToString()
+                                                            : module.hangarShipUID;
 
                 slots[i] = data;
             }
@@ -1688,7 +1677,7 @@ namespace Ship_Game.Ships
                     AI.CombatAI.UpdateCombatAI(this);
 
                     float direction = AI.CombatState == CombatState.ShortRange ? 1f : -1f; // ascending : descending
-                    Weapon[] sortedByRange = Weapons.SortedBy(weapon => direction*weapon.GetModifiedRange());
+                    //Weapon[] sortedByRange = Weapons.Sorted(weapon => direction*weapon.GetModifiedRange());
 
                     foreach (Weapon weapon in Weapons)
                     {
@@ -2018,7 +2007,7 @@ namespace Ship_Game.Ships
                     return;
 
                 foreach (Troop troop in ownTroops)
-                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.GetStrengthMax());
+                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
             }
 
             float GetMechanicalDefenseRoll()
@@ -2690,15 +2679,20 @@ namespace Ship_Game.Ships
         private int DPS;
         public float CalculateShipStrength()
         {
-            float offense = 0f;
-            float defense = 0f;
-            bool fighters = false;
-            bool weapons = false;
+            float offense      = 0f;
+            float defense      = 0f;
+            bool fighters      = false;
+            bool weapons       = false;
+            int numWeaponSlots = 0;
 
             foreach (ShipModule slot in ModuleSlotList)
             {
                 //ShipModule template = GetModuleTemplate(slot.UID);
-                weapons  |= slot.InstalledWeapon != null;
+                if (slot.InstalledWeapon != null)
+                {
+                    weapons         = true;
+                    numWeaponSlots += slot.Area;
+                }
                 fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
 
                 offense += slot.CalculateModuleOffense();
@@ -2709,8 +2703,8 @@ namespace Ship_Game.Ships
             DPS = (int)offense;
 
             if (!fighters && !weapons) offense = 0f;
-            if (defense > offense) defense = offense;
-            return offense + defense;
+
+            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, velocityMaximum) ;
         }
 
         private void ApplyRepairToShields(float repairPool)
@@ -2761,6 +2755,13 @@ namespace Ship_Game.Ships
             return moduleToRepair.Repair(repairAmount);
         }
 
+        public void ApplyPackDamageModifier()
+        {
+            float modifier     = -0.25f;
+            modifier          += 0.05f * AI.FriendliesNearby.Count;
+            PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
+        }
+
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
@@ -2799,10 +2800,9 @@ namespace Ship_Game.Ships
         public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
         {
             if (maxValue <= 0)  return ShipStatus.NotApplicable;
-            if (valueToCheck >= maxValue)
+            if (valueToCheck > maxValue)
             {
-                //if (valueToCheck > maxValue)
-                //    Log.Error($"MaxValue of check as greater than value to check");
+                Log.Info($"MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
@@ -2812,7 +2812,7 @@ namespace Ship_Game.Ships
         }
         //if the shipstatus enum is added to then "5" will need to be changed.
         //it should count all but "NotApplicable"
-        private const int ShipStatusCount = 5;
+        private const int ShipStatusCount = 6;
     }
     
     public enum ShipStatus
@@ -2822,6 +2822,7 @@ namespace Ship_Game.Ships
         Average,        
         Good,
         Excellent,
+        Maximum,
         NotApplicable
     }
 }

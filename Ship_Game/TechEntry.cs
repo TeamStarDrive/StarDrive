@@ -218,16 +218,17 @@ namespace Ship_Game
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
         {
-            if (!Discovered)
+            if (!Discovered || Tech.HullsUnlocked.IsEmpty)
                 return;
 
             foreach (var hullName in Tech.HullsUnlocked)
             {
-                
-                if (!ResourceManager.GetHull(hullName.Name, out ShipData shipData)) continue;
-                if (shipData?.ShipStyle != empire.data.Traits.ShipType) continue;
-                //if (shipData.Role < ShipData.RoleName.cruiser) continue;
-                shipData?.LoadModel();
+                if (ResourceManager.GetHull(hullName.Name, out ShipData shipData) &&
+                    shipData.ShipStyle == empire.data.Traits.ShipType)
+                {
+                    //Log.Warning($"Preloading {hullName.Name}");
+                    shipData.PreLoadModel();
+                }
             }
         }
 

@@ -21,7 +21,7 @@ namespace Ship_Game
 
         public int NegativePicks;
 
-        private RaceDesignScreen.GameMode mode = 0; //was unassigned
+        private GameMode mode = 0; //was unassigned
 
         protected Rectangle FlagLeft;
 
@@ -37,9 +37,9 @@ namespace Ship_Game
 
         protected Rectangle GalaxySizeRect;
 
-        private RaceDesignScreen.StarNum StarEnum = RaceDesignScreen.StarNum.Normal;
+        private StarNum StarEnum = StarNum.Normal;
 
-        public RaceDesignScreen.GalSize Galaxysize = RaceDesignScreen.GalSize.Medium;
+        public GalSize Galaxysize = GalSize.Medium;
 
         private Rectangle NumberStarsRect;
 
@@ -115,10 +115,6 @@ namespace Ship_Game
 
         protected RacialTrait tipped;
 
-        protected MouseState currentMouse;
-
-        protected MouseState previousMouse;
-
         protected float tTimer = 0.35f;
 
         public string rd = "";
@@ -131,15 +127,6 @@ namespace Ship_Game
 
         protected int FlagIndex;
 
-        protected bool EKBInput;
-
-        protected bool sKBInput;
-
-        protected bool pKBInput;
-
-        protected bool hwInput;
-
-        protected bool hsInput;
 
         protected bool DrawingColorSelector;
 
@@ -162,7 +149,7 @@ namespace Ship_Game
         protected string HomeSystemName = "Sol";
 
         private Rectangle ExtraRemnantRect; //Added by Gretman
-        public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant = RaceDesignScreen.ExtraRemnantPresence.Normal;
+        public ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
 
         private UIButton SaveRace;  // Added by EVWeb
         private UIButton LoadRace;
@@ -171,19 +158,19 @@ namespace Ship_Game
 
         public RaceDesignScreen(GameScreen parent) : base(parent)
         {
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
             GlobalStats.Statreset();
         }
 
         public RaceDesignScreen(MainMenuScreen mmscreen) : base(mmscreen)
         {
             this.mmscreen = mmscreen;
-            base.IsPopup = true;
-            this.rt = ResourceManager.RaceTraits;
-            base.TransitionOnTime = TimeSpan.FromSeconds(1);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            foreach (RacialTrait t in this.rt.TraitList)
+            IsPopup = true;
+            rt = ResourceManager.RaceTraits;
+            TransitionOnTime = TimeSpan.FromSeconds(1);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            foreach (RacialTrait t in rt.TraitList)
             {
                 TraitEntry te = new TraitEntry()
                 {
@@ -429,7 +416,7 @@ namespace Ship_Game
                     newChar = string.Concat(newChar, " ");
                 }
             }
-            if (this.currentKeyboardState.IsKeyDown(Keys.RightShift) || this.currentKeyboardState.IsKeyDown(Keys.LeftShift) || this.lastKeyboardState.IsKeyDown(Keys.LeftShift))
+            if (currentKeyboardState.IsKeyDown(Keys.RightShift) || currentKeyboardState.IsKeyDown(Keys.LeftShift) || lastKeyboardState.IsKeyDown(Keys.LeftShift))
             {
                 newChar = newChar.ToUpper();
             }
@@ -438,26 +425,26 @@ namespace Ship_Game
 
         private bool CheckKey(Keys theKey)
         {
-            return lastKeyboardState.IsKeyDown(theKey) && this.currentKeyboardState.IsKeyUp(theKey);
+            return lastKeyboardState.IsKeyDown(theKey) && currentKeyboardState.IsKeyUp(theKey);
         }
 
         protected void DoRaceDescription()
         {
-            this.UpdateSummary();
-            this.rd = "";
+            UpdateSummary();
+            rd = "";
             RaceDesignScreen raceDesignScreen = this;
             string str = raceDesignScreen.rd;
-            string[] text = new string[] { str, this.RaceName.Text, Localizer.Token(1300), this.Plural, ". " };
+            string[] text = new string[] { str, RaceName.Text, Localizer.Token(1300), Plural, ". " };
             raceDesignScreen.rd = string.Concat(text);
-            if (this.RaceSummary.Cybernetic <= 0)
+            if (RaceSummary.Cybernetic <= 0)
             {
                 RaceDesignScreen raceDesignScreen1 = this;
-                raceDesignScreen1.rd = string.Concat(raceDesignScreen1.rd, this.Plural, Localizer.Token(1302));
+                raceDesignScreen1.rd = string.Concat(raceDesignScreen1.rd, Plural, Localizer.Token(1302));
             }
             else
             {
                 RaceDesignScreen raceDesignScreen2 = this;
-                raceDesignScreen2.rd = string.Concat(raceDesignScreen2.rd, this.Plural, Localizer.Token(1301));
+                raceDesignScreen2.rd = string.Concat(raceDesignScreen2.rd, Plural, Localizer.Token(1301));
             }
             if (RaceSummary.Aquatic <= 0)
             {
@@ -467,450 +454,419 @@ namespace Ship_Game
             {
                 rd = rd + Localizer.Token(1303);
             }
-            if (this.RaceSummary.Cybernetic <= 0)
+            if (RaceSummary.Cybernetic <= 0)
             {
-                if (this.RaceSummary.PopGrowthMin > 0f)
+                if (RaceSummary.PopGrowthMin > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen5 = this;
-                    raceDesignScreen5.rd = string.Concat(raceDesignScreen5.rd, Localizer.Token(1305));
+                    rd += Localizer.Token(1305);
                 }
-                else if (this.RaceSummary.PopGrowthMin ==0 && this.RaceSummary.PopGrowthMax==0)
+                else if (RaceSummary.PopGrowthMin ==0 && RaceSummary.PopGrowthMax==0)
                 {
-                    RaceDesignScreen raceDesignScreen6 = this;
-                    raceDesignScreen6.rd = string.Concat(raceDesignScreen6.rd, Localizer.Token(1307));
+                    rd += Localizer.Token(1307);
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen7 = this;
-                    raceDesignScreen7.rd = string.Concat(raceDesignScreen7.rd, Localizer.Token(1306));
+                    rd += Localizer.Token(1306);
                 }
             }
-            else if (this.RaceSummary.PopGrowthMin > 0f)
+            else if (RaceSummary.PopGrowthMin > 0f)
             {
-                RaceDesignScreen raceDesignScreen8 = this;
-                raceDesignScreen8.rd = string.Concat(raceDesignScreen8.rd, Localizer.Token(1308));
+                rd += Localizer.Token(1308);
             }
-            else if (this.RaceSummary.PopGrowthMin == 0 && this.RaceSummary.PopGrowthMax == 0)
+            else if (RaceSummary.PopGrowthMin == 0 && RaceSummary.PopGrowthMax == 0)
             {
-                RaceDesignScreen raceDesignScreen9 = this;
-                raceDesignScreen9.rd = string.Concat(raceDesignScreen9.rd, Localizer.Token(1310));
+                rd += Localizer.Token(1310);
             }
             else
             {
-                RaceDesignScreen raceDesignScreen10 = this;
-                raceDesignScreen10.rd = string.Concat(raceDesignScreen10.rd, Localizer.Token(1309));
+                rd += Localizer.Token(1309);
             }
-            if (this.RaceSummary.Cybernetic <= 0)
+            if (RaceSummary.Cybernetic <= 0)
             {
-                if (this.RaceSummary.ConsumptionModifier > 0f)
+                if (RaceSummary.ConsumptionModifier > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen11 = this;
-                    raceDesignScreen11.rd = string.Concat(raceDesignScreen11.rd, Localizer.Token(1311));
+                    rd += Localizer.Token(1311);
                 }
-                else if (this.RaceSummary.ConsumptionModifier >= 0f)
+                else if (RaceSummary.ConsumptionModifier >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen12 = this;
-                    raceDesignScreen12.rd = string.Concat(raceDesignScreen12.rd, Localizer.Token(1313));
+                    rd += Localizer.Token(1313);
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen13 = this;
-                    raceDesignScreen13.rd = string.Concat(raceDesignScreen13.rd, Localizer.Token(1312));
+                    rd += Localizer.Token(1312);
                 }
             }
-            else if (this.RaceSummary.ConsumptionModifier > 0f)
+            else if (RaceSummary.ConsumptionModifier > 0f)
             {
-                RaceDesignScreen raceDesignScreen14 = this;
-                raceDesignScreen14.rd = string.Concat(raceDesignScreen14.rd, Localizer.Token(1314));
+                rd += Localizer.Token(1314);
             }
-            else if (this.RaceSummary.ConsumptionModifier >= 0f)
+            else if (RaceSummary.ConsumptionModifier >= 0f)
             {
-                RaceDesignScreen raceDesignScreen15 = this;
-                raceDesignScreen15.rd = string.Concat(raceDesignScreen15.rd, Localizer.Token(1316));
+                rd += Localizer.Token(1316);
             }
             else
             {
-                RaceDesignScreen raceDesignScreen16 = this;
-                raceDesignScreen16.rd = string.Concat(raceDesignScreen16.rd, Localizer.Token(1315));
+                rd += Localizer.Token(1315);
             }
-            if (this.RaceSummary.Cybernetic <= 0)
+            if (RaceSummary.Cybernetic <= 0)
             {
-                if (this.RaceSummary.GroundCombatModifier > 0f)
+                if (RaceSummary.GroundCombatModifier > 0f)
                 {
-                    if (this.RaceSummary.DiplomacyMod > 0f)
+                    if (RaceSummary.DiplomacyMod > 0f)
                     {
                         RaceDesignScreen raceDesignScreen17 = this;
-                        raceDesignScreen17.rd = string.Concat(raceDesignScreen17.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1318));
+                        raceDesignScreen17.rd = string.Concat(raceDesignScreen17.rd, Localizer.Token(1317), Plural, Localizer.Token(1318));
                     }
-                    else if (this.RaceSummary.DiplomacyMod >= 0f)
+                    else if (RaceSummary.DiplomacyMod >= 0f)
                     {
                         RaceDesignScreen raceDesignScreen18 = this;
-                        raceDesignScreen18.rd = string.Concat(raceDesignScreen18.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1320));
+                        raceDesignScreen18.rd = string.Concat(raceDesignScreen18.rd, Localizer.Token(1317), Plural, Localizer.Token(1320));
                     }
                     else
                     {
                         RaceDesignScreen raceDesignScreen19 = this;
-                        raceDesignScreen19.rd = string.Concat(raceDesignScreen19.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1319));
+                        raceDesignScreen19.rd = string.Concat(raceDesignScreen19.rd, Localizer.Token(1317), Plural, Localizer.Token(1319));
                     }
                 }
-                else if (this.RaceSummary.GroundCombatModifier >= 0f)
+                else if (RaceSummary.GroundCombatModifier >= 0f)
                 {
-                    if (this.RaceSummary.GroundCombatModifier == 0f)
+                    if (RaceSummary.GroundCombatModifier == 0f)
                     {
-                        if (this.RaceSummary.DiplomacyMod > 0f)
+                        if (RaceSummary.DiplomacyMod > 0f)
                         {
                             RaceDesignScreen raceDesignScreen20 = this;
-                            raceDesignScreen20.rd = string.Concat(raceDesignScreen20.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1324));
+                            raceDesignScreen20.rd = string.Concat(raceDesignScreen20.rd, Localizer.Token(1317), Plural, Localizer.Token(1324));
                         }
-                        else if (this.RaceSummary.DiplomacyMod >= 0f)
+                        else if (RaceSummary.DiplomacyMod >= 0f)
                         {
                             RaceDesignScreen raceDesignScreen21 = this;
-                            raceDesignScreen21.rd = string.Concat(raceDesignScreen21.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1326));
+                            raceDesignScreen21.rd = string.Concat(raceDesignScreen21.rd, Localizer.Token(1317), Plural, Localizer.Token(1326));
                         }
                         else
                         {
                             RaceDesignScreen raceDesignScreen22 = this;
-                            raceDesignScreen22.rd = string.Concat(raceDesignScreen22.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1325));
+                            raceDesignScreen22.rd = string.Concat(raceDesignScreen22.rd, Localizer.Token(1317), Plural, Localizer.Token(1325));
                         }
                     }
                 }
-                else if (this.RaceSummary.DiplomacyMod > 0f)
+                else if (RaceSummary.DiplomacyMod > 0f)
                 {
                     RaceDesignScreen raceDesignScreen23 = this;
-                    raceDesignScreen23.rd = string.Concat(raceDesignScreen23.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1321));
+                    raceDesignScreen23.rd = string.Concat(raceDesignScreen23.rd, Localizer.Token(1317), Plural, Localizer.Token(1321));
                 }
-                else if (this.RaceSummary.DiplomacyMod >= 0f)
+                else if (RaceSummary.DiplomacyMod >= 0f)
                 {
                     RaceDesignScreen raceDesignScreen24 = this;
-                    raceDesignScreen24.rd = string.Concat(raceDesignScreen24.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1323));
+                    raceDesignScreen24.rd = string.Concat(raceDesignScreen24.rd, Localizer.Token(1317), Plural, Localizer.Token(1323));
                 }
                 else
                 {
                     RaceDesignScreen raceDesignScreen25 = this;
-                    raceDesignScreen25.rd = string.Concat(raceDesignScreen25.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1322));
+                    raceDesignScreen25.rd = string.Concat(raceDesignScreen25.rd, Localizer.Token(1317), Plural, Localizer.Token(1322));
                 }
             }
-            else if (this.RaceSummary.GroundCombatModifier > 0f)
+            else if (RaceSummary.GroundCombatModifier > 0f)
             {
-                if (this.RaceSummary.DiplomacyMod > 0f)
+                if (RaceSummary.DiplomacyMod > 0f)
                 {
                     RaceDesignScreen raceDesignScreen26 = this;
-                    raceDesignScreen26.rd = string.Concat(raceDesignScreen26.rd, Localizer.Token(1327), this.Plural, Localizer.Token(1328));
+                    raceDesignScreen26.rd = string.Concat(raceDesignScreen26.rd, Localizer.Token(1327), Plural, Localizer.Token(1328));
                 }
-                else if (this.RaceSummary.DiplomacyMod >= 0f)
+                else if (RaceSummary.DiplomacyMod >= 0f)
                 {
                     RaceDesignScreen raceDesignScreen27 = this;
-                    raceDesignScreen27.rd = string.Concat(raceDesignScreen27.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1330));
+                    raceDesignScreen27.rd = string.Concat(raceDesignScreen27.rd, Localizer.Token(1317), Plural, Localizer.Token(1330));
                 }
                 else
                 {
                     RaceDesignScreen raceDesignScreen28 = this;
-                    raceDesignScreen28.rd = string.Concat(raceDesignScreen28.rd, Localizer.Token(1327), this.Plural, Localizer.Token(1329));
+                    raceDesignScreen28.rd = string.Concat(raceDesignScreen28.rd, Localizer.Token(1327), Plural, Localizer.Token(1329));
                 }
             }
-            else if (this.RaceSummary.GroundCombatModifier >= 0f)
+            else if (RaceSummary.GroundCombatModifier >= 0f)
             {
-                if (this.RaceSummary.GroundCombatModifier == 0f)
+                if (RaceSummary.GroundCombatModifier == 0f)
                 {
-                    if (this.RaceSummary.DiplomacyMod > 0f)
+                    if (RaceSummary.DiplomacyMod > 0f)
                     {
                         RaceDesignScreen raceDesignScreen29 = this;
-                        raceDesignScreen29.rd = string.Concat(raceDesignScreen29.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1334));
+                        raceDesignScreen29.rd = string.Concat(raceDesignScreen29.rd, Localizer.Token(1317), Plural, Localizer.Token(1334));
                     }
-                    else if (this.RaceSummary.DiplomacyMod >= 0f)
+                    else if (RaceSummary.DiplomacyMod >= 0f)
                     {
                         RaceDesignScreen raceDesignScreen30 = this;
-                        raceDesignScreen30.rd = string.Concat(raceDesignScreen30.rd, Localizer.Token(1336), this.Plural, Localizer.Token(1337));
+                        raceDesignScreen30.rd = string.Concat(raceDesignScreen30.rd, Localizer.Token(1336), Plural, Localizer.Token(1337));
                     }
                     else
                     {
                         RaceDesignScreen raceDesignScreen31 = this;
-                        raceDesignScreen31.rd = string.Concat(raceDesignScreen31.rd, Localizer.Token(1327), this.Plural, Localizer.Token(1335));
+                        raceDesignScreen31.rd = string.Concat(raceDesignScreen31.rd, Localizer.Token(1327), Plural, Localizer.Token(1335));
                     }
                 }
             }
-            else if (this.RaceSummary.DiplomacyMod > 0f)
+            else if (RaceSummary.DiplomacyMod > 0f)
             {
                 RaceDesignScreen raceDesignScreen32 = this;
-                raceDesignScreen32.rd = string.Concat(raceDesignScreen32.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1331));
+                raceDesignScreen32.rd = string.Concat(raceDesignScreen32.rd, Localizer.Token(1317), Plural, Localizer.Token(1331));
             }
-            else if (this.RaceSummary.DiplomacyMod >= 0f)
+            else if (RaceSummary.DiplomacyMod >= 0f)
             {
                 RaceDesignScreen raceDesignScreen33 = this;
-                raceDesignScreen33.rd = string.Concat(raceDesignScreen33.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1333));
+                raceDesignScreen33.rd = string.Concat(raceDesignScreen33.rd, Localizer.Token(1317), Plural, Localizer.Token(1333));
             }
             else
             {
                 RaceDesignScreen raceDesignScreen34 = this;
-                raceDesignScreen34.rd = string.Concat(raceDesignScreen34.rd, Localizer.Token(1317), this.Plural, Localizer.Token(1332));
+                raceDesignScreen34.rd = string.Concat(raceDesignScreen34.rd, Localizer.Token(1317), Plural, Localizer.Token(1332));
             }
-            if (this.RaceSummary.GroundCombatModifier < 0f || this.RaceSummary.DiplomacyMod <= 0f)
+            if (RaceSummary.GroundCombatModifier < 0f || RaceSummary.DiplomacyMod <= 0f)
             {
-                if (this.RaceSummary.ResearchMod > 0f)
+                if (RaceSummary.ResearchMod > 0f)
                 {
                     RaceDesignScreen raceDesignScreen35 = this;
-                    raceDesignScreen35.rd = string.Concat(raceDesignScreen35.rd, Localizer.Token(1338), this.Plural, Localizer.Token(1339));
+                    raceDesignScreen35.rd = string.Concat(raceDesignScreen35.rd, Localizer.Token(1338), Plural, Localizer.Token(1339));
                 }
-                else if (this.RaceSummary.ResearchMod >= 0f)
+                else if (RaceSummary.ResearchMod >= 0f)
                 {
                     RaceDesignScreen raceDesignScreen36 = this;
-                    raceDesignScreen36.rd = string.Concat(raceDesignScreen36.rd, this.Plural, Localizer.Token(1342));
+                    raceDesignScreen36.rd = string.Concat(raceDesignScreen36.rd, Plural, Localizer.Token(1342));
                 }
                 else
                 {
                     RaceDesignScreen raceDesignScreen37 = this;
-                    raceDesignScreen37.rd = string.Concat(raceDesignScreen37.rd, Localizer.Token(1340), this.Plural, Localizer.Token(1341));
+                    raceDesignScreen37.rd = string.Concat(raceDesignScreen37.rd, Localizer.Token(1340), Plural, Localizer.Token(1341));
                 }
             }
-            else if (this.RaceSummary.GroundCombatModifier <= 0f && this.RaceSummary.DiplomacyMod <= 0f)
+            else if (RaceSummary.GroundCombatModifier <= 0f && RaceSummary.DiplomacyMod <= 0f)
             {
-                if (this.RaceSummary.ResearchMod > 0f)
+                if (RaceSummary.ResearchMod > 0f)
                 {
                     RaceDesignScreen raceDesignScreen38 = this;
-                    raceDesignScreen38.rd = string.Concat(raceDesignScreen38.rd, this.Plural, Localizer.Token(1344));
+                    raceDesignScreen38.rd = string.Concat(raceDesignScreen38.rd, Plural, Localizer.Token(1344));
                 }
-                else if (this.RaceSummary.ResearchMod >= 0f)
+                else if (RaceSummary.ResearchMod >= 0f)
                 {
                     RaceDesignScreen raceDesignScreen39 = this;
-                    raceDesignScreen39.rd = string.Concat(raceDesignScreen39.rd, this.Plural, Localizer.Token(1342));
+                    raceDesignScreen39.rd = string.Concat(raceDesignScreen39.rd, Plural, Localizer.Token(1342));
                 }
                 else
                 {
                     RaceDesignScreen raceDesignScreen40 = this;
-                    raceDesignScreen40.rd = string.Concat(raceDesignScreen40.rd, this.Plural, Localizer.Token(1341));
+                    raceDesignScreen40.rd = string.Concat(raceDesignScreen40.rd, Plural, Localizer.Token(1341));
                 }
             }
-            else if (this.RaceSummary.ResearchMod > 0f)
+            else if (RaceSummary.ResearchMod > 0f)
             {
                 RaceDesignScreen raceDesignScreen41 = this;
-                raceDesignScreen41.rd = string.Concat(raceDesignScreen41.rd, Localizer.Token(1343), this.Plural, Localizer.Token(1344));
+                raceDesignScreen41.rd = string.Concat(raceDesignScreen41.rd, Localizer.Token(1343), Plural, Localizer.Token(1344));
             }
-            else if (this.RaceSummary.ResearchMod >= 0f)
+            else if (RaceSummary.ResearchMod >= 0f)
             {
                 RaceDesignScreen raceDesignScreen42 = this;
-                raceDesignScreen42.rd = string.Concat(raceDesignScreen42.rd, this.Plural, Localizer.Token(1342));
+                raceDesignScreen42.rd = string.Concat(raceDesignScreen42.rd, Plural, Localizer.Token(1342));
             }
             else
             {
                 RaceDesignScreen raceDesignScreen43 = this;
-                raceDesignScreen43.rd = string.Concat(raceDesignScreen43.rd, this.Plural, Localizer.Token(1341));
+                raceDesignScreen43.rd = string.Concat(raceDesignScreen43.rd, Plural, Localizer.Token(1341));
             }
             RaceDesignScreen raceDesignScreen44 = this;
             raceDesignScreen44.rd = string.Concat(raceDesignScreen44.rd, "\n \n");
-            if (this.RaceSummary.TaxMod > 0f)
+            if (RaceSummary.TaxMod > 0f)
             {
                 RaceDesignScreen raceDesignScreen45 = this;
-                raceDesignScreen45.rd = string.Concat(raceDesignScreen45.rd, this.Singular, Localizer.Token(1345));
-                if (this.RaceSummary.MaintMod < 0f)
+                raceDesignScreen45.rd = string.Concat(raceDesignScreen45.rd, Singular, Localizer.Token(1345));
+                if (RaceSummary.MaintMod < 0f)
                 {
                     RaceDesignScreen raceDesignScreen46 = this;
-                    raceDesignScreen46.rd = string.Concat(raceDesignScreen46.rd, Localizer.Token(1346), this.Plural, ". ");
+                    raceDesignScreen46.rd = string.Concat(raceDesignScreen46.rd, Localizer.Token(1346), Plural, ". ");
                 }
-                else if (this.RaceSummary.MaintMod <= 0f)
+                else if (RaceSummary.MaintMod <= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen47 = this;
-                    raceDesignScreen47.rd = string.Concat(raceDesignScreen47.rd, Localizer.Token(1348));
+                    rd += Localizer.Token(1348);
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen48 = this;
-                    raceDesignScreen48.rd = string.Concat(raceDesignScreen48.rd, Localizer.Token(1347));
+                    rd += Localizer.Token(1347);
                 }
             }
-            else if (this.RaceSummary.TaxMod >= 0f)
+            else if (RaceSummary.TaxMod >= 0f)
             {
                 RaceDesignScreen raceDesignScreen49 = this;
-                raceDesignScreen49.rd = string.Concat(raceDesignScreen49.rd, this.Singular, Localizer.Token(1354));
-                if (this.RaceSummary.MaintMod < 0f)
+                raceDesignScreen49.rd = string.Concat(raceDesignScreen49.rd, Singular, Localizer.Token(1354));
+                if (RaceSummary.MaintMod < 0f)
                 {
                     RaceDesignScreen raceDesignScreen50 = this;
-                    raceDesignScreen50.rd = string.Concat(raceDesignScreen50.rd, Localizer.Token(1355), this.Singular, Localizer.Token(1356));
+                    raceDesignScreen50.rd = string.Concat(raceDesignScreen50.rd, Localizer.Token(1355), Singular, Localizer.Token(1356));
                 }
-                else if (this.RaceSummary.MaintMod > 0f)
+                else if (RaceSummary.MaintMod > 0f)
                 {
                     RaceDesignScreen raceDesignScreen51 = this;
-                    raceDesignScreen51.rd = string.Concat(raceDesignScreen51.rd, this.Plural, Localizer.Token(1357));
+                    raceDesignScreen51.rd = string.Concat(raceDesignScreen51.rd, Plural, Localizer.Token(1357));
                 }
             }
             else
             {
                 RaceDesignScreen raceDesignScreen52 = this;
-                raceDesignScreen52.rd = string.Concat(raceDesignScreen52.rd, Localizer.Token(1349), this.Singular, Localizer.Token(1350));
-                if (this.RaceSummary.MaintMod < 0f)
+                raceDesignScreen52.rd = string.Concat(raceDesignScreen52.rd, Localizer.Token(1349), Singular, Localizer.Token(1350));
+                if (RaceSummary.MaintMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen53 = this;
-                    raceDesignScreen53.rd = string.Concat(raceDesignScreen53.rd, Localizer.Token(1351));
+                    rd += Localizer.Token(1351);
                 }
-                else if (this.RaceSummary.MaintMod <= 0f)
+                else if (RaceSummary.MaintMod <= 0f)
                 {
                     RaceDesignScreen raceDesignScreen54 = this;
-                    raceDesignScreen54.rd = string.Concat(raceDesignScreen54.rd, ", ", this.Plural, Localizer.Token(1353));
+                    raceDesignScreen54.rd = string.Concat(raceDesignScreen54.rd, ", ", Plural, Localizer.Token(1353));
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen55 = this;
-                    raceDesignScreen55.rd = string.Concat(raceDesignScreen55.rd, Localizer.Token(1352));
+                    rd += Localizer.Token(1352);
                 }
             }
-            if (this.RaceSummary.ProductionMod > 0f)
+            if (RaceSummary.ProductionMod > 0f)
             {
                 RaceDesignScreen raceDesignScreen56 = this;
-                raceDesignScreen56.rd = string.Concat(raceDesignScreen56.rd, this.Singular, Localizer.Token(1358));
-                if (this.RaceSummary.ModHpModifier > 0f)
+                raceDesignScreen56.rd = string.Concat(raceDesignScreen56.rd, Singular, Localizer.Token(1358));
+                if (RaceSummary.ModHpModifier > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen57 = this;
-                    raceDesignScreen57.rd = string.Concat(raceDesignScreen57.rd, Localizer.Token(1359));
+                    rd += Localizer.Token(1359);
                 }
-                else if (this.RaceSummary.ModHpModifier >= 0f)
+                else if (RaceSummary.ModHpModifier >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen58 = this;
-                    raceDesignScreen58.rd = string.Concat(raceDesignScreen58.rd, Localizer.Token(1361));
+                    rd += Localizer.Token(1361);
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen59 = this;
-                    raceDesignScreen59.rd = string.Concat(raceDesignScreen59.rd, Localizer.Token(1360));
+                    rd += Localizer.Token(1360);
                 }
             }
-            else if (this.RaceSummary.ProductionMod >= 0f)
+            else if (RaceSummary.ProductionMod >= 0f)
             {
                 RaceDesignScreen raceDesignScreen60 = this;
-                raceDesignScreen60.rd = string.Concat(raceDesignScreen60.rd, this.Plural, Localizer.Token(1366));
-                if (this.RaceSummary.ModHpModifier > 0f)
+                raceDesignScreen60.rd = string.Concat(raceDesignScreen60.rd, Plural, Localizer.Token(1366));
+                if (RaceSummary.ModHpModifier > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen61 = this;
-                    raceDesignScreen61.rd = string.Concat(raceDesignScreen61.rd, Localizer.Token(1367));
+                    rd += Localizer.Token(1367);
                 }
-                else if (this.RaceSummary.ModHpModifier >= 0f)
+                else if (RaceSummary.ModHpModifier >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen62 = this;
-                    raceDesignScreen62.rd = string.Concat(raceDesignScreen62.rd, Localizer.Token(1369));
+                    rd += Localizer.Token(1369);
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen63 = this;
-                    raceDesignScreen63.rd = string.Concat(raceDesignScreen63.rd, Localizer.Token(1368));
+                    rd += Localizer.Token(1368);
                 }
             }
             else
             {
                 RaceDesignScreen raceDesignScreen64 = this;
-                raceDesignScreen64.rd = string.Concat(raceDesignScreen64.rd, this.Plural, Localizer.Token(1362));
-                if (this.RaceSummary.ModHpModifier > 0f)
+                raceDesignScreen64.rd = string.Concat(raceDesignScreen64.rd, Plural, Localizer.Token(1362));
+                if (RaceSummary.ModHpModifier > 0f)
                 {
-                    RaceDesignScreen raceDesignScreen65 = this;
-                    raceDesignScreen65.rd = string.Concat(raceDesignScreen65.rd, Localizer.Token(1363));
+                    rd += Localizer.Token(1363);
                 }
-                else if (this.RaceSummary.ModHpModifier >= 0f)
+                else if (RaceSummary.ModHpModifier >= 0f)
                 {
-                    RaceDesignScreen raceDesignScreen66 = this;
-                    raceDesignScreen66.rd = string.Concat(raceDesignScreen66.rd, Localizer.Token(1365));
+                    rd += Localizer.Token(1365);
                 }
                 else
                 {
-                    RaceDesignScreen raceDesignScreen67 = this;
-                    raceDesignScreen67.rd = string.Concat(raceDesignScreen67.rd, Localizer.Token(1364));
+                    rd += Localizer.Token(1364);
                 }
             }
-            if (this.RaceSummary.SpyMultiplier > 0f)
+            if (RaceSummary.SpyMultiplier > 0f)
             {
                 RaceDesignScreen raceDesignScreen68 = this;
-                raceDesignScreen68.rd = string.Concat(raceDesignScreen68.rd, this.Plural, Localizer.Token(1381));
+                raceDesignScreen68.rd = string.Concat(raceDesignScreen68.rd, Plural, Localizer.Token(1381));
             }
-            else if (this.RaceSummary.SpyMultiplier < 0f)
+            else if (RaceSummary.SpyMultiplier < 0f)
             {
                 RaceDesignScreen raceDesignScreen69 = this;
-                raceDesignScreen69.rd = string.Concat(raceDesignScreen69.rd, this.Plural, Localizer.Token(1382));
+                raceDesignScreen69.rd = string.Concat(raceDesignScreen69.rd, Plural, Localizer.Token(1382));
             }
-            if (this.RaceSummary.Spiritual > 0f)
+            if (RaceSummary.Spiritual > 0f)
             {
-                RaceDesignScreen raceDesignScreen70 = this;
-                raceDesignScreen70.rd = string.Concat(raceDesignScreen70.rd, Localizer.Token(1383));
+                rd += Localizer.Token(1383);
             }
             RaceDesignScreen raceDesignScreen71 = this;
             raceDesignScreen71.rd = string.Concat(raceDesignScreen71.rd, "\n \n");
-            if (this.RaceSummary.HomeworldSizeMod > 0f)
+            if (RaceSummary.HomeworldSizeMod > 0f)
             {
                 RaceDesignScreen raceDesignScreen72 = this;
                 string str1 = raceDesignScreen72.rd;
-                string[] strArrays = new string[] { str1, Localizer.Token(1370), this.Singular, Localizer.Token(1371), this.HomeWorldName, Localizer.Token(1372) };
+                string[] strArrays = new string[] { str1, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1372) };
                 raceDesignScreen72.rd = string.Concat(strArrays);
-                if (this.RaceSummary.HomeworldFertMod < 0f)
+                if (RaceSummary.HomeworldFertMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen73 = this;
-                    raceDesignScreen73.rd = string.Concat(raceDesignScreen73.rd, Localizer.Token(1373));
+                    rd += Localizer.Token(1373);
                 }
             }
-            else if (this.RaceSummary.HomeworldSizeMod >= 0f)
+            else if (RaceSummary.HomeworldSizeMod >= 0f)
             {
                 RaceDesignScreen raceDesignScreen74 = this;
                 string str2 = raceDesignScreen74.rd;
-                string[] strArrays1 = new string[] { str2, Localizer.Token(1370), this.Singular, Localizer.Token(1371), this.HomeWorldName, Localizer.Token(1375) };
+                string[] strArrays1 = new string[] { str2, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1375) };
                 raceDesignScreen74.rd = string.Concat(strArrays1);
-                if (this.RaceSummary.HomeworldFertMod < 0f)
+                if (RaceSummary.HomeworldFertMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen75 = this;
-                    raceDesignScreen75.rd = string.Concat(raceDesignScreen75.rd, Localizer.Token(1373));
+                    rd += Localizer.Token(1373);
                 }
             }
             else
             {
                 RaceDesignScreen raceDesignScreen76 = this;
                 string str3 = raceDesignScreen76.rd;
-                string[] strArrays2 = new string[] { str3, Localizer.Token(1370), this.Singular, Localizer.Token(1371), this.HomeWorldName, Localizer.Token(1374) };
+                string[] strArrays2 = new string[] { str3, Localizer.Token(1370), Singular, Localizer.Token(1371), HomeWorldName, Localizer.Token(1374) };
                 raceDesignScreen76.rd = string.Concat(strArrays2);
-                if (this.RaceSummary.HomeworldFertMod < 0f)
+                if (RaceSummary.HomeworldFertMod < 0f)
                 {
-                    RaceDesignScreen raceDesignScreen77 = this;
-                    raceDesignScreen77.rd = string.Concat(raceDesignScreen77.rd, Localizer.Token(1373));
+                    rd += Localizer.Token(1373);
                 }
             }
-            if (this.RaceSummary.BonusExplored > 0)
+            if (RaceSummary.BonusExplored > 0)
             {
-                RaceDesignScreen raceDesignScreen78 = this;
-                raceDesignScreen78.rd = string.Concat(raceDesignScreen78.rd, Localizer.Token(1376));
+                rd += Localizer.Token(1376);
             }
-            if (this.RaceSummary.Militaristic > 0)
+            if (RaceSummary.Militaristic > 0)
             {
-                RaceDesignScreen raceDesignScreen79 = this;
-                raceDesignScreen79.rd = string.Concat(raceDesignScreen79.rd, Localizer.Token(1377));
-                if (this.RaceSummary.ShipCostMod < 0f)
+                rd += Localizer.Token(1377);
+                if (RaceSummary.ShipCostMod < 0f)
                 {
                     RaceDesignScreen raceDesignScreen80 = this;
-                    raceDesignScreen80.rd = string.Concat(raceDesignScreen80.rd, Localizer.Token(1378), this.Singular, Localizer.Token(1379));
+                    raceDesignScreen80.rd = string.Concat(raceDesignScreen80.rd, Localizer.Token(1378), Singular, Localizer.Token(1379));
                 }
             }
-            else if (this.RaceSummary.ShipCostMod < 0f)
+            else if (RaceSummary.ShipCostMod < 0f)
             {
                 RaceDesignScreen raceDesignScreen81 = this;
-                raceDesignScreen81.rd = string.Concat(raceDesignScreen81.rd, this.Plural, Localizer.Token(1380));
+                raceDesignScreen81.rd = string.Concat(raceDesignScreen81.rd, Plural, Localizer.Token(1380));
             }
             DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(this.rd, (float)(this.Description.Menu.Width - 50), Fonts.Arial12, ref this.DescriptionSL);
+            HelperFunctions.parseTextToSL(rd, (float)(Description.Menu.Width - 50), Fonts.Arial12, ref DescriptionSL);
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
-            float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
-            Rectangle r = this.ChooseRaceMenu.Menu;
-            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.SpriteBatch.Begin();
+            float transitionOffset = (float)Math.Pow((double)TransitionPosition, 2);
+            Rectangle r = ChooseRaceMenu.Menu;
+            if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
             {
                 r.X = r.X - (int)(transitionOffset * 256f);
             }
-            this.ChooseRaceMenu.Update(r);
-            this.ChooseRaceMenu.subMenu = null;
-            this.ChooseRaceMenu.Draw();
-            this.RaceArchetypeSL.TransitionUpdate(r);
-            this.RaceArchetypeSL.Draw(base.ScreenManager.SpriteBatch);
-            r = this.dslrect;
-            if (base.ScreenState == Ship_Game.ScreenState.TransitionOn || base.ScreenState == Ship_Game.ScreenState.TransitionOff)
+            ChooseRaceMenu.Update(r);
+            ChooseRaceMenu.subMenu = null;
+            ChooseRaceMenu.Draw();
+            RaceArchetypeSL.TransitionUpdate(r);
+            RaceArchetypeSL.Draw(ScreenManager.SpriteBatch);
+            r = dslrect;
+            if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
             {
                 r.X = r.X + (int)(transitionOffset * 256f);
             }
-            this.DescriptionSL.TransitionUpdate(r);
-            if (!base.IsExiting)
+            DescriptionSL.TransitionUpdate(r);
+            if (!IsExiting)
             {
                 var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Menu.Y + 10);
                 
@@ -942,60 +898,60 @@ namespace Ship_Game
 
             GameTime gameTime = Game1.Instance.GameTime;
 
-            this.Name.Draw();
+            Name.Draw();
             Color c = new Color(255, 239, 208);
-            this.NameSub.Draw();
-            base.ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.BurlyWood);
-            Vector2 rpos = this.RaceNamePos;
+            NameSub.Draw();
+            ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
+            Vector2 rpos = RaceNamePos;
             rpos.X = rpos.X + 205f;
-            if (!this.RaceName.HandlingInput)
+            if (!RaceName.HandlingInput)
             {
-                this.RaceName.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.RaceName.Hover ? Color.White : c));
+                RaceName.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (RaceName.Hover ? Color.White : c));
             }
             else
             {
-                this.RaceName.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                RaceName.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
             }
-            this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            rpos.X = this.RaceNamePos.X;
+            RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+            rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-            base.ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
-            if (!this.SingEntry.HandlingInput)
+            if (!SingEntry.HandlingInput)
             {
-                this.SingEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.SingEntry.Hover ? Color.White : c));
+                SingEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (SingEntry.Hover ? Color.White : c));
             }
             else
             {
-                this.SingEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                SingEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
             }
-            this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            rpos.X = this.RaceNamePos.X;
+            SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+            rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-            base.ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
-            if (!this.PlurEntry.HandlingInput)
+            if (!PlurEntry.HandlingInput)
             {
-                this.PlurEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.PlurEntry.Hover ? Color.White : c));
+                PlurEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (PlurEntry.Hover ? Color.White : c));
             }
             else
             {
-                this.PlurEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                PlurEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
             }
-            this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            rpos.X = this.RaceNamePos.X;
+            PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+            rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-            base.ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
-            if (!this.HomeSystemEntry.HandlingInput)
+            if (!HomeSystemEntry.HandlingInput)
             {
-                this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, (this.HomeSystemEntry.Hover ? Color.White : c));
+                HomeSystemEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, (HomeSystemEntry.Hover ? Color.White : c));
             }
             else
             {
-                this.HomeSystemEntry.Draw(Fonts.Arial14Bold, base.ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
+                HomeSystemEntry.Draw(Fonts.Arial14Bold, ScreenManager.SpriteBatch, rpos, gameTime, Color.BurlyWood);
             }
-            HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
+            HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
             FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
             KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[FlagIndex];
@@ -1025,7 +981,7 @@ namespace Ship_Game
             }
             rpos = drawCurs;
             rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", this.TotalPointsUsed), rpos, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", TotalPointsUsed), rpos, Color.White);
             rpos.Y += (Fonts.Arial14Bold.LineSpacing + 8);
             int numTraits = 0;
             foreach (TraitEntry t in AllTraits)
@@ -1061,7 +1017,7 @@ namespace Ship_Game
                         var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
                         string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
                         var drawColor = new Color(95, 95, 95, 95);
-                        while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
+                        while (Fonts.Arial14Bold.MeasureString(name).X < (float)(Traits.Menu.Width - 70))
                         {
                             name = string.Concat(name, " .");
                         }
@@ -1077,16 +1033,16 @@ namespace Ship_Game
                         {
                             drawColor = drawColor = new Color(95, 95, 95, 95);
                         }
-                        else if (this.TotalPointsUsed >= 0 && this.TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
+                        else if (TotalPointsUsed >= 0 && TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
                         {
                             drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
                         }
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
                         Vector2 curs = bCursor;
-                        curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+                        curs.X = curs.X + ((float)(Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(Traits.Menu.Width - 45)), tCursor, drawColor);
                         
                         e.DrawPlus(ScreenManager.SpriteBatch);
                     }
@@ -1096,7 +1052,7 @@ namespace Ship_Game
                         Vector2 tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
                         string name = Localizer.Token((e.item as TraitEntry).trait.TraitName);
                         Color drawColor = new Color(95, 95, 95, 95);
-                        while (Fonts.Arial14Bold.MeasureString(name).X < (float)(this.Traits.Menu.Width - 70))
+                        while (Fonts.Arial14Bold.MeasureString(name).X < (float)(Traits.Menu.Width - 70))
                         {
                             name = string.Concat(name, " .");
                         }
@@ -1112,38 +1068,38 @@ namespace Ship_Game
                         {
                             drawColor = new Color(95, 95, 95, 95);
                         }
-                        else if (this.TotalPointsUsed >= 0 && this.TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
+                        else if (TotalPointsUsed >= 0 && TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
                         {
                             drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
                         }
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
                         Vector2 curs = bCursor;
-                        curs.X = curs.X + ((float)(this.Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
+                        curs.X = curs.X + ((float)(Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
-                        base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(this.Traits.Menu.Width - 45)), tCursor, drawColor);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), (float)(Traits.Menu.Width - 45)), tCursor, drawColor);
                         e.DrawPlus(ScreenManager.SpriteBatch);
                     }
 
-                    e.CheckHover(currentMouse);
+                    e.CheckHover(Input.CursorPosition);
                 }
             }
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2((float)this.GalaxySizeRect.X, (float)this.GalaxySizeRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Galaxysize.ToString(), new Vector2((float)(this.GalaxySizeRect.X + 190) - Fonts.Arial12.MeasureString(this.Galaxysize.ToString()).X, (float)this.GalaxySizeRect.Y), Color.BurlyWood);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2((float)this.NumberStarsRect.X, (float)this.NumberStarsRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.StarEnum.ToString(), new Vector2((float)(this.NumberStarsRect.X + 190) - Fonts.Arial12.MeasureString(this.StarEnum.ToString()).X, (float)this.NumberStarsRect.Y), Color.BurlyWood);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2((float)this.NumOpponentsRect.X, (float)this.NumOpponentsRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.numOpponents.ToString(), new Vector2((float)(this.NumOpponentsRect.X + 190) - Fonts.Arial12.MeasureString(this.numOpponents.ToString()).X, (float)this.NumOpponentsRect.Y), Color.BurlyWood);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2((float)this.GameModeRect.X, (float)this.GameModeRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2((float)this.PacingRect.X, (float)this.PacingRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.BurlyWood);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2((float)GalaxySizeRect.X, (float)GalaxySizeRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Galaxysize.ToString(), new Vector2((float)(GalaxySizeRect.X + 190) - Fonts.Arial12.MeasureString(Galaxysize.ToString()).X, (float)GalaxySizeRect.Y), Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2((float)NumberStarsRect.X, (float)NumberStarsRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, StarEnum.ToString(), new Vector2((float)(NumberStarsRect.X + 190) - Fonts.Arial12.MeasureString(StarEnum.ToString()).X, (float)NumberStarsRect.Y), Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2((float)NumOpponentsRect.X, (float)NumOpponentsRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, numOpponents.ToString(), new Vector2((float)(NumOpponentsRect.X + 190) - Fonts.Arial12.MeasureString(numOpponents.ToString()).X, (float)NumOpponentsRect.Y), Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2((float)GameModeRect.X, (float)GameModeRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2((float)PacingRect.X, (float)PacingRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Pacing.ToString(), "%"), new Vector2((float)(PacingRect.X + 190) - Fonts.Arial12.MeasureString(string.Concat(Pacing.ToString(), "%")).X, (float)PacingRect.Y), Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)DifficultyRect.X, (float)DifficultyRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, difficulty.ToString(), new Vector2((float)(DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(difficulty.ToString()).X, (float)DifficultyRect.Y), Color.BurlyWood);
 
             //Added by Gretman
             string ExtraRemnantString = string.Concat(Localizer.Token(4101), " : ");
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2((float)(this.ExtraRemnantRect.X), (float)this.ExtraRemnantRect.Y), Color.White);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.ExtraRemnant.ToString(), new Vector2((float)(this.ExtraRemnantRect.X + 190) - Fonts.Arial12.MeasureString(this.ExtraRemnant.ToString()).X, (float)this.ExtraRemnantRect.Y), Color.BurlyWood);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2((float)(ExtraRemnantRect.X), (float)ExtraRemnantRect.Y), Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnant.ToString(), new Vector2((float)(ExtraRemnantRect.X + 190) - Fonts.Arial12.MeasureString(ExtraRemnant.ToString()).X, (float)ExtraRemnantRect.Y), Color.BurlyWood);
 
             string txt = "";
             int tip = 0;
@@ -1158,32 +1114,32 @@ namespace Ship_Game
             //    }
             //}
             //else 
-                if (this.mode == RaceDesignScreen.GameMode.Sandbox)
+                if (mode == GameMode.Sandbox)
             {
                 txt = Localizer.Token(2103);
                 tip = 112;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)GameModeRect.Y), Color.BurlyWood);
+                if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
                 }
             }
-            else if (this.mode == RaceDesignScreen.GameMode.Elimination)
+            else if (mode == GameMode.Elimination)
             {
                 txt = Localizer.Token(6093);
                 tip = 165;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)GameModeRect.Y), Color.BurlyWood);
+                if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
                 }
             }
-            else if (this.mode == RaceDesignScreen.GameMode.Corners)    //Added by Gretman
+            else if (mode == GameMode.Corners)    //Added by Gretman
             {
                 txt = Localizer.Token(4102);
                 tip = 229;
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
-                if (this.GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)GameModeRect.Y), Color.BurlyWood);
+                if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
                 }
@@ -1198,144 +1154,97 @@ namespace Ship_Game
             //        ToolTip.CreateTooltip(tip, base.ScreenManager);
             //    }
             //}
-            if (this.ScaleRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (ScaleRect.HitTest(Input.CursorPosition))
             {
                 ToolTip.CreateTooltip(125);
             }
-            if (this.PacingRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (PacingRect.HitTest(Input.CursorPosition))
             {
                 ToolTip.CreateTooltip(126);
             }
-            foreach (UIButton b in this.Buttons)
+
+            selector?.Draw(batch);
+            if (DrawingColorSelector)
             {
-                b.Draw(base.ScreenManager.SpriteBatch);
+                DrawColorSelector();
             }
-            if (this.selector != null)
+            base.Draw(batch);
+            if (IsActive)
             {
-                this.selector.Draw(ScreenManager.SpriteBatch);
+                ToolTip.Draw(batch);
             }
-            if (this.DrawingColorSelector)
-            {
-                this.DrawColorSelector();
-            }
-            this.RulesOptions.Draw(base.ScreenManager.SpriteBatch);
-            if (base.IsActive)
-            {
-                ToolTip.Draw(ScreenManager.SpriteBatch);
-            }
-            base.ScreenManager.SpriteBatch.End();
+            batch.End();
         }
 
         protected void DrawColorSelector()
         {
-            this.ColorSelectMenu.Draw();
-            int yPosition = this.ColorSelector.Y + 20;
-            int xPositionStart = this.ColorSelector.X + 20;
+            ColorSelectMenu.Draw();
+            int yPosition = ColorSelector.Y + 20;
+            int xPositionStart = ColorSelector.X + 20;
             for (int i = 0; i <= 255; i++)
             {
                 for (int j = 0; j <= 255; j++)
                 {
-                    Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), this.currentObjectColor.B);
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), thisColor);
-                    if (thisColor.R == this.currentObjectColor.R && thisColor.G == this.currentObjectColor.G)
+                    Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), currentObjectColor.B);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), thisColor);
+                    if (thisColor.R == currentObjectColor.R && thisColor.G == currentObjectColor.G)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), Color.Red);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), Color.Red);
                     }
                 }
                 yPosition = yPosition + 2;
             }
-            yPosition = this.ColorSelector.Y + 10;
+            yPosition = ColorSelector.Y + 10;
             for (int i = 0; i <= 255; i++)
             {
-                Color thisColor = new Color(this.currentObjectColor.R, this.currentObjectColor.G, Convert.ToByte(i));
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2), thisColor);
-                if (thisColor.B == this.currentObjectColor.B)
+                Color thisColor = new Color(currentObjectColor.R, currentObjectColor.G, Convert.ToByte(i));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2), thisColor);
+                if (thisColor.B == currentObjectColor.B)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2), Color.Red);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2), Color.Red);
                 }
                 yPosition = yPosition + 2;
             }
         }
 
-        
+        private void OnEngageClicked(UIButton b)
+        {
+            OnEngage();
+        }
+        private void OnRuleOptionsClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new RuleOptionsScreen(this));
+        }
+        private void OnAbortClicked(UIButton b)
+        {
+            ExitScreen();
+        }
+        private void OnClearClicked(UIButton b)
+        {
+            foreach (TraitEntry trait in AllTraits)
+                trait.Selected = false;
+            TotalPointsUsed = 8;
+        }
+        private void OnLoadRaceClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new LoadRaceScreen(this));
+        }
+        private void OnSaveRaceClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new SaveRaceScreen(this, GetRacialTraits()));
+        }
+        private void OnLoadSetupClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new LoadSetupScreen(this));
+        }
+        private void OnSaveSetupClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new SaveSetupScreen(this, difficulty, StarEnum, Galaxysize, Pacing,
+                ExtraRemnant, numOpponents, mode));
+        }
+
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = Mouse.GetState();
-            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(mousePos))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                    {
-                        GameAudio.PlaySfxAsync("mouse_over4");
-                    }
-                    b.State = UIButton.PressState.Hover;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
-                    {
-                        continue;
-                    }
-                    string launches = b.Launches;
-                    string str = launches;
-                    if (launches == null)
-                    {
-                        continue;
-                    }
-                    if (str == "Engage")
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        this.OnEngage();
-                        return true;
-                    }
-                    else if (str == "Rule Options")
-                    {
-                        base.ScreenManager.AddScreen(new RuleOptionsScreen(this));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                    }
-                    else if (str == "Abort")
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        this.ExitScreen();
-                        
-                    }
-                    else if (str == "Clear")
-                    {
-                        foreach (TraitEntry trait in this.AllTraits)
-                        {
-                            trait.Selected = false;
-                        }
-                        this.TotalPointsUsed = 8;
-                    }
-                    else if (str == "LoadRace")
-                    {
-                        base.ScreenManager.AddScreen(new LoadRaceScreen(this));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                    }
-                    else if (str == "SaveRace")
-                    {
-                        base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetRacialTraits()));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                    }
-                    else if (str == "LoadSetup")
-                    {
-                        base.ScreenManager.AddScreen(new LoadSetupScreen(this));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                    }
-                    else if (str == "SaveSetup")
-                    {
-                        base.ScreenManager.AddScreen(new SaveSetupScreen(this, this.difficulty, this.StarEnum, this.Galaxysize, this.Pacing, this.ExtraRemnant, this.numOpponents, this.mode));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                    }
-                }
-            }
             DescriptionSL.HandleInput(input);
             if (!DrawingColorSelector)
             {
@@ -1349,79 +1258,79 @@ namespace Ship_Game
                         SetEmpireData(SelectedData.Traits);
                     }
                 }
-                this.RaceArchetypeSL.HandleInput(input);
-                this.Traits.HandleInput(this);
-                if (!this.RaceName.ClickableArea.HitTest(mousePos))
+                RaceArchetypeSL.HandleInput(input);
+                Traits.HandleInput(this);
+                if (!RaceName.ClickableArea.HitTest(input.CursorPosition))
                 {
-                    this.RaceName.Hover = false;
+                    RaceName.Hover = false;
                 }
                 else
                 {
-                    this.RaceName.Hover = true;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    RaceName.Hover = true;
+                    if (input.LeftMouseClick && !SingEntry.HandlingInput && !PlurEntry.HandlingInput && !HomeSystemEntry.HandlingInput)
                     {
-                        this.RaceName.HandlingInput = true;
+                        RaceName.HandlingInput = true;
                     }
                 }
-                if (!this.SingEntry.ClickableArea.HitTest(mousePos))
+                if (!SingEntry.ClickableArea.HitTest(input.CursorPosition))
                 {
-                    this.SingEntry.Hover = false;
+                    SingEntry.Hover = false;
                 }
                 else
                 {
-                    this.SingEntry.Hover = true;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.PlurEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    SingEntry.Hover = true;
+                    if (input.LeftMouseClick && !RaceName.HandlingInput && !PlurEntry.HandlingInput && !HomeSystemEntry.HandlingInput)
                     {
-                        this.SingEntry.HandlingInput = true;
+                        SingEntry.HandlingInput = true;
                     }
                 }
-                if (!this.PlurEntry.ClickableArea.HitTest(mousePos))
+                if (!PlurEntry.ClickableArea.HitTest(input.CursorPosition))
                 {
-                    this.PlurEntry.Hover = false;
+                    PlurEntry.Hover = false;
                 }
                 else
                 {
-                    this.PlurEntry.Hover = true;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.HomeSystemEntry.HandlingInput)
+                    PlurEntry.Hover = true;
+                    if (input.LeftMouseClick && !RaceName.HandlingInput && !SingEntry.HandlingInput && !HomeSystemEntry.HandlingInput)
                     {
-                        this.PlurEntry.HandlingInput = true;
+                        PlurEntry.HandlingInput = true;
                     }
                 }
-                if (!this.HomeSystemEntry.ClickableArea.HitTest(mousePos))
+                if (!HomeSystemEntry.ClickableArea.HitTest(input.CursorPosition))
                 {
-                    this.HomeSystemEntry.Hover = false;
+                    HomeSystemEntry.Hover = false;
                 }
                 else
                 {
-                    this.HomeSystemEntry.Hover = true;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && !this.RaceName.HandlingInput && !this.SingEntry.HandlingInput && !this.PlurEntry.HandlingInput)
+                    HomeSystemEntry.Hover = true;
+                    if (input.LeftMouseClick && !RaceName.HandlingInput && !SingEntry.HandlingInput && !PlurEntry.HandlingInput)
                     {
-                        this.HomeSystemEntry.HandlingInput = true;
+                        HomeSystemEntry.HandlingInput = true;
                     }
                 }
-                if (this.RaceName.HandlingInput)
+                if (RaceName.HandlingInput)
                 {
-                    this.RaceName.HandleTextInput(ref this.RaceName.Text, input);
+                    RaceName.HandleTextInput(ref RaceName.Text, input);
                 }
-                if (this.SingEntry.HandlingInput)
+                if (SingEntry.HandlingInput)
                 {
-                    this.SingEntry.HandleTextInput(ref this.SingEntry.Text, input);
+                    SingEntry.HandleTextInput(ref SingEntry.Text, input);
                 }
-                if (this.PlurEntry.HandlingInput)
+                if (PlurEntry.HandlingInput)
                 {
-                    this.PlurEntry.HandleTextInput(ref this.PlurEntry.Text, input);
+                    PlurEntry.HandleTextInput(ref PlurEntry.Text, input);
                 }
-                if (this.HomeSystemEntry.HandlingInput)
+                if (HomeSystemEntry.HandlingInput)
                 {
-                    this.HomeSystemEntry.HandleTextInput(ref this.HomeSystemEntry.Text, input);
+                    HomeSystemEntry.HandleTextInput(ref HomeSystemEntry.Text, input);
                 }
-                this.traitsSL.HandleInput(input);
+                traitsSL.HandleInput(input);
                 foreach (ScrollList.Entry f in traitsSL.VisibleEntries)
                 {
-                    if (!f.CheckHover(mousePos))
+                    if (!f.CheckHover(input.CursorPosition))
                         continue;
 
-                    this.selector = f.CreateSelector();
+                    selector = f.CreateSelector();
                     var t = f.Get<TraitEntry>();
                     if (input.LeftMouseClick)
                     {
@@ -1435,7 +1344,7 @@ namespace Ship_Game
                                 if (t.trait.Excludes == ex.trait.TraitName)
                                     ex.Excluded = false;
                         }
-                        else if (this.TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
+                        else if (TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
                         {
                             GameAudio.PlaySfxAsync("UI_Misc20");
                         }
@@ -1459,41 +1368,41 @@ namespace Ship_Game
                                 }
                             }
                         }
-                        this.DoRaceDescription();
+                        DoRaceDescription();
                     }
                 }
-                if (this.GalaxySizeRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     RaceDesignScreen galaxysize = this;
-                    galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
-                    if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
+                    galaxysize.Galaxysize = (GalSize)((int)galaxysize.Galaxysize + (int)GalSize.Small);
+                    if (Galaxysize > GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
                     {
-                        this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
+                        Galaxysize = GalSize.Tiny;
                     }
                 }
-                if (this.GameModeRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (GameModeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     //RaceDesignScreen gamemode = this;
-                    this.mode = (RaceDesignScreen.GameMode)this.mode + 1;
-                    if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3;
-                    if (this.mode > RaceDesignScreen.GameMode.Corners)  //Updated by Gretman
+                    mode = (GameMode)mode + 1;
+                    if (mode == GameMode.Corners) numOpponents = 3;
+                    if (mode > GameMode.Corners)  //Updated by Gretman
                     {
-                        this.mode = RaceDesignScreen.GameMode.Sandbox;
+                        mode = GameMode.Sandbox;
                     }
                 }
-                if (this.NumberStarsRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (NumberStarsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.PlaySfxAsync("blip_click");
                     RaceDesignScreen starEnum = this;
-                    starEnum.StarEnum = (RaceDesignScreen.StarNum)((int)starEnum.StarEnum + (int)RaceDesignScreen.StarNum.Rare);
-                    if (this.StarEnum > RaceDesignScreen.StarNum.SuperPacked)
+                    starEnum.StarEnum = (StarNum)((int)starEnum.StarEnum + (int)StarNum.Rare);
+                    if (StarEnum > StarNum.SuperPacked)
                     {
-                        this.StarEnum = RaceDesignScreen.StarNum.VeryRare;
+                        StarEnum = StarNum.VeryRare;
                     }
                 }
-                if (this.NumOpponentsRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (NumOpponentsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
                     int maxOpponents = mode == GameMode.Corners ? 3 
@@ -1505,16 +1414,16 @@ namespace Ship_Game
                     
                 }
                 //MathExt.HitTest(this.GameModeRect, mousePos); // I believe this is here by mistake, since the returned value would do nothing... - Gretman
-                if (this.ScaleRect.HitTest(mousePos))
+                if (ScaleRect.HitTest(input.CursorPosition))
                 {
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
                         GameAudio.PlaySfxAsync("blip_click");
                         RaceDesignScreen gameScale = this;
                         gameScale.GameScale = gameScale.GameScale + 1;
-                        if (this.GameScale > 6)
+                        if (GameScale > 6)
                         {
-                            this.GameScale = 1;
+                            GameScale = 1;
                         }
                     }
                     if (input.RightMouseClick)
@@ -1522,22 +1431,22 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("blip_click");
                         RaceDesignScreen gameScale1 = this;
                         gameScale1.GameScale = gameScale1.GameScale - 1;
-                        if (this.GameScale < 1)
+                        if (GameScale < 1)
                         {
-                            this.GameScale = 6;
+                            GameScale = 6;
                         }
                     }
                 }
-                if (this.PacingRect.HitTest(mousePos))
+                if (PacingRect.HitTest(input.CursorPosition))
                 {
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
                         GameAudio.PlaySfxAsync("blip_click");
                         RaceDesignScreen pacing = this;
                         pacing.Pacing = pacing.Pacing + 25;
-                        if (this.Pacing > 400)
+                        if (Pacing > 400)
                         {
-                            this.Pacing = 100;
+                            Pacing = 100;
                         }
                     }
                     if (input.RightMouseClick)
@@ -1545,22 +1454,22 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("blip_click");
                         RaceDesignScreen pacing1 = this;
                         pacing1.Pacing = pacing1.Pacing - 25;
-                        if (this.Pacing < 100)
+                        if (Pacing < 100)
                         {
-                            this.Pacing = 400;
+                            Pacing = 400;
                         }
                     }
                 }
-                if (this.DifficultyRect.HitTest(mousePos))
+                if (DifficultyRect.HitTest(input.CursorPosition))
                 {
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
                         GameAudio.PlaySfxAsync("blip_click");
                         RaceDesignScreen raceDesignScreen2 = this;
                         raceDesignScreen2.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen2.difficulty + (int)UniverseData.GameDifficulty.Normal);
-                        if (this.difficulty > UniverseData.GameDifficulty.Brutal)
+                        if (difficulty > UniverseData.GameDifficulty.Brutal)
                         {
-                            this.difficulty = UniverseData.GameDifficulty.Easy;
+                            difficulty = UniverseData.GameDifficulty.Easy;
                         }
                     }
                     if (input.RightMouseClick)
@@ -1568,107 +1477,92 @@ namespace Ship_Game
                         GameAudio.PlaySfxAsync("blip_click");
                         RaceDesignScreen raceDesignScreen3 = this;
                         raceDesignScreen3.difficulty = (UniverseData.GameDifficulty)((int)raceDesignScreen3.difficulty - (int)UniverseData.GameDifficulty.Normal);
-                        if (this.difficulty < UniverseData.GameDifficulty.Easy)
+                        if (difficulty < UniverseData.GameDifficulty.Easy)
                         {
-                            this.difficulty = UniverseData.GameDifficulty.Brutal;
+                            difficulty = UniverseData.GameDifficulty.Brutal;
                         }
                     }
                 }
 
                 //Gretman - Remnant Presece Button
-                if (this.ExtraRemnantRect.HitTest(mousePos))
+                if (ExtraRemnantRect.HitTest(input.CursorPosition))
                 {
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    if (input.LeftMouseClick)
                     {
                         GameAudio.PlaySfxAsync("blip_click");
-                        this.ExtraRemnant = this.ExtraRemnant + 1;
-                        if ((int)this.ExtraRemnant > 4)
-                        {
-                            this.ExtraRemnant = (RaceDesignScreen.ExtraRemnantPresence)0;
-                        }
+                        ++ExtraRemnant;
+                        if (ExtraRemnant > ExtraRemnantPresence.Everywhere)
+                            ExtraRemnant = ExtraRemnantPresence.Rare;
                     }
                     if (input.RightMouseClick)
                     {
                         GameAudio.PlaySfxAsync("blip_click");
-                        this.ExtraRemnant = this.ExtraRemnant - 1;
-                        if ((int)this.ExtraRemnant < 0)
-                        {
-                            this.ExtraRemnant = (RaceDesignScreen.ExtraRemnantPresence)4;
-                        }
+                        --ExtraRemnant;
+                        if (ExtraRemnant < 0)
+                            ExtraRemnant = ExtraRemnantPresence.Everywhere;
                     }
                 }// Done adding stuff - Gretman
 
-                if (this.FlagRect.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (FlagRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    this.DrawingColorSelector = !this.DrawingColorSelector;
+                    DrawingColorSelector = !DrawingColorSelector;
                 }
-                if (this.FlagRight.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (FlagRight.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    if (ResourceManager.FlagTextures.Count - 1 <= this.FlagIndex)
-                    {
-                        this.FlagIndex = 0;
-                    }
+                    if (ResourceManager.FlagTextures.Count - 1 <= FlagIndex)
+                        FlagIndex = 0;
                     else
-                    {
-                        RaceDesignScreen flagIndex = this;
-                        flagIndex.FlagIndex = flagIndex.FlagIndex + 1;
-                    }
+                        FlagIndex = FlagIndex + 1;
                     GameAudio.PlaySfxAsync("blip_click");
                 }
-                if (this.FlagLeft.HitTest(mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (FlagLeft.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
-                    if (this.FlagIndex <= 0)
-                    {
-                        this.FlagIndex = ResourceManager.FlagTextures.Count - 1;
-                    }
+                    if (FlagIndex <= 0)
+                        FlagIndex = ResourceManager.FlagTextures.Count - 1;
                     else
-                    {
-                        RaceDesignScreen flagIndex1 = this;
-                        flagIndex1.FlagIndex = flagIndex1.FlagIndex - 1;
-                    }
+                        FlagIndex = FlagIndex - 1;
                     GameAudio.PlaySfxAsync("blip_click");
                 }
             }
-            else if (!this.ColorSelector.HitTest(input.CursorPosition))
+            else if (!ColorSelector.HitTest(input.CursorPosition))
             {
-                if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseClick)
                 {
-                    this.DrawingColorSelector = false;
+                    DrawingColorSelector = false;
                 }
             }
-            else if (this.currentMouse.LeftButton == ButtonState.Pressed)
+            else if (input.LeftMouseDown)
             {
-                int yPosition = this.ColorSelector.Y + 10;
-                int xPositionStart = this.ColorSelector.X + 10;
+                int yPosition = ColorSelector.Y + 10;
+                int xPositionStart = ColorSelector.X + 10;
                 for (int i = 0; i <= 255; i++)
                 {
                     for (int j = 0; j <= 255; j++)
                     {
-                        Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), this.currentObjectColor.B);
-                        Rectangle ColorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
-                        if (ColorRect.HitTest(input.CursorPosition))
+                        var thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), currentObjectColor.B);
+                        var colorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
+                        if (colorRect.HitTest(input.CursorPosition))
                         {
-                            this.currentObjectColor = thisColor;
+                            currentObjectColor = thisColor;
                         }
                     }
                     yPosition = yPosition + 2;
                 }
-                yPosition = this.ColorSelector.Y + 10;
+                yPosition = ColorSelector.Y + 10;
                 for (int i = 0; i <= 255; i++)
                 {
-                    Color thisColor = new Color(this.currentObjectColor.R, this.currentObjectColor.G, Convert.ToByte(i));
-                    Rectangle ColorRect = new Rectangle(this.ColorSelector.X + 10 + 575, yPosition, 20, 2);
-                    if (ColorRect.HitTest(input.CursorPosition))
+                    var thisColor = new Color(currentObjectColor.R, currentObjectColor.G, Convert.ToByte(i));
+                    var colorRect = new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2);
+                    if (colorRect.HitTest(input.CursorPosition))
                     {
-                        this.currentObjectColor = thisColor;
+                        currentObjectColor = thisColor;
                     }
                     yPosition = yPosition + 2;
                 }
             }
-            this.previousMouse = this.currentMouse;
             if (input.Escaped)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
             return base.HandleInput(input);
@@ -1677,86 +1571,53 @@ namespace Ship_Game
 
         private RacialTrait GetRacialTraits()
         {
-            RacialTrait Traits = new RacialTrait();
-            Traits = this.RaceSummary.GetClone();
-            Traits.Singular = this.SingEntry.Text;
-            Traits.Plural = this.PlurEntry.Text;
-            Traits.HomeSystemName = this.HomeSystemEntry.Text;
-            Traits.R = (float)this.currentObjectColor.R;
-            Traits.G = (float)this.currentObjectColor.G;
-            Traits.B = (float)this.currentObjectColor.B;
-            Traits.FlagIndex = this.FlagIndex;
-            Traits.HomeworldName = this.HomeWorldName;
-            Traits.Name = this.RaceName.Text;
-            Traits.ShipType = this.SelectedData.Traits.ShipType;
-            Traits.VideoPath = this.SelectedData.Traits.VideoPath;
-            /*this.RaceSummary.Singular = this.Singular;
-            this.RaceSummary.Plural = this.Plural;
-            this.RaceSummary.HomeSystemName = this.HomeSystemName;
-            this.RaceSummary.ShipType = this.SelectedData.Traits.ShipType;
-            this.RaceSummary.VideoPath = this.SelectedData.Traits.VideoPath;
-            //this.RaceSummary.Adj1 = this.SelectedData.Traits.Adj1;
-            //this.RaceSummary.Adj2 = this.SelectedData.Traits.Adj2;
-            //playerEmpire.EmpireColor = this.currentObjectColor;*/
-
-            return Traits;
-        }
-
-
-        private void HandleTextInput(ref string text)
-        {
-            this.currentKeyboardState = Keyboard.GetState();
-            Keys[] keysArray = this.keysToCheck;
-            int num = 0;
-            while (num < (int)keysArray.Length)
-            {
-                Keys key = keysArray[num];
-                if (!this.CheckKey(key))
-                {
-                    num++;
-                }
-                else
-                {
-                    this.AddKeyToText(ref text, key);
-                    break;
-                }
-            }
-            this.lastKeyboardState = this.currentKeyboardState;
+            var traits = new RacialTrait();
+            traits = RaceSummary.GetClone();
+            traits.Singular = SingEntry.Text;
+            traits.Plural = PlurEntry.Text;
+            traits.HomeSystemName = HomeSystemEntry.Text;
+            traits.R = currentObjectColor.R;
+            traits.G = currentObjectColor.G;
+            traits.B = currentObjectColor.B;
+            traits.FlagIndex = FlagIndex;
+            traits.HomeworldName = HomeWorldName;
+            traits.Name = RaceName.Text;
+            traits.ShipType = SelectedData.Traits.ShipType;
+            traits.VideoPath = SelectedData.Traits.VideoPath;
+            return traits;
         }
 
         public override void LoadContent()
         {
-            if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 || base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
+            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 || ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
             {
-                this.LowRes = true;
+                LowRes = true;
             }
-            Rectangle titleRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (this.LowRes ? 10 : 44), 406, 80);
-            this.TitleBar = new Menu2(titleRect);
-            this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            Rectangle nameRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, titleRect.Y + titleRect.Height + 5, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), 150);
-            this.Name = new Menu1(nameRect);
+            Rectangle titleRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
+            TitleBar = new Menu2(titleRect);
+            TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            Rectangle nameRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, titleRect.Y + titleRect.Height + 5, (int)((float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), 150);
+            Name = new Menu1(nameRect);
             Rectangle nsubRect = new Rectangle(nameRect.X + 20, nameRect.Y - 5, nameRect.Width - 40, nameRect.Height - 15);
-            this.NameSub = new Submenu(nsubRect);
-            this.ColorSelector = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 310, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 280, 620, 560);
-            this.ColorSelectMenu = new Menu1(this.ColorSelector);
-            this.RaceNamePos = new Vector2((float)(nameRect.X + 40), (float)(nameRect.Y + 30));
-            this.FlagPos = new Vector2((float)(nameRect.X + nameRect.Width - 80 - 100), (float)(nameRect.Y + 30));
-            Rectangle leftRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, nameRect.Y + nameRect.Height + 5, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.28f * (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight));
+            NameSub = new Submenu(nsubRect);
+            ColorSelector = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 310, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 280, 620, 560);
+            ColorSelectMenu = new Menu1(ColorSelector);
+            RaceNamePos = new Vector2((float)(nameRect.X + 40), (float)(nameRect.Y + 30));
+            FlagPos = new Vector2((float)(nameRect.X + nameRect.Width - 80 - 100), (float)(nameRect.Y + 30));
+            Rectangle leftRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, nameRect.Y + nameRect.Height + 5, (int)((float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.28f * (float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight));
             if (leftRect.Height > 580)
             {
                 leftRect.Height = 580;
             }
-            this.Left = new Menu1(leftRect);
-            Vector2 Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(leftRect.Y + leftRect.Height + 10));
-            RulesOptions = Button(Position.X, Position.Y, "Rule Options", titleId:4006);
+            Left = new Menu1(leftRect);
 
-            Rectangle ChooseRaceRect = new Rectangle(5, (this.LowRes ? nameRect.Y : leftRect.Y), leftRect.X - 10, (this.LowRes ? leftRect.Y + leftRect.Height - nameRect.Y : leftRect.Height));
-            this.ChooseRaceMenu = new Menu1(ChooseRaceRect);
+            Rectangle ChooseRaceRect = new Rectangle(5, (LowRes ? nameRect.Y : leftRect.Y), leftRect.X - 10, (LowRes ? leftRect.Y + leftRect.Height - nameRect.Y : leftRect.Height));
+            ChooseRaceMenu = new Menu1(ChooseRaceRect);
             Rectangle smaller = ChooseRaceRect;
             smaller.Y = smaller.Y - 20;
             smaller.Height = smaller.Height + 20;
-            this.arch = new Submenu(smaller);
-            this.RaceArchetypeSL = new ScrollList(this.arch, 135);
+            arch = new Submenu(smaller);
+            RaceArchetypeSL = new ScrollList(arch, 135);
 
             foreach (EmpireData e in ResourceManager.Empires)
             {
@@ -1764,48 +1625,44 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                this.RaceArchetypeSL.AddItem(e);
+                RaceArchetypeSL.AddItem(e);
                 if (string.IsNullOrEmpty(e.Traits.VideoPath))
                 {
                     continue;
                 }
-                this.TextureDict.Add(e, ResourceManager.TextureDict[string.Concat("Races/", e.Traits.VideoPath)]);
+                TextureDict.Add(e, ResourceManager.TextureDict[string.Concat("Races/", e.Traits.VideoPath)]);
             }
             foreach (EmpireData e in ResourceManager.Empires)
             {
-                if (e.Traits.Singular != "Human")
-                {
-                    continue;
-                }
-                this.SelectedData = e;
+                if (e.Traits.Singular == "Human") SelectedData = e;
             }
-            this.RaceName.Text = this.SelectedData.Traits.Name;
-            this.SingEntry.Text = this.SelectedData.Traits.Singular;
-            this.PlurEntry.Text = this.SelectedData.Traits.Plural;
-            this.HomeSystemEntry.Text = this.SelectedData.Traits.HomeSystemName;
-            this.HomeWorldName = this.SelectedData.Traits.HomeworldName;
-            this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy UniverseRadius                                   ").X, Fonts.Arial12.LineSpacing);
-            this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
-            this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
-            this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
-            this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
-            this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
+            RaceName.Text = SelectedData.Traits.Name;
+            SingEntry.Text = SelectedData.Traits.Singular;
+            PlurEntry.Text = SelectedData.Traits.Plural;
+            HomeSystemEntry.Text = SelectedData.Traits.HomeSystemName;
+            HomeWorldName = SelectedData.Traits.HomeworldName;
+            GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy UniverseRadius                                   ").X, Fonts.Arial12.LineSpacing);
+            NumberStarsRect = new Rectangle(GalaxySizeRect.X, GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, GalaxySizeRect.Width, GalaxySizeRect.Height);
+            NumOpponentsRect = new Rectangle(NumberStarsRect.X, NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, NumberStarsRect.Width, NumberStarsRect.Height);
+            GameModeRect = new Rectangle(NumOpponentsRect.X, NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, NumberStarsRect.Width, NumOpponentsRect.Height);
+            PacingRect = new Rectangle(GameModeRect.X, GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, GameModeRect.Width, GameModeRect.Height);
+            DifficultyRect = new Rectangle(PacingRect.X, PacingRect.Y + Fonts.Arial12.LineSpacing + 10, PacingRect.Width, PacingRect.Height);
             
             //Gretman - Remnant Presence button, relative to Difficulty button
-            this.ExtraRemnantRect = new Rectangle(this.DifficultyRect.X, this.DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, this.DifficultyRect.Width, this.DifficultyRect.Height);
+            ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
 
-            Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
-            this.Description = new Menu1(base.ScreenManager, dRect, true);
-            this.dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
-            Submenu dsub = new Submenu(this.dslrect);
-            this.DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
+            Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
+            Description = new Menu1(ScreenManager, dRect, true);
+            dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
+            Submenu dsub = new Submenu(dslrect);
+            DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
             Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-            this.Traits = new Submenu(psubRect);
-            this.Traits.AddTab(Localizer.Token(19));
-            this.Traits.AddTab(Localizer.Token(20));
-            this.Traits.AddTab(Localizer.Token(21));
+            Traits = new Submenu(psubRect);
+            Traits.AddTab(Localizer.Token(19));
+            Traits.AddTab(Localizer.Token(20));
+            Traits.AddTab(Localizer.Token(21));
             int size = 55;
-            if (GlobalStats.NotGerman && base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            if (GlobalStats.NotGerman && ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
             {
                 size = 65;
             }
@@ -1813,147 +1670,83 @@ namespace Ship_Game
             {
                 size = 70;
             }
-            this.traitsSL = new ScrollList(this.Traits, size);
-            foreach (TraitEntry t in this.AllTraits)
+            traitsSL = new ScrollList(Traits, size);
+            foreach (TraitEntry t in AllTraits)
             {
                 if (t.trait.Category == "Physical")
-                    this.traitsSL.AddItem(t);
+                    traitsSL.AddItem(t);
             }
 
-            Engage = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, "Engage", titleId:22);
-            Abort  = ButtonMedium(10, ScreenHeight - 40, "Abort", titleId:23);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
-                            Description.Menu.Y + Description.Menu.Height - 40, "Clear", "Clear Traits");
+                            Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
 
-            this.DoRaceDescription();
-            this.SetEmpireData(this.SelectedData.Traits);
+            DoRaceDescription();
+            SetEmpireData(SelectedData.Traits);
 
-            LoadRace = ButtonMedium(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, "LoadRace", "Load Race");
-            SaveRace = ButtonMedium(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, "SaveRace", "Save Race");
-            LoadSetup = ButtonMedium((int)Position.X - 142, (int)Position.Y, "LoadSetup", "Load Setup");
-            SaveSetup = ButtonMedium((int)Position.X + 178, (int)Position.Y, "SaveSetup", "Save Setup");
+            LoadRace  = ButtonMedium(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, "Load Race", OnLoadRaceClicked);
+            SaveRace  = ButtonMedium(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, "Save Race", OnSaveRaceClicked);
+
+            var pos = new Vector2(ScreenWidth / 2 - 84, leftRect.Y + leftRect.Height + 10);
+
+            LoadSetup = ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
+            SaveSetup = ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
+            RulesOptions = Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
 
             base.LoadContent();
         }
 
         protected virtual void OnEngage()
         {
-            //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
-            //{
-            //    ResourceManager.LoadHardcoreTechTree();
-            //    GlobalStats.HardcoreRuleset = true;
-            //}
-            //else 
-            if (this.mode == GameMode.Elimination) GlobalStats.EliminationMode = true;
-            if (this.mode == GameMode.Corners) GlobalStats.CornersGame = true; //Added by Gretman
+            if (mode == GameMode.Elimination) GlobalStats.EliminationMode = true;
+            if (mode == GameMode.Corners) GlobalStats.CornersGame = true;
 
-
-            GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;  //Added by Gretman
-
-            this.Singular = this.SingEntry.Text;
-            this.Plural = this.PlurEntry.Text;
-            this.HomeSystemName = this.HomeSystemEntry.Text;
-            this.RaceSummary.R = (float)this.currentObjectColor.R;
-            this.RaceSummary.G = (float)this.currentObjectColor.G;
-            this.RaceSummary.B = (float)this.currentObjectColor.B;
-            this.RaceSummary.Singular = this.Singular;
-            this.RaceSummary.Plural = this.Plural;
-            this.RaceSummary.HomeSystemName = this.HomeSystemName;
-            this.RaceSummary.HomeworldName = this.HomeWorldName;
-            this.RaceSummary.Name = this.RaceName.Text;
-            this.RaceSummary.FlagIndex = this.FlagIndex;
-            this.RaceSummary.ShipType = this.SelectedData.Traits.ShipType;
-            this.RaceSummary.VideoPath = this.SelectedData.Traits.VideoPath;
-            Empire playerEmpire = new Empire()
+            GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;
+            Singular                   = SingEntry.Text;
+            Plural                     = PlurEntry.Text;
+            HomeSystemName             = HomeSystemEntry.Text;
+            RaceSummary.R              = currentObjectColor.R;
+            RaceSummary.G              = currentObjectColor.G;
+            RaceSummary.B              = currentObjectColor.B;
+            RaceSummary.Singular       = Singular;
+            RaceSummary.Plural         = Plural;
+            RaceSummary.HomeSystemName = HomeSystemName;
+            RaceSummary.HomeworldName  = HomeWorldName;
+            RaceSummary.Name           = RaceName.Text;
+            RaceSummary.FlagIndex      = FlagIndex;
+            RaceSummary.ShipType       = SelectedData.Traits.ShipType;
+            RaceSummary.VideoPath      = SelectedData.Traits.VideoPath;
+            var playerEmpire = new Empire()
             {
-                EmpireColor = this.currentObjectColor,
-                data = this.SelectedData
+                EmpireColor = currentObjectColor,
+                data = SelectedData
             };
-            playerEmpire.data.SpyModifier = this.RaceSummary.SpyMultiplier;
-            playerEmpire.data.Traits.Spiritual = this.RaceSummary.Spiritual;
-            this.RaceSummary.Adj1 = this.SelectedData.Traits.Adj1;
-            this.RaceSummary.Adj2 = this.SelectedData.Traits.Adj2;
-            playerEmpire.data.Traits = this.RaceSummary;
-            playerEmpire.EmpireColor = this.currentObjectColor;
+            playerEmpire.data.SpyModifier = RaceSummary.SpyMultiplier;
+            playerEmpire.data.Traits.Spiritual = RaceSummary.Spiritual;
+            RaceSummary.Adj1 = SelectedData.Traits.Adj1;
+            RaceSummary.Adj2 = SelectedData.Traits.Adj2;
+            playerEmpire.data.Traits = RaceSummary;
+            playerEmpire.EmpireColor = currentObjectColor;
+
             float modifier = 1f;
-
-            switch (this.StarEnum)
+            switch (StarEnum)
             {
-
-                case RaceDesignScreen.StarNum.VeryRare:
-                    {
-                        modifier = 0.25f;
-                        this.ExitScreen();
-                        //base.ScreenManager.AddScreen(new CreatingNewGameScreen(empire, this.Galaxysize.ToString(), single, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-
-                case RaceDesignScreen.StarNum.Rare:
-                    {
-                        modifier = 0.5f;
-                        this.ExitScreen();
-                        //base.ScreenManager.AddScreen(new CreatingNewGameScreen(empire, this.Galaxysize.ToString(), single, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                case RaceDesignScreen.StarNum.Uncommon:
-                    {
-                        modifier = 0.75f;
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                case RaceDesignScreen.StarNum.Normal:
-                    {
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                case RaceDesignScreen.StarNum.Abundant:
-                    {
-                        modifier = 1.25f;
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                case RaceDesignScreen.StarNum.Crowded:
-                    {
-                        modifier = 1.5f;
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                case RaceDesignScreen.StarNum.Packed:
-                    {
-                        modifier = 1.75f;
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                case RaceDesignScreen.StarNum.SuperPacked:
-                    {
-                        modifier = 2f;
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
-                default:
-                    {
-                        this.ExitScreen();
-                        base.ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, this.Galaxysize.ToString(), modifier, this.SelectedData.Traits.Name, this.numOpponents, this.mode, this.GameScale, this.difficulty, this.mmscreen));
-                        UniverseScreen.GamePaceStatic = (float)(this.Pacing / 100);
-                        return;
-                    }
+                case StarNum.VeryRare:    modifier = 0.25f; break;
+                case StarNum.Rare:        modifier = 0.50f; break;
+                case StarNum.Uncommon:    modifier = 0.75f; break;
+                case StarNum.Normal:      modifier = 1.00f; break;
+                case StarNum.Abundant:    modifier = 1.25f; break;
+                case StarNum.Crowded:     modifier = 1.50f; break;
+                case StarNum.Packed:      modifier = 1.75f; break;
+                case StarNum.SuperPacked: modifier = 2.00f; break;
             }
+
+            ExitScreen();
+            ScreenManager.AddScreen(new CreatingNewGameScreen(playerEmpire, Galaxysize.ToString(), modifier, 
+                                                              SelectedData.Traits.Name, numOpponents, mode, 
+                                                              GameScale, difficulty, mmscreen));
+            UniverseScreen.GamePaceStatic = (int)(Pacing / 100f);
         }
 
 
@@ -1963,124 +1756,116 @@ namespace Ship_Game
             if (Traits.Tabs[0].Selected)
             {
                 foreach (TraitEntry t in AllTraits)
-                {
                     if (t.trait.Category == "Physical")
                         traitsSL.AddItem(t);
-                }
             }
             else if (Traits.Tabs[1].Selected)
             {
                 foreach (TraitEntry t in AllTraits)
-                {
                     if (t.trait.Category == "Industry")
                         traitsSL.AddItem(t);
-                }
             }
             else if (Traits.Tabs[2].Selected)
             {
                 foreach (TraitEntry t in AllTraits)
-                {
                     if (t.trait.Category == "Special")
                         traitsSL.AddItem(t);
-                }
             }
         }
 
-        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode)
+        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty, StarNum StarEnum, GalSize Galaxysize, int Pacing, ExtraRemnantPresence ExtraRemnant, int numOpponents, GameMode mode)
         {
-            this.difficulty = gameDifficulty;
-            this.StarEnum = StarEnum;
-            this.Galaxysize = Galaxysize;
-            this.Pacing = Pacing;
+            difficulty        = gameDifficulty;
+            this.StarEnum     = StarEnum;
+            this.Galaxysize   = Galaxysize;
+            this.Pacing       = Pacing;
             this.ExtraRemnant = ExtraRemnant;
             this.numOpponents = numOpponents;
-            this.mode = mode;
+            this.mode         = mode;
         }
 
-        public void SetCustomEmpireData(RacialTrait Traits)    // Sets the empire data externally, checks for fields that are default so don't overwrite
+        public void SetCustomEmpireData(RacialTrait traits)    // Sets the empire data externally, checks for fields that are default so don't overwrite
         {
             foreach (EmpireData origRace in RaceArchetypeSL.AllItems<EmpireData>())
             {
-                if (origRace.Traits.ShipType == Traits.ShipType)
+                if (origRace.Traits.ShipType == traits.ShipType)
                 {
-                    if (Traits.Name == origRace.Traits.Name)
-                        Traits.Name = RaceName.Text;
-                    if (Traits.Singular == origRace.Traits.Singular)
-                        Traits.Singular = SingEntry.Text;
-                    if (Traits.Plural == origRace.Traits.Plural)
-                        Traits.Plural = PlurEntry.Text;
-                    if (Traits.HomeSystemName == origRace.Traits.HomeSystemName)
-                        Traits.HomeSystemName = HomeSystemEntry.Text;
-                    if (Traits.FlagIndex == origRace.Traits.FlagIndex)
-                        Traits.FlagIndex = FlagIndex;
+                    if (traits.Name == origRace.Traits.Name)
+                        traits.Name = RaceName.Text;
+                    if (traits.Singular == origRace.Traits.Singular)
+                        traits.Singular = SingEntry.Text;
+                    if (traits.Plural == origRace.Traits.Plural)
+                        traits.Plural = PlurEntry.Text;
+                    if (traits.HomeSystemName == origRace.Traits.HomeSystemName)
+                        traits.HomeSystemName = HomeSystemEntry.Text;
+                    if (traits.FlagIndex == origRace.Traits.FlagIndex)
+                        traits.FlagIndex = FlagIndex;
 
-                    if (Traits.R == origRace.Traits.R &&
-                        Traits.G == origRace.Traits.G &&
-                        Traits.B == origRace.Traits.B)
+                    if (traits.R == origRace.Traits.R && traits.G == origRace.Traits.G && traits.B == origRace.Traits.B)
                     {
-                        Traits.R = currentObjectColor.R;
-                        Traits.G = currentObjectColor.G;
-                        Traits.B = currentObjectColor.B;
+                        traits.R = currentObjectColor.R;
+                        traits.G = currentObjectColor.G;
+                        traits.B = currentObjectColor.B;
                     }
                     break;
                 }
             }
-            this.SetEmpireData(Traits);
+            SetEmpireData(traits);
         }
 
-        private void SetEmpireData(RacialTrait Traits)
+        private void SetEmpireData(RacialTrait traits)
         {
-            this.RaceSummary.ShipType = Traits.ShipType;
-            this.FlagIndex = Traits.FlagIndex;
-            this.currentObjectColor = new Color((byte)Traits.R, (byte)Traits.G, (byte)Traits.B, 255);
-            this.RaceName.Text = Traits.Name;
-            this.SingEntry.Text = Traits.Singular;
-            this.PlurEntry.Text = Traits.Plural;
-            this.HomeSystemEntry.Text = Traits.HomeSystemName;
-            this.HomeSystemName = Traits.HomeSystemName;
-            this.HomeWorldName = Traits.HomeworldName;
-            this.TotalPointsUsed = 8;
-            foreach (TraitEntry t in this.AllTraits)
+            RaceSummary.ShipType = traits.ShipType;
+            FlagIndex = traits.FlagIndex;
+            currentObjectColor = new Color((byte)traits.R, (byte)traits.G, (byte)traits.B, 255);
+            RaceName.Text        = traits.Name;
+            SingEntry.Text       = traits.Singular;
+            PlurEntry.Text       = traits.Plural;
+            HomeSystemEntry.Text = traits.HomeSystemName;
+            HomeSystemName       = traits.HomeSystemName;
+            HomeWorldName        = traits.HomeworldName;
+            TotalPointsUsed      = 8;
+            foreach (TraitEntry t in AllTraits)
             {
                 t.Selected = false;
                 //Added by McShooterz: Searches for new trait tags
-                if ((Traits.ConsumptionModifier > 0f || Traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
-                    || t.trait.ConsumptionModifier < 0f && (Traits.ConsumptionModifier < 0f || Traits.PhysicalTraitEfficientMetabolism)
-                    || (Traits.DiplomacyMod > 0f || Traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
-                    || t.trait.DiplomacyMod < 0f && (Traits.DiplomacyMod < 0f || Traits.PhysicalTraitRepulsive)
-                    || (Traits.EnergyDamageMod > 0f || Traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
-                    || t.trait.EnergyDamageMod < 0f && (Traits.EnergyDamageMod < 0f || Traits.PhysicalTraitBlind)
-                    || (Traits.MaintMod > 0f || Traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
-                    || t.trait.MaintMod < 0f && (Traits.MaintMod < 0f || Traits.SociologicalTraitEfficient)
-                    || (Traits.PopGrowthMax > 0f || Traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
-                    || (Traits.PopGrowthMin > 0f || Traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
-                    || (Traits.ResearchMod > 0f || Traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
-                    || t.trait.ResearchMod < 0f && (Traits.ResearchMod < 0f || Traits.PhysicalTraitDumb)
-                    || t.trait.ShipCostMod < 0f && (Traits.ShipCostMod < 0f || Traits.HistoryTraitNavalTraditions) 
-                    || (Traits.TaxMod > 0f || Traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
-                    || t.trait.TaxMod < 0f && (Traits.TaxMod < 0f || Traits.SociologicalTraitCorrupt)
-                    || (Traits.ProductionMod > 0f || Traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
-                    || t.trait.ProductionMod < 0f && (Traits.ProductionMod < 0f || Traits.SociologicalTraitLazy)
-                    || (Traits.ModHpModifier > 0f || Traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
-                    || t.trait.ModHpModifier < 0f && (Traits.ModHpModifier < 0f || Traits.SociologicalTraitHaphazardEngineers)
-                    || (Traits.Mercantile > 0f || Traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
-                    || (Traits.GroundCombatModifier > 0f || Traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
-                    || t.trait.GroundCombatModifier < 0f && (Traits.GroundCombatModifier < 0f || Traits.PhysicalTraitTimid)
-                    || (Traits.Cybernetic > 0 || Traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
-                    || (Traits.DodgeMod > 0f || Traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
-                    || t.trait.DodgeMod < 0f && (Traits.DodgeMod < 0f || Traits.PhysicalTraitPonderous) 
-                    || (Traits.HomeworldSizeMod > 0f || Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
-                    || t.trait.HomeworldSizeMod < 0f && (Traits.HomeworldSizeMod < 0f || Traits.HistoryTraitSmallHomeWorld)
-                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldFertMod < 0f || Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
-                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldRichMod > 0f || Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
-                    || (Traits.Militaristic > 0 || Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
-                    || (Traits.PassengerModifier > 1 || Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
-                    || (Traits.BonusExplored > 0 || Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
-                    || (Traits.Spiritual > 0f || Traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
-                    || (Traits.Prototype > 0 || Traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
-                    || (Traits.Pack || Traits.HistoryTraitPackMentality) && t.trait.Pack 
-                    || (Traits.SpyMultiplier > 0f || Traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
-                    || (Traits.SpyMultiplier < 0f || Traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
+                if ((traits.ConsumptionModifier > 0f || traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
+                    || t.trait.ConsumptionModifier < 0f && (traits.ConsumptionModifier < 0f || traits.PhysicalTraitEfficientMetabolism)
+                    || (traits.DiplomacyMod > 0f || traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
+                    || t.trait.DiplomacyMod < 0f && (traits.DiplomacyMod < 0f || traits.PhysicalTraitRepulsive)
+                    || (traits.EnergyDamageMod > 0f || traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
+                    || t.trait.EnergyDamageMod < 0f && (traits.EnergyDamageMod < 0f || traits.PhysicalTraitBlind)
+                    || (traits.MaintMod > 0f || traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
+                    || t.trait.MaintMod < 0f && (traits.MaintMod < 0f || traits.SociologicalTraitEfficient)
+                    || (traits.PopGrowthMax > 0f || traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
+                    || (traits.PopGrowthMin > 0f || traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
+                    || (traits.ResearchMod > 0f || traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
+                    || t.trait.ResearchMod < 0f && (traits.ResearchMod < 0f || traits.PhysicalTraitDumb)
+                    || t.trait.ShipCostMod < 0f && (traits.ShipCostMod < 0f || traits.HistoryTraitNavalTraditions) 
+                    || (traits.TaxMod > 0f || traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
+                    || t.trait.TaxMod < 0f && (traits.TaxMod < 0f || traits.SociologicalTraitCorrupt)
+                    || (traits.ProductionMod > 0f || traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
+                    || t.trait.ProductionMod < 0f && (traits.ProductionMod < 0f || traits.SociologicalTraitLazy)
+                    || (traits.ModHpModifier > 0f || traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
+                    || t.trait.ModHpModifier < 0f && (traits.ModHpModifier < 0f || traits.SociologicalTraitHaphazardEngineers)
+                    || (traits.Mercantile > 0f || traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
+                    || (traits.GroundCombatModifier > 0f || traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
+                    || t.trait.GroundCombatModifier < 0f && (traits.GroundCombatModifier < 0f || traits.PhysicalTraitTimid)
+                    || (traits.Cybernetic > 0 || traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
+                    || (traits.DodgeMod > 0f || traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
+                    || t.trait.DodgeMod < 0f && (traits.DodgeMod < 0f || traits.PhysicalTraitPonderous) 
+                    || (traits.HomeworldSizeMod > 0f || traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
+                    || t.trait.HomeworldSizeMod < 0f && (traits.HomeworldSizeMod < 0f || traits.HistoryTraitSmallHomeWorld)
+                    || t.trait.HomeworldFertMod < 0f && (traits.HomeworldFertMod < 0f || traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
+                    || t.trait.HomeworldFertMod < 0f && (traits.HomeworldRichMod > 0f || traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
+                    || (traits.Militaristic > 0 || traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
+                    || (traits.PassengerModifier > 1 || traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
+                    || (traits.BonusExplored > 0 || traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
+                    || (traits.Spiritual > 0f || traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
+                    || (traits.Prototype > 0 || traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
+                    || (traits.Pack || traits.HistoryTraitPackMentality) && t.trait.Pack 
+                    || (traits.SpyMultiplier > 0f || traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
+                    || (traits.SpyMultiplier < 0f || traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
                 {
                     t.Selected = true;
                     TotalPointsUsed -= t.trait.Cost;
@@ -2104,166 +1889,99 @@ namespace Ship_Game
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-            bool overSomething = false;
-            if (this.DrawingColorSelector)
+            if (!DrawingColorSelector)
             {
-                overSomething = false;
-            }
-            else
-            {
-                foreach (TraitEntry t in this.AllTraits)
+                bool overSomething = false;
+                foreach (TraitEntry t in AllTraits)
                 {
-                    if (!t.rect.HitTest(mousePos))
-                    {
+                    if (!t.rect.HitTest(Input.CursorPosition))
                         continue;
-                    }
                     overSomething = true;
                     RaceDesignScreen raceDesignScreen = this;
                     raceDesignScreen.tTimer = raceDesignScreen.tTimer - elapsedTime;
-                    if (this.tTimer > 0f)
-                    {
+                    if (tTimer > 0f)
                         continue;
-                    }
-                    this.tipped = t.trait;
+                    tipped = t.trait;
                 }
                 if (!overSomething)
                 {
-                    this.tTimer = 0.35f;
-                    this.tipped = null;
+                    tTimer = 0.35f;
+                    tipped = null;
                 }
             }
-            this.UpdateSummary();
+
+            UpdateSummary();
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         private void UpdateSummary()
         {
-            this.Singular = this.SingEntry.Text;
-            this.Plural = this.PlurEntry.Text;
-            this.HomeSystemName = this.HomeSystemEntry.Text;
-            this.RaceSummary = new RacialTrait();
-            foreach (TraitEntry t in this.AllTraits)
+            Singular = SingEntry.Text;
+            Plural = PlurEntry.Text;
+            HomeSystemName = HomeSystemEntry.Text;
+            RaceSummary = new RacialTrait();
+            foreach (TraitEntry t in AllTraits)
             {
                 if (!t.Selected)
-                {
                     continue;
-                }
                 //Added by McShooterz: code cleaning
-                this.RaceSummary.ConsumptionModifier += t.trait.ConsumptionModifier;
-                this.RaceSummary.DiplomacyMod += t.trait.DiplomacyMod;
-                this.RaceSummary.EnergyDamageMod += t.trait.EnergyDamageMod;
-                this.RaceSummary.MaintMod += t.trait.MaintMod;
-                this.RaceSummary.ReproductionMod += t.trait.ReproductionMod;// t.trait.ReproductionMod;
-                //this.RaceSummary.ReproductionMod += t.trait.PopGrowthMin;
-                //this.RaceSummary.ReproductionMod -= t.trait.PopGrowthMax;
-                this.RaceSummary.PopGrowthMax += t.trait.PopGrowthMax;
-                this.RaceSummary.PopGrowthMin += t.trait.PopGrowthMin;
-                this.RaceSummary.ResearchMod += t.trait.ResearchMod;
-                this.RaceSummary.ShipCostMod += t.trait.ShipCostMod;
-                this.RaceSummary.TaxMod += t.trait.TaxMod;
-                this.RaceSummary.ProductionMod += t.trait.ProductionMod;
-                this.RaceSummary.ModHpModifier += t.trait.ModHpModifier;
-                this.RaceSummary.Mercantile += t.trait.Mercantile;
-                this.RaceSummary.GroundCombatModifier += t.trait.GroundCombatModifier;
-                this.RaceSummary.Cybernetic += t.trait.Cybernetic;
-                this.RaceSummary.Blind += t.trait.Blind;
-                this.RaceSummary.DodgeMod += t.trait.DodgeMod;
-                this.RaceSummary.HomeworldFertMod += t.trait.HomeworldFertMod;
-                this.RaceSummary.HomeworldRichMod += t.trait.HomeworldRichMod;
-                this.RaceSummary.HomeworldSizeMod += t.trait.HomeworldSizeMod;
-                this.RaceSummary.Militaristic += t.trait.Militaristic;
-                this.RaceSummary.BonusExplored += t.trait.BonusExplored;
-                this.RaceSummary.Prototype += t.trait.Prototype;
-                this.RaceSummary.Spiritual += t.trait.Spiritual;
-                this.RaceSummary.SpyMultiplier += t.trait.SpyMultiplier;
-                this.RaceSummary.RepairMod += t.trait.RepairMod;
-                if(t.trait.Pack)
-                    this.RaceSummary.Pack = t.trait.Pack;
+                RaceSummary.ConsumptionModifier    += t.trait.ConsumptionModifier;
+                RaceSummary.DiplomacyMod           += t.trait.DiplomacyMod;
+                RaceSummary.EnergyDamageMod        += t.trait.EnergyDamageMod;
+                RaceSummary.MaintMod               += t.trait.MaintMod;
+                RaceSummary.ReproductionMod        += t.trait.ReproductionMod;
+                RaceSummary.PopGrowthMax           += t.trait.PopGrowthMax;
+                RaceSummary.PopGrowthMin           += t.trait.PopGrowthMin;
+                RaceSummary.ResearchMod            += t.trait.ResearchMod;
+                RaceSummary.ShipCostMod            += t.trait.ShipCostMod;
+                RaceSummary.TaxMod                 += t.trait.TaxMod;
+                RaceSummary.ProductionMod          += t.trait.ProductionMod;
+                RaceSummary.ModHpModifier          += t.trait.ModHpModifier;
+                RaceSummary.Mercantile             += t.trait.Mercantile;
+                RaceSummary.GroundCombatModifier   += t.trait.GroundCombatModifier;
+                RaceSummary.Cybernetic             += t.trait.Cybernetic;
+                RaceSummary.Blind                  += t.trait.Blind;
+                RaceSummary.DodgeMod               += t.trait.DodgeMod;
+                RaceSummary.HomeworldFertMod       += t.trait.HomeworldFertMod;
+                RaceSummary.HomeworldRichMod       += t.trait.HomeworldRichMod;
+                RaceSummary.HomeworldSizeMod       += t.trait.HomeworldSizeMod;
+                RaceSummary.Militaristic           += t.trait.Militaristic;
+                RaceSummary.BonusExplored          += t.trait.BonusExplored;
+                RaceSummary.Prototype              += t.trait.Prototype;
+                RaceSummary.Spiritual              += t.trait.Spiritual;
+                RaceSummary.SpyMultiplier          += t.trait.SpyMultiplier;
+                RaceSummary.RepairMod              += t.trait.RepairMod;
+                RaceSummary.PassengerModifier      += t.trait.PassengerBonus;
+
+                if (t.trait.Pack)
+                    RaceSummary.Pack = t.trait.Pack;
             }
         }
-
-        //public enum Difficulty
-        //{
-        //    Easy,
-        //    Normal,
-        //    Hard,
-        //    Brutal
-        //}
-
-        //public enum GalSize
-        //{
-        //    Tiny,
-        //    Small,
-        //    Medium,
-        //    Large,
-        //    Epic
-        //}
-
-        //public enum GameMode
-        //{
-        //    Sandbox,
-        //    PreWarp
-        //}
-
-        //public enum StarNum
-        //{
-        //    Rare,
-        //    Uncommon,
-        //    Normal,
-        //    Abundant,
-        //    Crowded
-        //}
         
-        //added by gremlin new game modes and such
         public enum Difficulty
         {
-            Easy,
-            Normal,
-            Hard,
-            Brutal
+            Easy, Normal, Hard, Brutal
         }
 
         public enum GalSize
         {
-            Tiny,
-            Small,
-            Medium,
-            Large,
-            Huge,
-            Epic,
-            TrulyEpic       //Reenabled by Gretman, to make use of the new negative map sizes
+            Tiny, Small, Medium, Large,
+            Huge, Epic, TrulyEpic       // Reenabled by Gretman, to make use of the new negative map sizes
         }
 
         public enum GameMode
         {
-            Sandbox,
-            //Warlords,
-            //PreWarp,
-            Elimination,
-            Corners
+            Sandbox, Elimination, Corners
         }
 
         public enum StarNum
         {
-            VeryRare,
-            Rare,
-            Uncommon,
-            Normal,
-            Abundant,
-            Crowded,
-            Packed,
-            SuperPacked
+            VeryRare, Rare, Uncommon, Normal, Abundant, Crowded, Packed, SuperPacked
         }
 
-        //Added by Gretman
         public enum ExtraRemnantPresence
         {
-            Rare,
-            Normal,
-            More,
-            MuchMore,
-            Everywhere
+            Rare, Normal, More, MuchMore, Everywhere
         }
     }
 }

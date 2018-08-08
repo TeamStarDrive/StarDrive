@@ -197,7 +197,7 @@ namespace Ship_Game
                         starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
 
                         Ship ship3 = Ship.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
-                        //Data.MasterShipList.Add(ship3);
+                        Data.MasterShipList.Add(ship3);
 
                         //empire.AddShip(ship3);
                         //empire.GetForcePool().Add(ship3);
@@ -734,6 +734,7 @@ namespace Ship_Game
                 Plural               = data.RebelPlur,
                 Spiritual            = data.Traits.Spiritual,
                 SpyMultiplier        = data.Traits.SpyMultiplier,
+                SpyModifier          = data.Traits.SpyModifier,
                 TaxMod               = data.Traits.TaxMod
             };
             empireData.TurnsBelowZero = 0;
@@ -763,13 +764,13 @@ namespace Ship_Game
             empire.data = data;
             //Added by McShooterz: set values for alternate race file structure
             data.Traits.LoadTraitConstraints();
-            empire.dd = ResourceManager.DDDict[data.DiplomacyDialogPath];
-            empire.data.SpyModifier = data.Traits.SpyMultiplier;
-            empire.data.Traits.Spiritual = data.Traits.Spiritual;
-            data.Traits.PassengerModifier += data.Traits.PassengerBonus;
-            empire.PortraitName = data.PortraitName;
-            empire.data.Traits = data.Traits;
-            empire.EmpireColor = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B);
+            empire.dd                             = ResourceManager.DDDict[data.DiplomacyDialogPath];
+            empire.data.SpyModifier               = data.Traits.SpyMultiplier;
+            empire.data.Traits.Spiritual          = data.Traits.Spiritual;
+            empire.data.Traits.PassengerModifier += data.Traits.PassengerBonus;
+            empire.PortraitName                   = data.PortraitName;
+            empire.data.Traits                    = data.Traits;
+            empire.EmpireColor                    = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B);
             empire.Initialize();
             return empire;
         }
