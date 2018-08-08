@@ -24,17 +24,19 @@ namespace Ship_Game.AI {
             float money = OwnerEmpire.Money;
             money = money < 1 ? 1 : money;
             float treasuryGoal = TreasuryGoal();
-            float goalClamped = 1f.Clamped(0, money / treasuryGoal);
-            
-            AutoSetTaxes(treasuryGoal, goalClamped);
+
+            float goal = money / treasuryGoal;
+            AutoSetTaxes(treasuryGoal, goal);
+
+            float goalClamped = goal.Clamped(0, 1);
             var resStrat = OwnerEmpire.getResStrat();
             float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
             
             SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
-            SetBudgetForeArea(goalClamped * .02f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
-            SetBudgetForeArea(goalClamped * .025f, ref BuildCapacity, Math.Max(risk, buildRatio));           
+            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.SSPBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goalClamped * .01f, ref BuildCapacity, Math.Max(risk, buildRatio));           
             SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
-            SetBudgetForeArea(goalClamped * .05f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
+            SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 #if DEBUG
             var pBudgets = new Array<Budget.PlanetBudget>();
             foreach (var empire in EmpireManager.Empires)
@@ -82,7 +84,7 @@ namespace Ship_Game.AI {
         {
             float budget = OwnerEmpire.Money * percentOfIncome * risk;
             
-            budget = Math.Max(0, budget);
+            budget = Math.Max(1, budget);
             area = budget;
             return budget;
         }

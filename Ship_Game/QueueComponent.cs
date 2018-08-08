@@ -99,7 +99,6 @@ namespace Ship_Game
 				screen.ExitScreen();
 				return;
 			}
-			screen.qcomponent.QSL.Update();
 			screen.qcomponent.QSL.HandleInput(input);
 			if (Visible)
 			{

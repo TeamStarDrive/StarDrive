@@ -395,19 +395,19 @@ namespace Ship_Game
             graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue((Texture) texture2);
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
             basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
-            ScreenManager.SpriteBatch.Draw(texture1,
+            batch.Draw(texture1,
                 new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
                     graphics.PresentationParameters.BackBufferHeight), Color.White);
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
-            ScreenManager.SpriteBatch.End();
+            batch.End();
             view = matrix;
             if (drawBloom) bloomComponent.Draw(gameTime);
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
+            batch.Begin(SpriteBlendMode.AlphaBlend);
 
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
@@ -417,19 +417,19 @@ namespace Ship_Game
                 else if (alpha < 10) alpha = 0;
                 var color = new Color(255, 255, 255, (byte) alpha);
 
-                ScreenManager.SpriteBatch.Draw(BorderRT.GetTexture(),
+                batch.Draw(BorderRT.GetTexture(),
                     new Rectangle(0, 0,
                         graphics.PresentationParameters.BackBufferWidth,
                         graphics.PresentationParameters.BackBufferHeight), color);
             }
 
             RenderOverFog(gameTime);
-            ScreenManager.SpriteBatch.End();
-            ScreenManager.SpriteBatch.Begin();
+            batch.End();
+            batch.Begin();
             DrawPlanetInfo();
 
             if (LookingAtPlanet && SelectedPlanet != null)
-                workersPanel?.Draw(ScreenManager.SpriteBatch);
+                workersPanel?.Draw(batch);
             DrawShipsInRange();
 
             foreach (SolarSystem solarSystem in SolarSystemList)
@@ -514,32 +514,18 @@ namespace Ship_Game
 
             //fbedard: display values in new buttons
             ShipsInCombat.Text = "Ships: " + player.empireShipCombat;
-            if (player.empireShipCombat > 0)
-            {
-                ShipsInCombat.Style = ButtonStyle.Medium;
-            }
-            else
-            {
-                ShipsInCombat.Style = ButtonStyle.MediumMenu;
-            }
-            ShipsInCombat.Draw(ScreenManager.SpriteBatch);
+            ShipsInCombat.Style = player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
+            ShipsInCombat.Draw(batch);
 
             PlanetsInCombat.Text = "Planets: " + player.empirePlanetCombat;
-            if (player.empirePlanetCombat > 0)
-            {
-                PlanetsInCombat.Style = ButtonStyle.Medium;
-            }
-            else
-            {
-                PlanetsInCombat.Style = ButtonStyle.MediumMenu;
-            }
-            PlanetsInCombat.Draw(ScreenManager.SpriteBatch);
+            PlanetsInCombat.Style = player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
+            PlanetsInCombat.Draw(batch);
 
             if (!LookingAtPlanet)
-                pieMenu.Draw(this.ScreenManager.SpriteBatch, Fonts.Arial12Bold);
+                pieMenu.Draw(batch, Fonts.Arial12Bold);
 
-            ScreenManager.SpriteBatch.DrawRectangle(SelectionBox, Color.Green, 1f);
-            EmpireUI.Draw(ScreenManager.SpriteBatch);
+            batch.DrawRectangle(SelectionBox, Color.Green, 1f);
+            EmpireUI.Draw(batch);
             if (!LookingAtPlanet)
                 DrawShipUI(gameTime);
 
@@ -614,14 +600,14 @@ namespace Ship_Game
 
             if (Paused)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(4005),
+                batch.DrawString(Fonts.Pirulen16, Localizer.Token(4005),
                     new Vector2(
                         graphics.PresentationParameters.BackBufferWidth / 2f -
                         Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, 45f), Color.White);
             }
             if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Hyperspace Flux",
+                batch.DrawString(Fonts.Pirulen16, "Hyperspace Flux",
                     new Vector2(
                         graphics.PresentationParameters.BackBufferWidth / 2f -
                         Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
@@ -629,7 +615,7 @@ namespace Ship_Game
             }
             if (IsActive && SavedGame.IsSaving)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...",
+                batch.DrawString(Fonts.Pirulen16, "Saving...",
                     new Vector2(
                         graphics.PresentationParameters.BackBufferWidth / 2f -
                         Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
@@ -640,41 +626,58 @@ namespace Ship_Game
             if (IsActive && (GameSpeed != 1f)) //don't show "1.0x"
             {
                 string speed = GameSpeed.ToString("0.0##") + "x";
-                Vector2 speedTextPos = new Vector2(
+                var speedTextPos = new Vector2(
                     ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth -
                     Fonts.Pirulen16.MeasureString(speed).X - 13f, 64f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, speed, speedTextPos, Color.White);
+                batch.DrawString(Fonts.Pirulen16, speed, speedTextPos, Color.White);
             }
-            if (Debug)
-            {
-                var lines = new Array<string>();
-                lines.Add("Comparisons:      " + GlobalStats.Comparisons);
-                lines.Add("Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter);
-                lines.Add("Modules Moved:    " + GlobalStats.ModulesMoved);
-                lines.Add("Modules Updated:  " + GlobalStats.ModuleUpdates);
-                lines.Add("Arc Checks:       " + GlobalStats.WeaponArcChecks);
-                lines.Add("Beam Tests:       " + GlobalStats.BeamTests);
-                lines.Add("Memory:           " + Memory);
-                lines.Add("");
-                lines.Add("Ship Count:       " + MasterShipList.Count);
-                lines.Add("Ship Time:        " + Perfavg2);
-                lines.Add("Empire Time:      " + EmpireUpdatePerf);
-                lines.Add("PreEmpire Time:   " + PreEmpirePerf);
-                lines.Add("Post Empire Time: " + perfavg4);
-                lines.Add("");
-                lines.Add("Total Time:       " + perfavg5);
 
-                Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 250f,
-                    44f);
-                DrawLinesToScreen(pos, lines);
-            }
+            if (Debug) ShowDebugGameInfo();
+            else       HideDebugGameInfo();
+
             if (IsActive)
-                ToolTip.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.End();
+                ToolTip.Draw(batch);
+
+            base.Draw(batch);  // UIElementV2 Draw
+
+            batch.End();
 
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
             // the game logic can be updated
             DrawCompletedEvt.Set();
+        }
+
+        private UILabel DebugText;
+
+        private void HideDebugGameInfo()
+        {
+            DebugText?.Hide();
+        }
+
+        private void ShowDebugGameInfo()
+        {
+            if (DebugText == null)
+                DebugText = Label(ScreenWidth - 250f, 44f, "");
+
+            DebugText.Show();
+            DebugText.MultilineText = new Array<string>
+            {
+                "Comparisons:      " + GlobalStats.Comparisons,
+                "Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter,
+                "Modules Moved:    " + GlobalStats.ModulesMoved,
+                "Modules Updated:  " + GlobalStats.ModuleUpdates,
+                "Arc Checks:       " + GlobalStats.WeaponArcChecks,
+                "Beam Tests:       " + GlobalStats.BeamTests,
+                "Memory:           " + Memory,
+                "",
+                "Ship Count:       " + MasterShipList.Count,
+                "Ship Time:        " + Perfavg2,
+                "Empire Time:      " + EmpireUpdatePerf,
+                "PreEmpire Time:   " + PreEmpirePerf,
+                "Post Empire Time: " + perfavg4,
+                "",
+                "Total Time:       " + perfavg5
+            };
         }
 
         private void DrawFleetIcons(GameTime gameTime)
@@ -1154,16 +1157,14 @@ namespace Ship_Game
 
         public void DrawWayPointLines(Ship ship, Color color)
         {
-            if (ship.AI.ActiveWayPoints.Count < 1)
+            if (ship.AI.WayPoints.Count() < 1)
                 return;
 
-            Vector2[] waypoints;
-            lock (ship.AI.WayPointLocker)
-                waypoints = ship.AI.ActiveWayPoints.ToArray();
+            var waypoints = ship.AI.WayPoints.ToArray();
 
             DrawLineProjected(ship.Center, waypoints[0], color);
 
-            for (int i = 1; i < waypoints.Length; ++i)
+            for (int i = 1; i < waypoints.Count; ++i)
             {
                 DrawLineProjected(waypoints[i - 1], waypoints[i], color);
             }

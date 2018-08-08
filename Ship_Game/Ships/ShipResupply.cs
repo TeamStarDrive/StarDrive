@@ -1,10 +1,11 @@
-﻿namespace Ship_Game.Ships
+﻿using Ship_Game.AI;
+namespace Ship_Game.Ships
 {
     public struct ShipResupply
     {
         private readonly Ship Ship;
         private const float OrdnanceThresholdCombat            = 0.05f;
-        private const float OrdnanceThresholdNonCombat         = 0.25f;
+        private const float OrdnanceThresholdNonCombat         = 0.15f;
         private const float ResupplyTroopThreshold             = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
@@ -40,8 +41,8 @@
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
                                                            || Ship.DesignRole == ShipData.RoleName.supply
-                                                           || Ship.AI.State == AI.AIState.Resupply
-                                                           || Ship.AI.State == AI.AIState.ResupplyEscort)
+                                                           || Ship.AI.State == AIState.Resupply
+                                                           || Ship.AI.State == AIState.ResupplyEscort)
                 return ResupplyReason.NotNeeded;
 
             if (!Ship.hasCommand)
@@ -99,6 +100,10 @@
 
         private bool OrdnanceLow()
         {
+            if (Ship.shipData.ShipCategory == ShipData.Category.Kamikaze
+                && Ship.loyalty.isPlayer)
+                return false; // only player manual command will convince player Kamikaze to resupply
+
             float threshold = Ship.InCombat ? OrdnanceThresholdCombat
                                             : OrdnanceThresholdNonCombat;
             return Ship.OrdnancePercent < threshold;

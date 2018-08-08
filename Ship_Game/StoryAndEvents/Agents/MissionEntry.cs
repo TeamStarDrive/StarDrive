@@ -26,185 +26,45 @@ namespace Ship_Game
 		{
 			this.Component = parent;
 			this.TheMission = am;
-            DoMission = new UIButton(null, ButtonStyle.Low80, 0f, 0f, "New Campaign", "Go");
+            DoMission = new UIButton(null, ButtonStyle.Low80, 0f, 0f, "Go");
+            DoMission.OnClick += DoMission_OnClick;
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle clickRect)
+        private void DoMission_OnClick(UIButton button)
+        {
+            Component.SelectedAgent.AssignMission(TheMission, 
+                EmpireManager.Player, Component.Escreen.SelectedEmpire.data.Traits.Name);
+
+        }
+
+        public void Draw(SpriteBatch batch, Rectangle clickRect)
 		{
-			Vector2 Cursor = new Vector2(clickRect.X, (clickRect.Y + clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(this.NameIndex), Cursor, (this.Available ? Color.White : Color.Gray));
-			Cursor.X = Cursor.X + 120f;
-			HelperFunctions.ClampVectorToInt(ref Cursor);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.turns, " turns"), Cursor, (this.Available ? Color.White : Color.Gray));
-			Cursor.X = Cursor.X + 70f;
-			Rectangle smallmoney = new Rectangle((int)Cursor.X, (int)Cursor.Y - 3, 21, 20);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], smallmoney, Color.White);
-			Cursor.X = (float)(smallmoney.X + 25);
-			HelperFunctions.ClampVectorToInt(ref Cursor);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost.ToString(), Cursor, (Available ? Color.White : Color.Gray));
-			if (this.Available)
+            var cursor = new Vector2(clickRect.X, (clickRect.Y + clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+		    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(this.NameIndex), cursor, (this.Available ? Color.White : Color.Gray));
+			cursor.X += 120f;
+			HelperFunctions.ClampVectorToInt(ref cursor);
+		    batch.DrawString(Fonts.Arial12Bold, string.Concat(this.turns, " turns"), cursor, (this.Available ? Color.White : Color.Gray));
+			cursor.X += 70f;
+			var smallmoney = new Rectangle((int)cursor.X, (int)cursor.Y - 3, 21, 20);
+		    batch.Draw(ResourceManager.Texture("NewUI/icon_money"), smallmoney, Color.White);
+			cursor.X += 25f;
+			HelperFunctions.ClampVectorToInt(ref cursor);
+		    batch.DrawString(Fonts.Arial12Bold, cost.ToString(), cursor, (Available ? Color.White : Color.Gray));
+			if (Available)
 			{
-				this.DoMission.Rect = new Rectangle(smallmoney.X + 50, (int)Cursor.Y - 1, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Height);
-				this.DoMission.Draw(ScreenManager.SpriteBatch);
+                Texture2D tex = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px");
+                DoMission.Rect = new Rectangle(smallmoney.X + 50, (int)cursor.Y - 1, tex.Width, tex.Height);
+				DoMission.Draw(batch);
 			}
-			ScreenManager.SpriteBatch.DrawLine(new Vector2(clickRect.X, (clickRect.Y + clickRect.Height)), new Vector2((clickRect.X + clickRect.Width), (clickRect.Y + clickRect.Height)), Color.OrangeRed);
+		    batch.DrawLine(new Vector2(clickRect.X, (clickRect.Y + clickRect.Height)), new Vector2((clickRect.X + clickRect.Width), (clickRect.Y + clickRect.Height)), Color.OrangeRed);
 		}
 
-		public void HandleInputORIG(InputState input)
-		{
-			if (this.Available)
-			{
-				if (!this.DoMission.Rect.HitTest(input.CursorPosition))
-				{
-					this.DoMission.State = UIButton.PressState.Default;
-				}
-				else
-				{
-					if (this.DoMission.State != UIButton.PressState.Hover && this.DoMission.State != UIButton.PressState.Pressed)
-					{
-						GameAudio.PlaySfxAsync("mouse_over4");
-					}
-					this.DoMission.State = UIButton.PressState.Hover;
-					if (input.MouseCurr.LeftButton == ButtonState.Pressed)
-					{
-						this.DoMission.State = UIButton.PressState.Pressed;
-					}
-					if (input.InGameSelect)
-					{
-                        this.Component.SelectedAgent.AssignMission(this.TheMission, EmpireManager.Player, this.Component.Escreen.SelectedEmpire.data.Traits.Name);
-						return;
-					}
-				}
-			}
-		}
         //added by gremlin MissionHandleInput
         public void HandleInput(InputState input)
         {
-            //if (this.Available)
-            {
-                if (!this.DoMission.Rect.HitTest(input.CursorPosition))
-                {
-                    this.DoMission.State = UIButton.PressState.Default;
-
-                }
-                else
-                {
-                    if (this.DoMission.State != UIButton.PressState.Hover && this.DoMission.State != UIButton.PressState.Pressed)
-                    {
-                        GameAudio.PlaySfxAsync("mouse_over4");
-                    }
-                    this.DoMission.State = UIButton.PressState.Hover;
-                    if (input.MouseCurr.LeftButton == ButtonState.Pressed)
-                    {
-                        this.DoMission.State = UIButton.PressState.Pressed;
-                    }
-                    if (input.InGameSelect)
-                    {
-                        this.Component.SelectedAgent.AssignMission(this.TheMission, EmpireManager.Player, this.Component.Escreen.SelectedEmpire.data.Traits.Name);
-                        return;
-                    }
-                }
-            }
+            DoMission.HandleInput(input);
         }
-		public void InitializeORIG()
-		{
-			this.Available = false;
-			switch (this.TheMission)
-			{
-				case AgentMission.Training:
-				{
-					if (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover)
-					{
-						this.Available = true;
-					}
-					this.turns = 25;
-					this.cost = 50;
-					this.NameIndex = 2196;
-					this.DescriptionIndex = 2197;
-					break;
-				}
-				case AgentMission.Infiltrate:
-				{
-                    if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
-					{
-						this.Available = true;
-					}
-					this.turns = 30;
-					this.cost = 75;
-					this.NameIndex = 2188;
-					this.DescriptionIndex = 2189;
-					break;
-				}
-				case AgentMission.Assassinate:
-				{
-                    if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
-					{
-						this.Available = true;
-					}
-					this.turns = 50;
-					this.cost = 75;
-					this.NameIndex = 2184;
-					this.DescriptionIndex = 2185;
-					break;
-				}
-				case AgentMission.Sabotage:
-				{
-                    if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
-					{
-						this.Available = true;
-					}
-					this.turns = 30;
-					this.cost = 75;
-					this.NameIndex = 2190;
-					this.DescriptionIndex = 2191;
-					break;
-				}
-				case AgentMission.StealTech:
-				{
-                    if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
-					{
-						this.Available = true;
-					}
-					this.turns = 50;
-					this.cost = 250;
-					this.NameIndex = 2194;
-					this.DescriptionIndex = 2195;
-					break;
-				}
-				case AgentMission.Robbery:
-				{
-                    if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
-					{
-						this.Available = true;
-					}
-					this.turns = 30;
-					this.cost = 50;
-					this.NameIndex = 2192;
-					this.DescriptionIndex = 2193;
-					break;
-				}
-				case AgentMission.InciteRebellion:
-				{
-                    if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
-					{
-						this.Available = true;
-					}
-					this.turns = 100;
-					this.cost = 250;
-					this.NameIndex = 2186;
-					this.DescriptionIndex = 2187;
-					break;
-				}
-			}
-			if (EmpireManager.Player.Money < (float)this.cost)
-			{
-				this.Available = false;
-			}
-            if (this.Component.Escreen.SelectedEmpire.data.Defeated)
-			{
-				this.Available = false;
-			}
-		}
+
         //added by gremlin deveks missionInit
         public void Initialize()
         {

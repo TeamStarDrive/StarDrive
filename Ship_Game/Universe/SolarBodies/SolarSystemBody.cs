@@ -70,7 +70,7 @@ namespace Ship_Game
         public Matrix CloudMatrix;
         public bool HasEarthLikeClouds;
         public string SpecialDescription;
-        public bool HasShipyard;
+        public bool HasShipyard;        //This is terrably named. This should be 'HasStarPort'
         public string Name;
         public string Description;
         public Empire Owner;
@@ -748,12 +748,15 @@ namespace Ship_Game
                 MineralRichness = 0.0f;
             else
             {
-                if (!(Fertility > 0)) return;
+                if (Fertility <= 0 && Owner.Capital == null)
+                    return;
+
+                float chance = Owner.Capital == null ? HabitalTileChance : 75; // homeworlds always get 75% habitable chance per tile
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
-                        bool habitableTile = (int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance;
+                        bool habitableTile =  (int)RandomMath.RandomBetween(0.0f, 100f) < chance;
                         TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
                     }
                 }
@@ -955,21 +958,21 @@ namespace Ship_Game
 
         protected void UpdatePosition(float elapsedTime)
         {
-            Zrotate += ZrotateAmount * elapsedTime;
-            if (!Empire.Universe.Paused)
-            {
-                OrbitalAngle += (float)Math.Asin(15.0 / OrbitalRadius);
-                if (OrbitalAngle >= 360.0f)
-                    OrbitalAngle -= 360f;
-            }
+            
+        
             PosUpdateTimer -= elapsedTime;
-            if (PosUpdateTimer <= 0.0f || ParentSystem.isVisible)
+            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.isVisible))
             {
                 PosUpdateTimer = 5f;
+                OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
+                if (OrbitalAngle >= 360.0f)
+                    OrbitalAngle -= 360f;
                 Center = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
             }
+
             if (ParentSystem.isVisible)
             {
+                Zrotate += ZrotateAmount * elapsedTime;
                 SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(Scale) *
                            Matrix.CreateRotationZ(-Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) *
                            Matrix.CreateTranslation(new Vector3(Center, 2500f));
@@ -989,7 +992,7 @@ namespace Ship_Game
         {
             if (SO != null)
                 screen?.RemoveObject(SO);
-            var contentManager =  ResourceManager.ContentManager;
+            var contentManager =  ResourceManager.RootContent;
             SO = ResourceManager.GetPlanetarySceneMesh(contentManager, "Model/SpaceObjects/planet_" + PlanetType);
             SO.World = Matrix.CreateScale(Scale * 3)
                        * Matrix.CreateTranslation(new Vector3(Center, 2500f));

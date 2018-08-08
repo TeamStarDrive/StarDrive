@@ -9,7 +9,6 @@ using System.IO;
 using System.Xml.Serialization;
 using Ship_Game.AI;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -42,17 +41,7 @@ namespace Ship_Game
 
         private Vector2 aspect;
 
-        private Vector2 mousePos = new Vector2(0f, 0f);
-
-        private MouseState mouseStateCurrent;
-
-        private MouseState mouseStatePrevious;
-
-        public string TestTexture = "Textures/Modules/Armor";
-
         private Array<Ship> StartingShipList = new Array<Ship>();
-
-        private bool ShowOverlay = true;
 
         private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
 
@@ -85,8 +74,6 @@ namespace Ship_Game
         private string HullName = "Hull Name";
 
         private int selectedShip = 0;
-
-        private Rectangle RbBox = new Rectangle();
 
         private ShipModule ActiveModule;
 
@@ -179,15 +166,16 @@ namespace Ship_Game
             }
             if (this.ActiveModule != null)
             {
-                batch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
-                for (int i = 0; i < this.ActiveModule.XSIZE; i++)
+                batch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                
+                
+                for (int i = 0; i < ActiveModule.XSIZE; i++)
+                for (int j = 0; j < ActiveModule.YSIZE; j++)
                 {
-                    for (int j = 0; j < this.ActiveModule.YSIZE; j++)
-                    {
-                        PrimitiveQuad pq = new PrimitiveQuad(new Rectangle(this.mouseStateCurrent.X + i * 16, this.mouseStateCurrent.Y + j * 16, 16, 16));
-                        pq.Draw(batch, Color.White);
-                    }
+                    var pq = new PrimitiveQuad(new Rectangle(Input.MouseCurr.X + i * 16, Input.MouseCurr.Y + j * 16, 16, 16));
+                    pq.Draw(batch, Color.White);
                 }
+
             }
             Vector2 InfoPos = new Vector2((float)(this.SaveHullButton.r.X - 50), (float)(this.SaveHullButton.r.Y - 20));
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
@@ -396,14 +384,8 @@ namespace Ship_Game
             {
                 this.SaveShipData("New Ship");
             }
-            if (input.ScrollIn)
-            {
-                tscale = tscale + 1f;
-            }
-            if (input.ScrollOut)
-            {
-                tscale = tscale - 1f;
-            }
+            if (input.ScrollIn)  tscale += 1f;
+            if (input.ScrollOut) tscale -= 1f;
             if (input.Right)
             {
                 this.heat = 1f;
@@ -439,17 +421,15 @@ namespace Ship_Game
             {
                 return;
             }
-            this.mouseStateCurrent = Mouse.GetState();
-            this.mousePos = Vector2.Zero;
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Released)
+            if (Input.LeftMouseClick)
             {
-                this.SelectionBox = new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 0, 0);
+                this.SelectionBox = new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 0, 0);
             }
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed)
+            if (Input.LeftMouseDown)
             {
-                this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, this.mouseStateCurrent.X - this.SelectionBox.X, this.mouseStateCurrent.Y - this.SelectionBox.Y);
+                this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, Input.MouseCurr.X - this.SelectionBox.X, Input.MouseCurr.Y - this.SelectionBox.Y);
             }
-            else if (this.mouseStateCurrent.LeftButton == ButtonState.Released && this.mouseStatePrevious.LeftButton == ButtonState.Pressed)
+            else if (Input.LeftMouseClick)
             {
                 foreach (SlotStruct slot in this.SlotList)
                 {
@@ -461,31 +441,15 @@ namespace Ship_Game
                     slot.Restrictions = this.DesignState;
                 }
             }
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Released)
+            if (Input.LeftMouseUp)
             {
                 this.SelectionBox = new Rectangle(-1, -1, 0, 0);
             }
-            if (this.mouseStateCurrent.RightButton == ButtonState.Pressed)
-            {
-                ButtonState rightButton = this.mouseStatePrevious.RightButton;
-            }
-            this.mouseStatePrevious = this.mouseStateCurrent;
             if (this.applyThruster)
             {
-                this.tPos = new Vector2((float)(this.mouseStateCurrent.X - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(this.mouseStateCurrent.Y - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
+                this.tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
+                                        Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
             }
-        }
-
-        public void HandleMouseInput()
-        {
-            this.mouseStateCurrent = Mouse.GetState();
-            this.mousePos = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y);
-            if (this.mouseStateCurrent.LeftButton == ButtonState.Pressed && this.mouseStatePrevious.LeftButton == ButtonState.Released && this.mousePos.X > (float)this.RbBox.X && this.mousePos.Y > (float)this.RbBox.Y && this.mousePos.X < (float)(this.RbBox.X + this.RbBox.Width) && this.mousePos.Y < (float)(this.RbBox.Y + this.RbBox.Height))
-            {
-                this.ShowOverlay = !this.ShowOverlay;
-                GameAudio.PlaySfxAsync("analogue_click2");
-            }
-            this.mouseStatePrevious = this.mouseStateCurrent;
         }
 
         public override void LoadContent()
@@ -541,17 +505,15 @@ namespace Ship_Game
             try
             {
                 shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath);
-                shipSO.World = worldMatrix;
-                ModelPath = modelPath;
-                AddObject(shipSO);
+
             }
             catch (Exception)
             {
                 shipSO = ResourceManager.GetSceneMesh(TransientContent, modelPath, animated:true);
-                shipSO.World = worldMatrix;
-                ModelPath = modelPath;
-                AddObject(shipSO);
             }
+            shipSO.World = worldMatrix;
+            ModelPath = modelPath;
+            AddObject(shipSO);
         }
 
 
@@ -633,7 +595,9 @@ namespace Ship_Game
             this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
             this.designInputState.Update(gameTime);
             this.HandleInput();
-            this.thruster.Update(new Vector3(this.tPos.X, this.tPos.Y, 30f), new Vector3(0f, -1f, 0f), new Vector3(this.tscale, this.tscale, this.tscale), this.heat, 0.002f, Color.OrangeRed, Color.Blue, camPos);
+            thruster.tscale = tscale;
+            thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);
+            this.thruster.Update(new Vector3(0f, -1f, 0f), this.heat, 0.002f, camPos);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

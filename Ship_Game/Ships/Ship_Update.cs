@@ -218,43 +218,34 @@ namespace Ship_Game.Ships
         private void UpdateThrusters()
         {
             foreach (Thruster thruster in ThrusterList)
+                UpdateThruster(thruster);
+        }
+
+        private void UpdateThruster(Thruster thruster)
+        {
+            thruster.SetPosition();
+            float velocityPercent = Velocity.Length() / velocityMaximum;
+            if (isThrusting)
             {
-                thruster.SetPosition();
-                var vector2_3 = new Vector2((float) Math.Sin((double) Rotation),
-                    -(float) Math.Cos((double) Rotation));
-                vector2_3 = Vector2.Normalize(vector2_3);
-                float num2 = Velocity.Length() / velocityMaximum;
-                if (isThrusting)
+                if (engineState == MoveState.Warp)
                 {
-                    if (engineState == Ship.MoveState.Warp)
-                    {
-                        if (thruster.heat < num2)
-                            thruster.heat += 0.06f;
-                        pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
-                        scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
-                        thruster.Update(thruster.WorldPos, pointat, scalefactors, thruster.heat, 0.004f,
-                            Color.OrangeRed, Color.LightBlue, Empire.Universe.CamPos);
-                    }
-                    else
-                    {
-                        if (thruster.heat < num2)
-                            thruster.heat += 0.06f;
-                        if (thruster.heat > 0.600000023841858)
-                            thruster.heat = 0.6f;
-                        pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
-                        scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
-                        thruster.Update(thruster.WorldPos, pointat, scalefactors, thruster.heat, 1.0f / 500.0f,
-                            Color.OrangeRed, Color.LightBlue, Empire.Universe.CamPos);
-                    }
+                    if (thruster.heat < velocityPercent)
+                        thruster.heat += 0.06f;
+                    thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos);
                 }
                 else
                 {
-                    pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
-                    scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
-                    thruster.heat = 0.01f;
-                    thruster.Update(thruster.WorldPos, pointat, scalefactors, 0.1f, 1.0f / 500.0f, Color.OrangeRed,
-                        Color.LightBlue, Empire.Universe.CamPos);
+                    if (thruster.heat < velocityPercent)
+                        thruster.heat += 0.06f;
+                    if (thruster.heat > 0.600000023841858)
+                        thruster.heat = 0.6f;
+                    thruster.Update(Direction3D, thruster.heat, 1.0f / 500.0f, Empire.Universe.CamPos);
                 }
+            }
+            else
+            {
+                thruster.heat = 0.01f;
+                thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos);
             }
         }
 

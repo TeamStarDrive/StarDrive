@@ -149,7 +149,7 @@ namespace Ship_Game
 				{
 					this.cursor.X = this.rect.X;
 				}
-				if (input.MouseCurr.LeftButton == ButtonState.Released)
+				if (input.LeftMouseUp)
 				{
 					this.dragging = false;
 				}

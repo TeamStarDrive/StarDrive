@@ -75,17 +75,20 @@ namespace Ship_Game
             return true;
         }
 
-        public override void PerformLegacyLayout(Vector2 pos)
+        private void PerformLegacyLayout(Vector2 pos)
         {
             int offset = (Font.LineSpacing + 6) / 2 - 5;
             Rect = new Rectangle((int)pos.X, (int)pos.Y + offset, 10, 10);
             RequiresLayout = false;
-            Update();
+            PerformLayout();
         }
 
-        public override void Update()
+        public override void PerformLayout()
         {
-            base.Update();
+            if (!Visible)
+                return;
+
+            base.PerformLayout();
             TextPos  = new Vector2(Rect.X + 15, Rect.Y + Rect.Height / 2 - Font.LineSpacing / 2);
             CheckPos = new Vector2(Rect.X + 5 - Font.MeasureString("x").X / 2f, 
                                    Rect.Y + 4 - Font.LineSpacing / 2);

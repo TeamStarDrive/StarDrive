@@ -15,7 +15,11 @@ namespace Ship_Game
         /// <summary>This is safe to reference everywhere, because an empty array is fully immutable</summary>
         public static readonly T[] Array = new T[0];
     }
-
+    public static class EmptyArray<T>
+    {
+        /// <summary>This is safe to reference everywhere, because an empty array is fully immutable</summary>
+        public static readonly Array<T> Array = new Array<T>(0);
+    }
     /// <summary>
     /// This is a custom version of List, to make debugging easier
     /// and optimize for game relate performance requirements
@@ -596,12 +600,11 @@ namespace Ship_Game
             Array.Sort(keys, items, 0, count);
         }
 
-        public T[] SortedBy<TKey>(Func<T, TKey> keyPredicate)
+        public T[] Sorted<TKey>(Func<T, TKey> keyPredicate)
         {
             int count = Count;
             if (count <= 1)
                 return Empty<T>.Array;
-
 
             var items = new T[count];
             Memory.HybridCopy(items, 0, Items, count);
@@ -612,6 +615,20 @@ namespace Ship_Game
 
             Array.Sort(keys, items, 0, items.Length);
             return items;
+        }
+
+        public T[] Sorted<TKey>(bool ascending, Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(keyPredicate);
+            if (!ascending) sorted.Reverse();
+            return sorted;
+        }
+
+        public T[] SortedDescending<TKey>(Func<T, TKey> keyPredicate)
+        {
+            T[] sorted = Sorted(keyPredicate);
+            sorted.Reverse();
+            return sorted;
         }
 
         public void RemoveAll(Predicate<T> match)

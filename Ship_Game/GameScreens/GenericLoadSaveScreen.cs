@@ -98,7 +98,6 @@ namespace Ship_Game
             } catch { }
 
             int iAT = this.SavesSL.FirstVisibleIndex;
-            this.Buttons.Clear();
             this.LoadContent();
             this.SavesSL.FirstVisibleIndex = iAT;
 
@@ -107,7 +106,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             SaveMenu.Draw();
             NameSave.Draw();
             AllSaves.Draw();
@@ -116,26 +115,24 @@ namespace Ship_Game
             {
                 var data = (FileData)e.item;
                 bCursor.Y = (float)e.Y - 7;
-                ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                batch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
+                batch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
                 tCursor.Y += Fonts.Arial20Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
-                e.DrawCancel(ScreenManager.SpriteBatch, Input, "Delete File");
+                batch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
+                e.DrawCancel(batch, Input, "Delete File");
             }
-            SavesSL.Draw(ScreenManager.SpriteBatch);
-            EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
-            foreach (UIButton b in Buttons)
-            {
-                b.Draw(ScreenManager.SpriteBatch);
-            }
+            SavesSL.Draw(batch);
+            EnterNameArea.Draw(Fonts.Arial12Bold, batch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
 
-            selector?.Draw(ScreenManager.SpriteBatch);
-            close.Draw(ScreenManager.SpriteBatch);
-            ToolTip.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.End();
+            base.Draw(batch);
+
+            selector?.Draw(batch);
+            close.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
         }
 
         protected virtual void Load()
@@ -181,38 +178,6 @@ namespace Ship_Game
                 this.ExitScreen();
                 return true;
             }
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(MousePos))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    b.State = UIButton.PressState.Hover;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (this.currentMouse.LeftButton != ButtonState.Released || this.previousMouse.LeftButton != ButtonState.Pressed)
-                    {
-                        continue;
-                    }
-                    string text = b.Launches;
-                    if (text == null)
-                    {
-                        continue;
-                    }
-                    if (text == "DoBtn")
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        if(mode == SLMode.Save)
-                            this.TrySave();
-                        else if (mode == SLMode.Load)
-                            this.Load();
-                    }
-                }
-            }
             if (SLMode.Save == mode)       // Only check name field change when saving
             {
                 if (!EnterNameArea.ClickableArea.HitTest(MousePos))
@@ -222,7 +187,7 @@ namespace Ship_Game
                 else
                 {
                     EnterNameArea.Hover = true;
-                    if (currentMouse.LeftButton == ButtonState.Released && this.previousMouse.LeftButton == ButtonState.Pressed)
+                    if (input.LeftMouseClick)
                     {
                         EnterNameArea.HandlingInput = true;
                         EnterNameArea.Text = "";
@@ -264,7 +229,14 @@ namespace Ship_Game
             EnterNameArea.Text = this.InitText;
             EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "DoBtn", mode == SLMode.Save ? "Save" : "Load");
+            string title = mode == SLMode.Save ? "Save" : "Load";
+            DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, title, b =>
+            {
+                if (mode == SLMode.Save)
+                    TrySave();
+                else if (mode == SLMode.Load)
+                    Load();
+            });
 
             base.LoadContent();
         }

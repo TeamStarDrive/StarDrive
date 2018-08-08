@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Ship_Game.UI
+namespace Ship_Game
 {
     public class ToggleButtonStyle
     {
@@ -106,8 +106,6 @@ namespace Ship_Game.UI
 
     public class ToggleButton : UIElementV2
     {
-        public object ReferenceObject;
-
         public string Action = "";
 
         public bool Active;
@@ -130,6 +128,8 @@ namespace Ship_Game.UI
 
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
+
+        public override string ToString() => $"ToggleButton Icon:{IconPath} Action:{Action}";
 
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
             : base(container, new Rectangle((int)pos.X, (int)pos.Y, style.Width, style.Height))
@@ -196,11 +196,6 @@ namespace Ship_Game.UI
                 Rectangle iconRect = IconActive == null ? IconRect : Rect;
                 batch.Draw(IconActive ?? IconTexture, iconRect, Color.White);            
             }
-        }
-
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            Pos = pos;
         }
 
         public override bool HandleInput(InputState input)

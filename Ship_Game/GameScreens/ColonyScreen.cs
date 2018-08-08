@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -188,9 +187,9 @@ namespace Ship_Game
             pFacilities = new Submenu(theMenu9);
             pFacilities.AddTab(Localizer.Token(333));
 
-            launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", "Launch Troops");
+            launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", OnLaunchTroopsClicked);
             SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
-                                theMenu9.Y - 5, "Send Troops", "Send Troops");
+                                theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
 
             CommoditiesSL = new ScrollList(pFacilities, 40);
             Rectangle theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (double)(theMenu3.Height - 60)));
@@ -343,8 +342,8 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48"), r, Color.White);
             }
             pFacilities.Draw();
-            if (p.Owner == Empire.Universe.player && p.TroopsHere.Count > 0)
-                launchTroops.Draw(batch);
+            launchTroops.Visible = p.Owner == Empire.Universe.player && p.TroopsHere.Count > 0;
+
             //fbedard: Display button
             if (p.Owner == Empire.Universe.player)
             {
@@ -356,7 +355,6 @@ namespace Ship_Game
                     SendTroops.Text = "Landing: " + troopsInvading;
                 else
                     SendTroops.Text = "Send Troops";
-                SendTroops.Draw(batch);
             }
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw();
@@ -644,7 +642,7 @@ namespace Ship_Game
                     }
                 }
 
-                string text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                string text5 = Fonts.Arial12Bold.ParseText(Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                 batch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
 
                 GovernorDropdown.SetAbsPos(vector2_3.X, vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5);
@@ -689,6 +687,8 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.TextureDict["NewUI/icon_storage_production"], profStorageIcon, Color.White);
                 }
             }
+
+            base.Draw(batch);
 
             if (ScreenManager.NumScreens == 2)
                 popup = true;
@@ -1068,7 +1068,7 @@ namespace Ship_Game
 
                 if (!entry.Hovered)
                 {
-                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Green);
                     position.X = (entry.Right - 100);
                     var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
@@ -1198,12 +1198,14 @@ namespace Ship_Game
             {
                 spriteBatch.DrawString(Fonts.Arial20Bold, t.DisplayNameEmpire(p.Owner), bCursor, TextColor);
                 bCursor.Y = bCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
+                string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
+                                                                   : t.ActualStrengthMax.String(1);
 
                 DrawMultiLine(ref bCursor, t.Description);
                 DrawTitledLine(ref bCursor, 338, t.TargetType);
-                DrawTitledLine(ref bCursor, 339, t.StrengthText);
-                DrawTitledLine(ref bCursor, 2218, t.GetHardAttack().ToString());
-                DrawTitledLine(ref bCursor, 2219, t.GetSoftAttack().ToString());
+                DrawTitledLine(ref bCursor, 339, strength);
+                DrawTitledLine(ref bCursor, 2218, t.NetHardAttack.ToString());
+                DrawTitledLine(ref bCursor, 2219, t.NetSoftAttack.ToString());
                 DrawTitledLine(ref bCursor, 6008, t.BoardingStrength.ToString());
                 DrawTitledLine(ref bCursor, 6023, t.Level.ToString());
             }
@@ -1646,6 +1648,18 @@ namespace Ship_Game
             }
         }
 
+        private void DrawTroopLevel(Troop troop, Rectangle rect)
+        {
+            SpriteFont font = Fonts.Arial12Bold;
+            var levelRect   = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
+            var pos         = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
+                                         (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
+
+            ScreenManager.SpriteBatch.FillRectangle(levelRect, new Color(0, 0, 0, 200));
+            ScreenManager.SpriteBatch.DrawRectangle(levelRect, troop.GetOwner().EmpireColor);
+            ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
+        }
+
         private void DrawPGSIcons(PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
@@ -1655,12 +1669,15 @@ namespace Ship_Game
             }
             if (pgs.TroopsHere.Count > 0)
             {
+                Troop troop        = pgs.TroopsHere[0];
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 48, pgs.ClickRect.Y, 48, 48);
-                pgs.TroopsHere[0].DrawIcon(ScreenManager.SpriteBatch, pgs.TroopClickRect);
+                troop.DrawIcon(ScreenManager.SpriteBatch, pgs.TroopClickRect);
+                if (troop.Level > 0)
+                    DrawTroopLevel(troop, pgs.TroopClickRect);
             }
             float numFood = 0f;
             float numProd = 0f;
-            float numRes = 0f;
+            float numRes  = 0f;
             if (pgs.building != null)
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
@@ -1821,7 +1838,6 @@ namespace Ship_Game
             currentMouse = Mouse.GetState();
             Vector2 MousePos = new Vector2((float)currentMouse.X, (float)currentMouse.Y);
             buildSL.HandleInput(input);
-            buildSL.Update();
             build.HandleInput(this);
             if (p.Owner != EmpireManager.Player)
             {
@@ -1833,84 +1849,7 @@ namespace Ship_Game
                 }
                 return true;
             }
-            if (!launchTroops.Rect.HitTest(input.CursorPosition))
-            {
-                launchTroops.State = UIButton.PressState.Default;
-            }
-            else
-            {
-                launchTroops.State = UIButton.PressState.Hover;
-                if (input.InGameSelect)
-                {
-                    bool play = false;
-                    foreach (PlanetGridSquare pgs in p.TilesList)
-                    {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
-                        {
-                            continue;
-                        }
 
-                        play = true;
-
-                        Ship.CreateTroopShipAtPoint(p.Owner.data.DefaultTroopShip, p.Owner, p.Center, pgs.TroopsHere[0]);
-                        p.TroopsHere.Remove(pgs.TroopsHere[0]);
-                        pgs.TroopsHere[0].SetPlanet(null);
-                        pgs.TroopsHere.Clear();
-                        ClickedTroop = true;
-                        detailInfo = null;
-                    }
-                    if (play)
-                    {
-
-                        GameAudio.PlaySfxAsync("sd_troop_takeoff");
-                    }
-                }
-            }
-            //fbedard: Click button to send troops
-            if (!SendTroops.Rect.HitTest(input.CursorPosition))
-            {
-                SendTroops.State = UIButton.PressState.Default;
-            }
-            else
-            {
-                SendTroops.State = UIButton.PressState.Hover;
-                if (input.InGameSelect)
-                {
-                    Array<Ship> troopShips;
-                    using (eui.empire.GetShips().AcquireReadLock())
-                        troopShips = new Array<Ship>(eui.empire.GetShips()
-                        .Where(troop => troop.TroopList.Count > 0
-                            && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
-
-                    Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
-                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center))
-                        .Where(Name => Name.Name != p.Name));
-
-                    if (troopShips.Count > 0)
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        troopShips.First().AI.OrderRebase(p,true);
-                    }
-                    else if (planetTroops.Count > 0)
-                    {
-                        var troops = planetTroops.First().TroopsHere;
-                        using (troops.AcquireWriteLock())
-                        {
-                            Ship troop = troops.First().Launch();
-                            if (troop != null)
-                            {
-                                GameAudio.PlaySfxAsync("echo_affirm");
-                                troop.AI.OrderRebase(p,true);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        GameAudio.PlaySfxAsync("blip_click");
-                    }
-                }
-            }
             if (!edit_name_button.HitTest(MousePos))
             {
                 editHoverState = 0;
@@ -1918,7 +1857,7 @@ namespace Ship_Game
             else
             {
                 editHoverState = 1;
-                if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseClick)
                 {
                     PlanetName.HandlingInput = true;
                 }
@@ -1978,7 +1917,7 @@ namespace Ship_Game
                     p.ResLocked = false;
                 }
             }
-            HandleSlider();
+            HandleSlider(input);
             if (p.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
             {
                 if (playerDesignsToggle.Rect.HitTest(input.CursorPosition))
@@ -2017,7 +1956,7 @@ namespace Ship_Game
                     if (FoodLock.Locked)
                     {
                         FoodLock.Hover = false;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.FoodLocked = false;
                             FoodLock.Locked = false;
@@ -2027,7 +1966,7 @@ namespace Ship_Game
                     else
                     {
                         FoodLock.Hover = true;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.FoodLocked = true;
                             FoodLock.Locked = true;
@@ -2045,7 +1984,7 @@ namespace Ship_Game
                     if (ProdLock.Locked)
                     {
                         ProdLock.Hover = false;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ProdLocked = false;
                             ProdLock.Locked = false;
@@ -2055,7 +1994,7 @@ namespace Ship_Game
                     else
                     {
                         ProdLock.Hover = true;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ProdLocked = true;
                             ProdLock.Locked = true;
@@ -2073,7 +2012,7 @@ namespace Ship_Game
                     if (ResLock.Locked)
                     {
                         ResLock.Hover = false;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ResLocked = false;
                             ResLock.Locked = false;
@@ -2083,7 +2022,7 @@ namespace Ship_Game
                     else
                     {
                         ResLock.Hover = true;
-                        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+                        if (input.LeftMouseClick)
                         {
                             p.ResLocked = true;
                             ResLock.Locked = true;
@@ -2249,7 +2188,7 @@ namespace Ship_Game
                     ClickedTroop = true;
                     ActiveBuildingEntry = null;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed)
+                if (input.LeftMouseClick)
                 {
                     ClickedTroop = true;
                     ActiveBuildingEntry = null;
@@ -2380,6 +2319,67 @@ namespace Ship_Game
             return false;
         }
 
+        private void OnSendTroopsClicked(UIButton b)
+        {
+            Array<Ship> troopShips;
+            using (eui.empire.GetShips().AcquireReadLock())
+                troopShips = new Array<Ship>(eui.empire.GetShips()
+                    .Where(troop => troop.TroopList.Count > 0
+                                    && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
+                                    && troop.fleet == null && !troop.InCombat)
+                    .OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
+
+            Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
+                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center))
+                .Where(Name => Name.Name != p.Name));
+
+            if (troopShips.Count > 0)
+            {
+                GameAudio.PlaySfxAsync("echo_affirm");
+                troopShips.First().AI.OrderRebase(p, true);
+            }
+            else if (planetTroops.Count > 0)
+            {
+                var troops = planetTroops.First().TroopsHere;
+                using (troops.AcquireWriteLock())
+                {
+                    Ship troop = troops.First().Launch();
+                    if (troop != null)
+                    {
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        troop.AI.OrderRebase(p, true);
+                    }
+                }
+            }
+            else
+            {
+                GameAudio.PlaySfxAsync("blip_click");
+            }
+        }
+
+        private void OnLaunchTroopsClicked(UIButton b)
+        {
+            bool play = false;
+            foreach (PlanetGridSquare pgs in p.TilesList)
+            {
+                if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
+                    continue;
+
+                play = true;
+                Ship.CreateTroopShipAtPoint(p.Owner.data.DefaultTroopShip, p.Owner, p.Center, pgs.TroopsHere[0]);
+                p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                pgs.TroopsHere[0].SetPlanet(null);
+                pgs.TroopsHere.Clear();
+                ClickedTroop = true;
+                detailInfo = null;
+            }
+
+            if (play)
+            {
+                GameAudio.PlaySfxAsync("sd_troop_takeoff");
+            }
+        }
+
         private void HandleConstructionQueueInput(InputState input)
         {
             int i = QSL.FirstVisibleIndex;
@@ -2486,7 +2486,7 @@ namespace Ship_Game
             QSL.HandleInput(input, p);
         }
 
-        private void HandleSlider()
+        private void HandleSlider(InputState input)
         {
             Vector2 mousePos = new Vector2((float)currentMouse.X, (float)currentMouse.Y);
             if (p.Owner.data.Traits.Cybernetic == 0)
@@ -2569,7 +2569,7 @@ namespace Ship_Game
                 {
                     ColonySliderFood.cursor.X = ColonySliderFood.sRect.X;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     draggingSlider1 = false;
                 }
@@ -2626,7 +2626,7 @@ namespace Ship_Game
                 {
                     ColonySliderProd.cursor.X = ColonySliderProd.sRect.X;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     draggingSlider2 = false;
                 }
@@ -2686,7 +2686,7 @@ namespace Ship_Game
                 {
                     ColonySliderRes.cursor.X = ColonySliderRes.sRect.X;
                 }
-                if (currentMouse.LeftButton == ButtonState.Released)
+                if (input.LeftMouseUp)
                 {
                     draggingSlider3 = false;
                 }

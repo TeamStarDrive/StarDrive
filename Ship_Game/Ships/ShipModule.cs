@@ -44,7 +44,7 @@ namespace Ship_Game.Ships
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
-
+        public bool DynamicHangar { get; private set; } 
 
 
         public float BombTimer;
@@ -177,7 +177,7 @@ namespace Ship_Game.Ships
                                 || ModuleType == ShipModuleType.Drone
                                 || ModuleType == ShipModuleType.Bomb;
 
-        public Vector2 LocalCenter => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+        public Vector2 LocalCenter;// => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
 
         // the actual hit radius is a bit bigger for some legacy reason
@@ -347,6 +347,7 @@ namespace Ship_Game.Ships
                 module.ShieldUpChance = slot.ShieldUpChance;
                 module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
             }
+
             return module;
         }
 
@@ -364,7 +365,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-            
+            LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -389,16 +390,42 @@ namespace Ship_Game.Ships
             }
         }
 
+        public void InitHangar()
+        {
+            // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
+            if (Parent.loyalty.isFaction)
+                return;
+            if (ShipBuilder.IsDynamicLaunch(hangarShipUID) || !Parent.loyalty.isPlayer)
+                DynamicHangar = true;
+        }
+
+        public ShipData.RoleName BiggestPermittedHangarRole
+        {
+            get
+            {
+                ShipData.RoleName biggestRole = ShipData.RoleName.drone;
+                if (PermittedHangarRoles.Contains("frigate"))
+                    biggestRole = ShipData.RoleName.frigate;
+                else if (PermittedHangarRoles.Contains("corvette"))
+                    biggestRole = ShipData.RoleName.corvette;
+                else if (PermittedHangarRoles.Contains("fighter"))
+                    biggestRole = ShipData.RoleName.fighter;
+
+                return biggestRole;
+            }
+        }
+
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
         public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
         {
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
-            
-            
-            Vector2 offset = XMLPosition; // huge cache miss here
-            offset.X       += XSIZE * 8f - 264f;
-            offset.Y       += YSIZE * 8f - 264f;
+
+
+            //Vector2 offset = XMLPosition; // huge cache miss here
+            Vector2 offset = LocalCenter;
+            //offset.X       += XSIZE * 8f - 264f;
+            //offset.Y       += YSIZE * 8f - 264f;
             Vector2 pcenter = Parent.Center;
             float cx        = offset.X * cos - offset.Y * sin;
             float cy        = offset.X * sin + offset.Y * cos;
@@ -506,7 +533,7 @@ namespace Ship_Game.Ships
 
         public void DebugDamageCircle()
         {
-            Empire.Universe?.DebugWin?.DrawGPObjects(DebugModes.Targeting, this, Parent);
+            Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
@@ -753,7 +780,7 @@ namespace Ship_Game.Ships
 
                     HangarShipGuid = hangarShip.guid;
                     hangarTimer = hangarTimerConstant;
-                    Parent.Ordinance -= hangarShip.Mass / 5f;
+                    Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
                 }
             }
         }
@@ -776,44 +803,18 @@ namespace Ship_Game.Ships
             if (hangarTimer > 0f || (hangarShip != null && (hangarShip == null || hangarShip.Active)))
                 return;
 
-            string startingscout = Parent.loyalty.data.StartingShip;
-
-            Ship ship = ResourceManager.GetShipTemplate(hangarShipUID, false);
-            if (!Parent.loyalty.isFaction && (hangarShipUID == startingscout
-                                                   || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
-            {
-                ship = ResourceManager.GetShipTemplate(startingscout);
-                foreach (string shipsWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
-                {
-                    var shipWeCanBuild = ResourceManager.GetShipTemplate(shipsWeCanBuild);
-                    if (shipWeCanBuild.Size > MaximumHangarShipSize) continue;
-
-                    if (!PermittedHangarRoles.Contains(shipWeCanBuild.shipData.GetRole()))
-                    {
-                        continue;
-                    }
-                    
-                    if (ship.BaseStrength < shipWeCanBuild.BaseStrength || ship.Size < shipWeCanBuild.Size)
-                        ship = shipWeCanBuild;
-                }
-                hangarShipUID = ship.Name;
-            }
-            if (ship == null || (!Parent.loyalty.isFaction && ship.Mass / 5f > Parent.Ordinance))  //fbedard: New spawning cost
-                return;
-
             SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
             if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-            {
                 hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
-            }
+
             hangarShip.Mothership = Parent;
             HangarShipGuid = GetHangarShip().guid;
 
             hangarTimer = hangarTimerConstant;
-            Parent.Ordinance -= hangarShip.Mass / 5f;
+            Parent.ChangeOrdnance(-hangarShip.Mass / 5f);
         }
 
         public void SetAttributes()
@@ -990,11 +991,18 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float ActualMass(bool inPowerRadius)
+        public float ActualMass
         {
-            if (Mass < 0f && inPowerRadius)
-                return !Is(ShipModuleType.Armor) ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
-            return !Is(ShipModuleType.Armor) ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+            get
+            {
+                float mass = Mass;
+                if (Is(ShipModuleType.Armor))
+                    mass *= EmpireManager.Player.data.ArmourMassModifier;
+                // only allow negative mass modules (mass reduction devices) if we're powered:
+                if (mass< 0f && Powered)
+                    return mass;
+                return Math.Abs(mass);
+            }
         }
 
         // @note This is called every frame for every module for every ship in the universe
@@ -1096,7 +1104,7 @@ namespace Ship_Game.Ships
 
             float def = 0f;
 
-            def += ActualMaxHealth * ((Is(ShipModuleType.Armor) ? (XSIZE) : 1f) / (slotCount * 4));
+            def += ActualMaxHealth / 200;
 
             // FB: Added Shield related calcs
             float shieldsMax = ActualShieldPowerMax;
@@ -1162,97 +1170,31 @@ namespace Ship_Game.Ships
             // FB: Reactors should also have some value
             def += ActualPowerFlowMax / 100;
 
-            // Normilize Def based on its area - this is the main stuff which wraps all defence to logical  margins.
-            def  = Area > 1 ? def / (Area / 2f) : def;
-            def *= 0.5f; // So defense will have more chance to be lower than offense, otherwise defense is not calculated in the total offense of the ship
+            def += TroopCapacity * 50;
 
             return def;
         }
 
         public float CalculateModuleOffense()
         {
-            float off = 0f;
-            if (InstalledWeapon != null)
-            {
-                Weapon w = InstalledWeapon;
+            float off = InstalledWeapon?.CalculateWeaponOffense(this) ?? 0f;
 
-                if (w.isBeam)
-                {
-                    off += w.DamageAmount * 90f * w.BeamDuration * (1f / w.fireDelay);
-                    off += w.MassDamage * (1f / w.fireDelay) * .5f;
-                    off += w.PowerDamage * (1f / w.fireDelay);
-                    off += w.RepulsionDamage * (1f / w.fireDelay);
-                    off += w.SiphonDamage * (1f / w.fireDelay);
-                    off += w.TroopDamageChance * (1f / w.fireDelay) * .2f;
-                }
-                else
-                {
-                    off += w.DamageAmount * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay);
-                    off += w.EMPDamage * w.SalvoCount * w.ProjectileCount * (1f / w.fireDelay) * .5f;
-                }
+            off += IsTroopBay ? 50 : 0;
+            if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty() 
+                                                    || hangarShipUID == "NotApplicable" 
+                                                    || IsSupplyBay 
+                                                    || IsTroopBay)
+                return off;
 
-                //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
-                off *= w.Tag_Guided ? 1.25f : 1f;
-
-                //FB: Kinetics which does also require more than minimal power to shoot is less effective
-                off *= w.Tag_Kinetic && w.PowerRequiredToFire > 10 * Area ? 0.5f : 1f;
-
-                //FB: Kinetics which does also require more than minimal power to maintain is less effective
-                off *= w.Tag_Kinetic && PowerDraw > 2 * Area ? 0.5f : 1f;
-
-                //FB: Range margins are less steep for missiles
-                off *= !w.Tag_Missile && !w.Tag_Torpedo ?  (w.Range / 4000) * (w.Range / 4000) : (w.Range / 4000);
-
-                // FB: simpler calcs for these. 
-                off *= w.EffectVsArmor > 1  ? 1f + (w.EffectVsArmor - 1f) / 2f : 1f;
-                off *= w.EffectVsArmor < 1 ? 1f - (1f - w.EffectVsArmor) / 2f : 1f;
-                off *= w.EffectVSShields > 1 ? 1f + (w.EffectVSShields - 1f) / 2f : 1f;
-                off *= w.EffectVSShields < 1 ? 1f - (1f - w.EffectVSShields) / 2f : 1f;
-
-                off *= w.TruePD ? .2f : 1f;
-                off *= w.Tag_Intercept && w.Tag_Missile ? .8f : 1f;
-                off *= w.ProjectileSpeed > 1 ? w.ProjectileSpeed / 4000 : 1f;
-
-                // FB: offense calcs for damage radius
-                off *= w.DamageRadius > 24 && !w.TruePD ? w.DamageRadius / 24f : 1f;
-
-                // FB: Added shield pen chance
-                off *= 1 + w.ShieldPenChance / 100;
-
-                // FB: Turrets get some off
-                off *= ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
-
-                // FB: Field of Fire is also important
-                off *= FieldOfFire > 60 ? FieldOfFire / 60f : 1f;
-
-                // FB: A weapon which can be installed on Internal slots is quite valuable.
-                off *= Restrictions.ToString().Contains("I") ? 2f : 1f;
-
-                int allRoles = 0;
-                int restrictedRoles = 0;
-                foreach (ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
-                {
-                    allRoles++;
-                    if (!w.TargetValid(role))
-                        restrictedRoles++;
-                }
-                float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
-                off *= restrictions;
-
-                //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-                off *= w.OffPowerMod;
-            }
-            if (ModuleType == ShipModuleType.Hangar && hangarShipUID.NotEmpty() && hangarShipUID != "NotApplicable" && !IsSupplyBay && !IsTroopBay)
+            if (ShipBuilder.IsDynamicLaunch(hangarShipUID))
+                off += MaximumHangarShipSize * 2;
+            else
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
-                {
                     off += (thangarShip.BaseStrength > 0f) ? thangarShip.BaseStrength : thangarShip.CalculateShipStrength();
-                }
-                else off += 100f;
+                else
+                    off += 100f;
             }
-
-            // FB: Normalize offense based on its area - this is the main stuff which wraps all weapons to logical offense margins.
-            off = Area > 1 ? off / (Area / 2f) : off;
 
             return off;
         }

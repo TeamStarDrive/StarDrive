@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
@@ -21,15 +20,11 @@ namespace Ship_Game
         private Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
         private Vector2 Offset;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
-        private UIButton ToggleOverlayButton;
-        private UIButton SymmetricDesignButton; // Symmetric Module Placement Feature Created by Fat Bastard
-        private UIButton SaveButton;
-        private UIButton LoadButton;
+        private UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         public ModuleSelection ModSel;
         private Submenu StatsSub;
         private Menu1 ShipStats;
         private GenericButton ArcsButton;
-        private CloseButton Close;
         private float OriginalZ;
         private Rectangle SearchBar;
         private Rectangle BottomSep;
@@ -38,7 +33,6 @@ namespace Ship_Game
         private Rectangle HullSelectionRect;
         private Submenu HullSelectionSub;
         private Rectangle BlackBar;
-        private Rectangle SideBar;
 
         public ShipModule HighlightedModule;
         private Vector2 CameraVelocity;
@@ -53,11 +47,7 @@ namespace Ship_Game
         private Selector selector;
         private CategoryDropDown CategoryList;
         private ShieldBehaviorDropDown ShieldsBehaviorList;
-        private Rectangle DropdownRect;
-        private Rectangle ShieldsBehaviorRect;
 
-        private Vector2 CoBoxCursor;
-        private UICheckBox CarrierOnlyBox;
         private bool ShowAllArcs;
         public bool ToggleOverlay = true;
         private bool ShipSaved = true;
@@ -76,6 +66,7 @@ namespace Ship_Game
         {
             public SlotStruct Slot;
             public ModuleOrientation Orientation;
+            public Vector2 Center => Slot.Center();
         }
 
         public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
@@ -133,16 +124,6 @@ namespace Ship_Game
             return fCost * Ship.GetMaintenanceModifier(shipData, empire);
         }
 
-        private static string GetNumberString(float stat)
-        {
-            if (Math.Abs(stat) < 1000f)  return stat.ToString("#.#"); // 950.7
-            if (Math.Abs(stat) < 10000f) return stat.ToString("#");   // 9500
-            float single = stat / 1000f;
-            if (Math.Abs(single) < 100f)  return single.ToString("#.##") + "k"; // 57.75k
-            if (Math.Abs(single) < 1000f) return single.ToString("#.#") + "k";  // 950.7k
-            return single.ToString("#") + "k"; // 1000k
-        }
-
         public ShipModule CreateDesignModule(ShipModule template)
         {
             ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
@@ -170,6 +151,9 @@ namespace Ship_Game
             ActiveModule = CreateDesignModule(template, orientation, facing);
             ActiveModState = orientation;
             ActiveModule.SetAttributes();
+            if (ActiveModule.ModuleType == ShipModuleType.Hangar
+                && !ActiveModule.IsSupplyBay && !ActiveModule.IsTroopBay)
+                ActiveModule.hangarShipUID = DynamicHangarLaunch.DynamicLaunch.ToString();
         }
 
         private void ResetActiveModule()
@@ -263,7 +247,7 @@ namespace Ship_Game
                 MirrorSlot mirrored = GetMirrorSlot(slot.Root, slot.Root.Module.XSIZE, slot.Root.Orientation);
                 if (IsMirrorSlotPresent(mirrored, slot) 
                     && mirrored.Slot.Root != slot.Root 
-                    && IsMirrorModuleValid(slot.Root.Module, mirrored.Slot.Root.Module))
+                    && IsMirrorSlotValid(slot.Root, mirrored))
                 {
                     ModuleGrid.ClearSlots(mirrored.Slot.Root, mirrored.Slot.Root.Module);
                 }
