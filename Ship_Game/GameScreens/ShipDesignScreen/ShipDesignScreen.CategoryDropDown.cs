@@ -19,7 +19,7 @@ namespace Ship_Game
                     {
                         default:
                         case ShipData.Category.Unclassified: ToolTip.CreateTooltip("Repair when internal damage is above 65%"); break;
-                        case ShipData.Category.Civilian: ToolTip.CreateTooltip("Can be used as Freighter.\nEvade when enemies are near.\nRepair when internal damage is above 15%"); break;
+                        case ShipData.Category.Civilian: ToolTip.CreateTooltip("Can be used as Freighter. Evade when enemies are near. Repair when internal damage is above 15%"); break;
                         case ShipData.Category.Recon:    ToolTip.CreateTooltip("Repair when internal damage is above 35%"); break;
                         case ShipData.Category.Combat: ToolTip.CreateTooltip("Repair when internal damage is above 75%"); break;
                         case ShipData.Category.Bomber: ToolTip.CreateTooltip("Repair when internal damage is above 60%"); break;

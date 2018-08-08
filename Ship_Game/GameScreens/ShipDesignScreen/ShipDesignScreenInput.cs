@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -39,6 +40,7 @@ namespace Ship_Game
                 ThrusterList    = hull.ThrusterList,
                 ShipCategory    = hull.ShipCategory,
                 ShieldsBehavior = hull.ShieldsBehavior,
+                CarrierShip     = hull.CarrierShip,
                 BaseHull        = hull.BaseHull
             };
             ActiveHull.UpdateBaseHull();
@@ -76,11 +78,23 @@ namespace Ship_Game
 
         private void UpdateCarrierShip()
         {
-            ActiveHull.CarrierShip = ActiveHull.HullRole == ShipData.RoleName.drone;
-            if (CarrierOnlyCheckBox != null) // it is null the first time ship design screen is loaded
-                CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone
-                                              && ActiveHull.HullRole != ShipData.RoleName.platform
-                                              && ActiveHull.HullRole != ShipData.RoleName.station;
+            if (ActiveHull.HullRole == ShipData.RoleName.drone)
+                ActiveHull.CarrierShip = true;
+
+            if (CarrierOnlyCheckBox == null)
+                return; // it is null the first time ship design screen is loaded
+
+            CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone
+                                          && ActiveHull.HullRole != ShipData.RoleName.platform
+                                          && ActiveHull.HullRole != ShipData.RoleName.station;
+
+            if (!CarrierOnlyCheckBox.Visible)
+                return;
+
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+            batch.Begin();
+            CarrierOnlyCheckBox.Draw(batch);
+            batch.End();
         }
 
         private void BindListsToActiveHull()
