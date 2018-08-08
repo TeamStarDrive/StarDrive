@@ -6490,11 +6490,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>53</Index>
-      <Text>Incredible eyesight gives pilots from this race a 20% gunnery bonus to damage inflicted from cannon weapons</Text>
+      <Text>Incredible eyesight gives pilots from this race a 20% accuracy bonus to projectiles fired from cannon weapons</Text>
     </Token>
     <Token>
       <Index>55</Index>
-      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles do 20% less damage</Text>
+      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy</Text>
     </Token>
 
     <Token>
@@ -6659,7 +6659,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4032</Index>
-      <Text>Cannon Damage Modifier</Text>
+      <Text>Cannon Accuracy Modifier</Text>
     </Token>
     <Token>
       <Index>4033</Index>
