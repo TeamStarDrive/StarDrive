@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

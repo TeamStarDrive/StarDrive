@@ -37,6 +37,10 @@ namespace Ship_Game
         public bool Visible = true; // If TRUE, this UIElement is rendered
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
 
+
+        public UIEffect Effect;
+
+
         public void Show() => Visible = true;
         public void Hide() => Visible = false;
 
@@ -153,6 +157,16 @@ namespace Ship_Game
         {
             if (Parent is UIElementContainer container)
                 container.Remove(this);
+        }
+
+        protected Rectangle GetEffectRect()
+        {
+            Rectangle r = Rect;
+            if (Effect == null)
+                return r;
+            if (Effect.Update(ref r, 1f))
+                Effect = null;
+            return r;
         }
 
         public virtual void Update()

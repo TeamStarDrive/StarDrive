@@ -44,6 +44,8 @@ namespace Ship_Game
         public GameTime GameTime    => Game1.Instance.GameTime;
         protected bool Pauses = true;
 
+        protected Action OnExit;
+
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
@@ -92,9 +94,17 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
-            ScreenManager.exitScreenTimer =.25f;            
+            ScreenManager.exitScreenTimer = 0.25f;            
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
+
+            // call the exit event only once
+            if (OnExit != null)
+            {
+                OnExit();
+                OnExit = null;
+            }
+
             if (TransitionOffTime != TimeSpan.Zero)
             {
                 IsExiting = true;

@@ -127,6 +127,9 @@ namespace Ship_Game
             GameAudio.Update();
             ScreenManager.Update(gameTime);
             base.Update(gameTime);
+
+            if (ScreenManager.ScreenCount == 0)
+                Game1.Instance.Exit();
         }
 
 

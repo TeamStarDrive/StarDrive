@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
