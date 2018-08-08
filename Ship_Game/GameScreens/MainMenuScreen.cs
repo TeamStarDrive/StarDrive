@@ -125,22 +125,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        private void DrawButtonsTransition()
-        {
-            for (int i = Buttons.Count - 1; i >= 0; --i)
-            {
-                float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * i / Buttons.Count) / 0.5f, 0f, 1f);
-
-                Rectangle r = Buttons[i].Rect;
-                r.X += (int)(transitionOffset * 512f);
-
-                if (ScreenState == ScreenState.TransitionOn && transitionOffset.AlmostEqual(0f))
-                    GameAudio.PlaySfxAsync("blip_click"); // buttons arrived!
-
-                Buttons[i].Draw(ScreenManager.SpriteBatch, r);
-            }
-        }
-
         public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = this.GameTime;
@@ -172,16 +156,16 @@ namespace Ship_Game
                 DrawComets(elapsedTime);
 
 
-                ScreenManager.SpriteBatch.Begin();
+                batch.Begin();
 
-                DrawButtonsTransition();
                 GlobalStats.ActiveMod?.DrawMainMenuOverlay(ScreenManager, Portrait);
 
-                ScreenManager.SpriteBatch.Draw(LogoAnimation[0], LogoRect, Color.White);
+                batch.Draw(LogoAnimation[0], LogoRect, Color.White);
                 if (LogoAnimation.Count > 1)
                     LogoAnimation.RemoveAt(0);
 
-                ScreenManager.SpriteBatch.End();
+                base.Draw(batch);
+                batch.End();
 
                 ScreenManager.EndFrameRendering();
             }
@@ -418,9 +402,13 @@ namespace Ship_Game
         private void Mods_Clicked(UIButton button)      => ScreenManager.AddScreen(new ModManager(this));
         private void Info_Clicked(UIButton button)      => ScreenManager.AddScreen(new InGameWiki(this));
         private void VerCheck_Clicked(UIButton button)  => ScreenManager.AddScreen(new VersionChecking(this));
-        private void Exit_Clicked(UIButton button)      => Game1.Instance.Exit();
         private void ShipTool_Clicked(UIButton button)  => ScreenManager.AddScreen(new ShipToolScreen(this));
         private void DevSandbox_Clicked(UIButton button)  => ScreenManager.AddScreen(new DeveloperSandbox(this));
+        private void Exit_Clicked(UIButton button)
+        {
+            ExitScreen();
+            //Game1.Instance.Exit();
+        }
 
         public override void LoadContent()
         {
@@ -454,8 +442,11 @@ namespace Ship_Game
                 Button("Dev Sandbox",   click: DevSandbox_Clicked);
                 Button("BlackBox Info", click: Info_Clicked);
                 Button("Version Check", click: VerCheck_Clicked);
-            Button(titleId: 5,      click: Exit_Clicked);
+                Button(titleId: 5,      click: Exit_Clicked);
             EndLayout();
+
+            StartTransition<UIButton>(transitionIn: true);
+            OnExit += () => StartTransition<UIButton>(transitionIn: false);
 
             ScreenManager.ClearScene();
 

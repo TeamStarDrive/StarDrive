@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -22,12 +21,6 @@ namespace Ship_Game
         protected LayoutStyle CurrentLayout = LayoutStyle.HorizontalEven;
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
-
-        // @todo Remove this list of buttons. It's purely for backwards compatibility
-        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
-
-        protected readonly Array<UIElementV2> TransitionEffect = new Array<UIElementV2>();
-
         protected bool LayoutStarted;
         protected Vector2 LayoutCursor = Vector2.Zero;
         protected Vector2 LayoutStep   = Vector2.Zero;
@@ -50,9 +43,6 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIElementContainer(UIElementV2 parent, Vector2 pos) : base(parent, pos)
-        {
-        }
-        protected UIElementContainer(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
         {
         }
         protected UIElementContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
@@ -150,8 +140,6 @@ namespace Ship_Game
         public T Add<T>(T element) where T : UIElementV2
         {
             Elements.Add(element);
-            var button = element as UIButton;
-            if (button != null) Buttons.Add(button);
             return element;
         }
 
@@ -160,8 +148,6 @@ namespace Ship_Game
             if (element == null)
                 return;
             Elements.RemoveRef(element);
-            var button = element as UIButton;
-            if (button != null) Buttons.RemoveRef(button);
         }
 
         public void Remove<T>(params T[] elements) where T : UIElementV2
@@ -399,6 +385,24 @@ namespace Ship_Game
             return label;
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        public void StartTransition<T>(bool transitionIn) where T : UIElementV2
+        {
+            var candidates = new Array<UIElementV2>();
+            for (int i = 0; i < Elements.Count; ++i)
+            {
+                UIElementV2 e = Elements[i];
+                if (e is T) candidates.Add(e);
+            }
+
+            for (int i = candidates.Count - 1; i >= 0; --i)
+            {
+                UIElementV2 e = candidates[i];
+                float modifier = i / (float)candidates.Count;
+                e.Effect = new UITransitionEffect(e, modifier, transitionIn);
+            }
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
     }
