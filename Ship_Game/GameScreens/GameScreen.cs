@@ -29,7 +29,10 @@ namespace Ship_Game
         public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
         public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
         public float TransitionPosition   { get; protected set; } = 1f;
-        
+
+        public bool IsTransitioning => ScreenState == ScreenState.TransitionOn
+                                    || ScreenState == ScreenState.TransitionOff;
+
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
         // This is equivalent to PresentationParameters.BackBufferWidth
@@ -40,6 +43,8 @@ namespace Ship_Game
         public Vector2 ScreenCenter => Game1.Instance.ScreenArea * 0.5f;
         public GameTime GameTime    => Game1.Instance.GameTime;
         protected bool Pauses = true;
+
+        protected Action OnExit;
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -89,9 +94,17 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
-            ScreenManager.exitScreenTimer =.25f;            
+            ScreenManager.exitScreenTimer = 0.25f;            
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
+
+            // call the exit event only once
+            if (OnExit != null)
+            {
+                OnExit();
+                OnExit = null;
+            }
+
             if (TransitionOffTime != TimeSpan.Zero)
             {
                 IsExiting = true;
@@ -109,12 +122,14 @@ namespace Ship_Game
         {
             TransientContent?.Unload();
             Elements.Clear();
-            Buttons.Clear();
         }
 
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            // Update new UIElementV2
+            base.Update(Game1.Instance.DeltaTime);
+
             OtherScreenHasFocus = otherScreenHasFocus;
             if (!IsExiting)
             {

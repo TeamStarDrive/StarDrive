@@ -89,18 +89,18 @@ namespace Ship_Game
         }
 
         //added by gremlin deveksmod spy draw
-        public void Draw()
+        public void Draw(SpriteBatch batch)
         {
-            ScreenManager.SpriteBatch.FillRectangle(SubRect, Color.Black);
-            AgentSL.Draw(ScreenManager.SpriteBatch);
+            batch.FillRectangle(SubRect, Color.Black);
+            AgentSL.Draw(batch);
             RecruitButton.Draw(ScreenManager);
             Rectangle moneyRect = new Rectangle(RecruitButton.r.X, RecruitButton.r.Y + 30, 21, 20);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], moneyRect, Color.White);
+            batch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], moneyRect, Color.White);
 
             Vector2 costPos = new Vector2(moneyRect.X + 25, moneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2);
 
             int cost = ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, cost.ToString(), costPos, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, cost.ToString(), costPos, Color.White);
 
             // @todo Why are we creating new checkboxes every frame??
             CBAutoRepeat = new UICheckBox(null, OpsSubRect.X - 10, moneyRect.Y - 30, () => AutoTrain, Fonts.Arial12, "Repeat Missions", 0);
@@ -109,34 +109,34 @@ namespace Ship_Game
             EmpireManager.Player.data.SpyMute = SpyMute;
             EmpireManager.Player.data.SpyMissionRepeat = AutoTrain;
 
-            CBAutoRepeat.Draw(ScreenManager.SpriteBatch);
-            cbSpyMute.Draw(ScreenManager.SpriteBatch);
+            CBAutoRepeat.Draw(batch);
+            cbSpyMute.Draw(batch);
 
             Rectangle spyLimit = new Rectangle(moneyRect.X + 65, moneyRect.Y, 21, 20);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_lock"), spyLimit, Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_lock"), spyLimit, Color.White);
             Vector2 spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
             //empirePlanetSpys = EmpireManager.Player.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (EmpireManager.Player.GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
             empirePlanetSpys = EmpireManager.Player.GetPlanets().Count() / 3 + 3;
             spyLimitCount = (empirePlanetSpys - EmpireManager.Player.data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
+            batch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
 
             foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
                 var agent = e.Get<Agent>();
                 var r = new Rectangle(e.X, e.Y, 25, 26);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_spy"), r, Color.White);
+                batch.Draw(ResourceManager.Texture("UI/icon_spy"), r, Color.White);
                 var namecursor = new Vector2(r.X + 30, r.Y);
 
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
                 namecursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 string missionstring = Localizer.Token(agent.MissionNameIndex);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, namecursor, Color.Gray);
+                batch.DrawString(Fonts.Arial12, missionstring, namecursor, Color.Gray);
                 for (int j = 0; j < agent.Level; j++)
                 {
                     var levelRect = new Rectangle(e.Right - 18 - 12 * j, e.Y, 12, 11);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_star"), levelRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("UI/icon_star"), levelRect, Color.White);
                 }
                 if (agent.Mission != AgentMission.Defending)
                 {
@@ -145,33 +145,33 @@ namespace Ship_Game
                         Vector2 targetCursor = namecursor;
                         targetCursor.X += 75f;
                         missionstring = Localizer.Token(2199) + ": " + EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                        batch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                     }
                     else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
                     {
                         Vector2 targetCursor = namecursor;
                         targetCursor.X += 75f;
                         missionstring = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                        batch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                     }
                     if (agent.Mission != AgentMission.Undercover)
                     {
                         Vector2 turnsCursor = namecursor;
                         turnsCursor.X += 193f;
                         missionstring = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
+                        batch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
                     }
                 }
             }
-            selector?.Draw(ScreenManager.SpriteBatch);
+            selector?.Draw(batch);
 
             if (SelectedAgent != null)
             {
-                ScreenManager.SpriteBatch.FillRectangle(OpsSubRect, Color.Black);
-                OpsSL.Draw(ScreenManager.SpriteBatch);
+                batch.FillRectangle(OpsSubRect, Color.Black);
+                OpsSL.Draw(batch);
                 foreach (ScrollList.Entry e in OpsSL.VisibleEntries)
                 {
-                    e.Get<MissionEntry>().Draw(ScreenManager, e.Rect);
+                    e.Get<MissionEntry>().Draw(batch, e.Rect);
                 }
             }
         }
@@ -194,7 +194,7 @@ namespace Ship_Game
 			}
 
             string first = RandomMath.RandItem(firstNames);
-            string last = RandomMath.RandItem(lastNames);
+            string last  = RandomMath.RandItem(lastNames);
             return $"{first} {last}";
 		}
 
