@@ -72,6 +72,24 @@ namespace Ship_Game.Universe.SolarBodies
             Commoditites[goodId] = stored;
             return amount - stored;
         }
+        public float GetGoodAmount(Goods good)
+        {
+            switch(good)
+            {
+                case Goods.None:
+                    return 0;
+                case Goods.Production:
+                    return ProductionHere;
+                case Goods.Food:
+                    return FoodHere;
+                case Goods.Colonists:
+                    return Population;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(good), good, null);
+            }
+       
+        }        
+
         public float GetGoodAmount(string goodId)
         {
             if (Commoditites.TryGetValue(goodId, out float commodity)) return commodity;
