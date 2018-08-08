@@ -4697,7 +4697,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1978</Index>
-      <Text>When marked, this ship can only be assigned to a Carrier Hangar. It cannot be build by a colony. Drones are Always assigned to a carrier hangar.</Text>
+      <Text>When marked, this ship can only be assigned to a Carrier Hangar. It cannot be built by a colony. Drones are Always assigned to a carrier hangar.</Text>
     </Token>
     <Token>
       <Index>1979</Index>
