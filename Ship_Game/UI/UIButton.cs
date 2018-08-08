@@ -127,11 +127,12 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(SpriteBatch batch, Rectangle r)
+        public override void Draw(SpriteBatch batch)
         {
             if (!Visible)
                 return;
 
+            Rectangle r = GetEffectRect();
             batch.Draw(ButtonTexture(), r, Color.White);
 
             SpriteFont font = Fonts.Arial12Bold;
@@ -148,11 +149,6 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Tooltip);
             }
-        }
-
-        public override void Draw(SpriteBatch batch)
-        {
-            Draw(batch, Rect);
         }
 
         public override bool HandleInput(InputState input)
