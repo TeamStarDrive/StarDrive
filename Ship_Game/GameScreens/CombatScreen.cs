@@ -98,8 +98,8 @@ namespace Ship_Game
             Empire.Universe.ShipsInCombat.Visible   = false;
             Empire.Universe.PlanetsInCombat.Visible = false;
 
-            LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land", "Land All");
-            LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "LaunchAll", "Launch All");
+            LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land All", OnLandAllClicked);
+            LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
 
             using (Empire.Universe.MasterShipList.AcquireReadLock())
             foreach (Ship ship in Empire.Universe.MasterShipList)			                        
@@ -339,14 +339,9 @@ namespace Ship_Game
                     }
                     e.CheckHover(Input.CursorPosition);
                 }
-                if (OrbitSL.NumEntries > 0)
-                {
-                    LandAll.Draw(batch);
-                }
-                if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == EmpireManager.Player && mytroops.Launchtimer <= 0f))
-                {
-                    LaunchAll.Draw(batch);
-                }
+
+                LandAll.Visible = OrbitSL.NumEntries > 0;
+                LaunchAll.Visible = p.TroopsHere.Any(mytroops => mytroops.GetOwner() == EmpireManager.Player && mytroops.Launchtimer <= 0f);
             }
             foreach (PlanetGridSquare pgs in ReversedList)
             {
@@ -564,6 +559,58 @@ namespace Ship_Game
             batch.DrawString(font, data, cursor, color);
         }
 
+        private void OnLandAllClicked(UIButton b)
+        {
+            GameAudio.PlaySfxAsync("sd_troop_land");
+            foreach (ScrollList.Entry e in OrbitSL.AllEntries)
+            {
+                if (e.item is Ship ship)
+                {
+                    ship.AI.OrderLandAllTroops(p);
+                }
+                else if (e.item is Troop troop)
+                {
+                    troop.GetShip().TroopList.Remove(troop);
+                    troop.AssignTroopToTile(p);
+                }
+            }
+            OrbitSL.Reset();
+        }
+
+        private void OnLaunchAllClicked(UIButton b)
+        {
+            bool play = false;
+            foreach (PlanetGridSquare pgs in this.p.TilesList)
+            {
+                if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != Empire.Universe.player || pgs.TroopsHere[0].Launchtimer >= 0)
+                {
+                    continue;
+                }
+                try
+                {
+                    pgs.TroopsHere[0].AvailableAttackActions = 0;
+                    pgs.TroopsHere[0].AvailableMoveActions = 0;
+                    pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
+                    pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
+                    pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                    play = true;
+                    Ship.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip, pgs.TroopsHere[0].GetOwner(), this.p.Center, pgs.TroopsHere[0]);
+                    this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                    pgs.TroopsHere[0].SetPlanet(null);
+                    pgs.TroopsHere.Clear();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Troop Launch Crash");
+                }
+            }
+            if (play)
+            {
+                GameAudio.PlaySfxAsync("sd_troop_takeoff");
+                this.ResetNextFrame = true;
+            }
+        }
+
         public override bool HandleInput(InputState input)
         {
             bool selectedSomethingThisFrame = false;
@@ -582,81 +629,8 @@ namespace Ship_Game
                 }
                 this.HoveredSquare = pgs;
             }
-            if (this.OrbitSL.NumEntries > 0)
-            {
-                if (!this.LandAll.Rect.HitTest(input.CursorPosition))
-                {
-                    this.LandAll.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    this.LandAll.State = UIButton.PressState.Hover;
-                    if (input.InGameSelect)
-                    {
-                        GameAudio.PlaySfxAsync("sd_troop_land");
-                        foreach (ScrollList.Entry e in OrbitSL.AllEntries)
-                        {
-                            if (e.item is Ship ship)
-                            {
-                                ship.AI.OrderLandAllTroops(p);
-                            }
-                            else if (e.item is Troop troop)
-                            {
-                                troop.GetShip().TroopList.Remove(troop);
-                                troop.AssignTroopToTile(p);
-                            }
-                        }
-                        OrbitSL.Reset();
-                    }
-                }
-            }
-            if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == Empire.Universe.player))
-            {
-                if (!this.LaunchAll.Rect.HitTest(input.CursorPosition))
-                {
-                    this.LaunchAll.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    this.LaunchAll.State = UIButton.PressState.Hover;
-                    if (input.InGameSelect)
-                    {
-                        bool play = false;
-                        foreach (PlanetGridSquare pgs in this.p.TilesList)
-                        {
-                            if ( pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != Empire.Universe.player || pgs.TroopsHere[0].Launchtimer >= 0)
-                            {
-                                continue;
-                            }
-                            try
-                            {
-                                pgs.TroopsHere[0].AvailableAttackActions = 0;
-                                pgs.TroopsHere[0].AvailableMoveActions = 0;
-                                pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                                pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                                pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
-                                play = true;
-                                Ship.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip, pgs.TroopsHere[0].GetOwner(), this.p.Center, pgs.TroopsHere[0]);
-                                this.p.TroopsHere.Remove(pgs.TroopsHere[0]);
-                                pgs.TroopsHere[0].SetPlanet(null);
-                                pgs.TroopsHere.Clear();
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Troop Launch Crash");
-                            }
-                        }
-                        if (play)
-                        {
-                            GameAudio.PlaySfxAsync("sd_troop_takeoff");
-                            this.ResetNextFrame = true;
-
-                        }
-
-                        
-                    }
-                }
-            }
+            LandAll.Enabled = OrbitSL.NumEntries > 0;
+            LaunchAll.Enabled = p.TroopsHere.Any(mytroops => mytroops.GetOwner() == Empire.Universe.player);
             OrbitSL.HandleInput(input);
             foreach (ScrollList.Entry e in OrbitSL.AllExpandedEntries)
             {

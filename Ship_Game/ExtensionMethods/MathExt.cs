@@ -226,6 +226,10 @@ namespace Ship_Game
         // Narrows this Vector3 to a Vector2, the Z component is truncated
         public static Vector2 ToVec2(this Vector3 a) => new Vector2(a.X, a.Y);
 
+        // Creates a new Rectangle from this Vector2, where Rectangle X, Y are the Vector2 X, Y
+        public static Rectangle ToRect(this Vector2 a, int width, int height)
+            => new Rectangle((int)a.X, (int)a.Y, width, height);
+
         // Negates this Vector2's components
         public static Vector2 Neg(this Vector2 a) => new Vector2(-a.X, -a.Y);
 
