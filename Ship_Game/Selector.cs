@@ -129,11 +129,5 @@ namespace Ship_Game
         {
             return false;
         }
-
-        public override void PerformLegacyLayout(Vector2 pos)
-        {
-            Pos = pos;
-            Initialize(Rect);
-        }
     }
 }
