@@ -154,6 +154,11 @@ namespace Ship_Game
         public abstract void Draw(SpriteBatch batch);
         public abstract bool HandleInput(InputState input);
 
+        public virtual void Update(float deltaTime)
+        {
+            UpdateEffects(deltaTime);
+        }
+
         public void RemoveFromParent()
         {
             if (Parent is UIElementContainer container)
@@ -168,13 +173,14 @@ namespace Ship_Game
             Effects.Add(effect);
         }
 
-        protected void UpdateEffects()
+        protected void UpdateEffects(float deltaTime)
         {
+            Log.Assert(Visible, "UpdateEffects should only be called when Visible");
             if (Effects == null)
                 return;
             for (int i = 0; i < Effects.Count;)
             {
-                if (Effects[i].Update()) 
+                if (Effects[i].Update(deltaTime)) 
                     Effects.RemoveAt(i);
                 else ++i;
             }
@@ -182,7 +188,7 @@ namespace Ship_Game
                 Effects = null;
         }
 
-        public virtual void Update()
+        public virtual void PerformLayout()
         {
             if (!RequiresLayout || !Visible)
                 return;

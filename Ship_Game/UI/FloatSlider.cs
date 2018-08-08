@@ -99,12 +99,12 @@ namespace Ship_Game
                                      SliderKnob.Width, SliderKnob.Height);
         }
 
-        public override void Update()
+        public override void PerformLayout()
         {
             if (!Visible)
                 return;
 
-            base.Update();
+            base.PerformLayout();
             PerformLegacyLayout(Pos);
         }
 

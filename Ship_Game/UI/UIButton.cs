@@ -132,8 +132,6 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            base.UpdateEffects();
-
             Rectangle r = Rect;
             batch.Draw(ButtonTexture(), r, Color.White);
 

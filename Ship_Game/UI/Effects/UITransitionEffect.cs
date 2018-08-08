@@ -10,7 +10,7 @@ namespace Ship_Game
 {
     public class UITransitionEffect : UIEffect
     {
-        private const float TransitionSpeed = 0.025f;
+        private const float TransitionSpeed = 1.5f;
         private readonly float Offset; // offset multiplier
         private readonly float Direction;
 
@@ -28,9 +28,9 @@ namespace Ship_Game
             AnimEnd.X += (int)distance;
         }
 
-        public override bool Update()
+        public override bool Update(float deltaTime)
         {
-            Animation += Direction * TransitionSpeed;
+            Animation += Direction * deltaTime * TransitionSpeed;
             float animWithOffset = ((Animation - 0.5f * Offset) / 0.5f).Clamped(0f, 1f);
 
             int dx = (AnimEnd.X - AnimStart.X);

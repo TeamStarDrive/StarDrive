@@ -196,12 +196,12 @@ namespace Ship_Game
             }
         }
 
-        public override void Update()
+        public override void PerformLayout()
         {
             if (!Visible)
                 return;
 
-            base.Update();
+            base.PerformLayout();
             if (PropertyRef != null) // ensure our drop-down list is in sync with the property binding!
             {
                 T bindingValue = PropertyRef.Value;
