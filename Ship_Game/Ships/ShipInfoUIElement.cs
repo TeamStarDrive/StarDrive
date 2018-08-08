@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
-using Ship_Game.UI;
 
 namespace Ship_Game.Ships
 {
@@ -61,8 +60,6 @@ namespace Ship_Game.Ships
 
         private bool ShowModules = true;
 
-        private const string Fmt = "0";
-        private float DoubleClickTimer = .25f;
 
         public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
@@ -311,7 +308,7 @@ namespace Ship_Game.Ships
             SpriteBatch spriteBatch         = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold          = Fonts.Arial12Bold;
             float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
-            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(Fmt), defPos, Color.White);
+            spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.String(0), defPos, Color.White);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             DrawTroopStatus();
 
@@ -376,7 +373,7 @@ namespace Ship_Game.Ships
                 var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_pack"), packRect, Color.White);
                 var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
-                float damageModifier = Ship.DamageModifier * 100f;
+                float damageModifier = Ship.PackDamageModifier * 100f;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
                 if (packRect.HitTest(mousePos))
                 {
@@ -528,9 +525,8 @@ namespace Ship_Game.Ships
             {
                 if (Ship == null)
                     return false;
-                if (DoubleClickTimer > 0)
-                    DoubleClickTimer -= 0.01666f;
-                if (ShipInfoRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released && DoubleClickTimer > 0)
+
+                if (input.LeftMouseDoubleClick && ShipInfoRect.HitTest(input.CursorPosition))
                 {
                     Empire.Universe.ViewingShip = false;
                     Empire.Universe.AdjustCamTimer = 0.5f;
@@ -539,10 +535,10 @@ namespace Ship_Game.Ships
                     if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
                         Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                 }
-                else if (ElementRect.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Released)
-                    DoubleClickTimer = 0.25f;    
+
                 OrderButtonInput(input);
-                foreach (ShipInfoUIElement.TippedItem tippedItem in ToolTipItems)
+
+                foreach (TippedItem tippedItem in ToolTipItems)
                 {
                     if (tippedItem.r.HitTest(input.CursorPosition))
                         ToolTip.CreateTooltip(tippedItem.TIP_ID);

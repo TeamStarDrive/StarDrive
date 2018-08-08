@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -14,32 +15,29 @@ namespace Ship_Game
         public MouseState MouseCurr;
         public MouseState MousePrev;
         public int ScrollWheelPrev;
-        public float DoubleClickTime = .5f;
         public bool Repeat;
         public float ExitScreenTimer;
         // MouseDrag variables
         public Vector2 StartRighthold { get; private set; }
-        public Vector2 EndRightHold { get; private set; }
-        public Vector2 StartLeftHold { get; private set; }
-        public Vector2 EndLeftHold { get; private set; }
+        public Vector2 EndRightHold   { get; private set; }
+        public Vector2 StartLeftHold  { get; private set; }
+        public Vector2 EndLeftHold    { get; private set; }
        
         public bool WasAnyKeyPressed => KeysCurr.GetPressedKeys().Length > 0;
 
         // Mouse Timers
         private float RightMouseDownTime;
         private float LeftMouseDownTime;
-        private bool RightMouseWasHeldInteral = false;
-        private bool LeftMouseWasHeldInteral  = false;
+        private bool RightMouseWasHeldInteral;
+        private bool LeftMouseWasHeldInteral;
         public bool RightMouseWasHeld         => RightMouseWasHeldInteral;
         public bool LeftMouseWasHeld          => LeftMouseWasHeldInteral;
         public float ReadRightMouseDownTime   => RightMouseDownTime;
-        private bool RightHeld                = false;
-        private bool LeftHeld                 = false;
-        private float LeftDblClickTimer  = 0f;
-        private float RightDblClickTimer = 0f;
-        public bool RightMouseDoubleClick  { get; private set; }
-        public bool LeftMouseDoubleClick { get; private set; }
-
+        private bool RightHeld;
+        private bool LeftHeld;
+        public bool RightMouseDoubleClick { get; private set; }
+        public bool LeftMouseDoubleClick  { get; private set; }
+        public bool MouseMoved            { get; private set; }
 
         // Mouse Clicks
         public bool RightMouseClick    => MouseButtonClicked(MouseCurr.RightButton, MousePrev.RightButton);
@@ -57,14 +55,17 @@ namespace Ship_Game
         public bool RightMouseHeldDown => MouseCurr.RightButton == ButtonState.Pressed && MousePrev.RightButton == ButtonState.Pressed;
         public bool RightMouseHeldUp   => MouseCurr.RightButton != ButtonState.Pressed && MousePrev.RightButton != ButtonState.Pressed && !LeftMouseWasHeld;
         public bool LeftMouseHeldUp    => MouseCurr.LeftButton  != ButtonState.Pressed && MousePrev.LeftButton  != ButtonState.Pressed;
-        public Vector2 MouseScreenPos  => new Vector2(MouseCurr.X, MouseCurr.Y);
 
-        //mouse position
+        // Mouse position
+        public Vector2 CursorPosition { get; private set; }
+        public float CursorX => CursorPosition.X;
+        public float CursorY => CursorPosition.Y;
+
         private Vector2 MouseRightClickPos = Vector2.Zero;
-        private Vector2 MouseLeftClickPos = Vector2.Zero;
+        private Vector2 MouseLeftClickPos  = Vector2.Zero;
         public bool MouseDrag => StartLeftHold != Vector2.Zero || StartRighthold != Vector2.Zero;
-        private bool MouseLeftDrag = false;
-        private bool MouseRightDrag = false;
+        private bool MouseLeftDrag;
+        private bool MouseRightDrag;
         private void SetMouseDrag()
         {
             MouseLeftDrag =  MouseCursorDragCheck(MouseLeftDrag, ref MouseLeftClickPos, MouseCurr.LeftButton);
@@ -213,8 +214,6 @@ namespace Ship_Game
             return LeftMouseHeld();
         }
 
-        public Vector2 CursorPosition { get ; private set; }
-
         public bool Undo              => IsCtrlKeyDown && KeyPressed(Keys.Z); // Ctrl+Z
         public bool Redo              => IsCtrlKeyDown && (KeyPressed(Keys.Y) || (IsShiftKeyDown && KeyPressed(Keys.Z))); // Ctrl+Y or Ctrl+Shift+Z
         public bool LeftCtrlShift     => IsKeyDown(Keys.LeftControl) && IsKeyDown(Keys.LeftShift);
@@ -238,8 +237,6 @@ namespace Ship_Game
         public bool MenuSelect => KeyPressed(Keys.Space)  || KeyPressed(Keys.Enter)    || GamepadClicked(Buttons.A) || GamepadClicked(Buttons.Start);
         public bool MenuUp     => KeyPressed(Keys.Up)     || GamepadClicked(Buttons.DPadUp)   || LeftStickFlickUp;
         public bool MenuDown   => KeyPressed(Keys.Down)   || GamepadClicked(Buttons.DPadDown) || LeftStickFlickDown;
-
-        public Vector2 NormalizedCursorPosition { get; set; }
 
         public bool OpenMap => KeyPressed(Keys.M);
 
@@ -272,6 +269,39 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
+        private struct DoubleClickTimer
+        {
+            private const float TooSlowThreshold = 0.5f;
+            private bool FirstClick;
+            private float Timer;
+            // @return TRUE if double click happened this frame
+            public bool Update(float deltaTime, bool wasClicked, bool mouseMoved)
+            {
+                if (mouseMoved)
+                {
+                    FirstClick = false;
+                    return false;
+                }
+                if (!FirstClick) // wait for first click to happen
+                {
+                    Timer = 0f;
+                    if (wasClicked)
+                        FirstClick = true;
+                    return false; // no double click yet
+                }
+                // if too much time elapsed, reset everything
+                Timer += deltaTime;
+                if (Timer > TooSlowThreshold || wasClicked)
+                {
+                    FirstClick = false;
+                    return wasClicked; // if we did a last minute doubleclick then return it
+                }
+                return false;
+            }
+        }
+
+        private DoubleClickTimer LeftDoubleClicker  = new DoubleClickTimer();
+        private DoubleClickTimer RightDoubleClicker = new DoubleClickTimer();
 
         private void UpdateTimers(float time)
         {
@@ -279,9 +309,8 @@ namespace Ship_Game
             TimerUpdate(time, RightMouseDown, ref RightMouseDownTime, ref RightMouseWasHeldInteral, ref RightHeld);
             EndLeftHold  = Vector2.Zero;
             EndRightHold = Vector2.Zero;
-            RightDblClickTimer = RightDblClickTimer <= 0 && RightMouseClick ? DoubleClickTime : RightDblClickTimer - time;
-            LeftDblClickTimer  = LeftDblClickTimer  <= 0 && LeftMouseClick  ? DoubleClickTime : LeftDblClickTimer  - time;
-
+            LeftMouseDoubleClick  = LeftDoubleClicker.Update(time, LeftMouseClick, MouseMoved);
+            RightMouseDoubleClick = RightDoubleClicker.Update(time, RightMouseClick, MouseMoved);
         }
         private static void TimerUpdate(float time, bool mouseDown, ref float timer, ref bool wasHeld, ref bool held)
         {
@@ -310,14 +339,14 @@ namespace Ship_Game
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            KeysPrev        = KeysCurr;
-            GamepadPrev     = GamepadCurr;
-            MousePrev       = MouseCurr;
+            KeysPrev = KeysCurr;
+            GamepadPrev = GamepadCurr;
+            MousePrev = MouseCurr;
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
-            MouseCurr       = Mouse.GetState();
-            CursorPosition  = new Vector2(MouseCurr.X, MouseCurr.Y);
-            KeysCurr        = Keyboard.GetState();
-
+            MouseCurr = Mouse.GetState();
+            CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
+            KeysCurr = Keyboard.GetState();
+            MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
             if (ExitScreenTimer >= 0)
             {
                 ExitScreenTimer -= elapsedTime;
@@ -325,19 +354,12 @@ namespace Ship_Game
             }
             SetMouseDrag();
 
-            RightMouseDoubleClick = RightDblClickTimer > 0 && RightMouseClick;
-            RightDblClickTimer = RightMouseDoubleClick ? 0 : RightDblClickTimer;
-
-            LeftMouseDoubleClick = LeftDblClickTimer > 0 && LeftMouseClick;
-            LeftDblClickTimer = LeftMouseDoubleClick ? 0 : LeftDblClickTimer;
-                
             UpdateTimers(elapsedTime);
 
             StartRighthold = UpdateHoldStartPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            EndRightHold   = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
-            StartLeftHold  = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
-            EndLeftHold    = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
-
+            EndRightHold = UpdateHoldEndPosistion(RightHeld, RightMouseWasHeld, StartRighthold, MouseRightDrag);
+            StartLeftHold = UpdateHoldStartPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
+            EndLeftHold = UpdateHoldEndPosistion(LeftHeld, LeftMouseWasHeld, StartLeftHold, MouseLeftDrag);
         }
     }
 }

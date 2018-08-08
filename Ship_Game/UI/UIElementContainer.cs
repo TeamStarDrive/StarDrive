@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -18,17 +17,13 @@ namespace Ship_Game
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected Vector2 Margin = new Vector2(15, 15);
+        protected Vector2     Margin        = new Vector2(15f, 15f);
         protected LayoutStyle CurrentLayout = LayoutStyle.HorizontalEven;
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
-
-        // @todo Remove this list of buttons. It's purely for backwards compatibility
-        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
-
-        protected bool LayoutStarted = false;
+        protected bool LayoutStarted;
         protected Vector2 LayoutCursor = Vector2.Zero;
-        protected Vector2 LayoutStep = Vector2.Zero;
+        protected Vector2 LayoutStep   = Vector2.Zero;
 
         public LayoutStyle Layout
         {
@@ -50,9 +45,6 @@ namespace Ship_Game
         protected UIElementContainer(UIElementV2 parent, Vector2 pos) : base(parent, pos)
         {
         }
-        protected UIElementContainer(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
-        {
-        }
         protected UIElementContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
         {
         }
@@ -61,19 +53,41 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             for (int i = 0; i < Elements.Count; ++i)
-                Elements[i].Draw(batch);
+            {
+                UIElementV2 e = Elements[i];
+                if (e.Visible) e.Draw(batch);
+            }
             if (ToolTip.Hotkey.IsEmpty())
                 ToolTip.Draw(batch);
         }
 
         public override bool HandleInput(InputState input)
         {
-            // iterate input in reverse, so we handle topmost objects before
-            for (int i = Elements.Count - 1; i >= 0; --i)
-                if (Elements[i].HandleInput(input))
-                    return true;
+            if (Visible && Enabled)
+            {
+                // iterate input in reverse, so we handle topmost objects before
+                for (int i = Elements.Count - 1; i >= 0; --i)
+                {
+                    UIElementV2 e = Elements[i];
+                    if (e.Visible && e.Enabled && e.HandleInput(input))
+                        return true;
+                }
+            }
             return false;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            for (int i = 0; i < Elements.Count; ++i)
+            {
+                UIElementV2 e = Elements[i];
+                if (e.Visible) e.Update(deltaTime);
+            }
         }
 
         private Vector2 LayoutDirection()
@@ -84,22 +98,20 @@ namespace Ship_Game
                 case LayoutStyle.HorizontalEven:
                 case LayoutStyle.HorizontalPacked: return new Vector2(1f, 0f);
                 case LayoutStyle.VerticalEven:
-                case LayoutStyle.VerticalPacked: return new Vector2(0f, 1f);
+                case LayoutStyle.VerticalPacked:   return new Vector2(0f, 1f);
             }
         }
 
-        public override void PerformLegacyLayout(Vector2 pos)
+        public override void PerformLayout()
         {
-            LayoutChildElements(pos);
-        }
+            if (!Visible)
+                return;
 
-        public override void Update()
-        {
-            base.Update(); // layout self first
+            base.PerformLayout(); // layout self first
             LayoutChildElements(Pos);
         }
 
-        public void LayoutChildElements(Vector2 pos)
+        private void LayoutChildElements(Vector2 pos)
         {
             if (Elements.IsEmpty)
                 return;
@@ -114,8 +126,9 @@ namespace Ship_Game
                 for (int i = 0; i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
+                    if (!e.Visible) continue;
                     e.Pos = cursor;
-                    e.Update();
+                    e.PerformLayout();
                     cursor += evenSpacing * direction;
                 }
             }
@@ -124,8 +137,9 @@ namespace Ship_Game
                 for (int i = 0; i < Elements.Count; ++i)
                 {
                     UIElementV2 e = Elements[i];
+                    if (!e.Visible) continue;
                     e.Pos = cursor;
-                    e.Update();
+                    e.PerformLayout();
                     cursor += (e.Size + Margin) * direction;
                 }
             }
@@ -136,8 +150,6 @@ namespace Ship_Game
         public T Add<T>(T element) where T : UIElementV2
         {
             Elements.Add(element);
-            var button = element as UIButton;
-            if (button != null) Buttons.Add(button);
             return element;
         }
 
@@ -146,8 +158,6 @@ namespace Ship_Game
             if (element == null)
                 return;
             Elements.RemoveRef(element);
-            var button = element as UIButton;
-            if (button != null) Buttons.RemoveRef(button);
         }
 
         public void Remove<T>(params T[] elements) where T : UIElementV2
@@ -159,7 +169,6 @@ namespace Ship_Game
         public void RemoveAll()
         {
             Elements.Clear();
-            Buttons.Clear();
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,12 +202,17 @@ namespace Ship_Game
             LayoutStep    = new Vector2(xstep, 0f);
         }
 
+        private static int ElementSorter(UIElementV2 a, UIElementV2 b)
+        {
+            return a.ZOrder - b.ZOrder;
+        }
+
         // ends the layout process and sorts all elements by their ZOrder values
         // In case the end of the layout position needs to be tracked return it on layout end. 
         public Vector2 EndLayout()
         {
             LayoutStarted = false;
-            Elements.Sort((a,b) => a.ZOrder - b.ZOrder);
+            Elements.Sort(ElementSorter);
             return LayoutCursor;
         }
 
@@ -222,14 +236,24 @@ namespace Ship_Game
 
         // Shared utility functions:
         protected UIButton Button(Vector2 pos, string launches, int titleId)
-            => Add(new UIButton(this, pos, launches, Localizer.Token(titleId)));
+            => Add(new UIButton(this, pos, Localizer.Token(titleId)));
         protected UIButton Button(Vector2 pos, string launches, string text)
-            => Add(new UIButton(this, pos, launches, text));
+            => Add(new UIButton(this, pos, text));
+
+        protected UIButton ButtonMediumMenu(float x, float y, string text)
+            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, text));
+
+        // @note CloseButton automatically calls ExitScreen() on this screen
+        protected CloseButton CloseButton(float x, float y)
+            => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected UIButton Button(int titleId, UIButton.ClickHandler click)
         {
             return Button(Localizer.Token(titleId), click);
         }
+
         protected UIButton Button(string text, UIButton.ClickHandler click)
         {
             UIButton button = Add(new UIButton(this, LayoutNext(), text));
@@ -238,71 +262,41 @@ namespace Ship_Game
             return button;
         }
 
-
-        protected UIButton Button(float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton Button(float x, float y, string launches, string text)
-            => Add(new UIButton(this, x, y, launches, text));
-
-        protected UIButton Button(ButtonStyle style, float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, style, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton Button(ButtonStyle style, float x, float y, string launches, string text)
-            => Add(new UIButton(this, style, x, y, launches, text));
-
-        protected UIButton Button(ButtonStyle style, float x, float y)
-            => Add(new UIButton(this, style, x, y));
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        protected UIButton ButtonSmall(float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, ButtonStyle.Small, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton ButtonSmall(float x, float y, string launches, string text)
-            => Add(new UIButton(this, ButtonStyle.Small, x, y, launches, text));
-
-        protected UIButton ButtonLow(float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, ButtonStyle.Low80, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton ButtonLow(float x, float y, string launches, string text)
-            => Add(new UIButton(this, ButtonStyle.Low80, x, y, launches, text));
-
-        protected UIButton ButtonMedium(float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, ButtonStyle.Medium, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton ButtonMedium(float x, float y, string launches, string text)
-            => Add(new UIButton(this, ButtonStyle.Medium, x, y, launches, text));
-
-        protected UIButton ButtonMediumMenu(float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton ButtonMediumMenu(float x, float y, string launches, string text)
-            => Add(new UIButton(this, ButtonStyle.MediumMenu, x, y, launches, text));
-
-        protected UIButton ButtonDip(float x, float y, string launches, int titleId)
-            => Add(new UIButton(this, ButtonStyle.BigDip, x, y, launches, Localizer.Token(titleId)));
-        protected UIButton ButtonDip(float x, float y, string launches, string text)
-            => Add(new UIButton(this, ButtonStyle.BigDip, x, y, launches, text));
-
-
-        // @note CloseButton automatically calls ExitScreen() on this screen
-        protected CloseButton CloseButton(float x, float y)
-            => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
-
-
-        protected UIButton ButtonMedium(string launches, int titleId)
-            => Add(new UIButton(this, ButtonStyle.Medium, LayoutNext(), launches, Localizer.Token(titleId)));
-
-        protected UIButton ButtonMedium(int titleId, string clickSfx = "", UIButton.ClickHandler click = null)
+        protected UIButton Button(ButtonStyle style, Vector2 pos, string text, UIButton.ClickHandler click, string clickSfx = null)
         {
-            var button = new UIButton(this, ButtonStyle.Medium, LayoutNext(), "", Localizer.Token(titleId));
+            var button = new UIButton(this, style, pos, text);
             if (click != null)       button.OnClick += click;
             if (clickSfx.NotEmpty()) button.ClickSfx = clickSfx;
             return Add(button);
         }
 
-        protected UIButton ButtonMedium(int titleId, UIButton.ClickHandler click = null)
-        {
-            var button = new UIButton(this, ButtonStyle.Medium, LayoutNext(), "", Localizer.Token(titleId));
-            if (click != null) button.OnClick += click;
-            return Add(button);
-        }
+
+        protected UIButton Button(float x, float y, string text, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
+        protected UIButton Button(float x, float y, int titleId, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Default, new Vector2(x, y), Localizer.Token(titleId), click);
+
+
+        protected UIButton ButtonLow(float x, float y, int titleId, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Low80, new Vector2(x, y), Localizer.Token(titleId), click);
+
+
+        protected UIButton ButtonSmall(float x, float y, string text, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Small, new Vector2(x, y), text, click);
+        protected UIButton ButtonSmall(float x, float y, int titleId, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Small, new Vector2(x, y), Localizer.Token(titleId), click);
+
+
+        protected UIButton ButtonMedium(int titleId, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Medium, LayoutNext(), Localizer.Token(titleId), click);
+        protected UIButton ButtonMedium(int titleId, string clickSfx, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Medium, LayoutNext(), Localizer.Token(titleId), click, clickSfx);
+
+
+        protected UIButton ButtonMedium(float x, float y, int titleId, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Medium, new Vector2(x, y), Localizer.Token(titleId), click);
+        protected UIButton ButtonMedium(float x, float y, string title, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Medium, new Vector2(x, y), title, click);
 
 
         protected ToggleButton ToggleButton(ToggleButtonStyle style, string icon)
@@ -327,10 +321,6 @@ namespace Ship_Game
 
         protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
             => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
-        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, string title, string tooltip)
-            => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
-        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
-            => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
 
         protected UICheckBox Checkbox(Expression<Func<bool>> binding, int title, int tooltip)
             => Checkbox(LayoutNext(), binding, title, tooltip);
@@ -349,33 +339,20 @@ namespace Ship_Game
         protected FloatSlider SliderPercent(Rectangle rect, string text, float min, float max, float value)
             => Add(new FloatSlider(this, SliderStyle.Percent, rect, text, min, max, value));
 
-
         protected FloatSlider Slider(int x, int y, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle(x, y, w, h), text, min, max, value);
-
-        protected FloatSlider SliderPercent(int x, int y, int w, int h, string text, float min, float max, float value)
-            => SliderPercent(new Rectangle(x, y, w, h), text, min, max, value);
 
         protected FloatSlider Slider(Vector2 pos, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle((int)pos.X, (int)pos.Y, w, h), text, min, max, value);
 
-        protected FloatSlider SliderPercent(Vector2 pos, int w, int h, string text, float min, float max, float value)
-            => SliderPercent(new Rectangle((int)pos.X, (int)pos.Y, w, h), text, min, max, value);
-
-
         protected FloatSlider Slider(int w, int h, string text, float min, float max, float value)
             => Slider(LayoutNextRect(w, h), text, min, max, value);
+
         protected FloatSlider SliderPercent(int w, int h, string text, float min, float max, float value)
             => SliderPercent(LayoutNextRect(w, h), text, min, max, value);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-        protected DropOptions<T> DropOptions<T>(Rectangle rect)
-            => Add(new DropOptions<T>(this, rect));
-
-        protected DropOptions<T> DropOptions<T>(int x, int y, int width, int height)
-            => Add(new DropOptions<T>(this, new Rectangle(x, y, width, height)));
 
         protected DropOptions<T> DropOptions<T>(int width, int height, int zorder = 0)
         {
@@ -418,6 +395,24 @@ namespace Ship_Game
             return label;
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        public void StartTransition<T>(float distance, float direction) where T : UIElementV2
+        {
+            var candidates = new Array<UIElementV2>();
+            for (int i = 0; i < Elements.Count; ++i)
+            {
+                UIElementV2 e = Elements[i];
+                if (e is T) candidates.Add(e);
+            }
+
+            for (int i = candidates.Count - 1; i >= 0; --i)
+            {
+                UIElementV2 e = candidates[i];
+                float modifier = i / (float)candidates.Count;
+                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction));
+            }
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
     }

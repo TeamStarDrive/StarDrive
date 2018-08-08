@@ -8,6 +8,8 @@ using Ship_Game.Ships;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
 {
+    using static ShipBuilder;
+
     public sealed partial class EmpireAI
     {
         private void RunMilitaryPlanner()
@@ -63,16 +65,7 @@ namespace Ship_Game.AI
 
         public class RoleBuildInfo
         {
-            public float RatioFighters;
-            public float RatioCorvettes;
-            public float RatioFrigates;
-            public float RatioCruisers;
-            public float RatioCapitals;         
-            public float RatioBombers   = 0;
-            public float RatioCarriers  = 0;
-            public float RatioSupport   = 0;
-            public float RatioTroopShip = 0;
-            public float CapFighters = 1;
+            public float CapFighters;
             public float CapCorvettes;
             public float CapFrigates;
             public float CapCruisers;
@@ -107,7 +100,6 @@ namespace Ship_Game.AI
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {                
                 EmpireAI = eAI;
-                RatioFighters = 0.5f;
 
                 var availableShips = OwnerEmpire.GetShips().FilterBy(item => 
                     !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
@@ -123,52 +115,18 @@ namespace Ship_Game.AI
                     float upkeep = item.GetMaintCost();
                     CountShips(upkeep, roleName);
                 }
+                var ratios = new FleetRatios(OwnerEmpire);
+                float upKeepAllotment = Math.Max(TotalUpkeep, 1f) / Math.Max(TotalMilShipCount, 1);
+                DesiredFighters  = ratios.ApplyFighterRatio(NumFighters, upKeepAllotment, capacity);
+                DesiredCorvettes = ratios.ApplyRatioCorvettes(NumCorvettes, upKeepAllotment, capacity);
+                DesiredFrigates  = ratios.ApplyRatioFrigates(NumFrigates, upKeepAllotment, capacity);
+                DesiredCruisers  = ratios.ApplyRatioCruisers(NumCruisers, upKeepAllotment, capacity);
+                DesiredCapitals  = ratios.ApplyRatioCapitals(NumCapitals, upKeepAllotment, capacity);
+                DesiredCarriers  = ratios.ApplyRatioCarriers(NumCarriers, upKeepAllotment, capacity);
+                DesiredBombers   = ratios.ApplyRatioBombers(NumBombers, upKeepAllotment, capacity);
+                DesiredSupport   = ratios.ApplyRatioSupport(NumSupport, upKeepAllotment, capacity);
+                DesiredTroops    = ratios.ApplyRatioTroopShip(NumTroops, upKeepAllotment, capacity);
                 
-                //Set ratio of capacity by class
-                float totalRatio;
-
-                if (OwnerEmpire.canBuildCapitals)
-                {
-                    totalRatio = SetRatios(fighters: 1, corvettes: 4 , frigates: 8, cruisers: 6 , capitals: 1, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f);                    
-                }
-                else if (OwnerEmpire.canBuildCruisers)
-                {
-                    totalRatio = SetRatios(fighters: 3, corvettes: 12, frigates: 4, cruisers: 1, capitals: 0, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f);                    
-                }
-                else if (OwnerEmpire.canBuildFrigates)
-                {
-                    totalRatio = SetRatios(fighters: 2, corvettes: 3, frigates: 1, cruisers: 0, capitals: 0, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f);                    
-                }
-                else if (OwnerEmpire.canBuildCorvettes)
-                {
-                    totalRatio = SetRatios(fighters: 2, corvettes: 1, frigates: 0, cruisers: 0, capitals: 0, bombers: 1f, carriers: 1f, support: 25f, troopShip: 1f);                    
-                }
-                else
-                {
-                    totalRatio = SetRatios(1, 0, 0, 0, 0, 0, 0, 0, 0);
-                }
-
-                float tempCap = TotalUpkeep - capacity;
-                if (tempCap > 0)
-                {
-                    if (ignoreDebt)
-                        capacity += tempCap;
-                    else
-                    {
-                        tempCap = capacity + TotalUpkeep * .1f;
-                        capacity = Math.Min(TotalUpkeep, tempCap);
-                    }
-
-                }
-                DesiredFighters          = SetCounts(NumFighters, CapFighters, capacity, RatioFighters ,totalRatio);
-                DesiredCorvettes         = SetCounts(NumCorvettes, CapCorvettes, capacity, RatioCorvettes, totalRatio);
-                DesiredFrigates          = SetCounts(NumFrigates, CapFrigates, capacity, RatioFrigates, totalRatio);
-                DesiredCruisers          = SetCounts(NumCruisers, CapCruisers, capacity, RatioCruisers, totalRatio);
-                DesiredCapitals          = SetCounts(NumCapitals, CapCapitals, capacity, RatioCapitals, totalRatio);
-                DesiredCarriers          = SetCounts(NumCarriers, CapCarriers, capacity, RatioCarriers, totalRatio);
-                DesiredBombers           = SetCounts(NumBombers, CapBombers, capacity, RatioBombers, totalRatio);
-                DesiredSupport           = SetCounts(NumSupport, CapSupport, capacity, RatioSupport, totalRatio);
-                DesiredTroops            = SetCounts(NumTroops, CapTroops, capacity, RatioTroopShip, totalRatio);
 
                 KeepRoleRatios(DesiredFighters, DesiredCorvettes, DesiredFrigates, DesiredCruisers
                     , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
@@ -230,52 +188,12 @@ namespace Ship_Game.AI
                 }
             }
 
-            private int SetCounts(float roleCount, float roleUpkeep, float capacity, float ratio, float totalRatio)
-            {
-
-                if (ratio < .01f) return 0;
-                
-                float shipUpkeep = Math.Max(roleUpkeep, 1) / Math.Max(roleCount, 1);
-                float mainRatio = shipUpkeep * ratio;// / Math.Max(TotalUpkeep , 1);
-                float possible = capacity * mainRatio / shipUpkeep;
-
-                return (int)Math.Round(possible);
-
-                
-            }
             private void SetCountsTrackRole(ref float roleCount, ref float roleMaint, float upkeep)
             {
                 roleCount++;
                 roleMaint += upkeep;
                 TotalMilShipCount++;
                 TotalUpkeep += upkeep;
-            }
-
-            private float SetRatios(float fighters, float corvettes, float frigates, 
-                float cruisers, float capitals, float bombers, float carriers, float support, float troopShip)
-            {                
-                RatioFighters      = fighters;
-                RatioCorvettes     = corvettes;
-                RatioFrigates      = frigates;
-                RatioCruisers      = cruisers;
-                RatioCapitals      = capitals;
-                float totalRatio = RatioFighters + RatioCorvettes + RatioFrigates + RatioCruisers
-                                   + RatioCapitals;
-
-
-                if (OwnerEmpire.canBuildTroopShips)
-                    RatioTroopShip = troopShip;
-                if (OwnerEmpire.canBuildBombers)
-                    RatioBombers   = bombers;
-
-                if (OwnerEmpire.canBuildCarriers)
-                {
-                    RatioCarriers = carriers;  
-                    RatioFighters = 0;
-                }
-                if (OwnerEmpire.canBuildSupportShips)
-                    RatioSupport = support;
-                return totalRatio + RatioSupport + RatioCarriers + RatioBombers + RatioTroopShip;
             }
 
             public void IncrementShipCount(ShipData.RoleName role)
@@ -390,177 +308,15 @@ namespace Ship_Game.AI
             PickRoles(ref buildRatios.NumFighters, buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
             PickRoles(ref buildRatios.NumCorvettes, buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);
 
-
-
-
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
-                string buildThis = PickFromCandidates(kv.Key);
+                string buildThis = PickFromCandidates(kv.Key, OwnerEmpire); 
                 if (string.IsNullOrEmpty(buildThis)) continue;
                 buildRatios.IncrementShipCount(kv.Key);
                 return buildThis;
             }
            
             return null;  //Find nothing to build !
-        }
-    
-        private static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
-             rolesPicked)
-        {            
-            if (numShips >= desiredShips)
-                return;            
-            rolesPicked.Add(role,  numShips / desiredShips);
-        }
-        public string PickFromCandidates(ShipData.RoleName role) => PickFromCandidates(role, false, ShipModuleType.Dummy);
-        public string PickFromCandidates(ShipData.RoleName role, bool efficiency, ShipModuleType targetModule)
-        {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.AiPickShipsByStrength)
-                return PickFromCandidatesByStrength(role, targetModule);
-
-            return PickFromCandidatesByTechsNeeded(role, efficiency, targetModule);
-        }
-
-        public string PickFromCandidatesByTechsNeeded(ShipData.RoleName role, bool efficiency, ShipModuleType targetModule)
-        {
-            var potentialShips = new Array<Ship>();
-            string name = "";
-            Ship ship;
-            int maxTech = 0;
-            float bestEfficiency = 0;
-            foreach (string shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
-            {
-                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null) continue;
-
-                if (role != ship.DesignRole)
-                    continue;
-                maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
-
-                potentialShips.Add(ship);
-                if (efficiency)
-                    bestEfficiency = Math.Max(bestEfficiency, ship.PercentageOfShipByModules(targetModule));
-
-            }
-            float nearmax = maxTech * .80f;
-            bestEfficiency *= .80f;
-            if (potentialShips.Count <= 0)
-                return name;
-
-            Ship[] bestShips = potentialShips.FilterBy(ships =>
-            {
-                if (efficiency)
-                    return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
-                return ships.shipData.TechsNeeded.Count >= nearmax;
-            });
-
-            if (bestShips.Length == 0)
-                return name;
-
-            ship = RandomMath.RandItem(bestShips); 
-            name        = ship.Name;
-            if (Empire.Universe?.showdebugwindow ?? false)
-                Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
-                         $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
-
-            return name;
-        }
-
-        public string PickFromCandidatesByStrength(ShipData.RoleName role, ShipModuleType targetModule = ShipModuleType.Dummy)
-        {
-            var potentialShips = new Array<Ship>();
-            bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
-            string name = "";
-            float bestModuleRatio = 0;
-            float highestStrength = 0;
-
-            foreach (string shipsWeCanBuild in OwnerEmpire.ShipsWeCanBuild)
-            {
-                Ship ship;
-                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null)
-                    continue;
-
-                if (role != ship.DesignRole)
-                    continue;
-
-                potentialShips.Add(ship);
-                int shipSize = ship.shipData.ModuleSlots.Length;
-                if (specificModuleWanted)
-                {
-                    bestModuleRatio = Math.Max(bestModuleRatio, ship.PercentageOfShipByModules(targetModule));
-                    highestStrength = Math.Max(highestStrength, ship.shipData.BaseStrength / shipSize); 
-                }
-                else
-                    highestStrength = Math.Max(highestStrength, ship.shipData.BaseStrength / shipSize);
-            }
-
-            if (potentialShips.Count <= 0)
-                return name;
-
-            bestModuleRatio *= 0.8f;
-            MinMaxStrength levelAdjust = new MinMaxStrength(highestStrength);
-            Ship[] bestShips = potentialShips.FilterBy(ships =>
-            {
-                int shipSize = ships.shipData.ModuleSlots.Length;
-                if (specificModuleWanted)
-                    return ships.shipData.BaseStrength / shipSize >= levelAdjust.MinStrength
-                           && ships.shipData.BaseStrength / shipSize <= levelAdjust.MaxStrength
-                           && ships.PercentageOfShipByModules(targetModule) >= bestModuleRatio;
-
-                return ships.shipData.BaseStrength / shipSize >= levelAdjust.MinStrength 
-                       && ships.shipData.BaseStrength / shipSize <= levelAdjust.MaxStrength;
-            });
-
-            if (bestShips.Length == 0)
-                return name;
-
-            Ship pickedShip = RandomMath.RandItem(bestShips);
-            name            = pickedShip.Name;
-
-            if (Empire.Universe?.showdebugwindow ?? false)
-            {
-                Log.Info($"Sorted Ship List ({bestShips.Length})");
-                int i = 0;
-                foreach (Ship loggedShip in bestShips)
-                {
-                    i++;
-                    Log.Info($"{i}) Name: {loggedShip.Name}, Stength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
-                }
-                Log.Info($"Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}  " +
-                         $"Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length} " +
-                         $"Name: {pickedShip.Name} . Min STR: {levelAdjust.MinStrength}, Max STR: {levelAdjust.MaxStrength}.");
-            }
-            return name;
-        }
-
-        private struct MinMaxStrength
-        {
-            public readonly float MinStrength;
-            public readonly float MaxStrength;
-
-            public MinMaxStrength (float inputStrength)
-            {
-                float maxStrength = 0;
-                float minStrength = 0;
-                switch (Empire.Universe.GameDifficulty)
-                {
-                    case UniverseData.GameDifficulty.Easy:
-                        maxStrength = inputStrength * 0.6f;
-                        break;
-                    case UniverseData.GameDifficulty.Normal:
-                        minStrength = inputStrength * 0.3f;
-                        maxStrength = inputStrength * 0.9f;
-                        break;
-                    case UniverseData.GameDifficulty.Hard:
-                        minStrength = inputStrength * 0.6f;
-                        maxStrength = inputStrength;
-                        break;
-                    case UniverseData.GameDifficulty.Brutal:
-                        minStrength = inputStrength * 0.9f;
-                        maxStrength = inputStrength;
-                        break;
-                }
-                MinStrength = minStrength;
-                MaxStrength = maxStrength;
-            }
         }
     }
 }

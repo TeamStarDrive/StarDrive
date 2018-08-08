@@ -133,7 +133,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_5, renderableMeshes, Enum7.flag_0);
             class64_0.method_0(SceneState.View, SceneState.ViewToWorld, SceneState.Projection, SceneState.ProjectionToView, list_6, renderableMeshes, Enum7.flag_0 | Enum7.flag_1);
             FrameShadowRenderTargetGroups.Clear();
-            IShadowMapManager manager2 = (IShadowMapManager)ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
+            var manager2 = (IShadowMapManager)ServiceProvider.GetManager(SceneInterface.ShadowMapManagerType, false);
             if (manager2 == null)
             {
                 GetDefaultShadows(FrameShadowRenderTargetGroups, FrameLights);
@@ -446,8 +446,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
             IShadowMap shadow = shadowGroup_0.Shadow as IShadowMap;
             if (!(shadow.ShadowEffect is IRenderableEffect) || !(shadow.ShadowEffect is ISkinnedEffect))
                 throw new Exception("RenderShadow requires an IRenderableEffect ShadowEffect.");
-            if (shadow.ShadowEffect is Class36)
-                (shadow.ShadowEffect as Class36).EffectDetail = ShadowDetail;
+            if (shadow.ShadowEffect is ShadowEffect effect)
+                effect.EffectDetail = ShadowDetail;
             shadow.BeginRendering(shadowRenderTargetGroup_1.RenderTargetTexture);
             ISkinnedEffect shadowEffect1 = shadow.ShadowEffect as ISkinnedEffect;
             Effect shadowEffect2 = shadow.ShadowEffect;

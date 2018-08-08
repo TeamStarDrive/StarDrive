@@ -69,6 +69,23 @@ namespace Ship_Game
                                Max(min.Y, Min(v.Y, max.Y)));
         }
 
+        // Angle normalized to [0, 360] degrees
+        public static float NormalizedAngle(this float angle)
+        {
+            float result = angle;
+            if (result >= 360f)
+            {
+                do   { result -= 360f; }
+                while (result >= 360f);
+            }
+            else if (result < 0f)
+            {
+                do   { result += 360f; }
+                while (result < 0f);
+            }
+            return result;
+        }
+
         // Basic Linear Interpolation
         public static float LerpTo(this float minValue, float maxValue, float amount)
         {
@@ -208,6 +225,10 @@ namespace Ship_Game
 
         // Narrows this Vector3 to a Vector2, the Z component is truncated
         public static Vector2 ToVec2(this Vector3 a) => new Vector2(a.X, a.Y);
+
+        // Creates a new Rectangle from this Vector2, where Rectangle X, Y are the Vector2 X, Y
+        public static Rectangle ToRect(this Vector2 a, int width, int height)
+            => new Rectangle((int)a.X, (int)a.Y, width, height);
 
         // Negates this Vector2's components
         public static Vector2 Neg(this Vector2 a) => new Vector2(-a.X, -a.Y);
@@ -389,7 +410,10 @@ namespace Ship_Game
 
         public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
         {
-            return (endVel - startVel) / deltaTime;
+            Vector2 deltaV = (endVel - startVel);
+            if (deltaV.X.AlmostEqual(0f, 0.001f) && deltaV.Y.AlmostEqual(0f, 0.001f))
+                return Vector2.Zero;
+            return deltaV / deltaTime;
         }
 
         public static Vector2 PredictImpact(this Ships.Ship ourShip, GameplayObject target)

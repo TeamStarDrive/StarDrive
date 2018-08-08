@@ -65,8 +65,10 @@ namespace Ship_Game
         [Serialize(57)] public float ShipRepair;
         [Serialize(58)] public BuildingCategory Category = BuildingCategory.General;
         [Serialize(59)] public bool IsPlayerAdded = false;
+        [Serialize(60)] public int InvadeInjurePoints;
 
-        [XmlIgnore][JsonIgnore] public Weapon theWeapon;
+        [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
+        [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
 
         public void SetPlanet(Planet p)
         {
@@ -77,10 +79,28 @@ namespace Ship_Game
         public Building Clone()
         {
             var b = (Building)MemberwiseClone();
-            b.theWeapon = null;
+            b.TheWeapon = null;
             return b;
         }
 
+        public void CreateWeapon()
+        {
+            if (!isWeapon)
+                return;
+
+            TheWeapon = ResourceManager.CreateWeapon(Weapon);
+            Offense = TheWeapon.CalculateWeaponOffense() * 3; //360 degree angle
+        }
+        
+        public float StrengthMax
+        {
+            get
+            {
+                Building template = ResourceManager.GetBuildingTemplate(Name);
+                return template.Strength;
+            }
+        }
+        
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
         public bool ProducesFood => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;

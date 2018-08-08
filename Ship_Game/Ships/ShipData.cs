@@ -278,25 +278,27 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
-        public void LoadModel() => LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, true);
-
-        public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim, bool justLoad = false)
+        public void PreLoadModel()
         {
-            var contentManager = Empire.Universe?.TransientContent ?? ResourceManager.ContentManager;
-            shipSO = ResourceManager.GetSceneMesh(contentManager, HullModel, Animated, justLoad);
-            shipMeshAnim = null;
-            if (BaseHull.ModelZ == 0 && HullRole >= RoleName.fighter)
+            var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
+            ResourceManager.PreloadModel(content, HullModel, Animated);
+        }
+
+        public void LoadModel(out SceneObject shipSO, out AnimationController shipMeshAnim)
+        {
+            var content = Empire.Universe?.TransientContent ?? ResourceManager.RootContent;
+
+            shipSO = ResourceManager.GetSceneMesh(content, HullModel, Animated);
+            if (BaseHull.ModelZ.AlmostEqual(0f) && HullRole >= RoleName.fighter)
                 BaseHull.ModelZ = shipSO.GetMeshBoundingBox().Max.Z;
-            
-            if (!Animated)
-                return;
 
-            SkinnedModel skinned = ResourceManager.GetSkinnedModel(contentManager, ModelPath);
-            if (justLoad)
-                return;
-
-            shipMeshAnim = new AnimationController(skinned.SkeletonBones);
-            shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+            shipMeshAnim = null;
+            if (Animated)
+            {
+                SkinnedModel skinned = content.LoadSkinnedModel(ModelPath);
+                shipMeshAnim = new AnimationController(skinned.SkeletonBones);
+                shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
+            }
         }
        
         public enum Category

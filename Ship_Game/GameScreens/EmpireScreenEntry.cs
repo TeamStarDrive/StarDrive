@@ -564,7 +564,7 @@ namespace Ship_Game
 					if (this.FoodLock.Locked)
 					{
 						this.FoodLock.Hover = false;
-						if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+						if (input.LeftMouseClick)
 						{
 							this.p.FoodLocked = false;
 							this.FoodLock.Locked = false;
@@ -574,7 +574,7 @@ namespace Ship_Game
 					else
 					{
 						this.FoodLock.Hover = true;
-						if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+						if (input.LeftMouseClick)
 						{
 							this.p.FoodLocked = true;
 							this.FoodLock.Locked = true;
@@ -593,7 +593,7 @@ namespace Ship_Game
 				if (this.ProdLock.Locked)
 				{
 					this.ProdLock.Hover = false;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+					if (input.LeftMouseClick)
 					{
 						this.p.ProdLocked = false;
 						this.ProdLock.Locked = false;
@@ -603,7 +603,7 @@ namespace Ship_Game
 				else
 				{
 					this.ProdLock.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+					if (input.LeftMouseClick)
 					{
 						this.p.ProdLocked = true;
 						this.ProdLock.Locked = true;
@@ -621,7 +621,7 @@ namespace Ship_Game
 				if (this.ResLock.Locked)
 				{
 					this.ResLock.Hover = false;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+					if (input.LeftMouseClick)
 					{
 						this.p.ResLocked = false;
 						this.ResLock.Locked = false;
@@ -631,7 +631,7 @@ namespace Ship_Game
 				else
 				{
 					this.ResLock.Hover = true;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+					if (input.LeftMouseClick)
 					{
 						this.p.ResLocked = true;
 						this.ResLock.Locked = true;
@@ -640,7 +640,7 @@ namespace Ship_Game
 				}
 				ToolTip.CreateTooltip(69);
 			}
-			if (this.p.Owner.data.Traits.Cybernetic == 0 && this.foodDropDown.r.HitTest(input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+		    if (p.Owner.data.Traits.Cybernetic == 0 && foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
 			{
 				this.foodDropDown.Toggle();
 				Planet planet1 = this.p;
@@ -651,7 +651,7 @@ namespace Ship_Game
 				}
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
 			}
-			if (this.prodDropDown.r.HitTest(input.CursorPosition) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+		    if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
 			{
 				this.prodDropDown.Toggle();
 				GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
@@ -742,7 +742,7 @@ namespace Ship_Game
 				{
 					this.ColonySliderFood.cursor.X = this.ColonySliderFood.sRect.X;
 				}
-				if (this.currentMouse.LeftButton == ButtonState.Released)
+				if (input.LeftMouseUp)
 				{
 					this.draggingSlider1 = false;
 				}
@@ -802,7 +802,7 @@ namespace Ship_Game
 				{
 					this.ColonySliderProd.cursor.X = this.ColonySliderProd.sRect.X;
 				}
-				if (this.currentMouse.LeftButton == ButtonState.Released)
+				if (input.LeftMouseUp)
 				{
 					this.draggingSlider2 = false;
 				}
@@ -862,7 +862,7 @@ namespace Ship_Game
 				{
 					this.ColonySliderRes.cursor.X = this.ColonySliderRes.sRect.X;
 				}
-				if (this.currentMouse.LeftButton == ButtonState.Released)
+				if (input.LeftMouseUp)
 				{
 					this.draggingSlider3 = false;
 				}

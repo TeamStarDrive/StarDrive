@@ -26,6 +26,26 @@ namespace Ship_Game
         public Vector2 Pos;    // absolute position
         public Vector2 Size;   // absolute size in the UI
 
+        protected Vector2 AxisOffset = Vector2.Zero;
+        protected Vector2 ParentOffset = Vector2.Zero;
+        protected bool RequiresLayout;
+
+        // Elements are sorted by ZOrder during EndLayout()
+        // Changing this will allow you to bring your UI elements to top
+        public int ZOrder;
+        
+        public bool Visible = true; // If TRUE, this UIElement is rendered
+        public bool Enabled = true; // If TRUE, this UIElement can receive input events
+
+
+        // Nullable to save memory
+        private Array<UIEffect> Effects;
+
+
+        public void Show() => Visible = true;
+        public void Hide() => Visible = false;
+
+
         public Rectangle Rect
         {
             get => new Rectangle((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
@@ -41,9 +61,6 @@ namespace Ship_Game
         public float Height { get => Size.Y; set => Size.Y = value; }
 
 
-        // Elements are sorted by ZOrder during EndLayout()
-        public int ZOrder;
-
         public void SetAbsPos(float x, float y)
         {
             Pos = new Vector2(x, y);
@@ -53,10 +70,6 @@ namespace Ship_Game
             Size = new Vector2(width, height);
             RequiresLayout = true;
         }
-
-        protected Vector2 AxisOffset   = Vector2.Zero;
-        protected Vector2 ParentOffset = Vector2.Zero;
-        protected bool RequiresLayout  = false;
 
         /**
          * Sets the auto-layout axis of the UIElement. Default is [0,0]
@@ -140,7 +153,11 @@ namespace Ship_Game
 
         public abstract void Draw(SpriteBatch batch);
         public abstract bool HandleInput(InputState input);
-        public abstract void PerformLegacyLayout(Vector2 pos);
+
+        public virtual void Update(float deltaTime)
+        {
+            UpdateEffects(deltaTime);
+        }
 
         public void RemoveFromParent()
         {
@@ -148,9 +165,32 @@ namespace Ship_Game
                 container.Remove(this);
         }
 
-        public virtual void Update()
+        public void AddEffect(UIEffect effect)
         {
-            if (!RequiresLayout)
+            Log.Assert(effect != null, "UIEffect cannot be null");
+            if (Effects == null)
+                Effects = new Array<UIEffect>();
+            Effects.Add(effect);
+        }
+
+        protected void UpdateEffects(float deltaTime)
+        {
+            Log.Assert(Visible, "UpdateEffects should only be called when Visible");
+            if (Effects == null)
+                return;
+            for (int i = 0; i < Effects.Count;)
+            {
+                if (Effects[i].Update(deltaTime)) 
+                    Effects.RemoveAt(i);
+                else ++i;
+            }
+            if (Effects.Count == 0)
+                Effects = null;
+        }
+
+        public virtual void PerformLayout()
+        {
+            if (!RequiresLayout || !Visible)
                 return;
             RequiresLayout = false;
 

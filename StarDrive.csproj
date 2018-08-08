@@ -174,6 +174,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.FactionUpdate.cs" />
@@ -187,6 +188,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
+    <Compile Include="Ship_Game\AI\EmpireAI\FleetRatios.cs" />
     <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
@@ -246,6 +248,7 @@
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\ScreenInputBinding.cs" />
     <Compile Include="Ship_Game\Input\UniverseKeys.cs" />
+    <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\RoleData.cs" />
     <Compile Include="Ship_Game\Ships\EmpireShipBonuses.cs" />
@@ -294,6 +297,8 @@
     </Compile>
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadRaceScreen.cs" />
+    <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
+    <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBCommodities.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
@@ -483,10 +488,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\RoundLineVertex.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GenericBlackBar.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1688,6 +1689,12 @@
     <None Include="Content\Textures\UI\icon_hangar.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\UI\icon_injury.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\UI\icon_offense.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Deploy\Config\config_develop" />
     <None Include="Deploy\Config\Deploy.cmd" />
     <None Include="Deploy\Config\include_develop" />
@@ -1958,6 +1965,9 @@
     <Content Include="Content\Buildings\Capital.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Buildings\Gun Emplacement.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Buildings\Outpost.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2124,6 +2134,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\Drone Scout.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\DynamicLaunch.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\Heavy Drone.xml">

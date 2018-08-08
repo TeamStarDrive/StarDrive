@@ -149,9 +149,12 @@ namespace SynapseGaming.LightingSystem.Effects
             set => this._UpdatedByBatch = false;
         }
 
+        //private static int NumEffectsCreated;
+
         internal BaseRenderableEffect(GraphicsDevice device, string embeddedEffect)
             : base(device, LightingSystemManager.Instance.EmbeddedEffect(embeddedEffect))
         {
+            //Console.WriteLine("Creating embedded effect: {0} {1}", embeddedEffect, ++NumEffectsCreated);
             this.effectParameter_0 = this.Parameters["_World"];
             this.effectParameter_1 = this.Parameters["_WorldToObject"];
             this.effectParameter_2 = this.Parameters["_View"];

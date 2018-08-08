@@ -66,7 +66,6 @@ namespace Ship_Game.Ships
                     }
                 }
 
-
                 module.HangarShipGuid = slotData.HangarshipGuid;
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
@@ -187,11 +186,13 @@ namespace Ship_Game.Ships
         {
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                var stackTrace = new Exception();
-                MessageBox.Show(
-                    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
-                    "Ship spawn failed!", MessageBoxButtons.OK);
-                return null;
+                //var stackTrace = new Exception();
+                //MessageBox.Show(
+                //    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
+                //     "Ship spawn failed!", MessageBoxButtons.OK);
+                Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
+                if (!ResourceManager.ShipsDict.TryGetValue("Vulcan Scout", out template))  // try to spawn Vulcan Scout
+                     return null;
             }
 
             var ship = new Ship
@@ -244,7 +245,7 @@ namespace Ship_Game.Ships
             if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
                 return;
 
-            GameContentManager content = ResourceManager.ContentManager;
+            GameContentManager content = ResourceManager.RootContent;
             foreach (Thruster t in ThrusterList)
             {
                 t.LoadAndAssignDefaultEffects(content);
@@ -283,9 +284,12 @@ namespace Ship_Game.Ships
 
         // Hangar Ship Creation
         public static Ship CreateShipFromHangar(ShipModule hangar, Empire owner, Vector2 p, Ship parent)
-        {            
+        {
             Ship ship = CreateShipAtPoint(hangar.hangarShipUID, owner, p);
-            if (ship == null) return null;
+
+            if (ship == null)
+                return null;
+
             ship.Mothership = parent;
             ship.Velocity = parent.Velocity;            
 
@@ -398,10 +402,10 @@ namespace Ship_Game.Ships
             }
             //end: ship subclass initializations. 
 
-            // FB: this IF statement so that ships loaded from save wont initialize twice, causing internlslot issues. This is a Workaround
+            // FB: this IF statement so that ships loaded from save wont initialize twice, causing internalslot issues. This is a Workaround
             // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
             if (!loadingFromSavegame)
-                InitializeStatus(loadingFromSavegame); 
+                InitializeStatus(false); 
             
             SetSystem(System);
             InitExternalSlots();
@@ -503,6 +507,14 @@ namespace Ship_Game.Ships
             Speed                    = velocityMaximum;
             rotationRadiansPerSecond = Speed / Size;
             ShipMass                 = Mass;
+
+            BaseStrength = CalculateShipStrength();
+            CurrentStrength = BaseStrength;
+
+            // @todo Do we need to recalculate this every time? This whole thing looks fishy
+            if (shipData.BaseStrength <= 0f)
+                shipData.BaseStrength = BaseStrength;
+
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;
             UpdateShields();
@@ -541,6 +553,9 @@ namespace Ship_Game.Ships
                         break;
                     case ShipModuleType.Colony:
                         isColonyShip = true;
+                        break;
+                    case ShipModuleType.Hangar:
+                        module.InitHangar();
                         break;
                 }
 
@@ -582,6 +597,7 @@ namespace Ship_Game.Ships
             }
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapcacity since they have no modules with TroopCapacity 
@@ -594,12 +610,7 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while. 
             shipData.BaseCanWarp = WarpThrust > 0;
             BaseCanWarp = WarpThrust > 0;
-            BaseStrength = CalculateShipStrength();
-            CurrentStrength = BaseStrength;
 
-            // @todo Do we need to recalculate this every time? This whole thing looks fishy
-            if (shipData.BaseStrength <= 0f)
-                shipData.BaseStrength = BaseStrength;
         }
 
         private float GetBaseCost()
