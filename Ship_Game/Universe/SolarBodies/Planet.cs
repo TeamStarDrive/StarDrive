@@ -151,14 +151,14 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.CountEmpireTroops(us);
         public int GetDefendingTroopCount() => TroopManager.GetDefendingTroopCount();
         public bool AnyOfOurTroops(Empire us) => TroopManager.AnyOfOurTroops(us);
-        public float GetGroundStrength(Empire empire) => TroopManager.GetGroundStrength(empire) + TotalInvadeInjure * 30;
+        public float GetGroundStrength(Empire empire) => TroopManager.GetGroundStrength(empire);
         public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
         public float GetGroundStrengthOther(Empire AllButThisEmpire) => TroopManager.GetGroundStrengthOther(AllButThisEmpire);
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public int GetGroundLandingSpots() => TroopManager.GetGroundLandingSpots();
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.GetEmpireTroops(empire, maxToTake);
         public void HealTroops(int healAmount)                                          => TroopManager.HealTroops(healAmount);
-
+        public float AvgPopulationGrowth { get; private set; }
         private static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
         public void SetExportWeight(Goods good, float weight)
@@ -331,6 +331,22 @@ namespace Ship_Game
             return predictedFood < predictedProduction ? Goods.Food : Goods.Production;
         }
 
+        public float GetProjectedGood(Goods good, int turns)
+        {
+            switch (good)
+            {
+                case Goods.None:
+                    return 0;
+                case Goods.Production:
+                    return ProjectedProduction(turns);
+                case Goods.Food:
+                    return ProjectedFood(turns);
+                case Goods.Colonists:
+                    return AvgPopulationGrowth * turns + Population;  
+            }
+            return 0;
+        }
+
         private const int NEVER = 10000;
 
         private float AvgIncomingFood => IncomingFood / 30f; // @todo Estimate this better
@@ -338,7 +354,7 @@ namespace Ship_Game
 
         private float AvgFoodPerTurn => GetNetFoodPerTurn() + AvgIncomingFood;
         private float AvgProdPerTurn => GetNetProductionPerTurn() + AvgIncomingProd;
-
+        
         private int TurnsUntilOutOfFood()
         {
             if (Owner.data.Traits.Cybernetic == 1)
@@ -2507,7 +2523,7 @@ namespace Ship_Game
                 RepairPerTurn += building.ShipRepair;
             }
 
-            TotalDefensiveStrength = (int)GetGroundStrength(Owner);
+            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
 
             //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
@@ -2578,6 +2594,7 @@ namespace Ship_Game
             else        //  ^-- This one increases population if there is enough food to feed everyone
                 Population += Unfed * 10f;      //So this else would only happen if there was not enough food. <-- This reduces population due to starvation.
             if (Population < 100.0) Population = 100f;      //Minimum population. I guess they wont all die from starvation
+            AvgPopulationGrowth = (AvgPopulationGrowth + adjustedRepRate) / 2;
         }
 
         public void AddGood(string goodId, int amount) => SbCommodities.AddGood(goodId, amount);
