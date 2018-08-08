@@ -375,7 +375,7 @@ namespace Ship_Game.Ships
             if (ECMValue >0)            
                 jitter += RandomMath2.Vector2D(ECMValue *80f);
             
-            if (loyalty.data.Traits.DodgeMod >0 && DesignRole == ShipData.RoleName.fighter)            
+            if (loyalty.data.Traits.DodgeMod > 0)            
                 jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
             
             return jitter;
