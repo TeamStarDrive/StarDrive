@@ -43,9 +43,10 @@ namespace Ship_Game
                 BaseHull        = hull.BaseHull
             };
             ActiveHull.UpdateBaseHull();
+            if (Role == ShipData.RoleName.drone)
+                ActiveHull.CarrierShip = true;
 
-
-            ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
+                ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
             {
                 ModuleSlotData hullSlot = hull.ModuleSlots[i];
@@ -777,7 +778,7 @@ namespace Ship_Game
             {
                 OnSymmetricDesignToggle();
             });
-            BtnSymmetricDesign.Tooltip = Localizer.Token(246);
+            BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
 
             Vector2 layoutEndV = EndLayout();
             SearchBar = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
@@ -838,7 +839,8 @@ namespace Ship_Game
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
 
             var carrierOnly = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
-            Checkbox(carrierOnly, () => ActiveHull.CarrierShip, "Carrier Only", 0);
+            if (ActiveHull.Role != ShipData.RoleName.drone)
+                Checkbox(carrierOnly, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
 
             ShipStats = new Menu1(shipStatsPanel);
             StatsSub = new Submenu(shipStatsPanel);
