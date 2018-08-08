@@ -17,7 +17,7 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen
     {
         private Vector2 ClassifCursor;
-        private UICheckBox carrierOnlyCheckBox;
+        private UICheckBox CarrierOnlyCheckBox;
         public void ChangeHull(ShipData hull)
         {
         #if SHIPYARD
@@ -77,8 +77,8 @@ namespace Ship_Game
         private void UpdateCarrierShip()
         {
             ActiveHull.CarrierShip = ActiveHull.HullRole == ShipData.RoleName.drone;
-            if (carrierOnlyCheckBox != null) // it is null the first time ship design screen is loaded
-                carrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone;
+            if (CarrierOnlyCheckBox != null) // it is null the first time ship design screen is loaded
+                CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone;
         }
 
         private void BindListsToActiveHull()
@@ -844,7 +844,7 @@ namespace Ship_Game
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
-            carrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
+            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
 
             ShipStats  = new Menu1(shipStatsPanel);
             StatsSub   = new Submenu(shipStatsPanel);
