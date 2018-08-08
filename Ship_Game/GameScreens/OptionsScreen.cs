@@ -246,7 +246,9 @@ namespace Ship_Game
                 Checkbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
                 Checkbox(() => GlobalStats.AutoErrorReport, "Automatic Error Report", 
                                 "Send automatic error reports to Blackbox developers");
-                if (Debugger.IsAttached)
+                Checkbox(() => GlobalStats.DisableAsteroids, "Disable Asteroids",           //Added by Gretman
+                                "This will prevent asteroids from being generated in new games, offering performance improvements in mid to late game. This will not affect current games or existing saves.");
+            if (Debugger.IsAttached)
                     Checkbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
                         "Experimental and untested feature for complex Shield behaviors during Warp");
             EndLayout();
