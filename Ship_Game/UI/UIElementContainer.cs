@@ -387,7 +387,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public void StartTransition<T>(bool transitionIn) where T : UIElementV2
+        public void StartTransition<T>(float distance, float direction) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
@@ -400,7 +400,7 @@ namespace Ship_Game
             {
                 UIElementV2 e = candidates[i];
                 float modifier = i / (float)candidates.Count;
-                e.Effect = new UITransitionEffect(e, modifier, transitionIn);
+                e.AddEffect(new UITransitionEffect(e, distance, modifier, direction));
             }
         }
 

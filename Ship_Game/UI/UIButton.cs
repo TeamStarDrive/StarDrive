@@ -132,7 +132,9 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            Rectangle r = GetEffectRect();
+            base.UpdateEffects();
+
+            Rectangle r = Rect;
             batch.Draw(ButtonTexture(), r, Color.White);
 
             SpriteFont font = Fonts.Arial12Bold;
