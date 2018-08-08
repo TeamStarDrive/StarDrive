@@ -10,29 +10,37 @@ namespace Ship_Game
 {
     public class UITransitionEffect : UIEffect
     {
-        private readonly float Modifier;
+        private const float TransitionSpeed = 0.025f;
+        private readonly float Offset; // offset multiplier
         private readonly float Direction;
-        private float Transition; // 0f means the intended position, 1f means max distance
 
-        public UITransitionEffect(UIElementV2 element, float modifier, bool transitionIn) : base(element)
+        private readonly Rectangle AnimStart;
+        private readonly Rectangle AnimEnd;
+
+        public UITransitionEffect(UIElementV2 e, 
+            float distance, float animOffset, float direction) : base(e)
         {
-            Modifier  = modifier;
-            Direction  = transitionIn ? -1f : 1f;
-            Offset     = transitionIn ? +1f : 0f;
-            Transition = transitionIn ? +1f : 0f;
+            Offset = animOffset;
+            Direction  = direction;
+            Animation = direction < 0 ? +1f : 0f;
+            AnimStart = e.Rect;
+            AnimEnd = AnimStart;
+            AnimEnd.X += (int)distance;
         }
 
-        public override bool Update(ref Rectangle r, float effectSpeed)
+        public override bool Update()
         {
-            Transition += effectSpeed * Direction * 0.016f;
-            Offset = ((Transition - 0.5f*Modifier) / 0.5f).Clamped(0f, 1f);
+            Animation += Direction * TransitionSpeed;
+            float animWithOffset = ((Animation - 0.5f * Offset) / 0.5f).Clamped(0f, 1f);
 
-            r.X += (int)(Offset * 512f);
+            int dx = (AnimEnd.X - AnimStart.X);
+            Element.X = AnimStart.X + animWithOffset * dx;
 
-            if (Direction < 0f && Offset.AlmostEqual(0f) ||
-                Direction > 0f && Offset.AlmostEqual(1f))
+            if (Direction < 0f && animWithOffset.AlmostEqual(0f) ||
+                Direction > 0f && animWithOffset.AlmostEqual(1f))
             {
                 GameAudio.PlaySfxAsync("blip_click"); // effect finished!
+
                 return true;
             }
             return false;
