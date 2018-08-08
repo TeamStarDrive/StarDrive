@@ -112,7 +112,6 @@ namespace Ship_Game
         {
             TransientContent?.Unload();
             Elements.Clear();
-            Buttons.Clear();
         }
 
 
