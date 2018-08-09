@@ -147,6 +147,7 @@ namespace Ship_Game.AI
                     FoodOrProd = Goods.Food;
                     Owner.TradingFood = true;
                     Owner.TradingProd = false;
+                    end.IncomingFood += Math.Max(Owner.CargoSpaceUsed, Owner.CargoSpaceMax);
                 }
                 else
                 {
@@ -164,6 +165,7 @@ namespace Ship_Game.AI
                     FoodOrProd = Goods.Production;
                     Owner.TradingProd = true;
                     Owner.TradingFood = false;
+                    end.IncomingProduction += Math.Max(Owner.CargoSpaceUsed, Owner.CargoSpaceMax);
                 }
                 else
                 {
@@ -243,42 +245,11 @@ namespace Ship_Game.AI
 
         private bool IsEfficientPickupPlanet(Goods good, Planet p)
         {
-            if (p.ParentSystem.CombatInSystem || p.ImportPriority() != good)
+            if (p.ParentSystem.CombatInSystem || p.GetGoodState(good) != Planet.GoodState.EXPORT)
                 return false;
-
-            //float cargoSpaceMax = p.GetGoodHere(good);
-            //float mySpeed = TradeSort(Owner, p, good, Owner.CargoSpaceMax, RouteType.Pickup);
-
-            //using (Owner.loyalty.GetShips().AcquireReadLock())
-            //{
-            //    foreach (Ship s in Owner.loyalty.GetShips())
-            //    {
-            //        if (s != Owner && !s.isConstructor &&
-            //            (s.DesignRole == ShipData.RoleName.freighter ||
-            //             s.shipData.ShipCategory == ShipData.Category.Civilian))
-            //        {
-            //            ShipGoal plan = s.AI.OrderQueue.PeekLast;
-            //            if (s.AI.State == AIState.SystemTrader && s.AI.start == p &&
-            //                plan?.Plan == Plan.PickupGoods && s.AI.FoodOrProd == good)
-            //            {
-            //                if (p.ImportPriority() != good)
-            //                    break;
-
-            //                float currentTrade = TradeSort(s, p, good, s.CargoSpaceMax, RouteType.Pickup);
-            //                if (currentTrade > 1000)
-            //                    continue;
-
-            //                float efficiency = Math.Abs(currentTrade - mySpeed);
-            //                efficiency = s.CargoSpaceMax - efficiency * p.GetNetGoodProd(good);
-            //                if (efficiency > 0)
-            //                    cargoSpaceMax -= efficiency;
-            //            }
-
-            //            if (cargoSpaceMax <= (p.MaxStorage * 0.1f))
-            //                return false;
-            //        }
-            //    }
-            //}
+            if (p.ImportPriority() != good)
+                return false;
+                
             return true; // Yep, it's ok!
         }
 
@@ -297,53 +268,16 @@ namespace Ship_Game.AI
             foreach (Planet p in sortPlanets)
             {
                 if (p.ParentSystem.CombatInSystem) continue;
-                //var flag = false;
-                //float cargoSpaceMax = p.MaxStorage - p.GetGoodHere(good);
-                //var faster = true;
-                //float thisTradeStr = TradeSort(Owner, p, good, Owner.CargoSpaceMax, RouteType.Delivery);
-                //if (thisTradeStr >= UniverseSize && p.GetGoodHere(good) >= 0)
-                //    continue;
-                if (p.ImportPriority() !=good)
+                if (p.GetGoodState(good) != Planet.GoodState.IMPORT) continue;
+
+                if (p.ImportPriority() != good)
                     continue;
-                //using (Owner.loyalty.GetShips().AcquireReadLock())
-                //{
-                //    for (var k = 0; k < Owner.loyalty.GetShips().Count; k++)
-                //    {
-                //        Ship s = Owner.loyalty.GetShips()[k];
-                //        if (s == null ||
-                //            (s.DesignRole != ShipData.RoleName.freighter &&
-                //             s.shipData.ShipCategory != ShipData.Category.Civilian) || s == Owner ||
-                //            s.isConstructor) continue;
-                //        if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == good)
-                //        {
-                //            float currenTrade = TradeSort(s, p, good, s.CargoSpaceMax, RouteType.Delivery);
-                //            if (currenTrade < thisTradeStr)
-                //                faster = false;
-                //            if (currenTrade > UniverseData.UniverseWidth && !faster)
-                //            {
-                //                flag = true;
-                //                break;
-                //            }
-
-                //            cargoSpaceMax = cargoSpaceMax - s.CargoSpaceMax;
-                //        }
-
-                //        if (cargoSpaceMax <= 0f)
-                //        {
-                //            flag = true;
-                //            break;
-                //        }
-                //    }
-                //}
-
-                //if (!flag)
-                {
-                    end = p;
-                    break;
-                }
+                end = p;
+                break;
             }
 
-            if (end == null) return false;
+            if (end == null)
+                return false;
 
             WayPoints.Clear();
             OrderQueue.Clear();            

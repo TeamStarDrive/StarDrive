@@ -64,12 +64,33 @@ namespace Ship_Game
         public bool ImportProd => PS == GoodState.IMPORT;
         public bool ExportFood => FS == GoodState.EXPORT;
         public bool ExportProd => PS == GoodState.EXPORT;
+        private float PopulationPercent => Population + IncomingColonists <= 0 ? 0 : (Population + IncomingColonists) / MaxPopulation;
+        private GoodState ColonistsTradeState
+        {
+            get
+            {                
+                if (PopulationBillion <= .1f)
+                {
+                    if (PopulationPercent > .9f) return GoodState.STORE;                    
+                    if (AvgPopulationGrowth < 0) return GoodState.STORE;
+                    return GoodState.IMPORT;
+                }
+                
+                if (AvgPopulationGrowth < 0) return GoodState.EXPORT;
+                if (PopulationPercent < .9f) return GoodState.IMPORT;
+                if (PopulationPercent > .25f) return GoodState.EXPORT;
+                return GoodState.STORE;
+            }
+        }
+        
+    
         public GoodState GetGoodState(Goods good)
         {
             switch (good)
             {
                 case Goods.Food:       return FS;
                 case Goods.Production: return PS;
+                case Goods.Colonists:  return ColonistsTradeState;
                 default:               return 0;
             }
         }        
@@ -263,6 +284,8 @@ namespace Ship_Game
         private void DebugImportProd(float predictedFood, string text) =>                    
             Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
         
+   
+
         public Goods ImportPriority()
         {
             // Is this an Import-Export type of planet?
@@ -365,7 +388,7 @@ namespace Ship_Game
             return (int)Math.Floor(FoodHere / Math.Abs(avg));
         }
 
-        private float ProjectedFood(int turns)
+        private float ProjectedFood(int turns) //this doesnt work well.
         {
             float incomingAvg = IncomingFood / 100f;
             return FoodHere + (incomingAvg + GetNetFoodPerTurn()) * turns;
