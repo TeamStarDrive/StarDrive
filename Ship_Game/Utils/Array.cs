@@ -604,7 +604,7 @@ namespace Ship_Game
         {
             int count = Count;
             if (count <= 1)
-                return this.ToArray();  //Empty<T>.Array;
+                return this.ToArray();
 
             var items = new T[count];
             Memory.HybridCopy(items, 0, Items, count);
