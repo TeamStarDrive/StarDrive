@@ -172,6 +172,33 @@ namespace Ship_Game.AI
             }
         }
 
+        public static string PickShipToRefit(Ship oldShip, Empire empire)
+        {
+            var potentialShips = new Array<Ship>();
+            float highestStrength = 0;
+            string name = "";
+
+            foreach (string shipsWeCanBuild in empire.ShipsWeCanBuild)
+            {
+                Ship ship;
+                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null)
+                    continue;
+
+                if (oldShip.shipData.Hull != ship.shipData.Hull
+                    || oldShip.BaseStrength >= ship.BaseStrength)
+                    continue;
+
+                potentialShips.Add(ship);
+                highestStrength = Math.Max(highestStrength, ship.shipData.BaseStrength);
+            }
+            if (potentialShips.Count <= 0)
+                return name;
+
+            Ship pickedShip = RandomMath.RandItem(potentialShips);
+            name = pickedShip.Name;
+            return name;
+        }
+
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
             ShipData.RoleName role, float velocity)
         {
