@@ -225,7 +225,7 @@
     </Token>
     <Token>
       <Index>59</Index>
-      <Text>Races with ponderous and deliberate natures make terrible fighter pilots. As a result, their fighters suffer 25% dodge penalty</Text>
+      <Text>Races with ponderous and deliberate natures make terrible pilots. As a result, their ships suffer 25% dodge penalty</Text>
     </Token>
     <Token>
       <Index>60</Index>
@@ -4701,7 +4701,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1978</Index>
-      <Text>When marked, this ship can only be assigned to a Carrier Hangar. It cannot be built by a colony. Drones are Always assigned to a carrier hangar.</Text>
+      <Text>When marked, this ship can only be assigned to a Carrier Hangar. It cannot be built by a colony. Drones are always assigned to a carrier hangar.</Text>
     </Token>
     <Token>
       <Index>1979</Index>
