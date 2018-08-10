@@ -49,6 +49,7 @@ namespace Ship_Game
         public bool AiPickShipsByStrength; // The AI will pick ships to build based on their Strength and game difficulty level 
         // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
         // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
+        public bool UseManualScriptedResearch; // Dont filter anyting, just use commands for manual research scripts.
 
         public float ShipyardBonus;
         public float UpkeepBaseline;

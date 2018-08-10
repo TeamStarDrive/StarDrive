@@ -398,7 +398,8 @@ namespace Ship_Game.AI {
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
 
-            availableTechs = BestShiptechs(modifier, allAvailableShipTechs, availableTechs);
+            if (!GlobalStats.HasMod || !GlobalStats.ActiveModInfo.UseManualScriptedResearch)
+                availableTechs = BestShiptechs(modifier, allAvailableShipTechs, availableTechs);
 
 
             float CostNormalizer = .01f;
@@ -485,31 +486,38 @@ namespace Ship_Game.AI {
                 return null;
             }
 
-
+            Array<TechEntry> filteredTechs = new Array<TechEntry>();
             TechEntry researchTech = null;
-            TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseManualScriptedResearch)
             {
-                if (econ.GetLookAheadType(techtype) >0 &&
-                 techtype != TechnologyType.Economic) return true;
-
-                if (econ.Tech.HullsUnlocked.Count == 0
-                    || moneyNeeded < 1f
-                    || availableTechs.Count == 1)
-                    return true;
-
-                foreach(var hull in econ.Tech.HullsUnlocked)
+                filteredTechs = availableTechs.FilterBy(tech => tech.TechnologyType == techtype);
+            }
+            else
+            {
+                filteredTechs = availableTechs.FilterBy(econ =>
                 {
-                    if(!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
-                    switch (hullData.HullRole) {
-                        case ShipData.RoleName.station:
-                            return true;
-                        case ShipData.RoleName.platform:
-                            return true;
+                    if (econ.GetLookAheadType(techtype) > 0 &&
+                     techtype != TechnologyType.Economic) return true;
+
+                    if (econ.Tech.HullsUnlocked.Count == 0
+                        || moneyNeeded < 1f
+                        || availableTechs.Count == 1)
+                        return true;
+
+                    foreach (var hull in econ.Tech.HullsUnlocked)
+                    {
+                        if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                        switch (hullData.HullRole)
+                        {
+                            case ShipData.RoleName.station:
+                                return true;
+                            case ShipData.RoleName.platform:
+                                return true;
+                        }
                     }
-                }
-                return false;
-            });
-            
+                    return false;
+                });
+            }
             LogFinalScriptTechs(command1, techtype, filteredTechs);
             researchTech = ChooseScriptTech(command1, filteredTechs);
             if (researchTech == null)
