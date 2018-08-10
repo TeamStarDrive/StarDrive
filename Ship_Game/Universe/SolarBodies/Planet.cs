@@ -818,6 +818,95 @@ namespace Ship_Game
             type += amount;
             return true;
         }
+        public struct TradeTracking
+        {
+            public struct Entry
+            {                                             
+                public Array<Cargo> Cargo;                
+                public void AddCargo(Cargo cargo) => Cargo.Add(cargo);                
+            }
+
+            private readonly Planet TradePlanet;
+            public ShipAI.RouteType Type;
+            private Dictionary<int, Entry> TimeAndCargo ;
+
+            public TradeTracking(Planet planet, ShipAI.RouteType routeType)
+            {
+                TimeAndCargo = new Dictionary<int, Entry>();
+                TradePlanet  = planet;
+                Type         = routeType;
+            }
+
+            public bool AddTrade(Ship ship)
+            {                
+                Planet currentPlanet;
+                ShipAI.RouteType routeType;
+
+                switch (ship.AI.OrderQueue.PeekLast.Plan)
+                {
+                    case ShipAI.Plan.PickupGoods:                    
+                        routeType = ShipAI.RouteType.Pickup;                                    
+                        break;
+                    
+                    case ShipAI.Plan.DropOffGoods:
+                        routeType = ShipAI.RouteType.Delivery;
+                        break;
+                    default:
+                        return false;
+                }
+                if (routeType != Type) return false;
+
+                switch (routeType)
+                {
+                    case ShipAI.RouteType.None:
+                        return false;
+                    case ShipAI.RouteType.Delivery:
+                        currentPlanet = ship.AI.end;
+                        break;
+                    case ShipAI.RouteType.Pickup:
+                        currentPlanet = ship.AI.start;
+                        break;
+                    default:
+                        return false;
+                }
+                if (currentPlanet == null || currentPlanet != TradePlanet) return false;
+
+
+                Cargo cargo = ship.GetCargo();
+                if (cargo.Amount <= 0) return false;
+                                
+                int eta = (int)ship.AI.TimeToTarget(currentPlanet);
+
+                TimeAndCargo.TryGetValue(eta, out Entry entry);
+                entry.AddCargo(cargo);
+                TimeAndCargo[eta] = entry;
+                return true;
+            }
+            public Dictionary<int,float> GetGoodsEta(Goods good)
+            {
+                var data = new Dictionary<int, float>();
+                foreach (var entry in TimeAndCargo)
+                {
+                    float amount = 0;
+                    foreach (var cargo in entry.Value.Cargo)                    
+                        if (cargo.Good == good) amount += cargo.Amount;
+                    
+                    data[entry.Key] = amount;
+                }
+                return data;
+            }
+            public float GetAverageIncomingTrade(Goods good)
+            {
+                var goods = GetGoodsEta(good);
+                float time = goods.Keys.Sum();
+                float amount = goods.Values.Sum();
+                return amount / time;
+            }
+            
+        }
+        public TradeTracking IncomingTradePrediction;
+        public TradeTracking OutgoingTradePrediction;
+
 
         private void CalculateIncomingTrade()
         {
@@ -825,23 +914,36 @@ namespace Ship_Game
             IncomingProduction = 0;
             IncomingFood = 0;
             TradeIncomingColonists = 0;
+            IncomingTradePrediction = new TradeTracking(this, ShipAI.RouteType.Delivery);
+            OutgoingTradePrediction = new TradeTracking(this, ShipAI.RouteType.Pickup);
             using (Owner.GetShips().AcquireReadLock())
             {
                 foreach (var ship in Owner.GetShips())
                 {
                     if (ship.DesignRole != ShipData.RoleName.freighter) continue;
-                    if (ship.AI.end != this) continue;
                     if (ship.AI.State != AIState.SystemTrader && ship.AI.State != AIState.PassengerTransport) continue;
+                    if (ship.AI.OrderQueue.IsEmpty) continue;
 
-                    if (AddToIncomingTrade(ref IncomingFood, ship.GetFood())) return;
-                    if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
-                    if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
+                    if (IncomingTradePrediction.AddTrade(ship))
+                        continue;
+                    OutgoingTradePrediction.AddTrade(ship);                                        
+                    
+                    //if (ship.DesignRole != ShipData.RoleName.freighter) continue;
+                    //if (ship.AI.end != this) continue;
+                    //if (ship.AI.State != AIState.SystemTrader && ship.AI.State != AIState.PassengerTransport) continue;
 
-                    if (AddToIncomingTrade(ref IncomingFood,       ship.CargoSpaceMax * (ship.AI.IsFood ? 1 : 0))) return;
-                    if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.IsProd ? 1 : 0))) return;
-                    if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
+                    //if (AddToIncomingTrade(ref IncomingFood, ship.GetFood())) return;
+                    //if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
+                    //if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
+
+                    //if (AddToIncomingTrade(ref IncomingFood,       ship.CargoSpaceMax * (ship.AI.IsFood ? 1 : 0))) return;
+                    //if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.IsProd ? 1 : 0))) return;
+                    //if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
                 }
             }
+            IncomingFood = IncomingTradePrediction.GetAverageIncomingTrade(Goods.Food);
+            IncomingProduction = IncomingTradePrediction.GetAverageIncomingTrade(Goods.Production);
+            IncomingProduction = IncomingTradePrediction.GetAverageIncomingTrade(Goods.Colonists);
         }
 
         public void RefreshBuildingsWeCanBuildHere()
