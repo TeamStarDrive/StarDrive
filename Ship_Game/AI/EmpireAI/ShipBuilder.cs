@@ -95,10 +95,10 @@ namespace Ship_Game.AI
                 if (specificModuleWanted)
                 {
                     bestModuleRatio = Math.Max(bestModuleRatio, ship.PercentageOfShipByModules(targetModule));
-                    highestStrength = Math.Max(highestStrength, ship.shipData.BaseStrength / shipSize);
+                    highestStrength = Math.Max(highestStrength, ship.BaseStrength / shipSize);
                 }
                 else
-                    highestStrength = Math.Max(highestStrength, ship.shipData.BaseStrength / shipSize);
+                    highestStrength = Math.Max(highestStrength, ship.BaseStrength / shipSize);
             }
 
             if (potentialShips.Count <= 0)
@@ -108,14 +108,14 @@ namespace Ship_Game.AI
             MinMaxStrength levelAdjust = new MinMaxStrength(highestStrength);
             Ship[] bestShips = potentialShips.FilterBy(ships =>
             {
-                int shipSize = ships.shipData.ModuleSlots.Length;
+                float shipStrength = ships.BaseStrength / ships.shipData.ModuleSlots.Length;
                 if (specificModuleWanted)
-                    return ships.shipData.BaseStrength / shipSize >= levelAdjust.MinStrength
-                           && ships.shipData.BaseStrength / shipSize <= levelAdjust.MaxStrength
+                    return shipStrength >= levelAdjust.MinStrength
+                           && shipStrength <= levelAdjust.MaxStrength
                            && ships.PercentageOfShipByModules(targetModule) >= bestModuleRatio;
 
-                return ships.shipData.BaseStrength / shipSize >= levelAdjust.MinStrength
-                       && ships.shipData.BaseStrength / shipSize <= levelAdjust.MaxStrength;
+                return shipStrength >= levelAdjust.MinStrength
+                       && shipStrength <= levelAdjust.MaxStrength;
             });
 
             if (bestShips.Length == 0)
@@ -131,11 +131,11 @@ namespace Ship_Game.AI
                 foreach (Ship loggedShip in bestShips)
                 {
                     i++;
-                    Log.Info($"{i}) Name: {loggedShip.Name}, Stength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
+                    Log.Info(ConsoleColor.Magenta, $"{i}) Name: {loggedShip.Name}, Stength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
                 }
-                Log.Info($"Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}  " +
-                         $"Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length} " +
-                         $"Name: {pickedShip.Name} . Min STR: {levelAdjust.MinStrength}, Max STR: {levelAdjust.MaxStrength}.");
+                Log.Info(ConsoleColor.Magenta, $"Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}  " +
+                                    $"Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length} " +
+                                    $"Name: {pickedShip.Name} . Min STR: {levelAdjust.MinStrength}, Max STR: {levelAdjust.MaxStrength}.");
             }
             return name;
         }
@@ -155,11 +155,11 @@ namespace Ship_Game.AI
                         maxStrength = inputStrength * 0.6f;
                         break;
                     case UniverseData.GameDifficulty.Normal:
-                        minStrength = inputStrength * 0.3f;
-                        maxStrength = inputStrength * 0.9f;
+                        minStrength = inputStrength * 0.5f;
+                        maxStrength = inputStrength;
                         break;
                     case UniverseData.GameDifficulty.Hard:
-                        minStrength = inputStrength * 0.6f;
+                        minStrength = inputStrength * 0.7f;
                         maxStrength = inputStrength;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
@@ -196,6 +196,7 @@ namespace Ship_Game.AI
 
             Ship pickedShip = RandomMath.RandItem(potentialShips);
             name = pickedShip.Name;
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {name}, Strength: {pickedShip.BaseStrength}");
             return name;
         }
 
