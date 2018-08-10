@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {
@@ -7,7 +8,13 @@ namespace Ship_Game.Ships
     {
         public string CargoId;
         public float Amount;
-        public Cargo(string id, float amount) { CargoId = id; Amount = amount; }
+        public Goods Good;        
+        public Cargo(string id, float amount, Goods type = Goods.None) 
+        {
+            CargoId      = id;
+            Amount       = amount;
+            Good         = type;            
+        }
     }
 
     // Ship_Cargo.cs -- All the data related to Cargo
@@ -145,7 +152,16 @@ namespace Ship_Game.Ships
                 default:               return 0f;
             }
         }
-
+   
+        public Cargo GetCargo()
+        {
+            foreach(var cargo in EnumLoadedCargo())
+            {
+                if (cargo.Amount > 0)
+                    return cargo;
+            }
+            return new Cargo("", 0);
+        }
         public float GetColonists()  => Cargo?.Colonists * PassengerModifier ?? 0f;
         public float GetProduction() => Cargo?.Production ?? 0f;
         public float GetFood()       => Cargo?.Food       ?? 0f;
