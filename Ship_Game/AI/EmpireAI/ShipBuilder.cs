@@ -185,7 +185,8 @@ namespace Ship_Game.AI
                     continue;
 
                 if (oldShip.shipData.Hull != ship.shipData.Hull
-                    || oldShip.BaseStrength >= ship.BaseStrength)
+                    || oldShip.BaseStrength >= ship.BaseStrength
+                    || oldShip.Name == ship.Name)
                     continue;
 
                 potentialShips.Add(ship);
