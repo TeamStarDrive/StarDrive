@@ -87,14 +87,6 @@ namespace Ship_Game
             CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone
                                           && ActiveHull.HullRole != ShipData.RoleName.platform
                                           && ActiveHull.HullRole != ShipData.RoleName.station;
-
-            if (!CarrierOnlyCheckBox.Visible)
-                return;
-
-            SpriteBatch batch = ScreenManager.SpriteBatch;
-            batch.Begin();
-            CarrierOnlyCheckBox.Draw(batch);
-            batch.End();
         }
 
         private void BindListsToActiveHull()
