@@ -123,9 +123,9 @@ namespace Ship_Game.Ships
         public IEnumerable<Cargo> EnumLoadedCargo()
         {
             if (Cargo == null) yield break;
-            if (Cargo.Food       > 0f) yield return new Cargo("Food",           Cargo.Food);
-            if (Cargo.Production > 0f) yield return new Cargo("Production",     Cargo.Production);
-            if (Cargo.Colonists  > 0f) yield return new Cargo("Colonists_1000", Cargo.Colonists * PassengerModifier);
+            if (Cargo.Food       > 0f) yield return new Cargo("Food",           Cargo.Food, Goods.Food);
+            if (Cargo.Production > 0f) yield return new Cargo("Production",     Cargo.Production, Goods.Production);
+            if (Cargo.Colonists  > 0f) yield return new Cargo("Colonists_1000", Cargo.Colonists * PassengerModifier, Goods.Colonists);
 
             Cargo[] other = Cargo.Other;
             for (int i = 0; i < other.Length; ++i)

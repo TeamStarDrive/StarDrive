@@ -878,6 +878,7 @@ namespace Ship_Game
                 int eta = (int)ship.AI.TimeToTarget(currentPlanet);
 
                 TimeAndCargo.TryGetValue(eta, out Entry entry);
+                entry.Cargo = entry.Cargo ?? new Array<Cargo>();
                 entry.AddCargo(cargo);
                 TimeAndCargo[eta] = entry;
                 return true;
@@ -890,7 +891,7 @@ namespace Ship_Game
                     float amount = 0;
                     foreach (var cargo in entry.Value.Cargo)                    
                         if (cargo.Good == good) amount += cargo.Amount;
-                    
+                    if (amount <= 0) continue;
                     data[entry.Key] = amount;
                 }
                 return data;
@@ -898,6 +899,7 @@ namespace Ship_Game
             public float GetAverageIncomingTrade(Goods good)
             {
                 var goods = GetGoodsEta(good);
+                if (goods.Count == 0) return 0;
                 float time = goods.Keys.Sum();
                 float amount = goods.Values.Sum();
                 return amount / time;
