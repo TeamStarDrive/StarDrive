@@ -28,16 +28,16 @@ namespace Ship_Game.GameScreens
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             Window.Draw();
             string title     = Localizer.Token(310);
             SpriteFont arial12Bold     = Fonts.Arial12Bold;
             Vector2 cursor   = new Vector2(Window.Menu.X + Window.Menu.Width / 2 - arial12Bold.MeasureString(title).X / 2f, Window.Menu.Y + 20);
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, title, cursor, Color.White);
-            ScreenManager.SpriteBatch.FillRectangle(TaxRateRect, new Color(17, 21, 28));
-            ScreenManager.SpriteBatch.FillRectangle(IncomesRect, new Color(18, 29, 29));
-            ScreenManager.SpriteBatch.FillRectangle(TradeRect, new Color(30, 26, 19));
-            ScreenManager.SpriteBatch.FillRectangle(CostRect, new Color(27, 22, 25));
+            batch.DrawString(arial12Bold, title, cursor, Color.White);
+            batch.FillRectangle(TaxRateRect, new Color(17, 21, 28));
+            batch.FillRectangle(IncomesRect, new Color(18, 29, 29));
+            batch.FillRectangle(TradeRect, new Color(30, 26, 19));
+            batch.FillRectangle(CostRect, new Color(27, 22, 25));
             cursor.Y         = cursor.Y + arial12Bold.LineSpacing * 2;
             cursor.X         = Window.Menu.X + 30;
             TaxSlider.UpdatePosition(cursor, 313, 12, string.Concat(Localizer.Token(311), " : "));
@@ -70,22 +70,22 @@ namespace Ship_Game.GameScreens
             Vector2 columnB                 = cursor;
             columnB.X                       = cursor.X + 150f;             
             float incomes = Screen.player.GetPlanetIncomes();            
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{ token313}: ", cursor, Color.White);
+            batch.DrawString(arial12Bold, $"{ token313}: ", cursor, Color.White);
             columnB.X                       = columnB.X + 150f - arial12Bold.MeasureString(incomes.ToString("#.0")).X;
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, incomes.ToString("#.0"), columnB, Color.White);
+            batch.DrawString(arial12Bold, incomes.ToString("#.0"), columnB, Color.White);
 
             cursor.Y                        = cursor.Y + arial12Bold.LineSpacing;
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             float flatMoney                 = EmpireManager.Player.data.FlatMoneyBonus;
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, "Bonus: ", cursor, Color.White);
+            batch.DrawString(arial12Bold, "Bonus: ", cursor, Color.White);
             columnB.X                       = columnB.X - arial12Bold.MeasureString(flatMoney.ToString("#.0")).X;
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, flatMoney.ToString("#.0"), columnB, Color.White);
+            batch.DrawString(arial12Bold, flatMoney.ToString("#.0"), columnB, Color.White);
             incomes                         = incomes + flatMoney;
             cursor.Y                        = cursor.Y + arial12Bold.LineSpacing;
             cursor.Y                        = cursor.Y + arial12Bold.LineSpacing;
             cursor                          = new Vector2(IncomesRect.X + IncomesRect.Width - 75, IncomesRect.Y + IncomesRect.Height - arial12Bold.LineSpacing - 5);            
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{token314}: {incomes:#.0}", cursor, Color.White);
+            batch.DrawString(arial12Bold, $"{token314}: {incomes:#.0}", cursor, Color.White);
             cursor                          = new Vector2(CostRect.X + 10, CostRect.Y + 8);
             
             HelperFunctions.DrawDropShadowText(ScreenManager, token315, cursor, arial12Bold);
@@ -93,7 +93,7 @@ namespace Ship_Game.GameScreens
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{token316}: ", cursor, Color.White);            
+            batch.DrawString(arial12Bold, $"{token316}: ", cursor, Color.White);            
             
             float totalBuildingMaintenance  = EmpireManager.Player.GetTotalBuildingMaintenance();
             columnB.X                       = columnB.X - arial12Bold.MeasureString(totalBuildingMaintenance.ToString("#.0")).X;
@@ -103,7 +103,7 @@ namespace Ship_Game.GameScreens
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{token317}: ", cursor, Color.White);
+            batch.DrawString(arial12Bold, $"{token317}: ", cursor, Color.White);
             
             float totalShipMaintenance      = EmpireManager.Player.GetTotalShipMaintenance();
             columnB.X                       = columnB.X - arial12Bold.MeasureString(totalShipMaintenance.ToString("#.0")).X;            
@@ -121,22 +121,22 @@ namespace Ship_Game.GameScreens
             columnB                         = cursor;
             columnB.X                       = cursor.X + 150f;
             
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{token322}: ", cursor, Color.White);                      
+            batch.DrawString(arial12Bold, $"{token322}: ", cursor, Color.White);                      
             int averageTradeIncome          = EmpireManager.Player.GetAverageTradeIncome();
             columnB.X                       = columnB.X - arial12Bold.MeasureString(averageTradeIncome.ToString("#.0")).X;
-            SpriteBatch spriteBatch3        = ScreenManager.SpriteBatch;            
+            SpriteBatch spriteBatch3        = batch;            
             
             spriteBatch3.DrawString(arial12Bold, averageTradeIncome.ToString("#.0"), columnB, Color.White);
             cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
             
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{token323}: ", cursor, Color.White);
+            batch.DrawString(arial12Bold, $"{token323}: ", cursor, Color.White);
             cursor.Y                        = cursor.Y + (arial12Bold.LineSpacing + 2);
             cursor.X                        = cursor.X + 5f;
             float totalTradeIncome          = DrawTotalTradeIncome(arial12Bold, ref cursor, ref columnB);
 
             totalTradeIncome                = totalTradeIncome + EmpireManager.Player.GetAverageTradeIncome();
             cursor                          = new Vector2(TradeRect.X + TradeRect.Width - 75, TradeRect.Y + TradeRect.Height - arial12Bold.LineSpacing - 5);
-            ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{Localizer.Token(320)}: {totalTradeIncome:#.0}", cursor, Color.White);
+            batch.DrawString(arial12Bold, $"{Localizer.Token(320)}: {totalTradeIncome:#.0}", cursor, Color.White);
             cursor                          = new Vector2(Window.Menu.X + Window.Menu.Width - 170, Window.Menu.Y + Window.Menu.Height - 47);
             float net                       = Screen.player.EstimateIncomeAtTaxRate(Screen.player.data.TaxRate);
             string words;
@@ -151,13 +151,9 @@ namespace Ship_Game.GameScreens
                 words = $"{token324} : {net:#.0}";
                 HelperFunctions.DrawDropShadowText(ScreenManager, words, cursor, Fonts.Arial20Bold);
             }
-            foreach (UIButton b in Buttons)
-            {
-                b.Draw(ScreenManager.SpriteBatch);
-            }
-            Close.Draw(ScreenManager.SpriteBatch);
-            ToolTip.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.End();
+            base.Draw(batch);
+            ToolTip.Draw(batch);
+            batch.End();
         }
 
         private float DrawTotalTradeIncome(SpriteFont arial12Bold, ref Vector2 cursor, ref Vector2 columnB)
