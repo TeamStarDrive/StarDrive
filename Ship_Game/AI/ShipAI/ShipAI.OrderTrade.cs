@@ -97,7 +97,7 @@ namespace Ship_Game.AI
                 case RouteType.Delivery:
                     bool badCargo = projectedGoodsAtPlanet > planet.MaxStorage;
                     if (!badCargo)
-                        return timeToTarget;
+                        return timeToTarget + (int)projectedGoodsAtPlanet;
                     return timeToTarget + nearlyNever;
 
                 case RouteType.Pickup:
@@ -159,7 +159,7 @@ namespace Ship_Game.AI
             
             if (IsProd && (end == null || Owner.GetProduction() >0))
             {
-                if (DeliverShipment(Goods.Production))
+                 if (DeliverShipment(Goods.Production))
                 {
                     
                     FoodOrProd = Goods.Production;
@@ -247,8 +247,8 @@ namespace Ship_Game.AI
         {
             if (p.ParentSystem.CombatInSystem || p.GetGoodState(good) != Planet.GoodState.EXPORT)
                 return false;
-            if (p.ImportPriority() != good)
-                return false;
+            //if (p.ImportPriority() != good)
+            //    return false;
                 
             return true; // Yep, it's ok!
         }
@@ -258,7 +258,7 @@ namespace Ship_Game.AI
             TradePlanets planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
             if (planets.Planets.Count <= 0)
                 return false;
-             
+            
             float loadedCargo = Owner.GetCargo(good);
             loadedCargo = loadedCargo > 0 ? loadedCargo : Owner.CargoSpaceMax;
             var sortPlanets =
@@ -293,13 +293,14 @@ namespace Ship_Game.AI
             foreach (Planet planet in Owner.loyalty.GetPlanets())
             {
                 if (!(planet.ParentSystem.combatTimer <= 0)) continue;
-                //float distanceWeight = TradeSort(Owner, planet, good, Owner.CargoSpaceMax, RouteType.Pickup);
-
+                float distanceWeight = TradeSort(Owner, planet, good, Owner.CargoSpaceMax, RouteType.Pickup);
+                if (distanceWeight >= int.MaxValue)
+                    continue;
                 //var exportWeight = planet.GetExportWeight(good);
-                
-                //planet.SetExportWeight(good, distanceWeight < exportWeight ? distanceWeight : exportWeight);
 
-                if (planet.GetGoodState(good) == goodState && InsideAreaOfOperation(planet))
+                //planet.SetExportWeight(good, distanceWeight < exportWeight ? distanceWeight : exportWeight);
+                if (planet.GetGoodState(good) != goodState) continue;
+                if (InsideAreaOfOperation(planet))
                     planets.Planets.Add(planet);
                 //else if (planet.MaxStorage - planet.GetGoodHere(good) > 0)
                   //  planets.SecondaryPlanets.Add(planet);

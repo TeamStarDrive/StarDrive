@@ -388,16 +388,16 @@ namespace Ship_Game
             return (int)Math.Floor(FoodHere / Math.Abs(avg));
         }
 
-        private float ProjectedFood(int turns) //this doesnt work well.
+        private float ProjectedFood(int turns)
         {
-            float incomingAvg = IncomingFood / 100f;
+            float incomingAvg = IncomingFood / 100f; //this is funky
             return FoodHere + (incomingAvg + GetNetFoodPerTurn()) * turns;
         }
 
         private float ProjectedProduction(int turns)
         {
-            float incomingAvg = IncomingProduction / 100f;
-            return ProductionHere + (incomingAvg + GetNetProductionPerTurn()) * turns;
+            float incomingAvg = IncomingProduction / 100f; //this is funky
+            return ProductionHere + (incomingAvg + GetNetProductionPerTurn()) * (turns - TotalTurnsInConstruction);
         }
 
         private bool FindConstructionBuilding(Goods goods, out QueueItem item)
