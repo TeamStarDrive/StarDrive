@@ -1910,7 +1910,6 @@ namespace Ship_Game
                 float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
                 if (prodFromLabor + prodFromFlat > 10.0f) score += ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
-                if (PopulationBillion / MaxPopulationBillion < 0.8f) score = 0; //Dont think about ship building until we have most of our population&& PopulationBillion / MaxPopulationBillion >= 0.8f
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
             }
