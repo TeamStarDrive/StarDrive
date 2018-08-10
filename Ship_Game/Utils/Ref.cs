@@ -26,24 +26,24 @@ namespace Ship_Game
         //   new Ref<bool>( () => this.BoolValueToBind );
         public Ref(Expression<Func<T>> fieldPropExpression)
         {
-            var body = (MemberExpression)fieldPropExpression.Body;
+            Getter = fieldPropExpression.Compile();
 
-            // try to get the instance of the expression,
-            // for instance fields/properties this should never be null
-            object obj = body.Expression?.GetTargetInstance();
+            // we need to extract the body and capture it inside
+            // Setter lambdas. The lambdas need to evaluate the expressions
+            // again dynamically to handle reference changes, eg:
+            // `() => this.ActiveHull.CarrierOnly`  <-- ActiveHull may change
+            var body = (MemberExpression)fieldPropExpression.Body;
 
             MemberInfo member = body.Member;
             if (member is PropertyInfo propInfo) // expression is a property
             {
                 PropertyInfo prop = propInfo; // VS2017 RC requires a copy for lambda capture
-                Getter = ( ) => (T)prop.GetValue(obj, BindingFlags.Default, null, null, null);
-                Setter =  x  => prop.SetValue(obj, x, BindingFlags.Default, null, null, null);
+                Setter = (x) => prop.SetValue(body.Expression.GetTargetInstance(), x, BindingFlags.Default, null, null, null);
             }
             else if (member is FieldInfo fieldInfo) // expression is a regular variable
             {
                 FieldInfo field = fieldInfo;
-                Getter = ( ) => (T)field.GetValue(obj);
-                Setter =  x  => field.SetValue(obj, x);
+                Setter = (x) => field.SetValue(body.Expression.GetTargetInstance(), x);
             }
             else
             {
