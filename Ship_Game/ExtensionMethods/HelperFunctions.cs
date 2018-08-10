@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime;
@@ -274,14 +275,15 @@ namespace Ship_Game
             GC.Collect();
         }
 
-        public static string GetNumberString(float stat)
+        public static string GetNumberString(this float stat)
         {
-            if (Math.Abs(stat) < 1000f) return stat.ToString("#.#"); // 950.7
-            if (Math.Abs(stat) < 10000f) return stat.ToString("#");   // 9500
+            CultureInfo invariant = CultureInfo.InvariantCulture;
+            if (Math.Abs(stat) < 1000f) return stat.ToString("#.#", invariant);  // 950.7
+            if (Math.Abs(stat) < 10000f) return stat.ToString("#", invariant);   // 9500
             float single = stat / 1000f;
-            if (Math.Abs(single) < 100f) return single.ToString("#.##") + "k"; // 57.75k
-            if (Math.Abs(single) < 1000f) return single.ToString("#.#") + "k";  // 950.7k
-            return single.ToString("#") + "k"; // 1000k
+            if (Math.Abs(single) < 100f)  return single.ToString("#.##", invariant) + "k"; // 57.75k
+            if (Math.Abs(single) < 1000f) return single.ToString("#.#", invariant) + "k";  // 950.7k
+            return single.ToString("#", invariant) + "k"; // 1000k
         }
     }
 }

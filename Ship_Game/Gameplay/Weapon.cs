@@ -445,10 +445,9 @@ namespace Ship_Game.Gameplay
 
             //reduce or increase jitter based on weapon and trait characteristics. 
             
-            if (isBeam)      adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));    
-            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            if (Tag_Cannon) adjust   *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));    
+            if (Tag_Kinetic) adjust  *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
 
-            if (Owner?.loyalty?.data.Traits.Blind > 0) adjust *= 2f;
             adjust *= CalculateBaseAccuracy();
             
             return RandomMath2.Vector2D(adjust);
@@ -720,7 +719,7 @@ namespace Ship_Game.Gameplay
             if (Owner == null)
                 return;
             if (Owner.loyalty.data.Traits.Pack)
-                projectile.DamageAmount += projectile.DamageAmount * Owner.DamageModifier;
+                projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
             //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
             //    return;

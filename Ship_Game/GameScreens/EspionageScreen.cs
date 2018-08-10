@@ -193,7 +193,7 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6118), this.AgentComponent.SelectedAgent.Rebellions), TextCursor, this.AgentComponent.SelectedAgent.Rebellions > 0 ? Color.White : Color.LightGray);
             }
             //End of dossier
-            this.AgentComponent.Draw();
+            this.AgentComponent.Draw(ScreenManager.SpriteBatch);
             if (this.AgentComponent.SelectedAgent != null)
             {
                 TextCursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));

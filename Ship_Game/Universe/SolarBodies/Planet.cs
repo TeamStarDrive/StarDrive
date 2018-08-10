@@ -151,7 +151,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.CountEmpireTroops(us);
         public int GetDefendingTroopCount() => TroopManager.GetDefendingTroopCount();
         public bool AnyOfOurTroops(Empire us) => TroopManager.AnyOfOurTroops(us);
-        public float GetGroundStrength(Empire empire) => TroopManager.GetGroundStrength(empire);
+        public float GetGroundStrength(Empire empire) => TroopManager.GetGroundStrength(empire) + TotalInvadeInjure * 30;
         public int GetPotentialGroundTroops() => TroopManager.GetPotentialGroundTroops();
         public float GetGroundStrengthOther(Empire AllButThisEmpire) => TroopManager.GetGroundStrengthOther(AllButThisEmpire);
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
@@ -2507,7 +2507,7 @@ namespace Ship_Game
                 RepairPerTurn += building.ShipRepair;
             }
 
-            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
+            TotalDefensiveStrength = (int)GetGroundStrength(Owner);
 
             //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;

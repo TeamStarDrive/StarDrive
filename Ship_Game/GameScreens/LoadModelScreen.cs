@@ -24,8 +24,6 @@ namespace Ship_Game
         private ScrollList SavesSL;
         private Selector selector;
         private FileInfo activeFile;
-        private MouseState currentMouse;
-        private MouseState previousMouse;
 
         //private float transitionElapsedTime;
 
@@ -37,7 +35,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            base.ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             this.SaveMenu.Draw();
             this.AllSaves.Draw();
             var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
@@ -50,66 +48,44 @@ namespace Ship_Game
                 }
                 else if (e.item is ModelData data)
                 {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
+                    batch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
                         new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
                 }
             }
-            this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
-            foreach (UIButton b in this.Buttons)
+            this.SavesSL.Draw(batch);
+            base.Draw(batch);
+            selector?.Draw(batch);
+            batch.End();
+        }
+
+        private void OnLoadClicked()
+        {
+            if (activeFile != null)
             {
-                b.Draw(base.ScreenManager.SpriteBatch);
+                screen?.ExitScreen();
+                ScreenManager.AddScreen(new LoadUniverseScreen(activeFile));
             }
-            selector?.Draw(ScreenManager.SpriteBatch);
-            base.ScreenManager.SpriteBatch.End();
+            else
+            {
+                GameAudio.PlaySfxAsync("UI_Misc20");
+            }
+            ExitScreen();
         }
 
         public override bool HandleInput(InputState input)
         {
             this.selector = null;
-            this.currentMouse = input.MouseCurr;
-            Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
             if (input.Escaped || input.RightMouseClick)
             {
                 this.ExitScreen();
             }
-            foreach (UIButton b in this.Buttons)
-            {
-                if (!b.Rect.HitTest(mousePos))
-                {
-                    b.State = UIButton.PressState.Default;
-                }
-                else
-                {
-                    b.State = UIButton.PressState.Hover;
-                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
-                    {
-                        b.State = UIButton.PressState.Pressed;
-                    }
-                    if (this.currentMouse.LeftButton != ButtonState.Released || this.previousMouse.LeftButton != ButtonState.Pressed)
-                        continue;
 
-
-                    // @todo What the hell is this stuff doing here?? LoadUniverseScreen in LoadModel???
-                    if (b.Launches != "Load")
-                        continue;
-                    if (activeFile != null)
-                    {
-                        screen?.ExitScreen();
-                        ScreenManager.AddScreen(new LoadUniverseScreen(activeFile));
-                    }
-                    else
-                    {
-                        GameAudio.PlaySfxAsync("UI_Misc20");
-                    }
-                    this.ExitScreen();
-                }
-            }
             this.SavesSL.HandleInput(input);
             foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
-                if (!e.CheckHover(mousePos))
+                if (!e.CheckHover(input.CursorPosition))
                     continue;
 
                 selector = e.CreateSelector();
@@ -124,7 +100,6 @@ namespace Ship_Game
                 }
                 else return true; // scrollList entry clicked
             }
-            this.previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
 

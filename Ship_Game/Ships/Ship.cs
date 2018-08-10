@@ -94,7 +94,7 @@ namespace Ship_Game.Ships
         public Ship Mothership;
         public bool isThrusting;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
-        public float DamageModifier;
+        public float PackDamageModifier { get; private set; }
         public Empire loyalty;
         public int Size;
         //public int CrewRequired;    //Not referenced in code, removing to save memory
@@ -762,7 +762,6 @@ namespace Ship_Game.Ships
             }
             return (int)cost;
         }
-
 
         public ShipData BaseHull => shipData.BaseHull;
 
@@ -2754,6 +2753,13 @@ namespace Ship_Game.Ships
             });
 
             return moduleToRepair.Repair(repairAmount);
+        }
+
+        public void ApplyPackDamageModifier()
+        {
+            float modifier     = -0.25f;
+            modifier          += 0.05f * AI.FriendliesNearby.Count;
+            PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
         }
 
         public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
