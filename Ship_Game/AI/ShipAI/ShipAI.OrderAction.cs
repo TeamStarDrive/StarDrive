@@ -643,7 +643,7 @@ namespace Ship_Game.AI {
             OrderQueue.Clear();
 
 
-            OrbitTarget = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
+            OrbitTarget = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
          
             if (OrbitTarget == null)
             {
