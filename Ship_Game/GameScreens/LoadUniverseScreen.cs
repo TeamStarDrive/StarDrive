@@ -799,7 +799,7 @@ namespace Ship_Game
                 p.ParentSystem = system;
                 p.InitializePlanetMesh(this);
             }
-            foreach (Asteroid roid in system.AsteroidsList)  AddObject(roid.So);
+            foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
             foreach (Moon moon in system.MoonList)           AddObject(moon.So);
 
             ++systemToMake;

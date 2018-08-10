@@ -673,8 +673,8 @@ namespace Ship_Game
             starfield = new Starfield(Vector2.Zero, device, content);
             starfield.LoadContent();
 
-            ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "ShipsInCombat",   "Ships: 0");
-            PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "PlanetsInCombat", "Planets: 0");
+            ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
+            PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "Planets: 0");
         }
 
         public override void UnloadContent()

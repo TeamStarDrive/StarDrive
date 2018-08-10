@@ -59,9 +59,7 @@ namespace Ship_Game
             window.Draw();
 
             Save.Enabled = SavedGame.NotSaving;
-            foreach (UIButton b in Buttons)
-                b.Draw(batch);
-
+            base.Draw(batch);
             batch.End();
         }
 
@@ -78,7 +76,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-
             return base.HandleInput(input);
         }
 
