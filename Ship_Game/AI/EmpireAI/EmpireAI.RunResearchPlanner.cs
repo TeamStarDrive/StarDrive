@@ -486,12 +486,10 @@ namespace Ship_Game.AI {
                 return null;
             }
 
-            Array<TechEntry> filteredTechs = new Array<TechEntry>();
+            TechEntry[] filteredTechs;
             TechEntry researchTech = null;
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseManualScriptedResearch)
-            {
                 filteredTechs = availableTechs.FilterBy(tech => tech.TechnologyType == techtype);
-            }
             else
             {
                 filteredTechs = availableTechs.FilterBy(econ =>
@@ -525,9 +523,6 @@ namespace Ship_Game.AI {
                 DebugLog($"{techtype.ToString()} : No Tech found");
                 return null;
             }
-            
-           
-                
             return researchTech;
         }
 
