@@ -74,7 +74,7 @@ namespace Ship_Game.AI
             OrderTransportPassengers(5f);
         }
 
-        private enum RouteType
+        public enum RouteType
         {
             None,
             Delivery,
