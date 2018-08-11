@@ -341,11 +341,11 @@ namespace Ship_Game.Ships
                         || !hangarShip.hasCommand
                         || hangarShip.dying
                         || hangarShip.EnginesKnockedOut
-                        || rangeTocarrier > Owner.SensorRange
-                        || rangeTocarrier > 25000f && hangarShip.WarpThrust < 1f) // scuttle non warp capable ships if they are too far
+                        || rangeTocarrier > 25000f )
                     {
                         recallFighters = false;
-                        if (hangarShip.ScuttleTimer <= 0f) hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
+                        if (hangarShip.ScuttleTimer <= 0f && hangarShip.WarpThrust < 1f)
+                            hangarShip.ScuttleTimer = 10f; // FB: this will scuttle hanger ships if they cant reach the mothership
                         continue;
                     }
                     recallFighters = true;
