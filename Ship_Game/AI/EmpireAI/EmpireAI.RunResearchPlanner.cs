@@ -282,6 +282,24 @@ namespace Ship_Game.AI {
                             ScriptIndex++;
                             return true;
                         }
+                    case "IFRESEARCHHIGHERTHAN":
+                        bool researchPreReqMet = false;
+                        string[] researchScript = scriptentry.Split(':');
+                        if (float.TryParse(researchScript[2], out float researchAmount))
+                            if (OwnerEmpire.GetProjectedResearchNextTurn() >= researchAmount)
+                                researchPreReqMet = true;
+
+                        loopcount += ScriptBump(researchPreReqMet);
+                        goto Start;
+                    case "IFTECHRESEARCHED":
+                        bool techResearched = false;
+                        string[] techResearchedScript = scriptentry.Split(':');
+                        if (OwnerEmpire.GetTDict().TryGetValue(techResearchedScript[2], out TechEntry checkedTech))
+                            if (checkedTech.Unlocked)
+                                techResearched = true;
+
+                        loopcount += ScriptBump(techResearched);
+                        goto Start;
                     default:
                         {
                             DebugLog($"Hard Script : {scriptentry}");
