@@ -778,7 +778,7 @@ namespace Ship_Game
                     var ship = ResourceManager.GetShipTemplate(shipToBuild);
                     var role = ResourceManager.ShipRoles[ship.shipData.Role];
                     var header = Localizer.GetRole(ship.DesignRole, p.Owner);
-                    if (role.Protected || role.NoBuild)
+                    if (role.Protected || role.NoBuild || ship.shipData.CarrierShip)
                         continue;
                     if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
                     {
