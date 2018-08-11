@@ -16,10 +16,11 @@ namespace Ship_Game.AI
 
         public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, ShipModuleType targetModule = ShipModuleType.Dummy)
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.AiPickShipsByStrength)
-                return PickFromCandidatesByStrength(role, empire, maxSize, targetModule);
-
-            return PickFromCandidatesByTechsNeeded(role, empire, maxSize, targetModule);
+            // The AI will pick ships to build based on their Strength and game difficulty level 
+            // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
+            // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
+            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule);
+            //return PickFromCandidatesByTechsNeeded(role, empire, maxSize, targetModule);
         }
 
         private static string PickFromCandidatesByTechsNeeded(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule)

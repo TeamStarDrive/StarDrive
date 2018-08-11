@@ -412,10 +412,10 @@ namespace Ship_Game.AI
 
         public void TriggerRefit()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.AiPickShipsByStrength)
-                TriggerRefitByStrength();
-            else
-                TriggerRefitByTechScore();
+            // Refit by strength
+            TriggerRefitByStrength();
+            // Refit by Tech Score
+            //TriggerRefitByTechScore();
         }
 
         private void TriggerRefitByTechScore()
