@@ -185,7 +185,7 @@ namespace Ship_Game
         // Get/Set the exact capacity of this Array<T>
         public int Capacity
         {
-            get { return Items.Length; }
+            get => Items.Length;
             set
             {
                 if (value > Items.Length) // manually inlined to improve performance
@@ -603,10 +603,15 @@ namespace Ship_Game
         public T[] Sorted<TKey>(Func<T, TKey> keyPredicate)
         {
             int count = Count;
-            if (count <= 1)
+            if (count <= 0)
                 return Empty<T>.Array;
 
             var items = new T[count];
+            if (count == 1)
+            {
+                items[0] = Items[0];
+                return items;
+            }
             Memory.HybridCopy(items, 0, Items, count);
 
             var keys = new TKey[items.Length];
