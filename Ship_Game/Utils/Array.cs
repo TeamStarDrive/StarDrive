@@ -612,7 +612,6 @@ namespace Ship_Game
                 items[0] = Items[0];
                 return items;
             }
-
             Memory.HybridCopy(items, 0, Items, count);
 
             var keys = new TKey[items.Length];
