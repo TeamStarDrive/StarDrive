@@ -148,15 +148,15 @@ namespace Ship_Game.AI
 
             public MinMaxStrength(float inputStrength)
             {
-                float maxStrength = 0;
+                float maxStrength;
                 float minStrength = 0;
-                switch (Empire.Universe.GameDifficulty)
+                switch (Empire.Universe?.GameDifficulty)
                 {
                     case UniverseData.GameDifficulty.Easy:
                         maxStrength = inputStrength * 0.6f;
                         break;
                     case UniverseData.GameDifficulty.Normal:
-                        minStrength = inputStrength * 0.5f;
+                        minStrength = inputStrength * 0.6f;
                         maxStrength = inputStrength;
                         break;
                     case UniverseData.GameDifficulty.Hard:
@@ -166,6 +166,9 @@ namespace Ship_Game.AI
                     case UniverseData.GameDifficulty.Brutal:
                         minStrength = inputStrength * 0.9f;
                         maxStrength = inputStrength;
+                        break;
+                    default:
+                        maxStrength = inputStrength * 0.7f;
                         break;
                 }
                 MinStrength = minStrength;
