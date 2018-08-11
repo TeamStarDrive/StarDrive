@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game
 {
@@ -372,8 +373,8 @@ namespace Ship_Game
 
         private const int NEVER = 10000;
 
-        private float AvgIncomingFood => IncomingFood / 30f; // @todo Estimate this better
-        private float AvgIncomingProd => IncomingProduction / 30f;
+        private float AvgIncomingFood => IncomingFood; // @todo Estimate this better
+        private float AvgIncomingProd => IncomingProduction;
 
         private float AvgFoodPerTurn => GetNetFoodPerTurn() + AvgIncomingFood;
         private float AvgProdPerTurn => GetNetProductionPerTurn() + AvgIncomingProd;
@@ -390,14 +391,17 @@ namespace Ship_Game
 
         private float ProjectedFood(int turns)
         {
-            float incomingAvg = IncomingFood / 100f; //this is funky
-            return FoodHere + (incomingAvg + GetNetFoodPerTurn()) * turns;
+            float incomingAvg = IncomingFood;
+            float netFood = GetNetFoodPerTurn();
+            return FoodHere + incomingAvg + netFood * turns;
         }
 
         private float ProjectedProduction(int turns)
         {
-            float incomingAvg = IncomingProduction / 100f; //this is funky
-            return ProductionHere + (incomingAvg + GetNetProductionPerTurn()) * (turns - TotalTurnsInConstruction);
+            float incomingAvg = IncomingProduction;
+            float netProd = GetNetProductionPerTurn();
+            netProd = ConstructionQueue.Count > 0 ? Math.Min(0,netProd) : netProd;
+            return ProductionHere + incomingAvg + netProd * turns;
         }
 
         private bool FindConstructionBuilding(Goods goods, out QueueItem item)
@@ -459,10 +463,12 @@ namespace Ship_Game
 
         public float GetNetFoodPerTurn()
         {
-            if (Owner != null && Owner.data.Traits.Cybernetic == 1)
-                return NetFoodPerTurn;
-            else
-                return NetFoodPerTurn - Consumption;
+            //if (Owner != null && Owner.data.Traits.Cybernetic == 1)
+            //    return NetFoodPerTurn;
+            //else
+            return NetFoodPerTurn;// - Consumption; This is already the correct value. whats incorrect is 
+            //how the variable is named at initial assignment.
+            //it should be gross food. That will take a lot of invasive work to fix. 
         }
 
         public void ApplyAllStoredProduction(int index) => SbProduction.ApplyAllStoredProduction(index);
@@ -497,7 +503,7 @@ namespace Ship_Game
                 UpdatePosition(elapsedTime);
                 return;
             }
-
+            IncomingTradePrediction.DebugText();
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
@@ -818,94 +824,7 @@ namespace Ship_Game
             type += amount;
             return true;
         }
-        public struct TradeTracking
-        {
-            public struct Entry
-            {                                             
-                public Array<Cargo> Cargo;                
-                public void AddCargo(Cargo cargo) => Cargo.Add(cargo);                
-            }
-
-            private readonly Planet TradePlanet;
-            public ShipAI.RouteType Type;
-            private Dictionary<int, Entry> TimeAndCargo ;
-
-            public TradeTracking(Planet planet, ShipAI.RouteType routeType)
-            {
-                TimeAndCargo = new Dictionary<int, Entry>();
-                TradePlanet  = planet;
-                Type         = routeType;
-            }
-
-            public bool AddTrade(Ship ship)
-            {                
-                Planet currentPlanet;
-                ShipAI.RouteType routeType;
-
-                switch (ship.AI.OrderQueue.PeekLast.Plan)
-                {
-                    case ShipAI.Plan.PickupGoods:                    
-                        routeType = ShipAI.RouteType.Pickup;                                    
-                        break;
-                    
-                    case ShipAI.Plan.DropOffGoods:
-                        routeType = ShipAI.RouteType.Delivery;
-                        break;
-                    default:
-                        return false;
-                }
-                if (routeType != Type) return false;
-
-                switch (routeType)
-                {
-                    case ShipAI.RouteType.None:
-                        return false;
-                    case ShipAI.RouteType.Delivery:
-                        currentPlanet = ship.AI.end;
-                        break;
-                    case ShipAI.RouteType.Pickup:
-                        currentPlanet = ship.AI.start;
-                        break;
-                    default:
-                        return false;
-                }
-                if (currentPlanet == null || currentPlanet != TradePlanet) return false;
-
-
-                Cargo cargo = ship.GetCargo();
-                if (cargo.Amount <= 0) return false;
-                                
-                int eta = (int)ship.AI.TimeToTarget(currentPlanet);
-
-                TimeAndCargo.TryGetValue(eta, out Entry entry);
-                entry.Cargo = entry.Cargo ?? new Array<Cargo>();
-                entry.AddCargo(cargo);
-                TimeAndCargo[eta] = entry;
-                return true;
-            }
-            public Dictionary<int,float> GetGoodsEta(Goods good)
-            {
-                var data = new Dictionary<int, float>();
-                foreach (var entry in TimeAndCargo)
-                {
-                    float amount = 0;
-                    foreach (var cargo in entry.Value.Cargo)                    
-                        if (cargo.Good == good) amount += cargo.Amount;
-                    if (amount <= 0) continue;
-                    data[entry.Key] = amount;
-                }
-                return data;
-            }
-            public float GetAverageIncomingTrade(Goods good)
-            {
-                var goods = GetGoodsEta(good);
-                if (goods.Count == 0) return 0;
-                float time = goods.Keys.Sum();
-                float amount = goods.Values.Sum();
-                return amount / time;
-            }
-            
-        }
+       
         public TradeTracking IncomingTradePrediction;
         public TradeTracking OutgoingTradePrediction;
 
@@ -916,6 +835,7 @@ namespace Ship_Game
             IncomingProduction = 0;
             IncomingFood = 0;
             TradeIncomingColonists = 0;
+            //should check for planet trading
             IncomingTradePrediction = new TradeTracking(this, ShipAI.RouteType.Delivery);
             OutgoingTradePrediction = new TradeTracking(this, ShipAI.RouteType.Pickup);
             using (Owner.GetShips().AcquireReadLock())
@@ -943,9 +863,10 @@ namespace Ship_Game
                     //if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
                 }
             }
-            IncomingFood = IncomingTradePrediction.GetAverageIncomingTrade(Goods.Food);
-            IncomingProduction = IncomingTradePrediction.GetAverageIncomingTrade(Goods.Production);
-            IncomingProduction = IncomingTradePrediction.GetAverageIncomingTrade(Goods.Colonists);
+            IncomingTradePrediction.ComputeAverages();
+            IncomingFood       = IncomingTradePrediction.AvgTradingFood;
+            IncomingProduction = IncomingTradePrediction.AvgTradingProduction;
+            IncomingColonists  = IncomingTradePrediction.AvgTradingColonists;
         }
 
         public void RefreshBuildingsWeCanBuildHere()
