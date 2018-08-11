@@ -412,6 +412,14 @@ namespace Ship_Game.AI
 
         public void TriggerRefit()
         {
+            // Refit by strength
+            TriggerRefitByStrength();
+            // Refit by Tech Score
+            //TriggerRefitByTechScore();
+        }
+
+        private void TriggerRefitByTechScore()
+        {
 
             bool TechCompare(int[] original, int[] newTech)
             {
@@ -458,7 +466,22 @@ namespace Ship_Game.AI
                 }
                 if (string.IsNullOrEmpty(name)) continue;
                 ship.AI.OrderRefitTo(name);
-                
+            }
+        }
+
+        private void TriggerRefitByStrength()
+        {
+            var offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
+            for (int i = offPool.Count - 1; i >= 0; i--)
+            {
+                Ship ship = offPool[i];
+                if (ship.AI.BadGuysNear || ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget)
+                    continue;
+
+                string name = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
+
+                if (string.IsNullOrEmpty(name)) continue;
+                ship.AI.OrderRefitTo(name);
             }
         }
 
