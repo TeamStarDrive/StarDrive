@@ -106,7 +106,7 @@ namespace Ship_Game.AI
                 return name;
 
             bestModuleRatio *= 0.8f;
-            MinMaxStrength levelAdjust = new MinMaxStrength(highestStrength);
+            MinMaxStrength levelAdjust = new MinMaxStrength(highestStrength, empire);
             Ship[] bestShips = potentialShips.FilterBy(ships =>
             {
                 float shipStrength = ships.BaseStrength / ships.shipData.ModuleSlots.Length;
@@ -146,29 +146,23 @@ namespace Ship_Game.AI
             public readonly float MinStrength;
             public readonly float MaxStrength;
 
-            public MinMaxStrength(float inputStrength)
+            public MinMaxStrength(float inputStrength, Empire empire)
             {
-                float maxStrength;
-                float minStrength = 0;
+                float minStrength = inputStrength * 0.9f; ;
+                float maxStrength = inputStrength;
                 switch (Empire.Universe?.GameDifficulty)
                 {
-                    case UniverseData.GameDifficulty.Easy:
-                        maxStrength = inputStrength * 0.6f;
+                    case UniverseData.GameDifficulty.Easy when !empire.isPlayer:
+                        minStrength = inputStrength * 0.3f;
+                        maxStrength = inputStrength * 0.8f;
                         break;
-                    case UniverseData.GameDifficulty.Normal:
-                        minStrength = inputStrength * 0.6f;
-                        maxStrength = inputStrength;
-                        break;
-                    case UniverseData.GameDifficulty.Hard:
+                    case UniverseData.GameDifficulty.Normal when !empire.isPlayer:
                         minStrength = inputStrength * 0.7f;
                         maxStrength = inputStrength;
                         break;
-                    case UniverseData.GameDifficulty.Brutal:
-                        minStrength = inputStrength * 0.9f;
+                    case UniverseData.GameDifficulty.Hard when !empire.isPlayer :
+                        minStrength = inputStrength * 0.8f;
                         maxStrength = inputStrength;
-                        break;
-                    default:
-                        maxStrength = inputStrength * 0.7f;
                         break;
                 }
                 MinStrength = minStrength;
