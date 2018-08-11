@@ -174,7 +174,8 @@ namespace Ship_Game.AI
         
         public float TimeToTarget(Planet target)
         {
-            float test = Vector2.Distance(target.Center, Owner.Center) / Owner.GetmaxFTLSpeed;
+            if (target == null) return 0;
+            float test = Math.Max(1,Vector2.Distance(target.Center, Owner.Center) / Owner.GetmaxFTLSpeed);
             return test;
         }
 

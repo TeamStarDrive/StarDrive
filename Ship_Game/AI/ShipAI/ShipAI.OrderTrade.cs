@@ -81,6 +81,16 @@ namespace Ship_Game.AI
             Pickup
         }
 
+        private Planet EstimatePickupTarget(Goods good)
+        {
+            return Owner.loyalty.GetPlanets().FindMin(p =>
+            {
+                if (p.GetGoodState(good) != Planet.GoodState.EXPORT) return float.MaxValue;
+                return TradeSort(Owner, p, good, 0, RouteType.Pickup);
+            });
+            
+        }
+
         private static float TradeSort(Ship ship, Planet planet, Goods good, float cargoCount, RouteType routeType)
         {
             /*here I am trying to predict the planets need versus the ships speed.
@@ -88,20 +98,24 @@ namespace Ship_Game.AI
              */
             const int nearlyNever        = int.MaxValue;
             int timeToTarget           = (int)Math.Max(1,ship.AI.TimeToTarget(planet));
-            float projectedGoodsAtPlanet = planet.GetProjectedGood(good, timeToTarget);
-
+            float projectedGoodsAtPlanet;
+            
             switch (routeType)
             {
                 case RouteType.None:
                     break;
                 case RouteType.Delivery:
-                    bool badCargo = projectedGoodsAtPlanet > planet.MaxStorage;
-                    if (!badCargo)
-                        return timeToTarget + (int)projectedGoodsAtPlanet;
-                    return timeToTarget + nearlyNever;
+                    Planet pickupPotential = ship.AI.EstimatePickupTarget(good);
+                    timeToTarget          += (int)ship.AI.TimeToTarget(pickupPotential);
+                    projectedGoodsAtPlanet = planet.GetProjectedGood(good, timeToTarget);
+                    bool badCargo          = projectedGoodsAtPlanet > planet.MaxStorage;
+                    if (badCargo)
+                        return timeToTarget + nearlyNever;
+                    
+                    return (int)(projectedGoodsAtPlanet);
 
                 case RouteType.Pickup:
-                    
+                    projectedGoodsAtPlanet = planet.GetProjectedGood(good, timeToTarget);
                     float possibleGoodAmount = planet.SbCommodities.GetGoodAmount(good) + projectedGoodsAtPlanet;
                     if (possibleGoodAmount < 0)
                         return timeToTarget + nearlyNever;
@@ -147,7 +161,7 @@ namespace Ship_Game.AI
                     FoodOrProd = Goods.Food;
                     Owner.TradingFood = true;
                     Owner.TradingProd = false;
-                    end.IncomingFood += Math.Max(Owner.CargoSpaceUsed, Owner.CargoSpaceMax);
+                    end.IncomingFood += Owner.CargoSpaceMax;
                 }
                 else
                 {
@@ -165,7 +179,7 @@ namespace Ship_Game.AI
                     FoodOrProd = Goods.Production;
                     Owner.TradingProd = true;
                     Owner.TradingFood = false;
-                    end.IncomingProduction += Math.Max(Owner.CargoSpaceUsed, Owner.CargoSpaceMax);
+                    end.IncomingProduction += Owner.CargoSpaceMax;
                 }
                 else
                 {
@@ -174,7 +188,8 @@ namespace Ship_Game.AI
                     Owner.TradingProd = false;
                 }
             }
-            GetShipment(Owner.TradingFood ? Goods.Food : Goods.Production);
+            Goods trading = Owner.TradingFood ? Goods.Food : Goods.Production;
+            GetShipment(trading);
 
             if (start != null && end != null && start != end)
             {
@@ -183,7 +198,7 @@ namespace Ship_Game.AI
 
                 AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
             }
-            else
+            else if(end == null || Owner.GetCargo().Good != trading)            
             {
                 OrderQueue.Clear();
                 FoodOrProd = Goods.None;
@@ -226,7 +241,7 @@ namespace Ship_Game.AI
         {
             if (end == null)
                 return;
-
+            if (Owner.GetCargo().Good == good) return;
             TradePlanets tradePlanets = GetTradePlanets(good, Planet.GoodState.EXPORT);
             Array<Planet> planets = tradePlanets.Planets;
             if (planets.Count <= 0)
@@ -246,10 +261,7 @@ namespace Ship_Game.AI
         private bool IsEfficientPickupPlanet(Goods good, Planet p)
         {
             if (p.ParentSystem.CombatInSystem || p.GetGoodState(good) != Planet.GoodState.EXPORT)
-                return false;
-            //if (p.ImportPriority() != good)
-            //    return false;
-                
+                return false;                
             return true; // Yep, it's ok!
         }
 
@@ -267,7 +279,7 @@ namespace Ship_Game.AI
 
             foreach (Planet p in sortPlanets)
             {
-                if (p.ParentSystem.CombatInSystem) continue;
+                if (p.ParentSystem.ShipList.Any(s=> Owner.loyalty.IsEmpireAttackable(s.loyalty,s))) continue;
                 if (p.GetGoodState(good) != Planet.GoodState.IMPORT) continue;
 
                 if (p.ImportPriority() != good)
@@ -292,7 +304,7 @@ namespace Ship_Game.AI
             var planets = new TradePlanets(true);            
             foreach (Planet planet in Owner.loyalty.GetPlanets())
             {
-                if (!(planet.ParentSystem.combatTimer <= 0)) continue;
+                if (planet.ParentSystem.ShipList.Any(s => Owner.loyalty.IsEmpireAttackable(s.loyalty, s))) continue;
                 float distanceWeight = TradeSort(Owner, planet, good, Owner.CargoSpaceMax, RouteType.Pickup);
                 if (distanceWeight >= int.MaxValue)
                     continue;

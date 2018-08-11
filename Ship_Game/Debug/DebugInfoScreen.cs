@@ -114,7 +114,7 @@ namespace Ship_Game.Debug
         public static void LogSelected(object selected, string text, DebugModes mode = DebugModes.Last)
         {     
             if (Empire.Universe.SelectedShip        != selected
-                && Empire.Universe.SelectedPlanet   != selected
+                && Empire.Universe.SelectedPlanet    != selected
                 && Empire.Universe.SelectedFleet    != selected
                 && Empire.Universe.SelectedItem     != selected
                 && Empire.Universe.SelectedSystem   != selected
