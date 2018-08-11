@@ -1489,6 +1489,15 @@ namespace Ship_Game
             return workers;
         }
 
+        private float CalculateFoodWorkersProjected(float pFlatFood = 0.0f, float pFoodPerCol = 0.0f) //Calculate farmers with these adjustments
+        {
+            if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist + pFoodPerCol <= 0.5 || Population == 0) return 0.0f;
+
+            float workers = (Consumption - FlatFoodAdded - pFlatFood) / PopulationBillion / (Fertility + PlusFoodPerColonist + pFoodPerCol);
+            if (workers > 0.9f) workers = 0.9f;     //Dont allow farmers to consume all labor
+            return workers;
+        }
+
         private float CalculateMod(float desiredPercent, float storageRatio)
         {
             float mod = (desiredPercent - storageRatio) * 2;             //Percentage currently over or under desired storage
@@ -1656,9 +1665,10 @@ namespace Ship_Game
                 else
                 {
                     float farmers = CalculateFoodWorkers();
-                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.0f);   //Percentage of population this will feed, weighted
+                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
                     score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
-                    if (farmers == 0 || farmers > 0.66f) score += 0.333f;   //Bonus if planet is spending a lot of labor feeding itself
+                    if (farmers == 0) score += building.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
+                    if (farmers > 0.5f) score += farmers - 0.5f;            //Bonus if planet is spending a lot of labor feeding itself
                     if (score < building.PlusFlatFoodAmount * 0.1f) score = building.PlusFlatFoodAmount * 0.1f; //A little flat food is always useful
                     if (building.PlusFlatFoodAmount + FlatFoodAdded - 0.5f > MaxPopulationBillion) score = 0;   //Dont want this if a lot would go to waste
                 }
@@ -1677,10 +1687,12 @@ namespace Ship_Game
                 if (building.PlusFlatFoodAmount < 0) score = building.PlusFlatFoodAmount * 2;   //For negative Flat Food (those crazy modders...)
                 else
                 {
-                    float farmers = CalculateFoodWorkers();
-                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.0f);   //Percentage of population this is feeding, weighted
-                    score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));//Bonus for low Effective Fertility
-                    if (score < 0) score = 0;       //No penalty for a little bit of extra food production
+                    float projectedFarmers = CalculateFoodWorkersProjected(pFlatFood: -building.PlusFlatFoodAmount);
+                    score += ((building.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this is feeding, weighted
+                    score += 1.5f - (Fertility + (PlusFoodPerColonist / 2));         //Bonus for low Effective Fertility
+                    if (projectedFarmers == 0) score += building.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
+                    if (projectedFarmers > 0.5f) score += projectedFarmers - 0.5f;   //Bonus if planet would be spending a lot of labor feeding itself
+                    if (score < 0) score = 0;                                        //No penalty for extra food
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {building.Name} FlatFood : Score was {score}");
@@ -1698,9 +1710,30 @@ namespace Ship_Game
                 if (building.PlusFoodPerColonist < 0) score = building.PlusFoodPerColonist * MaxPopulationBillion * 2; //for negative value
                 else
                 {
-                    score += building.PlusFoodPerColonist * CalculateFoodWorkers() * (MaxPopulationBillion - FlatFoodAdded);  //Food that will be created by this at current farmer rate
+                    float projectedFarmers = CalculateFoodWorkersProjected(pFoodPerCol: building.PlusFoodPerColonist);
+                    score += building.PlusFoodPerColonist * projectedFarmers * MaxPopulationBillion;  //Food this would create if constructed
                     if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
                     if (Fertility + building.PlusFoodPerColonist + PlusFoodPerColonist <= 1.0f) score = 0;     //Dont try to add farming to a planet without enough to sustain itself
+                }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapFoodPerCol(Building building)
+        {
+            float score = 0;
+            if (building.PlusFoodPerColonist != 0 && Owner.data.Traits.Cybernetic == 0)
+            {
+                score = 0;
+                if (building.PlusFoodPerColonist < 0) score = building.PlusFoodPerColonist * MaxPopulationBillion * 2; //for negative value
+                else
+                {
+                    score += building.PlusFoodPerColonist * CalculateFoodWorkers() * MaxPopulationBillion;  //Food this is producing
+                    if (score < building.PlusFoodPerColonist * 0.1f) score = building.PlusFoodPerColonist * 0.1f; //A little food production is always useful
+                    if (Fertility + PlusFoodPerColonist - building.PlusFoodPerColonist <= 1.0f) score = building.PlusFoodPerColonist;     //Dont scrap this if it would drop effective fertility below 1.0
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} FoodPerCol : Score was {score}");
@@ -1736,7 +1769,7 @@ namespace Ship_Game
         private float EvaluateBuildingProdPerCol(Building building)
         {
             float score = 0;
-            if (building.PlusProdPerColonist != 0)
+            if (building.PlusProdPerColonist != 0 && PopulationBillion / MaxPopulationBillion >= 0.8f)
             {
                 if (building.PlusProdPerColonist < 0) score = building.PlusProdPerColonist * MaxPopulationBillion * 2;
                 else
@@ -1795,7 +1828,7 @@ namespace Ship_Game
                 else
                 {
                     score += (MaxPopulationBillion * 0.02f - 1.0f) + (building.PlusFlatPopulation * 0.01f);        //More desireable on high pop planets
-                    if (score < building.PlusFlatPopulation * 0.01f) score = building.PlusFlatPopulation * 0.01f;     //A little extra is still good
+                    if (score < 0) score = 0;     //Dont let this cause a penalty to other building properties
                 }
                 if (Owner.data.Traits.PhysicalTraitLessFertile) score *= 2;     //These are calculated outside the else, so they will affect negative flatpop too
                 if (Owner.data.Traits.PhysicalTraitFertile) score *= 0.5f;
@@ -1867,13 +1900,31 @@ namespace Ship_Game
         private float EvaluateBuildingResearchPerCol(Building building)
         {
             float score = 0;
-            if (building.PlusResearchPerColonist != 0)
+            if (building.PlusResearchPerColonist != 0 && PopulationBillion / MaxPopulationBillion >= 0.8f)
             {
                 if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
                 else
                 {
                     score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
                     if (PlusResearchPerColonist <= 0.25f) score += building.PlusResearchPerColonist; //Encourage some research source on all colonies
+                }
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapResearchPerCol(Building building)
+        {
+            float score = 0;
+            if (building.PlusResearchPerColonist != 0)
+            {
+                if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
+                else
+                {
+                    score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
+                    if (PlusResearchPerColonist - building.PlusResearchPerColonist <= 0.25f) score += building.PlusResearchPerColonist; //Encourage some research source on all colonies
                 }
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
@@ -1902,8 +1953,9 @@ namespace Ship_Game
             float score = 0;
             if (building.PlusTaxPercentage != 0)
             {
-                if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * income * 2;
-                else score += building.PlusTaxPercentage * income / 2;
+                float assumedIncome = MaxPopulationBillion * 0.20f;     //This is an assumed tax value, used only for determining how useful a PlusTaxPercentage building is
+                if (building.PlusTaxPercentage < 0) score += building.PlusTaxPercentage * assumedIncome * 2;
+                else score += building.PlusTaxPercentage * assumedIncome / 2;
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} PlusTaxPercent : Score was {score}");
             }
@@ -1914,7 +1966,7 @@ namespace Ship_Game
         private float EvaluateBuildingAllowShipBuilding(Building building)
         {
             float score = 0;
-            if (building.AllowShipBuilding || building.Name == "Space Port")
+            if (building.AllowShipBuilding || building.Name == "Space Port" && PopulationBillion / MaxPopulationBillion >= 0.8f)
             {
                 //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
                 float labor = Math.Max(LeftoverWorkers(), MaxPopulationBillion * 0.333f);
@@ -1922,7 +1974,6 @@ namespace Ship_Game
                 float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
                 if (prodFromLabor + prodFromFlat > 10.0f) score += ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
-                if (PopulationBillion / MaxPopulationBillion < 0.5f) score = 0; //Dont think about ship building until we have most of our population
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} AllowShipBuilding : Score was {score}");
             }
@@ -2078,7 +2129,7 @@ namespace Ship_Game
             return finalRating;
         }
 
-        private void ChooseAndBuild(float income)
+        private void ChooseAndBuild(float budget)
         {
             if (BuildingsCanBuild.Count == 0) return;
             Building bestBuilding = null;
@@ -2088,7 +2139,7 @@ namespace Ship_Game
             for (int i = 0; i < BuildingsCanBuild.Count; i++)
             {
                 //Find the building with the highest score
-                buildingScore = EvaluateBuilding(BuildingsCanBuild[i], income, highestCost);
+                buildingScore = EvaluateBuilding(BuildingsCanBuild[i], budget, highestCost);
                 if (buildingScore > bestValue)
                 {
                     bestBuilding = BuildingsCanBuild[i];
@@ -2098,7 +2149,7 @@ namespace Ship_Game
             if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
         }
 
-        private void ChooseAndBuildMilitary(float income)
+        private void ChooseAndBuildMilitary(float budget)
         {
             if (BuildingsCanBuild.Count == 0) return;
             if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
@@ -2112,8 +2163,8 @@ namespace Ship_Game
                     if (bldg.CombatStrength == 0 || bldg.MaxPopIncrease > 0) continue;
                     if (bldg.Name == "Outpost" || bldg.Name == "Capital City") continue;
 
-                    float mBuildingScore = -EvaluateBuildingMaintenance(bldg, income);
-                    mBuildingScore += EvaluateMilitaryBuilding(bldg, income);
+                    float mBuildingScore = -EvaluateBuildingMaintenance(bldg, budget);
+                    mBuildingScore += EvaluateMilitaryBuilding(bldg, budget);
                     mBuildingScore = FactorForConstructionCost(mBuildingScore, bldg.Cost, highestCost);
                     if (mBuildingScore > bestValue)
                     {
@@ -2125,7 +2176,7 @@ namespace Ship_Game
             }
         }
 
-        private void BuildBuildings(float income)
+        private void BuildBuildings(float budget)
         {
             //Do some existing bulding recon
             int openTiles = TilesList.Count(tile => tile.Habitable && tile.building == null);
@@ -2142,21 +2193,21 @@ namespace Ship_Game
             {
                 if (!buildingInTheWorks)
                 {
-                    ChooseAndBuild(income);
+                    ChooseAndBuild(budget);
                 }
 
-                ChooseAndBuildMilitary(income);
+                ChooseAndBuildMilitary(budget);
             }
             else
             {
                 bool biosphereInTheWorks = SbProduction.ConstructionQueue.Find(building => building.isBuilding && building.Building.Name == "Biospheres") != null;
                 Building bioSphere = BuildingsCanBuild.Find(building => building.Name == "Biospheres");
 
-                if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < income + 0.3f) //No habitable tiles, and not too much in debt
+                if (bioSphere != null && !biosphereInTheWorks && totalbuildings < 35 && bioSphere.Maintenance < budget + 0.3f) //No habitable tiles, and not too much in debt
                     AddBuildingToCQ(bioSphere);
             }
 
-            ScrapBuildings(income);
+            ScrapBuildings(budget);
         }
 
         private void ScrapBuildings(float income)
@@ -2178,7 +2229,7 @@ namespace Ship_Game
                 costWeight     = EvaluateBuildingScrapWeight(bldg, income);
 
                 buildingValue += EvaluateBuildingScrapFlatFood(bldg);
-                buildingValue += EvaluateBuildingFoodPerCol(bldg);
+                buildingValue += EvaluateBuildingScrapFoodPerCol(bldg);
                 buildingValue += EvaluateBuildingFlatProd(bldg);
                 buildingValue += EvaluateBuildingProdPerCol(bldg);
                 buildingValue += EvaluateBuildingProdPerRichness(bldg);
@@ -2186,7 +2237,7 @@ namespace Ship_Game
                 buildingValue += EvaluateBuildingPopulationGrowth(bldg);
                 buildingValue += EvaluateBuildingPlusMaxPopulation(bldg);
                 buildingValue += EvaluateBuildingScrapFlatResearch(bldg, income);
-                buildingValue += EvaluateBuildingResearchPerCol(bldg);
+                buildingValue += EvaluateBuildingScrapResearchPerCol(bldg);
                 buildingValue += EvaluateBuildingCreditsPerCol(bldg);
                 buildingValue += EvaluateBuildingPlusTaxPercent(bldg, income);
                 buildingValue += EvaluateBuildingAllowShipBuilding(bldg);
@@ -2204,6 +2255,18 @@ namespace Ship_Game
             }
         }
 
+        private float BuildingBudget()
+        {
+            //Empire budget will go here instead of planet budget
+
+            float income = MaxPopulationBillion * (Owner.data.TaxRate).Clamped(0.1f, 0.4f);    //If taxes go way up, dont want the governors to go too crazy
+            income += income * PlusTaxPercentage;
+            income += income * Owner.data.Traits.TaxMod;
+            income -= SbProduction.GetTotalConstructionQueueMaintenance();
+
+            return income;
+        }
+
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
@@ -2212,10 +2275,7 @@ namespace Ship_Game
 
             if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!            
 
-            float income = MaxPopulationBillion * (Owner.data.TaxRate).Clamped(0.1f, 0.4f) ;    //If taxes go way up, dont want the governors to go too crazy
-            income += income * PlusTaxPercentage;
-            income += income * Owner.data.Traits.TaxMod;
-            income -= SbProduction.GetTotalConstructionQueueMaintenance();
+            float budget = BuildingBudget();
 
             bool notResearching = string.IsNullOrEmpty(Owner.ResearchTopic);
             float foodMinimum = CalculateFoodWorkers();
@@ -2244,7 +2304,7 @@ namespace Ship_Game
                             break;
                         }
 
-                        BuildBuildings(income);
+                        BuildBuildings(budget);
 
                         DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
                         DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
@@ -2260,7 +2320,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
 
-                        BuildBuildings(income);
+                        BuildBuildings(budget);
 
                         DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                         DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
@@ -2276,7 +2336,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        BuildBuildings(income);
+                        BuildBuildings(budget);
 
                         DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
                         DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
@@ -2291,7 +2351,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        BuildBuildings(income);
+                        BuildBuildings(budget);
 
                         DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                         DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
@@ -2306,7 +2366,7 @@ namespace Ship_Game
                         if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
                         ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
-                        BuildBuildings(income);
+                        BuildBuildings(budget);
 
                         DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
                         DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
