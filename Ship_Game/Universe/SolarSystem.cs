@@ -549,7 +549,7 @@ namespace Ship_Game
                 {
                     float spread = ringRadius - ringbase;
 
-                    GenerateAsteroidRing(ringRadius + spread *.25f, spread: spread *.5f);
+                    if (!GlobalStats.DisableAsteroids) GenerateAsteroidRing(ringRadius + spread *.25f, spread: spread *.5f);
                     ringRadius += spread / 2;
                 }
                 else

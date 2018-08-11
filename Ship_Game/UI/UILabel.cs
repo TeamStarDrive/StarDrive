@@ -95,7 +95,7 @@ namespace Ship_Game
                 return;
 
             Color color = IsMouseOver ? Highlight : Color;
-            if (Lines.NotEmpty)
+            if (Lines != null && Lines.NotEmpty)
             {
                 Vector2 cursor = Pos;
                 for (int i = 0; i < Lines.Count; ++i)

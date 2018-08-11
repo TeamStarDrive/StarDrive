@@ -655,17 +655,15 @@ namespace Ship_Game
                 if (SelectedEmpire.data.ExperienceMod != 0)
                     DrawStat("Ship Experience Modifier", SelectedEmpire.data.ExperienceMod, ref TextCursor, false);
                 if (SelectedEmpire.data.SpyModifier > 0f)
-                {
                     DrawGoodStat(Localizer.Token(4030), string.Concat("+", SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
-                }
                 else if (SelectedEmpire.data.SpyModifier < 0f)
-                {
                     DrawBadStat(Localizer.Token(4030), string.Concat("-", SelectedEmpire.data.SpyModifier.ToString("#")), ref TextCursor);
-                }
                 if (SelectedEmpire.data.Traits.Spiritual != 0)
                     DrawStat(Localizer.Token(4031), SelectedEmpire.data.Traits.Spiritual, ref TextCursor, false);
                 if (SelectedEmpire.data.Traits.EnergyDamageMod != 0)
                     DrawStat(Localizer.Token(4032), SelectedEmpire.data.Traits.EnergyDamageMod, ref TextCursor, false);
+                if (SelectedEmpire.data.Traits.DodgeMod > 0)
+                    DrawStat(Localizer.Token(1977), SelectedEmpire.data.Traits.DodgeMod , ref TextCursor, false);
                 if (SelectedEmpire.data.OrdnanceEffectivenessBonus != 0)
                     DrawStat(Localizer.Token(4033), SelectedEmpire.data.OrdnanceEffectivenessBonus, ref TextCursor, false);
                 if (SelectedEmpire.data.MissileHPModifier != 1)

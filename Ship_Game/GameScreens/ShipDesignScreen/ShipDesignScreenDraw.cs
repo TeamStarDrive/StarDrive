@@ -5,17 +5,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    using Ship_Game.AI;
+    using AI;
     using static ShipMaintenance;
 
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
-
         public override void Draw(SpriteBatch batch) 
         {
             GameTime gameTime = Game1.Instance.GameTime;
@@ -44,7 +42,7 @@ namespace Ship_Game
             if (Debug)
                 DrawDebug();
 
-            Close.Draw(batch);
+            base.Draw(batch);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
@@ -152,7 +150,7 @@ namespace Ship_Game
                      continue;
 
                 Vector2 center = slot.Center();
-                MirrorSlot mirrored = new MirrorSlot();
+                var mirrored = new MirrorSlot();
                 if (IsSymmetricDesignMode)
                     mirrored = GetMirrorSlot(slot, slot.Module.XSIZE, slot.Orientation);
 
@@ -185,20 +183,18 @@ namespace Ship_Game
                     || slot.Module.ModuleType == ShipModuleType.PowerConduit)
                         continue;
 
-                Rectangle? nullable8 = null;
                 spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
-                    slot.Center(), nullable8, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
+                    slot.Center(), null, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
             }
         }
 
         private void DrawShieldRadius(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             spriteBatch.DrawCircle(center, slot.Module.ShieldHitRadius, Color.LightGreen);
-            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            Vector2 mirroredCenter = mirrored.Slot.Center();
-            spriteBatch.DrawCircle(mirroredCenter, mirrored.Slot.Module.ShieldHitRadius, Color.LightGreen);
+            spriteBatch.DrawCircle(mirrored.Center, mirrored.Slot.Module.ShieldHitRadius, Color.LightGreen);
         }
 
         private void DrawFireArcText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
@@ -208,12 +204,11 @@ namespace Ship_Game
 
             DrawRectangle(slot.ModuleRect, Color.White, color);
             DrawString(center, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            Vector2 mirroredCenter = mirrored.Slot.Center();
             DrawRectangle(mirrored.Slot.ModuleRect, Color.White, color);
-            DrawString(mirroredCenter, 0, 1, Color.Orange, mirrored.Slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
+            DrawString(mirrored.Center, 0, 1, Color.Orange, mirrored.Slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
 
             ToolTip.ShipYardArcTip();
         }
@@ -226,28 +221,26 @@ namespace Ship_Game
             Color shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
             DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
-            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
             shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
-            Vector2 mirroredCenter = mirrored.Slot.Center();
             DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
-            DrawString(mirroredCenter, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
+            DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Texture2D arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
-            Vector2 origin       = new Vector2(250f, 250f);
-            Rectangle toDraw     = new Rectangle((int)center.X, (int)center.Y, 500, 500);
+            var origin       = new Vector2(250f, 250f);
+            Rectangle toDraw = center.ToRect(500, 500);
 
             spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
-            if (!IsSymmetricDesignMode || !IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module))
+            if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            Vector2 mirroredCenter = mirrored.Slot.Center();
-            Rectangle mirrortoDraw = new Rectangle((int)mirroredCenter.X, (int)mirroredCenter.Y, 500, 500);
-            spriteBatch.Draw(arcTexture, mirrortoDraw, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
+            Rectangle mirrorRect = mirrored.Center.ToRect(500, 500);
+            spriteBatch.Draw(arcTexture, mirrorRect, null, drawcolor, mirrored.Slot.Root.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
         }
 
         private void DrawWeaponArcs(Vector2 center, SlotStruct slot, SpriteBatch spriteBatch, MirrorSlot mirrored)
@@ -265,14 +258,14 @@ namespace Ship_Game
         private void DrawActiveModule(SpriteBatch spriteBatch)
         {
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            Rectangle r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
+            var r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
                           (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
                           (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
             DrawModuleTex(ActiveModState, spriteBatch, null, r, moduleTemplate);
             if (!(ActiveModule.shield_power_max > 0f))
                 return;
 
-            Vector2 center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
+            var center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
             if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
                 center += new Vector2(moduleTemplate.XSIZE * 16 / 2f, moduleTemplate.YSIZE * 16 / 2f);
             else
@@ -284,9 +277,9 @@ namespace Ship_Game
         private void DrawDebug()
         {
             float width2 = ScreenWidth / 2f;
-            Vector2 pos  = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
+            var pos  = new Vector2(width2 - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
             HelperFunctions.DrawDropShadowText(ScreenManager, "Debug", pos, Fonts.Arial20Bold);
-            pos          = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
+            pos      = new Vector2(width2 - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
             HelperFunctions.DrawDropShadowText(ScreenManager, Operation.ToString(), pos, Fonts.Arial20Bold);
             #if SHIPYARD
                 string ratios = $"I: {TotalI}       O: {TotalO}      E: {TotalE}      IO: {TotalIO}      " +
@@ -299,9 +292,9 @@ namespace Ship_Game
         private void DrawHullSelection()
         {
             Rectangle  r = HullSelectionSub.Menu;
-            r.Y         += 25;
-            r.Height    -= 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
+            r.Y      += 25;
+            r.Height -= 25;
+            var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             HullSL.Draw(ScreenManager.SpriteBatch);
             Vector2 mousePos = Mouse.GetState().Pos();
@@ -332,7 +325,6 @@ namespace Ship_Game
         {
             float hitPoints                = 0f;
             float mass                     = 0f;
-            float powerDraw                = 0f;
             float powerCapacity            = 0f;
             float ordnanceCap              = 0f;
             float powerFlow                = 0f;
@@ -354,12 +346,10 @@ namespace Ship_Game
             float ordnanceUsed             = 0f;
             float ordnanceRecoverd         = 0f;
             float weaponPowerNeeded        = 0f;
-            float upkeep                   = 0f;
             float warpSpoolTimer           = 0f;
             float empResist                = 0f;
             float offense                  = 0f;
             float defense                  = 0f;
-            float strength                 = 0;
             float targets                  = 0;
             float totalEcm                 = 0f;
             float beamPeakPowerNeeded      = 0f;
@@ -385,7 +375,7 @@ namespace Ship_Game
                     numWeaponSlots += slot.Module.Area;
 
                 hitPoints     += slot.Module.ActualMaxHealth;
-                mass          += slot.Module.ActualMass(slot.InPowerRadius);
+                mass          += slot.Module.ActualMass;
                 troopCount    += slot.Module.TroopCapacity;
                 powerCapacity += slot.Module.ActualPowerStoreMax;
                 ordnanceCap   += slot.Module.OrdinanceCapacity;
@@ -404,7 +394,6 @@ namespace Ship_Game
 
                 empResist        += slot.Module.EMP_Protection;
                 warpableMass     += slot.Module.WarpMassCapacity;
-                powerDraw        += slot.Module.PowerDraw;
                 warpDraw         += slot.Module.PowerDrawAtWarp;
                 shieldPower      += slot.Module.ActualShieldPowerMax;
                 thrust           += slot.Module.thrust;
@@ -458,37 +447,39 @@ namespace Ship_Game
 
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
-            mass      += (float) (ActiveHull.ModuleSlots.Length / 2f);
-            mass      *= EmpireManager.Player.data.MassModifier;
 
-            if (mass < (float) (ActiveHull.ModuleSlots.Length / 2f))
-                mass = (float) (ActiveHull.ModuleSlots.Length / 2f);
+            // @todo WTF is this?
+            mass += (ActiveHull.ModuleSlots.Length / 2f);
+            mass *= EmpireManager.Player.data.MassModifier;
+            if (mass < (ActiveHull.ModuleSlots.Length / 2f))
+                mass = (ActiveHull.ModuleSlots.Length / 2f);
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
-            float turn          = (float)MathHelper.ToDegrees(turnThrust / mass / 700f); 
+            float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f); 
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
             float single        = warpSpeed / 1000f;
-            string warpString   = string.Concat(single.ToString("#.0"), "k");
+            string warpString   = single.GetNumberString();
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier; 
 
-            Vector2 cursor   = new Vector2((float) (StatsSub.Menu.X + 10), (float) (ShipStats.Menu.Y + 18));
+            Vector2 cursor   = new Vector2((StatsSub.Menu.X + 10), (ShipStats.Menu.Y + 18));
 
             DrawHullBonuses();
 
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+            float upkeep;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working 
             else
                 upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
-            DrawStatColor(ref cursor, TintedValue("Upkeep Cost:", upkeep, 175, Color.White));
-            DrawStatColor(ref cursor, TintedValue("Total Module Slots:", size, 230, Color.White));
-            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(115), ":"), (int)mass, 79, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
+            DrawStatColor(ref cursor, TintedValue(115, (int)mass, 79, Color.White));
             WriteLine(ref cursor);
 
-            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(110), ":"), powerCapacity, 100, Color.LightSkyBlue));
-            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(111), ":"), powerRecharge, 101, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, TintedValue(110, powerCapacity, 100, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
 
             float fDrawAtWarp;
             DrawPowerDrawAtWarp();
@@ -497,35 +488,35 @@ namespace Ship_Game
             DrawFtlTime();
             WriteLine(ref cursor);
 
-            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(113), ":"), hitPoints, 103, Color.Goldenrod));
-            if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6013), ":"), repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
-            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(114), ":"), shieldPower, 104, Color.Goldenrod));
-            if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6177), ":"), empResist, 220, Color.Goldenrod));
-            if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6189), ":"), totalEcm, 234, Color.Goldenrod));
+            DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
+            if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
+            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, Color.Goldenrod));
+            if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
+            if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
             WriteLine(ref cursor);
 
             DrawPropulsion();
-            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(116), ":"), modifiedSpeed, 105, Color.DarkSeaGreen));
-            DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(117), ":"), turn, 107, Color.DarkSeaGreen));
-            if (afterSpeed > 0) DrawStatColor(ref cursor, TintedValue("Afterburner Speed:", afterSpeed, 105, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(116, modifiedSpeed, 105, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(117, turn, 107, Color.DarkSeaGreen));
+            if (afterSpeed > 0) DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterSpeed, 105, Color.DarkSeaGreen));
             WriteLine(ref cursor);
 
             DrawOrdnance();
-            if (troopCount > 0) DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6132), ":"), troopCount, 180, Color.IndianRed));
+            if (troopCount > 0) DrawStatColor(ref cursor, TintedValue(6132, troopCount, 180, Color.IndianRed));
             WriteLine(ref cursor);
 
-            if (cargoSpace > 0) DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(119), ":"), cargoSpace * bonus.CargoModifier, 109, Color.White));
-            if (targets > 0)    DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6188), ":"), targets + 1f, 232, Color.White));
+            if (cargoSpace > 0) DrawStatColor(ref cursor, TintedValue(119, cargoSpace * bonus.CargoModifier, 109, Color.White));
+            if (targets > 0)    DrawStatColor(ref cursor, TintedValue(6188, targets + 1f, 232, Color.White));
             if (sensorRange > 0)
             {
                 float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
-                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6130), ":"), modifiedSensorRange, 235, Color.White));
+                DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
             }
 
-            strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed);
-            if (strength > 0)     DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(6190), ":"), strength, 227, Color.White));
+            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed);
+            if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
-            Vector2 cursorReq = new Vector2((float) (StatsSub.Menu.X - 180), (float) (ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing) + 5 ));
+            var cursorReq = new Vector2(StatsSub.Menu.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
             if (ActiveHull.Role != ShipData.RoleName.platform)
                 DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
 
@@ -539,14 +530,10 @@ namespace Ship_Game
 
                 if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
                 {
-                    if (bonus.ArmoredBonus != 0
-                        || bonus.ShieldBonus != 0
-                        || bonus.SensorBonus != 0
-                        || bonus.SpeedBonus != 0
-                        || bonus.CargoBonus != 0
-                        || bonus.DamageBonus != 0
-                        || bonus.FireRateBonus != 0
-                        || bonus.RepairBonus != 0
+                    if (bonus.ArmoredBonus     != 0 || bonus.ShieldBonus != 0
+                        || bonus.SensorBonus   != 0 || bonus.SpeedBonus != 0
+                        || bonus.CargoBonus    != 0 || bonus.DamageBonus != 0
+                        || bonus.FireRateBonus != 0 || bonus.RepairBonus != 0
                         || bonus.CostBonus != 0)
                     {
                         Label(Localizer.Token(6015), Fonts.Verdana14Bold, Color.Orange);
@@ -564,7 +551,7 @@ namespace Ship_Game
                 }
                 cursor = EndLayout();
                 cost = ((int)cost + bonus.StartingCost) * (1f - bonus.CostBonus) * UniverseScreen.GamePaceStatic;
-                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(109), ":"), cost, 99, Color.White));  
+                DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));  
             }
 
             void HullBonus(float stat, string text)
@@ -575,26 +562,26 @@ namespace Ship_Game
 
             void DrawOrdnance()
             {
-                if (ordnanceRecoverd > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s:", ordnanceRecoverd, 162, Color.IndianRed));
+                if (ordnanceRecoverd > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecoverd, 162, Color.IndianRed));
                 if (!(ordnanceCap > 0))
                     return;
 
-                DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(118), ":"), ordnanceCap, 108, Color.IndianRed));
+                DrawStatColor(ref cursor, TintedValue(118, ordnanceCap, 108, Color.IndianRed));
                 if (ordnanceUsed - ordnanceRecoverd > 0)
                 {
                     float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecoverd);
-                    DrawStatColor(ref cursor, TintedValue("Ammo Time:", ammoTime, 164, Color.IndianRed));
+                    DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, 164, Color.IndianRed));
                 }
                 else
-                    DrawStatOrdnance(ref cursor, "Ammo Time:", "INF", 164);
+                    DrawStatOrdnance(ref cursor, "Ammo Time", "INF", 164);
             }
 
             void DrawPropulsion()
             {
                 if (GlobalStats.HardcoreRuleset)
                 {
-                    string massstring = HelperFunctions.GetNumberString(mass);
-                    string wmassstring = HelperFunctions.GetNumberString(warpableMass);
+                    string massstring = mass.GetNumberString();
+                    string wmassstring = warpableMass.GetNumberString();
                     string warpmassstring = string.Concat(massstring, "/", wmassstring);
                     if (mass > warpableMass)
                         DrawStatBad(ref cursor, "Warpable Mass:", warpmassstring, 153);
@@ -605,29 +592,20 @@ namespace Ship_Game
                     if (ftlCount > 0f)
                     {
                         float harcoreSpeed = ftlSpeed / ftlCount;
-                        DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(2170), ":"), harcoreSpeed, 135, Color.LightSkyBlue));
+                        DrawStatColor(ref cursor, TintedValue(2170, harcoreSpeed, 135, Color.LightSkyBlue));
                     }
                 }
                 else
                     DrawStatPropulsion(ref cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
 
-                if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool:", warpSpoolTimer, 177, Color.DarkSeaGreen));
+                if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
             }
 
             void DrawPowerDrawAtWarp() //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
             {
-                if (warpDraw != 0) // FB: not sure why do we need this If statment
-                {
-                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
-                    if (warpSpeed > 0)
-                        DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
-                }
-                else
-                {
-                    fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
-                    if (warpSpeed > 0)
-                        DrawStatColor(ref cursor, TintedValue(string.Concat(Localizer.Token(112), ":"), fDrawAtWarp, 102, Color.LightSkyBlue));
-                }
+                fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
+                if (warpSpeed > 0)
+                    DrawStatColor(ref cursor, TintedValue(112, fDrawAtWarp, 102, Color.LightSkyBlue));
             }
 
 
@@ -638,7 +616,7 @@ namespace Ship_Game
 
                 float fWarpTime = (-powerCapacity / fDrawAtWarp) * 0.9f;
                 if (fDrawAtWarp < 0)
-                    DrawStatColor(ref cursor, TintedValue("FTL Time:", fWarpTime, 176, Color.LightSkyBlue));
+                    DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, 176, Color.LightSkyBlue));
                 else if (fWarpTime > 900)
                     DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
                 else
@@ -653,9 +631,9 @@ namespace Ship_Game
                 float powerConsumed = weaponPowerNeeded - powerRecharge;
                 if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
                 {
-                    DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain:", -powerConsumed, 243, Color.LightSkyBlue));
+                    DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, 243, Color.LightSkyBlue));
                     float energyDuration = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, TintedValue("Wpn Fire Power Time:", energyDuration, 163, Color.LightSkyBlue));
+                    DrawStatColor(ref cursor, TintedValue("Wpn Fire Power Time", energyDuration, 163, Color.LightSkyBlue));
                 }
                 else
                     DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
@@ -673,10 +651,10 @@ namespace Ship_Game
                 if (!(powerConsumedWithBeams > 0))
                     return;
 
-                DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain:", - powerConsumedWithBeams, 244, Color.LightSkyBlue));
+                DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain", - powerConsumedWithBeams, 244, Color.LightSkyBlue));
                 float burstEnergyDuration = powerCapacity / powerConsumedWithBeams;
                 if (burstEnergyDuration < beamLongestDuration)
-                    DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time:", burstEnergyDuration, 245, Color.LightSkyBlue));
+                    DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time", burstEnergyDuration, 245, Color.LightSkyBlue));
                 else
                     DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
@@ -696,26 +674,24 @@ namespace Ship_Game
             if (tooltipId > 0) CheckToolTip(tooltipId, cursor, words, stats, font, MousePos);
         }
 
-        public void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId, Color nameColor,Color statColor, float spacing = 165f, float lineSpacing = 2)
+        public void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)
         {
-            SpriteFont font        = Fonts.Arial12Bold;
-            float amount           = Spacing(spacing);
-            cursor.Y              += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
-            Vector2 statCursor     = new Vector2(cursor.X + amount, cursor.Y);
+            SpriteFont font = Fonts.Arial12Bold;
+            cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
+
+            var statCursor = new Vector2(cursor.X + Spacing(spacing), cursor.Y);
             Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
-            Color color            = nameColor;
-            DrawString(statNameCursor, color, words, font);
-            color                  = statColor;
-            DrawString(statCursor, color, stat, font);
+
+            DrawString(statNameCursor, nameColor, words, font);
+            DrawString(statCursor, statColor, stat, font);
             CheckToolTip(tooltipId, cursor, words, stat, font, MousePos);
         }
 
         public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
-            if (isPercent)
-                DrawStatColor(ref cursor, TintedPercent(words, stat, tooltipId, color, spacing, 0));
-            else
-                DrawStatColor(ref cursor, TintedValue(words, stat, tooltipId, color, spacing, 0));
+            StatValue sv = isPercent ? TintedPercent(words, stat, tooltipId, color, spacing, 0)
+                                     :   TintedValue(words, stat, tooltipId, color, spacing, 0);
+            DrawStatColor(ref cursor, sv);
         }
 
         private void DrawStatEnergy(ref Vector2 cursor, string words, string stat, int tooltipId)
@@ -754,7 +730,6 @@ namespace Ship_Game
             DrawShipInfoPanel();
 
             CategoryList.Draw(ScreenManager.SpriteBatch);
-            CarrierOnlyBox.Draw(ScreenManager.SpriteBatch);
 
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
@@ -765,89 +740,55 @@ namespace Ship_Game
                 ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
             }
 
-            float transitionOffset = (float) Math.Pow((double) TransitionPosition, 2);
+            float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
+
             Rectangle r = BlackBar;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int) (transitionOffset * 50f);
-            }
+            if (IsTransitioning)
+                r.Y += (int)(transitionOffset * 50f);
             ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
+
+
             r = BottomSep;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int) (transitionOffset * 50f);
-            }
+            if (IsTransitioning)
+                r.Y += (int) (transitionOffset * 50f);
             ScreenManager.SpriteBatch.FillRectangle(r, new Color(77, 55, 25));
+
+
             r = SearchBar;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int) (transitionOffset * 50f);
-            }
+            if (IsTransitioning)
+                r.Y += (int)(transitionOffset * 50f);
             ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
-            if (Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (float) (SearchBar.Width - 5))
-            {
-                Vector2 cursor = new Vector2((float) (SearchBar.X + 3),
-                    (float) (r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2));
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, ActiveHull.Name, cursor, Color.White);
-            }
-            else
-            {
-                Vector2 cursor = new Vector2(SearchBar.X + 3,
-                    r.Y + 14 - Fonts.Arial12Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ActiveHull.Name, cursor, Color.White);
-            }
+
+
+            SpriteFont font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
+                            ? Fonts.Arial20Bold : Fonts.Arial12Bold;
+            var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
+            ScreenManager.SpriteBatch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
+
+
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);
             ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
 
             {
-                Vector2 cursor = new Vector2(r.X + 3,r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
+                var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
             }
-            r = SaveButton.Rect;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
+
+            if (IsTransitioning)
             {
-                r.Y = r.Y + (int) (transitionOffset * 50f);
+                //SaveButton.Y += (int)(transitionOffset * 50f);
+                //LoadButton.Y += (int)(transitionOffset * 50f);
+                //ToggleOverlayButton.Y += (int)(transitionOffset * 50f);
+                //SymmetricDesignButton.Y += (int)(transitionOffset * 50f);
             }
-            SaveButton.Draw(ScreenManager.SpriteBatch, r);
-            r = LoadButton.Rect;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int) (transitionOffset * 50f);
-            }
-            LoadButton.Draw(ScreenManager.SpriteBatch, r);
-            r = ToggleOverlayButton.Rect;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int) (transitionOffset * 50f);
-            }
-            ToggleOverlayButton.Draw(ScreenManager.SpriteBatch, r);
-            r = SymmetricDesignButton.Rect;
-            if (ScreenState == ScreenState.TransitionOn ||
-                ScreenState == ScreenState.TransitionOff)
-            {
-                r.Y = r.Y + (int)(transitionOffset * 50f);
-            }
-            SymmetricDesignButton.Draw(ScreenManager.SpriteBatch, r);
 
             ModSel.Draw(ScreenManager.SpriteBatch);
             
             DrawHullSelection();
- 
-            foreach (ToggleButton button in CombatStatusButtons)
-            {
-                button.Draw(ScreenManager);
-            }
+
             if (IsActive)
-            {
                 ToolTip.Draw(ScreenManager.SpriteBatch);
-            }
 
             void DrawTitle(float x, string title)
             {
@@ -878,19 +819,20 @@ namespace Ship_Game
             public Color ValueColor => Tint == ValueTint.GoodBad ? (Value > 0f ? Color.LightGreen : Color.LightPink) :
                 Tint == ValueTint.Bad ? Color.LightPink : Color.White;
 
-            public string ValueText => IsPercent ? Value.ToString("P1") : NumericText;
-
-            private string NumericText => HelperFunctions.GetNumberString(Value);
+            public string ValueText => IsPercent ? Value.ToString("P1") : Value.GetNumberString();
         }
 
         private static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
+            => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.None, Spacing = spacing, LineSpacing = lineSpacing };
 
         private static StatValue BadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
+            => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.Bad, Spacing = spacing, LineSpacing = lineSpacing };
 
         private static StatValue TintedValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
+            => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
+
+        private static StatValue TintedValue(int titleId, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = Localizer.Token(titleId)+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
 
         private static StatValue TintedPercent(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
