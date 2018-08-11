@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
