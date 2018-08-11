@@ -76,12 +76,13 @@ namespace Ship_Game
                 this.marked = true;
             }
 
-            Colonize = new UIButton(null, marked ? ButtonStyle.Default : ButtonStyle.BigDip);
+            Colonize = new UIButton(null, marked ? ButtonStyle.Default : ButtonStyle.BigDip, 0f, 0f, "");
             Colonize.SetAbsPos(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height - Colonize.Size.Y);
             Colonize.Text = !this.marked ? Localizer.Token(1425) : "Cancel Colonize";
-            Colonize.Launches = Localizer.Token(1425);
+            Colonize.OnClick += OnColonizeClicked;
 
-            SendTroops = new UIButton(null, ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10);
+            SendTroops = new UIButton(null, ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10, 0f, "");
+            SendTroops.OnClick += OnSendTroopsClicked;
         }
 
         public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)
@@ -128,7 +129,7 @@ namespace Ship_Game
             if (this.planet.RecentCombat)
             {
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X - 18, (int)StatusIcons.Y, 16, 16);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], statusRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), statusRect, Color.White);
                 if (statusRect.HitTest(MousePos))
                 {
                     ToolTip.CreateTooltip(119);
@@ -145,7 +146,7 @@ namespace Ship_Game
                     }
                     StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
                     Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_spy_small"], statusRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_spy_small"), statusRect, Color.White);
                     //i++;
                     if (!statusRect.HitTest(MousePos))
                     {
@@ -164,7 +165,7 @@ namespace Ship_Game
                 }
                 StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + b.Icon + "_48x48"], statusRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
                 i++;
                 if (!statusRect.HitTest(MousePos))
                 {
@@ -174,7 +175,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 continue;
                 //break;
-
             }
 
             foreach (Building b in this.planet.BuildingList)
@@ -186,7 +186,7 @@ namespace Ship_Game
                 StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
 
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + b.Icon + "_48x48"], statusRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
                 i++;
                 if (!statusRect.HitTest(MousePos))
                 {
@@ -214,7 +214,7 @@ namespace Ship_Game
                 StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
 
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], statusRect, new Color(255, 255, 255, 255));//Color..White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), statusRect, new Color(255, 255, 255, 255));//Color..White);
                 //i++;
                 if (statusRect.HitTest(MousePos))
                 {
@@ -253,7 +253,6 @@ namespace Ship_Game
             }
             spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, (this.planet.Owner != null ? this.planet.Owner.EmpireColor : Color.Gray));
             string PlanetText = string.Concat(this.planet.GetTypeTranslation(), " ", this.planet.GetRichness());
-            Vector2 vector2 = new Vector2((float)(this.FertRect.X + 10), (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(PlanetText).Y / 2f);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetText, rpos, TextColor);
             if (this.planet.Habitable && this.planet.Owner == null)
             {
@@ -305,95 +304,81 @@ namespace Ship_Game
             }
         }
 
+        private void OnSendTroopsClicked(UIButton b)
+        {
+            Array<Ship> troopShips;
+            using (screen.EmpireUI.empire.GetShips().AcquireReadLock())
+            {
+                troopShips = new Array<Ship>(screen.EmpireUI.empire.GetShips()
+                    .Where(troop => troop.TroopList.Count > 0
+                                    && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
+                                    && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
+            }
+
+            var planetTroops = new Array<Planet>(screen.EmpireUI.empire.GetPlanets()
+                .Where(troops => troops.TroopsHere.Count > 1)
+                .OrderBy(distance => Vector2.Distance(distance.Center, planet.Center))
+                .Where(p => p.Name != planet.Name));
+
+            if (troopShips.Count > 0)
+            {
+                GameAudio.PlaySfxAsync("echo_affirm");
+                troopShips.First().AI.OrderAssaultPlanet(planet);
+            }
+            else
+            if (planetTroops.Count > 0)
+            {
+                {
+                    Ship troop = planetTroops.First().TroopsHere.First().Launch();
+                    if (troop != null)
+                    {
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        troop.AI.OrderAssaultPlanet(planet);
+                    }
+                }
+            }
+            else
+            {
+                GameAudio.PlaySfxAsync("blip_click");
+            }
+        }
+
+        private void OnColonizeClicked(UIButton b)
+        {
+            if (!marked)
+            {
+                GameAudio.PlaySfxAsync("echo_affirm");
+                Empire.Universe.player.GetGSAI().Goals.Add(
+                    new MarkForColonization(planet, Empire.Universe.player));
+                Colonize.Text = "Cancel Colonize";
+                Colonize.Style = ButtonStyle.Default;
+                marked = true;
+                return;
+            }
+            foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
+            {
+                if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.planet)
+                {
+                    continue;
+                }
+                GameAudio.PlaySfxAsync("echo_affirm");
+                if (g.GetColonyShip() != null)
+                {
+                    g.GetColonyShip().AI.OrderOrbitNearest(true);
+                }
+                Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
+                marked = false;
+                Colonize.Text = "Colonize";
+                Colonize.Style = ButtonStyle.BigDip;
+                break;
+            }
+            Empire.Universe.player.GetGSAI().Goals.ApplyPendingRemovals();
+        }
+
         public void HandleInput(InputState input)
         {
-            if (!this.SendTroops.Rect.HitTest(input.CursorPosition))
-            {
-                this.SendTroops.State = UIButton.PressState.Default;              
-            }
-            else
-            {
-                this.SendTroops.State = UIButton.PressState.Hover;
-                if (input.InGameSelect)
-                {
-                    Array<Ship> troopShips;
-                    using (screen.EmpireUI.empire.GetShips().AcquireReadLock())
-                    {
-                        troopShips = new Array<Ship>(this.screen.EmpireUI.empire.GetShips()
-                            .Where(troop => troop.TroopList.Count > 0
-                                && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                                && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Center)));
-                    }
-
-                    var planetTroops = new Array<Planet>(screen.EmpireUI.empire.GetPlanets()
-                        .Where(troops => troops.TroopsHere.Count > 1)
-                        .OrderBy(distance => Vector2.Distance(distance.Center, planet.Center))
-                        .Where(p => p.Name != planet.Name));
-
-                    if (troopShips.Count > 0)
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        troopShips.First().AI.OrderAssaultPlanet(this.planet);
-                    }
-                    else
-                        if (planetTroops.Count > 0)
-                        {
-                            {
-                                Ship troop = planetTroops.First().TroopsHere.First().Launch();
-                                if (troop != null)
-                                {
-                                    GameAudio.PlaySfxAsync("echo_affirm");
-                                    troop.AI.OrderAssaultPlanet(this.planet);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            GameAudio.PlaySfxAsync("blip_click");
-                        }
-                }
-            }
-            if (!this.Colonize.Rect.HitTest(input.CursorPosition))
-            {
-                this.Colonize.State = UIButton.PressState.Default;
-            }
-            else
-            {
-                this.Colonize.State = UIButton.PressState.Hover;
-                if (input.InGameSelect)
-                {
-                    if (!this.marked)
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        Empire.Universe.player.GetGSAI().Goals.Add(
-                            new MarkForColonization(planet, Empire.Universe.player));
-                        Colonize.Text = "Cancel Colonize";
-                        Colonize.Style = ButtonStyle.Default;
-                        marked = true;
-                        return;
-                    }
-                    foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
-                    {
-                        if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.planet)
-                        {
-                            continue;
-                        }
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        if (g.GetColonyShip() != null)
-                        {
-                            g.GetColonyShip().AI.OrderOrbitNearest(true);
-                        }
-                        Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
-                        marked = false;
-                        Colonize.Text = "Colonize";
-                        Colonize.Style = ButtonStyle.BigDip;
-                        break;
-                    }
-                    Empire.Universe.player.GetGSAI().Goals.ApplyPendingRemovals();
-                    return;
-                }
-
-            }
+            SendTroops.HandleInput(input);
+            Colonize.HandleInput(input);
         }
 
         public void SetNewPos(int x, int y)

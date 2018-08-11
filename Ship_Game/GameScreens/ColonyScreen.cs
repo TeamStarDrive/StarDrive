@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
-using Ship_Game.UI;
 
 namespace Ship_Game
 {
@@ -188,9 +187,9 @@ namespace Ship_Game
             pFacilities = new Submenu(theMenu9);
             pFacilities.AddTab(Localizer.Token(333));
 
-            launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", "Launch Troops");
+            launchTroops = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Launch Troops", OnLaunchTroopsClicked);
             SendTroops = Button(theMenu9.X + theMenu9.Width - launchTroops.Rect.Width - 185,
-                                theMenu9.Y - 5, "Send Troops", "Send Troops");
+                                theMenu9.Y - 5, "Send Troops", OnSendTroopsClicked);
 
             CommoditiesSL = new ScrollList(pFacilities, 40);
             Rectangle theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (double)(theMenu3.Height - 60)));
@@ -343,8 +342,8 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48"), r, Color.White);
             }
             pFacilities.Draw();
-            if (p.Owner == Empire.Universe.player && p.TroopsHere.Count > 0)
-                launchTroops.Draw(batch);
+            launchTroops.Visible = p.Owner == Empire.Universe.player && p.TroopsHere.Count > 0;
+
             //fbedard: Display button
             if (p.Owner == Empire.Universe.player)
             {
@@ -356,7 +355,6 @@ namespace Ship_Game
                     SendTroops.Text = "Landing: " + troopsInvading;
                 else
                     SendTroops.Text = "Send Troops";
-                SendTroops.Draw(batch);
             }
             DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
             build.Draw();
@@ -690,6 +688,8 @@ namespace Ship_Game
                 }
             }
 
+            base.Draw(batch);
+
             if (ScreenManager.NumScreens == 2)
                 popup = true;
 
@@ -778,7 +778,7 @@ namespace Ship_Game
                     var ship = ResourceManager.GetShipTemplate(shipToBuild);
                     var role = ResourceManager.ShipRoles[ship.shipData.Role];
                     var header = Localizer.GetRole(ship.DesignRole, p.Owner);
-                    if (role.Protected || role.NoBuild)
+                    if (role.Protected || role.NoBuild || ship.shipData.CarrierShip)
                         continue;
                     if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
                     {
@@ -1849,84 +1849,7 @@ namespace Ship_Game
                 }
                 return true;
             }
-            if (!launchTroops.Rect.HitTest(input.CursorPosition))
-            {
-                launchTroops.State = UIButton.PressState.Default;
-            }
-            else
-            {
-                launchTroops.State = UIButton.PressState.Hover;
-                if (input.InGameSelect)
-                {
-                    bool play = false;
-                    foreach (PlanetGridSquare pgs in p.TilesList)
-                    {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
-                        {
-                            continue;
-                        }
 
-                        play = true;
-
-                        Ship.CreateTroopShipAtPoint(p.Owner.data.DefaultTroopShip, p.Owner, p.Center, pgs.TroopsHere[0]);
-                        p.TroopsHere.Remove(pgs.TroopsHere[0]);
-                        pgs.TroopsHere[0].SetPlanet(null);
-                        pgs.TroopsHere.Clear();
-                        ClickedTroop = true;
-                        detailInfo = null;
-                    }
-                    if (play)
-                    {
-
-                        GameAudio.PlaySfxAsync("sd_troop_takeoff");
-                    }
-                }
-            }
-            //fbedard: Click button to send troops
-            if (!SendTroops.Rect.HitTest(input.CursorPosition))
-            {
-                SendTroops.State = UIButton.PressState.Default;
-            }
-            else
-            {
-                SendTroops.State = UIButton.PressState.Hover;
-                if (input.InGameSelect)
-                {
-                    Array<Ship> troopShips;
-                    using (eui.empire.GetShips().AcquireReadLock())
-                        troopShips = new Array<Ship>(eui.empire.GetShips()
-                        .Where(troop => troop.TroopList.Count > 0
-                            && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
-                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
-
-                    Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
-                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center))
-                        .Where(Name => Name.Name != p.Name));
-
-                    if (troopShips.Count > 0)
-                    {
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        troopShips.First().AI.OrderRebase(p,true);
-                    }
-                    else if (planetTroops.Count > 0)
-                    {
-                        var troops = planetTroops.First().TroopsHere;
-                        using (troops.AcquireWriteLock())
-                        {
-                            Ship troop = troops.First().Launch();
-                            if (troop != null)
-                            {
-                                GameAudio.PlaySfxAsync("echo_affirm");
-                                troop.AI.OrderRebase(p,true);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        GameAudio.PlaySfxAsync("blip_click");
-                    }
-                }
-            }
             if (!edit_name_button.HitTest(MousePos))
             {
                 editHoverState = 0;
@@ -2394,6 +2317,67 @@ namespace Ship_Game
             this.previousMouse = this.currentMouse; 
             */
             return false;
+        }
+
+        private void OnSendTroopsClicked(UIButton b)
+        {
+            Array<Ship> troopShips;
+            using (eui.empire.GetShips().AcquireReadLock())
+                troopShips = new Array<Ship>(eui.empire.GetShips()
+                    .Where(troop => troop.TroopList.Count > 0
+                                    && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
+                                    && troop.fleet == null && !troop.InCombat)
+                    .OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
+
+            Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
+                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center))
+                .Where(Name => Name.Name != p.Name));
+
+            if (troopShips.Count > 0)
+            {
+                GameAudio.PlaySfxAsync("echo_affirm");
+                troopShips.First().AI.OrderRebase(p, true);
+            }
+            else if (planetTroops.Count > 0)
+            {
+                var troops = planetTroops.First().TroopsHere;
+                using (troops.AcquireWriteLock())
+                {
+                    Ship troop = troops.First().Launch();
+                    if (troop != null)
+                    {
+                        GameAudio.PlaySfxAsync("echo_affirm");
+                        troop.AI.OrderRebase(p, true);
+                    }
+                }
+            }
+            else
+            {
+                GameAudio.PlaySfxAsync("blip_click");
+            }
+        }
+
+        private void OnLaunchTroopsClicked(UIButton b)
+        {
+            bool play = false;
+            foreach (PlanetGridSquare pgs in p.TilesList)
+            {
+                if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
+                    continue;
+
+                play = true;
+                Ship.CreateTroopShipAtPoint(p.Owner.data.DefaultTroopShip, p.Owner, p.Center, pgs.TroopsHere[0]);
+                p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                pgs.TroopsHere[0].SetPlanet(null);
+                pgs.TroopsHere.Clear();
+                ClickedTroop = true;
+                detailInfo = null;
+            }
+
+            if (play)
+            {
+                GameAudio.PlaySfxAsync("sd_troop_takeoff");
+            }
         }
 
         private void HandleConstructionQueueInput(InputState input)

@@ -1077,7 +1077,7 @@ namespace Ship_Game
                         curs.X = curs.X + ((float)(Traits.Menu.Width - 45) - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + (float)Fonts.Arial14Bold.LineSpacing;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token((e.item as TraitEntry).trait.Description), (float)(Traits.Menu.Width - 45)), tCursor, drawColor);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), (float)(Traits.Menu.Width - 45)), tCursor, drawColor);
                         e.DrawPlus(ScreenManager.SpriteBatch);
                     }
 
@@ -1119,7 +1119,7 @@ namespace Ship_Game
                 txt = Localizer.Token(2103);
                 tip = 112;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)GameModeRect.Y), Color.BurlyWood);
-                if (GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
                 }
@@ -1129,7 +1129,7 @@ namespace Ship_Game
                 txt = Localizer.Token(6093);
                 tip = 165;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)GameModeRect.Y), Color.BurlyWood);
-                if (GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
                 }
@@ -1139,7 +1139,7 @@ namespace Ship_Game
                 txt = Localizer.Token(4102);
                 tip = 229;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)GameModeRect.Y), Color.BurlyWood);
-                if (GameModeRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                if (GameModeRect.HitTest(Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(tip);
                 }
@@ -1154,32 +1154,26 @@ namespace Ship_Game
             //        ToolTip.CreateTooltip(tip, base.ScreenManager);
             //    }
             //}
-            if (ScaleRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (ScaleRect.HitTest(Input.CursorPosition))
             {
                 ToolTip.CreateTooltip(125);
             }
-            if (PacingRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (PacingRect.HitTest(Input.CursorPosition))
             {
                 ToolTip.CreateTooltip(126);
             }
-            foreach (UIButton b in Buttons)
-            {
-                b.Draw(ScreenManager.SpriteBatch);
-            }
-            if (selector != null)
-            {
-                selector.Draw(ScreenManager.SpriteBatch);
-            }
+
+            selector?.Draw(batch);
             if (DrawingColorSelector)
             {
                 DrawColorSelector();
             }
-            RulesOptions.Draw(ScreenManager.SpriteBatch);
+            base.Draw(batch);
             if (IsActive)
             {
-                ToolTip.Draw(ScreenManager.SpriteBatch);
+                ToolTip.Draw(batch);
             }
-            ScreenManager.SpriteBatch.End();
+            batch.End();
         }
 
         protected void DrawColorSelector()
@@ -1213,66 +1207,44 @@ namespace Ship_Game
             }
         }
 
-        
+        private void OnEngageClicked(UIButton b)
+        {
+            OnEngage();
+        }
+        private void OnRuleOptionsClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new RuleOptionsScreen(this));
+        }
+        private void OnAbortClicked(UIButton b)
+        {
+            ExitScreen();
+        }
+        private void OnClearClicked(UIButton b)
+        {
+            foreach (TraitEntry trait in AllTraits)
+                trait.Selected = false;
+            TotalPointsUsed = 8;
+        }
+        private void OnLoadRaceClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new LoadRaceScreen(this));
+        }
+        private void OnSaveRaceClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new SaveRaceScreen(this, GetRacialTraits()));
+        }
+        private void OnLoadSetupClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new LoadSetupScreen(this));
+        }
+        private void OnSaveSetupClicked(UIButton b)
+        {
+            ScreenManager.AddScreen(new SaveSetupScreen(this, difficulty, StarEnum, Galaxysize, Pacing,
+                ExtraRemnant, numOpponents, mode));
+        }
+
         public override bool HandleInput(InputState input)
         {
-            foreach (UIButton b in Buttons)
-            {
-                if (!b.Rect.HitTest(input.CursorPosition))
-                {
-                    b.State = UIButton.PressState.Default;
-                    continue;
-                }
-
-                if (b.State != UIButton.PressState.Hover && b.State != UIButton.PressState.Pressed)
-                {
-                    GameAudio.PlaySfxAsync("mouse_over4");
-                }
-                b.State = UIButton.PressState.Hover;
-                if (!input.LeftMouseClick)
-                    continue;
-
-                b.State = UIButton.PressState.Pressed;
-                string launches = b.Launches;
-
-                switch (launches)
-                {
-                    case "Engage":
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        OnEngage();
-                        return true;
-                    case "Rule Options":
-                        ScreenManager.AddScreen(new RuleOptionsScreen(this));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        break;
-                    case "Abort":
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        ExitScreen();
-                        break;
-                    case "Clear":
-                        foreach (TraitEntry trait in AllTraits)
-                            trait.Selected = false;
-                        TotalPointsUsed = 8;
-                        break;
-                    case "LoadRace":
-                        ScreenManager.AddScreen(new LoadRaceScreen(this));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        break;
-                    case "SaveRace":
-                        ScreenManager.AddScreen(new SaveRaceScreen(this, GetRacialTraits()));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        break;
-                    case "LoadSetup":
-                        ScreenManager.AddScreen(new LoadSetupScreen(this));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        break;
-                    case "SaveSetup":
-                        ScreenManager.AddScreen(new SaveSetupScreen(this, difficulty, StarEnum, Galaxysize, Pacing,
-                            ExtraRemnant, numOpponents, mode));
-                        GameAudio.PlaySfxAsync("echo_affirm");
-                        break;
-                }
-            }
             DescriptionSL.HandleInput(input);
             if (!DrawingColorSelector)
             {
@@ -1638,8 +1610,6 @@ namespace Ship_Game
                 leftRect.Height = 580;
             }
             Left = new Menu1(leftRect);
-            Vector2 Position = new Vector2((float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(leftRect.Y + leftRect.Height + 10));
-            RulesOptions = Button(Position.X, Position.Y, "Rule Options", titleId:4006);
 
             Rectangle ChooseRaceRect = new Rectangle(5, (LowRes ? nameRect.Y : leftRect.Y), leftRect.X - 10, (LowRes ? leftRect.Y + leftRect.Height - nameRect.Y : leftRect.Height));
             ChooseRaceMenu = new Menu1(ChooseRaceRect);
@@ -1707,18 +1677,22 @@ namespace Ship_Game
                     traitsSL.AddItem(t);
             }
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, "Engage", titleId:22);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, "Abort", titleId:23);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
-                            Description.Menu.Y + Description.Menu.Height - 40, "Clear", "Clear Traits");
+                            Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
 
             DoRaceDescription();
             SetEmpireData(SelectedData.Traits);
 
-            LoadRace  = ButtonMedium(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, "LoadRace", "Load Race");
-            SaveRace  = ButtonMedium(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, "SaveRace", "Save Race");
-            LoadSetup = ButtonMedium((int)Position.X - 142, (int)Position.Y, "LoadSetup", "Load Setup");
-            SaveSetup = ButtonMedium((int)Position.X + 178, (int)Position.Y, "SaveSetup", "Save Setup");
+            LoadRace  = ButtonMedium(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, "Load Race", OnLoadRaceClicked);
+            SaveRace  = ButtonMedium(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, "Save Race", OnSaveRaceClicked);
+
+            var pos = new Vector2(ScreenWidth / 2 - 84, leftRect.Y + leftRect.Height + 10);
+
+            LoadSetup = ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
+            SaveSetup = ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
+            RulesOptions = Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
 
             base.LoadContent();
         }
@@ -1955,9 +1929,7 @@ namespace Ship_Game
                 RaceSummary.DiplomacyMod           += t.trait.DiplomacyMod;
                 RaceSummary.EnergyDamageMod        += t.trait.EnergyDamageMod;
                 RaceSummary.MaintMod               += t.trait.MaintMod;
-                RaceSummary.ReproductionMod        += t.trait.ReproductionMod;// t.trait.ReproductionMod;
-                //this.RaceSummary.ReproductionMod += t.trait.PopGrowthMin;
-                //this.RaceSummary.ReproductionMod -= t.trait.PopGrowthMax;
+                RaceSummary.ReproductionMod        += t.trait.ReproductionMod;
                 RaceSummary.PopGrowthMax           += t.trait.PopGrowthMax;
                 RaceSummary.PopGrowthMin           += t.trait.PopGrowthMin;
                 RaceSummary.ResearchMod            += t.trait.ResearchMod;
@@ -1979,6 +1951,8 @@ namespace Ship_Game
                 RaceSummary.Spiritual              += t.trait.Spiritual;
                 RaceSummary.SpyMultiplier          += t.trait.SpyMultiplier;
                 RaceSummary.RepairMod              += t.trait.RepairMod;
+                RaceSummary.PassengerModifier      += t.trait.PassengerBonus;
+
                 if (t.trait.Pack)
                     RaceSummary.Pack = t.trait.Pack;
             }

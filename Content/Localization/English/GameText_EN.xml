@@ -217,7 +217,7 @@
     </Token>
     <Token>
       <Index>57</Index>
-      <Text>Ultra-fast reflexes grant fighter pilots from this race a 25% bonus chance to dodge projectiles that otherwise would be hits</Text>
+      <Text>Ultra-fast reflexes grant ship pilots from this race a 25% bonus chance to dodge projectiles that otherwise would be hits</Text>
     </Token>
     <Token>
       <Index>58</Index>
@@ -225,7 +225,7 @@
     </Token>
     <Token>
       <Index>59</Index>
-      <Text>Races with ponderous and deliberate natures make terrible fighter pilots. As a result, their fighters take 25% more damage than normal</Text>
+      <Text>Races with ponderous and deliberate natures make terrible pilots. As a result, their ships suffer 25% dodge penalty</Text>
     </Token>
     <Token>
       <Index>60</Index>
@@ -4696,6 +4696,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1977</Index>
+      <Text>Dodge Modifier</Text>
+    </Token>
+    <Token>
+      <Index>1978</Index>
+      <Text>When marked, this ship can only be assigned to a Carrier Hangar. It cannot be built by a colony. Drones are always assigned to a carrier hangar.</Text>
+    </Token>
+    <Token>
       <Index>1979</Index>
       <Text>The planet's space offense vs incoming ships is listed here.</Text>
     </Token>
@@ -6490,11 +6498,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>53</Index>
-      <Text>Incredible eyesight gives pilots from this race a 20% gunnery bonus to damage inflicted from cannon weapons</Text>
+      <Text>Incredible eyesight gives pilots from this race a 20% accuracy bonus to projectiles fired from cannon weapons</Text>
     </Token>
     <Token>
       <Index>55</Index>
-      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles do 20% less damage</Text>
+      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy penalty</Text>
     </Token>
 
     <Token>
@@ -6659,7 +6667,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4032</Index>
-      <Text>Cannon Damage Modifier</Text>
+      <Text>Cannon Accuracy Modifier</Text>
     </Token>
     <Token>
       <Index>4033</Index>

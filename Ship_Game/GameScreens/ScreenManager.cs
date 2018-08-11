@@ -299,7 +299,7 @@ namespace Ship_Game
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.UnloadContent();            
             Screens.Remove(screen);
-            exitScreenTimer = .25f;
+            exitScreenTimer = 0.25f;
         }
 
         public void Update(GameTime gameTime)
@@ -315,9 +315,10 @@ namespace Ship_Game
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
                 if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
                     continue;
-                if (!otherScreenHasFocus && exitScreenTimer <=0f)
+                if (!otherScreenHasFocus && exitScreenTimer <= 0f)
                 {
-                    screen.HandleInput(input);
+                    if (!screen.IsExiting)
+                        screen.HandleInput(input);
                     otherScreenHasFocus = true;
                 }
                 if (screen.IsPopup)
@@ -330,11 +331,9 @@ namespace Ship_Game
         {
             if (!stopFurtherInput)
             {
-                //exitScreenTimer -= .0016f;
                 if (exitScreenTimer > 0f)
                     return true;
             }
-            //else exitScreenTimer = .025f;
             return false;
         }
 

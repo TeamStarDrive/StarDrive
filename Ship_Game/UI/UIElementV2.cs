@@ -37,6 +37,11 @@ namespace Ship_Game
         public bool Visible = true; // If TRUE, this UIElement is rendered
         public bool Enabled = true; // If TRUE, this UIElement can receive input events
 
+
+        // Nullable to save memory
+        private Array<UIEffect> Effects;
+
+
         public void Show() => Visible = true;
         public void Hide() => Visible = false;
 
@@ -149,13 +154,41 @@ namespace Ship_Game
         public abstract void Draw(SpriteBatch batch);
         public abstract bool HandleInput(InputState input);
 
+        public virtual void Update(float deltaTime)
+        {
+            UpdateEffects(deltaTime);
+        }
+
         public void RemoveFromParent()
         {
             if (Parent is UIElementContainer container)
                 container.Remove(this);
         }
 
-        public virtual void Update()
+        public void AddEffect(UIEffect effect)
+        {
+            Log.Assert(effect != null, "UIEffect cannot be null");
+            if (Effects == null)
+                Effects = new Array<UIEffect>();
+            Effects.Add(effect);
+        }
+
+        protected void UpdateEffects(float deltaTime)
+        {
+            Log.Assert(Visible, "UpdateEffects should only be called when Visible");
+            if (Effects == null)
+                return;
+            for (int i = 0; i < Effects.Count;)
+            {
+                if (Effects[i].Update(deltaTime)) 
+                    Effects.RemoveAt(i);
+                else ++i;
+            }
+            if (Effects.Count == 0)
+                Effects = null;
+        }
+
+        public virtual void PerformLayout()
         {
             if (!RequiresLayout || !Visible)
                 return;

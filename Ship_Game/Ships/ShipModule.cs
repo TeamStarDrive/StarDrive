@@ -993,11 +993,18 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float ActualMass(bool inPowerRadius)
+        public float ActualMass
         {
-            if (Mass < 0f && inPowerRadius)
-                return !Is(ShipModuleType.Armor) ? Mass : Mass * EmpireManager.Player.data.ArmourMassModifier;
-            return !Is(ShipModuleType.Armor) ? Math.Abs(Mass) : Math.Abs(Mass * EmpireManager.Player.data.ArmourMassModifier);
+            get
+            {
+                float mass = Mass;
+                if (Is(ShipModuleType.Armor))
+                    mass *= EmpireManager.Player.data.ArmourMassModifier;
+                // only allow negative mass modules (mass reduction devices) if we're powered:
+                if (mass< 0f && Powered)
+                    return mass;
+                return Math.Abs(mass);
+            }
         }
 
         // @note This is called every frame for every module for every ship in the universe
