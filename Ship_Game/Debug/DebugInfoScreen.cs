@@ -28,8 +28,50 @@ namespace Ship_Game.Debug
         Tech,
         Last, // dummy value
     }
+    public struct DebugTextBlock
+    {
+        public Array<string> Lines;
+        public string Header;
+        public float HeaderSize;
+        public float HeaderColor;
+        public string Footer;
+        public float FooterSize;
+        public float FooterColor;
+        public Array<Color> LineColor;
+        public void AddRange(Array<string> lines)
+        {            
+            foreach (var line in lines)            
+                AddLine(line);                            
+        }
+        public void AddRange(Array<string> lines, Color color)
+        {
+            foreach (var line in lines)
+            {
+                AddLine(line);
+                LineColor.Add(color);
+            }
+        }
+        public Array<string> GetFormattedLines()
+        {
+            Array<string> text = new Array<string>{ Header };
+            text.AddRange(Lines);
+            if (Footer.NotEmpty()) text.Add(Footer);
+            return text;
+        }
+        public void AddLine(string text) => AddLine(text, GetLastColor());        
+        public void AddLine(string text, Color color)
+        {
+            Lines.Add(text);
+            LineColor.Add(color);
+        }
+        private Color GetLastColor()
+        {
+            if (LineColor.IsEmpty) return Color.White;
+            return LineColor.Last;
+        }
 
-    public sealed class DebugInfoScreen : GameScreen
+    }
+public sealed class DebugInfoScreen : GameScreen
     {
         public bool IsOpen;        
         private readonly UniverseScreen Screen;
@@ -104,6 +146,37 @@ namespace Ship_Game.Debug
                 }
             }
         }
+   
+        private Array<UILabel> DebugText;
+        private void HideAllDebugGameInfo()
+        {
+            if (DebugText == null) return;
+            for (int i = 0; i < DebugText.Count; i++)
+            {
+                var column = DebugText[i];
+                column.Hide();
+            }
+        }
+        private void HideDebugGameInfo(int column)
+        {
+            DebugText?[column].Hide();
+        }
+
+        private void ShowDebugGameInfo(int column, Array<string> lines, float x, float y)
+        {
+            if (DebugText == null)            
+                DebugText = new Array<UILabel>();                
+            
+            if (DebugText.Count <= column)            
+                DebugText.Add(Label(x, y, ""));
+            
+
+            DebugText[column].Show();
+            DebugText[column].MultilineText = lines;
+        
+        }
+
+
 
         public bool DebugLogText(string text, DebugModes mode)
         {
@@ -224,6 +297,7 @@ namespace Ship_Game.Debug
                     case DebugModes.input         : InputDebug(); break;
                     case DebugModes.Tech          : Tech(); break;
                 }
+                base.Draw(ScreenManager.SpriteBatch);
                 ShipInfo();
             }
             catch { }
@@ -596,15 +670,17 @@ namespace Ship_Game.Debug
                 }   
 
             }
-            
-            if (planet?.Owner == null) return;
-            Array<TradeAI.DebugTextBlock> text = planet.TradeAI.DebugText();
+            if (planet?.Owner == null)
+            {
+                HideAllDebugGameInfo();
+                return;
+            }
+
+            Array<DebugTextBlock> text = planet.TradeAI.DebugText();
             for (int i = 0; i < text.Count; i++)
             {
-                SetTextCursor(Win.X + 10 + 400 * i, Win.Y + 20, Color.Yellow);
                 var lines = text[i];
-                foreach (var line in lines.Lines)
-                    DrawString(line);                
+                ShowDebugGameInfo(i, lines.Lines, Win.X + 10 + 400 * i, Win.Y + 20);  
             }
         }
 
@@ -630,7 +706,7 @@ namespace Ship_Game.Debug
             if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
                 return false;
             ResearchText.Clear();
-
+            HideAllDebugGameInfo();
             if (input.WasKeyPressed(Keys.Left)) --Mode;
             else                                ++Mode;
 
