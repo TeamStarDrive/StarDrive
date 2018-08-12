@@ -83,13 +83,21 @@ namespace Ship_Game.Universe.SolarBodies.AI
             }                                  
             return true;
         }
-        private void AddToIncomingFreight(Ship ship, int eta) => AddToFreight(ship, eta, IncomingFreight);
-        private void AddToOutGoingFreight(Ship ship, int eta) => AddToFreight(ship, eta, OutGoingFreight);
-        private void AddToFreight(Ship ship, int eta, Dictionary<int, Entry> freight)
+        private void AddToIncomingFreight(Ship ship, int eta)=> AddToFreight(ship, eta, ShipAI.Plan.DropOffGoods);
+        private void AddToOutGoingFreight(Ship ship, int eta)=> AddToFreight(ship, eta, ShipAI.Plan.PickupGoods);
+        private void AddToFreight(Ship ship, int eta, ShipAI.Plan plan)
         {
+            Dictionary<int, Entry> freight;
             Cargo cargo = ship.GetCargo();
-            cargo.Amount = cargo.Amount > 0 ? cargo.Amount : ship.CargoSpaceMax;
-
+            
+            if (plan == ShipAI.Plan.PickupGoods)
+            {
+                freight = OutGoingFreight;
+                cargo.Amount = ship.CargoSpaceMax;                
+            }
+            else           
+                freight = IncomingFreight;
+                        
             freight.TryGetValue(eta, out Entry entry);
             entry.Cargo = entry.Cargo ?? new Array<Cargo>();
             entry.AddCargo(cargo);

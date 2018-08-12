@@ -243,8 +243,10 @@ namespace Ship_Game.AI
         {
             if (end == null)
                 return;
-            if (Owner.GetCargo().Good == good) return;
-
+            Cargo cargo = Owner.GetCargo();
+            if (cargo.Good == good) return;
+            Owner.ClearCargo();
+            Owner.LoadCargo(good, 0);
             start = end.TradeAI.GetNearestSupplierFor(good);
             if (start == null)
             {

@@ -179,7 +179,11 @@ namespace Ship_Game.Ships
             if (cargoId == "Colonists_1000") return LoadColonists(amount);
             return cargo.LoadOther(cargoId, amount);
         }
-
+        public float LoadCargo(Goods good, float amount)
+        {
+            if (GetCargo().Good != good) ClearCargo();
+            return Cargo.LoadOther(good.ToString(), amount);
+        }       
         public float LoadColonists(float amount)
         {
             // Colonists get special treatment due to Cryogenic Freezing and Manifest Destiny passenger modifiers
