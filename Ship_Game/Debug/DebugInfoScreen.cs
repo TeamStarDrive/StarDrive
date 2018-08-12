@@ -71,6 +71,123 @@ namespace Ship_Game.Debug
         }
 
     }
+
+    public class DebugPage : UIElementContainer
+    {
+
+        public DebugPage(GameScreen parent, DebugModes mode) : base(parent, parent.Rect)
+        {
+            DebugMode = mode;
+        }
+        protected Array<UILabel> DebugText;
+        public void HideAllDebugText()
+        {
+            if (DebugText == null) return;
+            for (int i = 0; i < DebugText.Count; i++)
+            {
+                var column = DebugText[i];
+                column.Hide();
+            }
+        }
+        public void HideDebugGameInfo(int column)
+        {
+            DebugText?[column].Hide();
+        }
+        public DebugModes DebugMode { get; private set; }
+
+        public void ShowDebugGameInfo(int column, Array<string> lines, float x, float y)
+        {
+            if (DebugText == null)
+                DebugText = new Array<UILabel>();
+
+            if (DebugText.Count <= column)
+                DebugText.Add(Label(x, y, ""));
+
+
+            DebugText[column].Show();
+            DebugText[column].MultilineText = lines;
+
+        }
+        public virtual void Update(float deltaTime,DebugModes mode)
+        {
+            if (mode != DebugMode) return;
+            base.Update(deltaTime);
+        }
+    }
+    public class TradeDebug : DebugPage
+    {        
+        private UniverseScreen Screen;
+        private DebugInfoScreen Parent;
+        private Rectangle DrawArea;
+        public TradeDebug(UniverseScreen screen, DebugInfoScreen parent) :base(parent, DebugModes.Trade)
+        {
+            Screen = screen;
+            Parent = parent;
+            DrawArea = parent.Rect;
+        }
+        public override void Update(float deltaTime, DebugModes mode)
+        {            
+            
+            Planet planet = Screen.SelectedPlanet;
+        
+            if (planet?.Owner == null)
+            {
+                HideAllDebugText();                
+            }
+            
+            Array<DebugTextBlock> text = planet?.TradeAI.DebugText();
+            if (text == null)
+                return;
+            if (text?.IsEmpty == true) return;
+            for (int i = 0; i < text.Count; i++)
+            {
+                var lines = text[i];
+                ShowDebugGameInfo(i, lines.Lines, Rect.X + 10 + 400 * i, Rect.Y + 20);
+            }
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            if (!Visible)
+            {
+                base.Draw(spriteBatch);
+                return;
+            }
+            Planet planet = Screen.SelectedPlanet;
+            int totalFreighters = 0;
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                foreach (Ship ship in e.GetShips())
+                {
+                    if (ship?.Active != true) continue;
+                    ShipAI ai = ship.AI;
+                    if (ai.State != AIState.SystemTrader) continue;
+                    if (ai.OrderQueue.Count == 0) continue;
+
+                    switch (ai.OrderQueue.PeekLast.Plan)
+                    {
+                        case Plan.DropOffGoods:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                            if (planet == ship.AI.end) totalFreighters++;
+
+                            break;
+                        case Plan.PickupGoods:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
+                            break;
+                        case Plan.PickupPassengers:
+                        case Plan.DropoffPassengers:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
+                            break;
+                    }
+                }
+
+            }
+
+            base.Draw(spriteBatch);
+        }
+
+    }
+
 public sealed class DebugInfoScreen : GameScreen
     {
         public bool IsOpen;        
@@ -106,15 +223,15 @@ public sealed class DebugInfoScreen : GameScreen
         public static sbyte Loadmodels = 0;
         public static DebugModes Mode { get; private set; }
         private readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
-        private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
+        private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();        
+        private DebugPage Page;
 
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
         {
             IsOpen = true;
             Screen = screen;
             ScreenManager = screenManager;
-            Win = new Rectangle(30, 200, 1200, 700);
-
+            Win = new Rectangle(30, 200, 1200, 700);            
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (empire == Empire.Universe.player || empire.isFaction)
@@ -175,8 +292,6 @@ public sealed class DebugInfoScreen : GameScreen
             DebugText[column].MultilineText = lines;
         
         }
-
-
 
         public bool DebugLogText(string text, DebugModes mode)
         {
@@ -261,6 +376,9 @@ public sealed class DebugInfoScreen : GameScreen
 
         public void Draw(GameTime gameTime)
         {
+
+            Page?.Draw(Screen.ScreenManager.SpriteBatch);
+            
             try
             {
                 TextFont = Fonts.Arial20Bold;
@@ -291,7 +409,7 @@ public sealed class DebugInfoScreen : GameScreen
                     case DebugModes.DefenseCo     : DefcoInfo(); break;
                     case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
                     case DebugModes.Pathing       : PathingInfo(); break;
-                    case DebugModes.Trade         : TradeInfo(); break;
+                    //case DebugModes.Trade         : TradeInfo(); break;
                     case DebugModes.Targeting     : Targeting(); break;
                     case DebugModes.SpatialManager: SpatialManagement(); break;
                     case DebugModes.input         : InputDebug(); break;
@@ -303,6 +421,50 @@ public sealed class DebugInfoScreen : GameScreen
             catch { }
         }
 
+        public bool ValidatePage()
+        {
+            if (Page?.DebugMode == Mode)
+            {
+                Page.Show();
+                return true;
+            }
+            switch (Mode)
+            {
+                case DebugModes.Normal:
+                    break;
+                case DebugModes.Targeting:
+                    break;
+                case DebugModes.Pathing:
+                    break;
+                case DebugModes.DefenseCo:
+                    break;
+                case DebugModes.Trade:
+                    Page = new TradeDebug(Screen, this);
+                    return true;
+                case DebugModes.AO:
+                    break;
+                case DebugModes.ThreatMatrix:
+                    break;
+                case DebugModes.SpatialManager:
+                    break;
+                case DebugModes.input:
+                    break;
+                case DebugModes.Tech:
+                    break;
+                case DebugModes.Last:
+                    break;
+            }
+            return false;
+        }
+
+        public void Update(float deltaTime)
+        {
+            if (ValidatePage())
+                Page?.Update(deltaTime, Mode);
+            else Page?.Hide();
+            
+            base.Update(deltaTime);
+        }
         private void Tech()
         {
             TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
@@ -703,6 +865,7 @@ public sealed class DebugInfoScreen : GameScreen
 
         public override bool HandleInput(InputState input)
         {
+            Page?.HandleInput(input);
             if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
                 return false;
             ResearchText.Clear();
@@ -711,7 +874,7 @@ public sealed class DebugInfoScreen : GameScreen
             else                                ++Mode;
 
             if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
-            else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
+            else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;            
             return false;
         }
 
