@@ -7,7 +7,8 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
-using Ship_Game.Universe.SolarBodies.AI;
+
+
 
 namespace Ship_Game
 {
@@ -94,7 +95,15 @@ namespace Ship_Game
                 case Goods.Colonists:  return ColonistsTradeState;
                 default:               return 0;
             }
-        }        
+        }
+        public bool IsExporting()
+        {
+            foreach (Goods good in Enum.GetValues(typeof(Goods)))
+            {
+                if (GetGoodState(good) == GoodState.EXPORT) return true;
+            }
+            return false;
+        }
         public SpaceStation Station = new SpaceStation();        
         
         public float FarmerPercentage = 0.34f;
@@ -463,12 +472,13 @@ namespace Ship_Game
 
         public float GetNetFoodPerTurn()
         {
-            //if (Owner != null && Owner.data.Traits.Cybernetic == 1)
-            //    return NetFoodPerTurn;
-            //else
-            return NetFoodPerTurn;// - Consumption; This is already the correct value. whats incorrect is 
+            if (Owner != null && Owner.data.Traits.Cybernetic == 1)
+                return NetFoodPerTurn;
+            
+                return NetFoodPerTurn - Consumption; //This is already the correct value. whats incorrect is 
             //how the variable is named at initial assignment.
             //it should be gross food. That will take a lot of invasive work to fix. 
+            //but its not correct in the UI... needs more checking and fixing. bleh.
         }
 
         public void ApplyAllStoredProduction(int index) => SbProduction.ApplyAllStoredProduction(index);
@@ -503,7 +513,7 @@ namespace Ship_Game
                 UpdatePosition(elapsedTime);
                 return;
             }
-            IncomingTradePrediction.DebugText();
+            TradeAI.DebugText();
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
@@ -825,8 +835,8 @@ namespace Ship_Game
             return true;
         }
        
-        public TradeTracking IncomingTradePrediction;
-        public TradeTracking OutgoingTradePrediction;
+        public TradeAI TradeAI;
+        public TradeAI OutgoingTradePrediction;
 
 
         private void CalculateIncomingTrade()
@@ -835,9 +845,7 @@ namespace Ship_Game
             IncomingProduction = 0;
             IncomingFood = 0;
             TradeIncomingColonists = 0;
-            //should check for planet trading
-            IncomingTradePrediction = new TradeTracking(this, ShipAI.RouteType.Delivery);
-            OutgoingTradePrediction = new TradeTracking(this, ShipAI.RouteType.Pickup);
+            TradeAI = new TradeAI(this);            
             using (Owner.GetShips().AcquireReadLock())
             {
                 foreach (var ship in Owner.GetShips())
@@ -846,27 +854,14 @@ namespace Ship_Game
                     if (ship.AI.State != AIState.SystemTrader && ship.AI.State != AIState.PassengerTransport) continue;
                     if (ship.AI.OrderQueue.IsEmpty) continue;
 
-                    if (IncomingTradePrediction.AddTrade(ship))
-                        continue;
-                    OutgoingTradePrediction.AddTrade(ship);                                        
-                    
-                    //if (ship.DesignRole != ShipData.RoleName.freighter) continue;
-                    //if (ship.AI.end != this) continue;
-                    //if (ship.AI.State != AIState.SystemTrader && ship.AI.State != AIState.PassengerTransport) continue;
-
-                    //if (AddToIncomingTrade(ref IncomingFood, ship.GetFood())) return;
-                    //if (AddToIncomingTrade(ref IncomingProduction, ship.GetProduction())) return;
-                    //if (AddToIncomingTrade(ref IncomingColonists, ship.GetColonists())) return;
-
-                    //if (AddToIncomingTrade(ref IncomingFood,       ship.CargoSpaceMax * (ship.AI.IsFood ? 1 : 0))) return;
-                    //if (AddToIncomingTrade(ref IncomingProduction, ship.CargoSpaceMax * (ship.AI.IsProd ? 1 : 0))) return;
-                    //if (AddToIncomingTrade(ref IncomingColonists, ship.CargoSpaceMax)) return;
+                    TradeAI.AddTrade(ship);
+                                                                             
                 }
             }
-            IncomingTradePrediction.ComputeAverages();
-            IncomingFood       = IncomingTradePrediction.AvgTradingFood;
-            IncomingProduction = IncomingTradePrediction.AvgTradingProduction;
-            IncomingColonists  = IncomingTradePrediction.AvgTradingColonists;
+            TradeAI.ComputeAverages();
+            IncomingFood       = TradeAI.AvgTradingFood;
+            IncomingProduction = TradeAI.AvgTradingProduction;
+            IncomingColonists  = TradeAI.AvgTradingColonists;
         }
 
         public void RefreshBuildingsWeCanBuildHere()

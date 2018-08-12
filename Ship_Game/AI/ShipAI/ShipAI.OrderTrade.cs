@@ -211,7 +211,9 @@ namespace Ship_Game.AI
                     Owner.ClearCargo();
             }
             State = AIState.SystemTrader;
-            Owner.TradeTimer = 5f;            
+            Owner.TradeTimer = 5f;
+            end?.TradeAI.AddTrade(Owner);
+            start?.TradeAI.AddTrade(Owner);
         }
 
         private void PlayerManualTrade()
@@ -242,51 +244,34 @@ namespace Ship_Game.AI
             if (end == null)
                 return;
             if (Owner.GetCargo().Good == good) return;
-            TradePlanets tradePlanets = GetTradePlanets(good, Planet.GoodState.EXPORT);
-            Array<Planet> planets = tradePlanets.Planets;
-            if (planets.Count <= 0)
-                return;
 
-            Planet[] sortedPlanets = planets.Sorted(p => TradeSort(Owner, p, good, Owner.CargoSpaceMax, RouteType.Pickup));
-            foreach (Planet p in sortedPlanets)
+            start = end.TradeAI.GetNearestSupplierFor(good);
+            if (start == null)
             {
-                if (IsEfficientPickupPlanet(good, p))
-                {
-                    start = p;
-                    break;
-                }
-            }
-        }
-
-        private bool IsEfficientPickupPlanet(Goods good, Planet p)
-        {
-            if (p.ParentSystem.CombatInSystem || p.GetGoodState(good) != Planet.GoodState.EXPORT)
-                return false;                
-            return true; // Yep, it's ok!
+                var planets = GetTradePlanets(good, Planet.GoodState.EXPORT);
+                if (planets.Length <= 0)
+                    return;
+                start = planets.FindMin(p => p.Center.SqDist(Owner.Center));
+            }                        
         }
 
         private bool DeliverShipment(Goods good)
         {
-            TradePlanets planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
-            if (planets.Planets.Count <= 0)
+            var planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
+            if (planets.Length <= 0)
                 return false;
             
             float loadedCargo = Owner.GetCargo(good);
-            loadedCargo = loadedCargo > 0 ? loadedCargo : Owner.CargoSpaceMax;
-            var sortPlanets =
-                planets.Planets.OrderBy(planetCheck => TradeSort(Owner, planetCheck, good, loadedCargo, RouteType.Delivery));
 
-
-            foreach (Planet p in sortPlanets)
+            if (loadedCargo > 0)
+                end = planets.FindMin(p => p.Center.SqDist(Owner.Center));
+            else
             {
-                if (p.ParentSystem.ShipList.Any(s=> Owner.loyalty.IsEmpireAttackable(s.loyalty,s))) continue;
-                if (p.GetGoodState(good) != Planet.GoodState.IMPORT) continue;
-
-                if (p.ImportPriority() != good)
-                    continue;
-                end = p;
-                break;
+                end = planets.FindMin(p => p.TradeAI.GetNearestSupplierFor(good)?.Center.SqDist(Owner.Center) ?? float.MaxValue);
+                if (end == null)
+                    end = planets.FindMin(p => p.Center.SqDist(Owner.Center));
             }
+
 
             if (end == null)
                 return false;
@@ -299,25 +284,18 @@ namespace Ship_Game.AI
             return end != null;
         }
 
-        private TradePlanets GetTradePlanets(Goods good, Planet.GoodState goodState)
+        private Planet[] GetTradePlanets(Goods good, Planet.GoodState goodState)
         {
-            var planets = new TradePlanets(true);            
+            var planets = new Array<Planet>();
             foreach (Planet planet in Owner.loyalty.GetPlanets())
             {
-                if (planet.ParentSystem.ShipList.Any(s => Owner.loyalty.IsEmpireAttackable(s.loyalty, s))) continue;
-                float distanceWeight = TradeSort(Owner, planet, good, Owner.CargoSpaceMax, RouteType.Pickup);
-                if (distanceWeight >= int.MaxValue)
-                    continue;
-                //var exportWeight = planet.GetExportWeight(good);
-
-                //planet.SetExportWeight(good, distanceWeight < exportWeight ? distanceWeight : exportWeight);
+                if (planet.ParentSystem.ShipList.Any(s => s.GetStrength() >0 && Owner.loyalty.IsEmpireAttackable(s.loyalty, s))) continue;
+                
                 if (planet.GetGoodState(good) != goodState) continue;
                 if (InsideAreaOfOperation(planet))
-                    planets.Planets.Add(planet);
-                //else if (planet.MaxStorage - planet.GetGoodHere(good) > 0)
-                  //  planets.SecondaryPlanets.Add(planet);
+                    planets.Add(planet);                
             }
-            return planets;
+            return planets.ToArray();
         }
 
 

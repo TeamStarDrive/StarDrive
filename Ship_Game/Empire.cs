@@ -1700,20 +1700,10 @@ namespace Ship_Game
             float ResearchPotential = 0.0f;
             float Fertility = 0.0f;
             float MilitaryPotential = 0.0f;
-            //if (p.Fertility > 1.0)
-            //{
-                
-            //    //ResearchPotential += 0.5f;
-            //}
-            //else
-            //    Fertility += p.Fertility;
-            //else if( this.data.Traits.Cybernetic <= 0)
-            //    ResearchPotential++;
             
             if (p.MineralRichness > .50)
             {
-                MineralWealth += p.MineralRichness +p.MaxPopulation / 1000;
-                //MilitaryPotential += 0.5f;
+                MineralWealth += p.MineralRichness +p.MaxPopulation / 1000;                ;
             }
             else
                 MineralWealth += p.MineralRichness;
@@ -1740,17 +1730,6 @@ namespace Ship_Game
                         Fertility += p.Fertility + p.MaxPopulation / 1000;
                     }
                 }
-                
-                //if (p.Fertility > 1f)
-                //    ++PopSupport;
-                //if (p.MaxPopulation > 4000)
-                //{
-                //    ++PopSupport;                    
-                //    if (p.MaxPopulation > 8000)
-                //        ++PopSupport;
-                //    if (p.MaxPopulation > 12000)
-                //        PopSupport += 2f;
-                //}
             }
             else
             {
@@ -1766,7 +1745,6 @@ namespace Ship_Game
 
                 Fertility = 0;
             }
-                              //(tech.Cost - this.Research) / tech.Cost;// *this.OwnedPlanets.Count;
 
             int CoreCount = 0;
             int IndustrialCount = 0;

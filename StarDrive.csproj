@@ -299,7 +299,6 @@
     <Compile Include="Ship_Game\GameScreens\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
     <Compile Include="Ship_Game\UI\Effects\UITransitionEffect.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\AI\TradeTracking.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBCommodities.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SBProduction.cs" />
@@ -1959,6 +1958,7 @@
     <None Include="Deploy\notify-sentry-of-release.bash" />
     <None Include="packages.config" />
     <None Include="README.md" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\AI\TradeRoutes.cs" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
