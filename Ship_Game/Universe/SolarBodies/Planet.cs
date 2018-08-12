@@ -7,7 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
-
+using Ship_Game.Universe.SolarBodies.AI;
 
 
 namespace Ship_Game
@@ -827,16 +827,8 @@ namespace Ship_Game
             string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
             planet1.DevelopmentStatus = str1;
         }
-
-        private static bool AddToIncomingTrade(ref float type, float amount)
-        {
-            if (amount < 1) return false;
-            type += amount;
-            return true;
-        }
        
         public TradeAI TradeAI;
-        public TradeAI OutgoingTradePrediction;
 
 
         private void CalculateIncomingTrade()
