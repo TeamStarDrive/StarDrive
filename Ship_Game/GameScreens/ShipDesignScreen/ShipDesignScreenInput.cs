@@ -17,7 +17,7 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen
     {
         private Vector2 ClassifCursor;
-
+        private UICheckBox CarrierOnlyCheckBox;
         public void ChangeHull(ShipData hull)
         {
         #if SHIPYARD
@@ -43,7 +43,6 @@ namespace Ship_Game
                 BaseHull        = hull.BaseHull
             };
             ActiveHull.UpdateBaseHull();
-
 
             ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
             for (int i = 0; i < hull.ModuleSlots.Length; ++i)
@@ -73,6 +72,20 @@ namespace Ship_Game
             BindListsToActiveHull();
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
+            UpdateCarrierShip();
+        }
+
+        private void UpdateCarrierShip()
+        {
+            if (ActiveHull.HullRole == ShipData.RoleName.drone)
+                ActiveHull.CarrierShip = true;
+
+            if (CarrierOnlyCheckBox == null)
+                return; // it is null the first time ship design screen is loaded
+
+            CarrierOnlyCheckBox.Visible = ActiveHull.HullRole != ShipData.RoleName.drone
+                                          && ActiveHull.HullRole != ShipData.RoleName.platform
+                                          && ActiveHull.HullRole != ShipData.RoleName.station;
         }
 
         private void BindListsToActiveHull()
@@ -777,7 +790,7 @@ namespace Ship_Game
             {
                 OnSymmetricDesignToggle();
             });
-            BtnSymmetricDesign.Tooltip = Localizer.Token(246);
+            BtnSymmetricDesign.Tooltip = Localizer.Token(1984);
 
             Vector2 layoutEndV = EndLayout();
             SearchBar = new Rectangle((int)layoutEndV.X -142, (int)layoutEndV.Y, 210, 25);
@@ -832,21 +845,20 @@ namespace Ship_Game
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            var behaviorRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
+            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
             ShieldsBehaviorList = new ShieldBehaviorDropDown(this, behaviorRect);
             foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
 
-            var carrierOnly = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
-            Checkbox(carrierOnly, () => ActiveHull.CarrierShip, "Carrier Only", 0);
+            var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
+            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
 
-            ShipStats = new Menu1(shipStatsPanel);
-            StatsSub = new Submenu(shipStatsPanel);
+            ShipStats  = new Menu1(shipStatsPanel);
+            StatsSub   = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
             CloseButton(ScreenWidth - 27, 99);
-
             OriginalZ = CameraPosition.Z;
         }
 
