@@ -282,6 +282,24 @@ namespace Ship_Game.AI {
                             ScriptIndex++;
                             return true;
                         }
+                    case "IFRESEARCHHIGHERTHAN":
+                        bool researchPreReqMet = false;
+                        string[] researchScript = scriptentry.Split(':');
+                        if (float.TryParse(researchScript[2], out float researchAmount))
+                            if (OwnerEmpire.GetProjectedResearchNextTurn() >= researchAmount)
+                                researchPreReqMet = true;
+
+                        loopcount += ScriptBump(researchPreReqMet);
+                        goto Start;
+                    case "IFTECHRESEARCHED":
+                        bool techResearched = false;
+                        string[] techResearchedScript = scriptentry.Split(':');
+                        if (OwnerEmpire.GetTDict().TryGetValue(techResearchedScript[2], out TechEntry checkedTech))
+                            if (checkedTech.Unlocked)
+                                techResearched = true;
+
+                        loopcount += ScriptBump(techResearched);
+                        goto Start;
                     default:
                         {
                             DebugLog($"Hard Script : {scriptentry}");
@@ -398,7 +416,8 @@ namespace Ship_Game.AI {
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it.
 
-            availableTechs = BestShiptechs(modifier, allAvailableShipTechs, availableTechs);
+            if (!GlobalStats.HasMod || !GlobalStats.ActiveModInfo.UseManualScriptedResearch)
+                availableTechs = BestShiptechs(modifier, allAvailableShipTechs, availableTechs);
 
 
             float CostNormalizer = .01f;
@@ -485,31 +504,36 @@ namespace Ship_Game.AI {
                 return null;
             }
 
-
+            TechEntry[] filteredTechs;
             TechEntry researchTech = null;
-            TechEntry[] filteredTechs = availableTechs.FilterBy(econ =>
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseManualScriptedResearch)
+                filteredTechs = availableTechs.FilterBy(tech => tech.TechnologyType == techtype);
+            else
             {
-                if (econ.GetLookAheadType(techtype) >0 &&
-                 techtype != TechnologyType.Economic) return true;
-
-                if (econ.Tech.HullsUnlocked.Count == 0
-                    || moneyNeeded < 1f
-                    || availableTechs.Count == 1)
-                    return true;
-
-                foreach(var hull in econ.Tech.HullsUnlocked)
+                filteredTechs = availableTechs.FilterBy(econ =>
                 {
-                    if(!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
-                    switch (hullData.HullRole) {
-                        case ShipData.RoleName.station:
-                            return true;
-                        case ShipData.RoleName.platform:
-                            return true;
+                    if (econ.GetLookAheadType(techtype) > 0 &&
+                     techtype != TechnologyType.Economic) return true;
+
+                    if (econ.Tech.HullsUnlocked.Count == 0
+                        || moneyNeeded < 1f
+                        || availableTechs.Count == 1)
+                        return true;
+
+                    foreach (var hull in econ.Tech.HullsUnlocked)
+                    {
+                        if (!ResourceManager.GetHull(hull.Name, out ShipData hullData) || hullData == null) continue;
+                        switch (hullData.HullRole)
+                        {
+                            case ShipData.RoleName.station:
+                                return true;
+                            case ShipData.RoleName.platform:
+                                return true;
+                        }
                     }
-                }
-                return false;
-            });
-            
+                    return false;
+                });
+            }
             LogFinalScriptTechs(command1, techtype, filteredTechs);
             researchTech = ChooseScriptTech(command1, filteredTechs);
             if (researchTech == null)
@@ -517,9 +541,6 @@ namespace Ship_Game.AI {
                 DebugLog($"{techtype.ToString()} : No Tech found");
                 return null;
             }
-            
-           
-                
             return researchTech;
         }
 
