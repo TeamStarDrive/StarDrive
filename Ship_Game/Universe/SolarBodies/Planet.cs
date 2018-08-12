@@ -100,7 +100,8 @@ namespace Ship_Game
         {
             foreach (Goods good in Enum.GetValues(typeof(Goods)))
             {
-                if (GetGoodState(good) == GoodState.EXPORT) return true;
+                if (GetGoodState(good) == GoodState.EXPORT)
+                    return true;
             }
             return false;
         }
@@ -513,7 +514,6 @@ namespace Ship_Game
                 UpdatePosition(elapsedTime);
                 return;
             }
-            TradeAI.DebugText();
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 

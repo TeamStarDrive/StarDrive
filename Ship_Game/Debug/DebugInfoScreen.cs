@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies.AI;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -566,10 +567,13 @@ namespace Ship_Game.Debug
 
         private void TradeInfo()
         {
+            Planet planet = Screen.SelectedPlanet;
+            int totalFreighters = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
                 foreach (Ship ship in e.GetShips())
                 {
+                    if (ship?.Active != true) continue;
                     ShipAI ai = ship.AI;
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
@@ -578,6 +582,8 @@ namespace Ship_Game.Debug
                     {
                         case Plan.DropOffGoods:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                            if (planet == ship.AI.end) totalFreighters++;
+
                             break;
                         case Plan.PickupGoods:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
@@ -589,6 +595,16 @@ namespace Ship_Game.Debug
                     }
                 }   
 
+            }
+            
+            if (planet?.Owner == null) return;
+            Array<TradeAI.DebugTextBlock> text = planet.TradeAI.DebugText();
+            for (int i = 0; i < text.Count; i++)
+            {
+                SetTextCursor(Win.X + 10 + 400 * i, Win.Y + 20, Color.Yellow);
+                var lines = text[i];
+                foreach (var line in lines.Lines)
+                    DrawString(line);                
             }
         }
 

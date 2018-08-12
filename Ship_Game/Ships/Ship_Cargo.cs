@@ -60,7 +60,8 @@ namespace Ship_Game.Ships
             public float Food;
             public float Production;
             public float Colonists;
-
+            //hack this all needs to be rebuilt.
+            public Goods GoodType;
             // this can be any other kind of cargo.
             // to save on memory usage, we only initialize this on demand
             public Cargo[] Other = Empty<Cargo>.Array;
@@ -81,7 +82,7 @@ namespace Ship_Game.Ships
                 return i != -1 ? Other[i].Amount : 0f;
             }
 
-            public float LoadOther(string cargoId, float amount)
+            public float LoadOther(string cargoId, float amount, Goods good = Goods.None)
             {
                 int i = IndexOf(cargoId);
                 if (i == -1) {
@@ -89,6 +90,7 @@ namespace Ship_Game.Ships
                     Array.Resize(ref Other, i + 1); // Add new slot
                     Other[i].CargoId = cargoId;
                 }
+                Other[i].Good = good;
                 return LoadCargoRef(ref Other[i].Amount, amount);
             }
 
@@ -182,7 +184,9 @@ namespace Ship_Game.Ships
         public float LoadCargo(Goods good, float amount)
         {
             if (GetCargo().Good != good) ClearCargo();
-            return Cargo.LoadOther(good.ToString(), amount);
+            var cargoCont = CargoCont;
+            Cargo.GoodType = good;
+            return cargoCont.LoadOther(good.ToString(), amount, good);
         }       
         public float LoadColonists(float amount)
         {
