@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Debug;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies.AI
 {
     public struct TradeAI
-    {
-        public struct DebugTextBlock
-        {
-            public Array<string> Lines;
-        }
+    {     
         public Array<DebugTextBlock> DebugText()
         {
 
@@ -30,7 +27,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
                 lines.Add($"Time: {kv.Key} food: {foodt} prod: {prodt} Colo: {colt}  T:{totalC}");
             }
             
-            blocks.Add(new DebugTextBlock { Lines = lines });
+            blocks.Add(new DebugTextBlock{Lines = lines});
             food = $"F:{TradePlanet.FS} {(int)TradePlanet.FoodHere} %{(100 * TradePlanet.FoodHere / TradePlanet.MaxStorage).ToString("0.#")}";
             prod = $"P:{TradePlanet.PS} {(int)TradePlanet.ProductionHere} %{(100 * TradePlanet.ProductionHere / TradePlanet.MaxStorage).ToString("0.#")}";
             
