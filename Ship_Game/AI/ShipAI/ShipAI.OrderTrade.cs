@@ -72,60 +72,8 @@ namespace Ship_Game.AI
             start = null;
             end = null;
             OrderTransportPassengers(5f);
-        }
-
-        public enum RouteType
-        {
-            None,
-            Delivery,
-            Pickup
-        }
-
-        private Planet EstimatePickupTarget(Goods good)
-        {
-            return Owner.loyalty.GetPlanets().FindMin(p =>
-            {
-                if (p.GetGoodState(good) != Planet.GoodState.EXPORT) return float.MaxValue;
-                return TradeSort(Owner, p, good, 0, RouteType.Pickup);
-            });
-            
-        }
-
-        private static float TradeSort(Ship ship, Planet planet, Goods good, float cargoCount, RouteType routeType)
-        {
-            /*here I am trying to predict the planets need versus the ships speed.
-             * I am returning a weighted value that is based on this but primarily the returned value is the time it takes the freighter to get to the target in a straight line             
-             */
-            const int nearlyNever        = int.MaxValue;
-            int timeToTarget           = (int)Math.Max(1,ship.AI.TimeToTarget(planet));
-            float projectedGoodsAtPlanet;
-            
-            switch (routeType)
-            {
-                case RouteType.None:
-                    break;
-                case RouteType.Delivery:
-                    Planet pickupPotential = ship.AI.EstimatePickupTarget(good);
-                    timeToTarget          += (int)ship.AI.TimeToTarget(pickupPotential);
-                    projectedGoodsAtPlanet = planet.GetProjectedGood(good, timeToTarget);
-                    bool badCargo          = projectedGoodsAtPlanet > planet.MaxStorage;
-                    if (badCargo)
-                        return timeToTarget + nearlyNever;
-                    
-                    return (int)(projectedGoodsAtPlanet);
-
-                case RouteType.Pickup:
-                    projectedGoodsAtPlanet = planet.GetProjectedGood(good, timeToTarget);
-                    float possibleGoodAmount = planet.SbCommodities.GetGoodAmount(good) + projectedGoodsAtPlanet;
-                    if (possibleGoodAmount < 0)
-                        return timeToTarget + nearlyNever;
-                    if (possibleGoodAmount < ship.CargoSpaceMax)                    
-                        return timeToTarget / (possibleGoodAmount / ship.CargoSpaceMax);                                        
-                    return timeToTarget;
-            }
-            return 0;
-        }
-
+        }      
+  
         public void OrderTrade(float elapsedTime)
         {
             //trade timer is sent but uses arbitrary timer just to delay the routine.
@@ -245,8 +193,6 @@ namespace Ship_Game.AI
                 return;
             Cargo cargo = Owner.GetCargo();
             if (cargo.Good == good) return;
-            Owner.ClearCargo();
-            Owner.LoadCargo(good, 0);
             start = end.TradeAI.GetNearestSupplierFor(good);
             if (start == null)
             {
@@ -259,21 +205,20 @@ namespace Ship_Game.AI
 
         private bool DeliverShipment(Goods good)
         {
-            var planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
+            var tempGood = good; //Implicitly captured closure if i use good?
+            var planets = GetTradePlanets(good, Planet.GoodState.IMPORT).FilterBy(p => p.TradeAI.NeedsMore(tempGood));
             if (planets.Length <= 0)
                 return false;
             
-            float loadedCargo = Owner.GetCargo(good);
-
+            float loadedCargo = Owner.GetCargo(good);            
             if (loadedCargo > 0)
                 end = planets.FindMin(p => p.Center.SqDist(Owner.Center));
             else
             {
-                end = planets.FindMin(p => p.TradeAI.GetNearestSupplierFor(good)?.Center.SqDist(Owner.Center) ?? float.MaxValue);
+                end = planets.FindMin(p => p.TradeAI.GetNearestSupplierFor(good)?.Center.SqDist(Owner.Center)?? float.MaxValue);
                 if (end == null)
-                    end = planets.FindMin(p => p.Center.SqDist(Owner.Center));
+                    end = planets.FindMinFiltered(p => p.TradeAI.NeedsMore(tempGood), p => p.Center.SqDist(Owner.Center));
             }
-
 
             if (end == null)
                 return false;
@@ -293,7 +238,7 @@ namespace Ship_Game.AI
             {
                 if (planet.ParentSystem.ShipList.Any(s => s.GetStrength() >0 && Owner.loyalty.IsEmpireAttackable(s.loyalty, s))) continue;
                 
-                if (planet.GetGoodState(good) != goodState) continue;
+                if (planet.GetGoodState(good) != goodState) continue;                
                 if (InsideAreaOfOperation(planet))
                     planets.Add(planet);                
             }
