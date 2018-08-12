@@ -845,8 +845,8 @@ namespace Ship_Game.AI
                             DoAssaultTransporterLogic(module);
                     }
 
-                //Do repair check if friendly ships around and no combat
-                if (Owner.InCombat || FriendliesNearby.Count <= 0)
+                //Do repair check if friendly ships around
+                if (FriendliesNearby.Count <= 0)
                     return;
                 //Added by McShooterz: logic for repair beams
                 if (Owner.hasRepairBeam)
