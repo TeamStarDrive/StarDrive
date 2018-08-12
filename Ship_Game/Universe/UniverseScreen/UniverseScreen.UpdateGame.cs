@@ -106,6 +106,9 @@ namespace Ship_Game
                 }
                 finally
                 {
+                    try { DebugWin?.Update(DeltaTime); }
+                    catch { Log.Info("DebugWindowCrashed"); }
+                    
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
                     ProcessTurnsCompletedEvt.Set();
                 }
