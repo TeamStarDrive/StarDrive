@@ -1470,7 +1470,7 @@ namespace Ship_Game
                 if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
                     ParentSystem.OwnerList.Add(planet.Owner);                
             }
-            ((Planet)this).TradeAI = new Universe.SolarBodies.TradeAI((Planet)this);
+            ((Planet)this).TradeAI = new Universe.SolarBodies.AI.TradeAI((Planet)this);
             colonyType = Planet.ColonyType.Colony;                        
             GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
             if (GovernorOn)
