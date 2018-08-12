@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
 
         public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
         public const float ShipDestroyThreshold                = 0.5f;
-        public const float RepairDroneThreshold                = 0.75f; // internal modules percentage
+        public const float RepairDroneThreshold                = 0.9f; // internal modules percentage
         public const float RepairDroneRange                    = 20000f;
 
         public ShipResupply(Ship ship)
