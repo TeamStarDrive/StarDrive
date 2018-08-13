@@ -1839,29 +1839,7 @@ namespace Ship_Game
             if (building.PlusResearchPerColonist != 0 && PopulationBillion / MaxPopulationBillion >= 0.8f)
             {
                 if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
-                else
-                {
-                    score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
-                    if (PlusResearchPerColonist <= 0.25f) score += building.PlusResearchPerColonist; //Encourage some research source on all colonies
-                }
-
-                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
-            }
-
-            return score;
-        }
-
-        private float EvaluateBuildingScrapResearchPerCol(Building building)
-        {
-            float score = 0;
-            if (building.PlusResearchPerColonist != 0)
-            {
-                if (building.PlusResearchPerColonist < 0) score += building.PlusResearchPerColonist * 2;
-                else
-                {
-                    score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
-                    if (PlusResearchPerColonist - building.PlusResearchPerColonist <= 0.25f) score += building.PlusResearchPerColonist; //Encourage some research source on all colonies
-                }
+                else score += building.PlusResearchPerColonist * (LeftoverWorkers() / 2);    //Reasonable extrapolation of how much research this will reliably produce
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} ResPerCol : Score was {score}");
             }
@@ -1870,13 +1848,26 @@ namespace Ship_Game
         }
 
         private float EvaluateBuildingCreditsPerCol(Building building)
-
         {
             float score = 0;
             if (building.CreditsPerColonist != 0)
             {
                 if (building.CreditsPerColonist < 0) score += building.CreditsPerColonist * MaxPopulationBillion * 2;
                 else score += (building.CreditsPerColonist * PopulationBillion) / 2;        //Dont want to cause this to have building preference over infrastructure buildings
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} CredsPerCol : Score was {score}");
+            }
+
+            return score;
+        }
+
+        private float EvaluateBuildingScrapCreditsPerCol(Building building)
+        {
+            float score = 0;
+            if (building.CreditsPerColonist != 0)
+            {
+                if (building.CreditsPerColonist < 0) score += building.CreditsPerColonist * MaxPopulationBillion;
+                else score += (building.CreditsPerColonist * PopulationBillion) / 2;
 
                 if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated {building.Name} CredsPerCol : Score was {score}");
             }
@@ -1902,11 +1893,9 @@ namespace Ship_Game
         private float EvaluateBuildingAllowShipBuilding(Building building)
         {
             float score = 0;
-            if (building.AllowShipBuilding || building.Name == "Space Port" && PopulationBillion / MaxPopulationBillion >= 0.8f)
+            if (building.AllowShipBuilding || building.Name == "Space Port" && PopulationBillion / MaxPopulationBillion >= 0.75f)
             {
-                //This one probably wont produce overwhelming building value, so will rely on other building tags to overcome the maintenance cost
-                float labor = Math.Max(LeftoverWorkers(), MaxPopulationBillion * 0.333f);
-                float prodFromLabor = labor * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist);
+                float prodFromLabor = LeftoverWorkers() * (MineralRichness + PlusProductionPerColonist + building.PlusProdPerColonist);
                 float prodFromFlat = PlusFlatProductionPerTurn + building.PlusFlatProductionAmount + (building.PlusProdPerRichness * MineralRichness);
                 //Do we have enough production capability to really justify trying to build ships
                 if (prodFromLabor + prodFromFlat > 10.0f) score += ((prodFromLabor + prodFromFlat) / 10).Clamped(0.0f, 2.0f);
@@ -2003,13 +1992,13 @@ namespace Ship_Game
         {
             //1 minus cost divided by highestCost gives a decimal value that is higher for smaller construction cost. This will make buildings with lower cost more desirable,
             //but never disqualify a building that had a positive score to begin with. -Gretman
-            if (highestCost <= 0) highestCost = 150;    //Fallback in case of negative highestCost
-            return score * (1f - cost / highestCost).Clamped(0.001f, 10);          
+            highestCost = highestCost.Clamped(50, 250);
+            return score * (1f - cost / highestCost).Clamped(0.001f, 1.0f);          
         }
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
-            if (Name == "Drell IVx") Debugger.Break();
+            if (Name == "Polmar Vg") Debugger.Break();
 
             float buildingValue = 0.0f;    //End result value for entire building
 
@@ -2059,7 +2048,8 @@ namespace Ship_Game
 
             //Shield, weapon, and/or allowtroop weighting go here (which is why they are all seperate values)
 
-            float finalRating = combatScore + weaponDPS + shieldScore + allowTroops;
+            float ratingFactor = (((PopulationBillion / MaxPopulationBillion) - 0.5f) * 2.0f).Clamped(0.0f, 1.0f);  //Factor by current population, so military buildings will be delayed
+            float finalRating = (combatScore + weaponDPS + shieldScore + allowTroops) * ratingFactor;
 
             if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated military building {building.Name} : Score was {finalRating}");
             return finalRating;
@@ -2083,11 +2073,12 @@ namespace Ship_Game
                 }
             }
             if (bestBuilding != null) AddBuildingToCQ(bestBuilding);
+            else ChooseAndBuildMilitary(budget);
         }
 
         private void ChooseAndBuildMilitary(float budget)
         {
-            if (BuildingsCanBuild.Count == 0) return;
+            if (BuildingsCanBuild.Count == 0) return;    //Discourage building military buildings too early
             if (ExistingMilitaryBuildings() < DesiredMilitaryBuildings())
             {
                 Building bestMBuilding = null;                
@@ -2120,19 +2111,16 @@ namespace Ship_Game
 
             //Construction queue recon
             bool buildingInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
+            bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding && building.Building.CombatStrength > 0);
             bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
+
 
             //New Build Logic by Gretman
             if (!lotsInQueueToBuild) BuildShipyardifAble(); //If we can build a shipyard but dont have one, build it
 
             if (openTiles > 0)
             {
-                if (!buildingInTheWorks)
-                {
-                    ChooseAndBuild(budget);
-                }
-
-                ChooseAndBuildMilitary(budget);
+                if (!buildingInTheWorks) ChooseAndBuild(budget);
             }
             else
             {
@@ -2148,7 +2136,7 @@ namespace Ship_Game
 
         private void ScrapBuildings(float income)
         {
-            if (Name == "Drell IVx") Debugger.Break();
+            if (Name == "Polmar Vh") Debugger.Break();
 
             float buildingValue = 0.0f;
             float costWeight = 0.0f;
@@ -2173,8 +2161,8 @@ namespace Ship_Game
                 buildingValue += EvaluateBuildingPopulationGrowth(bldg);
                 buildingValue += EvaluateBuildingPlusMaxPopulation(bldg);
                 buildingValue += EvaluateBuildingScrapFlatResearch(bldg, income);
-                buildingValue += EvaluateBuildingScrapResearchPerCol(bldg);
-                buildingValue += EvaluateBuildingCreditsPerCol(bldg);
+                buildingValue += EvaluateBuildingResearchPerCol(bldg);
+                buildingValue += EvaluateBuildingScrapCreditsPerCol(bldg);
                 buildingValue += EvaluateBuildingPlusTaxPercent(bldg, income);
                 buildingValue += EvaluateBuildingAllowShipBuilding(bldg);
                 buildingValue += EvaluateBuildingScrapTerraforming(bldg);
