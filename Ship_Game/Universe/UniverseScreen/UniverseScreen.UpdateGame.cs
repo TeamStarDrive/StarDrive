@@ -106,6 +106,8 @@ namespace Ship_Game
                 }
                 finally
                 {
+                    //if the debug window hits a cyclic crash it can be turned off ingame. 
+                    // i dont see a point in crashing the game because of a debug window error. 
                     try { DebugWin?.Update(DeltaTime); }
                     catch { Log.Info("DebugWindowCrashed"); }
                     

@@ -2,61 +2,94 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies.AI
 {
-    public struct TradeAI
-    {     
-        public Array<DebugTextBlock> DebugText()
+    public class TradeAI
+    {
+        public DebugSummaryTotal DebugSummarizeIncomingFreight(Array<string> lines) =>
+            DebugSummarizeFreight(lines, IncomingFreight);
+        public DebugSummaryTotal DebugSummarizeOutgoingFreight(Array<string> lines) =>
+            DebugSummarizeFreight(lines, OutGoingFreight);
+        public DebugSummaryTotal DebugSummarizeFreight(Array<string> lines, Dictionary<int, Entry> freight)
         {
-
-            if (IncomingFreight == null) return null;
-            Array<DebugTextBlock> blocks = new Array<DebugTextBlock>();
-            string food = $"F:{TradePlanet.FS} {(int)TradePlanet.FoodHere} %{(100 * TradePlanet.FoodHere / TradePlanet.MaxStorage).ToString("0.#")}";
-            string prod = $"P:{TradePlanet.PS} {(int)TradePlanet.ProductionHere} %{(100 * TradePlanet.ProductionHere / TradePlanet.MaxStorage).ToString("0.#")}";
-            Array<string> lines = new Array<string>{$"Incoming {food} {prod} " };
-            foreach(var kv in IncomingFreight.OrderBy(k=> k.Key))
-            {                
-                int foodt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Food ? t.Amount : 0);
-                int prodt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Production ? t.Amount : 0);
-                int colt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Colonists ? t.Amount : 0);
-                int totalC = (int)kv.Value.Cargo.Count;
-                lines.Add($"Time: {kv.Key} food: {foodt} prod: {prodt} Colo: {colt}  T:{totalC}");
-            }
-            
-            blocks.Add(new DebugTextBlock{Lines = lines});
-            food = $"F:{TradePlanet.FS} {(int)TradePlanet.FoodHere} %{(100 * TradePlanet.FoodHere / TradePlanet.MaxStorage).ToString("0.#")}";
-            prod = $"P:{TradePlanet.PS} {(int)TradePlanet.ProductionHere} %{(100 * TradePlanet.ProductionHere / TradePlanet.MaxStorage).ToString("0.#")}";
-            
-            lines = new Array<string>{ $"OutGoing {food} {prod} " };
+            if (freight == null) return new DebugSummaryTotal();
             int foodT2 = 0;
             int prodT2 = 0;
             int coltT2 = 0;
             int totalT2 = 0;
-            foreach (var kv in OutGoingFreight.OrderBy(k => k.Key))
+            foreach (var kv in freight.OrderBy(k => k.Key))
             {
-                
-                int foodt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Food ? t.Amount : 0);
-                int prodt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Production ? t.Amount : 0);
-                int colt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Colonists ? t.Amount : 0);
-                int totalC = (int)kv.Value.Cargo.Count;
-                lines.Add($"Time: {kv.Key} food: {foodt} prod: {prodt} Colo: {colt}  T:{totalC}");
-                foodT2 += foodt;
+                int foodSum = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Food       ? t.Amount : 0);
+                int prodt   = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Production ? t.Amount : 0);
+                int colt    = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Colonists  ? t.Amount : 0);
+                int totalC  = kv.Value.Cargo.Count;
+                lines.Add($"ETA: {kv.Key} - food: {foodSum} - prod: {prodt} - Colo: {colt}  T:{totalC}");
+
+                foodT2 += foodSum;
                 prodT2 += prodT2;
                 coltT2 += colt;
                 totalT2 += totalC;
             }
-            lines.Add($" food: {foodT2} prod: {prodT2} Colo: {coltT2}  T:{totalT2}");
-            blocks.Add(new DebugTextBlock { Lines = lines });
-            lines = new Array<string>{"Suppliers"};
-            foreach (var p in ImportTargets)
+            return new DebugSummaryTotal
             {
-                lines.Add($"{p.Name}: F:{(int)p.FoodHere} P:{(int)p.ProductionHere}"); 
-            }
-            blocks.Add(new DebugTextBlock { Lines = lines });
+                Food = foodT2,
+                Prod = prodT2,
+                Colonists = coltT2,
+                Total = totalT2
+            };
+
+        }        
+
+        public struct DebugSummaryTotal
+        {
+            public int Food ;
+            public int Prod ;
+            public int Colonists ;
+            public int Total;
+        }
+
+        public DebugTextBlock DebugFormatTradeBlock(string header)
+        {
+            float foodHere = TradePlanet.FoodHere;
+            float prodHere = TradePlanet.ProductionHere;
+            float foodStorPerc = 100 * foodHere / TradePlanet.MaxStorage;
+            float prodStorPerc = 100 * prodHere / TradePlanet.MaxStorage;
+            string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {TradePlanet.FS}";
+            string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {TradePlanet.PS}";
+            DebugTextBlock block = new DebugTextBlock { Header = header };
+            block.AddLine($"FoodHere: {food} ", Color.White);
+            block.AddLine($"ProdHere: {prod}");
+            return block;
+        }
+
+        public Array<DebugTextBlock> DebugText()
+        {
+            if (IncomingFreight == null) return null;
+            var blocks = new Array<DebugTextBlock>();
+
+            var lines = new Array<string>();
+            DebugSummarizeIncomingFreight(lines);
+            var block = DebugFormatTradeBlock($"{TradePlanet.Name} Incoming Cargo");
+            block.AddRange(lines);
+            blocks.Add(block);
+
+            lines.Clear();
+            block = DebugFormatTradeBlock($"{TradePlanet.Name} Outgoing Cargo");                        
+            var totals = DebugSummarizeOutgoingFreight(lines);
+            block.AddRange(lines);
+            block.AddLine($" food: {totals.Food} prod: {totals.Prod} Colo: {totals.Colonists}  T:{totals.Total}");
+            blocks.Add(block);            
+
+            block = new DebugTextBlock{Header = "Suppliers"};
+            foreach (var p in ImportTargets)            
+                block.AddLine($"{p.Name}: F:{(int)p.FoodHere} P:{(int)p.ProductionHere}"); 
+            
+            blocks.Add(block);
             return blocks;
         }
 
@@ -201,10 +234,12 @@ namespace Ship_Game.Universe.SolarBodies.AI
         }
 
         public Planet GetNearestSupplierFor(Goods good)
-        {            
+        {
+
             return ImportTargets.Find(exporter =>
             {                
                 if (exporter.GetGoodState(good) != Planet.GoodState.EXPORT) return false;
+                if (exporter == TradePlanet) return false;
                 return exporter.TradeAI.PredictedTradeFor(good, ShipAI.Plan.PickupGoods) 
                        < exporter.SbCommodities.GetGoodAmount(good);
             });
