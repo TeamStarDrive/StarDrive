@@ -224,7 +224,7 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay => isBeam ? fireDelay + BeamDuration : fireDelay + SalvoTimer;
+        public float NetFireDelay =>  isBeam ? fireDelay + BeamDuration : fireDelay + SalvoTimer;
 
         [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
