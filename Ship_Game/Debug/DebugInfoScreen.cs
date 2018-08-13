@@ -33,10 +33,10 @@ namespace Ship_Game.Debug
         public Array<string> Lines;
         public string Header;
         public float HeaderSize;
-        public float HeaderColor;
+        public Color HeaderColor;
         public string Footer;
         public float FooterSize;
-        public float FooterColor;
+        public Color FooterColor;
         public Array<Color> LineColor;
         public void AddRange(Array<string> lines)
         {            
@@ -53,7 +53,8 @@ namespace Ship_Game.Debug
         }
         public Array<string> GetFormattedLines()
         {
-            Array<string> text = new Array<string>{ Header };
+            Array<string> text = new Array<string>();
+            if (Header.NotEmpty()) text.Add(Header);
             text.AddRange(Lines);
             if (Footer.NotEmpty()) text.Add(Footer);
             return text;
@@ -61,12 +62,14 @@ namespace Ship_Game.Debug
         public void AddLine(string text) => AddLine(text, GetLastColor());        
         public void AddLine(string text, Color color)
         {
+            Lines = Lines ?? new Array<string>();
+            LineColor = LineColor ?? new Array<Color>();
             Lines.Add(text);
             LineColor.Add(color);
         }
         private Color GetLastColor()
         {
-            if (LineColor.IsEmpty) return Color.White;
+            if (LineColor?.IsEmpty ?? true) return Color.White;
             return LineColor.Last;
         }
 
@@ -95,7 +98,7 @@ namespace Ship_Game.Debug
         }
         public DebugModes DebugMode { get; private set; }
 
-        public void ShowDebugGameInfo(int column, Array<string> lines, float x, float y)
+        public void ShowDebugGameInfo(int column, DebugTextBlock lines, float x, float y)
         {
             if (DebugText == null)
                 DebugText = new Array<UILabel>();
@@ -105,7 +108,7 @@ namespace Ship_Game.Debug
 
 
             DebugText[column].Show();
-            DebugText[column].MultilineText = lines;
+            DebugText[column].MultilineText = lines.GetFormattedLines();
 
         }
         public virtual void Update(float deltaTime,DebugModes mode)
@@ -125,24 +128,50 @@ namespace Ship_Game.Debug
             Parent = parent;
             DrawArea = parent.Rect;
         }
+
         public override void Update(float deltaTime, DebugModes mode)
-        {            
-            
+        {
+
             Planet planet = Screen.SelectedPlanet;
-        
-            if (planet?.Owner == null)
+
+            Array<DebugTextBlock> text;
+            if (planet == null)
             {
-                HideAllDebugText();                
+                int columns = 1;
+                text = new Array<DebugTextBlock>();
+                foreach (Empire empire in EmpireManager.Empires)
+                {
+                    if (empire.isFaction) continue;
+
+                    var block = empire.DebugEmpireTradeInfo();
+                    block.Header = empire.Name;
+                    block.HeaderColor = empire.EmpireColor;
+
+                    text.Add(block);
+
+                }
+                for (int i = 0; i < text.Count; i++)
+                {
+                    var lines = text[i];
+                    ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+                }
+
+
+                return;
+                
             }
-            
-            Array<DebugTextBlock> text = planet?.TradeAI.DebugText();
+            //if (planet?.Owner == null)
+            //{
+                HideAllDebugText();
+            //}
+            text = planet?.TradeAI.DebugText();
             if (text == null)
                 return;
             if (text?.IsEmpty == true) return;
             for (int i = 0; i < text.Count; i++)
             {
                 var lines = text[i];
-                ShowDebugGameInfo(i, lines.Lines, Rect.X + 10 + 400 * i, Rect.Y + 20);
+                ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
             }
         }
 

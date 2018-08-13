@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using Ship_Game.AI;
 using Newtonsoft.Json;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Debug;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -1359,8 +1360,35 @@ namespace Ship_Game
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
+
         }
         
+        public DebugTextBlock DebugEmpireTradeInfo()
+        {            
+            
+            var incomingData = new DebugTextBlock();
+            foreach (Planet tradePlanet in OwnedPlanets)
+            {
+                if (tradePlanet.TradeAI == null) continue;
+                Array<string> lines = new Array<string>();
+                var totals = tradePlanet.TradeAI.DebugSummarizeIncomingFreight(lines);
+                float foodHere = tradePlanet.FoodHere;
+                float prodHere = tradePlanet.ProductionHere;
+                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
+                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;                                
+                string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
+                string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}"; 
+                
+                incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} : IN Cargo: {totals.Total}", Color.Yellow);
+                incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);                
+                incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
+                incomingData.AddLine($"IN Colonists: {totals.Colonists}");
+                incomingData.AddLine($"");
+
+            }            
+            return incomingData;
+        }
+
 
         public void UpdateFleets(float elapsedTime)
         {
