@@ -633,9 +633,8 @@ namespace Ship_Game
             {
                 int salvos = w.SalvoCount > 0 ? w.SalvoCount : 1;
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
-                float dps = isBeam
-                                  ? (beamDamage / delay)
-                                  : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
+                float dps = isBeam ? (beamDamage / delay)
+                                   : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
 
                 DrawStat(ref cursor, "DPS", dps, 86);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
