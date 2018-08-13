@@ -224,7 +224,7 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay => fireDelay + SalvoTimer;
+        public float NetFireDelay => isBeam ? fireDelay + BeamDuration : fireDelay + SalvoTimer;
 
         [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
@@ -884,17 +884,17 @@ namespace Ship_Game.Gameplay
             float off = 0f;
             if (isBeam)
             {
-                off += DamageAmount * 90f * BeamDuration * (1f / fireDelay);
-                off += MassDamage * (1f / fireDelay) * .5f;
-                off += PowerDamage * (1f / fireDelay);
-                off += RepulsionDamage * (1f / fireDelay);
-                off += SiphonDamage * (1f / fireDelay);
-                off += TroopDamageChance * (1f / fireDelay) * .2f;
+                off += DamageAmount * 90 * BeamDuration * (1f / NetFireDelay);
+                off += MassDamage * 30 * (1f / NetFireDelay);
+                off += PowerDamage * 45 * (1f / NetFireDelay);
+                off += RepulsionDamage * 45 * (1f / NetFireDelay);
+                off += SiphonDamage * 45 * (1f / NetFireDelay);
+                off += TroopDamageChance * (1f / NetFireDelay);
             }
             else
             {
-                off += DamageAmount * SalvoCount * ProjectileCount * (1f / fireDelay);
-                off += EMPDamage * SalvoCount * ProjectileCount * (1f / fireDelay) * .5f;
+                off += DamageAmount * SalvoCount * ProjectileCount * (1f / NetFireDelay);
+                off += EMPDamage * SalvoCount * ProjectileCount * (1f / NetFireDelay) * .5f;
             }
 
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
