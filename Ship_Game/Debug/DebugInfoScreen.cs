@@ -161,10 +161,10 @@ namespace Ship_Game.Debug
                 return;
                 
             }
-            //if (planet?.Owner == null)
-            //{
-                HideAllDebugText();
-            //}
+            
+            
+            HideAllDebugText();
+            
             text = planet?.TradeAI?.DebugText();
             if (text == null)
                 return;
