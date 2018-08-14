@@ -24,7 +24,7 @@ namespace Ship_Game
         private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         private const int ErrorThreshold = 100;
         private static bool IsTerminating;
-        public static bool FatalError = true;
+        //public static bool FatalError = true;
         static Log()
         {            
             string init = "\r\n\r\n";
@@ -210,7 +210,7 @@ namespace Ship_Game
         {
             Error(ex, string.Format(format, args));
         }
-        public static void Error(Exception ex, string error = null)
+        public static void Error(Exception ex, string error = null, ErrorLevel errorLevel = ErrorLevel.Error)
         {
             string text = CurryExceptionMessage(ex, error);
             if (!HasDebugger && ShouldIgnoreErrorText(text))
@@ -219,10 +219,8 @@ namespace Ship_Game
             string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace ?? "");
             WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
-            {
-                var fatal = FatalError ? ErrorLevel.Fatal : ErrorLevel.Error;
-                CaptureEvent(text, fatal, ex);
-                FatalError = true;
+            {                
+                CaptureEvent(text, errorLevel, ex);                
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -231,6 +229,7 @@ namespace Ship_Game
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
+        public static void Fatal(Exception ex, string error = null) => Error(ex, error, ErrorLevel.Fatal);
 
         public static void ErrorDialog(Exception ex, string error = null)
         {

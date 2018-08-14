@@ -1396,7 +1396,7 @@ namespace Ship_Game
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
             Owner.RemovePlanet((Planet)this);
-            if (newOwner == Empire.Universe.PlayerEmpire && Owner == EmpireManager.Cordrazine)
+            if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
 
             if (this.IsExploredBy(Empire.Universe.PlayerEmpire))
@@ -1468,10 +1468,13 @@ namespace Ship_Game
             foreach (Planet planet in ParentSystem.PlanetList)
             {
                 if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
-                    ParentSystem.OwnerList.Add(planet.Owner);
+                    ParentSystem.OwnerList.Add(planet.Owner);                
             }
-            colonyType = Owner.AssessColonyNeeds((Planet)this);
-            GovernorOn = true;
+            ((Planet)this).TradeAI = new Universe.SolarBodies.AI.TradeAI((Planet)this);
+            colonyType = Planet.ColonyType.Colony;                        
+            GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
+            if (GovernorOn)
+                colonyType = Owner.AssessColonyNeeds((Planet)this);
         }
         protected void GenerateMoons(Planet newOrbital)
         {

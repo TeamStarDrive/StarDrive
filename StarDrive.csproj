@@ -1958,6 +1958,7 @@
     <None Include="Deploy\notify-sentry-of-release.bash" />
     <None Include="packages.config" />
     <None Include="README.md" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\AI\TradeRoutes.cs" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>

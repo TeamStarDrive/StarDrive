@@ -9,7 +9,9 @@ using System.Xml.Serialization;
 using Ship_Game.AI;
 using Newtonsoft.Json;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Debug;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game
 {
@@ -1359,8 +1361,58 @@ namespace Ship_Game
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
+
         }
         
+        public DebugTextBlock DebugEmpireTradeInfo()
+        {            
+            
+            var incomingData = new DebugTextBlock();
+            foreach (Planet tradePlanet in OwnedPlanets)
+            {
+                if (tradePlanet.TradeAI == null) continue;
+                Array<string> lines = new Array<string>();
+                var totals = tradePlanet.TradeAI.DebugSummarizeIncomingFreight(lines);
+                float foodHere = tradePlanet.FoodHere;
+                float prodHere = tradePlanet.ProductionHere;
+                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
+                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;                                
+                string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
+                string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}"; 
+                
+                incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} : IN Cargo: {totals.Total}", Color.Yellow);
+                incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);                
+                incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
+                incomingData.AddLine($"IN Colonists: {totals.Colonists}");
+                incomingData.AddLine($"");
+
+            }            
+            return incomingData;
+        }
+        public DebugTextBlock DebugEmpirePlanetInfo()
+        {
+
+            var incomingData = new DebugTextBlock();
+            foreach (Planet tradePlanet in OwnedPlanets)
+            {
+                Array<string> lines = new Array<string>();
+                TradeAI.DebugSummaryTotal totals = tradePlanet.DebugSummarizePlanetStats(lines);
+                float foodHere = tradePlanet.FoodHere;
+                float prodHere = tradePlanet.ProductionHere;
+                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
+                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+                string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
+                string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
+
+                incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} ", Color.Yellow);
+                incomingData.AddLine($"FoodHere: {food} ", Color.White);
+                incomingData.AddLine($"ProdHere: {prod} ");
+                incomingData.AddRange(lines);
+                incomingData.AddLine($"");
+
+            }
+            return incomingData;
+        }
 
         public void UpdateFleets(float elapsedTime)
         {
@@ -1700,20 +1752,10 @@ namespace Ship_Game
             float ResearchPotential = 0.0f;
             float Fertility = 0.0f;
             float MilitaryPotential = 0.0f;
-            //if (p.Fertility > 1.0)
-            //{
-                
-            //    //ResearchPotential += 0.5f;
-            //}
-            //else
-            //    Fertility += p.Fertility;
-            //else if( this.data.Traits.Cybernetic <= 0)
-            //    ResearchPotential++;
             
             if (p.MineralRichness > .50)
             {
-                MineralWealth += p.MineralRichness +p.MaxPopulation / 1000;
-                //MilitaryPotential += 0.5f;
+                MineralWealth += p.MineralRichness +p.MaxPopulation / 1000;                ;
             }
             else
                 MineralWealth += p.MineralRichness;
@@ -1740,17 +1782,6 @@ namespace Ship_Game
                         Fertility += p.Fertility + p.MaxPopulation / 1000;
                     }
                 }
-                
-                //if (p.Fertility > 1f)
-                //    ++PopSupport;
-                //if (p.MaxPopulation > 4000)
-                //{
-                //    ++PopSupport;                    
-                //    if (p.MaxPopulation > 8000)
-                //        ++PopSupport;
-                //    if (p.MaxPopulation > 12000)
-                //        PopSupport += 2f;
-                //}
             }
             else
             {
@@ -1766,7 +1797,6 @@ namespace Ship_Game
 
                 Fertility = 0;
             }
-                              //(tech.Cost - this.Research) / tech.Cost;// *this.OwnedPlanets.Count;
 
             int CoreCount = 0;
             int IndustrialCount = 0;
