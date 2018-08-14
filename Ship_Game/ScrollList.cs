@@ -216,11 +216,15 @@ namespace Ship_Game
         public int NumEntries => Entries.Count;
         public int NumExpandedEntries => ExpandedEntries.Count;
 
+        private int EntriesEnd         => Math.Min(Entries.Count,         FirstVisibleIndex + MaxVisibleEntries);
+        private int ExpandedEntriesEnd => Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
+
         public IEnumerable<Entry> VisibleEntries
         {
             get
             {
-                for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
+                int end = EntriesEnd;
+                for (int i = FirstVisibleIndex; i < end; ++i)
                     yield return Entries[i];
             }
         }
@@ -229,21 +233,24 @@ namespace Ship_Game
         {
             get
             {
-                for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
+                int end = ExpandedEntriesEnd;
+                for (int i = FirstVisibleIndex; i < end; ++i)
                     yield return ExpandedEntries[i];
             }
         }
 
         public IEnumerable<T> VisibleItems<T>() where T : class
         {
-            for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
+            int end = EntriesEnd;
+            for (int i = FirstVisibleIndex; i < end; ++i)
                 if (Entries[i].item is T item)
                     yield return item;
         }
 
         public IEnumerable<T> VisibleExpandedItems<T>() where T : class
         {
-            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
+            int end = ExpandedEntriesEnd;
+            for (int i = FirstVisibleIndex; i < end; ++i)
                 if (ExpandedEntries[i].item is T item)
                     yield return item;
         }
@@ -599,6 +606,10 @@ namespace Ship_Game
                 return false;
             });
             UpdateListElements();
+
+            // @todo This cannot be implemented before duplicate HandleInput's are removed
+            //if (!hit)
+            //    hit = HandleItemInput(input);
             return hit;
         }
 
@@ -608,11 +619,11 @@ namespace Ship_Game
             ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             int j = 0;
-            int last = FirstVisibleIndex + MaxVisibleEntries - 1;
+            int end = EntriesEnd;
             for (int i = 0; i < Entries.Count; i++)
             {
                 Entry e = Entries[i];
-                if (i >= FirstVisibleIndex && i <= last)
+                if (i >= FirstVisibleIndex && i < end)
                     e.UpdateClickRect(r.Pos(), j++);
                 else
                     e.SetUnclickable();
@@ -639,6 +650,18 @@ namespace Ship_Game
             }
 
             UpdateScrollBar();
+        }
+
+        private bool HandleItemInput(InputState input)
+        {
+            int end = ExpandedEntriesEnd;
+            for (int i = FirstVisibleIndex; i < end; ++i)
+            {
+                Entry e = ExpandedEntries[i];
+                if (e.item is UIElement element && element.HandleInput(input))
+                    return true;
+            }
+            return false;
         }
 
         public class Entry
