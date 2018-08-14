@@ -39,7 +39,6 @@ namespace Ship_Game.Universe.SolarBodies.AI
             AvgTradingColonists = 0;
             ImportTargets = planet.Owner.GetPlanets().FilterBy(p => p.IsExporting());
             ImportTargets.Sort(p => p.Center.SqDist(planet.Center));
-
         }
 
         public float AvgTradingFood {get; private set;}

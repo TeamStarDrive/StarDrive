@@ -141,8 +141,8 @@ namespace Ship_Game
             
             if (iconPath.NotEmpty())
             {
-                IconTexture = ResourceManager.Texture(iconPath, "");
-                IconActive  = ResourceManager.Texture(iconPath+"_active", "");
+                IconTexture = ResourceManager.TextureOrNull(iconPath);
+                IconActive  = ResourceManager.TextureOrNull(iconPath+"_active");
             }
 
             if (IconTexture == null)
