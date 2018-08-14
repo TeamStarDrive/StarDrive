@@ -1005,9 +1005,6 @@ namespace Ship_Game
 
         public void UnlockHullsSave(TechEntry techEntry, string servantEmpireShipType)
         {
-
-            //var tech = ResourceManager.TechTree[techID];
-
             techEntry.ConqueredSource.Add(servantEmpireShipType);
             techEntry.UnlockTroops(this);
             techEntry.UnLockHulls(this);
@@ -1030,11 +1027,6 @@ namespace Ship_Game
                     break;
                 }
             }
-        }
-
-        public Array<Ship> FindShipsInOurBorders()
-        {
-            return EmpireAI.ThreatMatrix.FindShipsInOurBorders();
         }
 
         public void UpdateKnownShips()
@@ -1324,7 +1316,7 @@ namespace Ship_Game
                 foreach (Planet planet in GetPlanets())
                 {
                     if (planet == Capital)
-                        EmpireShipCountReserve = +5;
+                        EmpireShipCountReserve += 5;
                     else
                         EmpireShipCountReserve += planet.DevelopmentLevel;
                     if (EmpireShipCountReserve > 50)
@@ -1336,62 +1328,63 @@ namespace Ship_Game
             }
         }
 
+        //This should be in a different place. 
         private void StatTrackerUpdate()
         {
-            if (isPlayer)
-            {
-                Universe.StarDate += 0.1f;
-                Universe.StarDate = (float) Math.Round(Universe.StarDate, 1);
+            if (!isPlayer) return;
+            Universe.StarDate += 0.1f;
+            Universe.StarDate = (float) Math.Round(Universe.StarDate, 1);
 
-                string starDate = Universe.StarDate.ToString("#.0");
-                if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
-                    StatTracker.SnapshotsDict.Add(starDate, new SerializableDictionary<int, Snapshot>());
+            string starDate = Universe.StarDate.ToString("#.0");
+            if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
+                StatTracker.SnapshotsDict.Add(starDate, new SerializableDictionary<int, Snapshot>());
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                var snapshots = StatTracker.SnapshotsDict[starDate];
+                int empireIndex = EmpireManager.Empires.IndexOf(empire);
+                if (!snapshots.ContainsKey(empireIndex))
+                    snapshots.Add(empireIndex, new Snapshot(Universe.StarDate));
+            }
+
+            if (Universe.StarDate.AlmostEqual(1000.09f))
+            {
                 foreach (Empire empire in EmpireManager.Empires)
                 {
-                    var snapshots = StatTracker.SnapshotsDict[starDate];
-                    int empireIndex = EmpireManager.Empires.IndexOf(empire);
-                    if (!snapshots.ContainsKey(empireIndex))
-                        snapshots.Add(empireIndex, new Snapshot(Universe.StarDate));
-                }
-
-                if (Universe.StarDate.AlmostEqual(1000.09f))
-                {
-                    foreach (Empire empire in EmpireManager.Empires)
+                    foreach (Planet planet in empire.OwnedPlanets)
                     {
-                        using (empire.OwnedPlanets.AcquireReadLock())
-                            foreach (Planet planet in empire.OwnedPlanets)
-                            {
-                                if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
-                                    continue;
-                                int empireIndex = EmpireManager.Empires.IndexOf(planet.Owner);
-                                StatTracker.SnapshotsDict[starDate][empireIndex].EmpireNodes.Add(new NRO
-                                {
-                                    Node = planet.Center,
-                                    Radius = 300000f,
-                                    StarDateMade = Universe.StarDate
-                                });
-                            }
-                    }
-                }
-
-                if (!InitialziedHostilesDict)
-                {
-                    InitialziedHostilesDict = true;
-                    foreach (SolarSystem system in UniverseScreen.SolarSystemList)
-                    {
-                        bool flag = false;
-                        foreach (Ship ship in system.ShipList)
+                        if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
+                            continue;
+                        int empireIndex = EmpireManager.Empires.IndexOf(planet.Owner);
+                        StatTracker.SnapshotsDict[starDate][empireIndex].EmpireNodes.Add(new NRO
                         {
-                            if (ship.loyalty != this && (ship.loyalty.isFaction || this.Relationships[ship.loyalty].AtWar))
-                                flag = true;
-                        }
-
-                        HostilesPresent.Add(system, flag);
+                            Node = planet.Center,
+                            Radius = 300000f,
+                            StarDateMade = Universe.StarDate
+                        });
                     }
                 }
-                else
-                    AssessHostilePresence();
             }
+            //this is goofy. It will need to take some unwinding.
+            // InitialziedHostilesDict is an empire field used as a flag to trigger this loop. 
+            //i think this can be done better. 
+            if (!InitialziedHostilesDict)
+            {
+                InitialziedHostilesDict = true;
+                foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+                {
+                    bool hostilesInSystem = false;
+                    foreach (Ship ship in system.ShipList)
+                    {
+                        if (!IsEmpireAttackable(ship.loyalty)) continue;
+                        hostilesInSystem = true;
+                        break;
+                    }
+
+                    HostilesPresent.Add(system, hostilesInSystem);
+                }
+            }
+            else
+                AssessHostilePresence();
         }
 
 
@@ -1444,32 +1437,25 @@ namespace Ship_Game
 
         private void GetEmpireBuildingMaintenanceCost()
         {
-            using (OwnedPlanets.AcquireReadLock())
+            float newBuildM = 0f;
+
+            foreach (Planet planet in OwnedPlanets)
             {
-                float newBuildM = 0f;
-
-                foreach (Planet planet in OwnedPlanets)
-                {
-                    planet.UpdateOwnedPlanet();
-                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
-                }
-
-                totalBuildingMaintenance = newBuildM;
+                planet.UpdateOwnedPlanet();
+                newBuildM += planet.TotalMaintenanceCostsPerTurn;
             }
+
+            totalBuildingMaintenance = newBuildM;
         }
 
         private void TallyTradeIncome()
         {
+            
             TradeMoneyAddedThisTurn = 0.0f;
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
-            {
-                if (kv.Value.Treaty_Trade)
-                {
-                    float num = (float) (0.25 * kv.Value.Treaty_Trade_TurnsExisted - 3.0);
-                    if (num > 3.0)
-                        num = 3f;
-                    TradeMoneyAddedThisTurn += num;
-                }
+            foreach (var kv in Relationships)
+            {                
+                if (kv.Value.Treaty_Trade && kv.Key != this)
+                    TradeMoneyAddedThisTurn += AI.Budget.CommonValues.TradeMoney(kv.Value.Treaty_Trade_TurnsExisted); 
             }
         }
 
@@ -1479,13 +1465,13 @@ namespace Ship_Game
             OtherIncome = 0f;
 
             //This looks like population is adding its income more than once due to the way Otherincome is used.
-            using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets)
-                {
-                    planet.UpdateIncomes(false);
-                    GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod;
-                    OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
-                }
+
+            foreach (Planet planet in OwnedPlanets)
+            {
+                planet.UpdateIncomes(false);
+                GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod;
+                OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
+            }
         }
 
         private void DoShipMaintenanceCost()
@@ -1507,7 +1493,7 @@ namespace Ship_Game
                     totalShipMaintenance += maintenance;
                 }
 
-            using (OwnedProjectors.AcquireReadLock())
+            
                 foreach (Ship ship in OwnedProjectors)
                 {
                     if (data.SSPBudget > 0)
@@ -1695,7 +1681,7 @@ namespace Ship_Game
         public float GetTotalPop()
         {
             float num = 0.0f;
-            using (OwnedPlanets.AcquireReadLock())
+            
                 foreach (Planet item_0 in this.OwnedPlanets)
                     num += item_0.Population / 1000f;
             return num;
@@ -1704,7 +1690,7 @@ namespace Ship_Game
         public float GetGrossFoodPerTurn()
         {
             float num = 0.0f;
-            using (OwnedPlanets.AcquireReadLock())
+            
                 foreach (Planet p in OwnedPlanets)
                     num += p.NetFoodPerTurn;
             return num;
@@ -1752,24 +1738,23 @@ namespace Ship_Game
             float MilitaryPotential = 0.0f;
             //if (p.Fertility > 1.0)
             //{
-                
+
             //    //ResearchPotential += 0.5f;
             //}
             //else
             //    Fertility += p.Fertility;
             //else if( this.data.Traits.Cybernetic <= 0)
             //    ResearchPotential++;
-            
+
             if (p.MineralRichness > .50)
             {
-                MineralWealth += p.MineralRichness +p.MaxPopulation / 1000;
+                MineralWealth += p.MineralRichness + p.MaxPopulation / 1000;
                 //MilitaryPotential += 0.5f;
             }
             else
                 MineralWealth += p.MineralRichness;
-            
 
-            
+
             if (p.MaxPopulation > 1000)
             {
                 ResearchPotential += p.MaxPopulation / 1000;
@@ -1784,13 +1769,12 @@ namespace Ship_Game
                 {
                     if (p.Fertility > 1f)
                     {
-                        
                         if (p.MineralRichness > 1)
                             PopSupport += p.MaxPopulation / 1000 + p.Fertility + p.MineralRichness;
                         Fertility += p.Fertility + p.MaxPopulation / 1000;
                     }
                 }
-                
+
                 //if (p.Fertility > 1f)
                 //    ++PopSupport;
                 //if (p.MaxPopulation > 4000)
@@ -1806,50 +1790,55 @@ namespace Ship_Game
             {
                 MilitaryPotential += Fertility + p.MineralRichness + p.MaxPopulation / 1000;
                 Technology tech = null;
-               if(p.MaxPopulation >=500)
-                if (ResourceManager.TechTree.TryGetValue(this.ResearchTopic, out tech))
-                    ResearchPotential = (tech.Cost - this.Research) / tech.Cost * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500); 
-              
+                if (p.MaxPopulation >= 500)
+                    if (ResourceManager.TechTree.TryGetValue(this.ResearchTopic, out tech))
+                        ResearchPotential = (tech.Cost - this.Research) / tech.Cost *
+                                            (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500);
             }
+
             if (this.data.Traits.Cybernetic > 0)
             {
-
                 Fertility = 0;
             }
-                              //(tech.Cost - this.Research) / tech.Cost;// *this.OwnedPlanets.Count;
+            //(tech.Cost - this.Research) / tech.Cost;// *this.OwnedPlanets.Count;
 
             int CoreCount = 0;
             int IndustrialCount = 0;
             int AgriculturalCount = 0;
             int MilitaryCount = 0;
             int ResearchCount = 0;
-            using (OwnedPlanets.AcquireReadLock())
+            foreach (Planet item_0 in this.OwnedPlanets)
             {
-                foreach (Planet item_0 in this.OwnedPlanets)
-                {
-                    if (item_0.colonyType == Planet.ColonyType.Agricultural) ++AgriculturalCount;
-                    if (item_0.colonyType == Planet.ColonyType.Core)         ++CoreCount;
-                    if (item_0.colonyType == Planet.ColonyType.Industrial)   ++IndustrialCount;
-                    if (item_0.colonyType == Planet.ColonyType.Research)     ++ResearchCount;
-                    if (item_0.colonyType == Planet.ColonyType.Military)     ++MilitaryCount;
-                }
+                if (item_0.colonyType == Planet.ColonyType.Agricultural) ++AgriculturalCount;
+                if (item_0.colonyType == Planet.ColonyType.Core) ++CoreCount;
+                if (item_0.colonyType == Planet.ColonyType.Industrial) ++IndustrialCount;
+                if (item_0.colonyType == Planet.ColonyType.Research) ++ResearchCount;
+                if (item_0.colonyType == Planet.ColonyType.Military) ++MilitaryCount;
             }
-            float AssignedFactor = (float)(CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / ((float)this.OwnedPlanets.Count + 0.01f);
-            float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) ;
-            float IndustrialDesire = MineralWealth + (AssignedFactor - (float)IndustrialCount);
-            float AgricultureDesire = Fertility + (AssignedFactor - (float)AgriculturalCount);
-            float MilitaryDesire = MilitaryPotential + (AssignedFactor - (float)MilitaryCount);
-            float ResearchDesire = ResearchPotential + (AssignedFactor - (float)ResearchCount);
 
-          
+            float AssignedFactor =
+                (float) (CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) /
+                ((float) this.OwnedPlanets.Count + 0.01f);
+            float CoreDesire = PopSupport + (AssignedFactor - (float) CoreCount);
+            float IndustrialDesire = MineralWealth + (AssignedFactor - (float) IndustrialCount);
+            float AgricultureDesire = Fertility + (AssignedFactor - (float) AgriculturalCount);
+            float MilitaryDesire = MilitaryPotential + (AssignedFactor - (float) MilitaryCount);
+            float ResearchDesire = ResearchPotential + (AssignedFactor - (float) ResearchCount);
 
-            if (CoreDesire > IndustrialDesire && CoreDesire > AgricultureDesire && (CoreDesire > MilitaryDesire && CoreDesire > ResearchDesire))
+
+            if (CoreDesire > IndustrialDesire && CoreDesire > AgricultureDesire &&
+                (CoreDesire > MilitaryDesire && CoreDesire > ResearchDesire))
                 return Planet.ColonyType.Core;
-            if (IndustrialDesire > CoreDesire && IndustrialDesire > AgricultureDesire && (IndustrialDesire > MilitaryDesire && IndustrialDesire > ResearchDesire))
+            if (IndustrialDesire > CoreDesire && IndustrialDesire > AgricultureDesire &&
+                (IndustrialDesire > MilitaryDesire && IndustrialDesire > ResearchDesire))
                 return Planet.ColonyType.Industrial;
-            if (AgricultureDesire > IndustrialDesire && AgricultureDesire > CoreDesire && (AgricultureDesire > MilitaryDesire && AgricultureDesire > ResearchDesire))
+            if (AgricultureDesire > IndustrialDesire && AgricultureDesire > CoreDesire &&
+                (AgricultureDesire > MilitaryDesire && AgricultureDesire > ResearchDesire))
                 return Planet.ColonyType.Agricultural;
-            return ResearchDesire > CoreDesire && ResearchDesire > AgricultureDesire && (ResearchDesire > MilitaryDesire && ResearchDesire > IndustrialDesire) ? Planet.ColonyType.Research : Planet.ColonyType.Military;
+            return ResearchDesire > CoreDesire && ResearchDesire > AgricultureDesire &&
+                   (ResearchDesire > MilitaryDesire && ResearchDesire > IndustrialDesire)
+                ? Planet.ColonyType.Research
+                : Planet.ColonyType.Military;
         }
 
         public void ResetBorders()
@@ -1908,15 +1897,19 @@ namespace Ship_Game
             }
             BorderNodes.ClearPendingRemovals();
             SensorNodes.ClearPendingRemovals();
-            using (BorderNodes.AcquireReadLock()) 
-                foreach (InfluenceNode item5 in BorderNodes)
+            
+            //not sure how to do this one...
+            for (int i = BorderNodes.Count - 1; i >= 0; i--)
+            {
+                InfluenceNode borderNodeI = BorderNodes[i];
+                for (int j = BorderNodes.Count - 1; j >= 0; j--)
                 {
-                    foreach (InfluenceNode item6 in BorderNodes)
-                    {
-                        if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
-                            BorderNodes.QueuePendingRemoval(item6);
-                    }
+                    InfluenceNode borderNodeJ = BorderNodes[j];
+                    if (borderNodeJ.SourceObject == borderNodeI.SourceObject && borderNodeJ.Radius < borderNodeI.Radius)
+                        BorderNodes.QueuePendingRemoval(borderNodeJ);
                 }
+            }
+
             BorderNodes.ApplyPendingRemovals();
             
         }
@@ -2199,32 +2192,30 @@ namespace Ship_Game
                 {
                     if (isPlayer)
                         Universe.NotificationManager.AddRebellionNotification(planet,
-                            rebelsFromEmpireData); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
+                            rebelsFromEmpireData); 
                     for (int index = 0; index < planet.Population / 1000; ++index)
                     {
                         Troop troop = EmpireManager.CreateRebelTroop(rebelsFromEmpireData);
-                        troop.AssignTroopToTile(planet); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
+                        troop.AssignTroopToTile(
+                            planet); 
                     }
                 }
 
-                //if(this.data.TurnsBelowZero >10 && this.data.TurnsBelowZero < 20)
-                {
-                    Ship pirate = null;
-                    using (GetShips().AcquireReadLock())
-                        foreach (Ship pirateChoice in GetShips())
-                        {
-                            if (pirateChoice == null || !pirateChoice.Active)
-                                continue;
-                            pirate = pirateChoice;
-                            break;
-                        }
-
-                    if (pirate != null)
+                Ship pirate = null;
+                using (GetShips().AcquireReadLock())
+                    foreach (Ship pirateChoice in GetShips())
                     {
-                        pirate.loyalty = rebelsFromEmpireData;
-                        this.RemoveShip(pirate);
-                        //Empire.Universe.NotificationManager.AddRebellionNotification(planet, empireByName);
+                        if (pirateChoice == null || !pirateChoice.Active)
+                            continue;
+                        pirate = pirateChoice;
+                        break;
                     }
+
+                if (pirate != null)
+                {
+                    pirate.loyalty = rebelsFromEmpireData;
+                    this.RemoveShip(pirate);
+                    //Empire.Universe.NotificationManager.AddRebellionNotification(planet, empireByName);
                 }
             }
             else Log.Info($"Rebellion Failure: {data.RebelName}");
