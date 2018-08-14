@@ -458,8 +458,7 @@ namespace Ship_Game
             float speed         = thrust / mass;
             float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f); 
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
-            float single        = warpSpeed / 1000f;
-            string warpString   = single.GetNumberString();
+            string warpString   = warpSpeed.GetNumberString();
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier; 
 
@@ -513,7 +512,7 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
             }
 
-            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed);
+            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed, turn);
             if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
             var cursorReq = new Vector2(StatsSub.Menu.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
