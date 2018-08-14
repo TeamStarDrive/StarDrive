@@ -550,7 +550,8 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
-            if (Treaty_Trade) Treaty_Trade_TurnsExisted++;
+            if (Treaty_Trade)
+                Treaty_Trade_TurnsExisted++;
 
             if (!Treaty_Peace || --PeaceTurnsRemaining > 0)
                 return;
