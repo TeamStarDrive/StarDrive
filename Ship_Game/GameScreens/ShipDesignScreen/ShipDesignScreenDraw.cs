@@ -423,7 +423,7 @@ namespace Ship_Game
                 if (!wasOffenseDefenseAdded)
                 {
                     offense += slot.Module.CalculateModuleOffense();
-                    defense += slot.Module.CalculateModuleDefense((int)size);
+                    defense += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                 }
                 //added by gremlin collect weapon stats                  
                 if (!slot.Module.isWeapon && slot.Module.BombType == null)
@@ -512,7 +512,7 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
             }
 
-            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed, turn);
+            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
             if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
             var cursorReq = new Vector2(StatsSub.Menu.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
