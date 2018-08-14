@@ -305,7 +305,7 @@ namespace Ship_Game
         {
             // Techs using Icon Path need this for notifications
             string techIcon = "TechIcons/" + ResourceManager.TechTree[unlocked].IconPath;
-            bool hasTechIcon = ResourceManager.TextureDict.ContainsKey(techIcon);
+            bool hasTechIcon = ResourceManager.TextureLoaded(techIcon);
 
             AddNotification(new Notification
             {
@@ -393,7 +393,7 @@ namespace Ship_Game
                     Notification n = NotificationList[i];
                     if (n.IconPath != null)
                     {
-                        Texture2D iconTex = ResourceManager.TextureDict[n.IconPath];
+                        Texture2D iconTex = ResourceManager.Texture(n.IconPath);
                         if (!n.Tech)
                         {
                             ScreenManager.SpriteBatch.Draw(iconTex, n.ClickRect, Color.White);
@@ -409,7 +409,7 @@ namespace Ship_Game
 
                             rect.Width = iconTex.Width;
                             rect.Height = iconTex.Height;
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TechIcons/techbg"], rect, Color.White);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("TechIcons/techbg"), rect, Color.White);
                             ScreenManager.SpriteBatch.Draw(iconTex, rect, Color.White);
                             ScreenManager.SpriteBatch.DrawRectangle(rect, new Color(32, 30, 18));
                         }

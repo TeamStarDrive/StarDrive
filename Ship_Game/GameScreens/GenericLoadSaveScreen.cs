@@ -283,7 +283,7 @@ namespace Ship_Game
 
             public FileData(FileInfo fileLink, object data, string fileName)
             {
-                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+                this.icon = ResourceManager.Texture("ShipIcons/Wisp");
                 this.FileName = fileName;
                 this.Info = "";
                 this.ExtraInfo = "";
@@ -293,7 +293,7 @@ namespace Ship_Game
 
             public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo)
             {
-                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+                this.icon = ResourceManager.Texture("ShipIcons/Wisp");
                 this.FileName = fileName;
                 this.Info = info;
                 this.ExtraInfo = extraInfo;

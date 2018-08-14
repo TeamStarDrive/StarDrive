@@ -77,15 +77,15 @@ namespace Ship_Game
                 {
                     if (race.e.data.AbsorbedBy == null)
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/x_red"], race.container, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/x_red"), race.container, Color.White);
                     }
                     else
                     {
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
-                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                         base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                         Rectangle r = new Rectangle(race.container.X, race.container.Y, 124, 124);
                         KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
@@ -99,12 +99,12 @@ namespace Ship_Game
                         Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
                         base.ScreenManager.SpriteBatch.FillRectangle(war, Color.Red);
                     }
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                     //Added by McShooterz: Display Spy Defense value
-                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], EspionageDefenseIcon, Color.White);
+                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), EspionageDefenseIcon, Color.White);
                     Vector2 defPos = new Vector2((float)(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2), (float)(EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
                     float EspionageDefense = 0f;
                     foreach(Agent agent in race.e.data.AgentList)
@@ -122,17 +122,17 @@ namespace Ship_Game
                 }
                 else if (EmpireManager.Player != race.e)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/unknown"], race.container, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/unknown"), race.container, Color.White);
                 }
                 else
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", race.e.data.PortraitName)], race.container, Color.White);
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                     NameCursor = new Vector2((float)(race.container.X + 62) - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, (float)(race.container.Y + 148 + 8));
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                     //Added by McShooterz: Display Spy Defense value
-                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], EspionageDefenseIcon, Color.White);
+                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), EspionageDefenseIcon, Color.White);
                     Vector2 defPos = new Vector2((float)(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2), (float)(EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
                     float EspionageDefense = 0f;
                     foreach (Agent agent in race.e.data.AgentList)

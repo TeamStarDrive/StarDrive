@@ -166,7 +166,7 @@ namespace Ship_Game
             }
             if (this.ActiveModule != null)
             {
-                batch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath), new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
                 
                 
                 for (int i = 0; i < ActiveModule.XSIZE; i++)

@@ -125,7 +125,7 @@ namespace Ship_Game
                         };
                         this.ClickList.Add(cm);
                     }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.s.PlanetList[i].PlanetType)], PlanetRect, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", this.s.PlanetList[i].PlanetType)), PlanetRect, Color.White);
             
                     if (this.screen.SelectedPlanet == this.s.PlanetList[i])
                     {
@@ -201,7 +201,7 @@ namespace Ship_Game
                             f = Math.Abs(f) * 255f;
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_anomaly_small"], flashRect, flashColor);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_anomaly_small"), flashRect, flashColor);
                             if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
@@ -217,7 +217,7 @@ namespace Ship_Game
                             f = Math.Abs(f) * 255f;
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/marketIcon"], flashRect, flashColor);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/marketIcon"), flashRect, flashColor);
                             if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
@@ -233,7 +233,7 @@ namespace Ship_Game
                             f = Math.Abs(f) * 255f;
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], flashRect, flashColor);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), flashRect, flashColor);
                             if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
@@ -267,17 +267,17 @@ namespace Ship_Game
                                 HelperFunctions.DrawDropShadowImage(screenManager, flagRect, item.Value, p.Owner.EmpireColor);
                             }
                             Rectangle fIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)this.PlanetTypeCursor.Y + Spacing, 10, 10);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], fIcon, Color.White);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
                             Rectangle pIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(this.PlanetTypeCursor.Y + (float)(2 * Spacing)), 10, 10);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], pIcon, Color.White);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
                             Rectangle rIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(this.PlanetTypeCursor.Y + (float)(3 * Spacing)), 10, 10);
                             Rectangle tIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(this.PlanetTypeCursor.Y + (float)(4 * Spacing)), 10, 10);
                             if (p.Owner != null && p.Owner == EmpireManager.Player)
                             {
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rIcon, Color.White);
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rIcon, Color.White);
 
                                     
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], tIcon, Color.White);
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), tIcon, Color.White);
                                 
 
                             }
@@ -319,7 +319,7 @@ namespace Ship_Game
                                 continue;
                             }
                             Rectangle Flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], Flag, EmpireManager.Player.EmpireColor);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/flagicon"), Flag, EmpireManager.Player.EmpireColor);
                             if (!Flag.HitTest(MousePos))
                             {
                                 continue;
