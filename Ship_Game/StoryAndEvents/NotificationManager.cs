@@ -305,7 +305,7 @@ namespace Ship_Game
         {
             // Techs using Icon Path need this for notifications
             string techIcon = "TechIcons/" + ResourceManager.TechTree[unlocked].IconPath;
-            bool hasTechIcon = ResourceManager.TextureDict.ContainsKey(techIcon);
+            bool hasTechIcon = ResourceManager.TextureLoaded(techIcon);
 
             AddNotification(new Notification
             {

@@ -18,7 +18,7 @@ namespace Ship_Game
     {
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename. 
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
-        public static Map<string, Texture2D> TextureDict          = new Map<string, Texture2D>();
+        private static readonly Map<string, Texture2D> Textures   = new Map<string, Texture2D>();
         public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
         public static Map<string, Technology> TechTree            = new Map<string, Technology>(GlobalStats.CaseControl);
         private static readonly Array<Model> RoidsModels          = new Array<Model>();
@@ -295,7 +295,7 @@ namespace Ship_Game
         {
             if (!Log.TestMessage("Test - Checking For Uncompressed Texture \n", waitForYes:true))
                 return;
-            foreach (KeyValuePair<string, Texture2D> textDic in TextureDict)
+            foreach (KeyValuePair<string, Texture2D> textDic in Textures)
             {
                 Texture2D tex  = textDic.Value;
                 SurfaceFormat texFormat = tex.Format;
@@ -318,7 +318,7 @@ namespace Ship_Game
                 string texPath = $"TechIcons/{item.IconPath}";
                 Log.TestMessage($"Tech:{testItem.Key} Path:{texPath}");
 
-                if (TextureDict.ContainsKey(texPath)) continue;
+                if (Textures.ContainsKey(texPath)) continue;
                 
                 Log.TestMessage($"Missing Texture: {texPath}", Log.Importance.Critical);
             }
@@ -797,7 +797,7 @@ namespace Ship_Game
         
         public static Texture2D Texture(string texturePath, string defaultTex = "NewUI/x_red")
         {
-            if (texturePath.NotEmpty() && TextureDict.TryGetValue(texturePath, out Texture2D texture))
+            if (texturePath.NotEmpty() && Textures.TryGetValue(texturePath, out Texture2D texture))
                 return texture;
             if (defaultTex == "")
                 return null;
@@ -806,9 +806,14 @@ namespace Ship_Game
                 LastFailedTexture = texturePath;
                 Log.WarningWithCallStack($"texture path not found: {texturePath} replaces with NewUI / x_red");
             }
-            return TextureDict[defaultTex];
+            return Textures[defaultTex];
         }
         
+        public static bool TextureLoaded(string texturePath)
+        {
+            return Textures.ContainsKey(texturePath);
+        }
+
         public static Texture2D ProjTexture(string texturePath)
         {
             return ProjTextDict[texturePath];
@@ -820,9 +825,9 @@ namespace Ship_Game
             var tex = RootContent.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
             relPath = info.CleanResPath();
             string texName = relPath.Substring("Textures/".Length);
-            lock (TextureDict)
+            lock (Textures)
             {
-                TextureDict[texName] = tex;
+                Textures[texName] = tex;
             }
         }
 
@@ -878,12 +883,12 @@ namespace Ship_Game
         // "Explosions/smaller/shipExplosion"
         public static Texture2D LoadTexture(string textureName)
         {
-            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+            if (Textures.TryGetValue(textureName, out Texture2D tex))
                 return tex;
             try
             {
                 tex = RootContent.Load<Texture2D>("Textures/" + textureName);
-                TextureDict[textureName] = tex;
+                Textures[textureName] = tex;
             }
             catch (Exception)
             {
@@ -894,12 +899,12 @@ namespace Ship_Game
         // Load texture for a specific mod, such as modName="Overdrive"
         public static Texture2D LoadModTexture(string modName, string textureName)
         {
-            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+            if (Textures.TryGetValue(textureName, out Texture2D tex))
                 return tex;
 
             string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
             if (File.Exists(modTexPath + ".xnb"))
-                return TextureDict[textureName] = RootContent.Load<Texture2D>(modTexPath);
+                return Textures[textureName] = RootContent.Load<Texture2D>(modTexPath);
 
             return null;
         }
@@ -1903,7 +1908,7 @@ namespace Ship_Game
             ArtifactsDict.Clear();
             ShipsDict.Clear();
             SoundEffectDict = null;
-            TextureDict.Clear();
+            Textures.Clear();
             ToolTips.Clear();
             GoodsDict.Clear();
             Empires.Clear();       
