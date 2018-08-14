@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,7 +12,7 @@ namespace Ship_Game
         Medium,     // empiretopbar_btn_132px
         MediumMenu, // empiretopbar_btn_132px_menu
         BigDip,     // empiretopbar_btn_168px_dip
-        Close,      // NewUI/Close_Normal
+        Close      // NewUI/Close_Normal
     }
 
     // Refactored by RedFox
@@ -96,7 +95,7 @@ namespace Ship_Game
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px_menu"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_dip"),
-                new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover"),
+                new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover")
             };
         }
 

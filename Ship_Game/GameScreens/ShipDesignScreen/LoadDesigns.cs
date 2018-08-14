@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Ships;
 
 namespace Ship_Game.GameScreens.ShipDesignScreen
@@ -19,11 +18,11 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         private readonly GameScreen Screen;
 
-        private Rectangle Window = new Rectangle();
+        private Rectangle Window;
 
-        private Vector2 TitlePosition = new Vector2();
+        private Vector2 TitlePosition;
 
-        private Vector2 EnternamePos = new Vector2();
+        private Vector2 EnternamePos;
          
         private UITextEntry EnterNameArea = new UITextEntry();
 
@@ -208,7 +207,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             SaveShips           = new Submenu(sub);
             SaveShips.AddTab(Localizer.Token(198));
             ShipDesigns         = new ScrollList(SaveShips);
-            TitlePosition       = new Vector2((float)(Window.X + 20), (float)(Window.Y + 20));
+            TitlePosition       = new Vector2(Window.X + 20, Window.Y + 20);
             string path         = Dir.ApplicationData;
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y)));
             PlayerDesignsToggle.OnClick += p =>
@@ -331,8 +330,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {
             string line = string.Empty;
             string returnString = string.Empty;
-            string[] strArrays = text.Split(new char[] { ' ' });
-            for (int i = 0; i < (int)strArrays.Length; i++)
+            string[] strArrays = text.Split(' ');
+            for (int i = 0; i < strArrays.Length; i++)
             {
                 string word = strArrays[i];
                 if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)

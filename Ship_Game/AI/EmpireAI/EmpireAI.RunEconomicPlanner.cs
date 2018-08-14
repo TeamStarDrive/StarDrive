@@ -1,7 +1,7 @@
 // ReSharper disable once CheckNamespace
 
 using System;
-
+using Ship_Game.AI.Budget;
 
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
@@ -38,13 +38,13 @@ namespace Ship_Game.AI {
             SetBudgetForeArea(goalClamped * .1f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, resStrat.MilitaryRatio));
             SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.ColonyBudget, resStrat.IndustryRatio + resStrat.ExpansionRatio);
 #if DEBUG
-            var pBudgets = new Array<Budget.PlanetBudget>();
+            var pBudgets = new Array<PlanetBudget>();
             foreach (var empire in EmpireManager.Empires)
             {
              
                 foreach (var planet in empire.GetPlanets())
                 {
-                    var pinfo = new Budget.PlanetBudget(planet);
+                    var pinfo = new PlanetBudget(planet);
                     pBudgets.Add(pinfo);
                 }
             }
@@ -78,7 +78,7 @@ namespace Ship_Game.AI {
                 OwnerEmpire.data.TaxRate = tempTax;
         }
 #if DEBUG
-        public Array<Budget.PlanetBudget> PlanetBudgets;
+        public Array<PlanetBudget> PlanetBudgets;
 #endif 
         private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
         {
@@ -98,7 +98,7 @@ namespace Ship_Game.AI {
             return risk;
         }
 
-        public Budget.PlanetBudget PlanetBudget(Planet planet) => new Budget.PlanetBudget(planet);        
+        public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);        
 
     }
 }

@@ -1,9 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -59,9 +57,9 @@ namespace Ship_Game
         {
             Selector selector = new Selector(r, Color.TransparentBlack);
             Rectangle iconRect = new Rectangle(r.X + 6, r.Y + 6, 44, 44);
-            float x = (float)Mouse.GetState().X;
+            float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
-            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            Vector2 MousePos = new Vector2(x, state.Y);
             if (SimpleToggle)
             {
                 if (!r.HitTest(MousePos))

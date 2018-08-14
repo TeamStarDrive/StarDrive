@@ -13,6 +13,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 
@@ -64,7 +65,7 @@ namespace Algorithms
     [Author("Franco, Gustavo")]
     public class PathFinder : IPathFinder
     {
-        [System.Runtime.InteropServices.DllImport("KERNEL32.DLL", EntryPoint="RtlZeroMemory")]
+        [DllImport("KERNEL32.DLL", EntryPoint="RtlZeroMemory")]
         public unsafe static extern bool ZeroMemory(byte* destination, int length);
 
         #region Events
@@ -72,23 +73,23 @@ namespace Algorithms
         #endregion
 
         #region Variables Declaration
-        private byte[,]                         mGrid                   = null;
+        private byte[,]                         mGrid;
         private PriorityQueueB<PathFinderNode>  mOpen                   = new PriorityQueueB<PathFinderNode>(new ComparePFNode());
         private Array<PathFinderNode>            mClose                  = new Array<PathFinderNode>();
-        private bool                            mStop                   = false;
+        private bool                            mStop;
         private bool                            mStopped                = true;
-        private int                             mHoriz                  = 0;
+        private int                             mHoriz;
         private HeuristicFormula                mFormula                = HeuristicFormula.Manhattan;
         private bool                            mDiagonals              = true;
         private int                             mHEstimate              = 2;
-        private bool                            mPunishChangeDirection  = false;
-        private bool                            mReopenCloseNodes       = false;
-        private bool                            mTieBreaker             = false;
-        private bool                            mHeavyDiagonals         = false;
+        private bool                            mPunishChangeDirection;
+        private bool                            mReopenCloseNodes;
+        private bool                            mTieBreaker;
+        private bool                            mHeavyDiagonals;
         private int                             mSearchLimit            = 2000;
-        private double                          mCompletedTime          = 0;
-        private bool                            mDebugProgress          = false;
-        private bool                            mDebugFoundPath         = false;
+        private double                          mCompletedTime;
+        private bool                            mDebugProgress;
+        private bool                            mDebugFoundPath;
         #endregion
 
         #region Constructors
@@ -401,7 +402,7 @@ namespace Algorithms
             {
                 if (x.F > y.F)
                     return 1;
-                else if (x.F < y.F)
+                if (x.F < y.F)
                     return -1;
                 return 0;
             }

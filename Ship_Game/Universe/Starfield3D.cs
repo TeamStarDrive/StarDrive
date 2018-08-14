@@ -41,7 +41,7 @@ namespace Ship_Game
 
 		public void InitializeStars()
 		{
-			for (int i = 0; i < (int)stars.Length; i++)
+			for (int i = 0; i < stars.Length; i++)
 			{
 				stars[i].Position.X = RandomMath.RandomBetween(100000f, 120000f);
 				stars[i].Position.Y = RandomMath.RandomBetween(100000f, 120000f);
@@ -55,7 +55,7 @@ namespace Ship_Game
 		{
 			starModel = contentManager.Load<Model>("Model/SpaceObjects/singlestar");
 			starTexture = new Texture2D(graphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-			starTexture.SetData<Color>(new Color[] { Color.White });
+			starTexture.SetData(new[] { Color.White });
 			spriteBatch = new SpriteBatch(graphicsDevice);
 			InitializeStars();
 		    Viewport viewport = Game1.Instance.Viewport;

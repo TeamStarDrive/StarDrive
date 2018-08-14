@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.AI;
 
 namespace Ship_Game.Commands.Goals
@@ -17,7 +13,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion,
+                WaitMainGoalCompletion
             };
         }
         public BuildTroop(Troop toCopy, Empire owner, Planet p) : this()

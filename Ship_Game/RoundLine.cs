@@ -1,5 +1,5 @@
-using Microsoft.Xna.Framework;
 using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -73,7 +73,7 @@ namespace Ship_Game
 		{
 			Vector2 delta = P1 - P0;
 			rho = delta.Length();
-			theta = (float)Math.Atan2((double)delta.Y, (double)delta.X);
+			theta = (float)Math.Atan2(delta.Y, delta.X);
 		}
 	}
 }

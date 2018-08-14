@@ -1,7 +1,5 @@
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
@@ -42,7 +40,7 @@ namespace Ship_Game.Gameplay
 			{
 				RoadNode node = new RoadNode();
 				float angle = Origin.Position.AngleToTarget(Destination.Position);
-                node.Position = Origin.Position.PointOnCircle(angle, offset + (i * (float)( Distance / NumberOfProjectors) ));
+                node.Position = Origin.Position.PointOnCircle(angle, offset + (i * (Distance / NumberOfProjectors) ));
 				bool reallyAdd = true;
                 float extrad = empire.ProjectorRadius;
 

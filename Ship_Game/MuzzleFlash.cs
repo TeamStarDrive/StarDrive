@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using System;
 
 namespace Ship_Game
 {
@@ -12,9 +11,5 @@ namespace Ship_Game
 		public float scale = 0.25f;
 
 		public GameplayObject Owner;
-
-		public MuzzleFlash()
-		{
-		}
 	}
 }

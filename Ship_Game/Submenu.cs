@@ -45,7 +45,7 @@ namespace Ship_Game
             Right         = ResourceManager.Texture("NewUI/submenu_header_right"),
             RightUnsel    = ResourceManager.Texture("NewUI/submenu_header_right_unsel"),
             RightExt      = ResourceManager.Texture("NewUI/submenu_header_rightextend"),
-            RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel"),
+            RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel")
         };
 
         public static SubmenuStyle CreateBlue() => new SubmenuStyle
@@ -69,7 +69,7 @@ namespace Ship_Game
             Right         = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
             RightUnsel    = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
             RightExt      = ResourceManager.Texture("ResearchMenu/submenu_transition_right"),
-            RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right"),
+            RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right")
         };
     }
 

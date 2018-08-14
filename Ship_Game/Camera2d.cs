@@ -9,7 +9,7 @@ namespace Ship_Game
         private bool Changed = true;
 
         private Vector2 CamPos = Vector2.Zero;
-        private float CamRot  = 0f;
+        private float CamRot;
         private float CamZoom = 1f;
 
         public Vector2 Pos

@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -51,14 +51,14 @@ namespace Ship_Game
 			verts[3].Normal = Vector3.Forward;
 			verts[3].Tangent = tangents[3];
 			verts[3].Binormal = binormals[3];
-			VertexBuffer.SetData<BillboardVertex>(verts);
-			IndexBuffer.SetData<short>(indices);
+			VertexBuffer.SetData(verts);
+			IndexBuffer.SetData(indices);
 			BoundingSphere = BoundingSphere.CreateFromPoints(positions);
 		}
 
 		private void BuildTangentSpaceDataForTriangleList(short[] indices, Vector3[] positions, Vector2[] uvs, Vector3[] tangents, Vector3[] binormals)
 		{
-			for (int i = 0; i < (int)indices.Length; i = i + 3)
+			for (int i = 0; i < indices.Length; i = i + 3)
 			{
 				int index_vert0 = indices[i];
 				int index_vert1 = indices[i + 1];
@@ -93,7 +93,7 @@ namespace Ship_Game
 					binormals[index_vert2] = binormals[index_vert2] + binormal;
 				}
 			}
-			for (int i = 0; i < (int)tangents.Length; i++)
+			for (int i = 0; i < tangents.Length; i++)
 			{
 				tangents[i].Normalize();
 				binormals[i].Normalize();
@@ -130,7 +130,7 @@ namespace Ship_Game
 
 			public Vector3 Binormal;
 
-			public readonly static VertexElement[] VertexElements  = new VertexElement[] { new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0) };
+			public readonly static VertexElement[] VertexElements  = { new VertexElement(0, 0, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Position, 0), new VertexElement(0, 12, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Normal, 0), new VertexElement(0, 24, VertexElementFormat.Vector2, VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 0), new VertexElement(0, 32, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Tangent, 0), new VertexElement(0, 44, VertexElementFormat.Vector3, VertexElementMethod.Default, VertexElementUsage.Binormal, 0) };
 
 			public static int SizeInBytes
 			{

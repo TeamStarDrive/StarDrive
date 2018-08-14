@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Xml.Serialization;
-
 namespace Ship_Game
 {
     public enum Goods
@@ -9,7 +5,7 @@ namespace Ship_Game
         None,
         Production,
         Food,
-        Colonists,
+        Colonists
     }
 
 	public sealed class Good
@@ -21,9 +17,5 @@ namespace Ship_Game
         public float Cost;
         public float Mass;
         public string IconTexturePath;
-
-        public Good()
-		{
-		}
 	}
 }

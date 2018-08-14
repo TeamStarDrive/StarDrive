@@ -1,9 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -58,12 +56,12 @@ namespace Ship_Game
 			clickRect = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
 			LeftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
 			RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
-			BombardButton = new DanButton(new Vector2((float)(LeftRect.X + 20), (float)(LeftRect.Y + 25)), Localizer.Token(1431))
+			BombardButton = new DanButton(new Vector2(LeftRect.X + 20, LeftRect.Y + 25), Localizer.Token(1431))
 			{
 				IsToggle = true,
 				ToggledText = Localizer.Token(1426)
 			};
-			LandTroops = new DanButton(new Vector2((float)(LeftRect.X + 20), (float)(LeftRect.Y + 75)), Localizer.Token(1432))
+			LandTroops = new DanButton(new Vector2(LeftRect.X + 20, LeftRect.Y + 75), Localizer.Token(1432))
 			{
 				IsToggle = true,
 				ToggledText = Localizer.Token(1433)
@@ -74,13 +72,13 @@ namespace Ship_Game
 			HardAttackRect = new Rectangle(LeftRect.X + 12, SoftAttackRect.Y + 16 + 5, 16, 16);
 			DefenseRect.X = DefenseRect.X - 3;
 			ItemDisplayRect = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 85, 85);
-			TippedItem bomb = new TippedItem()
+			TippedItem bomb = new TippedItem
 			{
 				r = BombardButton.r,
 				TIP_ID = 32
 			};
 			ToolTipItems.Add(bomb);
-			bomb = new TippedItem()
+			bomb = new TippedItem
 			{
 				r = LandTroops.r,
 				TIP_ID = 36
@@ -92,9 +90,9 @@ namespace Ship_Game
 		{
 			MathHelper.SmoothStep(0f, 1f, TransitionPosition);
 			ScreenManager.SpriteBatch.FillRectangle(sel.Rect, Color.Black);
-			float x = (float)Mouse.GetState().X;
+			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
-			Vector2 vector2 = new Vector2(x, (float)state.Y);
+			Vector2 vector2 = new Vector2(x, state.Y);
 			Header slant = new Header(new Rectangle(sel.Rect.X, sel.Rect.Y, sel.Rect.Width, 41), "Orbital Assets");
 			Body body = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
 			slant.Draw(ScreenManager);

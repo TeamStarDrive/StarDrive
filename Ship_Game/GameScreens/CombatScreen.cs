@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -69,7 +68,7 @@ namespace Ship_Game
         private float[] startXByRow    =  { 254f, 222f, 181f, 133f, 74f, 0f };
 
 
-        private static bool popup = false;  //fbedard
+        private static bool popup;  //fbedard
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {            
@@ -78,7 +77,7 @@ namespace Ship_Game
             GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
             TitleBar              = new Menu2(titleRect);
-            TitlePos              = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             SelectedItemRect      = new Rectangle(screenWidth - 240, 100, 225, 205);
             AssetsRect            = new Rectangle(10, 48, 225, 200);
             HoveredItemRect       = new Rectangle(10, 248, 225, 200);
@@ -150,9 +149,9 @@ namespace Ship_Game
             {
                 for (int i = 0; i < 7; i++)
                 {
-                    var ps = new PointSet()
+                    var ps = new PointSet
                     {
-                        point = new Vector2((float)GridRect.X + (float)i * widthByRow[row] + widthByRow[row] / 2f + startXByRow[row], (float)(GridRect.Y + GridRect.Height) - distancesByRow[row]),
+                        point = new Vector2(GridRect.X + i * widthByRow[row] + widthByRow[row] / 2f + startXByRow[row], GridRect.Y + GridRect.Height - distancesByRow[row]),
                         row = row,
                         column = i
                     };
@@ -169,7 +168,7 @@ namespace Ship_Game
                         Vector2 vtt = toCheck.point - ps.point;
                         vtt = Vector2.Normalize(vtt);
                         Vector2 cPoint = ps.point + ((vtt * distance) / 2f);
-                        var cp = new PointSet()
+                        var cp = new PointSet
                         {
                             point = cPoint,
                             row = ps.row,
@@ -232,7 +231,7 @@ namespace Ship_Game
                             }
                             int XtotalDistance = Math.Abs(pgs.x - nearby.x);
                             int YtotalDistance = Math.Abs(pgs.y - nearby.y);
-                            if ((float)XtotalDistance > pgs.TroopsHere[0].Range || (float)YtotalDistance > pgs.TroopsHere[0].Range || nearby.TroopsHere.Count <= 0 && (nearby.building == null || nearby.building.CombatStrength <= 0))
+                            if (XtotalDistance > pgs.TroopsHere[0].Range || YtotalDistance > pgs.TroopsHere[0].Range || nearby.TroopsHere.Count <= 0 && (nearby.building == null || nearby.building.CombatStrength <= 0))
                             {
                                 continue;
                             }
@@ -270,7 +269,7 @@ namespace Ship_Game
                         }
                         int XtotalDistance = Math.Abs(pgs.x - nearby.x);
                         int YtotalDistance = Math.Abs(pgs.y - nearby.y);
-                        if ((float)XtotalDistance > pgs.TroopsHere[0].Range || (float)YtotalDistance > pgs.TroopsHere[0].Range || nearby.TroopsHere.Count != 0 || nearby.building != null && (nearby.building == null || nearby.building.CombatStrength != 0))
+                        if (XtotalDistance > pgs.TroopsHere[0].Range || YtotalDistance > pgs.TroopsHere[0].Range || nearby.TroopsHere.Count != 0 || nearby.building != null && (nearby.building == null || nearby.building.CombatStrength != 0))
                         {
                             continue;
                         }
@@ -320,20 +319,20 @@ namespace Ship_Game
                     {
                         if (e.Hovered)
                         {
-                            bCursor.Y = (float)e.Y;
+                            bCursor.Y = e.Y;
                             batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                             batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.White);
-                            tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
                             batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.Orange);
                         }
                         else
                         {
-                            bCursor.Y = (float)e.Y;
+                            bCursor.Y = e.Y;
                             batch.Draw(t.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                             Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                             batch.DrawString(Fonts.Arial12Bold, t.Name, tCursor, Color.LightGray);
-                            tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                            tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
                             batch.DrawString(Fonts.Arial8Bold, t.StrengthText, tCursor, Color.LightGray);
                         }
                     }
@@ -591,8 +590,8 @@ namespace Ship_Game
                     pgs.TroopsHere[0].AvailableAttackActions = 0;
                     pgs.TroopsHere[0].AvailableMoveActions = 0;
                     pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                    pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                    pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                    pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
+                    pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
                     play = true;
                     Ship.CreateTroopShipAtPoint(pgs.TroopsHere[0].GetOwner().data.DefaultTroopShip, pgs.TroopsHere[0].GetOwner(), p.Center, pgs.TroopsHere[0]);
                     p.TroopsHere.Remove(pgs.TroopsHere[0]);
@@ -660,8 +659,8 @@ namespace Ship_Game
                         pgs.TroopsHere[0].AvailableAttackActions = 0;
                         pgs.TroopsHere[0].AvailableMoveActions = 0;
                         pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                        pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                        pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                        pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
+                        pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
 
                         p.TroopsHere.Add(draggedTroop.item as Troop);
                         (draggedTroop.item as Troop).SetPlanet(p);
@@ -823,7 +822,7 @@ namespace Ship_Game
                     pgs.TroopsHere.Add(ActiveTroop.TroopsHere[0]);
                     Troop troop = pgs.TroopsHere[0];
                     troop.AvailableMoveActions = troop.AvailableMoveActions - 1;
-                    pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
+                    pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
                     pgs.TroopsHere[0].MovingTimer = 0.75f;
                     pgs.TroopsHere[0].SetFromRect(ActiveTroop.TroopClickRect);
                     GameAudio.PlaySfxAsync(pgs.TroopsHere[0].MovementCue);
@@ -892,7 +891,7 @@ namespace Ship_Game
 
         public void StartCombat(PlanetGridSquare Attacker, PlanetGridSquare Defender)
         {
-            Combat c = new Combat()
+            Combat c = new Combat
             {
                 Attacker = Attacker
             };
@@ -912,7 +911,7 @@ namespace Ship_Game
 
         public static void StartCombat(PlanetGridSquare Attacker, PlanetGridSquare Defender, Planet p)
         {
-            Combat c = new Combat()
+            Combat c = new Combat
             {
                 Attacker = Attacker
             };

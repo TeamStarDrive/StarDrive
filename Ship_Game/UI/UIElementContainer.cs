@@ -10,7 +10,7 @@ namespace Ship_Game
         HorizontalEven,   // elements are spaced evenly
         HorizontalPacked, // elements are packed tightly
         VerticalEven,     // 
-        VerticalPacked,   //
+        VerticalPacked   //
     }
 
     public abstract class UIElementContainer : UIElementV2

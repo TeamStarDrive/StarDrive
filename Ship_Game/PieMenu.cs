@@ -1,9 +1,6 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -65,8 +62,8 @@ namespace Ship_Game
             }
             if (selectionVector.Length() > 0.3f)
             {
-                float angleDivision = 1f / (float)RootNode.Children.Count;
-                float angle = (float)Math.Atan2((double)selectionVector.Y, (double)selectionVector.X);
+                float angleDivision = 1f / RootNode.Children.Count;
+                float angle = (float)Math.Atan2(selectionVector.Y, selectionVector.X);
                 if (angle < 0f)
                 {
                     angle = angle + 6.28318548f;
@@ -80,7 +77,7 @@ namespace Ship_Game
                 }
                 angle = angle - rotationBegins;
                 selectionIndex = 0;
-                while ((float)selectionIndex * angleDivision < angle)
+                while (selectionIndex * angleDivision < angle)
                 {
                     PieMenu pieMenu = this;
                     pieMenu.selectionIndex = pieMenu.selectionIndex + 1;
@@ -99,10 +96,10 @@ namespace Ship_Game
             Vector2 center = Position;
             float scale = t.CurrentPosition * ScaleFactor;
             float currentAngle = 1.57079637f;
-            float angleIncrement = 6.28318548f / (float)RootNode.Children.Count;
+            float angleIncrement = 6.28318548f / RootNode.Children.Count;
             for (int i = 0; i < RootNode.Children.Count; i++)
             {
-                Vector2 imagePos = center + (scale * Radius * new Vector2((float)Math.Cos((double)currentAngle), -(float)Math.Sin((double)currentAngle)));
+                Vector2 imagePos = center + (scale * Radius * new Vector2((float)Math.Cos(currentAngle), -(float)Math.Sin(currentAngle)));
                 int imageSize = (int)(scale * 30f);
                 Rectangle rectangle = new Rectangle((int)imagePos.X - imageSize, (int)imagePos.Y - imageSize, 2 * imageSize, 2 * imageSize);
                 Color drawColor = Color.White;
@@ -115,10 +112,10 @@ namespace Ship_Game
                     drawColor = Color.Red;
                 }
                 Rectangle? nullable = null;
-                spriteBatch.Draw(RootNode.Children[i].Icon, new Vector2(imagePos.X, imagePos.Y), nullable, drawColor, 0f, new Vector2((float)(RootNode.Children[i].Icon.Width / 2), (float)(RootNode.Children[i].Icon.Height / 2)), scale, SpriteEffects.None, 1f);
+                spriteBatch.Draw(RootNode.Children[i].Icon, new Vector2(imagePos.X, imagePos.Y), nullable, drawColor, 0f, new Vector2(RootNode.Children[i].Icon.Width / 2, RootNode.Children[i].Icon.Height / 2), scale, SpriteEffects.None, 1f);
                 if (i == selectionIndex)
                 {
-                    spriteBatch.DrawString(font, RootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, (float)imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                    spriteBatch.DrawString(font, RootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
                 }
                 currentAngle = currentAngle - angleIncrement;
             }

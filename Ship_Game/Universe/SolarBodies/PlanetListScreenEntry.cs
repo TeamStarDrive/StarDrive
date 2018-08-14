@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -150,7 +148,7 @@ namespace Ship_Game
             //Building lastBuilding;
             foreach (Building b in planet.BuildingList)
             {
-                if (string.IsNullOrEmpty(b.EventTriggerUID) || (planet.Owner != null && planet.Owner.GetBDict()[b.Name] == true))
+                if (string.IsNullOrEmpty(b.EventTriggerUID) || (planet.Owner != null && planet.Owner.GetBDict()[b.Name]))
                 {
                     continue;
                 }
@@ -208,7 +206,7 @@ namespace Ship_Game
                 }
             }
             
-            Vector2 rpos = new Vector2()
+            Vector2 rpos = new Vector2
             {
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y - 10

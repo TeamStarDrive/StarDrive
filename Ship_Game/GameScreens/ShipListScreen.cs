@@ -1,9 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Linq;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -92,7 +90,7 @@ namespace Ship_Game
             }
             Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
             close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
@@ -166,20 +164,20 @@ namespace Ship_Game
             if (ShipSL.NumExpandedEntries > 0)
             {
                 var e1 = ShipSL.ItemAtTop<ShipListScreenEntry>();
-                var TextCursor = new Vector2((float)(e1.SysNameRect.X + e1.SysNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                var TextCursor = new Vector2(e1.SysNameRect.X + e1.SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
                 SortSystem.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X, Fonts.Arial20Bold.LineSpacing);
                 
                 SortSystem.Draw(ScreenManager, Fonts.Arial20Bold);
-                TextCursor = new Vector2((float)(e1.ShipNameRect.X + e1.ShipNameRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X / 2f, (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                TextCursor = new Vector2(e1.ShipNameRect.X + e1.ShipNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
                 SortName.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(193)).X, Fonts.Arial20Bold.LineSpacing);
                 
                 SortName.Draw(ScreenManager, Fonts.Arial20Bold);
                 
-                TextCursor = new Vector2((float)(e1.RoleRect.X + e1.RoleRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
+                TextCursor = new Vector2(e1.RoleRect.X + e1.RoleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
                 SortRole.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(194)).X, Fonts.Arial20Bold.LineSpacing);					
                 SortRole.Draw(ScreenManager, Fonts.Arial20Bold);
 
-                TextCursor = new Vector2((float)(e1.OrdersRect.X + e1.OrdersRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 30));
+                TextCursor = new Vector2(e1.OrdersRect.X + e1.OrdersRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 30);
                 SortOrder.rect = new Rectangle((int)TextCursor.X, (int)TextCursor.Y, (int)Fonts.Arial20Bold.MeasureString(Localizer.Token(195)).X, Fonts.Arial20Bold.LineSpacing);
                 SortOrder.Draw(ScreenManager, Fonts.Arial20Bold);
                 //base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
@@ -194,14 +192,14 @@ namespace Ship_Game
                 TroopRect = new Rectangle(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, eRect.Y - 22 + 30, 18, 22);
                 SB_Troop.rect = TroopRect;
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), TroopRect, Color.White);
-                TextCursor = new Vector2((float)(e1.FTLRect.X + e1.FTLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, (float)(eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
+                TextCursor = new Vector2(e1.FTLRect.X + e1.FTLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref TextCursor);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "FTL", TextCursor, new Color(255, 239, 208));
                 FTL = new Rectangle(e1.FTLRect.X, eRect.Y - 20 + 35, e1.FTLRect.Width, 20);
                 SB_FTL.rect = FTL;
                 STL = new Rectangle(e1.STLRect.X, eRect.Y - 20 + 35, e1.STLRect.Width, 20);
                 SB_STL.rect = STL;
-                TextCursor = new Vector2((float)(e1.STLRect.X + e1.STLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, (float)(eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
+                TextCursor = new Vector2(e1.STLRect.X + e1.STLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref TextCursor);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "STL", TextCursor, new Color(255, 239, 208));
             
@@ -219,49 +217,49 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.DrawRectangle(entry.TotalEntrySize, TextColor);
                 }
                 Color lineColor = new Color(118, 102, 67, 255);
-                Vector2 topLeftSL = new Vector2((float)e1.SysNameRect.X, (float)(eRect.Y + 35));
-                Vector2 botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                Vector2 topLeftSL = new Vector2(e1.SysNameRect.X, eRect.Y + 35);
+                Vector2 botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)e1.ShipNameRect.X, (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.ShipNameRect.X, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)e1.RoleRect.X, (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.RoleRect.X, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)e1.OrdersRect.X, (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.OrdersRect.X, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.RefitRect.X + 5), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.RefitRect.X + 5, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)e1.STRRect.X, (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.STRRect.X, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.MaintRect.X + 5), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.MaintRect.X + 5, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.TroopRect.X + 5), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.TroopRect.X + 5, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.FTLRect.X + 5), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.FTLRect.X + 5, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.STLRect.X + 5), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.STLRect.X + 5, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.STLRect.X + 5 + e1.STRRect.Width), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.STLRect.X + 5 + e1.STRRect.Width, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)e1.TotalEntrySize.X, (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 35));
+                topLeftSL = new Vector2(e1.TotalEntrySize.X, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 35);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((float)(e1.TotalEntrySize.X + e1.TotalEntrySize.Width), (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + eRect.Height - 10));
+                topLeftSL = new Vector2(e1.TotalEntrySize.X + e1.TotalEntrySize.Width, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
-                Vector2 leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(eRect.Y + eRect.Height - 10));
+                Vector2 leftBot = new Vector2(e1.TotalEntrySize.X, eRect.Y + eRect.Height - 10);
                 ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
-                leftBot = new Vector2((float)e1.TotalEntrySize.X, (float)(eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (float)(eRect.Y + 35));
+                leftBot = new Vector2(e1.TotalEntrySize.X, eRect.Y + 35);
+                botSL = new Vector2(topLeftSL.X, eRect.Y + 35);
                 ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
             }
             ShowRoles.Draw(batch);
@@ -431,7 +429,7 @@ namespace Ship_Game
                         Empire.Universe.SelectedShipList.Clear();
                     }
                     else if (Empire.Universe.SelectedShipList.Count > 1)
-                        Empire.Universe.shipListInfoUI.SetShipList((Array<Ship>)Empire.Universe.SelectedShipList, false);
+                        Empire.Universe.shipListInfoUI.SetShipList(Empire.Universe.SelectedShipList, false);
                 }
                 return true;
             }

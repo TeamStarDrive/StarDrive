@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -16,10 +14,6 @@ namespace Ship_Game
         public bool isResearched;
 
         public DanProgressBar pb;
-
-        public Node()
-        {
-        }
 
         public void Draw(ScreenManager ScreenManager, Empire e)
         {
@@ -42,21 +36,21 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.DrawRectangle(NodeRect, Color.White, 3f);
             }
-            Vector2 cursor = new Vector2((float)(NodeRect.X + 10), (float)(NodeRect.Y + 4));
+            Vector2 cursor = new Vector2(NodeRect.X + 10, NodeRect.Y + 4);
             HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(ResourceManager.TechTree[tech.UID].NameIndex), cursor, Fonts.Arial12Bold);
             Rectangle BlackBar = new Rectangle(NodeRect.X + 215, NodeRect.Y + 1, 1, NodeRect.Height - 2);
             ScreenManager.SpriteBatch.FillRectangle(BlackBar, Color.Black);
             Rectangle rIconRect = new Rectangle(BlackBar.X + 4, BlackBar.Y + 4, 19, 20);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rIconRect, Color.White);
-            cursor.X = (float)(rIconRect.X + 24);
+            cursor.X = rIconRect.X + 24;
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
             int cost = (int)ResourceManager.TechTree[tech.UID].Cost;
             spriteBatch.DrawString(arial12Bold, cost.ToString(), cursor, Color.White);
             float progress = tech.Progress / ResourceManager.TechTree[tech.UID].Cost;
             pb.Draw(ScreenManager, progress);
-            cursor.X = (float)(pb.rect.X + pb.rect.Width + 33);
-            cursor.Y = (float)(pb.rect.Y - 2);
+            cursor.X = pb.rect.X + pb.rect.Width + 33;
+            cursor.Y = pb.rect.Y - 2;
             int num = (int)(progress * 100f);
             string s = string.Concat(num.ToString(), "%");
             cursor.X = cursor.X - Fonts.Arial12Bold.MeasureString(s).X;

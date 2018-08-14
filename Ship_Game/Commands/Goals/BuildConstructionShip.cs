@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
@@ -17,7 +15,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion,
+                WaitMainGoalCompletion
             };
         }
 
@@ -68,7 +66,7 @@ namespace Ship_Game.Commands.Goals
                 DisplayName = "Construction Ship",
                 QueueNumber = shipyard.ConstructionQueue.Count,
                 sData       = beingBuilt.shipData,
-                Cost        = toBuild.GetCost(empire),
+                Cost        = toBuild.GetCost(empire)
             };
 
             shipyard.ConstructionQueue.Add(queueItem);

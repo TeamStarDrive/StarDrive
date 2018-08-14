@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -39,20 +37,20 @@ namespace Ship_Game
 			this.Text = Text;
 			ContainerRect = r;
 			rect = new Rectangle(r.X + 9, r.Y + r.Height / 2 + 3, r.Width - 30, 6);
-			cursor = new Rectangle(rect.X + (int)((float)rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
 
 		public void Draw(ScreenManager ScreenManager)
 		{
 			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
-			Vector2 Cursor = new Vector2((float)ContainerRect.X, (float)ContainerRect.Y);
+			Vector2 Cursor = new Vector2(ContainerRect.X, ContainerRect.Y);
 			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6), new Rectangle?(new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6)), Color.White);
+			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
 			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(rect.X + rect.Width / 10 * i), (float)(rect.Y + rect.Height + 2));
+				tickCursor = new Vector2(rect.X + rect.Width / 10 * i, rect.Y + rect.Height + 2);
 				if (Hover)
 				{
 					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
@@ -72,7 +70,7 @@ namespace Ship_Game
 			{
 				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
-			Vector2 textPos = new Vector2((float)(rect.X + rect.Width + 8), (float)(rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 textPos = new Vector2(rect.X + rect.Width + 8, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			int num = (int)(amount * 100f);
 			SpriteBatch.DrawString(arial12Bold, num.ToString(), textPos, new Color(255, 239, 208));
@@ -85,14 +83,14 @@ namespace Ship_Game
 		public void DrawPct(ScreenManager ScreenManager)
 		{
 			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
-			Vector2 Cursor = new Vector2((float)ContainerRect.X, (float)ContainerRect.Y);
+			Vector2 Cursor = new Vector2(ContainerRect.X, ContainerRect.Y);
 			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6), new Rectangle?(new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6)), Color.White);
+			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), new Rectangle(rect.X, rect.Y, (int)(amount * rect.Width), 6), Color.White);
 			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(rect.X + rect.Width / 10 * i), (float)(rect.Y + rect.Height + 2));
+				tickCursor = new Vector2(rect.X + rect.Width / 10 * i, rect.Y + rect.Height + 2);
 				if (Hover)
 				{
 					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
@@ -112,7 +110,7 @@ namespace Ship_Game
 			{
 				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
-			Vector2 textPos = new Vector2((float)(rect.X + rect.Width + 8), (float)(rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 textPos = new Vector2(rect.X + rect.Width + 8, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			int num = (int)(amount * 100f);
 			SpriteBatch.DrawString(arial12Bold, string.Concat(num.ToString(), "%"), textPos, new Color(255, 239, 208));
@@ -153,7 +151,7 @@ namespace Ship_Game
 				{
 					dragging = false;
 				}
-				amount = 1f - (float)((float)rect.X + (float)rect.Width - (float)cursor.X) / (float)rect.Width;
+				amount = 1f - (rect.X + (float)rect.Width - cursor.X) / rect.Width;
 			}
 			return amount;
 		}
@@ -161,7 +159,7 @@ namespace Ship_Game
 		public void SetAmount(float amt)
 		{
 			amount = amt / Max;
-			cursor = new Rectangle(rect.X + (int)((float)rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
 
 		public void UpdatePosition(Vector2 Position, int Width, int Height, string Text)
@@ -169,7 +167,7 @@ namespace Ship_Game
 			this.Text = Text;
 			ContainerRect = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
 			rect = new Rectangle(ContainerRect.X, ContainerRect.Y + 20, ContainerRect.Width - 30, 6);
-			cursor = new Rectangle(rect.X + (int)((float)rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
 	}
 }

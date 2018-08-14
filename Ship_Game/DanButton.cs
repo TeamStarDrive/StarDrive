@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -28,7 +26,7 @@ namespace Ship_Game
 			Pos = rPos;
 			r = new Rectangle((int)rPos.X, (int)rPos.Y, 182, 25);
 			this.Text = Text;
-			TextPos = new Vector2((float)(r.X + 20), (float)(r.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
+			TextPos = new Vector2(r.X + 20, r.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
 			ToggledText = Text;
 		}
 
@@ -62,7 +60,7 @@ namespace Ship_Game
 			string str;
 			Color color;
 			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button"), rect, Color.White);
-			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 tPos = new Vector2(rect.X + 25, rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);
 			Vector2 pos = tPos;
 			if (GlobalStats.IsGerman)
 			{
@@ -112,7 +110,7 @@ namespace Ship_Game
 			string str;
 			Color color;
 			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), rect, Color.White);
-			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 tPos = new Vector2(rect.X + 25, rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);
 			Vector2 pos = tPos;
 			if (GlobalStats.IsGerman)
 			{

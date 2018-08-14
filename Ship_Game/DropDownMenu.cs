@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -61,9 +59,9 @@ namespace Ship_Game
 		public void Draw(SpriteBatch spriteBatch)
 		{
 			bool hover = false;
-			float x = (float)Mouse.GetState().X;
+			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
-			Vector2 MousePos = new Vector2(x, (float)state.Y);
+			Vector2 MousePos = new Vector2(x, state.Y);
 			if (this.r.HitTest(MousePos))
 			{
 				hover = true;
@@ -78,10 +76,10 @@ namespace Ship_Game
 			}
 			if (hover)
 			{
-				spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2((float)(r.X + 8), (float)(r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.White);
+				spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(r.X + 8, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.White);
 				return;
 			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2((float)(this.r.X + 8), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), new Color(255, 239, 208));
 		}
 
 		public void DrawGrayed(SpriteBatch spriteBatch)
@@ -90,7 +88,7 @@ namespace Ship_Game
 			{
 				spriteBatch.Draw(ResourceManager.Texture(r.tex), r.r, Color.DarkGray);
 			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2((float)(this.r.X + 8), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.DarkGray);
+			spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.DarkGray);
 		}
 
 		public void Toggle()

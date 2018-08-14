@@ -1,8 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System;
-using System.Linq.Expressions;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -118,7 +116,7 @@ namespace Ship_Game
 			MainMenu = new Menu2(leftRect);
 
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, "Advanced Rule Options", Fonts.Arial20Bold);
-		    string text = HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token(2289), MainMenu.Menu.Width - 80);
+		    string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40 + Fonts.Arial20Bold.LineSpacing + 2, text, Fonts.Arial12);
 		}
 	}

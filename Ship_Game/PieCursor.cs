@@ -1,8 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Ship_Game
 {
@@ -78,7 +77,7 @@ namespace Ship_Game
 		protected override void LoadContent()
 		{
 			cursorTexture = content.Load<Texture2D>("cursor");
-			textureCenter = new Vector2((float)(cursorTexture.Width / 2), (float)(cursorTexture.Height / 2));
+			textureCenter = new Vector2(cursorTexture.Width / 2, cursorTexture.Height / 2);
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			spriteFont = content.Load<SpriteFont>("menufont");
 			base.LoadContent();
@@ -103,8 +102,8 @@ namespace Ship_Game
 				return;
 			}
 			MouseState mouseState = Mouse.GetState();
-			position.X = (float)mouseState.X;
-			position.Y = (float)mouseState.Y;
+			position.X = mouseState.X;
+			position.Y = mouseState.Y;
 			PieCursor totalSeconds = this;
 			Vector2 vector2 = totalSeconds.position;
 			Vector2 cursorSpeed = deltaMovement * CursorSpeed;

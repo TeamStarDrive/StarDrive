@@ -4,15 +4,11 @@
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -1090,7 +1086,7 @@ namespace Ship_Game.AI
 
             strengthCluster = Owner.GetGSAI().ThreatMatrix.FindLargestStengthClusterLimited(strengthCluster, GetStrength(), FindAveragePosition());
             if (strengthCluster.Strength <= 0) return false;
-            CoreFleetSubTask = new MilitaryTask()
+            CoreFleetSubTask = new MilitaryTask
             {
                 AO = strengthCluster.Postition,
                 AORadius = strengthCluster.Granularity
@@ -1389,7 +1385,7 @@ namespace Ship_Game.AI
                         foreach (FleetDataNode fleetDataNode in squad.DataNodes)
                         {
                             if (fleetDataNode.Ship == ship)
-                                fleetDataNode.Ship = (Ship)null;
+                                fleetDataNode.Ship = null;
                         }
                 }
             }

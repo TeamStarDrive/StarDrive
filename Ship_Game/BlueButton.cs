@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -26,7 +23,7 @@ namespace Ship_Game
 		{
 			Button = new Rectangle((int)Position.X, (int)Position.Y, 180, 33);
 			Text = text;
-			TextPos = new Vector2((float)(Button.X + Button.Width / 2) - Fonts.Pirulen12.MeasureString(Text).X / 2f, (float)(Button.Y + Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
+			TextPos = new Vector2(Button.X + Button.Width / 2 - Fonts.Pirulen12.MeasureString(Text).X / 2f, Button.Y + Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
 		}
 
 		public void Draw(ScreenManager ScreenManager)
@@ -52,7 +49,7 @@ namespace Ship_Game
 
 		public void DrawTransition(ScreenManager ScreenManager, Rectangle b)
 		{
-			TextPos = new Vector2((float)(b.X + Button.Width / 2) - Fonts.Pirulen12.MeasureString(Text).X / 2f, (float)(b.Y + Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
+			TextPos = new Vector2(b.X + Button.Width / 2 - Fonts.Pirulen12.MeasureString(Text).X / 2f, b.Y + Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
 			if (!ToggleOn)
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover0"), b, Color.White);
