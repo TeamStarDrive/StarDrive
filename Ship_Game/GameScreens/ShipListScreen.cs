@@ -186,14 +186,14 @@ namespace Ship_Game
 
                 this.STRIconRect = new Rectangle(e1.STRRect.X + e1.STRRect.Width / 2 - 6, this.eRect.Y - 18 + 30, 18, 18);
                 this.SB_STR.rect = this.STRIconRect;
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_fighting_small"], this.STRIconRect, Color.White);                    
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), this.STRIconRect, Color.White);                    
                 this.MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, this.eRect.Y - 20 + 30, 21, 20);
                 this.Maint.rect = this.MaintRect;
                 //this.Maint.Draw(base.ScreenManager, null);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], this.MaintRect, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_money"), this.MaintRect, Color.White);
                 this.TroopRect = new Rectangle(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, this.eRect.Y - 22 + 30, 18, 22);
                 this.SB_Troop.rect = this.TroopRect;
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], this.TroopRect, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), this.TroopRect, Color.White);
                 TextCursor = new Vector2((float)(e1.FTLRect.X + e1.FTLRect.Width / 2) - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, (float)(this.eRect.Y - Fonts.Arial12Bold.LineSpacing + 28));
                 HelperFunctions.ClampVectorToInt(ref TextCursor);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "FTL", TextCursor, new Color(255, 239, 208));

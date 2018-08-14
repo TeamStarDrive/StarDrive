@@ -856,7 +856,7 @@ namespace Ship_Game
 
                 if (Up.HitTest(pos))
                 {
-                    batch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], Up, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover2"), Up, Color.White);
                 }
                 if (Empire.Universe.IsActive)
                 {

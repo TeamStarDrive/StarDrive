@@ -50,10 +50,10 @@ namespace Ship_Game
 		{
 			if (this.Hover)
 			{
-				screenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.hPath], this.r, Color.White);
+				screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.hPath), this.r, Color.White);
 				return;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.tPath], this.r, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.tPath), this.r, Color.White);
 		}
 
 		public bool HandleInput(InputState input)

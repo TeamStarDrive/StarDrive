@@ -69,7 +69,7 @@ namespace Ship_Game
 			if ( !complete)
 			{
 				this.CurrentResearch.Draw(this.ScreenManager);
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/timeleft"], this.TimeLeft, Color.White);
+				this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), this.TimeLeft, Color.White);
 				Vector2 Cursor = new Vector2((float)(this.TimeLeft.X + this.TimeLeft.Width - 7), (float)(this.TimeLeft.Y + this.TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2));
 				float cost = tech.TechCost - tech.Progress;
 				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
