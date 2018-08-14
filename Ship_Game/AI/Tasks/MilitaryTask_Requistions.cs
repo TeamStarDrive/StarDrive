@@ -416,7 +416,7 @@ namespace Ship_Game.AI.Tasks {
                 {
                     AO = TargetPlanet.Center,
                     AORadius = 75000f,
-                    type = MilitaryTask.TaskType.AssaultPlanet
+                    type = TaskType.AssaultPlanet
                 };
 
                 closestAO.GetCoreFleet().Owner.GetGSAI().TasksToAdd.Add(assault);
@@ -455,7 +455,7 @@ namespace Ship_Game.AI.Tasks {
                     {
                         AO = TargetPlanet.Center,
                         AORadius = 75000f,
-                        type = MilitaryTask.TaskType.GlassPlanet,
+                        type = TaskType.GlassPlanet,
                         TargetPlanet = TargetPlanet,
                         WaitForCommand = true
                     };

@@ -37,23 +37,23 @@ namespace Ship_Game
 			this.Min = Min;
 			this.Max = Max;
 			this.Text = Text;
-			this.ContainerRect = r;
-			this.rect = new Rectangle(r.X + 9, r.Y + r.Height / 2 + 3, r.Width - 30, 6);
-			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			ContainerRect = r;
+			rect = new Rectangle(r.X + 9, r.Y + r.Height / 2 + 3, r.Width - 30, 6);
+			cursor = new Rectangle(rect.X + (int)((float)rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager ScreenManager)
 		{
-			Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
-			Vector2 Cursor = new Vector2((float)this.ContainerRect.X, (float)this.ContainerRect.Y);
-			SpriteBatch.DrawString(Fonts.Arial12Bold, this.Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6), new Rectangle?(new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6)), Color.White);
-			SpriteBatch.DrawRectangle(this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
+			Vector2 Cursor = new Vector2((float)ContainerRect.X, (float)ContainerRect.Y);
+			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
+			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6), new Rectangle?(new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6)), Color.White);
+			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(this.rect.X + this.rect.Width / 10 * i), (float)(this.rect.Y + this.rect.Height + 2));
-				if (this.Hover)
+				tickCursor = new Vector2((float)(rect.X + rect.Width / 10 * i), (float)(rect.Y + rect.Height + 2));
+				if (Hover)
 				{
 					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
 				}
@@ -62,9 +62,9 @@ namespace Ship_Game
 					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
 				}
 			}
-			Rectangle drawRect = this.cursor;
+			Rectangle drawRect = cursor;
 			drawRect.X = drawRect.X - drawRect.Width / 2;
-			if (this.Hover)
+			if (Hover)
 			{
 				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), drawRect, Color.White);
 			}
@@ -72,28 +72,28 @@ namespace Ship_Game
 			{
 				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
-			Vector2 textPos = new Vector2((float)(this.rect.X + this.rect.Width + 8), (float)(this.rect.Y + this.rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 textPos = new Vector2((float)(rect.X + rect.Width + 8), (float)(rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			int num = (int)(this.amount * 100f);
+			int num = (int)(amount * 100f);
 			SpriteBatch.DrawString(arial12Bold, num.ToString(), textPos, new Color(255, 239, 208));
-			if (this.Hover && this.Tip_ID != 0)
+			if (Hover && Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID);
+				ToolTip.CreateTooltip(Tip_ID);
 			}
 		}
 
-		public void DrawPct(Ship_Game.ScreenManager ScreenManager)
+		public void DrawPct(ScreenManager ScreenManager)
 		{
-			Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
-			Vector2 Cursor = new Vector2((float)this.ContainerRect.X, (float)this.ContainerRect.Y);
-			SpriteBatch.DrawString(Fonts.Arial12Bold, this.Text, Cursor, new Color(255, 239, 208));
-			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6), new Rectangle?(new Rectangle(this.rect.X, this.rect.Y, (int)(this.amount * (float)this.rect.Width), 6)), Color.White);
-			SpriteBatch.DrawRectangle(this.rect, (this.Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
+			Vector2 Cursor = new Vector2((float)ContainerRect.X, (float)ContainerRect.Y);
+			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
+			SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6), new Rectangle?(new Rectangle(rect.X, rect.Y, (int)(amount * (float)rect.Width), 6)), Color.White);
+			SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
-				tickCursor = new Vector2((float)(this.rect.X + this.rect.Width / 10 * i), (float)(this.rect.Y + this.rect.Height + 2));
-				if (this.Hover)
+				tickCursor = new Vector2((float)(rect.X + rect.Width / 10 * i), (float)(rect.Y + rect.Height + 2));
+				if (Hover)
 				{
 					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
 				}
@@ -102,9 +102,9 @@ namespace Ship_Game
 					SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
 				}
 			}
-			Rectangle drawRect = this.cursor;
+			Rectangle drawRect = cursor;
 			drawRect.X = drawRect.X - drawRect.Width / 2;
-			if (this.Hover)
+			if (Hover)
 			{
 				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), drawRect, Color.White);
 			}
@@ -112,64 +112,64 @@ namespace Ship_Game
 			{
 				SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
-			Vector2 textPos = new Vector2((float)(this.rect.X + this.rect.Width + 8), (float)(this.rect.Y + this.rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+			Vector2 textPos = new Vector2((float)(rect.X + rect.Width + 8), (float)(rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			int num = (int)(this.amount * 100f);
+			int num = (int)(amount * 100f);
 			SpriteBatch.DrawString(arial12Bold, string.Concat(num.ToString(), "%"), textPos, new Color(255, 239, 208));
-			if (this.Hover && this.Tip_ID != 0)
+			if (Hover && Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID);
+				ToolTip.CreateTooltip(Tip_ID);
 			}
 		}
 
 		public float HandleInput(InputState input)
 		{
-			if (!this.rect.HitTest(input.CursorPosition))
+			if (!rect.HitTest(input.CursorPosition))
 			{
-				this.Hover = false;
+				Hover = false;
 			}
 			else
 			{
-				this.Hover = true;
+				Hover = true;
 			}
-			Rectangle clickCursor = this.cursor;
-			clickCursor.X = clickCursor.X - this.cursor.Width / 2;
+			Rectangle clickCursor = cursor;
+			clickCursor.X = clickCursor.X - cursor.Width / 2;
 			if (clickCursor.HitTest(input.CursorPosition) && input.MouseCurr.LeftButton == ButtonState.Pressed && input.MousePrev.LeftButton == ButtonState.Pressed)
 			{
-				this.dragging = true;
+				dragging = true;
 			}
-			if (this.dragging)
+			if (dragging)
 			{
-				this.cursor.X = (int)input.CursorPosition.X;
-				if (this.cursor.X > this.rect.X + this.rect.Width)
+				cursor.X = (int)input.CursorPosition.X;
+				if (cursor.X > rect.X + rect.Width)
 				{
-					this.cursor.X = this.rect.X + this.rect.Width;
+					cursor.X = rect.X + rect.Width;
 				}
-				else if (this.cursor.X < this.rect.X)
+				else if (cursor.X < rect.X)
 				{
-					this.cursor.X = this.rect.X;
+					cursor.X = rect.X;
 				}
 				if (input.LeftMouseUp)
 				{
-					this.dragging = false;
+					dragging = false;
 				}
-				this.amount = 1f - (float)((float)this.rect.X + (float)this.rect.Width - (float)this.cursor.X) / (float)this.rect.Width;
+				amount = 1f - (float)((float)rect.X + (float)rect.Width - (float)cursor.X) / (float)rect.Width;
 			}
-			return this.amount;
+			return amount;
 		}
 
 		public void SetAmount(float amt)
 		{
-			this.amount = amt / this.Max;
-			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			amount = amt / Max;
+			cursor = new Rectangle(rect.X + (int)((float)rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
 
 		public void UpdatePosition(Vector2 Position, int Width, int Height, string Text)
 		{
 			this.Text = Text;
-			this.ContainerRect = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
-			this.rect = new Rectangle(this.ContainerRect.X, this.ContainerRect.Y + 20, this.ContainerRect.Width - 30, 6);
-			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+			ContainerRect = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
+			rect = new Rectangle(ContainerRect.X, ContainerRect.Y + 20, ContainerRect.Width - 30, 6);
+			cursor = new Rectangle(rect.X + (int)((float)rect.Width * amount), rect.Y + rect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
 		}
 	}
 }

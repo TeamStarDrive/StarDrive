@@ -36,7 +36,7 @@ namespace Ship_Game
 
         public SkinnableButton(Rectangle r, string TexturePath)
         {
-            this.tPath = TexturePath;
+            tPath = TexturePath;
             Texture = ResourceManager.Texture(tPath);
             this.r = r;
         }
@@ -48,40 +48,40 @@ namespace Ship_Game
 
         public void Draw(ScreenManager screenManager)
         {
-            if (this.Toggled)
+            if (Toggled)
             {
-                screenManager.SpriteBatch.FillRectangle(this.r, this.ToggleColor);
+                screenManager.SpriteBatch.FillRectangle(r, ToggleColor);
             }
          
-            screenManager.SpriteBatch.Draw(Texture, this.r, (this.Hover ? this.HoverColor : this.BaseColor));
-            if (this.SecondSkin != null)
+            screenManager.SpriteBatch.Draw(Texture, r, (Hover ? HoverColor : BaseColor));
+            if (SecondSkin != null)
             {
-                if (this.Toggled)
+                if (Toggled)
                 {
-                    Rectangle secondRect = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.Texture(this.SecondSkin).Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.Texture(this.SecondSkin).Height / 2, ResourceManager.Texture(this.SecondSkin).Width, ResourceManager.Texture(this.SecondSkin).Height);
-                    screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.SecondSkin), secondRect, Color.White);
+                    Rectangle secondRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture(SecondSkin).Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture(SecondSkin).Height / 2, ResourceManager.Texture(SecondSkin).Width, ResourceManager.Texture(SecondSkin).Height);
+                    screenManager.SpriteBatch.Draw(ResourceManager.Texture(SecondSkin), secondRect, Color.White);
                     return;
                 }
-                Rectangle secondRect0 = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.Texture(this.SecondSkin).Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.Texture(this.SecondSkin).Height / 2, ResourceManager.Texture(this.SecondSkin).Width, ResourceManager.Texture(this.SecondSkin).Height);
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.SecondSkin), secondRect0, (this.Hover ? Color.LightGray : Color.Black));
+                Rectangle secondRect0 = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture(SecondSkin).Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture(SecondSkin).Height / 2, ResourceManager.Texture(SecondSkin).Width, ResourceManager.Texture(SecondSkin).Height);
+                screenManager.SpriteBatch.Draw(ResourceManager.Texture(SecondSkin), secondRect0, (Hover ? Color.LightGray : Color.Black));
             }
         }
 
         public bool HandleInput(InputState input)
         {
-            if (!this.r.HitTest(input.CursorPosition))
+            if (!r.HitTest(input.CursorPosition))
             {
-                this.Hover = false;
+                Hover = false;
             }
             else
             {
-                this.Hover = true;
+                Hover = true;
                 if (input.InGameSelect)
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    if (this.IsToggle)
+                    if (IsToggle)
                     {
-                        this.Toggled = !this.Toggled;
+                        Toggled = !Toggled;
                     }
                     return true;
                 }

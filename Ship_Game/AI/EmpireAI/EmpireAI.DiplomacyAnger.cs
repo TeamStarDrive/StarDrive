@@ -12,12 +12,12 @@ namespace Ship_Game.AI {
 
         private int SecondDemand = 75;
 
-        private void AssessAngerAggressive(KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship,
+        private void AssessAngerAggressive(KeyValuePair<Empire, Relationship> Relationship,
             Posture posture, float usedTrust)
         {
             if (posture != Posture.Friendly)
             {
-                this.AssessDiplomaticAnger(Relationship);
+                AssessDiplomaticAnger(Relationship);
             }
             else if (Relationship.Value.Treaty_OpenBorders ||
                      !Relationship.Value.Treaty_Trade && !Relationship.Value.Treaty_NAPact ||
@@ -33,7 +33,7 @@ namespace Ship_Game.AI {
             else if (Relationship.Value.Trust >= 50f)
             {
                 if (Relationship.Value.Trust - usedTrust >
-                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2))
+                    (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2))
                 {
                     Offer NAPactOffer = new Offer()
                     {
@@ -41,7 +41,7 @@ namespace Ship_Game.AI {
                         AcceptDL = "Open Borders Accepted",
                         RejectDL = "Open Borders Friends Rejected"
                     };
-                    Ship_Game.Gameplay.Relationship value = Relationship.Value;
+                    Relationship value = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_OpenBorders,
                         (bool x) => value.HaveRejected_OpenBorders = x);
                     Offer OurOffer = new Offer()
@@ -51,20 +51,20 @@ namespace Ship_Game.AI {
                     if (Relationship.Key != Empire.Universe.PlayerEmpire)
                     {
                         Relationship.Key.GetGSAI()
-                            .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Pleading);
+                            .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                         return;
                     }
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
                     return;
                 }
             }
             else if (Relationship.Value.Trust >= 20f &&
                      Relationship.Value.Anger_TerritorialConflict + Relationship.Value.Anger_FromShipsInOurBorders >=
-                     0.75f * (float) this.OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                     0.75f * (float) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
             {
                 if (Relationship.Value.Trust - usedTrust >
-                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2))
+                    (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2))
                 {
                     Offer NAPactOffer = new Offer()
                     {
@@ -72,7 +72,7 @@ namespace Ship_Game.AI {
                         AcceptDL = "Open Borders Accepted",
                         RejectDL = "Open Borders Rejected"
                     };
-                    Ship_Game.Gameplay.Relationship relationship = Relationship.Value;
+                    Relationship relationship = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => relationship.HaveRejected_OpenBorders,
                         (bool x) => relationship.HaveRejected_OpenBorders = x);
                     Offer OurOffer = new Offer()
@@ -82,10 +82,10 @@ namespace Ship_Game.AI {
                     if (Relationship.Key != Empire.Universe.PlayerEmpire)
                     {
                         Relationship.Key.GetGSAI()
-                            .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Pleading);
+                            .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                         return;
                     }
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
                     return;
                 }
@@ -93,20 +93,20 @@ namespace Ship_Game.AI {
             else if (Relationship.Value.turnsSinceLastContact >= 10 && Relationship.Value.Known &&
                      Relationship.Key == Empire.Universe.PlayerEmpire)
             {
-                Ship_Game.Gameplay.Relationship r = Relationship.Value;
+                Relationship r = Relationship.Value;
                 if (r.Anger_FromShipsInOurBorders >
-                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4) && !r.AtWar &&
+                    (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4) && !r.AtWar &&
                     !r.WarnedAboutShips && r.turnsSinceLastContact > 10)
                 {
-                    this.ThreatMatrix.ClearBorders();
+                    ThreatMatrix.ClearBorders();
                     if (!r.WarnedAboutColonizing)
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Relationship.Key, "Warning Ships"));
                     }
                     else
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
                     }
                     r.WarnedAboutShips = true;
@@ -115,7 +115,7 @@ namespace Ship_Game.AI {
             }
         }
 
-        private void AssessAngerPacifist(KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship,
+        private void AssessAngerPacifist(KeyValuePair<Empire, Relationship> Relationship,
             Posture posture, float usedTrust)
         {
             if (posture != Posture.Friendly)
@@ -147,10 +147,10 @@ namespace Ship_Game.AI {
                         if (Relationship.Key != Empire.Universe.PlayerEmpire)
                         {
                             Relationship.Key.GetGSAI()
-                                .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Pleading);
+                                .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                             return;
                         }
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
                         return;
                     }
@@ -178,10 +178,10 @@ namespace Ship_Game.AI {
                     if (Relationship.Key != Empire.Universe.PlayerEmpire)
                     {
                         Relationship.Key.GetGSAI()
-                            .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Pleading);
+                            .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                         return;
                     }
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
                     return;
                 }
@@ -190,20 +190,20 @@ namespace Ship_Game.AI {
             {
                 if (Relationship.Value.Known && Relationship.Key == Empire.Universe.PlayerEmpire)
                 {
-                    Ship_Game.Gameplay.Relationship r = Relationship.Value;
+                    Relationship r = Relationship.Value;
                     if (r.Anger_FromShipsInOurBorders >
-                        (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4) && !r.AtWar &&
+                        (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4) && !r.AtWar &&
                         !r.WarnedAboutShips && r.turnsSinceLastContact > 10)
                     {
-                        this.ThreatMatrix.ClearBorders();
+                        ThreatMatrix.ClearBorders();
                         if (!r.WarnedAboutColonizing)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                                 Relationship.Key, "Warning Ships"));
                         }
                         else
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire,
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                                 Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
                         }
                         r.WarnedAboutShips = true;
@@ -219,7 +219,7 @@ namespace Ship_Game.AI {
             }
         }
 
-        private void AssessDiplomaticAnger(KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship)
+        private void AssessDiplomaticAnger(KeyValuePair<Empire, Relationship> Relationship)
         {
             if (!Relationship.Value.Known) return;
             Relationship r = Relationship.Value;
@@ -243,12 +243,12 @@ namespace Ship_Game.AI {
                 if (Relationship.Key == Empire.Universe.PlayerEmpire && r.turnsSinceLastContact > 10)
                     if (!r.WarnedAboutColonizing)
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire, them,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                             "Warning Ships"));
                     }
                     else
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.OwnerEmpire, them,
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
                             "Warning Colonized then Ships", r.GetContestedSystem()));
                     }
 
