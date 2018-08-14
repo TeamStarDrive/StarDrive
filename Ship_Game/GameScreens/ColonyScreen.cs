@@ -599,7 +599,7 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
-            if (ResourceManager.TextureDict.ContainsKey("Portraits/" + p.Owner.data.PortraitName))
+            if (ResourceManager.TextureLoaded("Portraits/" + p.Owner.data.PortraitName))
             {
                 Rectangle rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
                 while (rectangle4.Y + rectangle4.Height > pDescription.Menu.Y + 30 + pDescription.Menu.Height - 30)
@@ -1295,7 +1295,7 @@ namespace Ship_Game
                     if (pgs.building.IsSensor && pgs.building.SensorRange != 0f)
                     {
                         Rectangle fIcon;
-                        if (ResourceManager.TextureDict.ContainsKey("NewUI/icon_sensors"))
+                        if (ResourceManager.TextureLoaded("NewUI/icon_sensors"))
                         {
                             fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_sensors").Width, ResourceManager.Texture("NewUI/icon_sensors").Height);
                             spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_sensors"), fIcon, Color.White);
@@ -1315,7 +1315,7 @@ namespace Ship_Game
                     if (pgs.building.IsProjector && pgs.building.ProjectorRange != 0f)
                     {
                         Rectangle fIcon;
-                        if (ResourceManager.TextureDict.ContainsKey("NewUI/icon_projection"))
+                        if (ResourceManager.TextureLoaded("NewUI/icon_projection"))
                         {
                             fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_projection").Width, ResourceManager.Texture("NewUI/icon_projection").Height);
                             spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_projection"), fIcon, Color.White);
