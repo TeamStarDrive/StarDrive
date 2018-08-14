@@ -18,7 +18,7 @@ namespace Ship_Game
 
         public override void DoSave()
         {
-            FleetDesign d = new FleetDesign()
+            FleetDesign d = new FleetDesign
             {
                 Name = EnterNameArea.Text
             };

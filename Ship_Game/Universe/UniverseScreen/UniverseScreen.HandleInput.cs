@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -275,9 +274,9 @@ namespace Ship_Game
         private void HandleFleetButtonClick(InputState input)
         {
             InputCheckPreviousShip();
-            SelectedShip = (Ship)null;
+            SelectedShip = null;
             SelectedShipList.Clear();
-            SelectedFleet = (Fleet)null;
+            SelectedFleet = null;
             lock (GlobalStats.FleetButtonLocker)
             {
                 for (int i = 0; i < FleetButtons.Count; ++i)
@@ -1609,7 +1608,6 @@ namespace Ship_Game
                 SelectedShipList.Clear();
                 SelectedShipList.Add(SelectedShip);
                 ViewingShip = false;
-                return;
             }
             else
                 previousSelection = null;  //fbedard: remove inactive ship
@@ -1641,7 +1639,8 @@ namespace Ship_Game
                             lastshipcombat++;
                             break;
                         }
-                        else nbrship++;
+
+                        nbrship++;
                     }
                 }
                 else
@@ -1809,7 +1808,7 @@ namespace Ship_Game
             }
             InputCheckPreviousShip();
 
-            SelectedShip = (Ship)null;
+            SelectedShip = null;
             SelectedShipList.Clear();
             if (fleet.Ships.Count > 0)
             {
@@ -1817,7 +1816,7 @@ namespace Ship_Game
                 GameAudio.PlaySfxAsync("techy_affirm1");
             }
             else
-                SelectedFleet = (Fleet)null;
+                SelectedFleet = null;
             foreach (Ship ship in fleet.Ships)
             {
                 SelectedShipList.Add(ship);

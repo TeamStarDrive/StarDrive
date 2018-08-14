@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -10,10 +9,6 @@ namespace Ship_Game
     [XmlRoot("dictionary")]
     public sealed class SerializableDictionary<TKey, TValue> : Map<TKey, TValue>, IXmlSerializable
     {
-        public SerializableDictionary()
-        {
-        }
-
         public XmlSchema GetSchema()
         {
             return null;

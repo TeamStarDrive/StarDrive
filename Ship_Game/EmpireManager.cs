@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -124,7 +123,7 @@ namespace Ship_Game
             var empire = new Empire
             {
                 data = new EmpireData(),
-                Id = -1,
+                Id = -1
             };
             empire.data.Traits = new RacialTrait {Name = "Void"};
             return empire;

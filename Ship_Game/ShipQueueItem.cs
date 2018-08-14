@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -35,8 +33,8 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			spriteBatch.DrawLine(new Vector2((float)ListRect.X, (float)(ListRect.Y + ListRect.Height)), new Vector2((float)(ListRect.X + ListRect.Width), (float)(ListRect.Y + ListRect.Height)), Color.DarkBlue);
-			Vector2 cursor = new Vector2((float)(ListRect.X + 5), (float)(ListRect.Y + ListRect.Height / 2 - IconSize / 2));
+			spriteBatch.DrawLine(new Vector2(ListRect.X, ListRect.Y + ListRect.Height), new Vector2(ListRect.X + ListRect.Width, ListRect.Y + ListRect.Height), Color.DarkBlue);
+			Vector2 cursor = new Vector2(ListRect.X + 5, ListRect.Y + ListRect.Height / 2 - IconSize / 2);
 			ArrowRect = new Rectangle((int)cursor.X, (int)cursor.Y, 20, 20);
 			spriteBatch.Draw(ResourceManager.Texture("UI/leftArrow"), ArrowRect, ArrowColor);
 			cursor.X = cursor.X + 25f;
@@ -44,7 +42,7 @@ namespace Ship_Game
 			spriteBatch.Draw(ResourceManager.Texture(IconPath), IconRect, IconColor);
 			cursor.X = cursor.X + 45f;
 			spriteBatch.DrawString(Fonts.Arial12Bold, ShipToBuild.Name, cursor, Color.White);
-			cursor.Y = cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+			cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
 			spriteBatch.DrawString(Fonts.Arial12Bold, "Cost: 250", cursor, Color.Orange);
 		}
 	}

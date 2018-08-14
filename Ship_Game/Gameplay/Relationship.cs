@@ -1,10 +1,8 @@
-using Ship_Game;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -181,7 +179,7 @@ namespace Ship_Game.Gameplay
             var s = new HashSet<SolarSystem>();
             foreach (var task in us.GetGSAI().TaskList)
             {
-                if (task.type != AI.Tasks.MilitaryTask.TaskType.DefendClaim) continue;
+                if (task.type != MilitaryTask.TaskType.DefendClaim) continue;
                 var p = task.TargetPlanet;
                 var ss = p.ParentSystem;
                 if (!s.Add(ss)) continue;
@@ -269,7 +267,6 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_Ally_1", true));
-                                return;
                             }
                         }
                         else if (TimesSpiedOnAlly > 1)
@@ -283,7 +280,6 @@ namespace Ship_Game.Gameplay
                             Treaty_OpenBorders = false;
                             Treaty_Trade = false;
                             Posture = Posture.Hostile;
-                            return;
                         }
                     }
                     else if (SpiesDetected == 1 && !AtWar && Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
@@ -293,7 +289,6 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_1", true));
-                                return;
                             }
                         }
                         else if (SpiesDetected == 2)
@@ -301,7 +296,6 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_2", true));
-                                return;
                             }
                         }
                         else if (SpiesDetected >= 3)
@@ -315,7 +309,6 @@ namespace Ship_Game.Gameplay
                             Treaty_OpenBorders = false;
                             Treaty_Trade = false;
                             Posture = Posture.Hostile;
-                            return;
                         }
                     }
                 }
@@ -347,7 +340,6 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_Ally_1", true));
-                                return;
                             }
                         }
                         else if (TimesSpiedOnAlly > 1)
@@ -361,13 +353,11 @@ namespace Ship_Game.Gameplay
                             Treaty_OpenBorders = false;
                             Treaty_Trade = false;
                             Posture = Posture.Hostile;
-                            return;
                         }
                     }
                     else if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                     {
                         Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Killed_Spy_1", true));
-                        return;
                     }
                 }
                 else if (str1 == "Insulted")
@@ -386,7 +376,6 @@ namespace Ship_Game.Gameplay
                         totalAnger4.TotalAnger = totalAnger4.TotalAnger + Amount;
                         Relationship trust4 = this;
                         trust4.Trust = trust4.Trust - Amount;
-                        return;
                     }
                 }
                 else if (str1 == "Colonized Owned System")
@@ -432,7 +421,7 @@ namespace Ship_Game.Gameplay
                     relationship4.Trust = relationship4.Trust - Amount;
                     
 
-                    if (Anger_TerritorialConflict < (float)Us.data.DiplomaticPersonality.Territorialism && !AtWar)
+                    if (Anger_TerritorialConflict < Us.data.DiplomaticPersonality.Territorialism && !AtWar)
                     {
                         if (AtWar)
                         {
@@ -452,7 +441,6 @@ namespace Ship_Game.Gameplay
                             WarnedAboutColonizing = true;
                             contestedSystem = p.ParentSystem;
                             contestedSystemGuid = p.ParentSystem.guid;
-                            return;
                         }
                     }
                 }

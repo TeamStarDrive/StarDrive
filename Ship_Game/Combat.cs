@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game
 {
 	public sealed class Combat
@@ -11,9 +9,5 @@ namespace Ship_Game
 		public PlanetGridSquare Defender;
 
 		public int phase = 1;
-
-		public Combat()
-		{
-		}
 	}
 }

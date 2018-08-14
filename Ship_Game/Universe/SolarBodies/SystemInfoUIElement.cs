@@ -89,7 +89,7 @@ namespace Ship_Game
             }
             Rectangle rectangle = new Rectangle((int)pPos.X - (int)pRadius, (int)pPos.Y - (int)pRadius, (int)pRadius * 2, (int)pRadius * 2);
             ScreenManager.SpriteBatch.BracketRectangle(pPos, pRadius, Color.White);
-            float count = 0.4f / (float)s.PlanetList.Count;
+            float count = 0.4f / s.PlanetList.Count;
             if (SelectionTimer > 0.4f)
             {
                 SelectionTimer = 0.4f;
@@ -97,28 +97,28 @@ namespace Ship_Game
             Hovering = false;
             ClickList.Clear();
             float TransitionPosition = 1f - SelectionTimer / 0.4f;
-            float transitionOffset = (float)Math.Pow((double)TransitionPosition, 2);
+            float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
             if (s.IsExploredBy(EmpireManager.Player))
             {
                 for (int i = 0; i < s.PlanetList.Count; i++)
                 {
                     Vector2 planetPos = pPos.PointFromAngle(s.PlanetList[i].OrbitalAngle, 40 + 40 * i);
-                    planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
+                    planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (40 + 40 * i)) * transitionOffset);
                     DrawCircle(pPos, pPos.Distance(planetPos), (s.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(s.PlanetList[i].Owner.EmpireColor, 100)), 2f);
                 }
                 for (int i = 0; i < s.PlanetList.Count; i++)
                 {
                     Planet planet = s.PlanetList[i];
                     Vector2 planetPos = pPos.PointFromAngle(s.PlanetList[i].OrbitalAngle, 40 + 40 * i);
-                    planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
+                    planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (40 + 40 * i)) * transitionOffset);
                     float fIconScale = 1.0f + ((float)(Math.Log(s.PlanetList[i].Scale)));
                     Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));
-                    if (PlanetRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                    if (PlanetRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                     {
                         Hovering = true;
                         int widthplus = (int)(4f * (HoverTimer / 0.2f));
                         PlanetRect = new Rectangle((int)planetPos.X - ((int)(16 * fIconScale / 2) + widthplus), (int)planetPos.Y - ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus), 2 * ((int)(16 * fIconScale / 2) + widthplus));
-                        ClickMe cm = new ClickMe()
+                        ClickMe cm = new ClickMe
                         {
                             p = s.PlanetList[i],
                             r = PlanetRect
@@ -132,7 +132,7 @@ namespace Ship_Game
                         ScreenManager.SpriteBatch.BracketRectangle(PlanetRect, (s.PlanetList[i].Owner != null ? s.PlanetList[i].Owner.EmpireColor : Color.Gray), 3);
                     }
                     Planet p = s.PlanetList[i];
-                    PlanetTypeCursor = new Vector2((float)(PlanetRect.X + PlanetRect.Width / 2) - SysFont.MeasureString(p.Name).X / 2f, (float)(PlanetRect.Y + PlanetRect.Height + 4));
+                    PlanetTypeCursor = new Vector2(PlanetRect.X + PlanetRect.Width / 2 - SysFont.MeasureString(p.Name).X / 2f, PlanetRect.Y + PlanetRect.Height + 4);
                     HelperFunctions.ClampVectorToInt(ref PlanetTypeCursor);
                     bool hasAnamoly = false;
                     bool hasCommodities = false;
@@ -197,12 +197,12 @@ namespace Ship_Game
                         {
                             sideSpacing += 4;
                             TimeSpan totalGameTime = gameTime.TotalGameTime;
-                            float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                            float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                             f = Math.Abs(f) * 255f;
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_anomaly_small"), flashRect, flashColor);
-                            if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                            if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
                             }
@@ -213,12 +213,12 @@ namespace Ship_Game
                             
                                 sideSpacing += 4;
                             TimeSpan totalGameTime = gameTime.TotalGameTime;
-                            float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                            float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                             f = Math.Abs(f) * 255f;
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/marketIcon"), flashRect, flashColor);
-                            if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                            if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
                             }
@@ -229,12 +229,12 @@ namespace Ship_Game
 
                             sideSpacing += 4;
                             TimeSpan totalGameTime = gameTime.TotalGameTime;
-                            float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                            float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                             f = Math.Abs(f) * 255f;
                             Color flashColor = new Color(255, 255, 255, (byte)f);
                             Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), flashRect, flashColor);
-                            if (flashRect.HitTest(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                            if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
                             }
@@ -251,12 +251,12 @@ namespace Ship_Game
                         if (p.Habitable)
                         {
                             int Spacing = DataFont.LineSpacing;
-                            PlanetTypeCursor.Y = PlanetTypeCursor.Y + (float)(Spacing + 4);
+                            PlanetTypeCursor.Y = PlanetTypeCursor.Y + (Spacing + 4);
                             float population = p.Population / 1000f;
                             string popString = population.ToString(fmt);
                             float maxPopulation = p.MaxPopulation / 1000f + p.MaxPopBonus / 1000f;
                             popString = string.Concat(popString, " / ", maxPopulation.ToString(fmt));
-                            PlanetTypeCursor.X = (float)(PlanetRect.X + PlanetRect.Width / 2) - DataFont.MeasureString(popString).X / 2f;
+                            PlanetTypeCursor.X = PlanetRect.X + PlanetRect.Width / 2 - DataFont.MeasureString(popString).X / 2f;
                             HelperFunctions.ClampVectorToInt(ref PlanetTypeCursor);
                             ScreenManager.SpriteBatch.DrawString(DataFont, popString, PlanetTypeCursor, tColor);
                             Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
@@ -268,10 +268,10 @@ namespace Ship_Game
                             }
                             Rectangle fIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)PlanetTypeCursor.Y + Spacing, 10, 10);
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
-                            Rectangle pIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(PlanetTypeCursor.Y + (float)(2 * Spacing)), 10, 10);
+                            Rectangle pIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(PlanetTypeCursor.Y + 2 * Spacing), 10, 10);
                             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
-                            Rectangle rIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(PlanetTypeCursor.Y + (float)(3 * Spacing)), 10, 10);
-                            Rectangle tIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(PlanetTypeCursor.Y + (float)(4 * Spacing)), 10, 10);
+                            Rectangle rIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(PlanetTypeCursor.Y + 3 * Spacing), 10, 10);
+                            Rectangle tIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(PlanetTypeCursor.Y + 4 * Spacing), 10, 10);
                             if (p.Owner != null && p.Owner == EmpireManager.Player)
                             {
                                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rIcon, Color.White);
@@ -281,8 +281,8 @@ namespace Ship_Game
                                 
 
                             }
-                            Vector2 ft = new Vector2((float)(fIcon.X + 12), (float)fIcon.Y);
-                            Vector2 pt = new Vector2((float)(pIcon.X + 12), (float)pIcon.Y);
+                            Vector2 ft = new Vector2(fIcon.X + 12, fIcon.Y);
+                            Vector2 pt = new Vector2(pIcon.X + 12, pIcon.Y);
                             HelperFunctions.ClampVectorToInt(ref ft);
                             HelperFunctions.ClampVectorToInt(ref pt);
                             if (p.Owner == null || p.Owner != EmpireManager.Player)
@@ -301,17 +301,17 @@ namespace Ship_Game
                                 SpriteFont spriteFont = DataFont;
                                 float netProductionPerTurn = p.GetNetProductionPerTurn();
                                 spriteBatch1.DrawString(spriteFont, netProductionPerTurn.ToString(fmt), pt, tColor);
-                                Vector2 rt = new Vector2((float)(rIcon.X + 12), (float)rIcon.Y);
+                                Vector2 rt = new Vector2(rIcon.X + 12, rIcon.Y);
                                 HelperFunctions.ClampVectorToInt(ref rt);
                                 ScreenManager.SpriteBatch.DrawString(DataFont, p.NetResearchPerTurn.ToString(fmt), rt, tColor);
-                                Vector2 tt = new Vector2((float)(rIcon.X + 12), (float)tIcon.Y);
+                                Vector2 tt = new Vector2(rIcon.X + 12, tIcon.Y);
                                 HelperFunctions.ClampVectorToInt(ref tt);
                                 ScreenManager.SpriteBatch.DrawString(DataFont, playerTroops.ToString(fmt), tt, tColor);
                             }
                         }
-                        float x = (float)Mouse.GetState().X;
+                        float x = Mouse.GetState().X;
                         MouseState state = Mouse.GetState();
-                        Vector2 MousePos = new Vector2(x, (float)state.Y);
+                        Vector2 MousePos = new Vector2(x, state.Y);
                         foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
                         {
                             if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
@@ -340,7 +340,6 @@ namespace Ship_Game
                 if (HoverTimer > 0.1f)
                 {
                     HoverTimer = 0.1f;
-                    return;
                 }
             }
         }
@@ -353,21 +352,19 @@ namespace Ship_Game
             {
                 if (clickMe.r.HitTest(input.CursorPosition) && input.InGameSelect)
                 {
-                    if ((double)ClickTimer < (double)TimerDelay)
+                    if (ClickTimer < (double)TimerDelay)
                     {
                         screen.SelectedPlanet = clickMe.p;
                         screen.pInfoUI.SetPlanet(clickMe.p);
-                        screen.ViewPlanet((object)null);
+                        screen.ViewPlanet(null);
                         return true;
                     }
-                    else
-                    {
-                        GameAudio.PlaySfxAsync("mouse_over4");
-                        screen.SelectedPlanet = clickMe.p;
-                        screen.pInfoUI.SetPlanet(clickMe.p);
-                        ClickTimer = 0.0f;
-                        return true;
-                    }
+
+                    GameAudio.PlaySfxAsync("mouse_over4");
+                    screen.SelectedPlanet = clickMe.p;
+                    screen.pInfoUI.SetPlanet(clickMe.p);
+                    ClickTimer = 0.0f;
+                    return true;
                 }
             }
             return ElementRect.HitTest(input.CursorPosition);

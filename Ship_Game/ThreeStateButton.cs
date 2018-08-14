@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -33,7 +31,7 @@ namespace Ship_Game
 				state = State.Store;
 			}
 			rect = new Rectangle((int)position.X, (int)position.Y, 32, 32);
-			TextPos = new Vector2((float)(rect.X + 36), (float)(rect.Y + 16 - Fonts.Arial12Bold.LineSpacing / 2));
+			TextPos = new Vector2(rect.X + 36, rect.Y + 16 - Fonts.Arial12Bold.LineSpacing / 2);
 		}
 
 		public void Draw(ScreenManager ScreenManager, int amount)
@@ -53,7 +51,7 @@ namespace Ship_Game
 			{
 				statetext = "-";
 			}
-			statePos = new Vector2((float)(rect.X + 16) - Fonts.Arial12Bold.MeasureString(statetext).X / 2f, (float)(rect.Y + 30));
+			statePos = new Vector2(rect.X + 16 - Fonts.Arial12Bold.MeasureString(statetext).X / 2f, rect.Y + 30);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, statetext, statePos, Color.White);
 		}
 

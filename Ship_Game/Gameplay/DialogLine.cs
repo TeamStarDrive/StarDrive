@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game.Gameplay
 {
 	public sealed class DialogLine

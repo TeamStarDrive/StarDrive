@@ -16,7 +16,7 @@ namespace Ship_Game
 
         BottomLeft,  // "bottomleft"   x=0.0  y=1.0
         BottomCenter,// "bottomcenter" x=0.5  y=1.0
-        BottomRight, // "bottomright"  x=1.0  y=1.0
+        BottomRight // "bottomright"  x=1.0  y=1.0
     }
 
     public abstract class UIElementV2 : IInputHandler

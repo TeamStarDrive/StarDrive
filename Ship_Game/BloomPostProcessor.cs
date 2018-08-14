@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -40,7 +40,7 @@ namespace Ship_Game
 		private float ComputeGaussian(float n)
 		{
 			float theta = Settings.BlurAmount;
-			return (float)(1 / Math.Sqrt(6.28318530717959 * (double)theta) * Math.Exp((double)(-(n * n) / (2f * theta * theta))));
+			return (float)(1 / Math.Sqrt(6.28318530717959 * theta) * Math.Exp(-(n * n) / (2f * theta * theta)));
 		}
 
 		private void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect)
@@ -69,9 +69,9 @@ namespace Ship_Game
 			GraphicsDevice device = GraphicsDeviceManager.GraphicsDevice;
 			bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);
 			DrawFullscreenQuad(source, renderTarget1, bloomExtractEffect);
-			SetBlurEffectParameters(1f / (float)renderTarget1.Width, 0f);
+			SetBlurEffectParameters(1f / renderTarget1.Width, 0f);
 			DrawFullscreenQuad(renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect);
-			SetBlurEffectParameters(0f, 1f / (float)renderTarget1.Height);
+			SetBlurEffectParameters(0f, 1f / renderTarget1.Height);
 			DrawFullscreenQuad(renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect);
 			device.SetRenderTarget(0, null);
 			EffectParameterCollection parameters = bloomCombineEffect.Parameters;
@@ -115,16 +115,16 @@ namespace Ship_Game
 			float totalWeights = sampleWeights[0];
 			for (int i = 0; i < sampleCount / 2; i++)
 			{
-				float weight = ComputeGaussian((float)(i + 1));
+				float weight = ComputeGaussian(i + 1);
 				sampleWeights[i * 2 + 1] = weight;
 				sampleWeights[i * 2 + 2] = weight;
 				totalWeights = totalWeights + weight * 2f;
-				float sampleOffset = (float)(i * 2) + 1.5f;
+				float sampleOffset = i * 2 + 1.5f;
 				Vector2 delta = new Vector2(dx, dy) * sampleOffset;
 				sampleOffsets[i * 2 + 1] = delta;
 				sampleOffsets[i * 2 + 2] = -delta;
 			}
-			for (int i = 0; i < (int)sampleWeights.Length; i++)
+			for (int i = 0; i < sampleWeights.Length; i++)
 			{
 				sampleWeights[i] = sampleWeights[i] / totalWeights;
 			}
@@ -158,7 +158,7 @@ namespace Ship_Game
 
 			static BloomSettings()
 			{
-				BloomSettings[] bloomSetting = new BloomSettings[] { new BloomSettings("Default", 0.25f, 4f, 1.25f, 1f, 1f, 1f), new BloomSettings("Soft", 0f, 3f, 1f, 1f, 1f, 1f), new BloomSettings("Desaturated", 0.5f, 8f, 2f, 1f, 0f, 1f), new BloomSettings("Saturated", 0.25f, 4f, 2f, 1f, 2f, 0f), new BloomSettings("Blurry", 0f, 2f, 1f, 0.1f, 1f, 1f), new BloomSettings("Subtle", 0.5f, 2f, 1f, 1f, 1f, 1f) };
+				BloomSettings[] bloomSetting = { new BloomSettings("Default", 0.25f, 4f, 1.25f, 1f, 1f, 1f), new BloomSettings("Soft", 0f, 3f, 1f, 1f, 1f, 1f), new BloomSettings("Desaturated", 0.5f, 8f, 2f, 1f, 0f, 1f), new BloomSettings("Saturated", 0.25f, 4f, 2f, 1f, 2f, 0f), new BloomSettings("Blurry", 0f, 2f, 1f, 0.1f, 1f, 1f), new BloomSettings("Subtle", 0.5f, 2f, 1f, 1f, 1f, 1f) };
 				PresetSettings = bloomSetting;
 			}
 

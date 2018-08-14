@@ -1,5 +1,5 @@
-using Microsoft.Xna.Framework;
 using System;
+using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay

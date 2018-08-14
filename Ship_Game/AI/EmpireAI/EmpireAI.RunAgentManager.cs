@@ -10,7 +10,7 @@ namespace Ship_Game.AI {
         private int DesiredAgentsPerNeutral = 1;
         private int DesiredAgentCount;
         private int BaseAgents;
-        public float spyBudget = 0;
+        public float spyBudget;
 
         private void DoAggRuthAgentManager()
         {
@@ -59,7 +59,7 @@ namespace Ship_Game.AI {
                     ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
                     : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
                         OwnerEmpire.data.Traits.ShipType, ".txt")));
-                string[] Tokens = Names.Split(new char[] {','});
+                string[] Tokens = Names.Split(',');
                 Agent a = new Agent();
                 a.Name = AgentComponent.GetName(Tokens);
                 OwnerEmpire.data.AgentList.Add(a);
@@ -269,7 +269,7 @@ namespace Ship_Game.AI {
                     ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
                     : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
                         OwnerEmpire.data.Traits.ShipType, ".txt")));
-                string[] Tokens = Names.Split(new char[] {','});
+                string[] Tokens = Names.Split(',');
                 Agent a = new Agent();
                 a.Name = AgentComponent.GetName(Tokens);
                 OwnerEmpire.data.AgentList.Add(a);
@@ -523,7 +523,7 @@ namespace Ship_Game.AI {
                     ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
                     : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
                         OwnerEmpire.data.Traits.ShipType, ".txt")));
-                string[] Tokens = Names.Split(new char[] {','});
+                string[] Tokens = Names.Split(',');
                 Agent a = new Agent();
                 a.Name = AgentComponent.GetName(Tokens);
                 OwnerEmpire.data.AgentList.Add(a);

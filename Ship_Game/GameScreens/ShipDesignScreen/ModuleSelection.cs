@@ -160,13 +160,13 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
-                modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
+                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial20Bold.LineSpacing + 6);
             }
             else
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
-                modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 4);
+                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial14Bold.LineSpacing + 4);
             }
             string rest = "";
             switch (moduleTemplate.Restrictions)
@@ -360,7 +360,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.Token(122)+": "+rest, modTitlePos, Color.Orange);
             modTitlePos.Y = modTitlePos.Y + Fonts.Arial8Bold.LineSpacing;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
-            modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing + 11);
+            modTitlePos.Y = modTitlePos.Y + (Fonts.Arial8Bold.LineSpacing + 11);
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon && moduleTemplate.BombType == null)
             {
@@ -407,7 +407,7 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
-            DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
+            DrawStat(ref modTitlePos, "Offense", strength, 227);
             
             if (!mod.isWeapon || mod.InstalledWeapon == null)
             {
@@ -717,7 +717,7 @@ namespace Ship_Game
 
         private enum WeaponStat
         {
-            Damage, Range, Speed, FireDelay, Armor, Shield,
+            Damage, Range, Speed, FireDelay, Armor, Shield
         }
 
         private static float GetStatForWeapon(WeaponStat stat, Weapon weapon)

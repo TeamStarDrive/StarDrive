@@ -1,8 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -19,7 +18,7 @@ namespace Ship_Game
         public static float TipTimer;
         public static int LastWhich;
         private static bool HoldTip;
-        private static bool AlwaysShow = false;
+        private static bool AlwaysShow;
         private static float MaxTipTime;
 
         static ToolTip()
@@ -29,9 +28,6 @@ namespace Ship_Game
             LastWhich = -1;
         }
 
-        public ToolTip()
-        {
-        }
         public static void ShipYardArcTip() => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
         public static void PlanetLandingSpotsTip(string locationText, int spots) => CreateTooltip($"{locationText}\n{spots} Landing Spots",alwaysShow:true);
 
@@ -69,7 +65,7 @@ namespace Ship_Game
                 Ti = "";
             }
 
-            var text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
+            var text = Fonts.Arial12Bold.ParseText(intext, 200f);
             
             if (TipTimer > 0 && Text == text)
             {

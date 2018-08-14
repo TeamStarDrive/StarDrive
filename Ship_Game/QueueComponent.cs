@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -27,7 +25,7 @@ namespace Ship_Game
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
 			Current = new Rectangle(container.X, container.Y, container.Width, 150);
-			ShowQueue = new DanButton(new Vector2((float)(container.X + container.Width - 192), (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55)), Localizer.Token(2136));
+			ShowQueue = new DanButton(new Vector2(container.X + container.Width - 192, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55), Localizer.Token(2136));
 			TimeLeft = new Rectangle(Current.X + Current.Width - 119, Current.Y + Current.Height - 24, 111, 20);
 			csub = new Submenu(true, Current);
 			csub.AddTab(Localizer.Token(1405));
@@ -42,13 +40,13 @@ namespace Ship_Game
 			if (CurrentResearch == null)
 			{
 				EmpireManager.Player.ResearchTopic = researchItem.tech.UID;
-				CurrentResearch = new ResearchQItem(new Vector2((float)(csub.Menu.X + 5), (float)(csub.Menu.Y + 30)), researchItem, screen);
+				CurrentResearch = new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
 				return;
 			}
 			if (!EmpireManager.Player.data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.Player.ResearchTopic != researchItem.tech.UID)
 			{
 				EmpireManager.Player.data.ResearchQueue.Add(researchItem.tech.UID);
-				ResearchQItem qi = new ResearchQItem(new Vector2((float)(csub.Menu.X + 5), (float)(csub.Menu.Y + 30)), researchItem, screen);
+				ResearchQItem qi = new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
 				QSL.AddItem(qi);
 			}
 		}
@@ -65,15 +63,15 @@ namespace Ship_Game
 			QSL.DrawBlue(ScreenManager.SpriteBatch);
 			csub.Draw();
             var tech = CurrentResearch?.Node?.tech;
-            var complete = tech == null || CurrentResearch.Node.complete == true || tech.TechCost == tech.Progress;
+            var complete = tech == null || CurrentResearch.Node.complete || tech.TechCost == tech.Progress;
 			if ( !complete)
 			{
 				CurrentResearch.Draw(ScreenManager);
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), TimeLeft, Color.White);
-				Vector2 Cursor = new Vector2((float)(TimeLeft.X + TimeLeft.Width - 7), (float)(TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2));
+				Vector2 Cursor = new Vector2(TimeLeft.X + TimeLeft.Width - 7, TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2);
 				float cost = tech.TechCost - tech.Progress;
 				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
-				if (cost % (float)numTurns != 0f)
+				if (cost % numTurns != 0f)
 				{
 					numTurns++;
 				}

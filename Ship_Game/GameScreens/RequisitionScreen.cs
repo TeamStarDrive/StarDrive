@@ -1,9 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -91,7 +91,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                var g = new Commands.Goals.FleetRequisition(node.ShipName, f.Owner);
+                var g = new FleetRequisition(node.ShipName, f.Owner);
                 g.SetFleet(f);
                 node.GoalGUID = g.guid;
                 f.Owner.GetGSAI().Goals.Add(g);
@@ -107,9 +107,9 @@ namespace Ship_Game
             Color c = new Color(255, 239, 208);
             Selector fleetstats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
             fleetstats.Draw(ScreenManager.SpriteBatch);
-            Cursor = new Vector2((float)(FleetStatsRect.X + 25), (float)(FleetStatsRect.Y + 25));
+            Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
             ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
-            Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+            Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
             DrawStat("# Ships in Design:", f.DataNodes.Count, ref Cursor);
             int actualnumber = 0;
             foreach (FleetDataNode node in f.DataNodes)
@@ -143,29 +143,29 @@ namespace Ship_Game
             if (tofill != 0)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Owned Ships", Cursor, c);
-                Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+                Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
                 if (numThatFit <= 0)
                 {
                     text = "There are no ships in your empire that are not already assigned to a fleet that can fit any of the roles required by this fleet's design.";
-                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                    text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                     AssignNow.ToggleOn = false;
                 }
                 else
                 {
-                    string[] str = new string[] { "Of the ", numships.ToString(), " ships in your empire that are not assigned to fleets, ", numThatFit.ToString(), " of them can be assigned to fill in this fleet" };
+                    string[] str = { "Of the ", numships.ToString(), " ships in your empire that are not assigned to fleets, ", numThatFit.ToString(), " of them can be assigned to fill in this fleet" };
                     text = string.Concat(str);
-                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                    text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                     AssignNow.Draw(ScreenManager);
                 }
-                Cursor.Y = (float)(AssignNow.Button.Y + 70);
+                Cursor.Y = AssignNow.Button.Y + 70;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Build New Ships", Cursor, c);
-                Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+                Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
                 if (tofill > 0)
                 {
                     text = string.Concat("Order ", tofill.ToString(), " new ships to be built at your best available shipyards");
-                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                    text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                 }
                 BuildNow.Draw(ScreenManager);
@@ -173,9 +173,9 @@ namespace Ship_Game
             else
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "No Requisition Needed", Cursor, c);
-                Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+                Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
                 text = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
-                text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             }
             ScreenManager.SpriteBatch.End();
@@ -190,7 +190,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             Cursor.X = column2;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), Cursor, c);
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            Cursor.Y = Cursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             Cursor.X = column1;
         }
 
@@ -203,7 +203,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             Cursor.X = column2;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), Cursor, statcolor);
-            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            Cursor.Y = Cursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             Cursor.X = column1;
         }
 
@@ -233,11 +233,11 @@ namespace Ship_Game
         public override void LoadContent()
         {
             FleetStatsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 172, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 345, 600);
-            AssignNow = new BlueButton(new Vector2((float)(FleetStatsRect.X + 85), (float)(FleetStatsRect.Y + 225)), "Assign Now")
+            AssignNow = new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 225), "Assign Now")
             {
                 ToggleOn = true
             };
-            BuildNow = new BlueButton(new Vector2((float)(FleetStatsRect.X + 85), (float)(FleetStatsRect.Y + 365)), "Build Now")
+            BuildNow = new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 365), "Build Now")
             {
                 ToggleOn = true
             };

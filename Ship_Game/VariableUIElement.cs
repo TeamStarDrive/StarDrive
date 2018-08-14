@@ -1,7 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -55,9 +54,9 @@ namespace Ship_Game
 		{
 			MathHelper.SmoothStep(0f, 1f, TransitionPosition);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
-			Vector2 NamePos = new Vector2((float)(Housing.X + 41), (float)(Housing.Y + 65));
+			Vector2 NamePos = new Vector2(Housing.X + 41, Housing.Y + 65);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, TitleText, NamePos, tColor);
-			Vector2 BodyPos = new Vector2(NamePos.X, (float)(Housing.Y + 115));
+			Vector2 BodyPos = new Vector2(NamePos.X, Housing.Y + 115);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, BodyText, BodyPos, tColor);
 		}
 

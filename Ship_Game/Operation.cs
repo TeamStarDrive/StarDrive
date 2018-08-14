@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -35,7 +34,7 @@ namespace Ship_Game
 			{
 				toDraw = string.Concat(toDraw, " .");
 			}
-			if (points < (float)Cost)
+			if (points < Cost)
 			{
 				screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, toDraw, Position, Color.Gray);
 				Position.X = Position.X + width;

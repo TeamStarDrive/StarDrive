@@ -1,13 +1,13 @@
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
-using SgMotion;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Serialization;
 using System.Linq;
+using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using SgMotion;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -721,10 +721,9 @@ namespace Ship_Game
             content = content ?? RootContent;
             if (RawContentLoader.IsSupportedMesh(modelName))
                 return SceneObjectFromStaticMesh(content, modelName);
-            else if (animated)
+            if (animated)
                 return SceneObjectFromSkinnedModel(content, modelName);
-            else 
-                return SceneObjectFromModel(content, modelName);
+            return SceneObjectFromModel(content, modelName);
         }
 
         public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
