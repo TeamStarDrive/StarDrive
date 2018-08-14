@@ -1,9 +1,8 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -44,15 +43,15 @@ namespace Ship_Game
                 Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             subAllDesigns.Draw();
             ShipDesigns.Draw(batch);
-            var bCursor = new Vector2((float)(subAllDesigns.Menu.X + 20), (float)(subAllDesigns.Menu.Y + 20));
+            var bCursor = new Vector2(subAllDesigns.Menu.X + 20, subAllDesigns.Menu.Y + 20);
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
                 var ship = (Ship)e.item;
-                bCursor.Y = (float)e.Y;
+                bCursor.Y = e.Y;
                 batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);   
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
                 batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                 e.DrawPlusEdit(batch);
             }
@@ -127,7 +126,7 @@ namespace Ship_Game
             var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             SaveShips = new Submenu(sub);
             SaveShips.AddTab("Save Ship Design");
-            TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
+            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
             var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             subAllDesigns = new Submenu(scrollList);
             subAllDesigns.AddTab("All Designs");

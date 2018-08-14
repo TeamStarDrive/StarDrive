@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Ship_Game
 {

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -53,10 +51,6 @@ namespace Ship_Game
         public bool unlockBattleships;
         public bool unlockCorvettes;
 
-        public Technology()
-        {
-        }
-
         public struct LeadsToTech
         {
             public string UID;
@@ -76,10 +70,6 @@ namespace Ship_Game
             public string Description;
             public int BonusIndex;
             public int BonusNameIndex;
-
-            public UnlockedBonus()
-            {
-            }
         }
 
         public struct UnlockedBuilding

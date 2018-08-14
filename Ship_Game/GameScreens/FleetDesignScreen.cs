@@ -1,12 +1,11 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using System;
-using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -280,7 +279,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     var insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
-                    var cs = new ClickableNode()
+                    var cs = new ClickableNode
                     {
                         Radius = radius,
                         ScreenPos = pPos,
@@ -742,7 +741,7 @@ namespace Ship_Game
                 spriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, new Color(255, 239, 208));
                 cursor.Y = cursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
                 string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
-                txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, SelectedStuffRect.Width - 40);
+                txt = Fonts.Arial12Bold.ParseText(txt, SelectedStuffRect.Width - 40);
                 spriteBatch.DrawString(Fonts.Arial12Bold, txt, cursor, new Color(255, 239, 208));
                 return;
             }
@@ -767,7 +766,7 @@ namespace Ship_Game
             spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, new Color(255, 239, 208));
             cursor1.Y = cursor1.Y + (Fonts.Pirulen12.LineSpacing + 2);
             string txt0 = Localizer.Token(4043);
-            txt0 = HelperFunctions.ParseText(Fonts.Arial12Bold, txt0, PrioritiesRect.Width - 40);
+            txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.Width - 40);
             spriteBatch.DrawString(Fonts.Arial12Bold, txt0, cursor1, new Color(255, 239, 208));
         }
 
@@ -1103,7 +1102,7 @@ namespace Ship_Game
                     Ray pickRay = new Ray(nearPoint, direction);
                     float k = -pickRay.Position.Z / pickRay.Direction.Z;
                     Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                    FleetDataNode node = new FleetDataNode()
+                    FleetDataNode node = new FleetDataNode
                     {
                         FleetOffset = new Vector2(pickedPosition.X, pickedPosition.Y),
                         ShipName = ActiveShipDesign.Name
@@ -1822,7 +1821,7 @@ namespace Ship_Game
                     Viewport viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    ClickableSquad cs = new ClickableSquad()
+                    ClickableSquad cs = new ClickableSquad
                     {
                         ScreenPos = pPos,
                         Squad = squad

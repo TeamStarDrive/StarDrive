@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -19,11 +17,7 @@ namespace Ship_Game
 			FlashList = new BatchRemovalCollection<MuzzleFlash>();
 		}
 
-		public MuzzleFlashManager()
-		{
-		}
-
-		public static void Update(float elapsedTime)
+	    public static void Update(float elapsedTime)
 		{
 			lock (GlobalStats.ExplosionLocker)
 			{

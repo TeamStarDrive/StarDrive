@@ -1,17 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Ship_Game
 {
     public enum ListControls
     {
         All,    // show all list controls
-        Cancel, // only show Cancel control
+        Cancel // only show Cancel control
     }
 
     public enum ListOptions

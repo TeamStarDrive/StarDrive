@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -9,11 +7,7 @@ namespace Ship_Game
 	{
 		public Array<SkinnableButton> ShipButtons = new Array<SkinnableButton>();
 
-		public SelectedShipEntry()
-		{
-		}
-
-		public void Update(Vector2 position)
+	    public void Update(Vector2 position)
 		{
 			Vector2 cursor = position;
 			foreach (SkinnableButton button in ShipButtons)

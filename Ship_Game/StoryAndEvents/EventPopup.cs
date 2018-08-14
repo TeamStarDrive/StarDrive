@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -48,8 +47,8 @@ namespace Ship_Game
             base.Draw(batch);
 
             ScreenManager.SpriteBatch.Begin();
-            Vector2 theirTextPos = new Vector2((float)(_blackRect.X + 10), (float)(_blackRect.Y + 10));
-            string description = HelperFunctions.ParseText(Fonts.Verdana10, _outcome.DescriptionText, (float)(_blackRect.Width - 40));			
+            Vector2 theirTextPos = new Vector2(_blackRect.X + 10, _blackRect.Y + 10);
+            string description = Fonts.Verdana10.ParseText(_outcome.DescriptionText, _blackRect.Width - 40);			
             theirTextPos = DrawString(Fonts.Verdana10, description, theirTextPos, Color.White);
 
             if (_outcome.SelectRandomPlanet && _outcome.GetPlanet() != null)
@@ -67,7 +66,7 @@ namespace Ship_Game
                 theirTextPos.Y += icon.Height;
                 
                 //theirTextPos.Y = theirTextPos.Y + 36f;			    
-                theirText = HelperFunctions.ParseText(Fonts.Arial12, _outcome.GetArtifact().Description, (float)(_blackRect.Width - 40));
+                theirText = Fonts.Arial12.ParseText(_outcome.GetArtifact().Description, _blackRect.Width - 40);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, theirTextPos, Color.White);
                 theirTextPos.Y = theirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
 
@@ -106,8 +105,8 @@ namespace Ship_Game
                         string moduleName = Localizer.Token(unlockedMod.NameIndex);
                         DrawString(Fonts.Arial20Bold, moduleName,
                             new Vector2(theirTextPos.X + 100f, theirTextPos.Y), Color.Orange);
-                        string desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex),
-                            (float) (_blackRect.Width - 120));
+                        string desc = Fonts.Arial12Bold.ParseText(Localizer.Token(unlockedMod.DescriptionIndex),
+                            _blackRect.Width - 120);
                         DrawString(Fonts.Arial12Bold, desc, new Vector2(theirTextPos.X + 100f, theirTextPos.Y + 22f), Color.White);
                     }
                 }
@@ -154,7 +153,7 @@ namespace Ship_Game
         {
             public string Text;
             public SpriteFont Font;
-            public int Value = 0;
+            public int Value;
             public Texture2D Icon;
             public Color Color;
 

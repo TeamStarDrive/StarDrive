@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -35,13 +34,9 @@ namespace Ship_Game
 
 		private Empire empToDiscuss;
 
-		public Encounter()
+	    private bool CheckIfWeCanMeetDemand()
 		{
-		}
-
-		private bool CheckIfWeCanMeetDemand()
-		{
-			if ((float)MessageList[CurrentMessage].MoneyDemanded > playerEmpire.Money)
+			if (MessageList[CurrentMessage].MoneyDemanded > playerEmpire.Money)
 			{
 				return false;
 			}
@@ -52,10 +47,10 @@ namespace Ship_Game
 		{
 			ScreenManager.SpriteBatch.FillRectangle(BlackRect, Color.Black);
 			ScreenManager.SpriteBatch.FillRectangle(ResponseRect, Color.Black);
-			Vector2 TheirTextPos = new Vector2((float)(BlackRect.X + 10), (float)(BlackRect.Y + 10));
-			string theirText = parseText(MessageList[CurrentMessage].text, (float)(BlackRect.Width - 20), Fonts.Verdana12Bold);
-			TheirTextPos.X = (float)((int)TheirTextPos.X);
-			TheirTextPos.Y = (float)((int)TheirTextPos.Y);
+			Vector2 TheirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
+			string theirText = parseText(MessageList[CurrentMessage].text, BlackRect.Width - 20, Fonts.Verdana12Bold);
+			TheirTextPos.X = (int)TheirTextPos.X;
+			TheirTextPos.Y = (int)TheirTextPos.Y;
 			ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12Bold, theirText, TheirTextPos, Color.White);
 			if (MessageList[CurrentMessage].EndTransmission)
 			{
@@ -147,8 +142,8 @@ namespace Ship_Game
 		{
 			string line = string.Empty;
 			string returnString = string.Empty;
-			string[] wordArray = text.Split(new char[] { ' ' });
-			for (int i = 0; i < (int)wordArray.Length; i++)
+			string[] wordArray = text.Split(' ');
+			for (int i = 0; i < wordArray.Length; i++)
 			{
 				if (wordArray[i] == "SING")
 				{
@@ -272,7 +267,7 @@ namespace Ship_Game
 				}
 			}
 			string[] strArrays = wordArray;
-			for (int j = 0; j < (int)strArrays.Length; j++)
+			for (int j = 0; j < strArrays.Length; j++)
 			{
 				string word = strArrays[j];
 				if (font.MeasureString(string.Concat(line, word)).Length() > Width)

@@ -1,7 +1,7 @@
-using Ship_Game;
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Ship_Game;
 
 public static class SteamManager
 {
@@ -56,7 +56,7 @@ public static class SteamManager
 		cgNEATSettingsLoaded = false;
 		gameSettingsLoaded = false;
 		keyMapLoaded = false;
-		steamID = (ulong)0;
+		steamID = 0;
 		steamName = "";
 	}
 
@@ -139,7 +139,7 @@ public static class SteamManager
 	public static bool SaveFileOnRemoteStorage(string fileName, string fileContents)
 	{
 		byte[] saveStrBytes = (new UTF8Encoding()).GetBytes(fileContents);
-		return SaveFileOnRemoteStorage(fileName, saveStrBytes, (int)saveStrBytes.Length);
+		return SaveFileOnRemoteStorage(fileName, saveStrBytes, saveStrBytes.Length);
 	}
 
 	[DllImport("GARSteamManager", CharSet=CharSet.None, ExactSpelling=false)]

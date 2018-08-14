@@ -39,7 +39,7 @@ namespace Ship_Game
 				titleRect.Width = 365;
 			}
 			TitleBar = new Menu2(titleRect);
-			TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(p.Name).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+			TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
 			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
                 ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
 			PlanetMenu = new Menu1(leftRect);
@@ -51,18 +51,18 @@ namespace Ship_Game
 
 		public override void Draw(SpriteBatch batch)
 		{
-			float x = (float)Mouse.GetState().X;
+			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
-			Vector2 MousePos = new Vector2(x, (float)state.Y);
+			Vector2 MousePos = new Vector2(x, state.Y);
 			TitleBar.Draw();
 			Color c = new Color(255, 239, 208);
 			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
 			PlanetMenu.Draw();
 			PlanetInfo.Draw();
 			batch.Draw(ResourceManager.Texture(string.Concat("Planets/", p.PlanetType)), PlanetIcon, Color.White);
-			Vector2 PNameCursor = new Vector2((float)(PlanetInfo.Menu.X + 20), (float)(PlanetInfo.Menu.Y + 45));
+			Vector2 PNameCursor = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
 			batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, new Color(255, 239, 208));
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
+			PNameCursor.Y = PNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
 			string fmt = "#.#";
 			float amount = 80f;
 			if (GlobalStats.IsGerman)
@@ -72,7 +72,7 @@ namespace Ship_Game
 			batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
 			Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			batch.DrawString(Fonts.Arial12Bold, p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
 			SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
@@ -86,7 +86,7 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(75);
 			}
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.Fertility.ToString(fmt), InfoCursor, new Color(255, 239, 208));
@@ -95,7 +95,7 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(20);
 			}
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.ToString(fmt), InfoCursor, new Color(255, 239, 208));
@@ -104,8 +104,8 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(21);
 			}
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
-			batch.DrawString(Fonts.Arial12Bold, parseText(p.Description, (float)(PlanetInfo.Menu.Width - 40)), PNameCursor, new Color(255, 239, 208));
+			PNameCursor.Y = PNameCursor.Y + Fonts.Arial12Bold.LineSpacing * 2;
+			batch.DrawString(Fonts.Arial12Bold, parseText(p.Description, PlanetInfo.Menu.Width - 40), PNameCursor, new Color(255, 239, 208));
 		}
 
 		public override bool HandleInput(InputState input)
@@ -119,8 +119,8 @@ namespace Ship_Game
 		{
 			string line = string.Empty;
 			string returnString = string.Empty;
-			string[] strArrays = text.Split(new char[] { ' ' });
-			for (int i = 0; i < (int)strArrays.Length; i++)
+			string[] strArrays = text.Split(' ');
+			for (int i = 0; i < strArrays.Length; i++)
 			{
 				string word = strArrays[i];
 				if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)

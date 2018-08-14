@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -51,7 +50,7 @@ namespace Ship_Game.AI {
                 if (Relationship.Value.Known && !Relationship.Key.isFaction && !Relationship.Key.data.Defeated)
                 {
                     float usedTrust = 0.0f;
-                    foreach (TrustEntry trustEntry in (Array<TrustEntry>) Relationship.Value.TrustEntries)
+                    foreach (TrustEntry trustEntry in Relationship.Value.TrustEntries)
                         usedTrust += trustEntry.TrustCost;
                     switch (Relationship.Value.Posture)
                     {
@@ -69,8 +68,8 @@ namespace Ship_Game.AI {
                                 offer1.AcceptDL = "Trade Accepted";
                                 offer1.RejectDL = "Trade Rejected";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>) (() => r.HaveRejected_TRADE),
-                                    (Action<bool>) (x => r.HaveRejected_TRADE = x));
+                                offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_TRADE,
+                                    x => r.HaveRejected_TRADE = x);
                                 Offer offer2 = new Offer();
                                 offer2.TradeTreaty = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
@@ -85,33 +84,31 @@ namespace Ship_Game.AI {
                                 Relationship.Value.turnsSinceLastContact > 10 &&
                                 (!Relationship.Value.Treaty_Alliance && Relationship.Value.Treaty_Trade) &&
                                 (Relationship.Value.Treaty_NAPact && !Relationship.Value.HaveRejected_Alliance &&
-                                 (double) Relationship.Value.TotalAnger < 20.0))
+                                 Relationship.Value.TotalAnger < 20.0))
                             {
                                 Offer offer1 = new Offer();
                                 offer1.Alliance = true;
                                 offer1.AcceptDL = "ALLIANCE_ACCEPTED";
                                 offer1.RejectDL = "ALLIANCE_REJECTED";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>) (() => r.HaveRejected_Alliance),
-                                    (Action<bool>) (x =>
+                                offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_Alliance,
+                                    x =>
                                     {
                                         r.HaveRejected_Alliance = x;
                                         SetAlliance(!r.HaveRejected_Alliance);
-                                    }));
+                                    });
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen) new DiplomacyScreen(
+                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(
                                         Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2,
                                         offer1));
                                     continue;
                                 }
-                                else
-                                {
-                                    Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-                                    continue;
-                                }
+
+                                Relationship.Key.GetGSAI()
+                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                continue;
                             }
                             else
                                 continue;
@@ -175,7 +172,7 @@ namespace Ship_Game.AI {
                                         case WarType.BorderConflict:
                                             if ((Relationship.Value.Anger_FromShipsInOurBorders +
                                                  Relationship.Value.Anger_TerritorialConflict) >
-                                                (float) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                                                OwnerEmpire.data.DiplomaticPersonality.Territorialism)
                                                 return;
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {
@@ -234,8 +231,8 @@ namespace Ship_Game.AI {
                                             continue;
                                     }
                                 }
-                                else
-                                    continue;
+
+                                continue;
                             }
                             else
                                 continue;
@@ -271,7 +268,7 @@ namespace Ship_Game.AI {
                     (Relationship.Key.data.DiplomaticPersonality.Name != "Aggressive" ||
                      Relationship.Key.data.DiplomaticPersonality.Name != "Ruthless"))
                 {
-                    Offer NAPactOffer = new Offer()
+                    Offer NAPactOffer = new Offer
                     {
                         TradeTreaty = true,
                         AcceptDL = "Trade Accepted",
@@ -279,8 +276,8 @@ namespace Ship_Game.AI {
                     };
                     Relationship value = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
-                        (bool x) => value.HaveRejected_TRADE = x);
-                    Offer OurOffer = new Offer()
+                        x => value.HaveRejected_TRADE = x);
+                    Offer OurOffer = new Offer
                     {
                         TradeTreaty = true
                     };
@@ -358,7 +355,7 @@ namespace Ship_Game.AI {
                 }
                 if (!foundwar)
                 {
-                    Empire ToAttack = sortedList.First<Empire>();
+                    Empire ToAttack = sortedList.First();
                     OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
                 }
             }
@@ -391,7 +388,7 @@ namespace Ship_Game.AI {
                         {
                             continue;
                         }
-                        Offer NAPactOffer = new Offer()
+                        Offer NAPactOffer = new Offer
                         {
                             TradeTreaty = true,
                             AcceptDL = "Trade Accepted",
@@ -399,8 +396,8 @@ namespace Ship_Game.AI {
                         };
                         Relationship value = Relationship.Value;
                         NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
-                            (bool x) => value.HaveRejected_TRADE = x);
-                        Offer OurOffer = new Offer()
+                            x => value.HaveRejected_TRADE = x);
+                        Offer OurOffer = new Offer
                         {
                             TradeTreaty = true
                         };
@@ -410,12 +407,10 @@ namespace Ship_Game.AI {
                                 .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                             continue;
                         }
-                        else
-                        {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                Empire.Universe.PlayerEmpire, "Offer Trade", new Offer(), NAPactOffer));
-                            continue;
-                        }
+
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
+                            Empire.Universe.PlayerEmpire, "Offer Trade", new Offer(), NAPactOffer));
+                        continue;
                     }
                     case Posture.Neutral:
                     {
@@ -436,7 +431,7 @@ namespace Ship_Game.AI {
                             }
                             if (PotentialDemands.Count > 0)
                             {
-                                int Random = (int) RandomMath.RandomBetween(0f, (float) PotentialDemands.Count + 0.75f);
+                                int Random = (int) RandomMath.RandomBetween(0f, PotentialDemands.Count + 0.75f);
                                 if (Random > PotentialDemands.Count - 1)
                                 {
                                     Random = PotentialDemands.Count - 1;
@@ -445,14 +440,14 @@ namespace Ship_Game.AI {
                                 Offer DemandTech = new Offer();
                                 DemandTech.TechnologiesOffered.Add(TechToDemand);
                                 Relationship.Value.XenoDemandedTech = true;
-                                Offer TheirDemand = new Offer()
+                                Offer TheirDemand = new Offer
                                 {
                                     AcceptDL = "Xeno Demand Tech Accepted",
                                     RejectDL = "Xeno Demand Tech Rejected"
                                 };
                                 Relationship relationship = Relationship.Value;
                                 TheirDemand.ValueToModify = new Ref<bool>(() => relationship.HaveRejectedDemandTech,
-                                    (bool x) => relationship.HaveRejectedDemandTech = x);
+                                    x => relationship.HaveRejectedDemandTech = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 if (Relationship.Key != Empire.Universe.PlayerEmpire)
                                 {
@@ -508,7 +503,7 @@ namespace Ship_Game.AI {
                     (Relationship.Key.data.DiplomaticPersonality.Name != "Aggressive" ||
                      Relationship.Key.data.DiplomaticPersonality.Name != "Ruthless"))
                 {
-                    Offer NAPactOffer = new Offer()
+                    Offer NAPactOffer = new Offer
                     {
                         TradeTreaty = true,
                         AcceptDL = "Trade Accepted",
@@ -516,8 +511,8 @@ namespace Ship_Game.AI {
                     };
                     Relationship value = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
-                        (bool x) => value.HaveRejected_TRADE = x);
-                    Offer OurOffer = new Offer()
+                        x => value.HaveRejected_TRADE = x);
+                    Offer OurOffer = new Offer
                     {
                         TradeTreaty = true
                     };
@@ -570,10 +565,10 @@ namespace Ship_Game.AI {
                     {
                         if (Relationship.Value.TurnsKnown > SecondDemand &&
                             Relationship.Value.Trust - usedTrust >
-                            (float) OwnerEmpire.data.DiplomaticPersonality.Trade &&
+                            OwnerEmpire.data.DiplomaticPersonality.Trade &&
                             !Relationship.Value.HaveRejected_TRADE && !Relationship.Value.Treaty_Trade)
                         {
-                            Offer NAPactOffer = new Offer()
+                            Offer NAPactOffer = new Offer
                             {
                                 TradeTreaty = true,
                                 AcceptDL = "Trade Accepted",
@@ -581,8 +576,8 @@ namespace Ship_Game.AI {
                             };
                             Relationship relationship = Relationship.Value;
                             NAPactOffer.ValueToModify = new Ref<bool>(() => relationship.HaveRejected_TRADE,
-                                (bool x) => relationship.HaveRejected_TRADE = x);
-                            Offer OurOffer = new Offer()
+                                x => relationship.HaveRejected_TRADE = x);
+                            Offer OurOffer = new Offer
                             {
                                 TradeTreaty = true
                             };
@@ -605,14 +600,14 @@ namespace Ship_Game.AI {
                         {
                             continue;
                         }
-                        Offer OfferAlliance = new Offer()
+                        Offer OfferAlliance = new Offer
                         {
                             Alliance = true,
                             AcceptDL = "ALLIANCE_ACCEPTED",
                             RejectDL = "ALLIANCE_REJECTED"
                         };
                         Relationship value1 = Relationship.Value;
-                        OfferAlliance.ValueToModify = new Ref<bool>(() => value1.HaveRejected_Alliance, (bool x) =>
+                        OfferAlliance.ValueToModify = new Ref<bool>(() => value1.HaveRejected_Alliance, x =>
                         {
                             value1.HaveRejected_Alliance = x;
                             SetAlliance(!value1.HaveRejected_Alliance);
@@ -624,12 +619,10 @@ namespace Ship_Game.AI {
                                 .AnalyzeOffer(OurOffer0, OfferAlliance, OwnerEmpire, Offer.Attitude.Respectful);
                             continue;
                         }
-                        else
-                        {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", OurOffer0, OfferAlliance));
-                            continue;
-                        }
+
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
+                            Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", OurOffer0, OfferAlliance));
+                        continue;
                     }
                     case Posture.Neutral:
                     {
@@ -682,7 +675,7 @@ namespace Ship_Game.AI {
             }
             if (PotentialTargets.Count > 0 && numberofWars * 2 < OwnerEmpire.currentMilitaryStrength) //<= 1)
             {
-                Empire ToAttack = PotentialTargets.First<Empire>();
+                Empire ToAttack = PotentialTargets.First();
                 OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
             }
         }
@@ -703,11 +696,11 @@ namespace Ship_Game.AI {
                     {
                         case Posture.Friendly:
                             float usedTrust1 = 0.0f;
-                            foreach (TrustEntry trustEntry in (Array<TrustEntry>) Relationship.Value.TrustEntries)
+                            foreach (TrustEntry trustEntry in Relationship.Value.TrustEntries)
                                 usedTrust1 += trustEntry.TrustCost;
                             if (Relationship.Value.TurnsKnown > SecondDemand &&
-                                (double) Relationship.Value.Trust - (double) usedTrust1 >
-                                (double) OwnerEmpire.data.DiplomaticPersonality.Trade &&
+                                Relationship.Value.Trust - (double) usedTrust1 >
+                                OwnerEmpire.data.DiplomaticPersonality.Trade &&
                                 (Relationship.Value.turnsSinceLastContact > SecondDemand &&
                                  !Relationship.Value.Treaty_Trade) && !Relationship.Value.HaveRejected_TRADE)
                             {
@@ -732,33 +725,31 @@ namespace Ship_Game.AI {
                                 Relationship.Value.turnsSinceLastContact > 10 &&
                                 (!Relationship.Value.Treaty_Alliance && Relationship.Value.Treaty_Trade) &&
                                 (Relationship.Value.Treaty_NAPact && !Relationship.Value.HaveRejected_Alliance &&
-                                 (double) Relationship.Value.TotalAnger < 20.0))
+                                 Relationship.Value.TotalAnger < 20.0))
                             {
                                 Offer offer1 = new Offer();
                                 offer1.Alliance = true;
                                 offer1.AcceptDL = "ALLIANCE_ACCEPTED";
                                 offer1.RejectDL = "ALLIANCE_REJECTED";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>) (() => r.HaveRejected_Alliance),
-                                    (Action<bool>) (x =>
+                                offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_Alliance,
+                                    x =>
                                     {
                                         r.HaveRejected_Alliance = x;
                                         SetAlliance(!r.HaveRejected_Alliance);
-                                    }));
+                                    });
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen) new DiplomacyScreen(
+                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(
                                         Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2,
                                         offer1));
                                     continue;
                                 }
-                                else
-                                {
-                                    Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-                                    continue;
-                                }
+
+                                Relationship.Key.GetGSAI()
+                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                continue;
                             }
                             else
                                 continue;
@@ -770,13 +761,13 @@ namespace Ship_Game.AI {
                                 offer1.AcceptDL = "NAPact Accepted";
                                 offer1.RejectDL = "NAPact Rejected";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>) (() => r.HaveRejectedNapact),
-                                    (Action<bool>) (x => r.HaveRejectedNapact = x));
+                                offer1.ValueToModify = new Ref<bool>(() => r.HaveRejectedNapact,
+                                    x => r.HaveRejectedNapact = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen) new DiplomacyScreen(
+                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(
                                         Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2,
                                         offer1));
                                 else
@@ -789,7 +780,7 @@ namespace Ship_Game.AI {
                                      Relationship.Value.HaveRejectedNapact)
                                 Relationship.Value.Posture = Posture.Neutral;
                             float usedTrust2 = 0.0f;
-                            foreach (TrustEntry trustEntry in (Array<TrustEntry>) Relationship.Value.TrustEntries)
+                            foreach (TrustEntry trustEntry in Relationship.Value.TrustEntries)
                                 usedTrust2 += trustEntry.TrustCost;
                             AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust2);
                             continue;
@@ -813,13 +804,13 @@ namespace Ship_Game.AI {
                                         Relationship.Value.ActiveWar.AlliesCalled.Add(Ally.data.Traits.Name);
                                     }
                                 }
-                                if ((double) Relationship.Value.ActiveWar.TurnsAtWar % 100.0 == 0.0)
+                                if (Relationship.Value.ActiveWar.TurnsAtWar % 100.0 == 0.0)
                                 {
                                     switch (Relationship.Value.ActiveWar.WarType)
                                     {
                                         case WarType.BorderConflict:
-                                            if ((double) (Relationship.Value.Anger_FromShipsInOurBorders +
-                                                          Relationship.Value.Anger_TerritorialConflict) >
+                                            if (Relationship.Value.Anger_FromShipsInOurBorders +
+                                                Relationship.Value.Anger_TerritorialConflict >
                                                 (double) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
                                                 return;
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
@@ -879,8 +870,8 @@ namespace Ship_Game.AI {
                                             continue;
                                     }
                                 }
-                                else
-                                    continue;
+
+                                continue;
                             }
                             else
                             {

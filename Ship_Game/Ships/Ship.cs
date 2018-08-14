@@ -500,7 +500,7 @@ namespace Ship_Game.Ships
                 AI.OrderTransportPassengers(5f);
             }
         }
-        private bool TFood = false;
+        private bool TFood;
         public bool TransportingFood
         {
             get => AI.State != AIState.SystemTrader || TFood;
@@ -526,7 +526,7 @@ namespace Ship_Game.Ships
                 //AI.OrderTrade(0);
             }
         }
-        private bool TProd = false;
+        private bool TProd;
         public bool TransportingProduction
         {
             get => AI.State != AIState.SystemTrader || TProd;
@@ -988,7 +988,7 @@ namespace Ship_Game.Ships
             float halfArc = w.Module.FieldOfFire / 2f;
 
             Vector2 toTarget = target.Center - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
             float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
 
@@ -1031,7 +1031,7 @@ namespace Ship_Game.Ships
 
             float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
             float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
             if (facing > 360f)
@@ -1078,7 +1078,7 @@ namespace Ship_Game.Ships
 
             float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
             float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
             if (facing > 360f)
@@ -2603,7 +2603,7 @@ namespace Ship_Game.Ships
         public enum MoveState
         {
             Sublight,
-            Warp,
+            Warp
         }
 
         private float RecalculateMaxHealth()

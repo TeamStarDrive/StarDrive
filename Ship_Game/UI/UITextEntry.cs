@@ -1,12 +1,12 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace Ship_Game
 {
-    using InputKeys = Microsoft.Xna.Framework.Input.Keys;
+    using InputKeys = Keys;
 
     public class UITextEntry
     {
@@ -43,10 +43,6 @@ namespace Ship_Game
         };
         public int MaxCharacters = 30;
         private int boop;
-
-        public UITextEntry()
-        {
-        }
 
         private void AddKeyToText(ref string text, InputKeys key, InputState input)
         {
@@ -151,13 +147,13 @@ namespace Ship_Game
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             spriteBatch.DrawRectangle(ClickableArea, Color.Orange);
-            Vector2 cursor = new Vector2((float)(ClickableArea.X + 5), (float)(ClickableArea.Y + 2));
+            Vector2 cursor = new Vector2(ClickableArea.X + 5, ClickableArea.Y + 2);
             spriteBatch.DrawString(Fonts.Arial12Bold, Text, cursor, Color.Orange);
             cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(Text).X;
             if (HandlingInput)
             {
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
-                float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
                 Color flashColor = new Color(255, 255, 255, (byte)f);
                 spriteBatch.DrawString(Fonts.Arial12Bold, "|", cursor, flashColor);
@@ -171,7 +167,7 @@ namespace Ship_Game
             if (HandlingInput)
             {
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
-                float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
+                float f = (float)Math.Sin(totalGameTime.TotalSeconds);
                 f = Math.Abs(f) * 255f;
                 Color flashColor = new Color(255, 255, 255, (byte)f);
                 spriteBatch.DrawString(Font, "|", pos, flashColor);

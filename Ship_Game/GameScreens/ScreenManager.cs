@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
-using SynapseGaming.LightingSystem.Rendering;
-using System;
 using SynapseGaming.LightingSystem.Lights;
-using System.Collections.Generic;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {

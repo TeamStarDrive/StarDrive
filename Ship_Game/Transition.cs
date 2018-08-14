@@ -1,5 +1,5 @@
-using Microsoft.Xna.Framework;
 using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -83,7 +83,7 @@ namespace Ship_Game
                     return 1f;
                 }
             }
-            double timelerp = (double)currentPosition;
+            double timelerp = currentPosition;
             switch (InterpolationCurve)
             {
                 case TransitionCurve.Linear:
@@ -92,7 +92,7 @@ namespace Ship_Game
                 }
                 case TransitionCurve.SmoothStep:
                 {
-                    timelerp = (double)((float)MathHelper.SmoothStep(0f, 1f, (float)timelerp));
+                    timelerp = MathHelper.SmoothStep(0f, 1f, (float)timelerp);
                     return (float)timelerp;
                 }
                 case TransitionCurve.Exponential:

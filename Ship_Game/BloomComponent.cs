@@ -1,8 +1,6 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -44,9 +42,9 @@ namespace Ship_Game
 			if (Caps.TextureCapabilities.RequiresPower2)
 			{
 				retval = true;
-				double exp = Math.Ceiling(Math.Log((double)width) / Math.Log(2));
+				double exp = Math.Ceiling(Math.Log(width) / Math.Log(2));
 				width = (int)Math.Pow(2, exp);
-				exp = Math.Ceiling(Math.Log((double)height) / Math.Log(2));
+				exp = Math.Ceiling(Math.Log(height) / Math.Log(2));
 				height = (int)Math.Pow(2, exp);
 			}
 			if (Caps.TextureCapabilities.RequiresSquareOnly)
@@ -63,7 +61,7 @@ namespace Ship_Game
 		private float ComputeGaussian(float n)
 		{
 			float theta = Settings.BlurAmount;
-			return (float)(1 / Math.Sqrt(6.28318530717959 * (double)theta) * Math.Exp((double)(-(n * n) / (2f * theta * theta))));
+			return (float)(1 / Math.Sqrt(6.28318530717959 * theta) * Math.Exp(-(n * n) / (2f * theta * theta)));
 		}
 
 		public static DepthStencilBuffer CreateDepthStencil(RenderTarget2D target)
@@ -102,9 +100,9 @@ namespace Ship_Game
 			GraphicsDevice.ResolveBackBuffer(resolveTarget);
 			bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);
 			DrawFullscreenQuad(resolveTarget, renderTarget1, bloomExtractEffect, IntermediateBuffer.PreBloom);
-			SetBlurEffectParameters(1f / (float)renderTarget1.Width, 0f);
+			SetBlurEffectParameters(1f / renderTarget1.Width, 0f);
 			DrawFullscreenQuad(renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
-			SetBlurEffectParameters(0f, 1f / (float)renderTarget1.Height);
+			SetBlurEffectParameters(0f, 1f / renderTarget1.Height);
 			DrawFullscreenQuad(renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
 			GraphicsDevice.SetRenderTarget(0, null);
 			EffectParameterCollection parameters = bloomCombineEffect.Parameters;
@@ -175,16 +173,16 @@ namespace Ship_Game
 			float totalWeights = sampleWeights[0];
 			for (int i = 0; i < sampleCount / 2; i++)
 			{
-				float weight = ComputeGaussian((float)(i + 1));
+				float weight = ComputeGaussian(i + 1);
 				sampleWeights[i * 2 + 1] = weight;
 				sampleWeights[i * 2 + 2] = weight;
 				totalWeights = totalWeights + weight * 2f;
-				float sampleOffset = (float)(i * 2) + 1.5f;
+				float sampleOffset = i * 2 + 1.5f;
 				Vector2 delta = new Vector2(dx, dy) * sampleOffset;
 				sampleOffsets[i * 2 + 1] = delta;
 				sampleOffsets[i * 2 + 2] = -delta;
 			}
-			for (int i = 0; i < (int)sampleWeights.Length; i++)
+			for (int i = 0; i < sampleWeights.Length; i++)
 			{
 				sampleWeights[i] = sampleWeights[i] / totalWeights;
 			}

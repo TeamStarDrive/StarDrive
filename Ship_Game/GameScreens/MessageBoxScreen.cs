@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -72,7 +72,7 @@ namespace Ship_Game
             {
                 Rectangle r = new Rectangle(ScreenWidth / 2 - 135,
                     ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) + 15);
-                Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(Message).X / 2f, (float)(r.Y + 10));
+                Vector2 textPosition = new Vector2(r.X + r.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r.Y + 10);
                 batch.Begin();
                 batch.FillRectangle(r, Color.Black);
                 batch.DrawRectangle(r, Color.Orange);
@@ -84,10 +84,10 @@ namespace Ship_Game
                 batch.End();
                 return;
             }
-            Message = HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat(Original, Toappend), 250f);
+            Message = Fonts.Arial12Bold.ParseText(string.Concat(Original, Toappend), 250f);
             //renamed r, textposition
             Rectangle r2 = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) + 15);
-            Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(Message).X / 2f, (float)(r2.Y + 10));
+            Vector2 textPosition2 = new Vector2(r2.X + r2.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r2.Y + 10);
             batch.Begin();
             batch.FillRectangle(r2, Color.Black);
             batch.DrawRectangle(r2, Color.Orange);

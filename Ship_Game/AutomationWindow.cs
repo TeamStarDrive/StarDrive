@@ -2,7 +2,6 @@ using System;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -130,19 +129,19 @@ namespace Ship_Game
             EmpireData playerData = Universe.player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
-                (ship) =>
+                ship =>
                 {
                     return ship.ShipGoodToBuild(EmpireManager.Player) && !ship.isColonyShip && ship.CargoSpaceMax > 0f;
                 });
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
-                (ship) =>
+                ship =>
                 {
                     return ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip;
                 });
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor, 
-                (ship) =>
+                ship =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ConstructionModule)
                         return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.isConstructor || ship.Name == playerData.DefaultConstructor);
@@ -152,7 +151,7 @@ namespace Ship_Game
                 });
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
-                (ship) =>
+                ship =>
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
                         return ship.ShipGoodToBuild(EmpireManager.Player) && 

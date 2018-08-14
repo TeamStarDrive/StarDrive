@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using System;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
@@ -9,9 +8,5 @@ namespace Ship_Game.Gameplay
 		public Vector2 Position;
 
 		public Ship Platform;
-
-		public RoadNode()
-		{
-		}
 	}
 }

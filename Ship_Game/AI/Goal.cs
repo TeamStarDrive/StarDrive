@@ -4,11 +4,8 @@
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -20,7 +17,7 @@ namespace Ship_Game.AI
         BuildTroop,
         BuildShips,
         BuildScout,
-        FleetRequisition,
+        FleetRequisition
     }
 
     public enum GoalStep
@@ -29,7 +26,7 @@ namespace Ship_Game.AI
         TryAgain,     // goal step failed, so we should try again
         GoalComplete, // entire goal is complete and should be removed!
         RestartGoal,  // restart goal from scratch
-        GoalFailed,   // abort, abort!!
+        GoalFailed   // abort, abort!!
     }
 
     public abstract class Goal

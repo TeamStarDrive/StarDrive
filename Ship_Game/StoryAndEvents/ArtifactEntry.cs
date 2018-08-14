@@ -6,11 +6,7 @@ namespace Ship_Game
 	{
 		public Array<SkinnableButton> ArtifactButtons = new Array<SkinnableButton>();
 
-		public ArtifactEntry()
-		{
-		}
-
-		public void Update(Vector2 Position)
+	    public void Update(Vector2 Position)
 		{
 			Vector2 Cursor = Position;
 			foreach (SkinnableButton button in ArtifactButtons)

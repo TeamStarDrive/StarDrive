@@ -6,10 +6,6 @@ namespace Ship_Game
     {
         [Serialize(0)] public Guid PlanetGuid;
 
-        public Mole()
-        {
-        }
-
         public static Mole PlantMole(Empire owner, Empire target)
         {
             Array<Planet> potentials = new Array<Planet>();
@@ -42,12 +38,12 @@ namespace Ship_Game
             Mole mole = null;
             if (potentials.Count > 0)
             {
-                int Random = (int)RandomMath.RandomBetween(0f, (float)potentials.Count + 0.7f);
+                int Random = (int)RandomMath.RandomBetween(0f, potentials.Count + 0.7f);
                 if (Random > potentials.Count - 1)
                 {
                     Random = potentials.Count - 1;
                 }
-                mole = new Mole()
+                mole = new Mole
                 {
                     PlanetGuid = potentials[Random].guid
                 };

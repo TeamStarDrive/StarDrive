@@ -40,9 +40,9 @@ namespace Ship_Game
 					}
 					else
 					{
-						string[] tokens = s.Split(new char[] { ' ' });
+						string[] tokens = s.Split(' ');
 						s = "";
-						for (int t = 0; t < (int)tokens.Length; t++)
+						for (int t = 0; t < tokens.Length; t++)
 						{
 							if (!string.IsNullOrEmpty(tokens[t]))
 							{
@@ -81,8 +81,8 @@ namespace Ship_Game
 			}
 			_order = order;
 			_minLength = minLength;
-			string[] strArrays = sampleNames.Split(new char[] { ',' });
-			for (int i = 0; i < (int)strArrays.Length; i++)
+			string[] strArrays = sampleNames.Split(',');
+			for (int i = 0; i < strArrays.Length; i++)
 			{
 				string upper = strArrays[i].Trim().ToUpper();
 				if (upper.Length >= order + 1)
