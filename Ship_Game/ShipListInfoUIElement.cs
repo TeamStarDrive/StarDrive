@@ -163,7 +163,7 @@ namespace Ship_Game
                     ob.Draw(this.ScreenManager, r);
                 }
             }
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], Housing, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             string text = (!isFleet || ShipList.Count <= 0 || ShipList.First.fleet == null) ? "Multiple Ships" : ShipList.First.fleet.Name;
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
             SelectedShipsSL.Draw(ScreenManager.SpriteBatch);
@@ -204,7 +204,7 @@ namespace Ship_Game
                         };
                         this.oBar.Draw(this.ScreenManager.SpriteBatch);
                         this.Ordnance = new Rectangle(pordrect.X - 25, pordrect.Y, 20, 20);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], this.Ordnance, Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), this.Ordnance, Color.White);
                     }
                 }
             }
@@ -230,7 +230,7 @@ namespace Ship_Game
                 if (this.HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
                     longName += string.Concat(" - ", this.HoveredShip.shipData.GetCategory());
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), this.DefenseRect, Color.White);
                 Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
                 SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
@@ -242,12 +242,12 @@ namespace Ship_Game
                 HelperFunctions.ClampVectorToInt(ref ShipStatus);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
                 ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], this.TroopRect, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), this.TroopRect, Color.White);
                 Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.HoveredShip.TroopList.Count, "/", this.HoveredShip.TroopCapacity), troopPos, Color.White);
                 Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 25, 22, 22);
                 Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_experience_shipUI"], star, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.HoveredShip.Level.ToString(), levelPos, Color.White);
             }
             foreach (ToggleButton button in this.CombatStatusButtons)

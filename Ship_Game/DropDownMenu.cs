@@ -36,9 +36,9 @@ namespace Ship_Game
 		{
 			this.r = r;
 			this.TL = new DropDownMenu.RecTexPair(r.X, r.Y, "NewUI/dropdown_menu_corner_TL");
-			this.TR = new DropDownMenu.RecTexPair(r.X + r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_TR"].Width, r.Y, "NewUI/dropdown_menu_corner_TR");
-			this.BL = new DropDownMenu.RecTexPair(r.X, r.Y + r.Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Height, "NewUI/dropdown_menu_corner_BL");
-			this.BR = new DropDownMenu.RecTexPair(r.X + r.Width - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BL"].Width, r.Y + r.Height - ResourceManager.TextureDict["NewUI/dropdown_menu_corner_BR"].Height, "NewUI/dropdown_menu_corner_BR");
+			this.TR = new DropDownMenu.RecTexPair(r.X + r.Width - ResourceManager.Texture("NewUI/dropdown_menu_corner_TR").Width, r.Y, "NewUI/dropdown_menu_corner_TR");
+			this.BL = new DropDownMenu.RecTexPair(r.X, r.Y + r.Height - ResourceManager.Texture("NewUI/dropdown_menu_corner_BL").Height, "NewUI/dropdown_menu_corner_BL");
+			this.BR = new DropDownMenu.RecTexPair(r.X + r.Width - ResourceManager.Texture("NewUI/dropdown_menu_corner_BL").Width, r.Y + r.Height - ResourceManager.Texture("NewUI/dropdown_menu_corner_BR").Height, "NewUI/dropdown_menu_corner_BR");
 			this.LV = new DropDownMenu.RecTexPair(r.X, r.Y + 6, r.Height - 12, "NewUI/dropdown_menu_sides_left");
 			this.RV = new DropDownMenu.RecTexPair(r.X + r.Width - 6, r.Y + 6, r.Height - 12, "NewUI/dropdown_menu_sides_right");
 			this.Top = new DropDownMenu.RecTexPair(r.X + this.TL.r.Width, r.Y, "NewUI/dropdown_menu_sides_top", r.Width - this.TL.r.Width - this.TR.r.Width);
@@ -74,7 +74,7 @@ namespace Ship_Game
 			}
 			foreach (DropDownMenu.RecTexPair r in this.container)
 			{
-				spriteBatch.Draw(ResourceManager.TextureDict[r.tex], r.r, Color.White);
+				spriteBatch.Draw(ResourceManager.Texture(r.tex), r.r, Color.White);
 			}
 			if (hover)
 			{
@@ -88,7 +88,7 @@ namespace Ship_Game
 		{
 			foreach (DropDownMenu.RecTexPair r in this.container)
 			{
-				spriteBatch.Draw(ResourceManager.TextureDict[r.tex], r.r, Color.DarkGray);
+				spriteBatch.Draw(ResourceManager.Texture(r.tex), r.r, Color.DarkGray);
 			}
 			spriteBatch.DrawString(Fonts.Arial12Bold, "-", new Vector2((float)(this.r.X + 8), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), Color.DarkGray);
 		}
@@ -111,19 +111,19 @@ namespace Ship_Game
 
 			public RecTexPair(int x, int y, string t)
 			{
-				this.r = new Rectangle(x, y, ResourceManager.TextureDict[t].Width, ResourceManager.TextureDict[t].Height);
+				this.r = new Rectangle(x, y, ResourceManager.Texture(t).Width, ResourceManager.Texture(t).Height);
 				this.tex = t;
 			}
 
 			public RecTexPair(int x, int y, int h, string t)
 			{
-				this.r = new Rectangle(x, y, ResourceManager.TextureDict[t].Width, h);
+				this.r = new Rectangle(x, y, ResourceManager.Texture(t).Width, h);
 				this.tex = t;
 			}
 
 			public RecTexPair(int x, int y, string t, int w)
 			{
-				this.r = new Rectangle(x, y, w, ResourceManager.TextureDict[t].Height);
+				this.r = new Rectangle(x, y, w, ResourceManager.Texture(t).Height);
 				this.tex = t;
 			}
 		}

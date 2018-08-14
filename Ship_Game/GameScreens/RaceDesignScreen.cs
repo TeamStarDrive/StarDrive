@@ -958,8 +958,8 @@ namespace Ship_Game
             batch.Draw(item.Value, FlagRect, currentObjectColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], FlagLeft, Color.BurlyWood);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/rightArrow"], FlagRight, Color.BurlyWood);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
             r = Description.Menu;
             if (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.TransitionOff)
             {
@@ -1186,10 +1186,10 @@ namespace Ship_Game
                 for (int j = 0; j <= 255; j++)
                 {
                     Color thisColor = new Color(Convert.ToByte(i), Convert.ToByte(j), currentObjectColor.B);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), thisColor);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Particles/spark"), new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), thisColor);
                     if (thisColor.R == currentObjectColor.R && thisColor.G == currentObjectColor.G)
                     {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), Color.Red);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Particles/spark"), new Rectangle(2 * j + xPositionStart, yPosition, 2, 2), Color.Red);
                     }
                 }
                 yPosition = yPosition + 2;
@@ -1198,10 +1198,10 @@ namespace Ship_Game
             for (int i = 0; i <= 255; i++)
             {
                 Color thisColor = new Color(currentObjectColor.R, currentObjectColor.G, Convert.ToByte(i));
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2), thisColor);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Particles/spark"), new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2), thisColor);
                 if (thisColor.B == currentObjectColor.B)
                 {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Particles/spark"], new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2), Color.Red);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Particles/spark"), new Rectangle(ColorSelector.X + 10 + 575, yPosition, 20, 2), Color.Red);
                 }
                 yPosition = yPosition + 2;
             }
@@ -1630,7 +1630,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                TextureDict.Add(e, ResourceManager.TextureDict[string.Concat("Races/", e.Traits.VideoPath)]);
+                TextureDict.Add(e, ResourceManager.Texture(string.Concat("Races/", e.Traits.VideoPath)));
             }
             foreach (EmpireData e in ResourceManager.Empires)
             {

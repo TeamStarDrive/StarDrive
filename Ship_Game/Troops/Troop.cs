@@ -170,7 +170,7 @@ namespace Ship_Game
 
         public void DrawIcon(SpriteBatch spriteBatch, Rectangle drawRect)
         {
-            var iconTexture = ResourceManager.TextureDict["TroopIcons/" + Icon + "_icon"];
+            var iconTexture = ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
             spriteBatch.Draw(iconTexture, drawRect, Color.White);
         }
 

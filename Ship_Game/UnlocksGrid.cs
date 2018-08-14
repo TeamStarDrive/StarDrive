@@ -88,7 +88,7 @@ namespace Ship_Game
 				if (unlock.Type == UnlockType.BUILDING)
 				{
 					Rectangle iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-					spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", unlock.building.Icon, "_64x64")], iconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", unlock.building.Icon, "_64x64")), iconRect, Color.White);
 				}
 				if (unlock.Type == UnlockType.HULL)
 				{
@@ -100,7 +100,7 @@ namespace Ship_Game
 					continue;
 				}
 				Rectangle iconRect2 = new Rectangle(gi.rect.X, gi.rect.Y, 32, 32);
-				spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/star"], iconRect2, Color.White);
+				spriteBatch.Draw(ResourceManager.Texture("TechIcons/star"), iconRect2, Color.White);
 			}
 		}
 	}

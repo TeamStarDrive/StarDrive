@@ -101,7 +101,7 @@ namespace Ship_Game
                             IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
                         }
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(unlockedMod.UID).IconTexturePath],
+                            ResourceManager.Texture(ResourceManager.GetModuleTemplate(unlockedMod.UID).IconTexturePath),
                             IconRect, Color.White);
                         string moduleName = Localizer.Token(unlockedMod.NameIndex);
                         DrawString(Fonts.Arial20Bold, moduleName,

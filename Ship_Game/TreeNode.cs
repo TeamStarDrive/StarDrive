@@ -228,7 +228,7 @@ namespace Ship_Game
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
+                    if (ResourceManager.TextureLoaded("TechIcons/" + this.tech.Tech.IconPath))
                     {
                         spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.Tech.IconPath), this.IconRect, Color.White);
                     }
@@ -260,7 +260,7 @@ namespace Ship_Game
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
+                    if (ResourceManager.TextureLoaded("TechIcons/" + this.tech.Tech.IconPath))
                     {
                         spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.Tech.IconPath), this.IconRect, Color.White);
                     }
