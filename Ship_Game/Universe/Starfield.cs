@@ -391,19 +391,19 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			this.cloudTexture = ResourceManager.TextureDict["clouds"];
+			this.cloudTexture = ResourceManager.Texture("clouds");
 			this.cloudEffect = Empire.Universe.TransientContent.Load<Effect>("Effects/Clouds");
 			this.cloudEffectPosition = this.cloudEffect.Parameters["Position"];
 			int width = Empire.Universe.Viewport.Width;
 			Viewport viewport = Empire.Universe.Viewport;
 			this.starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
-			this.aStar = ResourceManager.TextureDict["Suns/star_binary"];
+			this.aStar = ResourceManager.Texture("Suns/star_binary");
 			this.starTex[0] = this.aStar;
-			this.bStar = ResourceManager.TextureDict["Suns/star_yellow"];
+			this.bStar = ResourceManager.Texture("Suns/star_yellow");
 			this.starTex[1] = this.bStar;
-			this.cStar = ResourceManager.TextureDict["Suns/star_red"];
+			this.cStar = ResourceManager.Texture("Suns/star_red");
 			this.starTex[2] = this.cStar;
-			this.dStar = ResourceManager.TextureDict["Suns/star_neutron"];
+			this.dStar = ResourceManager.Texture("Suns/star_neutron");
 			this.starTex[3] = this.dStar;
 			this.starTexture = new Texture2D(Empire.Universe.ScreenManager.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
 			this.starTexture.SetData<Color>(new Color[] { Color.White });

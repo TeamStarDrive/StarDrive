@@ -95,7 +95,7 @@ namespace Ship_Game
             AgentSL.Draw(batch);
             RecruitButton.Draw(ScreenManager);
             Rectangle moneyRect = new Rectangle(RecruitButton.r.X, RecruitButton.r.Y + 30, 21, 20);
-            batch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], moneyRect, Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_money"), moneyRect, Color.White);
 
             Vector2 costPos = new Vector2(moneyRect.X + 25, moneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2);
 

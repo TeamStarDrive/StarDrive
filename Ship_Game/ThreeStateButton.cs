@@ -38,7 +38,7 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, int amount)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Goods/", this.Good)], this.rect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Goods/", this.Good)), this.rect, Color.White);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, amount.ToString(), this.TextPos, Color.White);
 			string statetext = "";
 			if (this.state == ThreeStateButton.State.In)

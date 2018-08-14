@@ -44,7 +44,7 @@ namespace Ship_Game
 			{
 				case NodeState.Normal:
 				{
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_title"], this.TitleRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title"), this.TitleRect, Color.White);
 					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
 					textarray = Regex.Split(text, "\n");
 					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
@@ -58,14 +58,14 @@ namespace Ship_Game
 						spriteBatch.DrawString(this.TitleFont, word, newPos, new Color(131, 147, 172));
 						line++;
 					}
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_body"], this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath)], this.IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), this.RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath)), this.IconRect, Color.White);
 					return;
 				}
 				case NodeState.Hover:
 				{
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_underglow_selhoverpress"], this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_title_selhoverpress"], this.TitleRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), this.RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), this.TitleRect, Color.White);
 					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
 					textarray = Regex.Split(text, "\n");
 					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
@@ -79,14 +79,14 @@ namespace Ship_Game
 						spriteBatch.DrawString(this.TitleFont, word, newPos, new Color(163, 198, 236));
 						line++;
 					}
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_body_selhover"], this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath, "_hover")], this.IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_selhover"), this.RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath, "_hover")), this.IconRect, Color.White);
 					return;
 				}
 				case NodeState.Press:
 				{
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_underglow_selhoverpress"], this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_title_selhoverpress"], this.TitleRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), this.RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), this.TitleRect, Color.White);
 					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
 					textarray = Regex.Split(text, "\n");
 					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
@@ -100,8 +100,8 @@ namespace Ship_Game
 						spriteBatch.DrawString(this.TitleFont, word, newPos, new Color(163, 198, 236));
 						line++;
 					}
-					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_body_press"], this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath, "_hover")], this.IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_press"), this.RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath, "_hover")), this.IconRect, Color.White);
 					return;
 				}
 				default:

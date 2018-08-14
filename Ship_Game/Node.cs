@@ -47,7 +47,7 @@ namespace Ship_Game
             Rectangle BlackBar = new Rectangle(this.NodeRect.X + 215, this.NodeRect.Y + 1, 1, this.NodeRect.Height - 2);
             ScreenManager.SpriteBatch.FillRectangle(BlackBar, Color.Black);
             Rectangle rIconRect = new Rectangle(BlackBar.X + 4, BlackBar.Y + 4, 19, 20);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rIconRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rIconRect, Color.White);
             cursor.X = (float)(rIconRect.X + 24);
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;

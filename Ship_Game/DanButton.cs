@@ -41,7 +41,7 @@ namespace Ship_Game
 			{
 				pos.X = pos.X - 9f;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button"], this.r, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button"), this.r, Color.White);
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			str = (this.Toggled ? this.ToggledText : this.Text);
@@ -61,7 +61,7 @@ namespace Ship_Game
 		{
 			string str;
 			Color color;
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button"], rect, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button"), rect, Color.White);
 			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
 			Vector2 pos = tPos;
 			if (GlobalStats.IsGerman)
@@ -91,7 +91,7 @@ namespace Ship_Game
 			{
 				pos.X = pos.X - 9f;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], this.r, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), this.r, Color.White);
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			string str = (this.Toggled ? this.ToggledText : this.Text);
@@ -111,7 +111,7 @@ namespace Ship_Game
 		{
 			string str;
 			Color color;
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], rect, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), rect, Color.White);
 			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
 			Vector2 pos = tPos;
 			if (GlobalStats.IsGerman)
