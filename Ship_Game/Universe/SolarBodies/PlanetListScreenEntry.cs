@@ -100,15 +100,15 @@ namespace Ship_Game
                 float f = (float)Math.Sin(totalSeconds);
                 f = Math.Abs(f) * 255f;
                 Color flashColor = new Color(255, 255, 255, (byte)f);
-                Rectangle flashRect = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Width, ResourceManager.TextureDict["Ground_UI/Ground_Attack"].Height);
-                batch.Draw(ResourceManager.TextureDict["Ground_UI/EnemyHere"], flashRect, flashColor);
+                Rectangle flashRect = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, ResourceManager.Texture("Ground_UI/Ground_Attack").Width, ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
+                batch.Draw(ResourceManager.Texture("Ground_UI/EnemyHere"), flashRect, flashColor);
                 if (flashRect.HitTest(screen.Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(123);
                 }
             }
             Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            batch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", planet.PlanetType)], planetIconRect, Color.White);
+            batch.Draw(ResourceManager.Texture(string.Concat("Planets/", planet.PlanetType)), planetIconRect, Color.White);
             if (planet.Owner != null)
             {
                 SpriteBatch spriteBatch = batch;
@@ -373,7 +373,7 @@ namespace Ship_Game
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             string shipName = planet.Name;
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-            Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height / 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+            Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
             SendTroops.Rect = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
         }
     }

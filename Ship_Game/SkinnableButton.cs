@@ -58,12 +58,12 @@ namespace Ship_Game
             {
                 if (this.Toggled)
                 {
-                    Rectangle secondRect = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.TextureDict[this.SecondSkin].Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.TextureDict[this.SecondSkin].Height / 2, ResourceManager.TextureDict[this.SecondSkin].Width, ResourceManager.TextureDict[this.SecondSkin].Height);
-                    screenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.SecondSkin], secondRect, Color.White);
+                    Rectangle secondRect = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.Texture(this.SecondSkin).Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.Texture(this.SecondSkin).Height / 2, ResourceManager.Texture(this.SecondSkin).Width, ResourceManager.Texture(this.SecondSkin).Height);
+                    screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.SecondSkin), secondRect, Color.White);
                     return;
                 }
-                Rectangle secondRect0 = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.TextureDict[this.SecondSkin].Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.TextureDict[this.SecondSkin].Height / 2, ResourceManager.TextureDict[this.SecondSkin].Width, ResourceManager.TextureDict[this.SecondSkin].Height);
-                screenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.SecondSkin], secondRect0, (this.Hover ? Color.LightGray : Color.Black));
+                Rectangle secondRect0 = new Rectangle(this.r.X + this.r.Width / 2 - ResourceManager.Texture(this.SecondSkin).Width / 2, this.r.Y + this.r.Height / 2 - ResourceManager.Texture(this.SecondSkin).Height / 2, ResourceManager.Texture(this.SecondSkin).Width, ResourceManager.Texture(this.SecondSkin).Height);
+                screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.SecondSkin), secondRect0, (this.Hover ? Color.LightGray : Color.Black));
             }
         }
 

@@ -31,10 +31,10 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/header_left"], this.leftRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/header_fill"], this.FillRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/header_right"], this.RightRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/over_header"], this.overheader, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_left"), this.leftRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_fill"), this.FillRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_right"), this.RightRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/over_header"), this.overheader, Color.White);
 			if (Fonts.Arial20Bold.MeasureString(this.text).X > (float)(this.FillRect.Width - 150))
 			{
 				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.text, this.TextPos, new Color(198, 189, 180));
