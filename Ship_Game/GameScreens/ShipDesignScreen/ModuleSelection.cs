@@ -592,19 +592,18 @@ namespace Ship_Game
 
         private void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
-            float range = ModifiedWeaponStat(w, WeaponStat.Range);
-            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
-            float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
-
-            bool repair = w.isRepairBeam;
-            bool isBeam      = repair || w.isBeam;
-            bool isBallistic = w.explodes && w.OrdinanceRequiredToFire > 0f;
+            float range          = ModifiedWeaponStat(w, WeaponStat.Range);
+            float delay          = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float speed          = ModifiedWeaponStat(w, WeaponStat.Speed);
+            bool repair          = w.isRepairBeam;
+            bool isBeam          = repair || w.isBeam;
+            bool isBallistic     = w.explodes && w.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -90f : +90f) : 0f;
 
             float rawDamage       = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
             float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
-            float energyDamage    = rawDamage + rawDamage * EmpireManager.Player.data.Traits.EnergyDamageMod;
+            float energyDamage    = rawDamage;
 
             float cost  = m.Cost * UniverseScreen.GamePaceStatic;
             float mass  = m.Mass * EmpireManager.Player.data.MassModifier;
@@ -634,9 +633,8 @@ namespace Ship_Game
             {
                 int salvos = w.SalvoCount > 0 ? w.SalvoCount : 1;
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
-                float dps = isBeam 
-                    ? (beamDamage / delay)
-                    : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
+                float dps = isBeam ? (beamDamage / delay)
+                                   : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
 
                 DrawStat(ref cursor, "DPS", dps, 86);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
