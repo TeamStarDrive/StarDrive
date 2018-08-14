@@ -2317,7 +2317,7 @@ namespace Ship_Game
             }
             this.previousMouse = this.currentMouse; 
             */
-            return false;
+            return base.HandleInput(input);
         }
 
         private void OnSendTroopsClicked(UIButton b)
