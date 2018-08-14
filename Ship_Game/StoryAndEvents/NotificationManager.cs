@@ -416,7 +416,7 @@ namespace Ship_Game
                     }
                     if (n.RelevantEmpire != null)
                     {
-                        SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
+                        SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                         KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[n.RelevantEmpire.data.Traits.FlagIndex];
                         spriteBatch.Draw(item.Value, n.ClickRect, n.RelevantEmpire.EmpireColor);
                     }
@@ -481,7 +481,7 @@ namespace Ship_Game
                             retValue = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
                             if (GlobalStats.PauseOnNotification && n.Pause)
-                                this.Screen.Paused = false;
+                                Screen.Paused = false;
                         }
                         n.ShowMessage = true;
                     }
@@ -512,7 +512,7 @@ namespace Ship_Game
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
-                Screen.HeightOnSnap = this.Screen.CamHeight;
+                Screen.HeightOnSnap = Screen.CamHeight;
             }
             Screen.OpenCombatMenu(null);
         }

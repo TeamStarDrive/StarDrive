@@ -16,8 +16,8 @@ namespace Ship_Game
 
 		public RenderedScreen() : base(null)
 		{
-			base.TransitionOnTime = TimeSpan.FromSeconds(1);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
+			TransitionOnTime = TimeSpan.FromSeconds(1);
+			TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
 
 		public override void Draw(SpriteBatch batch)

@@ -1399,7 +1399,7 @@ namespace Ship_Game
             if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
 
-            if (this.IsExploredBy(Empire.Universe.PlayerEmpire))
+            if (IsExploredBy(Empire.Universe.PlayerEmpire))
             {
                 if (!newOwner.isFaction)
                     Empire.Universe.NotificationManager.AddConqueredNotification((Planet)this, newOwner, Owner);

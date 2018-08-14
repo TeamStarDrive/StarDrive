@@ -30,45 +30,45 @@ namespace Ship_Game
 		{
 			Color orange;
 			Color color;
-			string toDraw = this.Name;
+			string toDraw = Name;
 			while (Fonts.Arial12Bold.MeasureString(toDraw).X < width - 20f)
 			{
 				toDraw = string.Concat(toDraw, " .");
 			}
-			if (points < (float)this.Cost)
+			if (points < (float)Cost)
 			{
 				screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, toDraw, Position, Color.Gray);
 				Position.X = Position.X + width;
-				Position.X = Position.X - Fonts.Arial12Bold.MeasureString(this.Cost.ToString()).X;
-				screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.Cost.ToString(), Position, Color.Gray);
+				Position.X = Position.X - Fonts.Arial12Bold.MeasureString(Cost.ToString()).X;
+				screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Cost.ToString(), Position, Color.Gray);
 				return;
 			}
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
 			string str = toDraw;
 			Vector2 position = Position;
-			if (this.Selected)
+			if (Selected)
 			{
 				orange = Color.Orange;
 			}
 			else
 			{
-				orange = (this.Hover ? Color.White : Color.LightGray);
+				orange = (Hover ? Color.White : Color.LightGray);
 			}
 			spriteBatch.DrawString(arial12Bold, str, position, orange);
 			Position.X = Position.X + width;
-			Position.X = Position.X - Fonts.Arial12Bold.MeasureString(this.Cost.ToString()).X;
+			Position.X = Position.X - Fonts.Arial12Bold.MeasureString(Cost.ToString()).X;
 			SpriteBatch spriteBatch1 = screenManager.SpriteBatch;
 			SpriteFont spriteFont = Fonts.Arial12Bold;
-			string str1 = this.Cost.ToString();
+			string str1 = Cost.ToString();
 			Vector2 vector2 = Position;
-			if (this.Selected)
+			if (Selected)
 			{
 				color = Color.Orange;
 			}
 			else
 			{
-				color = (this.Hover ? Color.White : Color.LightGray);
+				color = (Hover ? Color.White : Color.LightGray);
 			}
 			spriteBatch1.DrawString(spriteFont, str1, vector2, color);
 		}

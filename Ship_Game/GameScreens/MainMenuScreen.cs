@@ -127,7 +127,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = this.GameTime;
+            GameTime gameTime = GameTime;
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Rotate += elapsedTime / 350f;
             if (RandomMath.RandomBetween(0f, 100f) > 99.75)
@@ -139,7 +139,7 @@ namespace Ship_Game
                 };
                 c.Velocity = Vector2.Normalize(c.Velocity);
                 c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
-                this.CometList.Add(c);
+                CometList.Add(c);
             }
             if (SplashScreen.DisplayComplete)
             {

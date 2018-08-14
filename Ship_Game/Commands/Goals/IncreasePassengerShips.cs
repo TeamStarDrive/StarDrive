@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
                     && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                     && (!ship.PlayerShip && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                 {
-                    this.passTran = ship;
+                    passTran = ship;
                     flag1 = true;
                 }
             }
@@ -44,7 +44,7 @@ namespace Ship_Game.Commands.Goals
             else
             {
                 Array<Planet> list1 = new Array<Planet>();
-                foreach (Planet planet in this.empire.GetPlanets())
+                foreach (Planet planet in empire.GetPlanets())
                 {
                     if (planet.HasShipyard && planet.ParentSystem.combatTimer <= 0)  //fbedard: do not build freighter if combat in system
                         list1.Add(planet);
@@ -64,15 +64,15 @@ namespace Ship_Game.Commands.Goals
                 }
                 if (planet1 == null)
                     return GoalStep.TryAgain;
-                if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
+                if (empire.isPlayer && empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoFreighter))
                 {
                     planet1.ConstructionQueue.Add(new QueueItem(planet1)
                     {
                         isShip = true,
                         QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].shipData,
+                        sData = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].shipData,
                         Goal = this,
-                        Cost = ResourceManager.ShipsDict[this.empire.data.CurrentAutoFreighter].GetCost(this.empire),
+                        Cost = ResourceManager.ShipsDict[empire.data.CurrentAutoFreighter].GetCost(empire),
                         NotifyOnEmpty = false
                     });
                     return GoalStep.GoToNextStep;
@@ -123,14 +123,14 @@ namespace Ship_Game.Commands.Goals
                                                                  && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit))
                     && ship.AI.State != AIState.Scrap)
                 {
-                    this.passTran = ship;
+                    passTran = ship;
                     flag2 = true;
                 }
             }
             if (flag2)
             {
-                this.passTran.AI.OrderTransportPassengers(0.1f);
-                this.empire.ReportGoalComplete(this);
+                passTran.AI.OrderTransportPassengers(0.1f);
+                empire.ReportGoalComplete(this);
                 return GoalStep.GoalComplete;
             }
             else

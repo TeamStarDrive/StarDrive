@@ -9,12 +9,12 @@ namespace Ship_Game
 		{
 			get
 			{
-				return base.P0;
+				return P0;
 			}
 			set
 			{
-				base.P0 = value;
-				base.P1 = value;
+				P0 = value;
+				P1 = value;
 			}
 		}
 

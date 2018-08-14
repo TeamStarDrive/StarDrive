@@ -260,9 +260,9 @@ namespace Ship_Game.Ships
         {
             if (Screen.SelectedShip == null) return;  //fbedard
 
-            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
-            SlidingElement.Draw(ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
+            SlidingElement.Draw(ScreenManager, (int)((float)(columns * 55) * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
             DrawOrderButtons(transitionOffset);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             Gridbutton.Draw(ScreenManager);
@@ -546,7 +546,7 @@ namespace Ship_Game.Ships
                
                 if (ElementRect.HitTest(input.CursorPosition))
                     return true;
-                if (State == UIElement.ElementState.Open)
+                if (State == ElementState.Open)
                 {                    
                     foreach (OrdersButton ordersButton in Orders)
                     {

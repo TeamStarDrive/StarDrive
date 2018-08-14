@@ -179,12 +179,12 @@ namespace Ship_Game.AI
 
         public Ship GetColonyShip()
         {
-            return this.colonyShip;
+            return colonyShip;
         }
 
         public Planet GetMarkedPlanet()
         {
-            return this.markedPlanet;
+            return markedPlanet;
         }
 
         public struct PlanetRanker

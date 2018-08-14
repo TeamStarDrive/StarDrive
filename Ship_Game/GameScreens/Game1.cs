@@ -34,7 +34,7 @@ namespace Ship_Game
         public Game1()
         {
             // need to set base Content, to ensure proper content disposal
-            base.Content = this.Content = new GameContentManager(Services, "Game");
+            base.Content = Content = new GameContentManager(Services, "Game");
 
             GlobalStats.LoadConfig();
 
@@ -129,7 +129,7 @@ namespace Ship_Game
             base.Update(gameTime);
 
             if (ScreenManager.ScreenCount == 0)
-                Game1.Instance.Exit();
+                Instance.Exit();
         }
 
 
