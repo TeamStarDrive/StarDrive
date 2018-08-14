@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Ship_Game
 {
     //Unused in game that i can see --gremlin
@@ -20,11 +17,7 @@ namespace Ship_Game
 
 		public Array<Tech> MissilePath = new Array<Tech>();
 
-		public MilitaryResearchStrategy()
-		{
-		}
-
-		public struct Tech
+	    public struct Tech
 		{
 			public string id;
 		}

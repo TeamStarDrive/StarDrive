@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game.Gameplay
 {
@@ -25,9 +24,5 @@ namespace Ship_Game.Gameplay
 		public Vector2 Dimensions;
 
 		public Texture2D SectorGraphic;
-
-		public WorldData()
-		{
-		}
 	}
 }

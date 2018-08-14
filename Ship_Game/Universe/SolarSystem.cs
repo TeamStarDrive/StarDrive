@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -43,7 +42,7 @@ namespace Ship_Game
         public bool isStartingSystem;
         public Array<string> DefensiveFleets = new Array<string>();
         public Map<Empire,PredictionTimeout> predictionTimeout =new Map<Empire,PredictionTimeout>();
-        [XmlIgnore] [JsonIgnore] public bool VisibilityUpdated = false;
+        [XmlIgnore] [JsonIgnore] public bool VisibilityUpdated;
 
         public class PredictionTimeout
         {
@@ -172,10 +171,6 @@ namespace Ship_Game
                         ship.ProcessInput(elapsedTime);
                 }
             }
-        }
-
-        public SolarSystem()
-        {
         }
 
         public bool IsFullyExploredBy(Empire empire) => FullyExplored.IsSet(empire);
@@ -582,12 +577,11 @@ namespace Ship_Game
         {
             isStartingSystem = true;
             GenerateRandomSystem(name, data, systemScale, owner);
-            return;            
         }
 
         public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
         {
-            var newSys = new SolarSystem()
+            var newSys = new SolarSystem
             {
                 SunPath = data.SunPath,
                 Name    = data.Name

@@ -1,4 +1,3 @@
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -17,7 +16,7 @@ namespace Ship_Game
         German,
         Polish,
         Russian,
-        Spanish,
+        Spanish
     }
 
     public enum WindowMode
@@ -134,12 +133,12 @@ namespace Ship_Game
         public static Language Language   = Language.English;
 
         // Render options
-        public static int TextureQuality  = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureQuality;    //0=High, 1=Medium, 2=Low, 3=Off
         public static int TextureSampling = 2;    //0=Bilinear, 1=Trilinear, 2=Anisotropic
         public static int MaxAnisotropy   = 2;    //# of samples, only applies with TextureSampling = 2
         public static float ShadowQuality = 1.0f; //1.0f highest, 0.0f lowest
-        public static int ShadowDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
-        public static int EffectDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int ShadowDetail;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int EffectDetail;    //0=High, 1=Medium, 2=Low, 3=Off
         public static bool DrawNebulas    = true;
         public static bool DrawStarfield  = true;
 

@@ -32,11 +32,7 @@ namespace Ship_Game
 
 		public Empire Them;
 
-		public Offer()
-		{
-		}
-
-		public string DoPleadingText(Attitude a, Offer TheirOffer)
+	    public string DoPleadingText(Attitude a, Offer TheirOffer)
 		{
 			OfferText = "";
 			if (PeaceTreaty)

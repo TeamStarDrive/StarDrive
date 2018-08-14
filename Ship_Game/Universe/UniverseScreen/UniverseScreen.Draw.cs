@@ -1,5 +1,4 @@
 using System;
-using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -81,7 +80,7 @@ namespace Ship_Game
             {
                 for (int index2 = 0; index2 < atmoModel.Meshes.Count; ++index2)
                 {
-                    ModelMesh modelMesh = ((ReadOnlyCollection<ModelMesh>) atmoModel.Meshes)[index2];
+                    ModelMesh modelMesh = atmoModel.Meshes[index2];
                     for (int index3 = 0; index3 < modelMesh.MeshParts.Count; ++index3)
                         modelMesh.MeshParts[index3].Effect = AtmoEffect;
                     modelMesh.Draw();
@@ -139,7 +138,7 @@ namespace Ship_Game
                     new Vector3(new Vector2(SelectedSystem.Position.X + num, SelectedSystem.Position.Y),
                         0.0f), projection, view, Matrix.Identity);
                 float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Position);
-                if ((double) Radius < 5.0)
+                if (Radius < 5.0)
                     Radius = 5f;
                 Rectangle rectangle = new Rectangle((int) Position.X - (int) Radius, (int) Position.Y - (int) Radius,
                     (int) Radius * 2, (int) Radius * 2);
@@ -156,7 +155,7 @@ namespace Ship_Game
                 new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), projection, view,
                 Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
-            if ((double) Radius1 < 8.0)
+            if (Radius1 < 8.0)
                 Radius1 = 8f;
             Vector2 vector2 = new Vector2(vector3_3.X, vector3_3.Y - Radius1);
             Rectangle rectangle1 = new Rectangle((int) Position1.X - (int) Radius1, (int) Position1.Y - (int) Radius1,
@@ -394,7 +393,7 @@ namespace Ship_Game
             Texture2D texture2 = LightsTarget.GetTexture();
             graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
-            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue((Texture) texture2);
+            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
@@ -732,7 +731,7 @@ namespace Ship_Game
                     Viewport.Project(
                         new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
                 ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_2.X, vector3_2.Y),
-                    vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
+                    vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 20));
             }
         }
 
@@ -777,19 +776,19 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Width /
-                                     2f),
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Height /
-                                     2f));
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Width /
+                            2f,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
+                            2f);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + (object) planet.PlanetType), position,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         origin =
                             new Vector2(
-                                (float) (ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
-                                             .Value.Width / 2),
-                                (float) (ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
-                                             .Value.Height / 2));
+                                ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
+                                    .Value.Width / 2,
+                                ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
+                                    .Value.Height / 2);
                         ScreenManager.SpriteBatch.Draw(
                             ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value, position,
                             new Rectangle?(), planet.Owner.EmpireColor, 0.0f, origin, 0.045f, SpriteEffects.None,
@@ -803,12 +802,12 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Width /
-                                     2),
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Height /
-                                     2f));
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Width /
+                            2,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
+                            2f);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + (object) planet.PlanetType), position,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                     }
                 }

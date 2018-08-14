@@ -1,17 +1,17 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using System.Globalization;
-using System.Configuration;
-using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -112,7 +112,7 @@ namespace Ship_Game
                     Position      = system.Position,
                     SunPath       = system.SunPath,
                     AsteroidsList = new Array<Asteroid>(),
-                    Moons         = new Array<Moon>(),
+                    Moons         = new Array<Moon>()
                 };
                 foreach (Asteroid roid in system.AsteroidsList)
                 {
@@ -177,7 +177,7 @@ namespace Ship_Game
                         {
                             foreach (QueueItem item in ring.planet.ConstructionQueue)
                             {
-                                QueueItemSave qi = new QueueItemSave()
+                                QueueItemSave qi = new QueueItemSave
                                 {
                                     isBuilding = item.isBuilding,
                                     IsRefit = item.isRefit
@@ -280,7 +280,7 @@ namespace Ship_Game
                 foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                 {
                     if (fleet.Value.DataNodes == null) continue;
-                    var fs = new FleetSave()
+                    var fs = new FleetSave
                     {
                         Name        = fleet.Value.Name,
                         IsCoreFleet = fleet.Value.IsCoreFleet,
@@ -302,7 +302,7 @@ namespace Ship_Game
                     fs.DataNodes = fleet.Value.DataNodes;
                     foreach (Ship ship in fleet.Value.Ships)
                     {
-                        FleetShipSave ssave = new FleetShipSave()
+                        FleetShipSave ssave = new FleetShipSave
                         {
                             fleetOffset = ship.RelativeFleetOffset,
                             shipGuid = ship.guid
@@ -314,7 +314,7 @@ namespace Ship_Game
                 empireToSave.SpaceRoadData = new Array<SpaceRoadSave>();
                 foreach (SpaceRoad road in e.SpaceRoadsList)
                 {
-                    var rdata = new SpaceRoadSave()
+                    var rdata = new SpaceRoadSave
                     {
                         OriginGUID = road.GetOrigin().guid,
                         DestGUID = road.GetDestination().guid,
@@ -322,7 +322,7 @@ namespace Ship_Game
                     };
                     foreach (RoadNode node in road.RoadNodesList)
                     {
-                        RoadNodeSave ndata = new RoadNodeSave()
+                        RoadNodeSave ndata = new RoadNodeSave
                         {
                             Position = node.Position
                         };
@@ -334,7 +334,7 @@ namespace Ship_Game
                     }
                     empireToSave.SpaceRoadData.Add(rdata);
                 }
-                var gsaidata = new GSAISAVE()
+                var gsaidata = new GSAISAVE
                 {
                     UsedFleets = e.GetGSAI().UsedFleets,
                     Goals      = new Array<GoalSave>(),
@@ -365,7 +365,7 @@ namespace Ship_Game
                         ToBuildUID    = g.ToBuildUID,
                         type          = g.type,
                         GoalGuid      = g.guid,
-                        GoalName      = g.UID,
+                        GoalName      = g.UID
                     };
                     if (g.GetColonyShip() != null)
                     {
@@ -404,7 +404,7 @@ namespace Ship_Game
                         Position   = ship.Position,
                         experience = ship.experience,
                         kills      = ship.kills,
-                        Velocity   = ship.Velocity,
+                        Velocity   = ship.Velocity
                         
                     };
                     if (ship.GetTether() != null)
@@ -434,7 +434,7 @@ namespace Ship_Game
                     sdata.AreaOfOperation = ship.AreaOfOperation
                         .Select(r => new RectangleData(r)).ToArrayList();
                
-                    sdata.AISave = new ShipAISave()
+                    sdata.AISave = new ShipAISave
                     {
                         FoodOrProd = ship.AI.GetTradeTypeString(),
                         state      = ship.AI.State
@@ -462,7 +462,7 @@ namespace Ship_Game
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
                     foreach (ShipAI.ShipGoal sgoal in ship.AI.OrderQueue)
                     {
-                        var gsave = new ShipGoalSave()
+                        var gsave = new ShipGoalSave
                         {
                             DesiredFacing = sgoal.DesiredFacing
                         };
@@ -519,14 +519,14 @@ namespace Ship_Game
 
                 foreach (Ship ship in e.GetProjectors())  //fbedard
                 {
-                    var sdata = new ShipSaveData()
+                    var sdata = new ShipSaveData
                     {
                         guid       = ship.guid,
                         data       = ship.ToShipData(),
                         Position   = ship.Position,
                         experience = ship.experience,
                         kills      = ship.kills,
-                        Velocity   = ship.Velocity,
+                        Velocity   = ship.Velocity
                     };
                     if (ship.GetTether() != null)
                     {
@@ -553,7 +553,7 @@ namespace Ship_Game
                         GoToStep        = ship.AI.GotoStep,
                         MovePosition    = ship.AI.MovePosition,
                         ActiveWayPoints = new Array<Vector2>(),
-                        ShipGoalsList   = new Array<ShipGoalSave>(),
+                        ShipGoalsList   = new Array<ShipGoalSave>()
                     };
                     sdata.Projectiles = new Array<ProjectileSaveData>();
                     empireToSave.OwnedShips.Add(sdata);
@@ -593,7 +593,7 @@ namespace Ship_Game
                             var ser = new JsonSerializer
                             {
                                 NullValueHandling = NullValueHandling.Ignore,
-                                DefaultValueHandling = DefaultValueHandling.Ignore,
+                                DefaultValueHandling = DefaultValueHandling.Ignore
                             };
                             ser.Serialize(textWriter, data);
                         }
@@ -648,7 +648,7 @@ namespace Ship_Game
                     var ser = new JsonSerializer
                     {
                         NullValueHandling = NullValueHandling.Ignore,
-                        DefaultValueHandling = DefaultValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
                     };
                     usData = ser.Deserialize<UniverseSaveData>(reader);
                 }

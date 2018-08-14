@@ -1,15 +1,15 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using Ship_Game.AI;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies.AI;
 
@@ -118,7 +118,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
-        [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
+        [XmlIgnore][JsonIgnore] public int AtWarCount;
         [XmlIgnore][JsonIgnore] public Array<string> BomberTech      = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> TroopShipTech   = new Array<string>();
         [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
@@ -1547,7 +1547,7 @@ namespace Ship_Game
 
         public float GetAverageNetIncome()
         {
-            return (GrossTaxes * data.TaxRate + (float)totalTradeIncome - AllTimeMaintTotal) / (float)numberForAverage;
+            return (GrossTaxes * data.TaxRate + totalTradeIncome - AllTimeMaintTotal) / numberForAverage;
         }
 
         public void UpdateShipsWeCanBuild(Array<string> hulls = null)
@@ -1716,8 +1716,7 @@ namespace Ship_Game
         {
             if (numberForAverage == 0)
                 return 0;
-            else
-                return totalTradeIncome / numberForAverage;
+            return totalTradeIncome / numberForAverage;
         }
          public Planet.ColonyType AssessColonyNeeds2(Planet p)
         {
@@ -1814,12 +1813,12 @@ namespace Ship_Game
                     if (item_0.colonyType == Planet.ColonyType.Military)     ++MilitaryCount;
                 }
             }
-            float AssignedFactor = (float)(CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / ((float)OwnedPlanets.Count + 0.01f);
-            float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) ;
-            float IndustrialDesire = MineralWealth + (AssignedFactor - (float)IndustrialCount);
-            float AgricultureDesire = Fertility + (AssignedFactor - (float)AgriculturalCount);
-            float MilitaryDesire = MilitaryPotential + (AssignedFactor - (float)MilitaryCount);
-            float ResearchDesire = ResearchPotential + (AssignedFactor - (float)ResearchCount);
+            float AssignedFactor = (CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / (OwnedPlanets.Count + 0.01f);
+            float CoreDesire = PopSupport + (AssignedFactor - CoreCount) ;
+            float IndustrialDesire = MineralWealth + (AssignedFactor - IndustrialCount);
+            float AgricultureDesire = Fertility + (AssignedFactor - AgriculturalCount);
+            float MilitaryDesire = MilitaryPotential + (AssignedFactor - MilitaryCount);
+            float ResearchDesire = ResearchPotential + (AssignedFactor - ResearchCount);
 
           
 
@@ -1847,7 +1846,7 @@ namespace Ship_Game
             SetBordersKnownByAllies(allies, wellKnown);
             SetBordersByPlanet(known);
             foreach (Mole mole in data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
-                SensorNodes.Add(new InfluenceNode()
+                SensorNodes.Add(new InfluenceNode
                 {
                     Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
                     Radius = ProjectorRadius * data.SensorModifier,
@@ -1875,11 +1874,11 @@ namespace Ship_Game
 
                 influenceNodeS.Position     = ship.Center;
                 influenceNodeS.Radius       = ProjectorRadius;  //projectors used as sensors again
-                influenceNodeS.SourceObject = (object)ship;
+                influenceNodeS.SourceObject = ship;
 
                 influenceNodeB.Position     = ship.Center;
                 influenceNodeB.Radius       = ProjectorRadius;  //projectors used as sensors again
-                influenceNodeB.SourceObject = (object)ship;
+                influenceNodeB.SourceObject = ship;
                 bool seen                   = known || EmpireManager.Player.GetGSAI().ThreatMatrix.ContainsGuid(ship.guid);
                 influenceNodeB.Known        = seen;
                 influenceNodeS.Known        = seen;
@@ -2040,8 +2039,8 @@ namespace Ship_Game
                     Universe.Paused = false;
                     return;
                 }
-                else
-                    Universe.NotificationManager.AddEmpireDiedNotification(this);
+
+                Universe.NotificationManager.AddEmpireDiedNotification(this);
                 return;
             }
 
@@ -2106,14 +2105,14 @@ namespace Ship_Game
                         {
                             if (!empire.isFaction && !empire.data.Defeated && empire != EmpireManager.Player)
                             {
-                                num2 += (float)empire.TotalScore;
-                                if ((double)empire.TotalScore > (double)num3)
-                                    num3 = (float)empire.TotalScore;
+                                num2 += empire.TotalScore;
+                                if (empire.TotalScore > (double)num3)
+                                    num3 = empire.TotalScore;
                                 if (empire.data.DiplomaticPersonality.Name == "Aggressive" || empire.data.DiplomaticPersonality.Name == "Ruthless" || empire.data.DiplomaticPersonality.Name == "Xenophobic")
                                     list2.Add(empire);
                             }
                         }
-                        float num4 = (float)EmpireManager.Player.TotalScore;
+                        float num4 = EmpireManager.Player.TotalScore;
                         float num5 = num2 + num4;
                         if (num4 > 0.5f * num5)
                         {
@@ -2149,7 +2148,7 @@ namespace Ship_Game
                     }
                 }
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero == 5 && (double)Money < 0.0)
+                if (data.TurnsBelowZero == 5 && Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
                 bool allEmpiresDead = true;
                 foreach (Empire empire in EmpireManager.Empires)
@@ -2165,17 +2164,15 @@ namespace Ship_Game
                     Universe.ScreenManager.AddScreen(new YouWinScreen(Universe));
                     return;
                 }
-                else
+
+                foreach (Planet planet in OwnedPlanets)
                 {
-                    foreach (Planet planet in OwnedPlanets)
+                    if (!data.IsRebelFaction)
+                        StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
+                    if (planet.HasWinBuilding)
                     {
-                        if (!data.IsRebelFaction)
-                            StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
-                        if (planet.HasWinBuilding)
-                        {
-                            Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(5085)));
-                            return;
-                        }
+                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(5085)));
+                        return;
                     }
                 }
             }
@@ -2357,18 +2354,18 @@ namespace Ship_Game
             foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
             {
                 if (keyValuePair.Value.Unlocked)
-                    TechScore += (float)((int)ResourceManager.TechTree[keyValuePair.Key].Cost / 100);
+                    TechScore += (int)ResourceManager.TechTree[keyValuePair.Key].Cost / 100;
             }
             foreach (Planet planet in OwnedPlanets)
             {
-                ExpansionScore += (float)((double)planet.Fertility + (double)planet.MineralRichness + (double)planet.Population / 1000.0);
+                ExpansionScore += (float)(planet.Fertility + (double)planet.MineralRichness + planet.Population / 1000.0);
                 foreach (Building building in planet.BuildingList)
                     IndustrialScore += building.Cost / 20f;
             }
             
          
             data.MilitaryScoreTotal += currentMilitaryStrength;
-            TotalScore = (int)((double)MilitaryScore / 100.0 + (double)IndustrialScore + (double)TechScore + (double)ExpansionScore);
+            TotalScore = (int)(MilitaryScore / 100.0 + IndustrialScore + TechScore + ExpansionScore);
             MilitaryScore = data.ScoreAverage == 0 ? 0f : data.MilitaryScoreTotal / data.ScoreAverage;
             ++data.ScoreAverage;
             if (data.ScoreAverage >= 120)  //fbedard: reset every 60 turns
@@ -2444,7 +2441,7 @@ namespace Ship_Game
                 AddArtifact(artifact);
             }
             target.data.OwnedArtifacts.Clear();
-            if ((double)target.Money > 0.0)
+            if (target.Money > 0.0)
             {
                 Money += target.Money;
                 target.Money = 0.0f;
@@ -2480,7 +2477,7 @@ namespace Ship_Game
                         Array<Building> list = new Array<Building>();
                         foreach (Building building in planet.BuildingList)
                         {
-                            if ((double)building.PlusFlatFoodAmount > 0.0 || (double)building.PlusFoodPerColonist > 0.0 || (double)building.PlusTerraformPoints > 0.0)
+                            if (building.PlusFlatFoodAmount > 0.0 || building.PlusFoodPerColonist > 0.0 || building.PlusTerraformPoints > 0.0)
                                 list.Add(building);
                         }
                         foreach (Building b in list)
@@ -2488,11 +2485,11 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (Agent agent in (Array<Agent>)target.data.AgentList)
+            foreach (Agent agent in target.data.AgentList)
             {
                 data.AgentList.Add(agent);
                 agent.Mission = AgentMission.Defending;
-                agent.TargetEmpire = (string)null;
+                agent.TargetEmpire = null;
             }
             EmpireAI.DefensiveCoordinator.ManageForcePool();
             target.data.AgentList.Clear();
@@ -2524,7 +2521,7 @@ namespace Ship_Game
         public float GetForcePoolStrength()
         {
             float num = 0.0f;
-            foreach (Ship ship in (Array<Ship>)ForcePool)
+            foreach (Ship ship in ForcePool)
                 num += ship.GetStrength();
             return num;
         }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-
-namespace Ship_Game
+﻿namespace Ship_Game
 {
     /// <summary>
     /// Represents a simple UI Behaviour Effect

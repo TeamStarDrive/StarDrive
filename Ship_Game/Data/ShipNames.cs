@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -16,13 +13,13 @@ namespace Ship_Game
         {
             public string ShipType;
             public Array<RoleNames> NamesByRoles;
-        };
+        }
 
         public struct RoleNames
         {
             public ShipData.RoleName Role;
             public Array<string> Names;
-        };
+        }
 
         public void Clear()
         {

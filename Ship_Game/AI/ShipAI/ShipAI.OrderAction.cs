@@ -157,9 +157,8 @@ namespace Ship_Game.AI {
                     select planet;
                 if (sortedList.Any())
                 {
-                    ExterminationTarget = sortedList.First<Planet>();
+                    ExterminationTarget = sortedList.First();
                     OrderExterminatePlanet(ExterminationTarget);
-                    return;
                 }
             }
             else if (ExterminationTarget != null && OrderQueue.IsEmpty)
@@ -212,10 +211,10 @@ namespace Ship_Game.AI {
             Target = null;
             HasPriorityTarget = false;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
+            var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
             Vector2.Dot(wantedForward, right);
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
@@ -442,7 +441,7 @@ namespace Ship_Game.AI {
                 select toOrbit;
             if (sortedList.Any())
             {
-                var planet = sortedList.First<Planet>();
+                var planet = sortedList.First();
                 OrbitTarget = planet;
                 var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
                 {
@@ -488,7 +487,7 @@ namespace Ship_Game.AI {
                 select solarsystem;
             if (systemList.Any())
             {
-                Planet item = systemList.First<SolarSystem>().PlanetList[0];
+                Planet item = systemList.First().PlanetList[0];
                 OrbitTarget = item;
                 var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
                 {
@@ -772,7 +771,7 @@ namespace Ship_Game.AI {
                 HasPriorityOrder = false;
                 SystemToDefend = system;
                 OrderQueue.Clear();
-                OrbitTarget = (Planet) null;
+                OrbitTarget = null;
                 if (SystemToDefend.PlanetList.Count > 0)
                 {
                     var Potentials = new Array<Planet>();
@@ -930,7 +929,7 @@ namespace Ship_Game.AI {
                     AwaitClosest = p;
                     return;
                 }
-                else
+
                 if (AwaitClosest != null)
                 {
                     DoOrbit(AwaitClosest, elapsedTime);

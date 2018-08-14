@@ -3,13 +3,13 @@ using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    using AI;
     using static ShipMaintenance;
 
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
@@ -423,7 +423,7 @@ namespace Ship_Game
                 if (!wasOffenseDefenseAdded)
                 {
                     offense += slot.Module.CalculateModuleOffense();
-                    defense += slot.Module.CalculateModuleDefense((int)size);
+                    defense += slot.Module.CalculateModuleDefense(size);
                 }
                 //added by gremlin collect weapon stats                  
                 if (!slot.Module.isWeapon && slot.Module.BombType == null)
@@ -801,7 +801,7 @@ namespace Ship_Game
         {
             None,
             Bad,
-            GoodBad,
+            GoodBad
         }
 
         private struct StatValue

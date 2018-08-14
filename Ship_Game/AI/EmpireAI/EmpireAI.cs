@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
 {
-    [System.Runtime.InteropServices.Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
+    [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
     public sealed partial class EmpireAI : IDisposable
     {
 
@@ -27,8 +29,8 @@ namespace Ship_Game.AI
         public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();        
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
-        public BatchRemovalCollection<Tasks.MilitaryTask> TaskList = new BatchRemovalCollection<Tasks.MilitaryTask>();
-        public Array<Tasks.MilitaryTask> TasksToAdd                = new Array<Tasks.MilitaryTask>();        
+        public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
+        public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();        
         public float FreighterUpkeep                         = 0f;
         public float PlatformUpkeep                          = 0f;
         public float StationUpkeep                           = 0f;
@@ -46,9 +48,9 @@ namespace Ship_Game.AI
             
         }
 
-        public void AddToTaskList(Tasks.MilitaryTask task) => TaskList.Add(task);
+        public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
 
-        public void RemoveFromTaskList(Tasks.MilitaryTask task)
+        public void RemoveFromTaskList(MilitaryTask task)
         {
             if (task == null)
                 Log.Error("Attempting to Remove null task from Empire TaskList");

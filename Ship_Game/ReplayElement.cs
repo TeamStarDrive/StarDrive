@@ -1,9 +1,7 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -61,11 +59,11 @@ namespace Ship_Game
 		{
 			ElementRect = r;
 			TextRect = new Rectangle(r.X, r.Y + r.Height, r.Width, 128);
-			ShipCount = new GenericButton(new Vector2((float)(ElementRect.X - 10), (float)(ElementRect.Y + 40)), "Ship Count", Fonts.Pirulen16, Fonts.Pirulen12);
+			ShipCount = new GenericButton(new Vector2(ElementRect.X - 10, ElementRect.Y + 40), "Ship Count", Fonts.Pirulen16, Fonts.Pirulen12);
 			Buttons.Add(ShipCount);
-			MilStrength = new GenericButton(new Vector2((float)(ElementRect.X - 10), (float)(ShipCount.R.Y + Fonts.Pirulen16.LineSpacing + 4)), "Military Strength", Fonts.Pirulen16, Fonts.Pirulen12);
+			MilStrength = new GenericButton(new Vector2(ElementRect.X - 10, ShipCount.R.Y + Fonts.Pirulen16.LineSpacing + 4), "Military Strength", Fonts.Pirulen16, Fonts.Pirulen12);
 			Buttons.Add(MilStrength);
-			Population = new GenericButton(new Vector2((float)(ElementRect.X - 10), (float)(MilStrength.R.Y + Fonts.Pirulen16.LineSpacing + 4)), "Population", Fonts.Pirulen16, Fonts.Pirulen12);
+			Population = new GenericButton(new Vector2(ElementRect.X - 10, MilStrength.R.Y + Fonts.Pirulen16.LineSpacing + 4), "Population", Fonts.Pirulen16, Fonts.Pirulen12);
 			Buttons.Add(Population);
 			TurnsRepresented = StatTracker.SnapshotsDict.Count;
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> Entry in StatTracker.SnapshotsDict)
@@ -94,26 +92,26 @@ namespace Ship_Game
 			float single;
 			Rectangle MapRect = new Rectangle(ElementRect.X + 30, ElementRect.Y + 30, ElementRect.Width - 60, ElementRect.Height - 60);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EndGameScreen/ReplayHousing"), ElementRect, Color.White);
-			float scale = (float)(ElementRect.Width - 60) / (Empire.Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
+			float scale = (ElementRect.Width - 60) / (Empire.Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
             if (Grid)
 			{
 				for (int x = 0; x < 21; x++)
 				{
-					Vector2 Origin = new Vector2((float)(x * MapRect.Width / 20), 0f) + new Vector2((float)MapRect.X, (float)MapRect.Y);
-					Vector2 End = new Vector2((float)(x * MapRect.Width / 20), (float)MapRect.Height) + new Vector2((float)MapRect.X, (float)MapRect.Y);
+					Vector2 Origin = new Vector2(x * MapRect.Width / 20, 0f) + new Vector2(MapRect.X, MapRect.Y);
+					Vector2 End = new Vector2(x * MapRect.Width / 20, MapRect.Height) + new Vector2(MapRect.X, MapRect.Y);
 					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 70));
 				}
 				for (int y = 0; y < 21; y++)
 				{
-					Vector2 Origin = new Vector2(0f, (float)(y * MapRect.Height / 20)) + new Vector2((float)MapRect.X, (float)MapRect.Y);
-					Vector2 End = new Vector2((float)MapRect.Width, (float)(y * MapRect.Height / 20)) + new Vector2((float)MapRect.X, (float)MapRect.Y);
+					Vector2 Origin = new Vector2(0f, y * MapRect.Height / 20) + new Vector2(MapRect.X, MapRect.Y);
+					Vector2 End = new Vector2(MapRect.Width, y * MapRect.Height / 20) + new Vector2(MapRect.X, MapRect.Y);
 					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 40));
 				}
 			}
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EndGameScreen/TextBox"), TextRect, Color.White);
 			foreach (SolarSystem star in UniverseScreen.SolarSystemList)
 			{
-				Vector2 starPos = (star.Position * scale) + new Vector2((float)MapRect.X, (float)MapRect.Y);
+				Vector2 starPos = (star.Position * scale) + new Vector2(MapRect.X, MapRect.Y);
                 starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                 starPos.Y = starPos.Y + (MapRect.Height / 2);
                 Rectangle StarRect = new Rectangle((int)starPos.X - 3, (int)starPos.Y - 3, 6, 6);
@@ -131,7 +129,7 @@ namespace Ship_Game
 					}
 					foreach (NRO nro in snapshot.EmpireNodes)
 					{
-						Vector2 starPos = (nro.Node * scale) + new Vector2((float)MapRect.X, (float)MapRect.Y);
+						Vector2 starPos = (nro.Node * scale) + new Vector2(MapRect.X, MapRect.Y);
                         starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                         starPos.Y = starPos.Y + (MapRect.Height / 2);
                         Rectangle StarRect = new Rectangle((int)starPos.X - (int)(nro.Radius * scale), (int)starPos.Y - (int)(nro.Radius * scale), (int)(nro.Radius * scale * 2f), (int)(nro.Radius * scale * 2f));
@@ -176,10 +174,10 @@ namespace Ship_Game
 					starDate.StarDate = starDate.StarDate + 0.1f;
 				}
 			}
-			float XInterval = (float)MapRect.Width / ((float)TurnsRepresented + 0.01f);
+			float XInterval = MapRect.Width / (TurnsRepresented + 0.01f);
 			if (ShowShipCount)
 			{
-				float YPerShip = (float)MapRect.Height / ((float)MaxShips + 0.1f);
+				float YPerShip = MapRect.Height / (MaxShips + 0.1f);
 				int turn = 0;
 				for (float i = 1000.1f; i < StarDate; i = i + 0.1f)
 				{
@@ -200,8 +198,8 @@ namespace Ship_Game
 								{
 									continue;
 								}
-								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerShip * (float)shot.ShipCount)));
-								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerShip * (float)nextShot.ShipCount)));
+								Vector2 Start = new Vector2(MapRect.X + (int)(XInterval * turn), MapRect.Y + MapRect.Height - (int)(YPerShip * shot.ShipCount));
+								Vector2 End = new Vector2(MapRect.X + (int)(XInterval * (1 + turn)), MapRect.Y + MapRect.Height - (int)(YPerShip * nextShot.ShipCount));
 								ScreenManager.SpriteBatch.DrawLine(Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
@@ -211,7 +209,7 @@ namespace Ship_Game
 			}
 			if (ShowMilitaryStrength)
 			{
-				float YPerStr = (float)MapRect.Height / (MaxStrength + 0.1f);
+				float YPerStr = MapRect.Height / (MaxStrength + 0.1f);
 				int turn = 0;
 				for (float i = 1000.1f; i < StarDate; i = i + 0.1f)
 				{
@@ -232,8 +230,8 @@ namespace Ship_Game
 								{
 									continue;
 								}
-								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * shot.MilitaryStrength)));
-								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.MilitaryStrength)));
+								Vector2 Start = new Vector2(MapRect.X + (int)(XInterval * turn), MapRect.Y + MapRect.Height - (int)(YPerStr * shot.MilitaryStrength));
+								Vector2 End = new Vector2(MapRect.X + (int)(XInterval * (1 + turn)), MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.MilitaryStrength));
 								ScreenManager.SpriteBatch.DrawLine(Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
@@ -243,7 +241,7 @@ namespace Ship_Game
 			}
 			if (ShowPopulation)
 			{
-				float YPerStr = (float)MapRect.Height / (MaxPop + 0.1f);
+				float YPerStr = MapRect.Height / (MaxPop + 0.1f);
 				int turn = 0;
 				for (float i = 1000.1f; i < StarDate; i = i + 0.1f)
 				{
@@ -264,8 +262,8 @@ namespace Ship_Game
 								{
 									continue;
 								}
-								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * shot.Population)));
-								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.Population)));
+								Vector2 Start = new Vector2(MapRect.X + (int)(XInterval * turn), MapRect.Y + MapRect.Height - (int)(YPerStr * shot.Population));
+								Vector2 End = new Vector2(MapRect.X + (int)(XInterval * (1 + turn)), MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.Population));
 								ScreenManager.SpriteBatch.DrawLine(Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
@@ -275,16 +273,16 @@ namespace Ship_Game
 			}
 			for (int i = 0; i < 5 && TextMessages.Count > i; i++)
 			{
-				Vector2 TextPos = new Vector2((float)(TextRect.X + 25), (float)(TextRect.Y + TextRect.Height - 30 - i * (Fonts.Arial20Bold.LineSpacing + 2)));
+				Vector2 TextPos = new Vector2(TextRect.X + 25, TextRect.Y + TextRect.Height - 30 - i * (Fonts.Arial20Bold.LineSpacing + 2));
 				HelperFunctions.DrawDropShadowText(ScreenManager, TextMessages[i], TextPos, Fonts.Arial20Bold);
 			}
-			Vector2 StarDatePos = new Vector2((float)(ElementRect.X + 10), (float)(ElementRect.Y + ElementRect.Height - Fonts.Tahoma11.LineSpacing - 5));
+			Vector2 StarDatePos = new Vector2(ElementRect.X + 10, ElementRect.Y + ElementRect.Height - Fonts.Tahoma11.LineSpacing - 5);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma11, "StarDate: ", StarDatePos, Color.White);
 			StarDatePos.X = StarDatePos.X + Fonts.Tahoma11.MeasureString("StarDate: ").X;
 			ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma11, date, StarDatePos, Color.White);
-			Vector2 ControlsPos = new Vector2((float)(ElementRect.X + ElementRect.Width / 2) - Fonts.Tahoma11.MeasureString("Press [Space] to Pause / Unpause").X / 2f, StarDatePos.Y);
+			Vector2 ControlsPos = new Vector2(ElementRect.X + ElementRect.Width / 2 - Fonts.Tahoma11.MeasureString("Press [Space] to Pause / Unpause").X / 2f, StarDatePos.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma11, "Press [Space] to Pause / Unpause", ControlsPos, Color.White);
-			Vector2 PlusMinus = new Vector2((float)(ElementRect.X + ElementRect.Width - 10) - Fonts.Tahoma11.MeasureString("Left/Right Arrows").X, StarDatePos.Y);
+			Vector2 PlusMinus = new Vector2(ElementRect.X + ElementRect.Width - 10 - Fonts.Tahoma11.MeasureString("Left/Right Arrows").X, StarDatePos.Y);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Tahoma11, "Left/Right Arrows", PlusMinus, Color.White);
 			foreach (GenericButton button in Buttons)
 			{
@@ -344,7 +342,7 @@ namespace Ship_Game
 				state = State.Paused;
 				ReplayElement replayElement = this;
 				replayElement.StarDate = replayElement.StarDate - 0.1f;
-				if ((double)StarDate < 1000.1)
+				if (StarDate < 1000.1)
 				{
 					StarDate = 1000.1f;
 				}

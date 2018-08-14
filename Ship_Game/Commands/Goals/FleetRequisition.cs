@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {

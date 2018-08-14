@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.IO;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.IO;
 
 namespace Ship_Game
 {
@@ -28,7 +28,7 @@ namespace Ship_Game
 
         protected UIButton DoBtn;
 
-        public enum SLMode { Load, Save };
+        public enum SLMode { Load, Save }
 
         protected SLMode mode;
 
@@ -216,7 +216,7 @@ namespace Ship_Game
             var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             NameSave = new Submenu(sub);
             NameSave.AddTab(TitleText);
-            TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
+            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
             var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(TabText);

@@ -1,14 +1,13 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.IO;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -92,7 +91,7 @@ namespace Ship_Game
                 for (int y = -32; y < 32; y++)
                 {
                     var newCell = new PrimitiveQuad(((int)Center.X + 16 * x), ((int)Center.Y + 16 * y), slotsize, slotsize);
-                    var newslot = new SlotStruct()
+                    var newslot = new SlotStruct
                     {
                         PQ = newCell,
                         Restrictions = Restrictions.I
@@ -117,23 +116,23 @@ namespace Ship_Game
             batch.Begin();
             Vector2 TitlePos = new Vector2(20f, 20f);
             HelperFunctions.DrawDropShadowText(ScreenManager, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
-            TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 3);
+            TitlePos.Y = TitlePos.Y + (Fonts.Arial20Bold.LineSpacing + 3);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Use this tool to create module patterns for your ships", TitlePos, Color.White);
             if (shipSO != null)
             {
-                TitlePos = new Vector2((float)what.X, 20f);
+                TitlePos = new Vector2(what.X, 20f);
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float radius = shipSO.WorldBoundingSphere.Radius;
                 batch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
                 TitlePos.Y = TitlePos.Y + 20f;
                 string text = "If you can't see your model then your radius is likely too big or too small. A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. If it is rotated oddly change the X, Y, and Z axis. If the model is off-center then you will need to re-export the 3D model from Blender, making sure to Set Origin to the desired pivot point of your model";
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Fonts.Arial12.ParseText(text, 600f), TitlePos, Color.White);
             }
             var whichSelectionPos = new Vector2(what.X, what.Y - Fonts.Arial20Bold.LineSpacing);
             batch.DrawString(Fonts.Arial20Bold, string.Concat(DesignState, " - ", GetDesignStateText()), whichSelectionPos, Color.Orange);
             whichSelectionPos.X = whichSelectionPos.X + 150f;
-            whichSelectionPos.Y = whichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
-            whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, DescriptionOfState, 512f)).Y;
+            whichSelectionPos.Y = whichSelectionPos.Y + Fonts.Arial20Bold.LineSpacing;
+            whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(Fonts.Arial12Bold.ParseText(DescriptionOfState, 512f)).Y;
             ScreenManager.SpriteBatch.DrawRectangle(what, Color.White);
             foreach (SlotStruct slot in SlotList)
             {
@@ -177,9 +176,9 @@ namespace Ship_Game
                 }
 
             }
-            Vector2 InfoPos = new Vector2((float)(SaveHullButton.r.X - 50), (float)(SaveHullButton.r.Y - 20));
+            Vector2 InfoPos = new Vector2(SaveHullButton.r.X - 50, SaveHullButton.r.Y - 20);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
-            ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2((float)ShipNameBox.ClickableArea.X, (float)ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
+            ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
             batch.End();
@@ -231,7 +230,7 @@ namespace Ship_Game
             {
                 if (SelectionBox.Height - aCounter >= 0)
                 {
-                    spriteBatch.Draw(DottedLine, new Rectangle(thePositionX, SelectionBox.Y + aCounter, 10, 5), new Rectangle?(new Rectangle(0, 0, DottedLine.Width, DottedLine.Height)), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
+                    spriteBatch.Draw(DottedLine, new Rectangle(thePositionX, SelectionBox.Y + aCounter, 10, 5), new Rectangle(0, 0, DottedLine.Width, DottedLine.Height), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
                 }
             }
         }
@@ -477,7 +476,7 @@ namespace Ship_Game
 
             LoadModelButton = new DanButton(new Vector2(20f, (screenHeight - 50)), "Load Model");
             SaveHullButton = new DanButton(new Vector2((screenWidth - 200), (screenHeight - 50)), "Save Hull");
-            ShipNameBox = new UITextEntry()
+            ShipNameBox = new UITextEntry
             {
                 ClickableArea = new Rectangle(screenWidth - 200, screenHeight - 115, 180, 20),
                 Text = HullName
@@ -491,7 +490,7 @@ namespace Ship_Game
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
             moduleSlot = TransientContent.Load<Texture2D>("Textures/Ships/singlebox");
             DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
-            Center = new Vector2((int)(screenWidth / 2), (int)(screenHeight / 2));
+            Center = new Vector2(screenWidth / 2, screenHeight / 2);
             ConfigureSlots();
             thruster = new Thruster();
             thruster.LoadAndAssignDefaultEffects(TransientContent);
@@ -520,7 +519,7 @@ namespace Ship_Game
         private void MarkThruster()
         {
             ThrusterZone z = new ThrusterZone();
-            Vector2 thrPos = (tPos + new Vector2((float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2))) - new Vector2((float)border.X, (float)border.Y);
+            Vector2 thrPos = (tPos + new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)) - new Vector2(border.X, border.Y);
             z.Position = thrPos;
             z.Scale = tscale;
             TList.Add(z);
@@ -540,7 +539,7 @@ namespace Ship_Game
 
         public void SaveShipData(string name)
         {
-            var data = new ShipData()
+            var data = new ShipData
             {
                 Name      = HullName,
                 ModelPath = Path.GetFileNameWithoutExtension(ModelPath),

@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game
 {
 	public sealed class HelpTopic
@@ -17,9 +15,5 @@ namespace Ship_Game
 		public string VideoPath;
 
 	    public string Link;
-
-        public HelpTopic()
-		{
-		}
 	}
 }

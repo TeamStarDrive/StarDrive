@@ -1,4 +1,5 @@
 ﻿using Ship_Game.AI;
+
 namespace Ship_Game.Ships
 {
     public struct ShipResupply
