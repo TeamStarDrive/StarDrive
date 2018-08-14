@@ -175,13 +175,14 @@ namespace Ship_Game.Universe.SolarBodies.AI
         public TradeRoute GetTradeRoute(Goods good, Ship ship)
         {
             float incoming = PredictedTradeFor(good, ShipAI.Plan.DropOffGoods);
-            TradeRoute route = new TradeRoute();
+            TradeRoute route = new TradeRoute { Eta = int.MaxValue };
             if (incoming > TradePlanet.MaxStorage) return route;
-
+            if (ship.loyalty != TradePlanet.Owner) return route;
             Planet[] potentialSources = ImportTargets.FilterBy(exporter =>
             {
                 if (exporter.GetGoodState(good) != Planet.GoodState.EXPORT) return false;
                 if (exporter == TradePlanet) return false;
+                if (exporter.Owner != TradePlanet.Owner) return false;
                 return exporter.TradeAI.PredictedTradeFor(good, ShipAI.Plan.PickupGoods)
                        < exporter.SbCommodities.GetGoodAmount(good);
             });

@@ -217,12 +217,12 @@ namespace Ship_Game.AI
         }
 
         private bool DeliverShipment(Goods good)
-        {
-            var tempGood = good; //Implicitly captured closure if i use good?
-            var planets = GetTradePlanets(good, Planet.GoodState.IMPORT).FilterBy(p => p.TradeAI.NeedsMore(tempGood));
+        {            
+            var planets = GetTradePlanets(good, Planet.GoodState.IMPORT);
             if (planets.Length <= 0)
                 return false;
             TradeAI.TradeRoute[] tradeRoutes = GetTradeRoutes(good, planets);
+            if (tradeRoutes.Length == 0) return false;
             tradeRoutes.Sort(tr => tr.Eta);
             var route = tradeRoutes[0];
             if (route.End == null)
