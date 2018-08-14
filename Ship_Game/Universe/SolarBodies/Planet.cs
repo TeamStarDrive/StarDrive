@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -2751,6 +2753,38 @@ namespace Ship_Game
             BasedShips?.Dispose(ref BasedShips);
             Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);            
+        }
+
+        //Debug Text
+        public Array<DebugTextBlock> DebugPlanetInfo()
+        {
+            var tradePlanet = this;
+            var incomingData = new DebugTextBlock();
+            var blocks = new Array<DebugTextBlock>();
+            Array<string> lines = new Array<string>();
+            var totals = tradePlanet.DebugSummarizePlanetStats(lines);
+            float foodHere = tradePlanet.FoodHere;
+            float prodHere = tradePlanet.ProductionHere;
+            float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
+            float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+            string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
+            string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
+
+            incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} : IN Cargo: {totals.Total}", Color.Yellow);
+            incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
+            incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}");
+            incomingData.AddLine($"IN Colonists: {totals.Colonists}");
+            incomingData.AddLine($"");
+            blocks.Add(incomingData);
+            return blocks;
+        }
+        public TradeAI.DebugSummaryTotal DebugSummarizePlanetStats(Array<string> lines)
+        {
+            lines.Add($"Money: {NetIncome}");
+            lines.Add($"Eats: {Consumption}");
+            lines.Add($"FoodWkrs: {FarmerPercentage}");
+            lines.Add($"ProdWkrs: {WorkerPercentage}  ");
+            return new TradeAI.DebugSummaryTotal();
         }
     }
 }

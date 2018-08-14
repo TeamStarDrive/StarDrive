@@ -21,6 +21,7 @@ namespace Ship_Game.Debug
         Pathing,
         DefenseCo,
         Trade,
+        Planets,
         AO,
         ThreatMatrix,
         SpatialManager,
@@ -164,7 +165,7 @@ namespace Ship_Game.Debug
             //{
                 HideAllDebugText();
             //}
-            text = planet?.TradeAI.DebugText();
+            text = planet?.TradeAI?.DebugText();
             if (text == null)
                 return;
             if (text?.IsEmpty == true) return;
@@ -217,7 +218,105 @@ namespace Ship_Game.Debug
 
     }
 
-public sealed class DebugInfoScreen : GameScreen
+    public class PlanetData : DebugPage
+    {
+        private UniverseScreen Screen;
+        private DebugInfoScreen Parent;
+        private Rectangle DrawArea;
+        public PlanetData(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Planets)
+        {
+            Screen = screen;
+            Parent = parent;
+            DrawArea = parent.Rect;
+        }
+
+        public override void Update(float deltaTime, DebugModes mode)
+        {
+
+            Planet planet = Screen.SelectedPlanet;
+
+            Array<DebugTextBlock> text;
+            if (planet == null)
+            {
+                int columns = 1;
+                text = new Array<DebugTextBlock>();
+                foreach (Empire empire in EmpireManager.Empires)
+                {
+                    if (empire.isFaction) continue;
+
+                    var block = empire.DebugEmpirePlanetInfo();
+                    block.Header = empire.Name;
+                    block.HeaderColor = empire.EmpireColor;
+
+                    text.Add(block);
+
+                }
+                for (int i = 0; i < text.Count; i++)
+                {
+                    var lines = text[i];
+                    ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+                }
+
+
+                return;
+
+            }
+            HideAllDebugText();
+            
+            text = planet.DebugPlanetInfo();
+            if (text == null)
+                return;
+            if (text?.IsEmpty == true) return;
+            for (int i = 0; i < text.Count; i++)
+            {
+                var lines = text[i];
+                ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+            }
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            if (!Visible)
+            {
+                base.Draw(spriteBatch);
+                return;
+            }
+            Planet planet = Screen.SelectedPlanet;
+            int totalFreighters = 0;
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                foreach (Ship ship in e.GetShips())
+                {
+                    if (ship?.Active != true) continue;
+                    ShipAI ai = ship.AI;
+                    if (ai.State != AIState.SystemTrader) continue;
+                    if (ai.OrderQueue.Count == 0) continue;
+
+                    switch (ai.OrderQueue.PeekLast.Plan)
+                    {
+                        case Plan.DropOffGoods:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                            if (planet == ship.AI.end) totalFreighters++;
+
+                            break;
+                        case Plan.PickupGoods:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
+                            break;
+                        case Plan.PickupPassengers:
+                        case Plan.DropoffPassengers:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
+                            break;
+                    }
+                }
+
+            }
+
+            base.Draw(spriteBatch);
+        }
+
+    }
+
+    public sealed class DebugInfoScreen : GameScreen
     {
         public bool IsOpen;        
         private readonly UniverseScreen Screen;
@@ -482,6 +581,11 @@ public sealed class DebugInfoScreen : GameScreen
                     break;
                 case DebugModes.Last:
                     break;
+                case DebugModes.Planets:
+                    Page = new PlanetData(Screen, this);
+                    return true;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             return false;
         }

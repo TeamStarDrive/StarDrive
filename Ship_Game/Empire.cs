@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game
 {
@@ -1388,7 +1389,30 @@ namespace Ship_Game
             }            
             return incomingData;
         }
+        public DebugTextBlock DebugEmpirePlanetInfo()
+        {
 
+            var incomingData = new DebugTextBlock();
+            foreach (Planet tradePlanet in OwnedPlanets)
+            {
+                Array<string> lines = new Array<string>();
+                TradeAI.DebugSummaryTotal totals = tradePlanet.DebugSummarizePlanetStats(lines);
+                float foodHere = tradePlanet.FoodHere;
+                float prodHere = tradePlanet.ProductionHere;
+                float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
+                float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+                string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
+                string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
+
+                incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} ", Color.Yellow);
+                incomingData.AddLine($"FoodHere: {food} ", Color.White);
+                incomingData.AddLine($"ProdHere: {prod} ");
+                incomingData.AddRange(lines);
+                incomingData.AddLine($"");
+
+            }
+            return incomingData;
+        }
 
         public void UpdateFleets(float elapsedTime)
         {
