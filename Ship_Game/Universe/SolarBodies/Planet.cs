@@ -832,7 +832,6 @@ namespace Ship_Game
        
         public TradeAI TradeAI;
 
-
         private void CalculateIncomingTrade()
         {
             if (Owner == null || Owner.isFaction) return;
@@ -849,7 +848,6 @@ namespace Ship_Game
                     if (ship.AI.OrderQueue.IsEmpty) continue;
 
                     TradeAI.AddTrade(ship);
-                                                                             
                 }
             }
             TradeAI.ComputeAverages();

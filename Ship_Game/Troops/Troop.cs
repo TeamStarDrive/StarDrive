@@ -89,11 +89,13 @@ namespace Ship_Game
 
         //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
         //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
-        private Texture2D TextureIdleAnim   => ResourceManager.Texture("Troops/"+idle_path+WhichFrameString, "Troops/" + idle_path+
-            ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+        private Texture2D TextureIdleAnim   => ResourceManager.TextureOrDefault(
+            "Troops/" + idle_path+WhichFrameString, 
+            "Troops/" + idle_path+ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
-        private Texture2D TextureAttackAnim => ResourceManager.Texture("Troops/" + attack_path + WhichFrameString, "Troops/" + idle_path +
-            ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+        private Texture2D TextureAttackAnim => ResourceManager.TextureOrDefault(
+            "Troops/" + attack_path + WhichFrameString, 
+            "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
         public string StrengthText => $"Strength: {Strength:0.}";
 

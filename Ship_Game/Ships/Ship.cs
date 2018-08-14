@@ -264,8 +264,8 @@ namespace Ship_Game.Ships
 
             string roleName = DesignRole.ToString();
             string iconName = "TacticalIcons/symbol_";
-            return ResourceManager.Texture(iconName + roleName, "") ??
-                ResourceManager.Texture(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
+            return ResourceManager.TextureOrNull(iconName + roleName) ??
+                ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
 
         private int Calculatesize()

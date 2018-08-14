@@ -198,7 +198,7 @@ namespace Ship_Game
                     spriteBatch.Draw(complete || flag ? ResourceManager.Texture("ResearchMenu/tech_base_complete") : 
                         ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    var techIcon = ResourceManager.Texture($"TechIcons/{tech.Tech.IconPath}", returnNull: true) 
+                    var techIcon = ResourceManager.TextureOrNull($"TechIcons/{tech.Tech.IconPath}") 
                         ?? ResourceManager.Texture($"TechIcons/{tech.UID}");
                     
                     spriteBatch.Draw(techIcon, this.IconRect, Color.White);                    
