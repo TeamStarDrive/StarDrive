@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.AI
 {
@@ -137,7 +138,7 @@ namespace Ship_Game.AI
                 }
             }
             Goods trading = Owner.TradingFood ? Goods.Food : Goods.Production;
-            GetShipment(trading);
+            //GetShipment(trading);
 
             if (start != null && end != null && start != end)
             {
@@ -189,7 +190,7 @@ namespace Ship_Game.AI
 
         private void GetShipment(Goods good)
         {
-            if (end == null)
+            if (end == null || start != null)
                 return;
             Cargo cargo = Owner.GetCargo();
             if (cargo.Good == good) return;
@@ -203,25 +204,34 @@ namespace Ship_Game.AI
             }                        
         }
 
+        private TradeAI.TradeRoute[] GetTradeRoutes(Goods good, Planet[] tradePlanets)
+        {
+            var routes = new TradeAI.TradeRoute[tradePlanets.Length];
+            for (int i = 0; i < tradePlanets.Length; i++)
+            {
+                Planet planet = tradePlanets[i];
+                routes[i] = planet.TradeAI.GetTradeRoute(good, Owner);
+            }
+
+            return routes;
+        }
+
         private bool DeliverShipment(Goods good)
         {
             var tempGood = good; //Implicitly captured closure if i use good?
             var planets = GetTradePlanets(good, Planet.GoodState.IMPORT).FilterBy(p => p.TradeAI.NeedsMore(tempGood));
             if (planets.Length <= 0)
                 return false;
-            
-            float loadedCargo = Owner.GetCargo(good);            
-            if (loadedCargo > 0)
-                end = planets.FindMin(p => p.Center.SqDist(Owner.Center));
-            else
-            {
-                end = planets.FindMin(p => p.TradeAI.GetNearestSupplierFor(good)?.Center.SqDist(Owner.Center)?? float.MaxValue);
-                if (end == null)
-                    end = planets.FindMinFiltered(p => p.TradeAI.NeedsMore(tempGood), p => p.Center.SqDist(Owner.Center));
-            }
-
-            if (end == null)
+            TradeAI.TradeRoute[] tradeRoutes = GetTradeRoutes(good, planets);
+            tradeRoutes.Sort(tr => tr.Eta);
+            var route = tradeRoutes[0];
+            if (route.End == null)
                 return false;
+            end = route.End;            
+
+            if (Owner.GetCargo(good) <= 0) ;            
+                start = route.Start;
+            
 
             WayPoints.Clear();
             OrderQueue.Clear();            
