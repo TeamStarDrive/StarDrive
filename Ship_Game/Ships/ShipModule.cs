@@ -14,24 +14,29 @@ namespace Ship_Game.Ships
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
+
+        public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
+        public bool CheckedConduits;
+        public bool Powered;
+        public int quadrant = -1;
+        public bool isExternal;
         public int XSIZE = 1;
         public int YSIZE = 1;
-        public float Facing;        // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         private bool CanVisualizeDamage;
-        private ShipModuleDamageVisualization DamageVisualizer;
-        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
+        public float ShieldPower;
+        public short OrdinanceCapacity;
         private bool OnFire;
-        private const float OnFireThreshold = 0.15f;
         private Vector3 Center3D;
         public Vector3 GetCenter3D => Center3D;
-
+        private const float OnFireThreshold = 0.15f;
+        private ShipModuleDamageVisualization DamageVisualizer;
+        private EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;        
         private Ship Parent;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public Restrictions Restrictions;
-        public float ShieldPower;
+        public Restrictions Restrictions;        
         private Shield shield;
         public Shield GetShield => shield;
         public string hangarShipUID;
@@ -39,8 +44,7 @@ namespace Ship_Game.Ships
         public Guid HangarShipGuid;
         public float hangarTimer;
         public bool isWeapon;
-        public Weapon InstalledWeapon;
-        public short OrdinanceCapacity;
+        public Weapon InstalledWeapon;        
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
@@ -55,11 +59,7 @@ namespace Ship_Game.Ships
 
         public float FieldOfFire;
         public int TargetValue;
-        public float TransporterTimer;
-        public bool CheckedConduits;
-        public bool Powered;
-        public int quadrant = -1;
-        public bool isExternal;
+        public float TransporterTimer;        
         public const int MaxPriority =6;
 
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
 
             // top left position of this module
             Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-            LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
+            LocalCenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + YSIZE * 8f);
             // center of this module            
             Center.X = Position.X + XSIZE * 8f;
             Center.Y = Position.Y + YSIZE * 8f;
@@ -421,10 +421,12 @@ namespace Ship_Game.Ships
             // Move the module, this part is optimized according to profiler data
             ++GlobalStats.ModulesMoved;
 
+            //Position = new Vector2(pos.X - 264f, pos.Y - 264f);
+            //localcenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
 
             //Vector2 offset = XMLPosition; // huge cache miss here
             Vector2 offset = LocalCenter;
-            //offset.X       += XSIZE * 8f - 264f;
+           // offset.X       += XSIZE * 8f - 264f;
             //offset.Y       += YSIZE * 8f - 264f;
             Vector2 pcenter = Parent.Center;
             float cx        = offset.X * cos - offset.Y * sin;
@@ -804,6 +806,11 @@ namespace Ship_Game.Ships
                 return;
 
             SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
+            if (hangarShip == null)
+            {
+                Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
+                return;
+            }
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;

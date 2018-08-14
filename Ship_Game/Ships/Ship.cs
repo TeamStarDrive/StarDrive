@@ -677,8 +677,7 @@ namespace Ship_Game.Ships
                 float speed = 0f;
                 foreach (Weapon weapon in Weapons)
                 {
-                    if (weapon.isBeam) continue;
-                    speed += weapon.ProjectileSpeed;
+                    speed += weapon.isBeam ? weapon.Range * 1.5f : weapon.ProjectileSpeed;
                     ++count;
                 }
                 return speed / count;
@@ -2704,7 +2703,7 @@ namespace Ship_Game.Ships
 
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, velocityMaximum) ;
+            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, velocityMaximum, rotationRadiansPerSecond) ;
         }
 
         private void ApplyRepairToShields(float repairPool)

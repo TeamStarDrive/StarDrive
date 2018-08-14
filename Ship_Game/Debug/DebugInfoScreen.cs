@@ -138,7 +138,6 @@ namespace Ship_Game.Debug
             Array<DebugTextBlock> text;
             if (planet == null)
             {
-                int columns = 1;
                 text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
                 {
@@ -156,10 +155,7 @@ namespace Ship_Game.Debug
                     var lines = text[i];
                     ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
                 }
-
-
                 return;
-                
             }
             
             
@@ -171,7 +167,7 @@ namespace Ship_Game.Debug
             if (text?.IsEmpty == true) return;
             for (int i = 0; i < text.Count; i++)
             {
-                var lines = text[i];
+                DebugTextBlock lines = text[i];
                 ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
             }
         }
@@ -232,13 +228,11 @@ namespace Ship_Game.Debug
 
         public override void Update(float deltaTime, DebugModes mode)
         {
-
             Planet planet = Screen.SelectedPlanet;
 
             Array<DebugTextBlock> text;
             if (planet == null)
             {
-                int columns = 1;
                 text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
                 {
@@ -256,10 +250,7 @@ namespace Ship_Game.Debug
                     var lines = text[i];
                     ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
                 }
-
-
                 return;
-
             }
             HideAllDebugText();
             
@@ -269,7 +260,7 @@ namespace Ship_Game.Debug
             if (text?.IsEmpty == true) return;
             for (int i = 0; i < text.Count; i++)
             {
-                var lines = text[i];
+                DebugTextBlock lines = text[i];
                 ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
             }
         }
@@ -310,10 +301,8 @@ namespace Ship_Game.Debug
                 }
 
             }
-
             base.Draw(spriteBatch);
         }
-
     }
 
     public sealed class DebugInfoScreen : GameScreen
@@ -590,7 +579,7 @@ namespace Ship_Game.Debug
             return false;
         }
 
-        public void Update(float deltaTime)
+        public override void Update(float deltaTime)
         {
             if (ValidatePage())
                 Page?.Update(deltaTime, Mode);
