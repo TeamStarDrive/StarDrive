@@ -39,7 +39,7 @@ namespace Ship_Game.AI
         private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
         private int DefenseTurns = 50;
         private Vector2 TargetPosition = Vector2.Zero;
-        public Tasks.MilitaryTask FleetTask;
+        public MilitaryTask FleetTask;
         private MilitaryTask CoreFleetSubTask;
         public FleetCombatStatus Fcs;
 
@@ -188,7 +188,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            int totalShips = this.CenterShips.Count;
+            int totalShips = CenterShips.Count;
             foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.Size))
             {
                 if (totalShips < 4) CenterShips.Add(ship);
@@ -433,7 +433,7 @@ namespace Ship_Game.AI
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
             }
-            this.Owner.GetGSAI().TaskList.ApplyPendingRemovals();
+            Owner.GetGSAI().TaskList.ApplyPendingRemovals();
         }
 
         private void DoExplorePlanet(MilitaryTask task) //Mer Gretman Left off here
@@ -491,12 +491,12 @@ namespace Ship_Game.AI
                     break;
             }
         }
-        private void DoPostInvasionDefense(Tasks.MilitaryTask task)
+        private void DoPostInvasionDefense(MilitaryTask task)
         {
             if (EndInvalidTask(--DefenseTurns <= 0))
                 return;
 
-            switch (this.TaskStep)
+            switch (TaskStep)
             {
                 case 0:
                     if (EndInvalidTask(FleetTask.TargetPlanet == null))
@@ -559,7 +559,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            switch (this.TaskStep)
+            switch (TaskStep)
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
@@ -621,7 +621,7 @@ namespace Ship_Game.AI
         {
             //this is currently unused. the system needs to be created with a defensive fleet. 
             //no defensive fleets are created during the game. yet...
-            switch (this.TaskStep)
+            switch (TaskStep)
             {
                 case -1:
                     FleetTaskGatherAtRally(task);
@@ -640,7 +640,7 @@ namespace Ship_Game.AI
                     break;
                 case 2:
                     if (ArrivedAtOffsetRally(task))
-                        this.TaskStep = 3;
+                        TaskStep = 3;
                     break;
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))                    
@@ -670,7 +670,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoClaimDefense(Tasks.MilitaryTask task)
+        private void DoClaimDefense(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != null))
                 return;
@@ -705,7 +705,7 @@ namespace Ship_Game.AI
                     //if (Ships.Any(s => s.Speed < 1))
                     //    Log.Error("");
                     if (ShipsOffMission(task))
-                        this.TaskStep = 3;
+                        TaskStep = 3;
                     break;
 
                 case 5:
@@ -780,21 +780,21 @@ namespace Ship_Game.AI
             }
         }
 
-        private void DoGlassPlanet(Tasks.MilitaryTask task)
+        private void DoGlassPlanet(MilitaryTask task)
         {
-            if (task.TargetPlanet.Owner == this.Owner || task.TargetPlanet.Owner == null)
+            if (task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner == null)
                 task.EndTask();
-            else if (task.TargetPlanet.Owner != null & task.TargetPlanet.Owner != this.Owner && !task.TargetPlanet.Owner.GetRelations(this.Owner).AtWar)
+            else if (task.TargetPlanet.Owner != null & task.TargetPlanet.Owner != Owner && !task.TargetPlanet.Owner.GetRelations(Owner).AtWar)
             {
                 task.EndTask();
             }
             else
             {
-                switch (this.TaskStep)
+                switch (TaskStep)
                 {
                     case 0:
                         Array<Planet> list1 = new Array<Planet>();
-                        foreach (Planet planet in this.Owner.GetPlanets())
+                        foreach (Planet planet in Owner.GetPlanets())
                         {
                             if (planet.HasShipyard)
                                 list1.Add(planet);
@@ -804,8 +804,8 @@ namespace Ship_Game.AI
                             break;
                         Vector2 fVec = Vector2.Normalize(task.AO - orderedEnumerable1.First().Center);
                         Vector2 vector2 = orderedEnumerable1.First().Center;
-                        this.MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
-                        this.TaskStep = 1;
+                        MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
+                        TaskStep = 1;
                         break;
                     case 1:
 
@@ -815,46 +815,46 @@ namespace Ship_Game.AI
                         TaskStep += step;
                         break;
                     case 2:
-                        if (task.WaitForCommand && this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.TargetPlanet.Center, 30000f, this.Owner) > 250.0)
+                        if (task.WaitForCommand && Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.TargetPlanet.Center, 30000f, Owner) > 250.0)
                             break;
-                        foreach (Ship ship in this.Ships)
+                        foreach (Ship ship in Ships)
                             ship.AI.OrderBombardPlanet(task.TargetPlanet);
-                        this.TaskStep = 4;
+                        TaskStep = 4;
                         break;
                     case 4:
                         if (!IsFleetSupplied())
                         {
-                            this.TaskStep = 5;
+                            TaskStep = 5;
                             break;
                         }
                         else
                         {
-                            this.TaskStep = 2;
+                            TaskStep = 2;
                             break;
                         }
                     case 5:
                         Array<Planet> list2 = new Array<Planet>();
-                        foreach (Planet planet in this.Owner.GetPlanets())
+                        foreach (Planet planet in Owner.GetPlanets())
                         {
                             if (planet.HasShipyard)
                                 list2.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable2 = list2.OrderBy(p => Vector2.Distance(this.Position, p.Center));
+                        IOrderedEnumerable<Planet> orderedEnumerable2 = list2.OrderBy(p => Vector2.Distance(Position, p.Center));
                         if (!orderedEnumerable2.Any())
                             break;
-                        this.Position = orderedEnumerable2.First().Center;
-                        foreach (Ship ship in this.Ships)
+                        Position = orderedEnumerable2.First().Center;
+                        foreach (Ship ship in Ships)
                             ship.AI.OrderResupply(orderedEnumerable2.First(), true);
-                        this.TaskStep = 6;
+                        TaskStep = 6;
                         break;
                     case 6:
                         float num6 = 0.0f;
                         float num7 = 0.0f;
-                        foreach (Ship ship in this.Ships)
+                        foreach (Ship ship in Ships)
                         {
                             if (ship.AI.State != AIState.Resupply)
                             {
-                                this.TaskStep = 5;
+                                TaskStep = 5;
                                 return;
                             }
                             ship.AI.HasPriorityOrder = true;
@@ -863,13 +863,13 @@ namespace Ship_Game.AI
                         }
                         if ((int)num6 != (int)num7)
                             break;
-                        this.TaskStep = 0;
+                        TaskStep = 0;
                         break;
                 }
             }
         }
 
-        private void DoClearAreaOfEnemies(Tasks.MilitaryTask task)
+        private void DoClearAreaOfEnemies(MilitaryTask task)
         {
             if (EndInvalidTask(!StillCombatEffective(task)))
             {                
@@ -1020,7 +1020,7 @@ namespace Ship_Game.AI
 
             HoldFleetPosition();
 
-            this.InterceptorDict.Clear();            
+            InterceptorDict.Clear();            
             return true;
         }
 
@@ -1408,11 +1408,11 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Warning($"{ship.fleet?.Name ?? "No Fleet"} : not equal {Name}");
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
-                Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", Debug.DebugModes.Normal);                
+                Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);                
             ship.fleet = null;
             RemoveFromAllSquads(ship);
             if (Ships.Remove(ship) || !ship.Active) return true;            
-            Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", Debug.DebugModes.Normal);
+            Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", DebugModes.Normal);
             return false;
         }
 

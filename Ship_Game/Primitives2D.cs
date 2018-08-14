@@ -60,7 +60,7 @@ namespace Ship_Game
 
         public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 posOnScreen, float radius, Color color, float thickness = 1f)
         {
-            double logarithmicReduction = Math.Max(1.0, Math.Log10(radius));
+            double logarithmicReduction = Max(1.0, Log10(radius));
             int sides = (int)(radius / logarithmicReduction);
 
             spriteBatch.DrawCircle(posOnScreen, radius, sides, color, thickness);

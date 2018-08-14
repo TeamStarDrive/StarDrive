@@ -21,8 +21,8 @@ namespace Ship_Game
 		public RoundLineVertex(Vector3 pos, Vector2 norm, Vector2 tex, float index)
 		{
 			this.pos = pos;
-			this.rhoTheta = norm;
-			this.scaleTrans = tex;
+			rhoTheta = norm;
+			scaleTrans = tex;
 			this.index = index;
 		}
 	}

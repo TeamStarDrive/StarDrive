@@ -33,8 +33,8 @@ namespace Ship_Game
 
 	    public BloomComponent(ScreenManager screenManager)
 		{
-			this.ScreenManager = screenManager;
-			this.GraphicsDevice = screenManager.GraphicsDevice;
+			ScreenManager = screenManager;
+			GraphicsDevice = screenManager.GraphicsDevice;
 		}
 
 		public static bool CheckTextureSize(int width, int height, out int newwidth, out int newheight)
@@ -62,7 +62,7 @@ namespace Ship_Game
 
 		private float ComputeGaussian(float n)
 		{
-			float theta = this.Settings.BlurAmount;
+			float theta = Settings.BlurAmount;
 			return (float)(1 / Math.Sqrt(6.28318530717959 * (double)theta) * Math.Exp((double)(-(n * n) / (2f * theta * theta))));
 		}
 
@@ -75,12 +75,12 @@ namespace Ship_Game
 		{
 			if (!GraphicsAdapter.DefaultAdapter.CheckDepthStencilMatch(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, target.Format, depth))
 			{
-				return BloomComponent.CreateDepthStencil(target);
+				return CreateDepthStencil(target);
 			}
 			return new DepthStencilBuffer(target.GraphicsDevice, target.Width, target.Height, depth, target.MultiSampleType, target.MultiSampleQuality);
 		}
 
-		public static RenderTarget2D CreateRenderTarget(Microsoft.Xna.Framework.Graphics.GraphicsDevice device, int numberLevels, SurfaceFormat surface)
+		public static RenderTarget2D CreateRenderTarget(GraphicsDevice device, int numberLevels, SurfaceFormat surface)
 		{
 			int width;
 			int height;
@@ -93,51 +93,51 @@ namespace Ship_Game
 			{
 				type = MultiSampleType.None;
 			}
-			BloomComponent.CheckTextureSize(device.PresentationParameters.BackBufferWidth, device.PresentationParameters.BackBufferHeight, out width, out height);
+			CheckTextureSize(device.PresentationParameters.BackBufferWidth, device.PresentationParameters.BackBufferHeight, out width, out height);
 			return new RenderTarget2D(device, width, height, numberLevels, surface, type, 0);
 		}
 
 		public void Draw(GameTime gameTime)
 		{
-			this.GraphicsDevice.ResolveBackBuffer(this.resolveTarget);
-			this.bloomExtractEffect.Parameters["BloomThreshold"].SetValue(this.Settings.BloomThreshold);
-			this.DrawFullscreenQuad(this.resolveTarget, this.renderTarget1, this.bloomExtractEffect, IntermediateBuffer.PreBloom);
-			this.SetBlurEffectParameters(1f / (float)this.renderTarget1.Width, 0f);
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), this.renderTarget2, this.gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
-			this.SetBlurEffectParameters(0f, 1f / (float)this.renderTarget1.Height);
-			this.DrawFullscreenQuad(this.renderTarget2.GetTexture(), this.renderTarget1, this.gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
-			this.GraphicsDevice.SetRenderTarget(0, null);
-			EffectParameterCollection parameters = this.bloomCombineEffect.Parameters;
-			parameters["BloomIntensity"].SetValue(this.Settings.BloomIntensity);
-			parameters["BaseIntensity"].SetValue(this.Settings.BaseIntensity);
-			parameters["BloomSaturation"].SetValue(this.Settings.BloomSaturation);
-			parameters["BaseSaturation"].SetValue(this.Settings.BaseSaturation);
-			this.GraphicsDevice.Textures[1] = this.resolveTarget;
+			GraphicsDevice.ResolveBackBuffer(resolveTarget);
+			bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);
+			DrawFullscreenQuad(resolveTarget, renderTarget1, bloomExtractEffect, IntermediateBuffer.PreBloom);
+			SetBlurEffectParameters(1f / (float)renderTarget1.Width, 0f);
+			DrawFullscreenQuad(renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect, IntermediateBuffer.BlurredHorizontally);
+			SetBlurEffectParameters(0f, 1f / (float)renderTarget1.Height);
+			DrawFullscreenQuad(renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect, IntermediateBuffer.BlurredBothWays);
+			GraphicsDevice.SetRenderTarget(0, null);
+			EffectParameterCollection parameters = bloomCombineEffect.Parameters;
+			parameters["BloomIntensity"].SetValue(Settings.BloomIntensity);
+			parameters["BaseIntensity"].SetValue(Settings.BaseIntensity);
+			parameters["BloomSaturation"].SetValue(Settings.BloomSaturation);
+			parameters["BaseSaturation"].SetValue(Settings.BaseSaturation);
+			GraphicsDevice.Textures[1] = resolveTarget;
 			Viewport viewport = Game1.Instance.Viewport;
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect, IntermediateBuffer.FinalResult);
+			DrawFullscreenQuad(renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect, IntermediateBuffer.FinalResult);
 		}
 
-		private void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
+		private void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect, IntermediateBuffer currentBuffer)
 		{
-			this.GraphicsDevice.SetRenderTarget(0, renderTarget);
-			DepthStencilBuffer old = this.GraphicsDevice.DepthStencilBuffer;
-			this.GraphicsDevice.DepthStencilBuffer = this.buffer;
-			this.DrawFullscreenQuad(texture, renderTarget.Width, renderTarget.Height, effect, currentBuffer);
-			this.GraphicsDevice.SetRenderTarget(0, null);
-			this.GraphicsDevice.DepthStencilBuffer = old;
+			GraphicsDevice.SetRenderTarget(0, renderTarget);
+			DepthStencilBuffer old = GraphicsDevice.DepthStencilBuffer;
+			GraphicsDevice.DepthStencilBuffer = buffer;
+			DrawFullscreenQuad(texture, renderTarget.Width, renderTarget.Height, effect, currentBuffer);
+			GraphicsDevice.SetRenderTarget(0, null);
+			GraphicsDevice.DepthStencilBuffer = old;
 		}
 
-		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
+		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, IntermediateBuffer currentBuffer)
 		{
 			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
-			if (this.ShowBuffer >= currentBuffer)
+			if (ShowBuffer >= currentBuffer)
 			{
 				effect.Begin();
 				effect.CurrentTechnique.Passes[0].Begin();
 			}
 			Empire.Universe.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
 			Empire.Universe.ScreenManager.SpriteBatch.End();
-			if (this.ShowBuffer >= currentBuffer)
+			if (ShowBuffer >= currentBuffer)
 			{
 				effect.CurrentTechnique.Passes[0].End();
 				effect.End();
@@ -146,36 +146,36 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			this.bloomExtractEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomExtract");
-			this.bloomCombineEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomCombine");
-			this.gaussianBlurEffect = Game1.Instance.Content.Load<Effect>("Effects/GaussianBlur");
-			PresentationParameters pp = this.GraphicsDevice.PresentationParameters;
+			bloomExtractEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomExtract");
+			bloomCombineEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomCombine");
+			gaussianBlurEffect = Game1.Instance.Content.Load<Effect>("Effects/GaussianBlur");
+			PresentationParameters pp = GraphicsDevice.PresentationParameters;
 			int width = pp.BackBufferWidth;
 			int height = pp.BackBufferHeight;
 			SurfaceFormat format = pp.BackBufferFormat;
-			this.resolveTarget = new ResolveTexture2D(this.GraphicsDevice, width, height, 1, format);
+			resolveTarget = new ResolveTexture2D(GraphicsDevice, width, height, 1, format);
 			width = width / 2;
 			height = height / 2;
-			this.renderTarget1 = new RenderTarget2D(this.GraphicsDevice, width, height, 1, format);
-			this.renderTarget2 = new RenderTarget2D(this.GraphicsDevice, width, height, 1, format);
-			this.renderTarget1 = new RenderTarget2D(this.GraphicsDevice, width, height, 1, format);
-			this.renderTarget2 = new RenderTarget2D(this.GraphicsDevice, width, height, 1, format);
-			this.buffer = BloomComponent.CreateDepthStencil(this.renderTarget1);
+			renderTarget1 = new RenderTarget2D(GraphicsDevice, width, height, 1, format);
+			renderTarget2 = new RenderTarget2D(GraphicsDevice, width, height, 1, format);
+			renderTarget1 = new RenderTarget2D(GraphicsDevice, width, height, 1, format);
+			renderTarget2 = new RenderTarget2D(GraphicsDevice, width, height, 1, format);
+			buffer = CreateDepthStencil(renderTarget1);
 		}
 
 		private void SetBlurEffectParameters(float dx, float dy)
 		{
-			EffectParameter weightsParameter = this.gaussianBlurEffect.Parameters["SampleWeights"];
-			EffectParameter offsetsParameter = this.gaussianBlurEffect.Parameters["SampleOffsets"];
+			EffectParameter weightsParameter = gaussianBlurEffect.Parameters["SampleWeights"];
+			EffectParameter offsetsParameter = gaussianBlurEffect.Parameters["SampleOffsets"];
 			int sampleCount = weightsParameter.Elements.Count;
 			float[] sampleWeights = new float[sampleCount];
 			Vector2[] sampleOffsets = new Vector2[sampleCount];
-			sampleWeights[0] = this.ComputeGaussian(0f);
+			sampleWeights[0] = ComputeGaussian(0f);
 			sampleOffsets[0] = new Vector2(0f);
 			float totalWeights = sampleWeights[0];
 			for (int i = 0; i < sampleCount / 2; i++)
 			{
-				float weight = this.ComputeGaussian((float)(i + 1));
+				float weight = ComputeGaussian((float)(i + 1));
 				sampleWeights[i * 2 + 1] = weight;
 				sampleWeights[i * 2 + 2] = weight;
 				totalWeights = totalWeights + weight * 2f;

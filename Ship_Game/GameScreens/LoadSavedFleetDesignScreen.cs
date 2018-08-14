@@ -11,28 +11,28 @@ namespace Ship_Game
 
         public LoadSavedFleetDesignScreen(GameScreen parent) : base(parent, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
-            this.Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
+            Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
         }
 
         public LoadSavedFleetDesignScreen(FleetDesignScreen caller) : base(caller, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
-            this.parentScreen = caller;
-            this.Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
+            parentScreen = caller;
+            Path = Dir.ApplicationData + "/StarDrive/Fleet Designs/";
         }
 
         protected override void Load()
         {
-            if (this.selectedFile != null)
+            if (selectedFile != null)
             {
                 XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
-                FleetDesign data = (FleetDesign)serializer1.Deserialize(this.selectedFile.FileLink.OpenRead());
-                this.parentScreen.LoadData(data);
+                FleetDesign data = (FleetDesign)serializer1.Deserialize(selectedFile.FileLink.OpenRead());
+                parentScreen.LoadData(data);
             }
             else
             {
                 GameAudio.PlaySfxAsync("UI_Misc20");
             }
-            this.ExitScreen();
+            ExitScreen();
         }
 
         protected override void InitSaveList()

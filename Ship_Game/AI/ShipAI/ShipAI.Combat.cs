@@ -11,7 +11,7 @@ namespace Ship_Game.AI
     public sealed partial class ShipAI
     {
         public bool UseSensorsForTargets = true;
-        public CombatState CombatState = AI.CombatState.AttackRuns;
+        public CombatState CombatState = CombatState.AttackRuns;
         public CombatAI CombatAI = new CombatAI();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
         public Ship EscortTarget;

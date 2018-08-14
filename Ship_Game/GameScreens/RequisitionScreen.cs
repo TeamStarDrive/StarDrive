@@ -35,19 +35,19 @@ namespace Ship_Game
         public RequisitionScreen(FleetDesignScreen fds) : base(fds)
         {
             this.fds = fds;
-            this.f = fds.SelectedFleet;
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            f = fds.SelectedFleet;
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
         private void AssignAvailableShips()
         {
-            foreach (Ship ship in this.AvailableShips)
+            foreach (Ship ship in AvailableShips)
             {
                 if (ship.fleet != null)
                     continue;
-                foreach (FleetDataNode node in this.f.DataNodes)
+                foreach (FleetDataNode node in f.DataNodes)
                 {
                     if (node.ShipName != ship.Name || node.Ship!= null)
                     {
@@ -74,27 +74,27 @@ namespace Ship_Game
                     break;
                 }
             }
-            foreach (Ship ship in this.f.Ships)
+            foreach (Ship ship in f.Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
             }                        
-            this.f.Owner.GetFleetsDict()[this.fds.FleetToEdit] = this.f;
-            this.fds.ChangeFleet(this.fds.FleetToEdit);
-            this.UpdateRequisitionStatus();
+            f.Owner.GetFleetsDict()[fds.FleetToEdit] = f;
+            fds.ChangeFleet(fds.FleetToEdit);
+            UpdateRequisitionStatus();
         }
 
         private void CreateShipGoals()
         {
-            foreach (FleetDataNode node in this.f.DataNodes)
+            foreach (FleetDataNode node in f.DataNodes)
             {
                 if (node.Ship!= null || node.GoalGUID != Guid.Empty)
                 {
                     continue;
                 }
                 var g = new Commands.Goals.FleetRequisition(node.ShipName, f.Owner);
-                g.SetFleet(this.f);
+                g.SetFleet(f);
                 node.GoalGUID = g.guid;
-                this.f.Owner.GetGSAI().Goals.Add(g);
+                f.Owner.GetGSAI().Goals.Add(g);
                 g.Evaluate();
             }
         }
@@ -102,17 +102,17 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             string text;
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            base.ScreenManager.SpriteBatch.Begin();
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.SpriteBatch.Begin();
             Color c = new Color(255, 239, 208);
-            Selector fleetstats = new Selector(this.FleetStatsRect, new Color(0, 0, 0, 180));
+            Selector fleetstats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
             fleetstats.Draw(ScreenManager.SpriteBatch);
-            this.Cursor = new Vector2((float)(this.FleetStatsRect.X + 25), (float)(this.FleetStatsRect.Y + 25));
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", this.Cursor, c);
-            this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
-            this.DrawStat("# Ships in Design:", this.f.DataNodes.Count, ref this.Cursor);
+            Cursor = new Vector2((float)(FleetStatsRect.X + 25), (float)(FleetStatsRect.Y + 25));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
+            Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+            DrawStat("# Ships in Design:", f.DataNodes.Count, ref Cursor);
             int actualnumber = 0;
-            foreach (FleetDataNode node in this.f.DataNodes)
+            foreach (FleetDataNode node in f.DataNodes)
             {
                 if (node.Ship== null)
                 {
@@ -120,19 +120,19 @@ namespace Ship_Game
                 }
                 actualnumber++;
             }
-            this.DrawStat("# Ships in Fleet:", actualnumber, ref this.Cursor);
-            this.DrawStat("# Ships being Built:", this.numBeingBuilt, ref this.Cursor);
-            int tofill = this.f.DataNodes.Count - actualnumber - this.numBeingBuilt;
-            this.DrawStat("# Slots To Fill:", tofill, ref this.Cursor, Color.LightPink);
+            DrawStat("# Ships in Fleet:", actualnumber, ref Cursor);
+            DrawStat("# Ships being Built:", numBeingBuilt, ref Cursor);
+            int tofill = f.DataNodes.Count - actualnumber - numBeingBuilt;
+            DrawStat("# Slots To Fill:", tofill, ref Cursor, Color.LightPink);
             float cost = 0f;
-            foreach (FleetDataNode node in this.f.DataNodes)
+            foreach (FleetDataNode node in f.DataNodes)
             {
-                cost = (node.Ship== null ? cost + ResourceManager.ShipsDict[node.ShipName].GetCost(this.f.Owner) : cost + node.Ship.GetCost(this.f.Owner));
+                cost = (node.Ship== null ? cost + ResourceManager.ShipsDict[node.ShipName].GetCost(f.Owner) : cost + node.Ship.GetCost(f.Owner));
             }
-            this.DrawStat("Total Production Cost:", (int)cost, ref this.Cursor);
-            this.Cursor.Y = this.Cursor.Y + 20f;
+            DrawStat("Total Production Cost:", (int)cost, ref Cursor);
+            Cursor.Y = Cursor.Y + 20f;
             int numships = 0;
-            foreach (Ship s in this.f.Owner.GetShips())
+            foreach (Ship s in f.Owner.GetShips())
             {
                 if (s.fleet != null)
                 {
@@ -142,43 +142,43 @@ namespace Ship_Game
             }
             if (tofill != 0)
             {
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Owned Ships", this.Cursor, c);
-                this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
-                if (this.numThatFit <= 0)
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Owned Ships", Cursor, c);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+                if (numThatFit <= 0)
                 {
                     text = "There are no ships in your empire that are not already assigned to a fleet that can fit any of the roles required by this fleet's design.";
-                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
-                    this.AssignNow.ToggleOn = false;
+                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+                    AssignNow.ToggleOn = false;
                 }
                 else
                 {
-                    string[] str = new string[] { "Of the ", numships.ToString(), " ships in your empire that are not assigned to fleets, ", this.numThatFit.ToString(), " of them can be assigned to fill in this fleet" };
+                    string[] str = new string[] { "Of the ", numships.ToString(), " ships in your empire that are not assigned to fleets, ", numThatFit.ToString(), " of them can be assigned to fill in this fleet" };
                     text = string.Concat(str);
-                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
-                    this.AssignNow.Draw(base.ScreenManager);
+                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+                    AssignNow.Draw(ScreenManager);
                 }
-                this.Cursor.Y = (float)(this.AssignNow.Button.Y + 70);
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Build New Ships", this.Cursor, c);
-                this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+                Cursor.Y = (float)(AssignNow.Button.Y + 70);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Build New Ships", Cursor, c);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
                 if (tofill > 0)
                 {
                     text = string.Concat("Order ", tofill.ToString(), " new ships to be built at your best available shipyards");
-                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
-                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
+                    text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                 }
-                this.BuildNow.Draw(base.ScreenManager);
+                BuildNow.Draw(ScreenManager);
             }
             else
             {
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "No Requisition Needed", this.Cursor, c);
-                this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "No Requisition Needed", Cursor, c);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
                 text = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
-                text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
+                text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(FleetStatsRect.Width - 40));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             }
-            base.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
 
         private void DrawStat(string text, int value, ref Vector2 Cursor)
@@ -187,9 +187,9 @@ namespace Ship_Game
             float column1 = Cursor.X;
             float column2 = Cursor.X + 175f;
             Cursor.X = column1;
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             Cursor.X = column2;
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), Cursor, c);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), Cursor, c);
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             Cursor.X = column1;
         }
@@ -200,9 +200,9 @@ namespace Ship_Game
             float column1 = Cursor.X;
             float column2 = Cursor.X + 175f;
             Cursor.X = column1;
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             Cursor.X = column2;
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), Cursor, statcolor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), Cursor, statcolor);
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             Cursor.X = column1;
         }
@@ -210,41 +210,41 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.currentMouse = input.MouseCurr;
-            if (this.numThatFit > 0 && this.AssignNow.HandleInput(input))
+            currentMouse = input.MouseCurr;
+            if (numThatFit > 0 && AssignNow.HandleInput(input))
             {
-                this.AssignAvailableShips();
-                this.UpdateRequisitionStatus();
+                AssignAvailableShips();
+                UpdateRequisitionStatus();
             }
-            if (this.BuildNow.HandleInput(input))
+            if (BuildNow.HandleInput(input))
             {
-                this.CreateShipGoals();
-                this.UpdateRequisitionStatus();
+                CreateShipGoals();
+                UpdateRequisitionStatus();
             }
             if (input.Escaped || input.RightMouseClick)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
-            this.previousMouse = input.MousePrev;
+            previousMouse = input.MousePrev;
             return base.HandleInput(input);
         }
 
         public override void LoadContent()
         {
-            this.FleetStatsRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 172, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 345, 600);
-            this.AssignNow = new BlueButton(new Vector2((float)(this.FleetStatsRect.X + 85), (float)(this.FleetStatsRect.Y + 225)), "Assign Now")
+            FleetStatsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 172, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 345, 600);
+            AssignNow = new BlueButton(new Vector2((float)(FleetStatsRect.X + 85), (float)(FleetStatsRect.Y + 225)), "Assign Now")
             {
                 ToggleOn = true
             };
-            this.BuildNow = new BlueButton(new Vector2((float)(this.FleetStatsRect.X + 85), (float)(this.FleetStatsRect.Y + 365)), "Build Now")
+            BuildNow = new BlueButton(new Vector2((float)(FleetStatsRect.X + 85), (float)(FleetStatsRect.Y + 365)), "Build Now")
             {
                 ToggleOn = true
             };
-            this.UpdateRequisitionStatus();
-            foreach (FleetDataNode node in this.f.DataNodes)
+            UpdateRequisitionStatus();
+            foreach (FleetDataNode node in f.DataNodes)
             {
-                foreach (Goal g in this.f.Owner.GetGSAI().Goals)
+                foreach (Goal g in f.Owner.GetGSAI().Goals)
                 {
                     if (g.guid != node.GoalGUID)
                     {
@@ -263,17 +263,17 @@ namespace Ship_Game
 
         private void UpdateRequisitionStatus()
         {
-            this.numThatFit = 0;
-            this.AvailableShips.Clear();
-            foreach (Ship ship in this.f.Owner.GetShips())
+            numThatFit = 0;
+            AvailableShips.Clear();
+            foreach (Ship ship in f.Owner.GetShips())
             {
                 if (ship.fleet != null)
                     continue;
-                this.AvailableShips.Add(ship);
+                AvailableShips.Add(ship);
             }
-            foreach (Ship ship in this.AvailableShips)
+            foreach (Ship ship in AvailableShips)
             {
-                foreach (FleetDataNode node in this.f.DataNodes)
+                foreach (FleetDataNode node in f.DataNodes)
                 {
                     if (node.ShipName != ship.Name || node.Ship != null)
                         continue;
@@ -282,10 +282,10 @@ namespace Ship_Game
                     break;
                 }
             }
-            this.numBeingBuilt = 0;
-            foreach (FleetDataNode node in this.f.DataNodes)
+            numBeingBuilt = 0;
+            foreach (FleetDataNode node in f.DataNodes)
             {
-                foreach (Goal g in this.f.Owner.GetGSAI().Goals)
+                foreach (Goal g in f.Owner.GetGSAI().Goals)
                 {
                     if (g.guid != node.GoalGUID)
                     {

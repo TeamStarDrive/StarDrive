@@ -24,7 +24,7 @@ namespace Ship_Game.Universe.SolarBodies
         private SceneObject SO => SolarSystemBody.SO;
         private bool HasSpacePort => SolarSystemBody.HasShipyard;
         private int DevelopmentLevel => SolarSystemBody.DevelopmentLevel;
-        private Map<System.Guid,Ship> Stations => SolarSystemBody.Shipyards;
+        private Map<Guid,Ship> Stations => SolarSystemBody.Shipyards;
         private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
         
         public GeodeticManager (Planet planet)

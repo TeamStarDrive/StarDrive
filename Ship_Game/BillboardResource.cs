@@ -21,15 +21,15 @@ namespace Ship_Game
 
 	    public BillboardResource(GraphicsDevice device)
 		{
-			this.VertexDeclaration = new VertexDeclaration(device, BillboardVertex.VertexElements);
-			this.VertexBuffer = new VertexBuffer(device, typeof(BillboardVertex), 4, BufferUsage.WriteOnly);
-			this.IndexBuffer = new IndexBuffer(device, typeof(short), 6, BufferUsage.WriteOnly);
+			VertexDeclaration = new VertexDeclaration(device, BillboardVertex.VertexElements);
+			VertexBuffer = new VertexBuffer(device, typeof(BillboardVertex), 4, BufferUsage.WriteOnly);
+			IndexBuffer = new IndexBuffer(device, typeof(short), 6, BufferUsage.WriteOnly);
 			short[] indices = { 0, 1, 2, 2, 1, 3 };
 			Vector3[] positions = { new Vector3(0.5f, 1f, 0f), new Vector3(-0.5f, 1f, 0f), new Vector3(0.5f, 0f, 0f), new Vector3(-0.5f, 0f, 0f) };
 			Vector2[] uvs = { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) };
 			Vector3[] tangents = new Vector3[4];
 			Vector3[] binormals = new Vector3[4];
-			this.BuildTangentSpaceDataForTriangleList(indices, positions, uvs, tangents, binormals);
+			BuildTangentSpaceDataForTriangleList(indices, positions, uvs, tangents, binormals);
 			BillboardVertex[] verts = new BillboardVertex[4];
 			verts[0].Position = positions[0];
 			verts[0].TextureCoordinate = uvs[0];
@@ -51,9 +51,9 @@ namespace Ship_Game
 			verts[3].Normal = Vector3.Forward;
 			verts[3].Tangent = tangents[3];
 			verts[3].Binormal = binormals[3];
-			this.VertexBuffer.SetData<BillboardResource.BillboardVertex>(verts);
-			this.IndexBuffer.SetData<short>(indices);
-			this.BoundingSphere = Microsoft.Xna.Framework.BoundingSphere.CreateFromPoints(positions);
+			VertexBuffer.SetData<BillboardVertex>(verts);
+			IndexBuffer.SetData<short>(indices);
+			BoundingSphere = BoundingSphere.CreateFromPoints(positions);
 		}
 
 		private void BuildTangentSpaceDataForTriangleList(short[] indices, Vector3[] positions, Vector2[] uvs, Vector3[] tangents, Vector3[] binormals)

@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
     {
-        private EmpireAI.ResearchStrategy res_strat = EmpireAI.ResearchStrategy.Scripted;
+        private ResearchStrategy res_strat = ResearchStrategy.Scripted;
         private int ScriptIndex = 0;
         private int HullScaler = 3;
         private string postResearchTopic = "";
@@ -90,12 +90,12 @@ namespace Ship_Game.AI {
             DebugLog($"ResearchStrategy : {res_strat.ToString()}");
             switch (res_strat)
             {
-                case EmpireAI.ResearchStrategy.Random:
+                case ResearchStrategy.Random:
                     {                        
                         ChooseRandomTech(wars, shipBuildBonus, researchDebt, cybernetic, needsFood, economics, command);
                         return;
                     }
-                case EmpireAI.ResearchStrategy.Scripted:
+                case ResearchStrategy.Scripted:
                     {
                         if (ProcessScript(wars > 0, economics > 4, researchDebt > 2, OwnerEmpire.Money < OwnerEmpire.GrossTaxes)) return;
                         break;
@@ -359,7 +359,7 @@ namespace Ship_Game.AI {
             {
                 GoRandomOnce();
                 if (loopcount >= OwnerEmpire.getResStrat().TechPath.Count)
-                    res_strat = EmpireAI.ResearchStrategy.Random;
+                    res_strat = ResearchStrategy.Random;
 
             }
             return false;
@@ -368,9 +368,9 @@ namespace Ship_Game.AI {
         private bool GoRandomOnce(string command = "CHEAPEST")
         {
             DebugLog($"Go Random Once");
-            res_strat = EmpireAI.ResearchStrategy.Random;
+            res_strat = ResearchStrategy.Random;
             RunResearchPlanner(command);
-            res_strat = EmpireAI.ResearchStrategy.Scripted;
+            res_strat = ResearchStrategy.Scripted;
             return OwnerEmpire.ResearchTopic.NotEmpty();
         }
 

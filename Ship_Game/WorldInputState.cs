@@ -18,11 +18,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.A != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.A != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.A == ButtonState.Released;
+				return LastGamePadState.Buttons.A == ButtonState.Released;
 			}
 		}
 
@@ -30,11 +30,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.B != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.B != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.B == ButtonState.Released;
+				return LastGamePadState.Buttons.B == ButtonState.Released;
 			}
 		}
 
@@ -42,11 +42,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Down))
+				if (IsNewKeyPress(Keys.Down))
 				{
 					return true;
 				}
-				return this.CurrentGamePadState.DPad.Down == ButtonState.Pressed;
+				return CurrentGamePadState.DPad.Down == ButtonState.Pressed;
 			}
 		}
 
@@ -54,11 +54,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Left))
+				if (IsNewKeyPress(Keys.Left))
 				{
 					return true;
 				}
-				return this.CurrentGamePadState.DPad.Left == ButtonState.Pressed;
+				return CurrentGamePadState.DPad.Left == ButtonState.Pressed;
 			}
 		}
 
@@ -66,11 +66,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Right))
+				if (IsNewKeyPress(Keys.Right))
 				{
 					return true;
 				}
-				return this.CurrentGamePadState.DPad.Right == ButtonState.Pressed;
+				return CurrentGamePadState.DPad.Right == ButtonState.Pressed;
 			}
 		}
 
@@ -78,11 +78,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Up))
+				if (IsNewKeyPress(Keys.Up))
 				{
 					return true;
 				}
-				return this.CurrentGamePadState.DPad.Up == ButtonState.Pressed;
+				return CurrentGamePadState.DPad.Up == ButtonState.Pressed;
 			}
 		}
 
@@ -90,11 +90,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.Back != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.Back != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.Back == ButtonState.Released;
+				return LastGamePadState.Buttons.Back == ButtonState.Released;
 			}
 		}
 
@@ -102,15 +102,15 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Up) || this.CurrentGamePadState.DPad.Up == ButtonState.Pressed && this.LastGamePadState.DPad.Up == ButtonState.Released)
+				if (IsNewKeyPress(Keys.Up) || CurrentGamePadState.DPad.Up == ButtonState.Pressed && LastGamePadState.DPad.Up == ButtonState.Released)
 				{
 					return true;
 				}
-				if (this.CurrentGamePadState.ThumbSticks.Left.Y <= 0f)
+				if (CurrentGamePadState.ThumbSticks.Left.Y <= 0f)
 				{
 					return false;
 				}
-				return this.LastGamePadState.ThumbSticks.Left.Y <= 0f;
+				return LastGamePadState.ThumbSticks.Left.Y <= 0f;
 			}
 		}
 
@@ -118,15 +118,15 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.IsNewKeyPress(Keys.Escape))
+				if (IsNewKeyPress(Keys.Escape))
 				{
 					return true;
 				}
-				if (this.CurrentGamePadState.Buttons.Start != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.Start != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.Start == ButtonState.Released;
+				return LastGamePadState.Buttons.Start == ButtonState.Released;
 			}
 		}
 
@@ -134,11 +134,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.LeftShoulder != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.LeftShoulder != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.LeftShoulder == ButtonState.Released;
+				return LastGamePadState.Buttons.LeftShoulder == ButtonState.Released;
 			}
 		}
 
@@ -146,11 +146,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.RightShoulder != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.RightShoulder != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.RightShoulder == ButtonState.Released;
+				return LastGamePadState.Buttons.RightShoulder == ButtonState.Released;
 			}
 		}
 
@@ -158,11 +158,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.CurrentGamePadState.Buttons.X != ButtonState.Pressed)
+				if (CurrentGamePadState.Buttons.X != ButtonState.Pressed)
 				{
 					return false;
 				}
-				return this.LastGamePadState.Buttons.X == ButtonState.Released;
+				return LastGamePadState.Buttons.X == ButtonState.Released;
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.CurrentGamePadState.Buttons.RightShoulder == ButtonState.Pressed;
+				return CurrentGamePadState.Buttons.RightShoulder == ButtonState.Pressed;
 			}
 		}
 
@@ -178,7 +178,7 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.CurrentGamePadState.Buttons.LeftShoulder == ButtonState.Pressed;
+				return CurrentGamePadState.Buttons.LeftShoulder == ButtonState.Pressed;
 			}
 		}
 
@@ -188,15 +188,15 @@ namespace Ship_Game
 
 		private bool IsNewKeyPress(Keys key)
 		{
-			return this.CurrentKeyboardState.IsKeyDown(key);
+			return CurrentKeyboardState.IsKeyDown(key);
 		}
 
 		public void Update()
 		{
-			this.LastKeyboardState = this.CurrentKeyboardState;
-			this.LastGamePadState = this.CurrentGamePadState;
-			this.CurrentKeyboardState = Keyboard.GetState();
-			this.CurrentGamePadState = GamePad.GetState(PlayerIndex.One);
+			LastKeyboardState = CurrentKeyboardState;
+			LastGamePadState = CurrentGamePadState;
+			CurrentKeyboardState = Keyboard.GetState();
+			CurrentGamePadState = GamePad.GetState(PlayerIndex.One);
 		}
 	}
 }

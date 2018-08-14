@@ -9,7 +9,7 @@ namespace Ship_Game
 
 		static StatTracker()
 		{
-			StatTracker.SnapshotsDict = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
+			SnapshotsDict = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
 		}
 
 		public StatTracker()
