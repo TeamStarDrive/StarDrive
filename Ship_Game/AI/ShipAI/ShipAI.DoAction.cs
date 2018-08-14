@@ -767,7 +767,7 @@ namespace Ship_Game.AI
         private bool ShipNeedsRepair(Ship target, float maxDistance, Ship dontHealSelf = null)
         {
             return target.Active && target != dontHealSelf
-                    && target.InternalSlotsHealthPercent < ShipResupply.RepairDroneThreshold
+                    && target.HealthPercent < ShipResupply.RepairDroneThreshold
                     && Owner.Center.Distance(target.Center) <= maxDistance;
         }
         private void DoOrdinanceTransporterLogic(ShipModule module)
