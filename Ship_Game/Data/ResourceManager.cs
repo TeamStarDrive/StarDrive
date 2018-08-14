@@ -797,29 +797,22 @@ namespace Ship_Game
         {
             return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : null;
         }
-        
+
+        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
+        {
+            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : Texture(defaultTex);
+        }
+
         public static Texture2D Texture(string texturePath)
         {
             if (Textures.TryGetValue(texturePath, out Texture2D texture))
                 return texture;
-            return MissingTexture(texturePath, "NewUI/x_red");
-        }
-
-        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
-        {
-            if (Textures.TryGetValue(texturePath, out Texture2D texture))
-                return texture;
-            return MissingTexture(texturePath, defaultTex);
-        }
-
-        private static Texture2D MissingTexture(string texturePath, string defaultTex)
-        {
             if (LastFailedTexture != texturePath)
             {
                 LastFailedTexture = texturePath;
-                Log.WarningWithCallStack($"texture path not found: {texturePath} replacing with '{defaultTex}'");
+                Log.WarningWithCallStack($"texture path not found: '{texturePath}' replacing with 'NewUI/x_red'");
             }
-            return Textures[defaultTex];
+            return Textures["NewUI/x_red"];
         }
 
         public static bool TextureLoaded(string texturePath)
