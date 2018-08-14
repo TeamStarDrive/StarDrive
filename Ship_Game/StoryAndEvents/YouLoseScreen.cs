@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
@@ -64,8 +63,8 @@ namespace Ship_Game
 			desaturateEffect.Begin();
 			desaturateEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
-			ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2((float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
-			Vector2 vector2 = new Vector2((float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(RememberedAs).X / 2f, (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 + 50));
+			ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
+			Vector2 vector2 = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Arial20Bold.MeasureString(RememberedAs).X / 2f, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 + 50);
 			ScreenManager.SpriteBatch.End();
 			desaturateEffect.CurrentTechnique.Passes[0].End();
 			desaturateEffect.End();
@@ -148,10 +147,10 @@ namespace Ship_Game
 		{
 			scale = 1f + 2f * TransitionPosition;
 			Saturation = 100f * (1f - TransitionPosition);
-			width = (int)MathHelper.Lerp((float)width, (float)((int)(960f + 960f * (1f - TransitionPosition))), 0.3f);
-			height = (int)MathHelper.Lerp((float)height, 540f + 540f * (1f - TransitionPosition), 0.3f);
+			width = (int)MathHelper.Lerp(width, (int)(960f + 960f * (1f - TransitionPosition)), 0.3f);
+			height = (int)MathHelper.Lerp(height, 540f + 540f * (1f - TransitionPosition), 0.3f);
 		    GameAudio.MuteGenericMusic();
-			SourceRect = new Rectangle((int)MathHelper.Lerp((float)SourceRect.X, (float)(960 - width / 2), 0.3f), (int)MathHelper.Lerp((float)SourceRect.Y, (float)(540 - height / 2), 0.3f), width, height);
+			SourceRect = new Rectangle((int)MathHelper.Lerp(SourceRect.X, 960 - width / 2, 0.3f), (int)MathHelper.Lerp(SourceRect.Y, 540 - height / 2, 0.3f), width, height);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}

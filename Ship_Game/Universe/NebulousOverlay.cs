@@ -11,9 +11,5 @@ namespace Ship_Game
 		public float Scale = 1000f;
 
 		public string Path;
-
-		public NebulousOverlay()
-		{
-		}
 	}
 }

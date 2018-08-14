@@ -1,6 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -8,6 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime;
 using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 

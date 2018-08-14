@@ -6,10 +6,7 @@ namespace Ship_Game
 	{
 		public BatchRemovalCollection<Anomaly> AnomaliesList = new BatchRemovalCollection<Anomaly>();
 
-		public AnomalyManager()
-		{
-		}
-        public void Dispose()
+	    public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

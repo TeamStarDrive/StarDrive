@@ -19,14 +19,14 @@ namespace Ship_Game {
         {
             planetMenu.Children.Clear();
             planetMenu.Add(new PieMenuNode(Localizer.Token(1421), ResourceManager.Texture("UI/viewPlanetIcon"),
-                new SimpleDelegate(ViewPlanet)));
+                ViewPlanet));
             if (!Owned && Habitable)
                 planetMenu.Add(new PieMenuNode(Localizer.Token(1422),
-                    ResourceManager.Texture("UI/ColonizeIcon"), new SimpleDelegate(MarkForColonization)));
+                    ResourceManager.Texture("UI/ColonizeIcon"), MarkForColonization));
             if (!Habitable)
                 return;
             planetMenu.Add(new PieMenuNode(Localizer.Token(1423), ResourceManager.Texture("UI/ColonizeIcon"),
-                new SimpleDelegate(OpenCombatMenu)));
+                OpenCombatMenu));
         }
 
         public void OpenCombatMenu(object sender)

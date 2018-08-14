@@ -1,10 +1,10 @@
-using Microsoft.Xna.Framework;
 using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-using Microsoft.Xna.Framework.Media;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -327,7 +327,7 @@ namespace Ship_Game
             if (!string.IsNullOrEmpty(videoPath))
             {
                 VideoFile = ResourceManager.LoadVideo(contentManagment, videoPath);
-                VideoPlaying = new VideoPlayer()
+                VideoPlaying = new VideoPlayer
                 {
                     Volume = GlobalStats.MusicVolume,
                     IsLooped = true

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -143,7 +142,7 @@ namespace Ship_Game
             }
             if (MiddleText != null)
             {
-                MiddleText = HelperFunctions.ParseText(Fonts.Arial12Bold, MiddleText, MidContainer.Width - 50);
+                MiddleText = Fonts.Arial12Bold.ParseText(MiddleText, MidContainer.Width - 50);
 
                 var textSize = Fonts.Arial12Bold.MeasureString(MiddleText);
                 var pos = new Vector2(MidContainer.X + MidContainer.Width  / 2 - textSize.X / 2f, 

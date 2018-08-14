@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Ship_Game
+﻿namespace Ship_Game
 {
     public sealed class ShipRole
     {
@@ -35,7 +30,7 @@ namespace Ship_Game
             public float KillExp;
             public float KillExpPerLevel;
             public float ExpPerLevel;
-        };
+        }
 
         public ShipRole()
         {

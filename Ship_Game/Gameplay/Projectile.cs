@@ -1,13 +1,13 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Particle3DSample;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Rendering;
-using System;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Gameplay
 {
@@ -64,7 +64,7 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
-        private bool InFrustrum = false;
+        private bool InFrustrum;
    
 
         public Ship Owner { get; protected set; }
@@ -115,7 +115,7 @@ namespace Ship_Game.Gameplay
                 Weapon  = weapon,
                 Owner   = owner,
                 Loyalty = owner.loyalty,
-                Module  = weapon.Module,
+                Module  = weapon.Module
             };
             projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false);
             projectile.Duration = pdata.Duration; // apply duration from save data

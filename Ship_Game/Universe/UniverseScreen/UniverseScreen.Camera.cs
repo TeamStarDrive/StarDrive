@@ -1,8 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -11,10 +9,10 @@ namespace Ship_Game
         private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
         {
             Vector2 vector2_1 = new Vector2(
-                MousePosition.X - (float) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth /
-                                           2),
+                MousePosition.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth /
+                2,
                 MousePosition.Y -
-                (float) (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
+                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
             Vector3 position1 = Viewport.Unproject(
                 new Vector3(MousePosition.X, MousePosition.Y, 0.0f), projection, this.view, Matrix.Identity);
             Vector3 direction1 =
@@ -31,8 +29,8 @@ namespace Ship_Game
                               new Vector3(CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 =
                 Viewport.Project(source, projection, view, Matrix.Identity);
-            Vector2 vector2_2 = new Vector2((float) (int) vector3.X - vector2_1.X,
-                (float) (int) vector3.Y - vector2_1.Y);
+            Vector2 vector2_2 = new Vector2((int) vector3.X - vector2_1.X,
+                (int) vector3.Y - vector2_1.Y);
             Vector3 position2 = Viewport.Unproject(
                 new Vector3(vector2_2.X, vector2_2.Y, 0.0f), projection, view, Matrix.Identity);
             Vector3 direction2 =
@@ -58,7 +56,7 @@ namespace Ship_Game
             {
                 playerShip.PlayerShip = false;
                 playerShip.AI.State = AIState.AwaitingOrders;
-                playerShip = (Ship) null;
+                playerShip = null;
             }
             else
             {
@@ -99,11 +97,11 @@ namespace Ship_Game
                 return;
             ShipToView = SelectedShip;
             ShipInfoUIElement.SetShip(SelectedShip); //fbedard: was not updating correctly from shiplist
-            SelectedFleet = (Fleet) null;
+            SelectedFleet = null;
             SelectedShipList.Clear();
-            SelectedItem = (ClickableItemUnderConstruction) null;
-            SelectedSystem = (SolarSystem) null;
-            SelectedPlanet = (Planet) null;
+            SelectedItem = null;
+            SelectedSystem = null;
+            SelectedPlanet = null;
             snappingToShip = true;
             HeightOnSnap = CamHeight;
             CamDestination.Z = 3500f;
@@ -260,7 +258,7 @@ namespace Ship_Game
                 CamPos.X = ShipToView.Center.X;
                 CamPos.Y = ShipToView.Center.Y;
                 CamHeight =
-                    (float) (int) MathHelper.SmoothStep(CamHeight, CamDestination.Z, 0.2f);
+                    (int) MathHelper.SmoothStep(CamHeight, CamDestination.Z, 0.2f);
                 if (CamHeight < minCamHeight)
                     CamHeight = minCamHeight;
             }
@@ -273,16 +271,16 @@ namespace Ship_Game
                     CamDestination.X = ShipToView.Center.X;
                     CamDestination.Y = ShipToView.Center.Y;
                     transitionElapsedTime += elapsedTime;
-                    float amount = (float) Math.Pow((double) transitionElapsedTime / (double) transDuration,
+                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration,
                         0.699999988079071);
                     camTransitionPosition.X =
                         MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
                     float num1 = MathHelper.SmoothStep(CamPos.Y, CamDestination.Y, amount);
                     float num2 = MathHelper.SmoothStep(CamHeight, CamDestination.Z, amount);
                     camTransitionPosition.Y = num1;
-                    CamHeight = (float) (int) num2;
+                    CamHeight = (int) num2;
                     CamPos = camTransitionPosition;
-                    if ((double) AdjustCamTimer - (double) elapsedTime <= 0.0)
+                    if (AdjustCamTimer - (double) elapsedTime <= 0.0)
                     {
                         ViewingShip = true;
                         transitionElapsedTime = 0.0f;
@@ -293,7 +291,7 @@ namespace Ship_Game
                 else
                 {
                     transitionElapsedTime += elapsedTime;
-                    float amount = (float) Math.Pow((double) transitionElapsedTime / (double) transDuration,
+                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration,
                         0.699999988079071);
                     camTransitionPosition.X =
                         MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
@@ -302,10 +300,10 @@ namespace Ship_Game
                     camTransitionPosition.Y = num1;
                     CamHeight = num2;
                     CamPos = camTransitionPosition;
-                    if ((double) transitionElapsedTime > (double) transDuration ||
-                        (double) Vector2.Distance(new Vector2(CamPos.X, CamPos.Y),
+                    if (transitionElapsedTime > (double) transDuration ||
+                        Vector2.Distance(new Vector2(CamPos.X, CamPos.Y),
                             new Vector2(CamDestination.X, CamDestination.Y)) < 50.0 &&
-                        (double) Math.Abs(CamHeight - CamDestination.Z) < 50.0)
+                        Math.Abs(CamHeight - CamDestination.Z) < 50.0)
                     {
                         transitionElapsedTime = 0.0f;
                         AdjustCamTimer = -1f;
@@ -342,7 +340,7 @@ namespace Ship_Game
                 CamPos.Y = UniverseSize;
             if ((double) CamPos.Y < -UniverseSize)
                 CamPos.Y = -UniverseSize;
-            if ((double) CamHeight > (double) MaxCamHeight * (double) GameScale)
+            if (CamHeight > MaxCamHeight * (double) GameScale)
                 CamHeight = MaxCamHeight * GameScale;
             else if (CamHeight < minCamHeight)
                 CamHeight = minCamHeight;

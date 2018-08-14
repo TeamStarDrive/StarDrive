@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -48,7 +47,7 @@ namespace Ship_Game
 			Vector2 textureUpperRight = new Vector2(1f, 0f);
 			Vector2 textureLowerLeft = new Vector2(0f, 1f);
 			Vector2 textureLowerRight = new Vector2(1f, 1f);
-			for (int i = 0; i < (int)Vertices.Length; i++)
+			for (int i = 0; i < Vertices.Length; i++)
 			{
 				Vertices[i].Normal = Normal;
 			}

@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
     {
         private ResearchStrategy res_strat = ResearchStrategy.Scripted;
-        private int ScriptIndex = 0;
+        private int ScriptIndex;
         private int HullScaler = 3;
         private string postResearchTopic = "";
         Ship BestCombatShip;
@@ -146,8 +145,7 @@ namespace Ship_Game.AI {
                     max++;
                 }
             }
-            ScriptedResearch(command, "RANDOM", "TECH" + sendToScript);            
-            return;
+            ScriptedResearch(command, "RANDOM", "TECH" + sendToScript);
         }
 
         private bool ProcessScript(bool atWar, bool highTaxes, bool lowResearch, bool lowincome)
@@ -442,14 +440,14 @@ namespace Ship_Game.AI {
 
                             if (command1 == "CHEAPEST" && currentCost < previousCost)
                             {
-                                DebugLog($"BetterChoice : {researchtopic.ToString()}");
+                                DebugLog($"BetterChoice : {researchtopic}");
                                 researchtopic = Testresearchtopic;
                                 previousCost = currentCost;
                                 CostNormalizer += .005f;
                             }
                             else if (command1 == "EXPENSIVE" && currentCost > previousCost)
                             {
-                                DebugLog($"BetterChoice : {researchtopic.ToString()}");
+                                DebugLog($"BetterChoice : {researchtopic}");
                                 researchtopic = Testresearchtopic;
                                 previousCost = currentCost;
                                 CostNormalizer *= .25f;
@@ -478,11 +476,8 @@ namespace Ship_Game.AI {
 
             if (string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
                 return false;
-            else
-            {
-                postResearchTopic = OwnerEmpire.ResearchTopic;
-                return true;
-            }
+            postResearchTopic = OwnerEmpire.ResearchTopic;
+            return true;
         }
 
         private TechEntry GetScriptedTech(string command1, string techType, Array<TechEntry> availableTechs, float moneyNeeded)

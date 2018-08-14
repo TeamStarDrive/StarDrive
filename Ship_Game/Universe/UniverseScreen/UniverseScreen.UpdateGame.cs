@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -139,14 +138,14 @@ namespace Ship_Game
                 cy = cy > granularity * 2 ? granularity * 2 : cy;
                 cx = cx < 0 ? 0 : cx;
                 cx = cx > granularity * 2 ? granularity * 2 : cx;
-                Vector2 upscale = new Vector2((float) (ocx * reducer),
-                    (float) (ocy * reducer));
+                Vector2 upscale = new Vector2(ocx * reducer,
+                    ocy * reducer);
                 if (Vector2.Distance(upscale, node.Position) < node.Radius)
                     grid[cx, cy] = weight;
                 if (weight > 1 || weight == 0 || node.Radius > empire.ProjectorRadius)
                 {
                     float test = node.Radius > empire.ProjectorRadius ? 1 : 2;
-                    int rad = (int) (Math.Ceiling((double) (node.Radius / ((float) reducer) * test)));
+                    int rad = (int) (Math.Ceiling(node.Radius / reducer * test));
                     //rad--;
 
                     int negx = cx - rad;
@@ -166,8 +165,8 @@ namespace Ship_Game
                     {
                         //if (grid[x, y] >= 80 || grid[x, y] <= weight)
                         {
-                            upscale = new Vector2((float) ((x - granularity) * reducer),
-                                (float) ((y - granularity) * reducer));
+                            upscale = new Vector2((x - granularity) * reducer,
+                                (y - granularity) * reducer);
                             if (Vector2.Distance(upscale, node.Position) <= node.Radius * test)
                                 grid[x, y] = weight;
                         }
@@ -244,7 +243,7 @@ namespace Ship_Game
                 for (int i = 0; i < ClickPlanetList.Count; ++i)
                 {
                     ClickablePlanets local_12 = ClickPlanetList[i];
-                    if (Vector2.Distance(new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y),
+                    if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
                             local_12.ScreenPos) <= local_12.Radius)
                     {
                         flag1 = true;
@@ -269,7 +268,7 @@ namespace Ship_Game
                     for (int local_15 = 0; local_15 < ClickableSystems.Count; ++local_15)
                     {
                         ClickableSystem local_16 = ClickableSystems[local_15];
-                        if (Vector2.Distance(new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y),
+                        if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
                                 local_16.ScreenPos) <= local_16.Radius)
                         {
                             sTooltipTimer -= 0.01666667f;

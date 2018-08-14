@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -24,8 +22,8 @@ namespace Ship_Game
 		{
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/Dan_Progress_Housing"), rect, Color.White);
 			ScreenManager.SpriteBatch.FillRectangle(progressRect, new Color(24, 81, 91));
-			int x = progressRect.X + (int)(Percent * (float)progressRect.Width);
-			Rectangle Mask = new Rectangle(x, progressRect.Y, (int)((1f - Percent) * (float)progressRect.Width), progressRect.Height);
+			int x = progressRect.X + (int)(Percent * progressRect.Width);
+			Rectangle Mask = new Rectangle(x, progressRect.Y, (int)((1f - Percent) * progressRect.Width), progressRect.Height);
 			ScreenManager.SpriteBatch.FillRectangle(Mask, Color.Black);
 		}
 	}

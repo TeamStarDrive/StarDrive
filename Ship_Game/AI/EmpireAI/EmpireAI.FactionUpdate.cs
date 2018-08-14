@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -110,7 +111,7 @@ namespace Ship_Game.AI {
                     {
                         TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                         {
-                            if (task.type != Tasks.MilitaryTask.TaskType.CorsairRaid)
+                            if (task.type != MilitaryTask.TaskType.CorsairRaid)
                             {
                                 return;
                             }
@@ -130,15 +131,15 @@ namespace Ship_Game.AI {
                             {
                                 center = center + ship.Center;
                             }
-                            center = center / (float) OwnerEmpire.GetShips().Count;
+                            center = center / OwnerEmpire.GetShips().Count;
                             IOrderedEnumerable<Planet> sortedList =
                                 from planet in r.Key.GetPlanets()
                                 orderby Vector2.Distance(planet.Center, center)
                                 select planet;
-                            Tasks.MilitaryTask task = new Tasks.MilitaryTask(OwnerEmpire);
-                            task.SetTargetPlanet(sortedList.First<Planet>());
+                            MilitaryTask task = new MilitaryTask(OwnerEmpire);
+                            task.SetTargetPlanet(sortedList.First());
                             task.TaskTimer = 300f;
-                            task.type = Tasks.MilitaryTask.TaskType.CorsairRaid;
+                            task.type = MilitaryTask.TaskType.CorsairRaid;
                             //  lock (GlobalStats.TaskLocker)
                             {
                                 TaskList.Add(task);
@@ -156,7 +157,7 @@ namespace Ship_Game.AI {
             {
                 TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                 {
-                    if (task.type != Tasks.MilitaryTask.TaskType.Exploration)
+                    if (task.type != MilitaryTask.TaskType.Exploration)
                     {
                         task.Evaluate(OwnerEmpire);
                     }

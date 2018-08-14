@@ -1,11 +1,13 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
+using Color = Microsoft.Xna.Framework.Graphics.Color;
+using Point = System.Drawing.Point;
 
 namespace Ship_Game
 {
@@ -138,7 +140,7 @@ namespace Ship_Game
             if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
                 return;
 
-            GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
+            GraphicsDevice.Clear(Color.Black);
             ScreenManager.Draw(gameTime);
             base.Draw(gameTime);
         }
@@ -232,7 +234,7 @@ namespace Ship_Game
 
                 // set form to the center of the primary screen
                 var size = Screen.PrimaryScreen.Bounds.Size;
-                form.Location = new System.Drawing.Point(
+                form.Location = new Point(
                     size.Width / 2 - settings.Width / 2, 
                     size.Height / 2 - settings.Height / 2);
             }

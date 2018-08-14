@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
@@ -138,7 +139,7 @@ namespace Ship_Game.Ships
                 {
                     Projectile projectile = Projectiles[i];
                     if (projectile == null) continue;
-                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
+                    us.DebugWin.DrawCircle(DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
                     //us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
                 }
             }

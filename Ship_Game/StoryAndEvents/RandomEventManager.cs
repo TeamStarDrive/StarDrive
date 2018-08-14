@@ -12,10 +12,6 @@ namespace Ship_Game
     {
         public static RandomEvent ActiveEvent;
 
-        public RandomEventManager()
-        {
-        }
-
         public static void TryEventSpawn()
         {
             if (ActiveEvent != null)

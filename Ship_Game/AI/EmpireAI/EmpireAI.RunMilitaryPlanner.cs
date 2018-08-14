@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace

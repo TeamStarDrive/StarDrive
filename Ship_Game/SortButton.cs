@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -8,14 +7,14 @@ namespace Ship_Game
 	{
 		public string Text;
 
-		public Rectangle rect = new Rectangle();
+		public Rectangle rect;
 
 		public bool Ascending = true;
 
 		public bool Hover;
 
 		public bool Selected;
-        public bool saved =false;
+        public bool saved;
         private SortButton saveButton;
 
 		public SortButton()
@@ -38,7 +37,7 @@ namespace Ship_Game
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 			SpriteFont arial20Bold = Fonts.Arial20Bold;
 			string text = Text;
-			Vector2 vector2 = new Vector2((float)rect.X, (float)rect.Y);
+			Vector2 vector2 = new Vector2(rect.X, rect.Y);
 			if (Selected)
 			{
 				orange = Color.Orange;
@@ -56,7 +55,7 @@ namespace Ship_Game
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 			SpriteFont spriteFont = font;
 			string text = Text;
-			Vector2 vector2 = new Vector2((float)rect.X, (float)rect.Y);
+			Vector2 vector2 = new Vector2(rect.X, rect.Y);
 			if (Selected)
 			{
 				orange = Color.Orange;

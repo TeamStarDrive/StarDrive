@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -335,7 +334,7 @@ namespace Ship_Game.AI.Tasks
                             break;
 
                         Owner.GetFleetsDict()[1].Reset();
-                        foreach (Ship shiptoadd in (Array<Ship>)Owner.GetShips())
+                        foreach (Ship shiptoadd in Owner.GetShips())
                         {
                             if (shiptoadd.shipData.Role != ShipData.RoleName.platform)
                                 Owner.GetFleetsDict()[1].AddShip(shiptoadd);

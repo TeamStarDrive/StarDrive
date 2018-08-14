@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Ship_Game.Gameplay;
+using Ship_Game.AI.Tasks;
+using Ship_Game.Debug;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -221,7 +221,7 @@ namespace Ship_Game.AI
 
         public void Update()
         {
-            Empire.Universe?.DebugWin?.DrawCircle(Debug.DebugModes.AO, Center, Radius, Owner.EmpireColor, 1);
+            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.AO, Center, Radius, Owner.EmpireColor, 1);
             if (OurPlanetsInAo.Length == 0 && Owner != null && PlanetsInAo.Length > 0)
             {
                 OurPlanetsInAo = PlanetsInAo.FilterBy(p => p.Owner == Owner);
@@ -294,7 +294,7 @@ namespace Ship_Game.AI
             {
                 if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)
                 {
-                    var clearArea = new Tasks.MilitaryTask(this);
+                    var clearArea = new MilitaryTask(this);
                     CoreFleet.FleetTask = clearArea;
                     CoreFleet.TaskStep  = 1;
                     if (CoreFleet.Owner == null)

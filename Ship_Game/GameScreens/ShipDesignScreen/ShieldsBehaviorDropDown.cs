@@ -22,7 +22,7 @@ namespace Ship_Game
                         "Shield reactivation delay is affected by crew level and shield complexity.",
 
                         "Shields are completely SHUT DOWN, consume NO power and slowly DISCHARGE during warp. "+
-                        "Shield reactivation delay is TWICE as long.",
+                        "Shield reactivation delay is TWICE as long."
                     }[(int)ActiveValue];
 
                     ToolTip.CreateTooltip(tooltip);
