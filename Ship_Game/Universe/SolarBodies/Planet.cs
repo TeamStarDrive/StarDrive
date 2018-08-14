@@ -1566,6 +1566,7 @@ namespace Ship_Game
             if (building.Maintenance != 0)
             {
                 score += building.Maintenance;
+                score -= Owner.data.FlatMoneyBonus * 0.015f;      //Acceptible loss (Note what this will do at high Difficulty)
 
                 //This is where the logic for how bad the planet is doing will go + the value of this planet to the empire and all that.
                 //For now, just testing with base of just being able to justify its own Maintenance cost
@@ -1998,7 +1999,7 @@ namespace Ship_Game
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
-            if (Name == "Polmar Vg") Debugger.Break();
+            if (Name == "Cordron fV") Debugger.Break();
 
             float buildingValue = 0.0f;    //End result value for entire building
 
@@ -2136,7 +2137,7 @@ namespace Ship_Game
 
         private void ScrapBuildings(float income)
         {
-            if (Name == "Polmar Vh") Debugger.Break();
+            if (Name == "Cordron Vf") Debugger.Break();
 
             float buildingValue = 0.0f;
             float costWeight = 0.0f;
