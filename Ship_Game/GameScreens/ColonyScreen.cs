@@ -778,7 +778,7 @@ namespace Ship_Game
                     var ship = ResourceManager.GetShipTemplate(shipToBuild);
                     var role = ResourceManager.ShipRoles[ship.shipData.Role];
                     var header = Localizer.GetRole(ship.DesignRole, p.Owner);
-                    if (role.Protected || role.NoBuild || ship.shipData.CarrierShip)
+                    if (role.Protected || role.NoBuild )
                         continue;
                     if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
                     {
@@ -811,7 +811,8 @@ namespace Ship_Game
 
                         if (Localizer.GetRole(kv.Value.DesignRole, EmpireManager.Player) != header
                             || kv.Value.Deleted
-                            || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected)
+                            || ResourceManager.ShipRoles[kv.Value.shipData.Role].Protected
+                            || kv.Value.shipData.CarrierShip) 
                         {
                             continue;
                         }
@@ -2316,7 +2317,7 @@ namespace Ship_Game
             }
             this.previousMouse = this.currentMouse; 
             */
-            return false;
+            return base.HandleInput(input);
         }
 
         private void OnSendTroopsClicked(UIButton b)

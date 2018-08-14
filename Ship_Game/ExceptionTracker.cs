@@ -30,7 +30,7 @@ namespace Ship_Game
             string modVersion = null;
                 
             string data ="No Extra Info";
-			if (GlobalStats.ActiveMod != null)
+            if (GlobalStats.ActiveMod != null)
             {
                 mod = GlobalStats.ActiveMod.ModName;
                 if(GlobalStats.ActiveModInfo !=null && !string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version)) // && GlobalStats.ActiveModInfo.Version !="" )
@@ -128,14 +128,12 @@ namespace Ship_Game
             }
             try
             {
-                Log.Error(ex,"Blocking Exception");
-                //xceptionViewer exviewer = new ExceptionViewer();
-                //exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
+                Log.Fatal(ex,"Blocking Exception");
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
-                Log.Error(ex, "Blocking Exception with log.error failure");
+                Log.Fatal(ex, "Blocking Exception with log.error failure");
             }
             Visible = false;
         }

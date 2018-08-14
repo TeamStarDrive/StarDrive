@@ -229,7 +229,7 @@ namespace Ship_Game.AI
                 return false;
             end = route.End;            
 
-            if (Owner.GetCargo(good) <= 0) ;            
+            if (Owner.GetCargo(good) <= 0)
                 start = route.Start;
             
 
