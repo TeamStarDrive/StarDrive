@@ -50,9 +50,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         //private bool FirstRun = true;
 
         private Array<UIButton> ShipsToLoad      = new Array<UIButton>();
-        private readonly Texture2D Delete_Hover2 = ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"];
-        private readonly Texture2D DeleteHover1  = ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"];
-        private readonly Texture2D QueueDelete   = ResourceManager.TextureDict["NewUI/icon_queue_delete"];
+        private readonly Texture2D Delete_Hover2 = ResourceManager.Texture("NewUI/icon_queue_delete_hover2");
+        private readonly Texture2D DeleteHover1  = ResourceManager.Texture("NewUI/icon_queue_delete_hover1");
+        private readonly Texture2D QueueDelete   = ResourceManager.Texture("NewUI/icon_queue_delete");
 
         public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
         {

@@ -38,10 +38,10 @@ namespace Ship_Game
 			spriteBatch.DrawLine(new Vector2((float)this.ListRect.X, (float)(this.ListRect.Y + this.ListRect.Height)), new Vector2((float)(this.ListRect.X + this.ListRect.Width), (float)(this.ListRect.Y + this.ListRect.Height)), Color.DarkBlue);
 			Vector2 cursor = new Vector2((float)(this.ListRect.X + 5), (float)(this.ListRect.Y + this.ListRect.Height / 2 - this.IconSize / 2));
 			this.ArrowRect = new Rectangle((int)cursor.X, (int)cursor.Y, 20, 20);
-			spriteBatch.Draw(ResourceManager.TextureDict["UI/leftArrow"], this.ArrowRect, this.ArrowColor);
+			spriteBatch.Draw(ResourceManager.Texture("UI/leftArrow"), this.ArrowRect, this.ArrowColor);
 			cursor.X = cursor.X + 25f;
 			Rectangle IconRect = new Rectangle((int)cursor.X, (int)cursor.Y, this.IconSize, this.IconSize);
-			spriteBatch.Draw(ResourceManager.TextureDict[this.IconPath], IconRect, this.IconColor);
+			spriteBatch.Draw(ResourceManager.Texture(this.IconPath), IconRect, this.IconColor);
 			cursor.X = cursor.X + 45f;
 			spriteBatch.DrawString(Fonts.Arial12Bold, this.ShipToBuild.Name, cursor, Color.White);
 			cursor.Y = cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;

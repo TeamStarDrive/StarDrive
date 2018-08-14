@@ -33,15 +33,15 @@ namespace Ship_Game
 		{
 			if (!this.ToggleOn)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/button_blue_hover0"], this.Button, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover0"), this.Button, Color.White);
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/button_blue_hover1"], this.Button, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover1"), this.Button, Color.White);
 			}
 			if (this.Hover)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/button_blue_hover2"], this.Button, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), this.Button, Color.White);
 			}
 			if (this.Hover && this.Tip_ID != 0)
 			{
@@ -55,15 +55,15 @@ namespace Ship_Game
 			this.TextPos = new Vector2((float)(b.X + this.Button.Width / 2) - Fonts.Pirulen12.MeasureString(this.Text).X / 2f, (float)(b.Y + this.Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
 			if (!this.ToggleOn)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/button_blue_hover0"], b, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover0"), b, Color.White);
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/button_blue_hover1"], b, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover1"), b, Color.White);
 			}
 			if (this.Hover)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/button_blue_hover2"], b, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), b, Color.White);
 			}
 			if (this.Hover && this.Tip_ID != 0)
 			{

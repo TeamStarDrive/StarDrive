@@ -469,7 +469,7 @@ namespace Ship_Game
             }
             else
             {
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", them.PortraitName)], Portrait, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", them.PortraitName)), Portrait, Color.White);
             }
             HelperFunctions.DrawDropShadowText(base.ScreenManager, them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
             if (dState == DiplomacyScreen.DialogState.Negotiate)
@@ -482,7 +482,7 @@ namespace Ship_Game
                 Rectangle stripe = new Rectangle(0, DialogRect.Y, 1920, R.Height);
                 base.ScreenManager.SpriteBatch.FillRectangle(stripe, new Color(0, 0, 0, 150));
             }
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["GameScreens/Bridge"], BridgeRect, Color.White);
+            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
             foreach (GenericButton taf in TAFButtons)
             {
                 taf.DrawWithShadowCaps(base.ScreenManager);
@@ -491,7 +491,7 @@ namespace Ship_Game
                 {
                     TrustRect.Width = 1;
                 }
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/bw_bargradient_2"], TrustRect, Color.Green);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), TrustRect, Color.Green);
                 AngerRect.Width = (int)them.GetRelations(playerEmpire).TotalAnger;
                 if (AngerRect.Width > 100)
                 {
@@ -501,13 +501,13 @@ namespace Ship_Game
                 {
                     AngerRect.Width = 1;
                 }
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/bw_bargradient_2"], AngerRect, Color.Yellow);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), AngerRect, Color.Yellow);
                 FearRect.Width = (int)them.GetRelations(playerEmpire).Threat;
                 if (FearRect.Width < 1)
                 {
                     FearRect.Width = 1;
                 }
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/bw_bargradient_2"], FearRect, Color.Red);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
             }
             switch (dState)
             {
@@ -592,9 +592,9 @@ namespace Ship_Game
                     {
                         SendOffer.DrawWithShadow(ScreenManager);
                     }
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["GameScreens/Negotiate_Right"], Negotiate_Right, Color.White);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["GameScreens/Negotiate_Left"], Negotiate_Left, Color.White);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["GameScreens/Negotiate_Tone"], ToneContainerRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Right"), Negotiate_Right, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Left"), Negotiate_Left, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Tone"), ToneContainerRect, Color.White);
                     DrawOurItems();
                     DrawTheirItems();
                     OfferTextSL.Draw(ScreenManager.SpriteBatch);
@@ -612,7 +612,7 @@ namespace Ship_Game
                 }
                 case DiplomacyScreen.DialogState.TheirOffer:
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/AcceptReject"], AccRejRect, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
                     text = parseText(TheirText, (float)(DialogRect.Width - 20), Fonts.Consolas18);
                     Position = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     DrawDropShadowText(text, Position, Fonts.Consolas18);
