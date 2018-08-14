@@ -176,7 +176,7 @@ namespace Ship_Game
 			float x = this.CostPos.X;
 			SpriteFont titleFont = this.TitleFont;                
 			float cost = (float)(tech.TechCost) * UniverseScreen.GamePaceStatic;
-			this.CostPos.X = x - titleFont.MeasureString(cost.ToString()).X;
+			this.CostPos.X = x - titleFont.MeasureString(cost.String(1)).X;
 			this.CostPos.X = (float)((int)this.CostPos.X);
 			this.CostPos.Y = (float)((int)this.CostPos.Y - 3);
 		}
@@ -198,13 +198,12 @@ namespace Ship_Game
                     spriteBatch.Draw(complete || flag ? ResourceManager.Texture("ResearchMenu/tech_base_complete") : 
                         ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    var techIcon = ResourceManager.TextureOrNull($"TechIcons/{tech.Tech.IconPath}") 
-                        ?? ResourceManager.Texture($"TechIcons/{tech.UID}");
-                    
+                    var techIcon = ResourceManager.TextureOrDefault("TechIcons/"+tech.Tech.IconPath,
+                                                                    "TechIcons/"+tech.UID);
                     spriteBatch.Draw(techIcon, this.IconRect, Color.White);                    
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.Texture("ResearchMenu/tech_base_title_complete") 
                         : ResourceManager.Texture("ResearchMenu/tech_base_title"), this.TitleRect, Color.White);
-                    string str1 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
+                    string str1 = this.TitleFont.ParseText(this.TechName, this.TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
                     Vector2 vector2_1 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str1).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str1).Y / 2f);
                     int num1 = 0;
@@ -269,7 +268,7 @@ namespace Ship_Game
                         spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + this.tech.UID), this.IconRect, Color.White);
                     }
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), this.TitleRect, Color.White);
-                    string str3 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
+                    string str3 = this.TitleFont.ParseText(this.TechName, this.TitleWidth);
                     string[] strArray3 = Regex.Split(str3, "\n");
                     Vector2 vector2_3 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str3).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str3).Y / 2f);
                     int num5 = 0;
@@ -287,7 +286,7 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle3, Color.White);
                     break;
             }
-            spriteBatch.DrawString(this.TitleFont, ((float)(int)EmpireManager.Player.GetTDict()[this.tech.UID].TechCost).ToString(), this.CostPos, Color.White);
+            spriteBatch.DrawString(this.TitleFont, ((float)(int)EmpireManager.Player.GetTDict()[this.tech.UID].TechCost).String(1), this.CostPos, Color.White);
         }
 
 		public void DrawGlow(Ship_Game.ScreenManager ScreenManager) 
