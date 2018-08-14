@@ -376,21 +376,21 @@ namespace Ship_Game
         
         public void ContactLeader(object sender)
         {
-            if (this.SelectedShip == null)
+            if (SelectedShip == null)
                 return;
-            if (this.SelectedShip.loyalty.isFaction)
+            if (SelectedShip.loyalty.isFaction)
             {
                 foreach (Encounter e in ResourceManager.Encounters)
                 {
-                    if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
+                    if (SelectedShip.loyalty.data.Traits.Name == e.Faction && player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
                     {
-                        this.ScreenManager.AddScreen(new EncounterPopup(this, player, this.SelectedShip.loyalty, (SolarSystem)null, e));
+                        ScreenManager.AddScreen(new EncounterPopup(this, player, SelectedShip.loyalty, (SolarSystem)null, e));
                         break;
                     }
                 }
             }
             else
-                this.ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, this.player, "Greeting"));
+                ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, player, "Greeting"));
         }
 
         private void CreateProjectionMatrix()

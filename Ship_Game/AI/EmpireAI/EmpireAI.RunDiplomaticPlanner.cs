@@ -45,8 +45,8 @@ namespace Ship_Game.AI {
 
         private void DoPacifistRelations()
         {
-            this.AssessTeritorialConflicts(this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 50f);
-            foreach (KeyValuePair<Empire, Relationship> Relationship in this.OwnerEmpire.AllRelations)
+            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 50f);
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (Relationship.Value.Known && !Relationship.Key.isFaction && !Relationship.Key.data.Defeated)
                 {
@@ -56,7 +56,7 @@ namespace Ship_Game.AI {
                     switch (Relationship.Value.Posture)
                     {
                         case Posture.Friendly:
-                            if (Relationship.Value.TurnsKnown > this.SecondDemand && !Relationship.Value.Treaty_Trade &&
+                            if (Relationship.Value.TurnsKnown > SecondDemand && !Relationship.Value.Treaty_Trade &&
                                 (!Relationship.Value.HaveRejected_TRADE &&
                                  Relationship.Value.Trust - usedTrust >
                                  OwnerEmpire.data.DiplomaticPersonality.Trade) &&
@@ -78,9 +78,9 @@ namespace Ship_Game.AI {
                                         Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
-                            this.AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust);
+                            AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust);
                             if (Relationship.Value.TurnsAbove95 > 100 &&
                                 Relationship.Value.turnsSinceLastContact > 10 &&
                                 (!Relationship.Value.Treaty_Alliance && Relationship.Value.Treaty_Trade) &&
@@ -96,7 +96,7 @@ namespace Ship_Game.AI {
                                     (Action<bool>) (x =>
                                     {
                                         r.HaveRejected_Alliance = x;
-                                        this.SetAlliance(!r.HaveRejected_Alliance);
+                                        SetAlliance(!r.HaveRejected_Alliance);
                                     }));
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
@@ -109,14 +109,14 @@ namespace Ship_Game.AI {
                                 else
                                 {
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                                     continue;
                                 }
                             }
                             else
                                 continue;
                         case Posture.Neutral:
-                            if (Relationship.Value.TurnsKnown == this.FirstDemand && !Relationship.Value.Treaty_NAPact)
+                            if (Relationship.Value.TurnsKnown == FirstDemand && !Relationship.Value.Treaty_NAPact)
                             {
                                 Offer offer1 = new Offer();
                                 offer1.NAPact = true;
@@ -133,14 +133,14 @@ namespace Ship_Game.AI {
                                         Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
-                            if (Relationship.Value.TurnsKnown > this.FirstDemand && Relationship.Value.Treaty_NAPact)
+                            if (Relationship.Value.TurnsKnown > FirstDemand && Relationship.Value.Treaty_NAPact)
                                 Relationship.Value.Posture = Posture.Friendly;
-                            else if (Relationship.Value.TurnsKnown > this.FirstDemand &&
+                            else if (Relationship.Value.TurnsKnown > FirstDemand &&
                                      Relationship.Value.HaveRejectedNapact)
                                 Relationship.Value.Posture = Posture.Neutral;
-                            this.AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust);
+                            AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust);
                             if (Relationship.Value.Trust > 50f && Relationship.Value.TotalAnger < 10)
                             {
                                 Relationship.Value.Posture = Posture.Friendly;
@@ -152,7 +152,7 @@ namespace Ship_Game.AI {
                             if (Relationship.Value.ActiveWar != null)
                             {
                                 Array<Empire> list = new Array<Empire>();
-                                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.OwnerEmpire.AllRelations)
+                                foreach (KeyValuePair<Empire, Relationship> keyValuePair in OwnerEmpire.AllRelations)
                                 {
                                     if (keyValuePair.Value.Treaty_Alliance &&
                                         keyValuePair.Key.GetRelations(Relationship.Key).Known &&
@@ -162,9 +162,9 @@ namespace Ship_Game.AI {
                                 foreach (Empire Ally in list)
                                 {
                                     if (!Relationship.Value.ActiveWar.AlliesCalled.Contains(Ally.data.Traits.Name) &&
-                                        this.OwnerEmpire.GetRelations(Ally).turnsSinceLastContact > 10)
+                                        OwnerEmpire.GetRelations(Ally).turnsSinceLastContact > 10)
                                     {
-                                        this.CallAllyToWar(Ally, Relationship.Key);
+                                        CallAllyToWar(Ally, Relationship.Key);
                                         Relationship.Value.ActiveWar.AlliesCalled.Add(Ally.data.Traits.Name);
                                     }
                                 }
@@ -175,19 +175,19 @@ namespace Ship_Game.AI {
                                         case WarType.BorderConflict:
                                             if ((Relationship.Value.Anger_FromShipsInOurBorders +
                                                  Relationship.Value.Anger_TerritorialConflict) >
-                                                (float) this.OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                                                (float) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
                                                 return;
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {
                                                 case WarState.WinningSlightly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR");
                                                     continue;
                                                 case WarState.Dominating:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_WINNINGBC");
+                                                    OfferPeace(Relationship, "OFFERPEACE_WINNINGBC");
                                                     continue;
                                                 case WarState.LosingSlightly:
                                                 case WarState.LosingBadly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_LOSINGBC");
+                                                    OfferPeace(Relationship, "OFFERPEACE_LOSINGBC");
                                                     continue;
                                                 default:
                                                     continue;
@@ -196,17 +196,17 @@ namespace Ship_Game.AI {
                                             switch (Relationship.Value.ActiveWar.GetWarScoreState())
                                             {
                                                 case WarState.WinningSlightly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR");
                                                     continue;
                                                 case WarState.Dominating:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
                                                     continue;
                                                 case WarState.EvenlyMatched:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
+                                                    OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
                                                     continue;
                                                 case WarState.LosingSlightly:
                                                 case WarState.LosingBadly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_PLEADING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_PLEADING");
                                                     continue;
                                                 default:
                                                     continue;
@@ -215,17 +215,17 @@ namespace Ship_Game.AI {
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {
                                                 case WarState.WinningSlightly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR");
                                                     continue;
                                                 case WarState.Dominating:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
                                                     continue;
                                                 case WarState.EvenlyMatched:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
+                                                    OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
                                                     continue;
                                                 case WarState.LosingSlightly:
                                                 case WarState.LosingBadly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_PLEADING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_PLEADING");
                                                     continue;
                                                 default:
                                                     continue;
@@ -248,10 +248,10 @@ namespace Ship_Game.AI {
 
         private void DoRuthlessRelations()
         {
-            this.AssessTeritorialConflicts(this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
+            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
             int numberofWars = 0;
             Array<Empire> PotentialTargets = new Array<Empire>();
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.AtWar || Relationship.Key.data.Defeated)
                 {
@@ -260,7 +260,7 @@ namespace Ship_Game.AI {
                 numberofWars += (int) Relationship.Key.currentMilitaryStrength * 2; //++;
             }
             //Label0:
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
                 {
@@ -277,7 +277,7 @@ namespace Ship_Game.AI {
                         AcceptDL = "Trade Accepted",
                         RejectDL = "Trade Rejected"
                     };
-                    Ship_Game.Gameplay.Relationship value = Relationship.Value;
+                    Relationship value = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
                         (bool x) => value.HaveRejected_TRADE = x);
                     Offer OurOffer = new Offer()
@@ -285,14 +285,14 @@ namespace Ship_Game.AI {
                         TradeTreaty = true
                     };
                     Relationship.Key.GetGSAI()
-                        .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Respectful);
+                        .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                 }
                 float usedTrust = 0f;
                 foreach (TrustEntry te in Relationship.Value.TrustEntries)
                 {
                     usedTrust = usedTrust + te.TrustCost;
                 }
-                this.AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
+                AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
                 Relationship.Value.Posture = Posture.Hostile;
                 if (!Relationship.Value.Known || Relationship.Value.AtWar)
                 {
@@ -300,16 +300,16 @@ namespace Ship_Game.AI {
                 }
                 Relationship.Value.Posture = Posture.Hostile;
                 if (Relationship.Key == Empire.Universe.PlayerEmpire && Relationship.Value.Threat <= -15f &&
-                    !Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > this.FirstDemand)
+                    !Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > FirstDemand)
                 {
                     Relationship.Value.HaveInsulted_Military = true;
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Insult Military"));
                 }
-                if (Relationship.Value.Threat > 0f || Relationship.Value.TurnsKnown <= this.SecondDemand ||
+                if (Relationship.Value.Threat > 0f || Relationship.Value.TurnsKnown <= SecondDemand ||
                     Relationship.Value.Treaty_Alliance)
                 {
-                    if (Relationship.Value.Threat > -45f || numberofWars > this.OwnerEmpire.currentMilitaryStrength) //!= 0)
+                    if (Relationship.Value.Threat > -45f || numberofWars > OwnerEmpire.currentMilitaryStrength) //!= 0)
                     {
                         continue;
                     }
@@ -339,35 +339,35 @@ namespace Ship_Game.AI {
 
                 }
             }
-            if (PotentialTargets.Count > 0 && numberofWars <= this.OwnerEmpire.currentMilitaryStrength) //1)
+            if (PotentialTargets.Count > 0 && numberofWars <= OwnerEmpire.currentMilitaryStrength) //1)
             {
                 IOrderedEnumerable<Empire> sortedList =
                     from target in PotentialTargets
-                    orderby Vector2.Distance(this.OwnerEmpire.GetWeightedCenter(), target.GetWeightedCenter())
+                    orderby Vector2.Distance(OwnerEmpire.GetWeightedCenter(), target.GetWeightedCenter())
                     select target;
                 bool foundwar = false;
                 foreach (Empire e in PotentialTargets)
                 {
                     Empire ToAttack = e;
-                    if (this.OwnerEmpire.GetRelations(e).Treaty_NAPact)
+                    if (OwnerEmpire.GetRelations(e).Treaty_NAPact)
                     {
                         continue;
                     }
-                    this.OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
+                    OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
                     foundwar = true;
                 }
                 if (!foundwar)
                 {
                     Empire ToAttack = sortedList.First<Empire>();
-                    this.OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
+                    OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
                 }
             }
         }
 
         private void DoXenophobicRelations()
         {
-            this.AssessTeritorialConflicts(this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in OwnerEmpire.AllRelations)
+            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
                 {
@@ -378,7 +378,7 @@ namespace Ship_Game.AI {
                 {
                     usedTrust = usedTrust + te.TrustCost;
                 }
-                this.AssessDiplomaticAnger(Relationship);
+                AssessDiplomaticAnger(Relationship);
                 switch (Relationship.Value.Posture)
                 {
                     case Posture.Friendly:
@@ -386,7 +386,7 @@ namespace Ship_Game.AI {
                         if (Relationship.Value.TurnsKnown <= SecondDemand ||
                             Relationship.Value.Trust - usedTrust <= OwnerEmpire.data.DiplomaticPersonality.Trade ||
                             Relationship.Value.Treaty_Trade || Relationship.Value.HaveRejected_TRADE ||
-                            Relationship.Value.turnsSinceLastContact <= this.SecondDemand ||
+                            Relationship.Value.turnsSinceLastContact <= SecondDemand ||
                             Relationship.Value.HaveRejected_TRADE)
                         {
                             continue;
@@ -397,7 +397,7 @@ namespace Ship_Game.AI {
                             AcceptDL = "Trade Accepted",
                             RejectDL = "Trade Rejected"
                         };
-                        Ship_Game.Gameplay.Relationship value = Relationship.Value;
+                        Relationship value = Relationship.Value;
                         NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
                             (bool x) => value.HaveRejected_TRADE = x);
                         Offer OurOffer = new Offer()
@@ -407,7 +407,7 @@ namespace Ship_Game.AI {
                         if (Relationship.Key != Empire.Universe.PlayerEmpire)
                         {
                             Relationship.Key.GetGSAI()
-                                .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                             continue;
                         }
                         else
@@ -419,14 +419,14 @@ namespace Ship_Game.AI {
                     }
                     case Posture.Neutral:
                     {
-                        if (Relationship.Value.TurnsKnown >= this.FirstDemand && !Relationship.Value.Treaty_NAPact &&
+                        if (Relationship.Value.TurnsKnown >= FirstDemand && !Relationship.Value.Treaty_NAPact &&
                             !Relationship.Value.HaveRejectedDemandTech && !Relationship.Value.XenoDemandedTech)
                         {
                             Array<string> PotentialDemands = new Array<string>();
                             foreach (KeyValuePair<string, TechEntry> tech in Relationship.Key.GetTDict())
                             {
                                 //Added by McShooterz: prevent root nodes from being demanded, and secret but not discovered
-                                if (!tech.Value.Unlocked || this.OwnerEmpire.GetTDict()[tech.Key].Unlocked ||
+                                if (!tech.Value.Unlocked || OwnerEmpire.GetTDict()[tech.Key].Unlocked ||
                                     tech.Value.Tech.RootNode == 1 ||
                                     (tech.Value.Tech.Secret && !tech.Value.Tech.Discovered))
                                 {
@@ -450,14 +450,14 @@ namespace Ship_Game.AI {
                                     AcceptDL = "Xeno Demand Tech Accepted",
                                     RejectDL = "Xeno Demand Tech Rejected"
                                 };
-                                Ship_Game.Gameplay.Relationship relationship = Relationship.Value;
+                                Relationship relationship = Relationship.Value;
                                 TheirDemand.ValueToModify = new Ref<bool>(() => relationship.HaveRejectedDemandTech,
                                     (bool x) => relationship.HaveRejectedDemandTech = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 if (Relationship.Key != Empire.Universe.PlayerEmpire)
                                 {
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(DemandTech, TheirDemand, this.OwnerEmpire, Offer.Attitude.Threaten);
+                                        .AnalyzeOffer(DemandTech, TheirDemand, OwnerEmpire, Offer.Attitude.Threaten);
                                 }
                                 else
                                 {
@@ -485,7 +485,7 @@ namespace Ship_Game.AI {
         {
             int numberofWars = 0;
             Array<Empire> PotentialTargets = new Array<Empire>();
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (Relationship.Key.data.Defeated || !Relationship.Value.AtWar && !Relationship.Value.PreparingForWar)
                 {
@@ -494,8 +494,8 @@ namespace Ship_Game.AI {
                 //numberofWars++;
                 numberofWars += (int) Relationship.Key.currentMilitaryStrength;
             }
-            this.AssessTeritorialConflicts(this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.OwnerEmpire.AllRelations)
+            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (!Relationship.Value.Known || Relationship.Value.AtWar || Relationship.Key.isFaction ||
                     Relationship.Key.data.Defeated)
@@ -514,7 +514,7 @@ namespace Ship_Game.AI {
                         AcceptDL = "Trade Accepted",
                         RejectDL = "Trade Rejected"
                     };
-                    Ship_Game.Gameplay.Relationship value = Relationship.Value;
+                    Relationship value = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
                         (bool x) => value.HaveRejected_TRADE = x);
                     Offer OurOffer = new Offer()
@@ -522,7 +522,7 @@ namespace Ship_Game.AI {
                         TradeTreaty = true
                     };
                     Relationship.Key.GetGSAI()
-                        .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Respectful);
+                        .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                 }
                 float usedTrust = 0f;
                 foreach (TrustEntry te in Relationship.Value.TrustEntries)
@@ -532,7 +532,7 @@ namespace Ship_Game.AI {
                 Relationship.Value.Posture = Posture.Neutral;
                 if (Relationship.Value.Threat <= 0f)
                 {
-                    if (!Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > this.FirstDemand)
+                    if (!Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > FirstDemand)
                     {
                         Relationship.Value.HaveInsulted_Military = true;
                         if (Relationship.Key == Empire.Universe.PlayerEmpire)
@@ -543,15 +543,15 @@ namespace Ship_Game.AI {
                     }
                     Relationship.Value.Posture = Posture.Hostile;
                 }
-                else if (Relationship.Value.Threat > 25f && Relationship.Value.TurnsKnown > this.FirstDemand)
+                else if (Relationship.Value.Threat > 25f && Relationship.Value.TurnsKnown > FirstDemand)
                 {
                     if (!Relationship.Value.HaveComplimented_Military && Relationship.Value.HaveInsulted_Military &&
-                        Relationship.Value.TurnsKnown > this.FirstDemand &&
+                        Relationship.Value.TurnsKnown > FirstDemand &&
                         Relationship.Key == Empire.Universe.PlayerEmpire)
                     {
                         Relationship.Value.HaveComplimented_Military = true;
                         if (!Relationship.Value.HaveInsulted_Military ||
-                            Relationship.Value.TurnsKnown <= this.SecondDemand)
+                            Relationship.Value.TurnsKnown <= SecondDemand)
                         {
                             Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                                 Empire.Universe.PlayerEmpire, "Compliment Military"));
@@ -568,9 +568,9 @@ namespace Ship_Game.AI {
                 {
                     case Posture.Friendly:
                     {
-                        if (Relationship.Value.TurnsKnown > this.SecondDemand &&
+                        if (Relationship.Value.TurnsKnown > SecondDemand &&
                             Relationship.Value.Trust - usedTrust >
-                            (float) this.OwnerEmpire.data.DiplomaticPersonality.Trade &&
+                            (float) OwnerEmpire.data.DiplomaticPersonality.Trade &&
                             !Relationship.Value.HaveRejected_TRADE && !Relationship.Value.Treaty_Trade)
                         {
                             Offer NAPactOffer = new Offer()
@@ -579,7 +579,7 @@ namespace Ship_Game.AI {
                                 AcceptDL = "Trade Accepted",
                                 RejectDL = "Trade Rejected"
                             };
-                            Ship_Game.Gameplay.Relationship relationship = Relationship.Value;
+                            Relationship relationship = Relationship.Value;
                             NAPactOffer.ValueToModify = new Ref<bool>(() => relationship.HaveRejected_TRADE,
                                 (bool x) => relationship.HaveRejected_TRADE = x);
                             Offer OurOffer = new Offer()
@@ -589,7 +589,7 @@ namespace Ship_Game.AI {
                             if (Relationship.Key != Empire.Universe.PlayerEmpire)
                             {
                                 Relationship.Key.GetGSAI()
-                                    .AnalyzeOffer(OurOffer, NAPactOffer, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                    .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                             else
                             {
@@ -597,7 +597,7 @@ namespace Ship_Game.AI {
                                     Empire.Universe.PlayerEmpire, "Offer Trade", OurOffer, NAPactOffer));
                             }
                         }
-                        this.AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
+                        AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
                         if (Relationship.Value.TurnsAbove95 <= 100 || Relationship.Value.turnsSinceLastContact <= 10 ||
                             Relationship.Value.Treaty_Alliance || !Relationship.Value.Treaty_Trade ||
                             !Relationship.Value.Treaty_NAPact || Relationship.Value.HaveRejected_Alliance ||
@@ -611,17 +611,17 @@ namespace Ship_Game.AI {
                             AcceptDL = "ALLIANCE_ACCEPTED",
                             RejectDL = "ALLIANCE_REJECTED"
                         };
-                        Ship_Game.Gameplay.Relationship value1 = Relationship.Value;
+                        Relationship value1 = Relationship.Value;
                         OfferAlliance.ValueToModify = new Ref<bool>(() => value1.HaveRejected_Alliance, (bool x) =>
                         {
                             value1.HaveRejected_Alliance = x;
-                            this.SetAlliance(!value1.HaveRejected_Alliance);
+                            SetAlliance(!value1.HaveRejected_Alliance);
                         });
                         Offer OurOffer0 = new Offer();
                         if (Relationship.Key != Empire.Universe.PlayerEmpire)
                         {
                             Relationship.Key.GetGSAI()
-                                .AnalyzeOffer(OurOffer0, OfferAlliance, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                .AnalyzeOffer(OurOffer0, OfferAlliance, OwnerEmpire, Offer.Attitude.Respectful);
                             continue;
                         }
                         else
@@ -633,12 +633,12 @@ namespace Ship_Game.AI {
                     }
                     case Posture.Neutral:
                     {
-                        this.AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
+                        AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
                         continue;
                     }
                     case Posture.Hostile:
                     {
-                        if (Relationship.Value.Threat < -15f && Relationship.Value.TurnsKnown > this.SecondDemand &&
+                        if (Relationship.Value.Threat < -15f && Relationship.Value.TurnsKnown > SecondDemand &&
                             !Relationship.Value.Treaty_Alliance)
                         {
                             if (Relationship.Value.TotalAnger < 75f)
@@ -646,11 +646,11 @@ namespace Ship_Game.AI {
                                 int i = 0;
                                 while (i < 5)
                                 {
-                                    if (i >= this.DesiredPlanets.Length)
+                                    if (i >= DesiredPlanets.Length)
                                     {
                                         break;
                                     }
-                                    if (this.DesiredPlanets[i].Owner != Relationship.Key)
+                                    if (DesiredPlanets[i].Owner != Relationship.Key)
                                     {
                                         i++;
                                     }
@@ -671,7 +671,7 @@ namespace Ship_Game.AI {
                             PotentialTargets.Add(Relationship.Key);
                         }
                         //Label0:
-                        this.AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
+                        AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
                         continue;
                     }
                     default:
@@ -680,22 +680,22 @@ namespace Ship_Game.AI {
                     }
                 }
             }
-            if (PotentialTargets.Count > 0 && numberofWars * 2 < this.OwnerEmpire.currentMilitaryStrength) //<= 1)
+            if (PotentialTargets.Count > 0 && numberofWars * 2 < OwnerEmpire.currentMilitaryStrength) //<= 1)
             {
                 Empire ToAttack = PotentialTargets.First<Empire>();
-                this.OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
+                OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
             }
         }
 
         private void DoCunningRelations()
         {
-            this.DoHonorableRelations();
+            DoHonorableRelations();
         }
 
         private void DoHonorableRelations()
         {
-            this.AssessTeritorialConflicts(this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach (KeyValuePair<Empire, Relationship> Relationship in this.OwnerEmpire.AllRelations)
+            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
             {
                 if (Relationship.Value.Known && !Relationship.Key.isFaction && !Relationship.Key.data.Defeated)
                 {
@@ -705,10 +705,10 @@ namespace Ship_Game.AI {
                             float usedTrust1 = 0.0f;
                             foreach (TrustEntry trustEntry in (Array<TrustEntry>) Relationship.Value.TrustEntries)
                                 usedTrust1 += trustEntry.TrustCost;
-                            if (Relationship.Value.TurnsKnown > this.SecondDemand &&
+                            if (Relationship.Value.TurnsKnown > SecondDemand &&
                                 (double) Relationship.Value.Trust - (double) usedTrust1 >
-                                (double) this.OwnerEmpire.data.DiplomaticPersonality.Trade &&
-                                (Relationship.Value.turnsSinceLastContact > this.SecondDemand &&
+                                (double) OwnerEmpire.data.DiplomaticPersonality.Trade &&
+                                (Relationship.Value.turnsSinceLastContact > SecondDemand &&
                                  !Relationship.Value.Treaty_Trade) && !Relationship.Value.HaveRejected_TRADE)
                             {
                                 Offer offer1 = new Offer();
@@ -725,9 +725,9 @@ namespace Ship_Game.AI {
                                         Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
-                            this.AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust1);
+                            AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust1);
                             if (Relationship.Value.TurnsAbove95 > 100 &&
                                 Relationship.Value.turnsSinceLastContact > 10 &&
                                 (!Relationship.Value.Treaty_Alliance && Relationship.Value.Treaty_Trade) &&
@@ -743,7 +743,7 @@ namespace Ship_Game.AI {
                                     (Action<bool>) (x =>
                                     {
                                         r.HaveRejected_Alliance = x;
-                                        this.SetAlliance(!r.HaveRejected_Alliance);
+                                        SetAlliance(!r.HaveRejected_Alliance);
                                     }));
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
@@ -756,14 +756,14 @@ namespace Ship_Game.AI {
                                 else
                                 {
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                                     continue;
                                 }
                             }
                             else
                                 continue;
                         case Posture.Neutral:
-                            if (Relationship.Value.TurnsKnown == this.FirstDemand && !Relationship.Value.Treaty_NAPact)
+                            if (Relationship.Value.TurnsKnown == FirstDemand && !Relationship.Value.Treaty_NAPact)
                             {
                                 Offer offer1 = new Offer();
                                 offer1.NAPact = true;
@@ -781,23 +781,23 @@ namespace Ship_Game.AI {
                                         offer1));
                                 else
                                     Relationship.Key.GetGSAI()
-                                        .AnalyzeOffer(offer2, offer1, this.OwnerEmpire, Offer.Attitude.Respectful);
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
-                            if (Relationship.Value.TurnsKnown > this.FirstDemand && Relationship.Value.Treaty_NAPact)
+                            if (Relationship.Value.TurnsKnown > FirstDemand && Relationship.Value.Treaty_NAPact)
                                 Relationship.Value.Posture = Posture.Friendly;
-                            else if (Relationship.Value.TurnsKnown > this.FirstDemand &&
+                            else if (Relationship.Value.TurnsKnown > FirstDemand &&
                                      Relationship.Value.HaveRejectedNapact)
                                 Relationship.Value.Posture = Posture.Neutral;
                             float usedTrust2 = 0.0f;
                             foreach (TrustEntry trustEntry in (Array<TrustEntry>) Relationship.Value.TrustEntries)
                                 usedTrust2 += trustEntry.TrustCost;
-                            this.AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust2);
+                            AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust2);
                             continue;
                         case Posture.Hostile:
                             if (Relationship.Value.ActiveWar != null)
                             {
                                 Array<Empire> list = new Array<Empire>();
-                                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.OwnerEmpire.AllRelations)
+                                foreach (KeyValuePair<Empire, Relationship> keyValuePair in OwnerEmpire.AllRelations)
                                 {
                                     if (keyValuePair.Value.Treaty_Alliance &&
                                         keyValuePair.Key.GetRelations(Relationship.Key).Known &&
@@ -807,9 +807,9 @@ namespace Ship_Game.AI {
                                 foreach (Empire Ally in list)
                                 {
                                     if (!Relationship.Value.ActiveWar.AlliesCalled.Contains(Ally.data.Traits.Name) &&
-                                        this.OwnerEmpire.GetRelations(Ally).turnsSinceLastContact > 10)
+                                        OwnerEmpire.GetRelations(Ally).turnsSinceLastContact > 10)
                                     {
-                                        this.CallAllyToWar(Ally, Relationship.Key);
+                                        CallAllyToWar(Ally, Relationship.Key);
                                         Relationship.Value.ActiveWar.AlliesCalled.Add(Ally.data.Traits.Name);
                                     }
                                 }
@@ -820,19 +820,19 @@ namespace Ship_Game.AI {
                                         case WarType.BorderConflict:
                                             if ((double) (Relationship.Value.Anger_FromShipsInOurBorders +
                                                           Relationship.Value.Anger_TerritorialConflict) >
-                                                (double) this.OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                                                (double) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
                                                 return;
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {
                                                 case WarState.WinningSlightly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR");
                                                     continue;
                                                 case WarState.Dominating:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_WINNINGBC");
+                                                    OfferPeace(Relationship, "OFFERPEACE_WINNINGBC");
                                                     continue;
                                                 case WarState.LosingSlightly:
                                                 case WarState.LosingBadly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_LOSINGBC");
+                                                    OfferPeace(Relationship, "OFFERPEACE_LOSINGBC");
                                                     continue;
                                                 default:
                                                     continue;
@@ -841,17 +841,17 @@ namespace Ship_Game.AI {
                                             switch (Relationship.Value.ActiveWar.GetWarScoreState())
                                             {
                                                 case WarState.WinningSlightly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR");
                                                     continue;
                                                 case WarState.Dominating:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
                                                     continue;
                                                 case WarState.EvenlyMatched:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
+                                                    OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
                                                     continue;
                                                 case WarState.LosingSlightly:
                                                 case WarState.LosingBadly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_PLEADING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_PLEADING");
                                                     continue;
                                                 default:
                                                     continue;
@@ -860,17 +860,17 @@ namespace Ship_Game.AI {
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {
                                                 case WarState.WinningSlightly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR");
                                                     continue;
                                                 case WarState.Dominating:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_FAIR_WINNING");
                                                     continue;
                                                 case WarState.EvenlyMatched:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
+                                                    OfferPeace(Relationship, "OFFERPEACE_EVENLY_MATCHED");
                                                     continue;
                                                 case WarState.LosingSlightly:
                                                 case WarState.LosingBadly:
-                                                    this.OfferPeace(Relationship, "OFFERPEACE_PLEADING");
+                                                    OfferPeace(Relationship, "OFFERPEACE_PLEADING");
                                                     continue;
                                                 default:
                                                     continue;
@@ -884,7 +884,7 @@ namespace Ship_Game.AI {
                             }
                             else
                             {
-                                this.AssessAngerPacifist(Relationship, Posture.Hostile, 100f);
+                                AssessAngerPacifist(Relationship, Posture.Hostile, 100f);
                                 continue;
                             }
                         default:
@@ -898,7 +898,7 @@ namespace Ship_Game.AI {
         {
 
             weight *= .1f;
-            foreach (SystemCommander CheckBorders in this.DefensiveCoordinator.DefenseDict.Values)
+            foreach (SystemCommander CheckBorders in DefensiveCoordinator.DefenseDict.Values)
             {
 
                 if (CheckBorders.RankImportance > 5)
@@ -915,12 +915,12 @@ namespace Ship_Game.AI {
                                 continue;
                             Relationship check = null;
 
-                            if (this.OwnerEmpire.TryGetRelations(enemy, out check))
+                            if (OwnerEmpire.TryGetRelations(enemy, out check))
                             {
                                 if (!check.Known || check.Treaty_Alliance)
                                     continue;
 
-                                weight *= (this.OwnerEmpire.currentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (this.OwnerEmpire.currentMilitaryStrength + 1);
+                                weight *= (OwnerEmpire.currentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (OwnerEmpire.currentMilitaryStrength + 1);
 
                                 if (check.Treaty_OpenBorders)
                                 {

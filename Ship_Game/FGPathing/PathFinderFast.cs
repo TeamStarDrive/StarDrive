@@ -38,7 +38,7 @@ namespace Algorithms
         #endregion
 
         #region Win32APIs
-        [System.Runtime.InteropServices.DllImport("KERNEL32.DLL", EntryPoint="RtlZeroMemory")]
+        [DllImport("KERNEL32.DLL", EntryPoint="RtlZeroMemory")]
         public unsafe static extern bool ZeroMemory(byte* destination, int length);
         #endregion
 

@@ -16,23 +16,23 @@ namespace Ship_Game
 
 		public EncounterScreen(UniverseScreen screen, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(screen)
 		{
-			this.encounter = e;
-			this.encounter.CurrentMessage = 0;
-			this.encounter.SetPlayerEmpire(playerEmpire);
-			this.encounter.SetSys(tarSys);
-			this.encounter.SetTarEmp(targetEmp);
+			encounter = e;
+			encounter.CurrentMessage = 0;
+			encounter.SetPlayerEmpire(playerEmpire);
+			encounter.SetSys(tarSys);
+			encounter.SetTarEmp(targetEmp);
 			this.screen = screen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+			IsPopup = true;
+			TransitionOnTime = TimeSpan.FromSeconds(0.25);
+			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
 		public override void Draw(SpriteBatch batch)
 		{
-			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-			base.ScreenManager.SpriteBatch.Begin();
-			this.encounter.Draw(base.ScreenManager);
-			base.ScreenManager.SpriteBatch.End();
+			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+			ScreenManager.SpriteBatch.Begin();
+			encounter.Draw(ScreenManager);
+			ScreenManager.SpriteBatch.End();
 		}
 
 		public override void ExitScreen()
@@ -42,7 +42,7 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			this.encounter.HandleInput(input, this);
+			encounter.HandleInput(input, this);
 			return base.HandleInput(input);
 		}
 

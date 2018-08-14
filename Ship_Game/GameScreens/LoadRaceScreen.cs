@@ -23,7 +23,7 @@ namespace Ship_Game
             {
                 GameAudio.PlaySfxAsync("UI_Misc20");
             }
-            this.ExitScreen();
+            ExitScreen();
         }
 
         protected override void InitSaveList()        // Set list of files to show

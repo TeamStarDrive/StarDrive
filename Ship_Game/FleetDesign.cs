@@ -61,7 +61,7 @@ namespace Ship_Game
 
         public void Rotate(float facing)
         {
-            foreach (FleetDataNode node in this.Data)
+            foreach (FleetDataNode node in Data)
             {
                 float angle = Math.Abs(Vector2.Zero.AngleToTarget(node.FleetOffset)) + MathHelper.ToDegrees(facing);
                 angle = angle.ToRadians();

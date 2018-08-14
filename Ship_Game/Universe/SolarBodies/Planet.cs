@@ -150,12 +150,12 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
         public float GrossMoneyPT;
         public float GrossIncome =>
-                    (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
-                    + this.PlusFlatMoneyPerTurn + (this.Population / 1000 * this.PlusCreditsPerColonist);
+                    (GrossMoneyPT + GrossMoneyPT * (float)Owner?.data.Traits.TaxMod) * (float)Owner?.data.TaxRate
+                    + PlusFlatMoneyPerTurn + (Population / 1000 * PlusCreditsPerColonist);
         public float GrossUpkeep =>
-                    (float)((double)this.TotalMaintenanceCostsPerTurn + (double)this.TotalMaintenanceCostsPerTurn
-                    * (double)this.Owner?.data.Traits.MaintMod);
-        public float NetIncome => this.GrossIncome - this.GrossUpkeep;
+                    (float)((double)TotalMaintenanceCostsPerTurn + (double)TotalMaintenanceCostsPerTurn
+                    * (double)Owner?.data.Traits.MaintMod);
+        public float NetIncome => GrossIncome - GrossUpkeep;
         public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
@@ -219,7 +219,7 @@ namespace Ship_Game
             TroopManager = new TroopManager(this, Habitable);
             GeodeticManager = new GeodeticManager(this);
             SbCommodities = new SBCommodities(this);
-            base.SbProduction = new SBProduction(this);
+            SbProduction = new SBProduction(this);
             HasShipyard = false;
 
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
@@ -292,10 +292,10 @@ namespace Ship_Game
         }
 
         private void DebugImportFood(float predictedFood, string text) =>                   
-            Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", DebugModes.Trade);
         
         private void DebugImportProd(float predictedFood, string text) =>                    
-            Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", DebugModes.Trade);
         
    
 
@@ -305,7 +305,7 @@ namespace Ship_Game
             if (ImportFood && ExportProd) return Goods.Food;
             if (ImportProd && ExportFood) return Goods.Production;
 
-            bool debug = System.Diagnostics.Debugger.IsAttached;
+            bool debug = Debugger.IsAttached;
             const int lookahead = 30; // 1 turn ~~ 5 second, 12 turns ~~ 1min, 60 turns ~~ 5min
             float predictedFood = ProjectedFood(lookahead);
 
@@ -985,7 +985,7 @@ namespace Ship_Game
 
         }
 
-        public bool WeCanAffordThis(Building building, Planet.ColonyType governor)
+        public bool WeCanAffordThis(Building building, ColonyType governor)
         {
             if (governor == ColonyType.TradeHub)
                 return true;
@@ -2247,7 +2247,7 @@ namespace Ship_Game
             MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
             BuildOutpostifAble();   //If there is no Outpost or Capital, build it
 
-            if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!            
+            if (colonyType == ColonyType.Colony) return; //No Governor? Nevermind!            
 
             float budget = BuildingBudget();
 
@@ -2264,14 +2264,14 @@ namespace Ship_Game
 
             switch (colonyType)
             {
-                case Planet.ColonyType.TradeHub:
-                case Planet.ColonyType.Core:
+                case ColonyType.TradeHub:
+                case ColonyType.Core:
                     {
                         //New resource management by Gretman
                         FarmerPercentage = CalculateFoodWorkers();
                         FillOrResearch(1 - FarmerPercentage);
 
-                        if (colonyType == Planet.ColonyType.TradeHub)
+                        if (colonyType == ColonyType.TradeHub)
                         {
                             DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
                             DetermineProdState(0.15f, 0.95f);
@@ -2286,7 +2286,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Industrial:
+                case ColonyType.Industrial:
                     {
                         //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
                         FarmerPercentage = FarmToPercentage(0.333f);
@@ -2302,7 +2302,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Research:
+                case ColonyType.Research:
                     {
                         //This governor will rely on imports, focusing on research as long as no one is starving
                         FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
@@ -2318,7 +2318,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Agricultural:
+                case ColonyType.Agricultural:
                     {
                         FarmerPercentage = FarmToPercentage(1);     //Farm all you can
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
@@ -2333,7 +2333,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Military:    //This on is incomplete
+                case ColonyType.Military:    //This on is incomplete
                     {
                         FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
