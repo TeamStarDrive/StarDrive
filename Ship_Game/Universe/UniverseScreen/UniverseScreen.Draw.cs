@@ -50,7 +50,7 @@ namespace Ship_Game
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
-                basicEffect.Texture = ResourceManager.TextureDict["Atmos"];
+                basicEffect.Texture = ResourceManager.Texture("Atmos");
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;
@@ -167,7 +167,7 @@ namespace Ship_Game
 
         private void DrawFogNodes()
         {
-            var uiNode = ResourceManager.TextureDict["UI/node"];
+            var uiNode = ResourceManager.Texture("UI/node");
             var viewport = Viewport;
 
             foreach (FogOfWarNode fogOfWarNode in FogNodes)
@@ -777,12 +777,12 @@ namespace Ship_Game
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType].Width /
+                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Width /
                                      2f),
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType].Height /
+                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Height /
                                      2f));
                         this.ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType], position,
+                            ResourceManager.Texture("Planets/" + (object) planet.PlanetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         origin =
                             new Vector2(

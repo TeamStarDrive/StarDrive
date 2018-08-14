@@ -66,92 +66,92 @@ namespace Ship_Game
             {
                 if (!r.HitTest(MousePos))
                 {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_disabled"], r, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.White);
                 }
                 else
                 {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_hover"], r, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
                 }
                 switch (this.orderType)
                 {
                     case OrderType.FighterToggle:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_Fighters"], iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Fighters"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.FighterRecall:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_FighterRecall"], iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_FighterRecall"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.ShieldToggle:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_Shields"], iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Shields"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.DefineAO:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_AO"], iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_AO"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.TradeFood:
                     {
-                        var icon = ResourceManager.TextureDict["NewUI/icon_food"];
+                        var icon = ResourceManager.Texture("NewUI/icon_food");
                         iconRect = new Rectangle(r.X + r.Width / 2 - icon.Width / 2, r.Y + r.Height / 2 - icon.Height / 2, icon.Width, icon.Height);
                         ScreenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
                         return;
                     }
                     case OrderType.TradeProduction:
                     {
-                        var icon = ResourceManager.TextureDict["NewUI/icon_production"];
+                        var icon = ResourceManager.Texture("NewUI/icon_production");
                         iconRect = new Rectangle(r.X + r.Width / 2 - icon.Width / 2, r.Y + r.Height / 2 - icon.Height / 2, icon.Width, icon.Height);
                         ScreenManager.SpriteBatch.Draw(icon, iconRect, Color.White);
                         return;
                     }
                     case OrderType.PassTran:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Height / 2, ResourceManager.TextureDict["UI/icon_passtran"].Width, ResourceManager.TextureDict["UI/icon_passtran"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_passtran"], iconRect, Color.White);
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_passtran").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_passtran").Height / 2, ResourceManager.Texture("UI/icon_passtran").Width, ResourceManager.Texture("UI/icon_passtran").Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_passtran"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.TroopToggle:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 13, r.Y + r.Height / 2 - 14, 23, 28);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.Explore:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_explore"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_explore"].Height / 2, ResourceManager.TextureDict["UI/icon_explore"].Width, ResourceManager.TextureDict["UI/icon_explore"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_explore"], iconRect, Color.White);
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_explore").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_explore").Height / 2, ResourceManager.Texture("UI/icon_explore").Width, ResourceManager.Texture("UI/icon_explore").Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_explore"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.OrderResupply:
                     {
                         iconRect = new Rectangle(r.X + r.Width / 2 - 16, r.Y + r.Height / 2 - 16, 32, 32);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], iconRect, Color.White);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.EmpireDefense:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_shield"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_shield"].Height / 2, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], iconRect, Color.White);
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_shield").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_shield").Height / 2, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.Scrap:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Height / 2, ResourceManager.TextureDict["UI/icon_planetslist"].Width, ResourceManager.TextureDict["UI/icon_planetslist"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_planetslist"], iconRect, Color.White);
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_planetslist").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_planetslist").Height / 2, ResourceManager.Texture("UI/icon_planetslist").Width, ResourceManager.Texture("UI/icon_planetslist").Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_planetslist"), iconRect, Color.White);
                         return;
                     }
                     case OrderType.Refit:
                     {
-                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Height / 2, ResourceManager.TextureDict["UI/icon_dsbw"].Width, ResourceManager.TextureDict["UI/icon_dsbw"].Height);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_dsbw"], iconRect, Color.White);
+                        iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_dsbw").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_dsbw").Height / 2, ResourceManager.Texture("UI/icon_dsbw").Width, ResourceManager.Texture("UI/icon_dsbw").Height);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_dsbw"), iconRect, Color.White);
                         return;
                     }
                     default:
@@ -162,98 +162,98 @@ namespace Ship_Game
             }
             if (r.HitTest(MousePos))
             {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_hover"], r, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
             }
             else if (this.RightClickValueToModify != null && !this.RightClickValueToModify.Value)
             {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_disabled"], r, Color.LightPink);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.LightPink);
             }
             else if (!this.ValueToModify.Value)
             {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action_disabled"], r, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.White);
             }
             else
             {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_action"], r, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action"), r, Color.White);
             }
             switch (this.orderType)
             {
                 case OrderType.FighterToggle:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_Fighters"], iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Fighters"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.FighterRecall:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_FighterRecall"], iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_FighterRecall"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.ShieldToggle:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_Shields"], iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_Shields"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.DefineAO:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 12, r.Y + r.Height / 2 - 12, 24, 24);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OrderButtons/UI_AO"], iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OrderButtons/UI_AO"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.TradeFood:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("NewUI/icon_food").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.TradeProduction:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("NewUI/icon_production").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.PassTran:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_passtran"].Height / 2, ResourceManager.TextureDict["UI/icon_passtran"].Width, ResourceManager.TextureDict["UI/icon_passtran"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_passtran"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_passtran").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_passtran").Height / 2, ResourceManager.Texture("UI/icon_passtran").Width, ResourceManager.Texture("UI/icon_passtran").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_passtran"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.TroopToggle:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 13, r.Y + r.Height / 2 - 14, 23, 28);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop"], iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.Explore:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_explore"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_explore"].Height / 2, ResourceManager.TextureDict["UI/icon_explore"].Width, ResourceManager.TextureDict["UI/icon_explore"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_explore"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_explore").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_explore").Height / 2, ResourceManager.Texture("UI/icon_explore").Width, ResourceManager.Texture("UI/icon_explore").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_explore"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.OrderResupply:
                 {
                     iconRect = new Rectangle(r.X + r.Width / 2 - 16, r.Y + r.Height / 2 - 16, 32, 32);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/Ordnance"], iconRect, Color.White);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.EmpireDefense:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_shield"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_shield"].Height / 2, ResourceManager.TextureDict["UI/icon_shield"].Width, ResourceManager.TextureDict["UI/icon_shield"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_shield").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_shield").Height / 2, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.Scrap:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_planetslist"].Height / 2, ResourceManager.TextureDict["UI/icon_planetslist"].Width, ResourceManager.TextureDict["UI/icon_planetslist"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_planetslist"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_planetslist").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_planetslist").Height / 2, ResourceManager.Texture("UI/icon_planetslist").Width, ResourceManager.Texture("UI/icon_planetslist").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_planetslist"), iconRect, Color.White);
                     return;
                 }
                 case OrderType.Refit:
                 {
-                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Width / 2, r.Y + r.Height / 2 - ResourceManager.TextureDict["UI/icon_dsbw"].Height / 2, ResourceManager.TextureDict["UI/icon_dsbw"].Width, ResourceManager.TextureDict["UI/icon_dsbw"].Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_dsbw"], iconRect, Color.White);
+                    iconRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture("UI/icon_dsbw").Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture("UI/icon_dsbw").Height / 2, ResourceManager.Texture("UI/icon_dsbw").Width, ResourceManager.Texture("UI/icon_dsbw").Height);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_dsbw"), iconRect, Color.White);
                     return;
                 }
                 default:

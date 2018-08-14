@@ -22,7 +22,7 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, float Percent)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/Dan_Progress_Housing"], this.rect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/Dan_Progress_Housing"), this.rect, Color.White);
 			ScreenManager.SpriteBatch.FillRectangle(this.progressRect, new Color(24, 81, 91));
 			int x = this.progressRect.X + (int)(Percent * (float)this.progressRect.Width);
 			Rectangle Mask = new Rectangle(x, this.progressRect.Y, (int)((1f - Percent) * (float)this.progressRect.Width), this.progressRect.Height);

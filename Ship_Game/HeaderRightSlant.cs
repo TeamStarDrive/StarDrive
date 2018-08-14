@@ -28,9 +28,9 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/header_left"], this.leftRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/header_fill"], this.FillRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["OliveUI/header_right_slant"], this.RightRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_left"), this.leftRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_fill"), this.FillRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_right_slant"), this.RightRect, Color.White);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, this.text, this.TextPos, new Color(198, 189, 180));
 		}
 	}
