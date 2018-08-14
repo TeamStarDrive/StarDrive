@@ -1421,8 +1421,7 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist <= 0.5 || Population == 0) return 0.0f;
 
             float workers = (Consumption - FlatFoodAdded) / PopulationBillion / (Fertility + PlusFoodPerColonist);
-            if (workers > 0.9f) workers = 0.9f;     //Dont allow farmers to consume all labor
-            return workers;
+            return workers.Clamped(0.0f, 0.9f);     //Dont allow farmers to consume all labor
         }
 
         private float CalculateFoodWorkersProjected(float pFlatFood = 0.0f, float pFoodPerCol = 0.0f) //Calculate farmers with these adjustments
@@ -1430,8 +1429,7 @@ namespace Ship_Game
             if (Owner.data.Traits.Cybernetic != 0 || Fertility + PlusFoodPerColonist + pFoodPerCol <= 0.5 || Population == 0) return 0.0f;
 
             float workers = (Consumption - FlatFoodAdded - pFlatFood) / PopulationBillion / (Fertility + PlusFoodPerColonist + pFoodPerCol);
-            if (workers > 0.9f) workers = 0.9f;     //Dont allow farmers to consume all labor
-            return workers;
+            return workers.Clamped(0.0f, 0.9f);     //Dont allow farmers to consume all labor
         }
 
         private float CalculateMod(float desiredPercent, float storageRatio)
@@ -1999,7 +1997,7 @@ namespace Ship_Game
 
         private float EvaluateBuilding(Building building, float income, float highestCost)     //Gretman function, to support DoGoverning()
         {
-            if (Name == "Cordron fV") Debugger.Break();
+            if (Name == "Drell VIfI") Debugger.Break();
 
             float buildingValue = 0.0f;    //End result value for entire building
 
