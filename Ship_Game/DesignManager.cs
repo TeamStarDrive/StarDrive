@@ -27,24 +27,24 @@ namespace Ship_Game
 
         public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
         {
-            this.ShipName = txt;
+            ShipName = txt;
             this.screen = screen;
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            this.SaveMenu.Draw();
-            this.SaveShips.Draw();
-            this.EnterNameArea.Draw(Fonts.Arial20Bold, batch, this.EnternamePos, 
-                Game1.Instance.GameTime, (this.EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
-            this.subAllDesigns.Draw();
-            this.ShipDesigns.Draw(batch);
-            var bCursor = new Vector2((float)(this.subAllDesigns.Menu.X + 20), (float)(this.subAllDesigns.Menu.Y + 20));
+            SaveMenu.Draw();
+            SaveShips.Draw();
+            EnterNameArea.Draw(Fonts.Arial20Bold, batch, EnternamePos, 
+                Game1.Instance.GameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            subAllDesigns.Draw();
+            ShipDesigns.Draw(batch);
+            var bCursor = new Vector2((float)(subAllDesigns.Menu.X + 20), (float)(subAllDesigns.Menu.Y + 20));
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
                 var ship = (Ship)e.item;
@@ -70,41 +70,41 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.ShipDesigns.HandleInput(input);
+            ShipDesigns.HandleInput(input);
             if (input.Escaped || input.RightMouseClick)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
-            this.selector = null;
+            selector = null;
             foreach (ScrollList.Entry e in ShipDesigns.AllEntries)
             {
                 if (e.CheckHover(input))
                 {
-                    this.selector = e.CreateSelector();
+                    selector = e.CreateSelector();
 
                     if (input.LeftMouseClick)
                     {
-                        this.EnterNameArea.Text = ((Ship)e.item).Name;
+                        EnterNameArea.Text = ((Ship)e.item).Name;
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
                 }
             }
 
-            this.EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y, 200, 30);
-            if (!this.EnterNameArea.ClickableArea.HitTest(input.CursorPosition))
+            EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y, 200, 30);
+            if (!EnterNameArea.ClickableArea.HitTest(input.CursorPosition))
             {
-                this.EnterNameArea.Hover = false;
+                EnterNameArea.Hover = false;
             }
             else
             {
-                this.EnterNameArea.Hover = true;
+                EnterNameArea.Hover = true;
                 if (input.LeftMouseClick)
                 {
-                    this.EnterNameArea.HandlingInput = true;
+                    EnterNameArea.HandlingInput = true;
                 }
             }
-            if (!this.EnterNameArea.HandlingInput)
+            if (!EnterNameArea.HandlingInput)
             {
                 GlobalStats.TakingInput = false;
             }
@@ -122,25 +122,25 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            this.Window = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
-            this.SaveMenu = new Menu1(this.Window);
-            var sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
-            this.SaveShips = new Submenu(sub);
-            this.SaveShips.AddTab("Save Ship Design");
-            this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
-            this.subAllDesigns = new Submenu(scrollList);
-            this.subAllDesigns.AddTab("All Designs");
-            this.ShipDesigns = new ScrollList(this.subAllDesigns);
+            Window = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
+            SaveMenu = new Menu1(Window);
+            var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+            SaveShips = new Submenu(sub);
+            SaveShips.AddTab("Save Ship Design");
+            TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
+            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
+            subAllDesigns = new Submenu(scrollList);
+            subAllDesigns.AddTab("All Designs");
+            ShipDesigns = new ScrollList(subAllDesigns);
             foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
             {
-                this.ShipDesigns.AddItem(Ship.Value);
+                ShipDesigns.AddItem(Ship.Value);
             }
-            this.EnternamePos = this.TitlePosition;
-            this.EnterNameArea.ClickableArea = new Rectangle((int)(this.EnternamePos.X + Fonts.Arial20Bold.MeasureString("Design Name: ").X), (int)this.EnternamePos.Y - 2, 256, Fonts.Arial20Bold.LineSpacing);
-            this.EnterNameArea.Text = this.ShipName;
+            EnternamePos = TitlePosition;
+            EnterNameArea.ClickableArea = new Rectangle((int)(EnternamePos.X + Fonts.Arial20Bold.MeasureString("Design Name: ").X), (int)EnternamePos.Y - 2, 256, Fonts.Arial20Bold.LineSpacing);
+            EnterNameArea.Text = ShipName;
 
-            Save = ButtonSmall(sub.X + sub.Width - 88, this.EnterNameArea.ClickableArea.Y - 2, "Save", OnSaveClicked);
+            Save = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Save", OnSaveClicked);
 
             base.LoadContent();
         }

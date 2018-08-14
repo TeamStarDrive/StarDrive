@@ -24,36 +24,36 @@ namespace Ship_Game
 
 		public BlueButton(Vector2 Position, string text)
 		{
-			this.Button = new Rectangle((int)Position.X, (int)Position.Y, 180, 33);
-			this.Text = text;
-			this.TextPos = new Vector2((float)(this.Button.X + this.Button.Width / 2) - Fonts.Pirulen12.MeasureString(this.Text).X / 2f, (float)(this.Button.Y + this.Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
+			Button = new Rectangle((int)Position.X, (int)Position.Y, 180, 33);
+			Text = text;
+			TextPos = new Vector2((float)(Button.X + Button.Width / 2) - Fonts.Pirulen12.MeasureString(Text).X / 2f, (float)(Button.Y + Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager ScreenManager)
 		{
-			if (!this.ToggleOn)
+			if (!ToggleOn)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover0"), this.Button, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover0"), Button, Color.White);
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover1"), this.Button, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover1"), Button, Color.White);
 			}
-			if (this.Hover)
+			if (Hover)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), this.Button, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), Button, Color.White);
 			}
-			if (this.Hover && this.Tip_ID != 0)
+			if (Hover && Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID);
+				ToolTip.CreateTooltip(Tip_ID);
 			}
-			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, this.TextPos, Color.White);
+			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, Text, TextPos, Color.White);
 		}
 
-		public void DrawTransition(Ship_Game.ScreenManager ScreenManager, Rectangle b)
+		public void DrawTransition(ScreenManager ScreenManager, Rectangle b)
 		{
-			this.TextPos = new Vector2((float)(b.X + this.Button.Width / 2) - Fonts.Pirulen12.MeasureString(this.Text).X / 2f, (float)(b.Y + this.Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
-			if (!this.ToggleOn)
+			TextPos = new Vector2((float)(b.X + Button.Width / 2) - Fonts.Pirulen12.MeasureString(Text).X / 2f, (float)(b.Y + Button.Height / 2 - Fonts.Pirulen12.LineSpacing / 2));
+			if (!ToggleOn)
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover0"), b, Color.White);
 			}
@@ -61,26 +61,26 @@ namespace Ship_Game
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover1"), b, Color.White);
 			}
-			if (this.Hover)
+			if (Hover)
 			{
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/button_blue_hover2"), b, Color.White);
 			}
-			if (this.Hover && this.Tip_ID != 0)
+			if (Hover && Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID);
+				ToolTip.CreateTooltip(Tip_ID);
 			}
-			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, this.Text, this.TextPos, Color.White);
+			ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, Text, TextPos, Color.White);
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			if (!this.Button.HitTest(input.CursorPosition))
+			if (!Button.HitTest(input.CursorPosition))
 			{
-				this.Hover = false;
+				Hover = false;
 			}
 			else
 			{
-				this.Hover = true;
+				Hover = true;
 				if (input.LeftMouseClick)
 				{
 					GameAudio.PlaySfxAsync("echo_affirm");

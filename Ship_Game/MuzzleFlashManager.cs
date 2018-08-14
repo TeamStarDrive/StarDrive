@@ -16,7 +16,7 @@ namespace Ship_Game
 
 		static MuzzleFlashManager()
 		{
-			MuzzleFlashManager.FlashList = new BatchRemovalCollection<MuzzleFlash>();
+			FlashList = new BatchRemovalCollection<MuzzleFlash>();
 		}
 
 		public MuzzleFlashManager()
@@ -27,21 +27,21 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.ExplosionLocker)
 			{
-				for (int i = 0; i < MuzzleFlashManager.FlashList.Count; i++)
+				for (int i = 0; i < FlashList.Count; i++)
 				{
-					if (MuzzleFlashManager.FlashList[i] != null)
+					if (FlashList[i] != null)
 					{
-						MuzzleFlash item = MuzzleFlashManager.FlashList[i];
+						MuzzleFlash item = FlashList[i];
 						item.timer = item.timer - elapsedTime;
-						MuzzleFlash muzzleFlash = MuzzleFlashManager.FlashList[i];
+						MuzzleFlash muzzleFlash = FlashList[i];
 						muzzleFlash.scale = muzzleFlash.scale * 2f;
-						if (MuzzleFlashManager.FlashList[i].scale > 6f)
+						if (FlashList[i].scale > 6f)
 						{
-							MuzzleFlashManager.FlashList[i].scale = 6f;
+							FlashList[i].scale = 6f;
 						}
-						if (MuzzleFlashManager.FlashList[i].timer <= 0f)
+						if (FlashList[i].timer <= 0f)
 						{
-							MuzzleFlashManager.FlashList.QueuePendingRemoval(MuzzleFlashManager.FlashList[i]);
+							FlashList.QueuePendingRemoval(FlashList[i]);
 						}
 					}
 				}

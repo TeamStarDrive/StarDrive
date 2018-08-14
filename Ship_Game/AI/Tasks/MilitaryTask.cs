@@ -41,7 +41,7 @@ namespace Ship_Game.AI.Tasks
         }
         public static MilitaryTask CreatePostInvasion(Vector2 ao, int fleetID, Empire owner)
         {
-            var militaryTask = new Tasks.MilitaryTask
+            var militaryTask = new MilitaryTask
             {
                 AO = ao,
                 AORadius = 10000f,
@@ -63,7 +63,7 @@ namespace Ship_Game.AI.Tasks
 
         public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner, float str = 0) 
         {
-            type = MilitaryTask.TaskType.ClearAreaOfEnemies;
+            type = TaskType.ClearAreaOfEnemies;
             AO = location;
             AORadius = radius;
             InitialEnemyStrength = str;
@@ -83,7 +83,7 @@ namespace Ship_Game.AI.Tasks
 
         public MilitaryTask(Planet target, Empire Owner)
         {
-            type = MilitaryTask.TaskType.AssaultPlanet;
+            type = TaskType.AssaultPlanet;
             TargetPlanet = target;
             TargetPlanetGuid = target.guid;
             AO = target.Center;
@@ -308,13 +308,13 @@ namespace Ship_Game.AI.Tasks
             }
             switch (type)
             {
-                case MilitaryTask.TaskType.ClearAreaOfEnemies:
+                case TaskType.ClearAreaOfEnemies:
                     {
                         if      (Step == 0) RequisitionForces();
                         else if (Step == 1) ExecuteAndAssess();
                         break;
                     }
-                case MilitaryTask.TaskType.AssaultPlanet:
+                case TaskType.AssaultPlanet:
                     {
                         if (Step == 0) RequisitionAssaultForces();
                         else
@@ -329,7 +329,7 @@ namespace Ship_Game.AI.Tasks
                         }
                         break;
                     }
-                case MilitaryTask.TaskType.CorsairRaid:
+                case TaskType.CorsairRaid:
                     {
                         if (Step != 0)
                             break;
@@ -352,18 +352,18 @@ namespace Ship_Game.AI.Tasks
                         Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, 0.0f, Vector2.Zero);
                         break;
                     }
-                case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies:
+                case TaskType.CohesiveClearAreaOfEnemies:
                     {
                         if      (Step == 0) RequisitionForces();
                         else if (Step == 1) ExecuteAndAssess();
                         break;
                     }
-                case MilitaryTask.TaskType.Exploration:
+                case TaskType.Exploration:
                     {
                         if (Step == 0) RequisitionExplorationForce();
                         break;
                     }
-                case MilitaryTask.TaskType.DefendSystem:
+                case TaskType.DefendSystem:
                     {
                         if      (Step == 0) RequisitionDefenseForce();
                         else if (Step == 1)
@@ -377,7 +377,7 @@ namespace Ship_Game.AI.Tasks
                         }
                         break;
                     }
-                case MilitaryTask.TaskType.DefendClaim:
+                case TaskType.DefendClaim:
                     {
                         switch (Step)
                         {
@@ -584,7 +584,7 @@ namespace Ship_Game.AI.Tasks
                     Owner.GetFleetsDict()[WhichFleet].Reset();
                 }
 
-                if (type == MilitaryTask.TaskType.Exploration)
+                if (type == TaskType.Exploration)
                 {
                     Array<Troop> toLaunch = new Array<Troop>();
                     foreach (Troop t in TargetPlanet.TroopsHere)

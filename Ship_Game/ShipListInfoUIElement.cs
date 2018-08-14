@@ -71,33 +71,33 @@ namespace Ship_Game
 
         public ShipListInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            this.Housing = r;
+            Housing = r;
             this.screen = screen;
-            this.ScreenManager = sm;
-            this.ElementRect = r;
-            this.sel = new Selector(r, Color.Black);
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
-            this.LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
-            this.sliding_element = new SlidingElement(this.SliderRect);
-            this.RightRect = new Rectangle(this.LeftRect.X + this.LeftRect.Width, this.LeftRect.Y, 220, this.LeftRect.Height);
-            float spacing = (float)(this.LeftRect.Height - 26 - 96);
-            this.Power = new Rectangle(this.RightRect.X, this.LeftRect.Y + 12, 20, 20);
-            var pbarrect = new Rectangle(this.Power.X + this.Power.Width + 15, this.Power.Y, 150, 18);
-            this.pBar = new ProgressBar(pbarrect)
+            ScreenManager = sm;
+            ElementRect = r;
+            sel = new Selector(r, Color.Black);
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            SliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
+            LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
+            sliding_element = new SlidingElement(SliderRect);
+            RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
+            float spacing = (float)(LeftRect.Height - 26 - 96);
+            Power = new Rectangle(RightRect.X, LeftRect.Y + 12, 20, 20);
+            var pbarrect = new Rectangle(Power.X + Power.Width + 15, Power.Y, 150, 18);
+            pBar = new ProgressBar(pbarrect)
             {
                 color = "green"
             };
 
-            this.Shields = new Rectangle(this.RightRect.X, this.LeftRect.Y + 12 + 20 + (int)spacing, 20, 20);
-            var pshieldsrect = new Rectangle(this.Shields.X + this.Shields.Width + 15, this.Shields.Y, 150, 18);
-            this.sBar = new ProgressBar(pshieldsrect)
+            Shields = new Rectangle(RightRect.X, LeftRect.Y + 12 + 20 + (int)spacing, 20, 20);
+            var pshieldsrect = new Rectangle(Shields.X + Shields.Width + 15, Shields.Y, 150, 18);
+            sBar = new ProgressBar(pshieldsrect)
             {
                 color = "blue"
             };
-            this.DefenseRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 112, 22, 22);
-            this.TroopRect = new Rectangle(this.Housing.X + 13, this.Housing.Y + 137, 22, 22);
+            DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
+            TroopRect = new Rectangle(Housing.X + 13, Housing.Y + 137, 22, 22);
 
             
             float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -107,8 +107,8 @@ namespace Ship_Game
             {
                 Active = true
             };
-            this.clickRect = new Rectangle(this.ElementRect.X + this.ElementRect.Width - 16, this.ElementRect.Y + this.ElementRect.Height / 2 - 11, 11, 22);
-            this.ShipInfoRect = new Rectangle(this.Housing.X + 60, this.Housing.Y + 110, 115, 115);
+            clickRect = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
+            ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
             
 
             const float orderSize = 29f;
@@ -143,24 +143,24 @@ namespace Ship_Game
 
         public void ClearShipList()
         {
-            this.ShipList.Clear();
-            this.SelectedShipsSL.Reset();
+            ShipList.Clear();
+            SelectedShipsSL.Reset();
         }
 
         public override void Draw(GameTime gameTime)
         {
-            if (this.screen.SelectedShipList == null) return;  //fbedard
+            if (screen.SelectedShipList == null) return;  //fbedard
 
-            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-            int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
-            if (this.AllShipsMine)
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+            int columns = Orders.Count / 2 + Orders.Count % 2;
+            if (AllShipsMine)
             {
-                this.sliding_element.Draw(this.ScreenManager, (int)((float)(columns * 55) * (1f - base.TransitionPosition)) + (this.sliding_element.Open ? 20 - columns : 0));
-                foreach (OrdersButton ob in this.Orders)
+                sliding_element.Draw(ScreenManager, (int)((float)(columns * 55) * (1f - TransitionPosition)) + (sliding_element.Open ? 20 - columns : 0));
+                foreach (OrdersButton ob in Orders)
                 {
                     Rectangle r = ob.clickRect;
                     r.X = r.X - (int)(transitionOffset * 300f);
-                    ob.Draw(this.ScreenManager, r);
+                    ob.Draw(ScreenManager, r);
                 }
             }
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
@@ -179,82 +179,82 @@ namespace Ship_Game
                     button.Draw(ScreenManager);
                 }
             }
-            if (this.HoveredShip == null)
+            if (HoveredShip == null)
             {
                 HoverOff += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (this.HoverOff > 0.5f)
+                if (HoverOff > 0.5f)
                 {
                     text = (!isFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, namePos, this.tColor);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
                     float fleetOrdnance = 0f;
                     float fleetOrdnanceMax = 0f;
-                    foreach (Ship ship in this.ShipList)
+                    foreach (Ship ship in ShipList)
                     {
                         fleetOrdnance = fleetOrdnance + ship.Ordinance;
                         fleetOrdnanceMax = fleetOrdnanceMax + ship.OrdinanceMax;
                     }
                     if (fleetOrdnanceMax > 0f)
                     {
-                        var pordrect = new Rectangle(45, this.Housing.Y + 115, 130, 18);
-                        this.oBar = new ProgressBar(pordrect)
+                        var pordrect = new Rectangle(45, Housing.Y + 115, 130, 18);
+                        oBar = new ProgressBar(pordrect)
                         {
                             Max = fleetOrdnanceMax,
                             Progress = fleetOrdnance,
                             color = "brown"
                         };
-                        this.oBar.Draw(this.ScreenManager.SpriteBatch);
-                        this.Ordnance = new Rectangle(pordrect.X - 25, pordrect.Y, 20, 20);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), this.Ordnance, Color.White);
+                        oBar.Draw(ScreenManager.SpriteBatch);
+                        Ordnance = new Rectangle(pordrect.X - 25, pordrect.Y, 20, 20);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
                     }
                 }
             }
             else
             {
-                this.HoverOff = 0f;
-                this.HoveredShip.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
-                text = this.HoveredShip.VanityName;
-                Vector2 tpos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
-                string name = (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name);
+                HoverOff = 0f;
+                HoveredShip.RenderOverlay(ScreenManager.SpriteBatch, ShipInfoRect, ShowModules);
+                text = HoveredShip.VanityName;
+                Vector2 tpos = new Vector2((float)(Housing.X + 30), (float)(Housing.Y + 63));
+                string name = (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name);
                 SpriteFont TitleFont = Fonts.Arial14Bold;
-                Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 79));
+                Vector2 ShipSuperName = new Vector2((float)(Housing.X + 30), (float)(Housing.Y + 79));
                 if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
                 {
                     TitleFont = Fonts.Arial12Bold;
                     tpos.Y = tpos.Y + 1;
                     tpos.X = tpos.X - 8;
                 }
-                this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
+                ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name), tpos, tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 //this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
-                string longName = string.Concat(this.HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
-                if (this.HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
-                    longName += string.Concat(" - ", this.HoveredShip.shipData.GetCategory());
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), this.DefenseRect, Color.White);
-                Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
+                string longName = string.Concat(HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
+                if (HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
+                    longName += string.Concat(" - ", HoveredShip.shipData.GetCategory());
+                ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
+                Vector2 defPos = new Vector2((float)(DefenseRect.X + DefenseRect.Width + 2), (float)(DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
-                float mechanicalBoardingDefense = this.HoveredShip.MechanicalBoardingDefense + this.HoveredShip.TroopBoardingDefense;
-                spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
-                text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
-                Vector2 ShipStatus = new Vector2((float)(this.sel.Rect.X + this.sel.Rect.Width - 170), this.Housing.Y + 68);
-                text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
+                float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
+                spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(fmt), defPos, Color.White);
+                text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
+                Vector2 ShipStatus = new Vector2((float)(sel.Rect.X + sel.Rect.Width - 170), Housing.Y + 68);
+                text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
                 HelperFunctions.ClampVectorToInt(ref ShipStatus);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
                 ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), this.TroopRect, Color.White);
-                Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.HoveredShip.TroopList.Count, "/", this.HoveredShip.TroopCapacity), troopPos, Color.White);
-                Rectangle star = new Rectangle(this.TroopRect.X, this.TroopRect.Y + 25, 22, 22);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
+                Vector2 troopPos = new Vector2((float)(TroopRect.X + TroopRect.Width + 2), (float)(TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(HoveredShip.TroopList.Count, "/", HoveredShip.TroopCapacity), troopPos, Color.White);
+                Rectangle star = new Rectangle(TroopRect.X, TroopRect.Y + 25, 22, 22);
                 Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.HoveredShip.Level.ToString(), levelPos, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
             }
-            foreach (ToggleButton button in this.CombatStatusButtons)
+            foreach (ToggleButton button in CombatStatusButtons)
             {
-                button.Draw(this.ScreenManager);
+                button.Draw(ScreenManager);
             }
-            this.gridbutton.Draw(this.ScreenManager);
+            gridbutton.Draw(ScreenManager);
         }
 
         public override bool HandleInput(InputState input)
@@ -284,7 +284,7 @@ namespace Ship_Game
             }
             if (AllShipsMine)
             {
-                foreach (ToggleButton button in this.CombatStatusButtons)
+                foreach (ToggleButton button in CombatStatusButtons)
                 {
                     if (button.HandleInput(input))
                     {
@@ -305,25 +305,25 @@ namespace Ship_Game
                     }
                 }
                 
-                if (this.sliding_element.HandleInput(input))
+                if (sliding_element.HandleInput(input))
                 {
-                    if (!this.sliding_element.Open)
+                    if (!sliding_element.Open)
                     {
-                        base.State = UIElement.ElementState.TransitionOff;
+                        State = ElementState.TransitionOff;
                     }
                     else
                     {
-                        base.State = UIElement.ElementState.TransitionOn;
+                        State = ElementState.TransitionOn;
                     }
                     return true;
                 }
                 
-                if (base.State == UIElement.ElementState.Open)
+                if (State == ElementState.Open)
                 {
                     bool orderhover = false;
-                    foreach (OrdersButton ob in this.Orders)
+                    foreach (OrdersButton ob in Orders)
                     {
-                        if (!ob.HandleInput(input, this.ScreenManager))
+                        if (!ob.HandleInput(input, ScreenManager))
                         {
                             continue;
                         }
@@ -332,15 +332,15 @@ namespace Ship_Game
                     if (orderhover)
                     {
                         //this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();      //Enter and Exit lock removed to stop crash -Gretman
-                        if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships.Count >0 && this.screen.SelectedFleet.Ships[0] != null)
+                        if (screen.SelectedFleet != null && screen.SelectedFleet.Ships.Count >0 && screen.SelectedFleet.Ships[0] != null)
                         {
                             bool flag = true;                            
-                            foreach (Ship ship2 in (Array<Ship>)this.screen.SelectedFleet.Ships)
+                            foreach (Ship ship2 in (Array<Ship>)screen.SelectedFleet.Ships)
                                 if (ship2.AI.State != AIState.Resupply)
                                     flag = false;
                             
                             if (flag)
-                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].AI.OrbitTarget.Center;  //fbedard: center fleet on resupply planet
+                                screen.SelectedFleet.Position = screen.SelectedFleet.Ships[0].AI.OrbitTarget.Center;  //fbedard: center fleet on resupply planet
                             
                         }
                         //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
@@ -419,13 +419,13 @@ namespace Ship_Game
 
         public void SetShipList(Array<Ship> shipList, bool isFleet)
         {
-            this.Orders.Clear();
+            Orders.Clear();
             this.isFleet = isFleet;
-            this.ShipList = shipList;
-            this.SelectedShipsSL.Reset();
+            ShipList = shipList;
+            SelectedShipsSL.Reset();
             SelectedShipEntry entry = new SelectedShipEntry();
             bool AllResupply = true;
-            this.AllShipsMine = true;
+            AllShipsMine = true;
             bool AllFreighters = true;
             bool AllCombat = true;
             for (int i = 0; i < shipList.Count; i++)
@@ -443,7 +443,7 @@ namespace Ship_Game
                 }
                 if (entry.ShipButtons.Count == 8 || i == shipList.Count - 1)
                 {
-                    this.SelectedShipsSL.AddItem(entry);
+                    SelectedShipsSL.AddItem(entry);
                     entry = new SelectedShipEntry();
                 }
                 if (ship.AI.State != AIState.Resupply)
@@ -452,7 +452,7 @@ namespace Ship_Game
                 }
                 if (ship.loyalty != EmpireManager.Player)
                 {
-                    this.AllShipsMine = false;
+                    AllShipsMine = false;
                 }
                 //if (ship.CargoSpace_Max == 0f)
                 if (ship.CargoSpaceMax == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.AI.State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
@@ -469,7 +469,7 @@ namespace Ship_Game
                 SimpleToggle = true,
                 Active = AllResupply
             };
-            this.Orders.Add(resupply);
+            Orders.Add(resupply);
 
 
             if (AllCombat)
@@ -479,13 +479,13 @@ namespace Ship_Game
                 SimpleToggle = true,
                 Active = false
             };
-            this.Orders.Add(SystemDefense);
+            Orders.Add(SystemDefense);
             OrdersButton Explore = new OrdersButton(shipList, Vector2.Zero, OrderType.Explore, 136)
             {
                 SimpleToggle = true,
                 Active = false
             };
-            this.Orders.Add(Explore);
+            Orders.Add(Explore);
             }
 
             if (AllFreighters)
@@ -500,17 +500,17 @@ namespace Ship_Game
                 {
                     SimpleToggle = true
                 };
-                this.Orders.Add(tf);
+                Orders.Add(tf);
                 OrdersButton tp = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeProduction, 16)
                 {
                     SimpleToggle = true
                 };
-                this.Orders.Add(tp);
+                Orders.Add(tp);
                 OrdersButton tpass = new OrdersButton(shipList, Vector2.Zero, OrderType.PassTran, 152)
                 {
                     SimpleToggle = true
                 };
-                this.Orders.Add(tpass);
+                Orders.Add(tpass);
             }
 
             //Added by McShooterz: fleet scrap button
@@ -519,20 +519,20 @@ namespace Ship_Game
                 SimpleToggle = true,
                 Active = false
             };
-            this.Orders.Add(Scrap);
+            Orders.Add(Scrap);
 
             int ex = 0;
             int y = 0;
-            for (int i = 0; i < this.Orders.Count; i++)
+            for (int i = 0; i < Orders.Count; i++)
             {
-                OrdersButton ob = this.Orders[i];
+                OrdersButton ob = Orders[i];
                 if (i % 2 == 0 && i > 0)
                 {
                     ex++;
                     y = 0;
                 }
-                ob.clickRect.X = this.ElementRect.X + this.ElementRect.Width + 2 + 52 * ex;
-                ob.clickRect.Y = this.sliding_element.Housing.Y + 15 + y * 52;
+                ob.clickRect.X = ElementRect.X + ElementRect.Width + 2 + 52 * ex;
+                ob.clickRect.Y = sliding_element.Housing.Y + 15 + y * 52;
                 y++;
             }
         }

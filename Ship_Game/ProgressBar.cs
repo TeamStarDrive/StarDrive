@@ -39,13 +39,13 @@ namespace Ship_Game
 
 		public ProgressBar(Rectangle r)
 		{
-			this.pBar = r;
-			this.Left = new Rectangle(r.X, r.Y, 7, 18);
-			this.gLeft = new Rectangle(this.Left.X + 3, this.Left.Y + 3, 4, 12);
-			this.Right = new Rectangle(r.X + r.Width - 7, r.Y, 7, 18);
-			this.gRight = new Rectangle(this.Right.X - 3, this.Right.Y + 3, 4, 12);
-			this.Middle = new Rectangle(r.X + 7, r.Y, r.Width - 14, 18);
-			this.gMiddle = new Rectangle(this.Middle.X, this.Middle.Y + 3, this.Middle.Width, 12);
+			pBar = r;
+			Left = new Rectangle(r.X, r.Y, 7, 18);
+			gLeft = new Rectangle(Left.X + 3, Left.Y + 3, 4, 12);
+			Right = new Rectangle(r.X + r.Width - 7, r.Y, 7, 18);
+			gRight = new Rectangle(Right.X - 3, Right.Y + 3, 4, 12);
+			Middle = new Rectangle(r.X + 7, r.Y, r.Width - 14, 18);
+			gMiddle = new Rectangle(Middle.X, Middle.Y + 3, Middle.Width, 12);
 		}
 
         public ProgressBar(Rectangle r, float max, float progress) : this(r)

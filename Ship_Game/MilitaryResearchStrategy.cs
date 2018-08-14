@@ -8,17 +8,17 @@ namespace Ship_Game
 	{
 		public string Name;
 
-		public Array<MilitaryResearchStrategy.Tech> HullPath = new Array<MilitaryResearchStrategy.Tech>();
+		public Array<Tech> HullPath = new Array<Tech>();
 
-		public Array<MilitaryResearchStrategy.Tech> DefensePath = new Array<MilitaryResearchStrategy.Tech>();
+		public Array<Tech> DefensePath = new Array<Tech>();
 
-		public Array<MilitaryResearchStrategy.Tech> KineticPath = new Array<MilitaryResearchStrategy.Tech>();
+		public Array<Tech> KineticPath = new Array<Tech>();
 
-		public Array<MilitaryResearchStrategy.Tech> EnergyPath = new Array<MilitaryResearchStrategy.Tech>();
+		public Array<Tech> EnergyPath = new Array<Tech>();
 
-		public Array<MilitaryResearchStrategy.Tech> BeamPath = new Array<MilitaryResearchStrategy.Tech>();
+		public Array<Tech> BeamPath = new Array<Tech>();
 
-		public Array<MilitaryResearchStrategy.Tech> MissilePath = new Array<MilitaryResearchStrategy.Tech>();
+		public Array<Tech> MissilePath = new Array<Tech>();
 
 		public MilitaryResearchStrategy()
 		{

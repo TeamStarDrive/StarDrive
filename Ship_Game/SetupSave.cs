@@ -44,29 +44,29 @@ namespace Ship_Game
                 ModName = GlobalStats.ActiveMod.mi.ModName;
                 ModPath = GlobalStats.ActiveMod.ModName;
             }
-            this.Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
-            this.GameDifficulty                = gameDifficulty;
-            this.StarEnum                      = starNum;
-            this.Galaxysize                    = galaxysize;
-            this.Pacing                        = pacing;
-            this.ExtraRemnant                  = extraRemnant;
-            this.FTLModifier                   = GlobalStats.FTLInSystemModifier;
-            this.EnemyFTLModifier              = GlobalStats.EnemyFTLInSystemModifier;
-            this.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            this.MinimumWarpRange              = GlobalStats.MinimumWarpRange;
-            this.TurnTimer                     = GlobalStats.TurnTimer;
-            this.preventFederations            = GlobalStats.PreventFederations;
-            this.GravityWellRange              = GlobalStats.GravityWellRange;
+            Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
+            GameDifficulty                = gameDifficulty;
+            StarEnum                      = starNum;
+            Galaxysize                    = galaxysize;
+            Pacing                        = pacing;
+            ExtraRemnant                  = extraRemnant;
+            FTLModifier                   = GlobalStats.FTLInSystemModifier;
+            EnemyFTLModifier              = GlobalStats.EnemyFTLInSystemModifier;
+            OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
+            MinimumWarpRange              = GlobalStats.MinimumWarpRange;
+            TurnTimer                     = GlobalStats.TurnTimer;
+            preventFederations            = GlobalStats.PreventFederations;
+            GravityWellRange              = GlobalStats.GravityWellRange;
             this.mode                          = mode;
             this.numOpponents                  = numOpponents;
-            this.ExtraPlanets                  = GlobalStats.ExtraPlanets;
-            this.StartingPlanetRichness        = GlobalStats.StartingPlanetRichness;
-            this.PlanetaryGravityWells         = GlobalStats.PlanetaryGravityWells;
-            this.WarpInSystem                  = GlobalStats.WarpInSystem;
+            ExtraPlanets                  = GlobalStats.ExtraPlanets;
+            StartingPlanetRichness        = GlobalStats.StartingPlanetRichness;
+            PlanetaryGravityWells         = GlobalStats.PlanetaryGravityWells;
+            WarpInSystem                  = GlobalStats.WarpInSystem;
 
             string str = DateTime.Now.ToString("M/d/yyyy");
             DateTime now = DateTime.Now;
-            this.Date = string.Concat(str, " ", now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat));
+            Date = string.Concat(str, " ", now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat));
         }
     }
 }

@@ -48,7 +48,7 @@ namespace Ship_Game
 					rect = new Rectangle((int)Cursor.X + 32 * Column, (int)Cursor.Y + 32 * Row, 32, 32),
 					item = item
 				};
-				this.GridOfUnlocks.Add(gi);
+				GridOfUnlocks.Add(gi);
 				Row++;
 				if (Row != 2)
 				{

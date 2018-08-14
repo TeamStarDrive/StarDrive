@@ -35,34 +35,34 @@ namespace Ship_Game
 
         public OrdersButton(Ship ship, Vector2 Location, OrderType ot, int tipid)
         {
-            this.ID_tip = tipid;
-            this.orderType = ot;
-            this.clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
+            ID_tip = tipid;
+            orderType = ot;
+            clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
         }
 
         public OrdersButton(Array<Ship> shiplist, Vector2 Location, OrderType ot, int tipid)
         {
-            this.ID_tip = tipid;
-            this.ShipList = shiplist;
-            this.orderType = ot;
-            this.clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
+            ID_tip = tipid;
+            ShipList = shiplist;
+            orderType = ot;
+            clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
         }
 
         public OrdersButton(Vector2 Location, OrderType ot, int tipid)
         {
-            this.ID_tip = tipid;
-            this.orderType = ot;
-            this.clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
+            ID_tip = tipid;
+            orderType = ot;
+            clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
         }
 
-        public void Draw(Ship_Game.ScreenManager ScreenManager, Rectangle r)
+        public void Draw(ScreenManager ScreenManager, Rectangle r)
         {
             Selector selector = new Selector(r, Color.TransparentBlack);
             Rectangle iconRect = new Rectangle(r.X + 6, r.Y + 6, 44, 44);
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
-            if (this.SimpleToggle)
+            if (SimpleToggle)
             {
                 if (!r.HitTest(MousePos))
                 {
@@ -72,7 +72,7 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
                 }
-                switch (this.orderType)
+                switch (orderType)
                 {
                     case OrderType.FighterToggle:
                     {
@@ -164,11 +164,11 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_hover"), r, Color.White);
             }
-            else if (this.RightClickValueToModify != null && !this.RightClickValueToModify.Value)
+            else if (RightClickValueToModify != null && !RightClickValueToModify.Value)
             {
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.LightPink);
             }
-            else if (!this.ValueToModify.Value)
+            else if (!ValueToModify.Value)
             {
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action_disabled"), r, Color.White);
             }
@@ -176,7 +176,7 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_action"), r, Color.White);
             }
-            switch (this.orderType)
+            switch (orderType)
             {
                 case OrderType.FighterToggle:
                 {
@@ -265,23 +265,23 @@ namespace Ship_Game
 
         public bool HandleInput(InputState input, ScreenManager sm)
         {
-            if (!this.clickRect.HitTest(input.CursorPosition))
+            if (!clickRect.HitTest(input.CursorPosition))
             {
                 //this.Hover = false;
-                this.hovering = false;
+                hovering = false;
             }
             else
             {
                 //this.Hover = true;
-                ToolTip.CreateTooltip(this.ID_tip);
-                if (this.SimpleToggle && input.InGameSelect)
+                ToolTip.CreateTooltip(ID_tip);
+                if (SimpleToggle && input.InGameSelect)
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    switch (this.orderType)
+                    switch (orderType)
                     {
                         case OrderType.TradeFood:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
                                     if (ShipList[i].AI.State != AIState.SystemTrader)
                                     {
@@ -298,7 +298,7 @@ namespace Ship_Game
                         }
                         case OrderType.TradeProduction:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
                                 ShipList[i].AI.start = null;
                                 ShipList[i].AI.end = null;
@@ -312,9 +312,9 @@ namespace Ship_Game
                         }
                         case OrderType.PassTran:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
-                                this.ShipList[i].AI.OrderTransportPassengers(5f);
+                                ShipList[i].AI.OrderTransportPassengers(5f);
                             }
                             return true;
                         }
@@ -324,25 +324,25 @@ namespace Ship_Game
                         }
                         case OrderType.Explore:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
-                                this.ShipList[i].AI.OrderExplore();
+                                ShipList[i].AI.OrderExplore();
                             }
                             return true;
                         }
                         case OrderType.OrderResupply:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
-                                this.ShipList[i].AI.GoOrbitNearestPlanetAndResupply(true);
+                                ShipList[i].AI.GoOrbitNearestPlanetAndResupply(true);
                             }
                             return true;
                         }
                         case OrderType.EmpireDefense:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
-                                Ship ship = this.ShipList[i];
+                                Ship ship = ShipList[i];
                                 lock (ship)
                                 {
                                     if (!EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
@@ -369,9 +369,9 @@ namespace Ship_Game
                         }
                         case OrderType.Scrap:
                         {
-                            for (int i = 0; i < this.ShipList.Count; i++)
+                            for (int i = 0; i < ShipList.Count; i++)
                             {
-                                this.ShipList[i].AI.OrderScrapShip();
+                                ShipList[i].AI.OrderScrapShip();
                             }
                             return true;
                         }
@@ -384,20 +384,20 @@ namespace Ship_Game
                 if (input.InGameSelect)
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    this.ValueToModify.Value = !this.ValueToModify.Value;
+                    ValueToModify.Value = !ValueToModify.Value;
                     return true;
                 }
                 if (input.RightMouseClick)
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    if (this.RightClickValueToModify != null)
+                    if (RightClickValueToModify != null)
                     {
-                        this.RightClickValueToModify.Value = !this.RightClickValueToModify.Value;
+                        RightClickValueToModify.Value = !RightClickValueToModify.Value;
                     }
                     return true;
                 }
             }
-            return this.hovering;
+            return hovering;
         }
     }
 }

@@ -41,26 +41,26 @@ namespace Ship_Game
 
 		public void InitializeStars()
 		{
-			for (int i = 0; i < (int)this.stars.Length; i++)
+			for (int i = 0; i < (int)stars.Length; i++)
 			{
-				this.stars[i].Position.X = RandomMath.RandomBetween(100000f, 120000f);
-				this.stars[i].Position.Y = RandomMath.RandomBetween(100000f, 120000f);
-				this.stars[i].Depth = RandomMath.RandomBetween(2500f, 10000f);
-				this.stars[i].scale = RandomMath.RandomBetween(1f, 3f);
-				this.stars[i].WorldMatrix = Matrix.Identity * Matrix.CreateTranslation(this.stars[i].Position.X, this.stars[i].Position.Y, this.stars[i].Depth);
+				stars[i].Position.X = RandomMath.RandomBetween(100000f, 120000f);
+				stars[i].Position.Y = RandomMath.RandomBetween(100000f, 120000f);
+				stars[i].Depth = RandomMath.RandomBetween(2500f, 10000f);
+				stars[i].scale = RandomMath.RandomBetween(1f, 3f);
+				stars[i].WorldMatrix = Matrix.Identity * Matrix.CreateTranslation(stars[i].Position.X, stars[i].Position.Y, stars[i].Depth);
 			}
 		}
 
 		public void LoadContent()
 		{
-			this.starModel = this.contentManager.Load<Model>("Model/SpaceObjects/singlestar");
-			this.starTexture = new Texture2D(this.graphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-			this.starTexture.SetData<Color>(new Color[] { Color.White });
-			this.spriteBatch = new SpriteBatch(this.graphicsDevice);
-			this.InitializeStars();
+			starModel = contentManager.Load<Model>("Model/SpaceObjects/singlestar");
+			starTexture = new Texture2D(graphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+			starTexture.SetData<Color>(new Color[] { Color.White });
+			spriteBatch = new SpriteBatch(graphicsDevice);
+			InitializeStars();
 		    Viewport viewport = Game1.Instance.Viewport;
             int width = viewport.Width;
-			this.starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
+			starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
 		}
 
 		public void Update()

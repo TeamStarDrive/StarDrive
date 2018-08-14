@@ -27,8 +27,8 @@ namespace Ship_Game
 		{
 			this.x = x;
 			this.y = y;
-			this.Habitable = hab;
-			this.building = b;
+			Habitable = hab;
+			building = b;
 		}
 	}
 }

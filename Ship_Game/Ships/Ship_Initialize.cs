@@ -409,7 +409,7 @@ namespace Ship_Game.Ships
             
             SetSystem(System);
             InitExternalSlots();
-            base.Initialize();
+            Initialize();
 
             RecalculatePower();        
             ShipStatusChange();

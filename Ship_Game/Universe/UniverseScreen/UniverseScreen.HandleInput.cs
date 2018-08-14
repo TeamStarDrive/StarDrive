@@ -282,7 +282,7 @@ namespace Ship_Game
             {
                 for (int i = 0; i < FleetButtons.Count; ++i)
                 {
-                    UniverseScreen.FleetButton fleetButton = FleetButtons[i];
+                    FleetButton fleetButton = FleetButtons[i];
                     if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
                         continue;
 
@@ -323,7 +323,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.Input = input;
+            Input = input;
 
             if (input.PauseGame && !GlobalStats.TakingInput) Paused = !Paused;
             if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
@@ -372,7 +372,7 @@ namespace Ship_Game
             if (input.DebugMode)
             {
                 Debug = !Debug;
-                foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+                foreach (SolarSystem solarSystem in SolarSystemList)
                 {
                     solarSystem.SetExploredBy(player);
                     foreach (var planet in solarSystem.PlanetList)
@@ -462,26 +462,26 @@ namespace Ship_Game
                 HandleFleetButtonClick(input);
 
             cState = SelectedShip != null || SelectedShipList.Count > 0
-                ? UniverseScreen.CursorState.Move
-                : UniverseScreen.CursorState.Normal;
+                ? CursorState.Move
+                : CursorState.Normal;
             if (SelectedShip == null && SelectedShipList.Count <= 0)
                 return false;
             for (int i = 0; i < ClickableShipsList.Count; i++)
             {
-                UniverseScreen.ClickableShip clickableShip = ClickableShipsList[i];
+                ClickableShip clickableShip = ClickableShipsList[i];
                 if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                    cState = UniverseScreen.CursorState.Follow;
+                    cState = CursorState.Follow;
             }
-            if (cState == UniverseScreen.CursorState.Follow)
+            if (cState == CursorState.Follow)
                 return false;
             lock (GlobalStats.ClickableSystemsLock)
             {
                 for (int i = 0; i < ClickPlanetList.Count; i++)
                 {
-                    UniverseScreen.ClickablePlanets planets = ClickPlanetList[i];
+                    ClickablePlanets planets = ClickPlanetList[i];
                     if (input.CursorPosition.InRadius(planets.ScreenPos, planets.Radius) &&
                         planets.planetToClick.Habitable)
-                        cState = UniverseScreen.CursorState.Orbit;
+                        cState = CursorState.Orbit;
                 }
             }
             return base.HandleInput(input);
@@ -1907,7 +1907,7 @@ namespace Ship_Game
                 if (CamHeight > 12000f)
                 {
                     CamDestination.Z += 3000f;
-                    viewState = UniverseScreen.UnivScreenState.SectorView;
+                    viewState = UnivScreenState.SectorView;
                     if (CamHeight > 32000.0f)
                         CamDestination.Z += 15000f;
                     if (CamHeight > 100000.0f)

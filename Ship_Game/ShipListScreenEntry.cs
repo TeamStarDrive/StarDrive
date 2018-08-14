@@ -61,141 +61,141 @@ namespace Ship_Game
 
         public ShipListScreenEntry(Ship s, int x, int y, int width1, int height, ShipListScreen caller)
         {
-            this.screen = caller;
-            this.ship = s;
-            this.TotalEntrySize = new Rectangle(x, y, width1 - 60, height);
-            this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.10f), height);
-            this.ShipNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.175f), height);
-            this.RoleRect = new Rectangle(x + this.SysNameRect.Width + this.ShipNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.05f), height);
-            this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.ShipNameRect.Width + this.RoleRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.175f), height);
-            this.RefitRect = new Rectangle(this.OrdersRect.X + this.OrdersRect.Width, y, 125, height);
-            this.STRRect = new Rectangle(this.RefitRect.X + this.RefitRect.Width, y, 60, height);
-            this.MaintRect = new Rectangle(this.STRRect.X + this.STRRect.Width, y, 60, height);
-            this.TroopRect = new Rectangle(this.MaintRect.X + this.MaintRect.Width, y, 60, height);
-            this.FTLRect = new Rectangle(this.TroopRect.X + this.TroopRect.Width, y, 60, height);
-            this.STLRect = new Rectangle(this.FTLRect.X + this.FTLRect.Width, y, 60, height);
-            this.Status_Text = ShipListScreenEntry.GetStatusText(this.ship);
-            this.ShipIconRect = new Rectangle(this.ShipNameRect.X + 5, this.ShipNameRect.Y + 2, 28, 28);
-            string shipName = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
-            this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-            this.ShipNameEntry.Text = shipName;
-            float width = (float)((int)((float)this.OrdersRect.Width * 0.8f));
+            screen = caller;
+            ship = s;
+            TotalEntrySize = new Rectangle(x, y, width1 - 60, height);
+            SysNameRect = new Rectangle(x, y, (int)((float)TotalEntrySize.Width * 0.10f), height);
+            ShipNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((float)TotalEntrySize.Width * 0.175f), height);
+            RoleRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width, y, (int)((float)TotalEntrySize.Width * 0.05f), height);
+            OrdersRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width, y, (int)((float)TotalEntrySize.Width * 0.175f), height);
+            RefitRect = new Rectangle(OrdersRect.X + OrdersRect.Width, y, 125, height);
+            STRRect = new Rectangle(RefitRect.X + RefitRect.Width, y, 60, height);
+            MaintRect = new Rectangle(STRRect.X + STRRect.Width, y, 60, height);
+            TroopRect = new Rectangle(MaintRect.X + MaintRect.Width, y, 60, height);
+            FTLRect = new Rectangle(TroopRect.X + TroopRect.Width, y, 60, height);
+            STLRect = new Rectangle(FTLRect.X + FTLRect.Width, y, 60, height);
+            Status_Text = GetStatusText(ship);
+            ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
+            string shipName = (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name);
+            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
+            ShipNameEntry.Text = shipName;
+            float width = (float)((int)((float)OrdersRect.Width * 0.8f));
             while (width % 10f != 0f)
             {
                 width = width + 1f;
             }
 
-            if (this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null && this.ship.shipData.Role != ShipData.RoleName.platform && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.freighter && ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null && ship.shipData.Role != ShipData.RoleName.platform && ship.shipData.Role != ShipData.RoleName.troop && ship.AI.State != AIState.Colonize && ship.shipData.Role != ShipData.RoleName.freighter && ship.shipData.ShipCategory != ShipData.Category.Civilian)
                 isCombat = true;
 
-            Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 2 - 5 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
+            Rectangle refit = new Rectangle(RefitRect.X + RefitRect.Width / 2 - 5 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
 
             if (isCombat)
             {
-                this.ExploreButton = new TexturedButton(refit, "NewUI/icon_order_explore", "NewUI/icon_order_explore_hover1", "NewUI/icon_order_explore_hover2");
-                this.PatrolButton = new TexturedButton(refit, "NewUI/icon_order_patrol", "NewUI/icon_order_patrol_hover1", "NewUI/icon_order_patrol_hover2");
+                ExploreButton = new TexturedButton(refit, "NewUI/icon_order_explore", "NewUI/icon_order_explore_hover1", "NewUI/icon_order_explore_hover2");
+                PatrolButton = new TexturedButton(refit, "NewUI/icon_order_patrol", "NewUI/icon_order_patrol_hover1", "NewUI/icon_order_patrol_hover2");
             }
-            this.RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
-            this.ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+            RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
+            ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
 
-            if (this.ship.shipData.Role == ShipData.RoleName.station || this.ship.shipData.Role == ShipData.RoleName.platform || this.ship.Thrust <= 0f)
+            if (ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform || ship.Thrust <= 0f)
             {
-                this.isScuttle = true;
+                isScuttle = true;
             }
         }
 
-        public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)
+        public void Draw(ScreenManager ScreenManager, GameTime gameTime)
         {
             Color TextColor = new Color(255, 239, 208);
-            string sysname = (this.ship.System!= null ? this.ship.System.Name : Localizer.Token(150));
-            if (Fonts.Arial20Bold.MeasureString(sysname).X <= (float)this.SysNameRect.Width)
+            string sysname = (ship.System!= null ? ship.System.Name : Localizer.Token(150));
+            if (Fonts.Arial20Bold.MeasureString(sysname).X <= (float)SysNameRect.Width)
             {
-                Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                Vector2 SysNameCursor = new Vector2((float)(SysNameRect.X + SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
             else
             {
-                Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                Vector2 SysNameCursor = new Vector2((float)(SysNameRect.X + SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
             ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
             Vector2 rpos = new Vector2()
             {
-                X = (float)this.ShipNameEntry.ClickableArea.X,
-                Y = (float)this.ShipNameEntry.ClickableArea.Y
+                X = (float)ShipNameEntry.ClickableArea.X,
+                Y = (float)ShipNameEntry.ClickableArea.Y
             };
-            this.ShipNameEntry.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, rpos, gameTime, TextColor);
-            Vector2 rolePos = new Vector2((float)(this.RoleRect.X + this.RoleRect.Width / 2) - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty)).X / 2f, (float)(this.RoleRect.Y + this.RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+            ShipNameEntry.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, rpos, gameTime, TextColor);
+            Vector2 rolePos = new Vector2((float)(RoleRect.X + RoleRect.Width / 2) - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, (float)(RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
             HelperFunctions.ClampVectorToInt(ref rolePos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(this.ship.shipData.Role, this.ship.loyalty), rolePos, TextColor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, TextColor);
             
-            Vector2 StatusPos = new Vector2((float)(this.OrdersRect.X + this.OrdersRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(this.Status_Text).Y / 2f);
+            Vector2 StatusPos = new Vector2((float)(OrdersRect.X + OrdersRect.Width / 2) - Fonts.Arial12Bold.MeasureString(Status_Text).X / 2f, (float)(2 + SysNameRect.Y + SysNameRect.Height / 2) - Fonts.Arial12Bold.MeasureString(Status_Text).Y / 2f);
             HelperFunctions.ClampVectorToInt(ref StatusPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Status_Text, StatusPos, TextColor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Status_Text, StatusPos, TextColor);
 
-            Vector2 MainPos = new Vector2((float)(this.MaintRect.X + this.MaintRect.Width / 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+            Vector2 MainPos = new Vector2((float)(MaintRect.X + MaintRect.Width / 2), (float)(MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
             Empire e = EmpireManager.Player;
             float Maint = 1f;
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
-                Maint = this.ship.GetMaintCostRealism();
+                Maint = ship.GetMaintCostRealism();
             }
             else
             {
-                Maint = this.ship.GetMaintCost();
+                Maint = ship.GetMaintCost();
             }
             Maint = Maint + e.data.Traits.MaintMod * Maint;
             MainPos.X = MainPos.X - Fonts.Arial12.MeasureString(Maint.ToString("F2")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref MainPos);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Maint.ToString("F2"), MainPos, Maint > 0.00 ? Color.Salmon : Color.White);
-            Vector2 StrPos = new Vector2((float)(this.STRRect.X + this.STRRect.Width / 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+            Vector2 StrPos = new Vector2((float)(STRRect.X + STRRect.Width / 2), (float)(MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
             float x = StrPos.X;
             SpriteFont arial12Bold = Fonts.Arial12;
-            float strength = this.ship.GetStrength();
+            float strength = ship.GetStrength();
             StrPos.X = x - Fonts.Arial12.MeasureString(strength.ToString("0")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref StrPos);
             SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont arial12 = Fonts.Arial12;
-            float single = this.ship.GetStrength();
+            float single = ship.GetStrength();
             spriteBatch.DrawString(arial12, single.ToString("0"), StrPos, Color.White);
-            Vector2 TroopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width / 2f), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+            Vector2 TroopPos = new Vector2((float)(TroopRect.X + TroopRect.Width / 2f), (float)(MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
             //{
-            TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity)).X / 2f + 6;
+            TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity)).X / 2f + 6;
             //};
             HelperFunctions.ClampVectorToInt(ref TroopPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity), TroopPos, Color.White);
-            Vector2 FTLPos = new Vector2((float)(this.FTLRect.X + this.FTLRect.Width / 2f), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity), TroopPos, Color.White);
+            Vector2 FTLPos = new Vector2((float)(FTLRect.X + FTLRect.Width / 2f), (float)(MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
             float x1 = FTLPos.X;
             SpriteFont spriteFont = Fonts.Arial12;
-            float fTLSpeed = this.ship.GetmaxFTLSpeed / 1000f;
+            float fTLSpeed = ship.GetmaxFTLSpeed / 1000f;
             FTLPos.X = x1 - spriteFont.MeasureString(string.Concat(fTLSpeed.ToString("0"), "k")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref FTLPos);
             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
             SpriteFont arial121 = Fonts.Arial12;
-            float fTLSpeed1 = this.ship.GetmaxFTLSpeed / 1000f;
+            float fTLSpeed1 = ship.GetmaxFTLSpeed / 1000f;
             spriteBatch1.DrawString(arial121, string.Concat(fTLSpeed1.ToString("0"), "k"), FTLPos, Color.White);
-            Vector2 STLPos = new Vector2((float)(this.STLRect.X + this.STLRect.Width / 2f), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
+            Vector2 STLPos = new Vector2((float)(STLRect.X + STLRect.Width / 2f), (float)(MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
             float single1 = STLPos.X;
             SpriteFont arial12Bold1 = Fonts.Arial12;
-            float sTLSpeed = this.ship.GetSTLSpeed();
+            float sTLSpeed = ship.GetSTLSpeed();
             STLPos.X = single1 - arial12Bold1.MeasureString(sTLSpeed.ToString("0")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref STLPos);
             SpriteBatch spriteBatch2 = ScreenManager.SpriteBatch;
             SpriteFont spriteFont1 = Fonts.Arial12;
-            float sTLSpeed1 = this.ship.GetSTLSpeed();
+            float sTLSpeed1 = ship.GetSTLSpeed();
             spriteBatch2.DrawString(spriteFont1, sTLSpeed1.ToString("0"), STLPos, Color.White);
-            if (this.isScuttle)
+            if (isScuttle)
             {
-                float scuttleTimer = this.ship.ScuttleTimer;
+                float scuttleTimer = ship.ScuttleTimer;
             }
 
             if (isCombat)
             {
-                this.ExploreButton.Draw(ScreenManager);
-                this.PatrolButton.Draw(ScreenManager);
+                ExploreButton.Draw(ScreenManager);
+                PatrolButton.Draw(ScreenManager);
             }
-            this.RefitButton.Draw(ScreenManager);
-            this.ScrapButton.Draw(ScreenManager);
+            RefitButton.Draw(ScreenManager);
+            ScrapButton.Draw(ScreenManager);
             
         }
 
@@ -555,83 +555,83 @@ namespace Ship_Game
             if (isCombat)
             {
                 // Explore button for ship list
-                if (this.ExploreButton.HandleInput(input))
+                if (ExploreButton.HandleInput(input))
                 {
-                    if (this.ship.AI.State == AIState.Explore)
+                    if (ship.AI.State == AIState.Explore)
                     {
-                        this.ship.AI.State = AIState.AwaitingOrders;
-                        this.ship.AI.OrderQueue.Clear();
+                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.OrderQueue.Clear();
                     }
                     else
                     {
-                        this.ship.AI.OrderExplore();
+                        ship.AI.OrderExplore();
                     }
-                    this.Status_Text = GetStatusText(this.ship);
+                    Status_Text = GetStatusText(ship);
                 }
 
                 // System defence button for ship list
-                if (this.PatrolButton.HandleInput(input))
+                if (PatrolButton.HandleInput(input))
                 {
-                    if (this.ship.AI.State == AIState.SystemDefender || this.ship.DoingSystemDefense)
+                    if (ship.AI.State == AIState.SystemDefender || ship.DoingSystemDefense)
                     {
-                        this.ship.DoingSystemDefense = false;
-                        this.ship.AI.State = AIState.AwaitingOrders;
-                        this.ship.AI.OrderQueue.Clear();
+                        ship.DoingSystemDefense = false;
+                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.OrderQueue.Clear();
                     }
                     else
                     {
-                        this.ship.DoingSystemDefense = true;
+                        ship.DoingSystemDefense = true;
                     }
-                    this.Status_Text = GetStatusText(this.ship);
+                    Status_Text = GetStatusText(ship);
                 }
             }
-            if (this.RefitButton.HandleInput(input))
+            if (RefitButton.HandleInput(input))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                this.screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
+                screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
-            if (this.ScrapButton.HandleInput(input))
+            if (ScrapButton.HandleInput(input))
             {
-                if (!this.isScuttle)
+                if (!isScuttle)
                 {
-                    this.Status_Text = GetStatusText(this.ship);
+                    Status_Text = GetStatusText(ship);
                 }
                 else
                 {
-                    this.Status_Text = GetStatusText(this.ship);
+                    Status_Text = GetStatusText(ship);
                 }
                 GameAudio.PlaySfxAsync("echo_affirm");
-                if (!this.isScuttle)
+                if (!isScuttle)
                 {
-                    if (this.ship.AI.State == AIState.Scrap)
+                    if (ship.AI.State == AIState.Scrap)
                     {
-                        this.ship.AI.State = AIState.AwaitingOrders;
-                        this.ship.AI.OrderQueue.Clear();
+                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.OrderQueue.Clear();
                     }
                     else
                     {
-                        this.ship.AI.OrderScrapShip();
+                        ship.AI.OrderScrapShip();
                     }
-                    this.Status_Text = GetStatusText(this.ship);
+                    Status_Text = GetStatusText(ship);
                 }
                 else
                 {
-                    if (this.ship.ScuttleTimer != -1f)
+                    if (ship.ScuttleTimer != -1f)
                     {
-                        this.ship.ScuttleTimer = -1f;
-                        this.ship.AI.State = AIState.AwaitingOrders;
-                        this.ship.AI.HasPriorityOrder = false;
-                        this.ship.AI.OrderQueue.Clear();
+                        ship.ScuttleTimer = -1f;
+                        ship.AI.State = AIState.AwaitingOrders;
+                        ship.AI.HasPriorityOrder = false;
+                        ship.AI.OrderQueue.Clear();
                     }
                     else
                     {
-                        this.ship.ScuttleTimer = 10f;
-                        this.ship.AI.State = AIState.Scuttle;
-                        this.ship.AI.HasPriorityOrder = true;
-                        this.ship.AI.OrderQueue.Clear();
+                        ship.ScuttleTimer = 10f;
+                        ship.AI.State = AIState.Scuttle;
+                        ship.AI.HasPriorityOrder = true;
+                        ship.AI.OrderQueue.Clear();
                     }
-                    this.Status_Text = GetStatusText(this.ship);
+                    Status_Text = GetStatusText(ship);
                 }
             }
             if (!ShipNameEntry.ClickableArea.HitTest(input.CursorPosition))
@@ -658,39 +658,39 @@ namespace Ship_Game
 
         public void SetNewPos(int x, int y)
         {
-            this.TotalEntrySize = new Rectangle(x, y, this.TotalEntrySize.Width, this.TotalEntrySize.Height);
-            this.SysNameRect = new Rectangle(x, y, (int)((float)this.TotalEntrySize.Width * 0.10f), this.TotalEntrySize.Height);
-            this.ShipNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.2f), this.TotalEntrySize.Height);
-            this.RoleRect = new Rectangle(x + this.SysNameRect.Width + this.ShipNameRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.05f), this.TotalEntrySize.Height);
-            this.OrdersRect = new Rectangle(x + this.SysNameRect.Width + this.ShipNameRect.Width + this.RoleRect.Width, y, (int)((float)this.TotalEntrySize.Width * 0.2f), this.TotalEntrySize.Height);
-            this.RefitRect = new Rectangle(this.OrdersRect.X + this.OrdersRect.Width, y, 125, this.TotalEntrySize.Height);
-            this.STRRect = new Rectangle(this.RefitRect.X + this.RefitRect.Width, y, 60, this.TotalEntrySize.Height);
-            this.MaintRect = new Rectangle(this.STRRect.X + this.STRRect.Width, y, 60, this.TotalEntrySize.Height);
-            this.TroopRect = new Rectangle(this.MaintRect.X + this.MaintRect.Width, y, 60, this.TotalEntrySize.Height);
-            this.FTLRect = new Rectangle(this.TroopRect.X + this.TroopRect.Width, y, 60, this.TotalEntrySize.Height);
-            this.STLRect = new Rectangle(this.FTLRect.X + this.FTLRect.Width, y, 60, this.TotalEntrySize.Height);
-            this.ShipIconRect = new Rectangle(this.ShipNameRect.X + 5, this.ShipNameRect.Y + 2, 28, 28);
-            string shipName = (!string.IsNullOrEmpty(this.ship.VanityName) ? this.ship.VanityName : this.ship.Name);
-            this.ShipNameEntry.ClickableArea = new Rectangle(this.ShipIconRect.X + this.ShipIconRect.Width + 10, 2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
+            TotalEntrySize = new Rectangle(x, y, TotalEntrySize.Width, TotalEntrySize.Height);
+            SysNameRect = new Rectangle(x, y, (int)((float)TotalEntrySize.Width * 0.10f), TotalEntrySize.Height);
+            ShipNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((float)TotalEntrySize.Width * 0.2f), TotalEntrySize.Height);
+            RoleRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width, y, (int)((float)TotalEntrySize.Width * 0.05f), TotalEntrySize.Height);
+            OrdersRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width, y, (int)((float)TotalEntrySize.Width * 0.2f), TotalEntrySize.Height);
+            RefitRect = new Rectangle(OrdersRect.X + OrdersRect.Width, y, 125, TotalEntrySize.Height);
+            STRRect = new Rectangle(RefitRect.X + RefitRect.Width, y, 60, TotalEntrySize.Height);
+            MaintRect = new Rectangle(STRRect.X + STRRect.Width, y, 60, TotalEntrySize.Height);
+            TroopRect = new Rectangle(MaintRect.X + MaintRect.Width, y, 60, TotalEntrySize.Height);
+            FTLRect = new Rectangle(TroopRect.X + TroopRect.Width, y, 60, TotalEntrySize.Height);
+            STLRect = new Rectangle(FTLRect.X + FTLRect.Width, y, 60, TotalEntrySize.Height);
+            ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
+            string shipName = (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name);
+            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
 
             if (isCombat)
             {
-                Rectangle explore = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 5 - ResourceManager.Texture("NewUI/icon_order_explore_hover1").Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_explore_hover1").Height / 2, ResourceManager.Texture("NewUI/icon_order_explore_hover1").Width, ResourceManager.Texture("NewUI/icon_order_explore_hover1").Height);
-                Rectangle patrol = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 10, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Width, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height);
-                this.ExploreButton.r = explore;
-                this.PatrolButton.r = patrol;
-                this.ExploreButton.LocalizerTip = 2171;
-                this.PatrolButton.LocalizerTip = 7080;
+                Rectangle explore = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 5 - ResourceManager.Texture("NewUI/icon_order_explore_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_explore_hover1").Height / 2, ResourceManager.Texture("NewUI/icon_order_explore_hover1").Width, ResourceManager.Texture("NewUI/icon_order_explore_hover1").Height);
+                Rectangle patrol = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 10, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Width, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height);
+                ExploreButton.r = explore;
+                PatrolButton.r = patrol;
+                ExploreButton.LocalizerTip = 2171;
+                PatrolButton.LocalizerTip = 7080;
             }
 
-            Rectangle refit = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 15 + ResourceManager.Texture("NewUI/icon_order_patrol_hover1").Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
-            Rectangle scrap = new Rectangle(this.RefitRect.X + this.RefitRect.Width / 4 + 20 + ResourceManager.Texture("NewUI/icon_order_patrol_hover1").Width + ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, this.RefitRect.Y + this.RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Height / 2, ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Width, ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Height);                       
-            this.RefitButton.r = refit;
-            this.ScrapButton.r = scrap;
-            this.RefitButton.LocalizerTip = 2213;
-            this.ScrapButton.LocalizerTip = 2214;
+            Rectangle refit = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 15 + ResourceManager.Texture("NewUI/icon_order_patrol_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
+            Rectangle scrap = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 20 + ResourceManager.Texture("NewUI/icon_order_patrol_hover1").Width + ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Height / 2, ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Width, ResourceManager.Texture("NewUI/icon_queue_delete_hover1").Height);                       
+            RefitButton.r = refit;
+            ScrapButton.r = scrap;
+            RefitButton.LocalizerTip = 2213;
+            ScrapButton.LocalizerTip = 2214;
 
-            float width = (float)((int)((float)this.OrdersRect.Width * 0.8f));
+            float width = (float)((int)((float)OrdersRect.Width * 0.8f));
             while (width % 10f != 0f)
             {
                 width = width + 1f;
