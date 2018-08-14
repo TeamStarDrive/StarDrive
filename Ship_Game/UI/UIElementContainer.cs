@@ -270,6 +270,9 @@ namespace Ship_Game
             return Add(button);
         }
 
+        protected UIButton Button(ButtonStyle style, float x, float y, string text, UIButton.ClickHandler click, string clickSfx = null)
+            => Button(style, new Vector2(x, y), text, click, clickSfx);
+
 
         protected UIButton Button(float x, float y, string text, UIButton.ClickHandler click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
