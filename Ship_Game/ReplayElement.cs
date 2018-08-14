@@ -93,7 +93,7 @@ namespace Ship_Game
 		{
 			float single;
 			Rectangle MapRect = new Rectangle(this.ElementRect.X + 30, this.ElementRect.Y + 30, this.ElementRect.Width - 60, this.ElementRect.Height - 60);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EndGameScreen/ReplayHousing"], this.ElementRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EndGameScreen/ReplayHousing"), this.ElementRect, Color.White);
 			float scale = (float)(this.ElementRect.Width - 60) / (Empire.Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
             if (this.Grid)
 			{
@@ -110,14 +110,14 @@ namespace Ship_Game
 					ScreenManager.SpriteBatch.DrawLine(Origin, End, new Color(100, 100, 100, 40));
 				}
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EndGameScreen/TextBox"], this.TextRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EndGameScreen/TextBox"), this.TextRect, Color.White);
 			foreach (SolarSystem star in UniverseScreen.SolarSystemList)
 			{
 				Vector2 starPos = (star.Position * scale) + new Vector2((float)MapRect.X, (float)MapRect.Y);
                 starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                 starPos.Y = starPos.Y + (MapRect.Height / 2);
                 Rectangle StarRect = new Rectangle((int)starPos.X - 3, (int)starPos.Y - 3, 6, 6);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Suns/", star.SunPath)], StarRect, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Suns/", star.SunPath)), StarRect, Color.White);
 			}
 			string date = this.StarDate.ToString("#.0");
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> shotdict in StatTracker.SnapshotsDict)
@@ -135,7 +135,7 @@ namespace Ship_Game
                         starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                         starPos.Y = starPos.Y + (MapRect.Height / 2);
                         Rectangle StarRect = new Rectangle((int)starPos.X - (int)(nro.Radius * scale), (int)starPos.Y - (int)(nro.Radius * scale), (int)(nro.Radius * scale * 2f), (int)(nro.Radius * scale * 2f));
-						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], StarRect, new Color(EmpireManager.Empires[entry.Key].EmpireColor, 128));
+						ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/node"), StarRect, new Color(EmpireManager.Empires[entry.Key].EmpireColor, 128));
 					}
 				}
 			}

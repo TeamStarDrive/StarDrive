@@ -29,23 +29,23 @@ namespace Ship_Game
 			r.X = r.X + HowFar;
             ButtonHousing = r;
 			this.ClickArea.X = r.X + r.Width - 32;
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_tab"], r, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_tab"), r, Color.White);
 			if (!this.Open)
 			{
 				if (!this.Hover)
 				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_right"], this.ClickArea, Color.White);
+					ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_right"), this.ClickArea, Color.White);
 					return;
 				}
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_right_hover"], this.ClickArea, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_right_hover"), this.ClickArea, Color.White);
 				return;
 			}
 			if (!this.Hover)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_left"], this.ClickArea, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_left"), this.ClickArea, Color.White);
 				return;
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_left_hover"], this.ClickArea, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_left_hover"), this.ClickArea, Color.White);
 		}
 
 		public bool HandleInput(InputState input)

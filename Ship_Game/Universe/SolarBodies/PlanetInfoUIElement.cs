@@ -165,7 +165,7 @@ namespace Ship_Game
             float x = (float)Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, (float)state.Y);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), this.Housing, Color.White);
             Vector2 NamePos = new Vector2((float)(this.Housing.X + 41), (float)(this.Housing.Y + 65));
             if (this.p.Owner == null || !this.p.IsExploredBy(EmpireManager.Player))
             {
@@ -182,7 +182,7 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, popString2, TextCursor2, this.tColor);
 
                     this.popRect = new Rectangle((int)TextCursor2.X - 23, (int)TextCursor2.Y - 3, 22, 22);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop_22"], this.popRect, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), this.popRect, Color.White);
 
                     string text = Localizer.Token(1430);
                     Vector2 Cursor = new Vector2((float)(this.Housing.X + 20), (float)(this.Housing.Y + 115));
@@ -207,14 +207,14 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, popString, TextCursor, this.tColor);
 
                 this.popRect = new Rectangle((int)TextCursor.X - 23, (int)TextCursor.Y - 3, 22, 22);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop_22"], this.popRect, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), this.popRect, Color.White);
 
                 this.PlanetTypeRichness = string.Concat(this.p.GetTypeTranslation(), " ", this.p.GetRichness());
                 this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIconRect, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", this.p.PlanetType)), this.PlanetIconRect, Color.White);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.PlanetTypeRichness, this.PlanetTypeCursor, this.tColor);
-                Rectangle fIcon = new Rectangle(240, this.Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.TextureDict["NewUI/icon_food"].Height, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], fIcon, Color.White);
+                Rectangle fIcon = new Rectangle(240, this.Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_food").Height, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
                 PlanetInfoUIElement.TippedItem ti = new PlanetInfoUIElement.TippedItem()
                 {
                     r = fIcon,
@@ -223,8 +223,8 @@ namespace Ship_Game
                 this.ToolTipItems.Add(ti);
                 Vector2 tcurs = new Vector2((float)(fIcon.X + 25), (float)(this.Housing.Y + 205));
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.Fertility.ToString(this.fmt), tcurs, this.tColor);
-                Rectangle pIcon = new Rectangle(300, this.Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.TextureDict["NewUI/icon_production"].Height, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], pIcon, Color.White);
+                Rectangle pIcon = new Rectangle(300, this.Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
                 ti = new PlanetInfoUIElement.TippedItem()
                 {
                     r = pIcon,
@@ -235,7 +235,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.MineralRichness.ToString(this.fmt), tcurs, this.tColor);
                 this.Mark = new Rectangle(this.RightRect.X - 10, this.Housing.Y + 150, 182, 25);
                 Vector2 Text = new Vector2((float)(this.RightRect.X + 25), (float)(this.Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], this.Mark, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), this.Mark, Color.White);
                 if (GlobalStats.IsGermanOrPolish)
                 {
                     Text.X = Text.X - 9f;
@@ -295,7 +295,7 @@ namespace Ship_Game
 
                 this.SendTroops = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
                 Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);         
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);         
                 troops= this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0 )
                      .Where(troopAI => troopAI.AI.OrderQueue
@@ -322,7 +322,7 @@ namespace Ship_Game
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, popString3, TextCursor3, this.tColor);
 
             this.popRect = new Rectangle((int)TextCursor3.X - 23, (int)TextCursor3.Y - 3, 22, 22);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop_22"], this.popRect, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), this.popRect, Color.White);
 
             this.moneyRect = new Rectangle((int)this.popRect.X - 70, (int)this.popRect.Y, 22, 22);
             Vector2 TextCursorMoney = new Vector2((float)this.moneyRect.X + 24, (float)TextCursor3.Y);
@@ -336,24 +336,24 @@ namespace Ship_Game
             {
                 string sNetIncome = netIncomePI.ToString("F2");
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sNetIncome, TextCursorMoney, netIncomePI > 0.0 ? Color.LightGreen : Color.Salmon);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_money_22"], moneyRect, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
             }
 
             this.PlanetTypeRichness = string.Concat(this.p.GetTypeTranslation(), " ", this.p.GetRichness());
             this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.PlanetType)], this.PlanetIconRect, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", this.p.PlanetType)), this.PlanetIconRect, Color.White);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.PlanetTypeRichness, this.PlanetTypeCursor, this.tColor);
             this.p.UpdateIncomes(false);
             this.ColonySliderFood.amount = this.p.FarmerPercentage;
-            this.ColonySliderFood.cursor = new Rectangle(this.ColonySliderFood.sRect.X + (int)((float)this.ColonySliderFood.sRect.Width * this.ColonySliderFood.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+            this.ColonySliderFood.cursor = new Rectangle(this.ColonySliderFood.sRect.X + (int)((float)this.ColonySliderFood.sRect.Width * this.ColonySliderFood.amount) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
             this.ColonySliderProd.amount = this.p.WorkerPercentage;
-            this.ColonySliderProd.cursor = new Rectangle(this.ColonySliderProd.sRect.X + (int)((float)this.ColonySliderProd.sRect.Width * this.ColonySliderProd.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+            this.ColonySliderProd.cursor = new Rectangle(this.ColonySliderProd.sRect.X + (int)((float)this.ColonySliderProd.sRect.Width * this.ColonySliderProd.amount) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
             this.ColonySliderRes.amount = this.p.ResearcherPercentage;
-            this.ColonySliderRes.cursor = new Rectangle(this.ColonySliderRes.sRect.X + (int)((float)this.ColonySliderRes.sRect.Width * this.ColonySliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_green"], new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+            this.ColonySliderRes.cursor = new Rectangle(this.ColonySliderRes.sRect.X + (int)((float)this.ColonySliderRes.sRect.Width * this.ColonySliderRes.amount) - ResourceManager.Texture("NewUI/slider_crosshair").Width / 2, this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height / 2 - ResourceManager.Texture("NewUI/slider_crosshair").Height / 2, ResourceManager.Texture("NewUI/slider_crosshair").Width, ResourceManager.Texture("NewUI/slider_crosshair").Height);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderFood.sRect.X, this.ColonySliderFood.sRect.Y, (int)(this.ColonySliderFood.amount * (float)this.ColonySliderFood.sRect.Width), 6)), (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
             this.ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderFood.sRect, this.ColonySliderFood.Color);
-            Rectangle fIcon2 = new Rectangle(this.ColonySliderFood.sRect.X - 35, this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], fIcon2, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : new Color(110, 110, 110, 255)));
+            Rectangle fIcon2 = new Rectangle(this.ColonySliderFood.sRect.X - 35, this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon2, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : new Color(110, 110, 110, 255)));
             PlanetInfoUIElement.TippedItem ti1 = new PlanetInfoUIElement.TippedItem()
             {
                 r = fIcon2
@@ -369,11 +369,11 @@ namespace Ship_Game
             this.ToolTipItems.Add(ti1);
             if (this.ColonySliderFood.cState != "normal")
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.ColonySliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), this.ColonySliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
             }
             else
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.ColonySliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), this.ColonySliderFood.cursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
             }
             Vector2 tickCursor = new Vector2();
             for (int i = 0; i < 11; i++)
@@ -381,11 +381,11 @@ namespace Ship_Game
                 tickCursor = new Vector2((float)(this.ColonySliderFood.sRect.X + this.ColonySliderFood.sRect.Width / 10 * i), (float)(this.ColonySliderFood.sRect.Y + this.ColonySliderFood.sRect.Height + 2));
                 if (this.ColonySliderFood.state != "normal")
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute_hover"], tickCursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
                 }
                 else
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, (this.p.Owner.data.Traits.Cybernetic == 0 ? Color.White : Color.DarkGray));
                 }
             }
             Vector2 textPos = new Vector2((float)(this.ColonySliderFood.sRect.X + 180), (float)(this.ColonySliderFood.sRect.Y - 2));
@@ -408,10 +408,10 @@ namespace Ship_Game
             {
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, food, textPos, Color.LightPink);
             }
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_brown"], new Rectangle(this.ColonySliderProd.sRect.X, this.ColonySliderProd.sRect.Y, (int)(this.ColonySliderProd.amount * (float)this.ColonySliderProd.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderProd.sRect.X, this.ColonySliderProd.sRect.Y, (int)(this.ColonySliderProd.amount * (float)this.ColonySliderProd.sRect.Width), 6)), Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_brown"), new Rectangle(this.ColonySliderProd.sRect.X, this.ColonySliderProd.sRect.Y, (int)(this.ColonySliderProd.amount * (float)this.ColonySliderProd.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderProd.sRect.X, this.ColonySliderProd.sRect.Y, (int)(this.ColonySliderProd.amount * (float)this.ColonySliderProd.sRect.Width), 6)), Color.White);
             this.ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderProd.sRect, this.ColonySliderProd.Color);
-            Rectangle pIcon1 = new Rectangle(this.ColonySliderProd.sRect.X - 35, this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], pIcon1, Color.White);
+            Rectangle pIcon1 = new Rectangle(this.ColonySliderProd.sRect.X - 35, this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon1, Color.White);
             ti1 = new PlanetInfoUIElement.TippedItem()
             {
                 r = pIcon1,
@@ -420,22 +420,22 @@ namespace Ship_Game
             this.ToolTipItems.Add(ti1);
             if (this.ColonySliderProd.cState != "normal")
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.ColonySliderProd.cursor, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), this.ColonySliderProd.cursor, Color.White);
             }
             else
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.ColonySliderProd.cursor, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), this.ColonySliderProd.cursor, Color.White);
             }
             for (int i = 0; i < 11; i++)
             {
                 tickCursor = new Vector2((float)(this.ColonySliderFood.sRect.X + this.ColonySliderProd.sRect.Width / 10 * i), (float)(this.ColonySliderProd.sRect.Y + this.ColonySliderProd.sRect.Height + 2));
                 if (this.ColonySliderProd.state != "normal")
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute_hover"], tickCursor, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
                 }
                 else
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
                 }
             }
             textPos = new Vector2((float)(this.ColonySliderProd.sRect.X + 180), (float)(this.ColonySliderProd.sRect.Y - 2));
@@ -458,10 +458,10 @@ namespace Ship_Game
             {
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, prod, textPos, Color.LightPink);
             }
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_grd_blue"], new Rectangle(this.ColonySliderRes.sRect.X, this.ColonySliderRes.sRect.Y, (int)(this.ColonySliderRes.amount * (float)this.ColonySliderRes.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderRes.sRect.X, this.ColonySliderRes.sRect.Y, (int)(this.ColonySliderRes.amount * (float)this.ColonySliderRes.sRect.Width), 6)), Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_blue"), new Rectangle(this.ColonySliderRes.sRect.X, this.ColonySliderRes.sRect.Y, (int)(this.ColonySliderRes.amount * (float)this.ColonySliderRes.sRect.Width), 6), new Rectangle?(new Rectangle(this.ColonySliderRes.sRect.X, this.ColonySliderRes.sRect.Y, (int)(this.ColonySliderRes.amount * (float)this.ColonySliderRes.sRect.Width), 6)), Color.White);
             this.ScreenManager.SpriteBatch.DrawRectangle(this.ColonySliderRes.sRect, this.ColonySliderRes.Color);
-            Rectangle rIcon = new Rectangle(this.ColonySliderRes.sRect.X - 35, this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_science"].Height / 2, ResourceManager.TextureDict["NewUI/icon_science"].Width, ResourceManager.TextureDict["NewUI/icon_science"].Height);
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rIcon, Color.White);
+            Rectangle rIcon = new Rectangle(this.ColonySliderRes.sRect.X - 35, this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_science").Height / 2, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rIcon, Color.White);
             ti1 = new PlanetInfoUIElement.TippedItem()
             {
                 r = rIcon,
@@ -470,22 +470,22 @@ namespace Ship_Game
             this.ToolTipItems.Add(ti1);
             if (this.ColonySliderRes.cState != "normal")
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair_hover"], this.ColonySliderRes.cursor, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), this.ColonySliderRes.cursor, Color.White);
             }
             else
             {
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.ColonySliderRes.cursor, Color.White);
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), this.ColonySliderRes.cursor, Color.White);
             }
             for (int i = 0; i < 11; i++)
             {
                 tickCursor = new Vector2((float)(this.ColonySliderFood.sRect.X + this.ColonySliderRes.sRect.Width / 10 * i), (float)(this.ColonySliderRes.sRect.Y + this.ColonySliderRes.sRect.Height + 2));
                 if (this.ColonySliderRes.state != "normal")
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute_hover"], tickCursor, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
                 }
                 else
                 {
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_minute"], tickCursor, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
                 }
             }
             textPos = new Vector2((ColonySliderRes.sRect.X + 180), (ColonySliderRes.sRect.Y - 2));

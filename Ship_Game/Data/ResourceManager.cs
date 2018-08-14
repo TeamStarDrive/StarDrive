@@ -805,7 +805,7 @@ namespace Ship_Game
             {
                 LastFailedTexture = texturePath;
                 Log.WarningWithCallStack($"texture path not found: {texturePath} replaces with NewUI / x_red");
-            }            
+            }
             return TextureDict[defaultTex];
         }
         
