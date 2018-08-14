@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -49,13 +50,127 @@ namespace Ship_Game
             public float prediction;
             public float predictionTimeout;
             public float predictedETA;
-            public void update(float time)
+            public void Update(float time)
             {
                 predictionTimeout -= time;
                 predictedETA -= time;
                 Log.Info($"Prediction Timeout: {predictionTimeout}");
                 Log.Info($"Prediction ETA: {predictedETA}");
                 Log.Info($"Prediction: {prediction}");
+            }
+        }
+
+        public void Update(float elapsedTime, UniverseScreen universe)
+        {
+            float realTime = (float)Game1.Instance.GameTime.ElapsedRealTime.TotalSeconds;
+            var player = EmpireManager.Player;
+            DangerTimer -= realTime;            
+            DangerUpdater -= realTime;
+            if (DangerUpdater < 0.0)
+            {
+                DangerUpdater = 10f;
+
+                DangerTimer =  player.KnownShips.Any(s => s.Center.InRadius(Position, 150000))
+                    ? 120f
+                    : 0.0f;
+            }
+
+            combatTimer -= realTime;
+
+            if (combatTimer <= 0.0)
+                CombatInSystem = false;
+            bool viewing = false;
+            Vector3 v3SystemPosition = Position.ToVec3();
+            universe.Viewport.Project(v3SystemPosition, universe.projection, universe.view, Matrix.Identity);
+            if (universe.Frustum.Contains(new BoundingSphere(v3SystemPosition, 100000f)) !=
+                ContainmentType.Disjoint)
+                viewing = true;
+            //WTF is this doing?
+            else if (universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            {
+                var rect = new Rectangle((int) Position.X - 100000,
+                    (int) Position.Y - 100000, 200000, 200000);
+                Vector3 position = universe.Viewport.Unproject(new Vector3(500f, 500f, 0.0f), universe.projection, universe.view, Matrix.Identity);
+                Vector3 direction = universe.Viewport.Unproject(new Vector3(500f, 500f, 1f), universe.projection, universe.view, Matrix.Identity) -
+                                    position;
+                direction.Normalize();
+                var ray = new Ray(position, direction);
+                float num = -ray.Position.Z / ray.Direction.Z;
+                var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
+                    ray.Position.Y + num * ray.Direction.Y, 0.0f);
+                var pos = new Vector2(vector3.X, vector3.Y);
+                if (rect.HitTest(pos))
+                    viewing = true;
+            }
+
+            if (IsExploredBy(player) && viewing)
+            {
+                isVisible = universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
+            }
+
+            if (isVisible && universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                VisibilityUpdated = true;
+                for (int i = 0; i < AsteroidsList.Count; i++)
+                {
+                    Asteroid asteroid = AsteroidsList[i];
+                    asteroid.So.Visibility = ObjectVisibility.Rendered;
+                    asteroid.Update(elapsedTime);
+                }
+
+                for (int i = 0; i < MoonList.Count; i++)
+                {
+                    Moon moon = MoonList[i];
+                    moon.So.Visibility = ObjectVisibility.Rendered;
+                    moon.UpdatePosition(elapsedTime);
+                }
+            }
+            else if (VisibilityUpdated)
+            {
+                VisibilityUpdated = false;
+                for (int i = 0; i < AsteroidsList.Count; i++)
+                {
+                    Asteroid asteroid = AsteroidsList[i];
+                    asteroid.So.Visibility = ObjectVisibility.None;
+                }
+
+                for (int i = 0; i < MoonList.Count; i++)
+                {
+                    Moon moon = MoonList[i];
+                    moon.So.Visibility = ObjectVisibility.None;
+                }
+            }
+            
+
+            for (int i = 0; i < PlanetList.Count; i++)
+            {
+                Planet planet = PlanetList[i];
+                planet.Update(elapsedTime);
+                if (planet.HasShipyard && isVisible)
+                    planet.Station.Update(elapsedTime);
+            }
+
+            for (int i = ShipList.Count - 1; i >= 0; --i)
+            {
+                Ship ship = ShipList[i];
+                if (!ship.ShipInitialized) continue;
+                if (ship.System == null)
+                    continue;
+                if (!ship.Active || ship.ModuleSlotsDestroyed) // added by gremlin ghost ship killer
+                {
+                    ship.Die(null, true);
+                }
+                else
+                {
+                    if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+                    {
+                        ship.Inhibited = true;
+                        ship.InhibitedTimer = 10f;
+                    }
+                    ship.Update(elapsedTime);
+                    if (ship.PlayerShip)
+                        ship.ProcessInput(elapsedTime);
+                }
             }
         }
 
