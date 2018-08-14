@@ -1186,7 +1186,7 @@ namespace Ship_Game
             if (!e.GetRelations(this).Known)
                 e.DoFirstContact(this);
 
-            if (GlobalStats.perf && Universe.player == this)
+            if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
             try
             {
