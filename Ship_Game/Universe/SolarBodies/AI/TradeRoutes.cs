@@ -195,7 +195,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
             if (startPlanet == null) return route;
 
             float eta = TradePlanet.Center.Distance(startPlanet.Center) + ship.Center.Distance(startPlanet.Center);
-            eta /= ship.GetmaxFTLSpeed;
+            eta /= Math.Max(ship.GetmaxFTLSpeed,1);
             route = new TradeRoute
             {
                 End = TradePlanet,
