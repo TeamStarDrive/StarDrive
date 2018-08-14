@@ -150,11 +150,11 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            spriteBatch.DrawRectangle(this.ClickableArea, Color.Orange);
-            Vector2 cursor = new Vector2((float)(this.ClickableArea.X + 5), (float)(this.ClickableArea.Y + 2));
-            spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, cursor, Color.Orange);
-            cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(this.Text).X;
-            if (this.HandlingInput)
+            spriteBatch.DrawRectangle(ClickableArea, Color.Orange);
+            Vector2 cursor = new Vector2((float)(ClickableArea.X + 5), (float)(ClickableArea.Y + 2));
+            spriteBatch.DrawString(Fonts.Arial12Bold, Text, cursor, Color.Orange);
+            cursor.X = cursor.X + Fonts.Arial12Bold.MeasureString(Text).X;
+            if (HandlingInput)
             {
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
                 float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
@@ -166,9 +166,9 @@ namespace Ship_Game
 
         public void Draw(SpriteFont Font, SpriteBatch spriteBatch, Vector2 pos, GameTime gameTime, Color c)
         {
-            spriteBatch.DrawString(Font, this.Text, pos, c);
-            pos.X = pos.X + Font.MeasureString(this.Text).X;
-            if (this.HandlingInput)
+            spriteBatch.DrawString(Font, Text, pos, c);
+            pos.X = pos.X + Font.MeasureString(Text).X;
+            if (HandlingInput)
             {
                 TimeSpan totalGameTime = gameTime.TotalGameTime;
                 float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);

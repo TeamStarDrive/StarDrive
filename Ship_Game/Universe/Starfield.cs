@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		private Vector2 position;
 
-		private Starfield.Star[] stars;
+		private Star[] stars;
 
 		private Texture2D starTexture;
 
@@ -56,10 +56,10 @@ namespace Ship_Game
 
 		static Starfield()
 		{
-			Starfield.backgroundColor = new Color(0, 0, 0);
+			backgroundColor = new Color(0, 0, 0);
 			Color[] color = new Color[] { new Color(255, 255, 255, 160), new Color(255, 255, 255, 160), new Color(255, 255, 255, 255), new Color(255, 255, 255, 255), new Color(255, 255, 255, 255), new Color(255, 255, 255, 110), new Color(255, 255, 255, 220), new Color(255, 255, 255, 90) };
-			Starfield.layerColors = color;
-			Starfield.movementFactors = new float[] { 0.1f, 0.07f, 7E-05f, 0.0006f, 0.001f, 0.014f, 0.002f, 0.0001f };
+			layerColors = color;
+			movementFactors = new float[] { 0.1f, 0.07f, 7E-05f, 0.0006f, 0.001f, 0.014f, 0.002f, 0.0001f };
 		}
 
 		public Starfield(Vector2 position, GraphicsDevice graphicsDevice, GameContentManager contentManager, int numstars)
@@ -77,7 +77,7 @@ namespace Ship_Game
 
 		public void Dispose()
 		{
-			this.Dispose(true);
+			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
@@ -87,10 +87,10 @@ namespace Ship_Game
 			{
 				lock (this)
 				{
-					if (this.starTexture != null)
+					if (starTexture != null)
 					{
-						this.starTexture.Dispose();
-						this.starTexture = null;
+						starTexture.Dispose();
+						starTexture = null;
 					}
 				}
 			}
@@ -102,48 +102,48 @@ namespace Ship_Game
 			{
 				zoom = 1f;
 			}
-			this.lastPosition = this.position;
+			lastPosition = this.position;
 			this.position = position;
-			Vector2 movement = -1f * (position - this.lastPosition);
+			Vector2 movement = -1f * (position - lastPosition);
 			if (movement.Length() > 20000f)
 			{
-				this.Reset(position);
+				Reset(position);
 				return;
 			}
 			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-			this.cloudEffect.Begin();
+			cloudEffect.Begin();
 			Starfield starfield = this;
 			starfield.cloudPos = starfield.cloudPos - ((movement * 0.3f) * zoom);
-			this.cloudEffectPosition.SetValue(this.cloudPos);
-			this.cloudEffect.CurrentTechnique.Passes[0].Begin();
+			cloudEffectPosition.SetValue(cloudPos);
+			cloudEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
-			Empire.Universe.ScreenManager.SpriteBatch.Draw(this.cloudTexture, this.starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
-			this.cloudEffect.CurrentTechnique.Passes[0].End();
-			this.cloudEffect.End();
+			Empire.Universe.ScreenManager.SpriteBatch.Draw(cloudTexture, starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
+			cloudEffect.CurrentTechnique.Passes[0].End();
+			cloudEffect.End();
 			Empire.Universe.ScreenManager.SpriteBatch.End();
 			Empire.Universe.ScreenManager.SpriteBatch.Begin();
-			for (int i = 0; i < (int)this.stars.Length; i++)
+			for (int i = 0; i < (int)stars.Length; i++)
 			{
-				this.stars[i].Position = this.stars[i].Position + ((movement * Starfield.movementFactors[stars[i].whichLayer]) * zoom);
-				if (this.stars[i].Position.X < (float)this.starfieldRectangle.X)
+				stars[i].Position = stars[i].Position + ((movement * movementFactors[stars[i].whichLayer]) * zoom);
+				if (stars[i].Position.X < (float)starfieldRectangle.X)
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + this.starfieldRectangle.Width);
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + RandomMath.InRange(starfieldRectangle.Height));
+					stars[i].Position.X = (float)(starfieldRectangle.X + starfieldRectangle.Width);
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + RandomMath.InRange(starfieldRectangle.Height));
 				}
-				if (this.stars[i].Position.X > (float)(this.starfieldRectangle.X + this.starfieldRectangle.Width))
+				if (stars[i].Position.X > (float)(starfieldRectangle.X + starfieldRectangle.Width))
 				{
-					this.stars[i].Position.X = (float)this.starfieldRectangle.X;
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + RandomMath.InRange(starfieldRectangle.Height));
+					stars[i].Position.X = (float)starfieldRectangle.X;
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + RandomMath.InRange(starfieldRectangle.Height));
 				}
-				if (this.stars[i].Position.Y < (float)this.starfieldRectangle.Y)
+				if (stars[i].Position.Y < (float)starfieldRectangle.Y)
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.InRange(starfieldRectangle.Width));
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + this.starfieldRectangle.Height);
+					stars[i].Position.X = (float)(starfieldRectangle.X + RandomMath.InRange(starfieldRectangle.Width));
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + starfieldRectangle.Height);
 				}
-				if (this.stars[i].Position.Y > (float)(this.starfieldRectangle.Y + Empire.Universe.Viewport.Height))
+				if (stars[i].Position.Y > (float)(starfieldRectangle.Y + Empire.Universe.Viewport.Height))
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.InRange(starfieldRectangle.Width));
-					this.stars[i].Position.Y = (float)this.starfieldRectangle.Y;
+					stars[i].Position.X = (float)(starfieldRectangle.X + RandomMath.InRange(starfieldRectangle.Width));
+					stars[i].Position.Y = (float)starfieldRectangle.Y;
 				}
 				float alpha = 4.08E+07f / universe.CamHeight;
 				if (alpha > 255f)
@@ -154,30 +154,30 @@ namespace Ship_Game
 				{
 					alpha = 0f;
 				}
-				switch (this.stars[i].whichLayer)
+				switch (stars[i].whichLayer)
 				{
 					case 2:
 					{
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.SmallStars[this.stars[i].whichStar], this.stars[i].Position, Starfield.layerColors[this.stars[i].whichLayer]);
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.SmallStars[stars[i].whichStar], stars[i].Position, layerColors[stars[i].whichLayer]);
 						break;
 					}
 					case 3:
 					{
-						Color c = new Color(Starfield.layerColors[this.stars[i].whichLayer].R, Starfield.layerColors[this.stars[i].whichLayer].G, Starfield.layerColors[this.stars[i].whichLayer].B, (byte)alpha);
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.MediumStars[this.stars[i].whichStar], this.stars[i].Position, c);
+						Color c = new Color(layerColors[stars[i].whichLayer].R, layerColors[stars[i].whichLayer].G, layerColors[stars[i].whichLayer].B, (byte)alpha);
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.MediumStars[stars[i].whichStar], stars[i].Position, c);
 						break;
 					}
 					case 4:
 					{
-						Color c1 = new Color(Starfield.layerColors[this.stars[i].whichLayer].R, Starfield.layerColors[this.stars[i].whichLayer].G, Starfield.layerColors[this.stars[i].whichLayer].B, (byte)alpha);
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.LargeStars[this.stars[i].whichStar], this.stars[i].Position, c1);
+						Color c1 = new Color(layerColors[stars[i].whichLayer].R, layerColors[stars[i].whichLayer].G, layerColors[stars[i].whichLayer].B, (byte)alpha);
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.LargeStars[stars[i].whichStar], stars[i].Position, c1);
 						break;
 					}
 					default:
 					{
-						Rectangle r = new Rectangle((int)this.stars[i].Position.X, (int)this.stars[i].Position.Y, this.stars[i].Size, this.stars[i].Size);
+						Rectangle r = new Rectangle((int)stars[i].Position.X, (int)stars[i].Position.Y, stars[i].Size, stars[i].Size);
 						Rectangle? nullable1 = null;
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(this.starTex[this.stars[i].whichStar], r, nullable1, Starfield.layerColors[this.stars[i].whichLayer]);
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(starTex[stars[i].whichStar], r, nullable1, layerColors[stars[i].whichLayer]);
 						break;
 					}
 				}
@@ -187,60 +187,60 @@ namespace Ship_Game
 
 		public void Draw(Vector2 position)
 		{
-			this.lastPosition = this.position;
+			lastPosition = this.position;
 			this.position = position;
-			Vector2 movement = -1f * (position - this.lastPosition);
+			Vector2 movement = -1f * (position - lastPosition);
 			if (movement.Length() > 20000f)
 			{
-				this.Reset(position);
+				Reset(position);
 				return;
 			}
 			Empire.Universe.ScreenManager.SpriteBatch.Begin();
-			for (int i = 0; i < (int)this.stars.Length; i++)
+			for (int i = 0; i < (int)stars.Length; i++)
 			{
-				this.stars[i].Position = this.stars[i].Position + (movement * Starfield.movementFactors[this.stars[i].whichLayer]);
-				if (this.stars[i].Position.X < (float)this.starfieldRectangle.X)
+				stars[i].Position = stars[i].Position + (movement * movementFactors[stars[i].whichLayer]);
+				if (stars[i].Position.X < (float)starfieldRectangle.X)
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + this.starfieldRectangle.Width);
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + RandomMath.Random.Next(this.starfieldRectangle.Height));
+					stars[i].Position.X = (float)(starfieldRectangle.X + starfieldRectangle.Width);
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + RandomMath.Random.Next(starfieldRectangle.Height));
 				}
-				if (this.stars[i].Position.X > (float)(this.starfieldRectangle.X + this.starfieldRectangle.Width))
+				if (stars[i].Position.X > (float)(starfieldRectangle.X + starfieldRectangle.Width))
 				{
-					this.stars[i].Position.X = (float)this.starfieldRectangle.X;
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + RandomMath.Random.Next(this.starfieldRectangle.Height));
+					stars[i].Position.X = (float)starfieldRectangle.X;
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + RandomMath.Random.Next(starfieldRectangle.Height));
 				}
-				if (this.stars[i].Position.Y < (float)this.starfieldRectangle.Y)
+				if (stars[i].Position.Y < (float)starfieldRectangle.Y)
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.Random.Next(this.starfieldRectangle.Width));
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + this.starfieldRectangle.Height);
+					stars[i].Position.X = (float)(starfieldRectangle.X + RandomMath.Random.Next(starfieldRectangle.Width));
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + starfieldRectangle.Height);
 				}
-				if (this.stars[i].Position.Y > (float)(this.starfieldRectangle.Y + Empire.Universe.Viewport.Height))
+				if (stars[i].Position.Y > (float)(starfieldRectangle.Y + Empire.Universe.Viewport.Height))
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.Random.Next(this.starfieldRectangle.Width));
-					this.stars[i].Position.Y = (float)this.starfieldRectangle.Y;
+					stars[i].Position.X = (float)(starfieldRectangle.X + RandomMath.Random.Next(starfieldRectangle.Width));
+					stars[i].Position.Y = (float)starfieldRectangle.Y;
 				}
 				float alpha = 255f;
-				switch (this.stars[i].whichLayer)
+				switch (stars[i].whichLayer)
 				{
 					case 2:
 					{
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.SmallStars[this.stars[i].whichStar], this.stars[i].Position, Starfield.layerColors[this.stars[i].whichLayer]);
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.SmallStars[stars[i].whichStar], stars[i].Position, layerColors[stars[i].whichLayer]);
 						break;
 					}
 					case 3:
 					{
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.MediumStars[this.stars[i].whichStar], this.stars[i].Position, new Color(Starfield.layerColors[this.stars[i].whichLayer].R, Starfield.layerColors[this.stars[i].whichLayer].G, Starfield.layerColors[this.stars[i].whichLayer].B, (byte)alpha));
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.MediumStars[stars[i].whichStar], stars[i].Position, new Color(layerColors[stars[i].whichLayer].R, layerColors[stars[i].whichLayer].G, layerColors[stars[i].whichLayer].B, (byte)alpha));
 						break;
 					}
 					case 4:
 					{
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.LargeStars[this.stars[i].whichStar], this.stars[i].Position, new Color(Starfield.layerColors[this.stars[i].whichLayer].R, Starfield.layerColors[this.stars[i].whichLayer].G, Starfield.layerColors[this.stars[i].whichLayer].B, (byte)alpha));
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.LargeStars[stars[i].whichStar], stars[i].Position, new Color(layerColors[stars[i].whichLayer].R, layerColors[stars[i].whichLayer].G, layerColors[stars[i].whichLayer].B, (byte)alpha));
 						break;
 					}
 					default:
 					{
 						Rectangle? nullable = null;
-						Empire.Universe.ScreenManager.SpriteBatch.Draw(this.starTex[this.stars[i].whichStar], new Rectangle((int)this.stars[i].Position.X, (int)this.stars[i].Position.Y, this.stars[i].Size, this.stars[i].Size), nullable, Starfield.layerColors[this.stars[i].whichLayer]);
+						Empire.Universe.ScreenManager.SpriteBatch.Draw(starTex[stars[i].whichStar], new Rectangle((int)stars[i].Position.X, (int)stars[i].Position.Y, stars[i].Size, stars[i].Size), nullable, layerColors[stars[i].whichLayer]);
 						break;
 					}
 				}
@@ -250,75 +250,75 @@ namespace Ship_Game
 
 		public void Draw(Vector2 position, SpriteBatch spriteBatch)
 		{
-			this.lastPosition = this.position;
+			lastPosition = this.position;
 			this.position = position;
-			Vector2 movement = -1f * (position - this.lastPosition);
+			Vector2 movement = -1f * (position - lastPosition);
 			if (movement.Length() > 20000f)
 			{
-				this.Reset(position);
+				Reset(position);
 				return;
 			}
 			spriteBatch.End();
-			if (this.cloudEffect != null)
+			if (cloudEffect != null)
 			{
 				spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-				this.cloudEffect.Begin();
+				cloudEffect.Begin();
 				Starfield starfield = this;
 				starfield.cloudPos = starfield.cloudPos - ((movement * 0.3f) * 1f);
-				this.cloudEffectPosition.SetValue(this.cloudPos);
-				this.cloudEffect.CurrentTechnique.Passes[0].Begin();
+				cloudEffectPosition.SetValue(cloudPos);
+				cloudEffect.CurrentTechnique.Passes[0].Begin();
 				Rectangle? nullable = null;
-				spriteBatch.Draw(this.cloudTexture, this.starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
-				this.cloudEffect.CurrentTechnique.Passes[0].End();
-				this.cloudEffect.End();
+				spriteBatch.Draw(cloudTexture, starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
+				cloudEffect.CurrentTechnique.Passes[0].End();
+				cloudEffect.End();
 				spriteBatch.End();
 			}
 			spriteBatch.Begin();
-			for (int i = 0; i < (int)this.stars.Length; i++)
+			for (int i = 0; i < (int)stars.Length; i++)
 			{
-				this.stars[i].Position = this.stars[i].Position + (movement * Starfield.movementFactors[this.stars[i].whichLayer]);
-				if (this.stars[i].Position.X < (float)this.starfieldRectangle.X)
+				stars[i].Position = stars[i].Position + (movement * movementFactors[stars[i].whichLayer]);
+				if (stars[i].Position.X < (float)starfieldRectangle.X)
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + this.starfieldRectangle.Width);
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + RandomMath.Random.Next(this.starfieldRectangle.Height));
+					stars[i].Position.X = (float)(starfieldRectangle.X + starfieldRectangle.Width);
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + RandomMath.Random.Next(starfieldRectangle.Height));
 				}
-				if (this.stars[i].Position.X > (float)(this.starfieldRectangle.X + this.starfieldRectangle.Width))
+				if (stars[i].Position.X > (float)(starfieldRectangle.X + starfieldRectangle.Width))
 				{
-					this.stars[i].Position.X = (float)this.starfieldRectangle.X;
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + RandomMath.Random.Next(this.starfieldRectangle.Height));
+					stars[i].Position.X = (float)starfieldRectangle.X;
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + RandomMath.Random.Next(starfieldRectangle.Height));
 				}
-				if (this.stars[i].Position.Y < (float)this.starfieldRectangle.Y)
+				if (stars[i].Position.Y < (float)starfieldRectangle.Y)
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.Random.Next(this.starfieldRectangle.Width));
-					this.stars[i].Position.Y = (float)(this.starfieldRectangle.Y + this.starfieldRectangle.Height);
+					stars[i].Position.X = (float)(starfieldRectangle.X + RandomMath.Random.Next(starfieldRectangle.Width));
+					stars[i].Position.Y = (float)(starfieldRectangle.Y + starfieldRectangle.Height);
 				}
-				if (this.stars[i].Position.Y > (float)(this.starfieldRectangle.Y + Empire.Universe.Viewport.Height))
+				if (stars[i].Position.Y > (float)(starfieldRectangle.Y + Empire.Universe.Viewport.Height))
 				{
-					this.stars[i].Position.X = (float)(this.starfieldRectangle.X + RandomMath.Random.Next(this.starfieldRectangle.Width));
-					this.stars[i].Position.Y = (float)this.starfieldRectangle.Y;
+					stars[i].Position.X = (float)(starfieldRectangle.X + RandomMath.Random.Next(starfieldRectangle.Width));
+					stars[i].Position.Y = (float)starfieldRectangle.Y;
 				}
 				float alpha = 255f;
-				switch (this.stars[i].whichLayer)
+				switch (stars[i].whichLayer)
 				{
 					case 2:
 					{
-						spriteBatch.Draw(ResourceManager.SmallStars[this.stars[i].whichStar], this.stars[i].Position, Starfield.layerColors[this.stars[i].whichLayer]);
+						spriteBatch.Draw(ResourceManager.SmallStars[stars[i].whichStar], stars[i].Position, layerColors[stars[i].whichLayer]);
 						break;
 					}
 					case 3:
 					{
-						spriteBatch.Draw(ResourceManager.MediumStars[this.stars[i].whichStar], this.stars[i].Position, new Color(Starfield.layerColors[this.stars[i].whichLayer].R, Starfield.layerColors[this.stars[i].whichLayer].G, Starfield.layerColors[this.stars[i].whichLayer].B, (byte)alpha));
+						spriteBatch.Draw(ResourceManager.MediumStars[stars[i].whichStar], stars[i].Position, new Color(layerColors[stars[i].whichLayer].R, layerColors[stars[i].whichLayer].G, layerColors[stars[i].whichLayer].B, (byte)alpha));
 						break;
 					}
 					case 4:
 					{
-						spriteBatch.Draw(ResourceManager.LargeStars[this.stars[i].whichStar], this.stars[i].Position, new Color(Starfield.layerColors[this.stars[i].whichLayer].R, Starfield.layerColors[this.stars[i].whichLayer].G, Starfield.layerColors[this.stars[i].whichLayer].B, (byte)alpha));
+						spriteBatch.Draw(ResourceManager.LargeStars[stars[i].whichStar], stars[i].Position, new Color(layerColors[stars[i].whichLayer].R, layerColors[stars[i].whichLayer].G, layerColors[stars[i].whichLayer].B, (byte)alpha));
 						break;
 					}
 					default:
 					{
 						Rectangle? nullable1 = null;
-						spriteBatch.Draw(this.starTex[this.stars[i].whichStar], new Rectangle((int)this.stars[i].Position.X, (int)this.stars[i].Position.Y, this.stars[i].Size, this.stars[i].Size), nullable1, Starfield.layerColors[this.stars[i].whichLayer]);
+						spriteBatch.Draw(starTex[stars[i].whichStar], new Rectangle((int)stars[i].Position.X, (int)stars[i].Position.Y, stars[i].Size, stars[i].Size), nullable1, layerColors[stars[i].whichLayer]);
 						break;
 					}
 				}
@@ -327,18 +327,18 @@ namespace Ship_Game
 
 		public void DrawBGOnly(Vector2 position)
 		{
-			this.lastPosition = this.position;
+			lastPosition = this.position;
 			this.position = position;
-			Vector2 movement = -1f * (position - this.lastPosition);
+			Vector2 movement = -1f * (position - lastPosition);
 			int width = Empire.Universe.Viewport.Width;
 			Viewport viewport = Empire.Universe.Viewport;
 			Rectangle starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
 			Empire.Universe.ScreenManager.SpriteBatch.Begin();
-			Empire.Universe.ScreenManager.SpriteBatch.Draw(this.starTexture, starfieldRectangle, Color.Black);
+			Empire.Universe.ScreenManager.SpriteBatch.Draw(starTexture, starfieldRectangle, Color.Black);
 			Empire.Universe.ScreenManager.SpriteBatch.End();
 			if (movement.Length() > 20000f)
 			{
-				this.Reset(position);
+				Reset(position);
 				return;
 			}
 			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
@@ -351,62 +351,62 @@ namespace Ship_Game
 			{
 				zoom = 1f;
 			}
-			this.lastPosition = this.position;
+			lastPosition = this.position;
 			this.position = position;
-			Vector2 vector2 = -1f * (position - this.lastPosition);
+			Vector2 vector2 = -1f * (position - lastPosition);
 			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-			this.cloudEffect.Begin();
-			this.cloudPos = new Vector2(3800f, -1200f);
-			this.cloudEffectPosition.SetValue(this.cloudPos);
-			this.cloudEffect.CurrentTechnique.Passes[0].Begin();
+			cloudEffect.Begin();
+			cloudPos = new Vector2(3800f, -1200f);
+			cloudEffectPosition.SetValue(cloudPos);
+			cloudEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
-			Empire.Universe.ScreenManager.SpriteBatch.Draw(this.cloudTexture, this.starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
-			this.cloudEffect.CurrentTechnique.Passes[0].End();
-			this.cloudEffect.End();
+			Empire.Universe.ScreenManager.SpriteBatch.Draw(cloudTexture, starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
+			cloudEffect.CurrentTechnique.Passes[0].End();
+			cloudEffect.End();
 			Empire.Universe.ScreenManager.SpriteBatch.End();
 		}
 
 		public void DrawClouds(Vector2 position)
 		{
-			this.lastPosition = this.position;
+			lastPosition = this.position;
 			this.position = position;
-			Vector2 movement = -1f * (position - this.lastPosition);
+			Vector2 movement = -1f * (position - lastPosition);
 			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-			this.cloudEffect.Begin();
+			cloudEffect.Begin();
 			Starfield starfield = this;
 			starfield.cloudPos = starfield.cloudPos - movement;
-			this.cloudEffectPosition.SetValue(this.cloudPos);
-			this.cloudEffect.CurrentTechnique.Passes[0].Begin();
+			cloudEffectPosition.SetValue(cloudPos);
+			cloudEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
-			Empire.Universe.ScreenManager.SpriteBatch.Draw(this.cloudTexture, this.starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
-			this.cloudEffect.CurrentTechnique.Passes[0].End();
-			this.cloudEffect.End();
+			Empire.Universe.ScreenManager.SpriteBatch.Draw(cloudTexture, starfieldRectangle, nullable, new Color(255, 0, 0, 255), 0f, Vector2.Zero, SpriteEffects.None, 1f);
+			cloudEffect.CurrentTechnique.Passes[0].End();
+			cloudEffect.End();
 			Empire.Universe.ScreenManager.SpriteBatch.End();
 		}
 
 		~Starfield()
 		{
-			this.Dispose(false);
+			Dispose(false);
 		}
 
 		public void LoadContent()
 		{
-			this.cloudTexture = ResourceManager.Texture("clouds");
-			this.cloudEffect = Empire.Universe.TransientContent.Load<Effect>("Effects/Clouds");
-			this.cloudEffectPosition = this.cloudEffect.Parameters["Position"];
+			cloudTexture = ResourceManager.Texture("clouds");
+			cloudEffect = Empire.Universe.TransientContent.Load<Effect>("Effects/Clouds");
+			cloudEffectPosition = cloudEffect.Parameters["Position"];
 			int width = Empire.Universe.Viewport.Width;
 			Viewport viewport = Empire.Universe.Viewport;
-			this.starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
-			this.aStar = ResourceManager.Texture("Suns/star_binary");
-			this.starTex[0] = this.aStar;
-			this.bStar = ResourceManager.Texture("Suns/star_yellow");
-			this.starTex[1] = this.bStar;
-			this.cStar = ResourceManager.Texture("Suns/star_red");
-			this.starTex[2] = this.cStar;
-			this.dStar = ResourceManager.Texture("Suns/star_neutron");
-			this.starTex[3] = this.dStar;
-			this.starTexture = new Texture2D(Empire.Universe.ScreenManager.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-			this.starTexture.SetData<Color>(new Color[] { Color.White });
+			starfieldRectangle = new Rectangle(0, 0, width, viewport.Height);
+			aStar = ResourceManager.Texture("Suns/star_binary");
+			starTex[0] = aStar;
+			bStar = ResourceManager.Texture("Suns/star_yellow");
+			starTex[1] = bStar;
+			cStar = ResourceManager.Texture("Suns/star_red");
+			starTex[2] = cStar;
+			dStar = ResourceManager.Texture("Suns/star_neutron");
+			starTex[3] = dStar;
+			starTexture = new Texture2D(Empire.Universe.ScreenManager.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+			starTexture.SetData<Color>(new Color[] { Color.White });
 		}
 
 		public void Reset(Vector2 position)
@@ -416,59 +416,59 @@ namespace Ship_Game
 			int numLargeStars = 0;
 			int viewportWidth = Empire.Universe.Viewport.Width;
 			int viewportHeight = Empire.Universe.Viewport.Height;
-			for (int i = 0; i < (int)this.stars.Length; i++)
+			for (int i = 0; i < (int)stars.Length; i++)
 			{
-				int depth = i % (int)Starfield.movementFactors.Length;
+				int depth = i % (int)movementFactors.Length;
 				if (depth != 2 && depth != 3 && depth != 4)
 				{
-					this.stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
-					this.stars[i].Size = 1;
-					this.stars[i].whichStar = (int)RandomMath.RandomBetween(0f, 3f);
-					this.stars[i].whichLayer = depth;
+					stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
+					stars[i].Size = 1;
+					stars[i].whichStar = (int)RandomMath.RandomBetween(0f, 3f);
+					stars[i].whichLayer = depth;
 				}
-				else if (depth == 2 && numSmallStars < this.DesiredSmallStars)
+				else if (depth == 2 && numSmallStars < DesiredSmallStars)
 				{
 					numSmallStars++;
-					this.stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
-					this.stars[i].Size = 1;
-					this.stars[i].whichStar = (int)RandomMath.RandomBetween(0f, (float)ResourceManager.SmallStars.Count);
-					this.stars[i].whichLayer = 2;
+					stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
+					stars[i].Size = 1;
+					stars[i].whichStar = (int)RandomMath.RandomBetween(0f, (float)ResourceManager.SmallStars.Count);
+					stars[i].whichLayer = 2;
 				}
-				else if (depth == 3 && numMedStars < this.DesiredMedStars)
+				else if (depth == 3 && numMedStars < DesiredMedStars)
 				{
 					numMedStars++;
-					this.stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
-					this.stars[i].Size = 1;
-					this.stars[i].whichStar = (int)RandomMath.RandomBetween(0f, (float)ResourceManager.MediumStars.Count);
-					this.stars[i].whichLayer = 3;
+					stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
+					stars[i].Size = 1;
+					stars[i].whichStar = (int)RandomMath.RandomBetween(0f, (float)ResourceManager.MediumStars.Count);
+					stars[i].whichLayer = 3;
 				}
-				else if (depth != 4 || numLargeStars >= this.DesiredLargeStars)
+				else if (depth != 4 || numLargeStars >= DesiredLargeStars)
 				{
-					this.stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
-					this.stars[i].Size = 1;
-					this.stars[i].whichStar = (int)RandomMath.RandomBetween(0f, 3f);
-					this.stars[i].whichLayer = 7;
+					stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
+					stars[i].Size = 1;
+					stars[i].whichStar = (int)RandomMath.RandomBetween(0f, 3f);
+					stars[i].whichLayer = 7;
 				}
 				else
 				{
 					numLargeStars++;
-					this.stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
-					this.stars[i].Size = 1;
-					this.stars[i].whichStar = (int)RandomMath.RandomBetween(0f, (float)ResourceManager.LargeStars.Count);
-					this.stars[i].whichLayer = 4;
+					stars[i].Position = new Vector2((float)RandomMath.Random.Next(0, viewportWidth), (float)RandomMath.Random.Next(0, viewportHeight));
+					stars[i].Size = 1;
+					stars[i].whichStar = (int)RandomMath.RandomBetween(0f, (float)ResourceManager.LargeStars.Count);
+					stars[i].whichLayer = 4;
 				}
 			}
 		}
 
 		public void UnloadContent()
 		{
-			this.cloudTexture = null;
-			this.cloudEffect = null;
-			this.cloudEffectPosition = null;
-			if (this.starTexture != null)
+			cloudTexture = null;
+			cloudEffect = null;
+			cloudEffectPosition = null;
+			if (starTexture != null)
 			{
-				this.starTexture.Dispose();
-				this.starTexture = null;
+				starTexture.Dispose();
+				starTexture = null;
 			}
 		}
 

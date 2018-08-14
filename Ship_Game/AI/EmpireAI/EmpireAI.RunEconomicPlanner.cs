@@ -44,7 +44,7 @@ namespace Ship_Game.AI {
              
                 foreach (var planet in empire.GetPlanets())
                 {
-                    var pinfo = new AI.Budget.PlanetBudget(planet);
+                    var pinfo = new Budget.PlanetBudget(planet);
                     pBudgets.Add(pinfo);
                 }
             }

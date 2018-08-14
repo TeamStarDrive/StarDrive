@@ -9,13 +9,13 @@ namespace Ship_Game.AI {
     {
         public void FactionUpdate()
         {
-            string name = this.OwnerEmpire.data.Traits.Name;
+            string name = OwnerEmpire.data.Traits.Name;
             switch (name)
             {
                 case "The Remnant":
                 {
                     bool HasPlanets = false; // this.empire.GetPlanets().Count > 0;
-                    foreach (Planet planet in this.OwnerEmpire.GetPlanets())
+                    foreach (Planet planet in OwnerEmpire.GetPlanets())
                     {
                         HasPlanets = true;
 
@@ -27,7 +27,7 @@ namespace Ship_Game.AI {
                         }
                         planet.ApplyProductiontoQueue(1, 0);
                     }
-                    foreach (Ship assimilate in this.OwnerEmpire.GetShips())
+                    foreach (Ship assimilate in OwnerEmpire.GetShips())
                     {
                         if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null 
                                 && assimilate.AI.State !=  AIState.Colonize && assimilate.AI.State != AIState.Refit)
@@ -40,7 +40,7 @@ namespace Ship_Game.AI {
                                     if (assimilate.System != null)
                                     {
                                             target = assimilate.System.PlanetList
-                                                .Find(owner => owner.Owner != this.OwnerEmpire && owner.Owner != null);
+                                                .Find(owner => owner.Owner != OwnerEmpire && owner.Owner != null);
                                             
                                     }
                                     if (target != null)
@@ -108,7 +108,7 @@ namespace Ship_Game.AI {
                     bool AttackingSomeone = false;
                     //lock (GlobalStats.TaskLocker)
                     {
-                        this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                        TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                         {
                             if (task.type != Tasks.MilitaryTask.TaskType.CorsairRaid)
                             {
@@ -119,29 +119,29 @@ namespace Ship_Game.AI {
                     }
                     if (!AttackingSomeone)
                     {
-                        foreach (KeyValuePair<Empire, Relationship> r in this.OwnerEmpire.AllRelations)
+                        foreach (KeyValuePair<Empire, Relationship> r in OwnerEmpire.AllRelations)
                         {
-                            if (!r.Value.AtWar || r.Key.GetPlanets().Count <= 0 || this.OwnerEmpire.GetShips().Count <= 0)
+                            if (!r.Value.AtWar || r.Key.GetPlanets().Count <= 0 || OwnerEmpire.GetShips().Count <= 0)
                             {
                                 continue;
                             }
                             Vector2 center = new Vector2();
-                            foreach (Ship ship in this.OwnerEmpire.GetShips())
+                            foreach (Ship ship in OwnerEmpire.GetShips())
                             {
                                 center = center + ship.Center;
                             }
-                            center = center / (float) this.OwnerEmpire.GetShips().Count;
+                            center = center / (float) OwnerEmpire.GetShips().Count;
                             IOrderedEnumerable<Planet> sortedList =
                                 from planet in r.Key.GetPlanets()
                                 orderby Vector2.Distance(planet.Center, center)
                                 select planet;
-                            Tasks.MilitaryTask task = new Tasks.MilitaryTask(this.OwnerEmpire);
+                            Tasks.MilitaryTask task = new Tasks.MilitaryTask(OwnerEmpire);
                             task.SetTargetPlanet(sortedList.First<Planet>());
                             task.TaskTimer = 300f;
                             task.type = Tasks.MilitaryTask.TaskType.CorsairRaid;
                             //  lock (GlobalStats.TaskLocker)
                             {
-                                this.TaskList.Add(task);
+                                TaskList.Add(task);
                             }
                         }
                     }
@@ -154,11 +154,11 @@ namespace Ship_Game.AI {
 
             //lock (GlobalStats.TaskLocker)
             {
-                this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                 {
                     if (task.type != Tasks.MilitaryTask.TaskType.Exploration)
                     {
-                        task.Evaluate(this.OwnerEmpire);
+                        task.Evaluate(OwnerEmpire);
                     }
                     else
                     {

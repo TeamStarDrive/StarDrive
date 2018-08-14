@@ -27,7 +27,7 @@ namespace Ship_Game
                 ModPath = GlobalStats.ActiveMod.ModName;
             }
             Version = Convert.ToInt32( ConfigurationManager.AppSettings["SaveVersion"] );
-            this.Traits = traits;
+            Traits = traits;
         }
     }
 }

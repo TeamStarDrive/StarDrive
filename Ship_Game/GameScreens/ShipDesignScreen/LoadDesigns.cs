@@ -56,29 +56,29 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public LoadDesigns(Ship_Game.ShipDesignScreen screen) : base(screen)
         {
-            this.Screen            = screen;
-            base.IsPopup           = true;
-            base.TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            Screen            = screen;
+            IsPopup           = true;
+            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
         
         private void DeleteAccepted(object sender, EventArgs e)
         {            
             GameAudio.EchoAffirmative();
-            ResourceManager.ShipsDict[this.ShipToDelete].Deleted = true;
-            this.ShipsToLoad.Clear();
-            this.ShipDesigns.Reset();
-            ResourceManager.DeleteShip(this.ShipToDelete);
-            this.LoadContent();
+            ResourceManager.ShipsDict[ShipToDelete].Deleted = true;
+            ShipsToLoad.Clear();
+            ShipDesigns.Reset();
+            ResourceManager.DeleteShip(ShipToDelete);
+            LoadContent();
         }
 
         private void DeleteDataAccepted(object sender, EventArgs e)
         {
             GameAudio.EchoAffirmative();
-            this.ShipsToLoad.Clear();
-            this.ShipDesigns.Reset();
-            ResourceManager.DeleteShip(this.ShipToDelete);
-            this.LoadContent();
+            ShipsToLoad.Clear();
+            ShipDesigns.Reset();
+            ResourceManager.DeleteShip(ShipToDelete);
+            LoadContent();
         }
 
         public override void Draw(SpriteBatch batch)
@@ -148,7 +148,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 ExitScreen();
                 return true;
             }
-            this.selector = null;
+            selector = null;
             foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
                 if (e.item is ModuleHeader header)
@@ -202,13 +202,13 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public override void LoadContent()
         {
-            Window              = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
-            loadMenu            = new Menu1(this.Window);
-            Rectangle sub       = new Rectangle(this.Window.X + 20, this.Window.Y + 60, this.Window.Width - 40, this.Window.Height - 80);
+            Window              = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
+            loadMenu            = new Menu1(Window);
+            Rectangle sub       = new Rectangle(Window.X + 20, Window.Y + 60, Window.Width - 40, Window.Height - 80);
             SaveShips           = new Submenu(sub);
             SaveShips.AddTab(Localizer.Token(198));
-            ShipDesigns         = new ScrollList(this.SaveShips);
-            TitlePosition       = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
+            ShipDesigns         = new ScrollList(SaveShips);
+            TitlePosition       = new Vector2((float)(Window.X + 20), (float)(Window.Y + 20));
             string path         = Dir.ApplicationData;
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y)));
             PlayerDesignsToggle.OnClick += p =>
@@ -243,7 +243,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 }
             }
             Array<string> ShipRoles = new Array<string>();
-            if (this.Screen != null)
+            if (Screen != null)
             {
                 foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
                 {
@@ -261,7 +261,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         }
                         ShipRoles.Add(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
                         ModuleHeader mh = new ModuleHeader(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
-                        this.ShipDesigns.AddItem(mh);
+                        ShipDesigns.AddItem(mh);
                     }
                     catch
                     {

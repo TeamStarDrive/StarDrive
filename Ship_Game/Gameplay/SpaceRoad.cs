@@ -30,19 +30,19 @@ namespace Ship_Game.Gameplay
             
             float offset = (empire.ProjectorRadius * 1.75f);//fbedard: increased from 1.5f
             offset = offset == 0 ? 1 : offset;
-            this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
+            NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
             offset = Distance / NumberOfProjectors;
             offset *= .5f;
-            if (SSPBudget - nodeMaintenance * this.NumberOfProjectors <= 0)
+            if (SSPBudget - nodeMaintenance * NumberOfProjectors <= 0)
             {
-                this.NumberOfProjectors = 0;
+                NumberOfProjectors = 0;
                 return ;
             }
 			for (int i = 0; i < NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
 				float angle = Origin.Position.AngleToTarget(Destination.Position);
-                node.Position = Origin.Position.PointOnCircle(angle, offset + (i * (float)( Distance / this.NumberOfProjectors) ));
+                node.Position = Origin.Position.PointOnCircle(angle, offset + (i * (float)( Distance / NumberOfProjectors) ));
 				bool reallyAdd = true;
                 float extrad = empire.ProjectorRadius;
 
@@ -57,29 +57,29 @@ namespace Ship_Game.Gameplay
                 }
 
                 if (reallyAdd)
-					this.RoadNodesList.Add(node);
+					RoadNodesList.Add(node);
 			}
 		}
 
 		public SolarSystem GetDestination()
 		{
-			return this.Destination;
+			return Destination;
 		}
 
 		public SolarSystem GetOrigin
             ()
 		{
-			return this.Origin;
+			return Origin;
 		}
 
 		public void SetDestination(SolarSystem s)
 		{
-			this.Destination = s;
+			Destination = s;
 		}
 
 		public void SetOrigin(SolarSystem s)
 		{
-			this.Origin = s;
+			Origin = s;
 		}
 	}
 }

@@ -17,9 +17,9 @@ namespace Ship_Game
 
 		public TutorialScreen(GameScreen parent) : base(parent)
 		{
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+			IsPopup = true;
+			TransitionOnTime = TimeSpan.FromSeconds(0.25);
+			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
 	
@@ -29,38 +29,38 @@ namespace Ship_Game
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 		    batch.Begin();
 		    batch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
-			this.close.Draw(batch);
+			close.Draw(batch);
 		    batch.End();
 		}
 
 		public override bool HandleInput(InputState input)
 		{
-			if (this.close.HandleInput(input))
+			if (close.HandleInput(input))
 			{
-				this.ExitScreen();
+				ExitScreen();
 				return true;
 			}
 			if (input.Escaped)
 			{
-				this.ExitScreen();
+				ExitScreen();
                 return true;
 			}
 			if (input.Right || input.InGameSelect)
 			{
 				TutorialScreen index = this;
 				index.Index = index.Index + 1;
-				if (this.Index > this.TexDict.Count - 1)
+				if (Index > TexDict.Count - 1)
 				{
-					this.Index = 0;
+					Index = 0;
 				}
 			}
 			if (input.Left || input.RightMouseClick)
 			{
 				TutorialScreen tutorialScreen = this;
 				tutorialScreen.Index = tutorialScreen.Index - 1;
-				if (this.Index < 0)
+				if (Index < 0)
 				{
-					this.Index = this.TexDict.Count - 1;
+					Index = TexDict.Count - 1;
 				}
 			}
             return base.HandleInput(input);

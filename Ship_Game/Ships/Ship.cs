@@ -713,7 +713,7 @@ namespace Ship_Game.Ships
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= ftlmodtemp;
-            maxFTLSpeed = (WarpThrust / base.Mass + WarpThrust / base.Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
+            maxFTLSpeed = (WarpThrust / Mass + WarpThrust / Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
 
 
         }
@@ -831,7 +831,7 @@ namespace Ship_Game.Ships
                         if (yRotation < MaxBank)
                             yRotation += yBankAmount;
                     }
-                    else if (engineState == Ship.MoveState.Warp)
+                    else if (engineState == MoveState.Warp)
                     {
                         isSpooling = true;
                         isTurning = false;
@@ -990,7 +990,7 @@ namespace Ship_Game.Ships
             Vector2 toTarget = target.Center - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
-            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
 
 
             if (facing > 360f)
@@ -1033,7 +1033,7 @@ namespace Ship_Game.Ships
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -1080,7 +1080,7 @@ namespace Ship_Game.Ships
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
             if (facing > 360f)
             {
                 facing = facing - 360f;
