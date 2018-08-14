@@ -105,12 +105,12 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
             TitleBar.Draw();
-            ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, new Color(255, 239, 208));
             EMenu.Draw();
             var textColor = new Color(118, 102, 67, 50);
-            PlanetSL.Draw(ScreenManager.SpriteBatch);
+            PlanetSL.Draw(batch);
             if (PlanetSL.NumEntries > 0)
             {
                 var e1 = PlanetSL.ItemAtTop<PlanetListScreenEntry>();
@@ -157,57 +157,56 @@ namespace Ship_Game
                 Color smallHighlight = textColor;
                 smallHighlight.A = (byte)(textColor.A / 2);
 
-                GameTime gameTime = Game1.Instance.GameTime;
                 int i = PlanetSL.FirstVisibleIndex;
                 foreach (ScrollList.Entry e in PlanetSL.VisibleEntries)
                 {
-                    var entry2 = (PlanetListScreenEntry)e.item;
+                    var planetListEntry = (PlanetListScreenEntry)e.item;
                     if (i % 2 == 0)
                     {
-                        ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, smallHighlight);
+                        batch.FillRectangle(planetListEntry.TotalEntrySize, smallHighlight);
                     }
-                    if (entry2.planet == SelectedPlanet)
+                    if (planetListEntry.planet == SelectedPlanet)
                     {
-                        ScreenManager.SpriteBatch.FillRectangle(entry2.TotalEntrySize, textColor);
+                        batch.FillRectangle(planetListEntry.TotalEntrySize, textColor);
                     }
-                    entry2.SetNewPos(eRect.X + 22, e.Y);
-                    entry2.Draw(ScreenManager, gameTime);
-                    ScreenManager.SpriteBatch.DrawRectangle(entry2.TotalEntrySize, textColor);
+                    planetListEntry.SetNewPos(eRect.X + 22, e.Y);
+                    planetListEntry.Draw(batch);
+                    batch.DrawRectangle(planetListEntry.TotalEntrySize, textColor);
                     ++i;
                 }                
                 Color lineColor = new Color(118, 102, 67, 255);
                 Vector2 topLeftSL = new Vector2(e1.SysNameRect.X, (eRect.Y + 35));
                 Vector2 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2(e1.PlanetNameRect.X, (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2(e1.FertRect.X, (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.RichRect.X + 5), (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2(e1.PopRect.X, (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.PopRect.X + e1.PopRect.Width), (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.OwnerRect.X + e1.OwnerRect.Width), (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2(e1.TotalEntrySize.X, (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height - 35));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 topLeftSL = new Vector2((e1.TotalEntrySize.X + e1.TotalEntrySize.Width), (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(topLeftSL, botSL, lineColor);
+                batch.DrawLine(topLeftSL, botSL, lineColor);
                 Vector2 leftBot = new Vector2(e1.TotalEntrySize.X, (eRect.Y + eRect.Height));
-                ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
+                batch.DrawLine(leftBot, botSL, lineColor);
                 leftBot = new Vector2(e1.TotalEntrySize.X, (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + 35));
-                ScreenManager.SpriteBatch.DrawLine(leftBot, botSL, lineColor);
+                batch.DrawLine(leftBot, botSL, lineColor);
             }
             cb_hideUninhabitable.Draw(batch);
             cb_hideOwned.Draw(batch);

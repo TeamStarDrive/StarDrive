@@ -460,7 +460,9 @@ namespace Ship_Game.Ships
 
             string defaultShip = empire.data.StartingShip;
 
-            foreach (ShipModule hangar in AllFighterHangars.FilterBy(hangar => hangar.Active && hangar.GetHangarShip() == null))
+            foreach (ShipModule hangar in AllFighterHangars.FilterBy(hangar => hangar.Active
+                                                                               && hangar.hangarTimer <= 0
+                                                                               && hangar.GetHangarShip() == null))
             {
                 if (!hangar.DynamicHangar)
                 {
