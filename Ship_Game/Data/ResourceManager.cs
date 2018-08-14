@@ -793,22 +793,35 @@ namespace Ship_Game
 
 
         // Gets a loaded texture using the given abstract texture path
-        public static Texture2D Texture(string texturePath, bool returnNull) => Texture(texturePath, returnNull ? "" : "NewUI/x_red");
-        
-        public static Texture2D Texture(string texturePath, string defaultTex = "NewUI/x_red")
+        public static Texture2D TextureOrNull(string texturePath)
         {
-            if (texturePath.NotEmpty() && Textures.TryGetValue(texturePath, out Texture2D texture))
+            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : null;
+        }
+        
+        public static Texture2D Texture(string texturePath)
+        {
+            if (Textures.TryGetValue(texturePath, out Texture2D texture))
                 return texture;
-            if (defaultTex == "")
-                return null;
+            return MissingTexture(texturePath, "NewUI/x_red");
+        }
+
+        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
+        {
+            if (Textures.TryGetValue(texturePath, out Texture2D texture))
+                return texture;
+            return MissingTexture(texturePath, defaultTex);
+        }
+
+        private static Texture2D MissingTexture(string texturePath, string defaultTex)
+        {
             if (LastFailedTexture != texturePath)
             {
                 LastFailedTexture = texturePath;
-                Log.WarningWithCallStack($"texture path not found: {texturePath} replaces with NewUI / x_red");
+                Log.WarningWithCallStack($"texture path not found: {texturePath} replacing with '{defaultTex}'");
             }
             return Textures[defaultTex];
         }
-        
+
         public static bool TextureLoaded(string texturePath)
         {
             return Textures.ContainsKey(texturePath);
