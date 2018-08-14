@@ -133,8 +133,8 @@ namespace Ship_Game
                     string cost = ship.GetCost(EmpireManager.Player).ToString();
                     string upkeep = ship.GetMaintCost(EmpireManager.Player).ToString("F2");
 
-                    Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], prodiconRect, Color.White);
+                    Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), prodiconRect, Color.White);
 
                     tCursor = new Vector2((float)(prodiconRect.X - 60), (float)(prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), tCursor, Color.Salmon);
@@ -151,7 +151,7 @@ namespace Ship_Game
             }
             if (this.itemToBuild != null)
             {
-                var platform = ResourceManager.TextureDict["TacticalIcons/symbol_platform"];
+                var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
                 float scale = (float)((float)this.itemToBuild.Size) / platform.Width;
                 Vector2 IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
                 scale = scale * 4000f / this.screen.CamHeight;

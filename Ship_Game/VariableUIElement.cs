@@ -54,7 +54,7 @@ namespace Ship_Game
 		public void Draw(GameTime gameTime, string TitleText, string BodyText)
 		{
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
-			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_main"], this.Housing, Color.White);
+			this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), this.Housing, Color.White);
 			Vector2 NamePos = new Vector2((float)(this.Housing.X + 41), (float)(this.Housing.Y + 65));
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, TitleText, NamePos, this.tColor);
 			Vector2 BodyPos = new Vector2(NamePos.X, (float)(this.Housing.Y + 115));

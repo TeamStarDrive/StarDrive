@@ -305,14 +305,14 @@ namespace Ship_Game
                 float alphaStep = 35f / 32f;
                 float alpha = 255f - FlareFrames * alphaStep;
                 Rectangle solarFlare = new Rectangle(0, height - 784, 1024, 784);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_solarflare"), solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
             }
             if (FlareFrames > 31 && FlareFrames <= 62)
             {
                 float alphaStep = 35f / 31f;
                 float alpha = 220f + (FlareFrames - 31) * alphaStep;
                 var solarFlare = new Rectangle(0, height - 784, 1024, 784);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_solarflare"), solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
             }
             if (Flip)
             {
@@ -324,7 +324,7 @@ namespace Ship_Game
             }
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/vignette"], screenRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/vignette"), screenRect, Color.White);
             ScreenManager.SpriteBatch.End();
         }
 

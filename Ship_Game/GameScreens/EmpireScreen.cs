@@ -145,7 +145,7 @@ namespace Ship_Game
             Rectangle PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.3f), base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - eRect.Y - eRect.Height - 22);
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((float)(PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
             Rectangle PlanetIconRect = new Rectangle(PlanetInfoRect.X + 10, PlanetInfoRect.Y + PlanetInfoRect.Height / 2 - iconSize / 2, iconSize, iconSize);
-            base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", SelectedPlanet.PlanetType)], PlanetIconRect, Color.White);
+            base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Planets/", SelectedPlanet.PlanetType)), PlanetIconRect, Color.White);
             Vector2 nameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width / 2) - Fonts.Pirulen16.MeasureString(SelectedPlanet.Name).X / 2f, (float)(PlanetInfoRect.Y + 15));
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, SelectedPlanet.Name, nameCursor, Color.White);
             Vector2 PNameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width + 5), nameCursor.Y + 20f);
@@ -360,16 +360,16 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2((float)(entry.PlanetNameRect.X + 30), (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 33));
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(389), TextCursor, new Color(255, 239, 208));
-                pop.rect = new Rectangle(entry.PopRect.X + 15 - ResourceManager.TextureDict["NewUI/icon_food"].Width / 2, (int)TextCursor.Y, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_pop"], pop.rect, Color.White);
-                food.rect = new Rectangle(entry.FoodRect.X + 15 - ResourceManager.TextureDict["NewUI/icon_food"].Width / 2, (int)TextCursor.Y, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], food.rect, Color.White);
-                prod.rect = new Rectangle(entry.ProdRect.X + 15 - ResourceManager.TextureDict["NewUI/icon_production"].Width / 2, (int)TextCursor.Y, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], prod.rect, Color.White);
-                res.rect = new Rectangle(entry.ResRect.X + 15 - ResourceManager.TextureDict["NewUI/icon_science"].Width / 2, (int)TextCursor.Y, ResourceManager.TextureDict["NewUI/icon_science"].Width, ResourceManager.TextureDict["NewUI/icon_science"].Height);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], res.rect, Color.White);
-                money.rect = new Rectangle(entry.MoneyRect.X + 15 - ResourceManager.TextureDict["NewUI/icon_money"].Width / 2, (int)TextCursor.Y, ResourceManager.TextureDict["NewUI/icon_money"].Width, ResourceManager.TextureDict["NewUI/icon_money"].Height);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], money.rect, Color.White);
+                pop.rect = new Rectangle(entry.PopRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop"), pop.rect, Color.White);
+                food.rect = new Rectangle(entry.FoodRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), food.rect, Color.White);
+                prod.rect = new Rectangle(entry.ProdRect.X + 15 - ResourceManager.Texture("NewUI/icon_production").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), prod.rect, Color.White);
+                res.rect = new Rectangle(entry.ResRect.X + 15 - ResourceManager.Texture("NewUI/icon_science").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), res.rect, Color.White);
+                money.rect = new Rectangle(entry.MoneyRect.X + 15 - ResourceManager.Texture("NewUI/icon_money").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_money"), money.rect, Color.White);
                 TextCursor = new Vector2((float)(entry.SliderRect.X + 30), (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 33));
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(390), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2((float)(entry.StorageRect.X + 30), (float)(eRect.Y - Fonts.Arial20Bold.LineSpacing + 33));
@@ -451,12 +451,12 @@ namespace Ship_Game
             if (pgs.Biosphere)
             {
                 Rectangle biosphere = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y, 20, 20);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_biosphere_48x48"], biosphere, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
             }
             if (pgs.TroopsHere.Count > 0)
             {
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 36, pgs.ClickRect.Y, 35, 35);
-                base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Troops/", pgs.TroopsHere[0].TexturePath)], pgs.TroopClickRect, Color.White);
+                base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Troops/", pgs.TroopsHere[0].TexturePath)), pgs.TroopClickRect, Color.White);
             }
             float numFood = 0f;
             float numProd = 0f;
@@ -482,17 +482,17 @@ namespace Ship_Game
             float total = numFood + numProd + numRes;
             float totalSpace = (float)(pgs.ClickRect.Width - 30);
             float spacing = totalSpace / total;
-            Rectangle rect = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y + pgs.ClickRect.Height - ResourceManager.TextureDict["NewUI/icon_food"].Height, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
+            Rectangle rect = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y + pgs.ClickRect.Height - ResourceManager.Texture("NewUI/icon_food").Height, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
             for (int i = 0; (float)i < numFood; i++)
             {
                 if (numFood - (float)i <= 0f || numFood - (float)i >= 1f)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], rect, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), rect, Color.White);
                 }
                 else
                 {
                     Rectangle? nullable = null;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], new Vector2((float)rect.X, (float)rect.Y), nullable, Color.White, 0f, Vector2.Zero, numFood - (float)i, SpriteEffects.None, 1f);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2((float)rect.X, (float)rect.Y), nullable, Color.White, 0f, Vector2.Zero, numFood - (float)i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -500,12 +500,12 @@ namespace Ship_Game
             {
                 if (numProd - (float)i <= 0f || numProd - (float)i >= 1f)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], rect, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), rect, Color.White);
                 }
                 else
                 {
                     Rectangle? nullable1 = null;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], new Vector2((float)rect.X, (float)rect.Y), nullable1, Color.White, 0f, Vector2.Zero, numProd - (float)i, SpriteEffects.None, 1f);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2((float)rect.X, (float)rect.Y), nullable1, Color.White, 0f, Vector2.Zero, numProd - (float)i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
@@ -513,12 +513,12 @@ namespace Ship_Game
             {
                 if (numRes - (float)i <= 0f || numRes - (float)i >= 1f)
                 {
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rect, Color.White);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rect, Color.White);
                 }
                 else
                 {
                     Rectangle? nullable2 = null;
-                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], new Vector2((float)rect.X, (float)rect.Y), nullable2, Color.White, 0f, Vector2.Zero, numRes - (float)i, SpriteEffects.None, 1f);
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2((float)rect.X, (float)rect.Y), nullable2, Color.White, 0f, Vector2.Zero, numRes - (float)i, SpriteEffects.None, 1f);
                 }
                 rect.X = rect.X + (int)spacing;
             }
