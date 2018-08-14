@@ -48,7 +48,7 @@ namespace Ship_Game
             if (!string.IsNullOrEmpty(mi.Version))
                 description = description + "\n----\nVersion - " + Version;
 
-            screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, description, 450f), titlePos, Color.White);
+            screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(description, 450f), titlePos, Color.White);
 
             if (PortraitTex == null)
                 PortraitTex = ResourceManager.LoadModTexture(ModName, mi.PortraitPath);

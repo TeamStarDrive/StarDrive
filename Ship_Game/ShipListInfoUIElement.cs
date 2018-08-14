@@ -1,9 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -82,7 +80,7 @@ namespace Ship_Game
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
             sliding_element = new SlidingElement(SliderRect);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
-            float spacing = (float)(LeftRect.Height - 26 - 96);
+            float spacing = LeftRect.Height - 26 - 96;
             Power = new Rectangle(RightRect.X, LeftRect.Y + 12, 20, 20);
             var pbarrect = new Rectangle(Power.X + Power.Width + 15, Power.Y, 150, 18);
             pBar = new ProgressBar(pbarrect)
@@ -155,7 +153,7 @@ namespace Ship_Game
             int columns = Orders.Count / 2 + Orders.Count % 2;
             if (AllShipsMine)
             {
-                sliding_element.Draw(ScreenManager, (int)((float)(columns * 55) * (1f - TransitionPosition)) + (sliding_element.Open ? 20 - columns : 0));
+                sliding_element.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (sliding_element.Open ? 20 - columns : 0));
                 foreach (OrdersButton ob in Orders)
                 {
                     Rectangle r = ob.clickRect;
@@ -213,10 +211,10 @@ namespace Ship_Game
                 HoverOff = 0f;
                 HoveredShip.RenderOverlay(ScreenManager.SpriteBatch, ShipInfoRect, ShowModules);
                 text = HoveredShip.VanityName;
-                Vector2 tpos = new Vector2((float)(Housing.X + 30), (float)(Housing.Y + 63));
+                Vector2 tpos = new Vector2(Housing.X + 30, Housing.Y + 63);
                 string name = (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name);
                 SpriteFont TitleFont = Fonts.Arial14Bold;
-                Vector2 ShipSuperName = new Vector2((float)(Housing.X + 30), (float)(Housing.Y + 79));
+                Vector2 ShipSuperName = new Vector2(Housing.X + 30, Housing.Y + 79);
                 if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
                 {
                     TitleFont = Fonts.Arial12Bold;
@@ -231,22 +229,22 @@ namespace Ship_Game
                     longName += string.Concat(" - ", HoveredShip.shipData.GetCategory());
                 ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
-                Vector2 defPos = new Vector2((float)(DefenseRect.X + DefenseRect.Width + 2), (float)(DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                Vector2 defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
                 spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(fmt), defPos, Color.White);
-                text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
-                Vector2 ShipStatus = new Vector2((float)(sel.Rect.X + sel.Rect.Width - 170), Housing.Y + 68);
-                text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
+                text = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
+                Vector2 ShipStatus = new Vector2(sel.Rect.X + sel.Rect.Width - 170, Housing.Y + 68);
+                text = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
                 HelperFunctions.ClampVectorToInt(ref ShipStatus);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
                 ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
-                Vector2 troopPos = new Vector2((float)(TroopRect.X + TroopRect.Width + 2), (float)(TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                Vector2 troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(HoveredShip.TroopList.Count, "/", HoveredShip.TroopCapacity), troopPos, Color.White);
                 Rectangle star = new Rectangle(TroopRect.X, TroopRect.Y + 25, 22, 22);
-                Vector2 levelPos = new Vector2((float)(star.X + star.Width + 2), (float)(star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
+                Vector2 levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
             }
@@ -335,7 +333,7 @@ namespace Ship_Game
                         if (screen.SelectedFleet != null && screen.SelectedFleet.Ships.Count >0 && screen.SelectedFleet.Ships[0] != null)
                         {
                             bool flag = true;                            
-                            foreach (Ship ship2 in (Array<Ship>)screen.SelectedFleet.Ships)
+                            foreach (Ship ship2 in screen.SelectedFleet.Ships)
                                 if (ship2.AI.State != AIState.Resupply)
                                     flag = false;
                             
@@ -373,7 +371,7 @@ namespace Ship_Game
                             continue;
 
                         // added by gremlin filter by selected ship in shiplist.
-                        if (input.KeysCurr.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
+                        if (input.KeysCurr.IsKeyDown(Keys.LeftShift))
                         {
                             foreach(Ship filter in screen.SelectedShipList)
                             {
@@ -384,13 +382,11 @@ namespace Ship_Game
                             SetShipList(screen.SelectedShipList, false);
                             continue;
                         }
-                        else
-                        {
-                            screen.SelectedFleet = null;
-                            screen.SelectedShipList.Clear();
-                            screen.SelectedShip = HoveredShip;  //fbedard: multi-select
-                            screen.ShipInfoUIElement.SetShip(HoveredShip);
-                        }
+
+                        screen.SelectedFleet = null;
+                        screen.SelectedShipList.Clear();
+                        screen.SelectedShip = HoveredShip;  //fbedard: multi-select
+                        screen.ShipInfoUIElement.SetShip(HoveredShip);
                         return true;
                     }
                 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -19,7 +16,7 @@ namespace Ship_Game.Commands.Goals
             {
                 FindPlanetToBuildAt,
                 WaitMainGoalCompletion,
-                ReportGoalCompleteToEmpire,
+                ReportGoalCompleteToEmpire
             };
         }
         public IncreaseFreighters(Empire empire) : this()

@@ -4,9 +4,9 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Debug;
 
 namespace Ship_Game.AI
 {
@@ -357,7 +357,6 @@ namespace Ship_Game.AI
                 {
                     OrderQueue.Clear();
                     State = AIState.AwaitingOrders;
-                    return;
                 }
             }
             else if (DoExploreSystem(elapsedTime)) //@Notification
@@ -701,7 +700,6 @@ namespace Ship_Game.AI
             {
                 Owner.TroopList.Clear();
                 Owner.QueueTotalRemoval();
-                return;
             }
             else
             {

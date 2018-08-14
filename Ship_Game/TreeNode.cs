@@ -1,9 +1,6 @@
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Ship_Game
 {
@@ -33,11 +30,11 @@ namespace Ship_Game
 
 		private UnlocksGrid grid;
 
-		private Rectangle progressRect = new Rectangle();
+		private Rectangle progressRect;
 
 		private float TitleWidth = 73f;
 
-		private Vector2 CostPos = new Vector2();
+		private Vector2 CostPos;
 
 		public TreeNode(Vector2 Position, TechEntry Tech, ResearchScreenNew screen)
 		{
@@ -77,7 +74,7 @@ namespace Ship_Game
                     techTemplate.BonusUnlocked[i].Type == null ||
                     techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
                 {
-                    UnlockItem unlock = new UnlockItem()
+                    UnlockItem unlock = new UnlockItem
                     {
                         privateName = techTemplate.BonusUnlocked[i].Name,
                         Description = Localizer.Token(techTemplate.BonusUnlocked[i].BonusIndex),
@@ -110,7 +107,7 @@ namespace Ship_Game
                     techTemplate.HullsUnlocked[i].ShipType == null || 
                     techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.GetTDict()[tech.UID].AcquiredFrom)
 				{
-					UnlockItem unlock = new UnlockItem()
+					UnlockItem unlock = new UnlockItem
 					{
 						HullUnlocked = techTemplate.HullsUnlocked[i].Name,
 						privateName = techTemplate.HullsUnlocked[i].Name,
@@ -172,13 +169,13 @@ namespace Ship_Game
 				TreeNode titleWidth = this;
 				titleWidth.TitleWidth = titleWidth.TitleWidth + 10f;
 			}
-			CostPos = new Vector2(65f, 70f) + new Vector2((float)BaseRect.X, (float)BaseRect.Y);
+			CostPos = new Vector2(65f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
 			float x = CostPos.X;
 			SpriteFont titleFont = TitleFont;                
-			float cost = (float)(tech.TechCost) * UniverseScreen.GamePaceStatic;
+			float cost = tech.TechCost * UniverseScreen.GamePaceStatic;
 			CostPos.X = x - titleFont.MeasureString(cost.String(1)).X;
-			CostPos.X = (float)((int)CostPos.X);
-			CostPos.Y = (float)((int)CostPos.Y - 3);
+			CostPos.X = (int)CostPos.X;
+			CostPos.Y = (int)CostPos.Y - 3;
 		}
 
         public void Draw(ScreenManager ScreenManager)
@@ -192,8 +189,8 @@ namespace Ship_Game
             {
                 case NodeState.Normal:
                     bool flag = EmpireManager.Player.ResearchTopic == tech.UID || EmpireManager.Player.data.ResearchQueue.Contains(tech.UID);
-                    spriteBatch.FillRectangle(UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    spriteBatch.DrawRectangle(UnlocksRect, complete || flag ? new Color((byte)34, (byte)136, (byte)200) : Color.Black);
+                    spriteBatch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
+                    spriteBatch.DrawRectangle(UnlocksRect, complete || flag ? new Color(34, 136, 200) : Color.Black);
                     grid.Draw(spriteBatch);
                     spriteBatch.Draw(complete || flag ? ResourceManager.Texture("ResearchMenu/tech_base_complete") : 
                         ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
@@ -205,16 +202,16 @@ namespace Ship_Game
                         : ResourceManager.Texture("ResearchMenu/tech_base_title"), TitleRect, Color.White);
                     string str1 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
-                    Vector2 vector2_1 = new Vector2((float)(TitleRect.X + TitleRect.Width / 2) - TitleFont.MeasureString(str1).X / 2f, (float)(TitleRect.Y + 14) - TitleFont.MeasureString(str1).Y / 2f);
+                    Vector2 vector2_1 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str1).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str1).Y / 2f);
                     int num1 = 0;
                     foreach (string text in strArray1)
                     {
-                        Vector2 position = new Vector2((float)(TitleRect.X + TitleRect.Width / 2) - TitleFont.MeasureString(text).X / 2f, vector2_1.Y + (float)(num1 * TitleFont.LineSpacing));
-                        position = new Vector2((float)(int)position.X, (float)(int)position.Y);
-                        spriteBatch.DrawString(TitleFont, text, position, complete ? new Color((byte)132, (byte)172, (byte)208) : Color.White);
+                        Vector2 position = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(text).X / 2f, vector2_1.Y + num1 * TitleFont.LineSpacing);
+                        position = new Vector2((int)position.X, (int)position.Y);
+                        spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
                         ++num1;
                     }
-                    int num2 = (int)((double)progressRect.Height - (double)(EmpireManager.Player.GetTDict()[tech.UID].Progress / EmpireManager.Player.GetTDict()[tech.UID].TechCost) * (double)progressRect.Height);
+                    int num2 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / EmpireManager.Player.GetTDict()[tech.UID].TechCost * (double)progressRect.Height);
                     Rectangle destinationRectangle1 = progressRect;
                     destinationRectangle1.Height = num2;
                     spriteBatch.Draw(complete || flag ? ResourceManager.Texture("ResearchMenu/tech_progress") 
@@ -222,8 +219,8 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle1, Color.White);
                     break;
                 case NodeState.Hover:
-                    spriteBatch.FillRectangle(UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    spriteBatch.DrawRectangle(UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
+                    spriteBatch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
+                    spriteBatch.DrawRectangle(UnlocksRect, new Color(190, 113, 25));
                     grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -236,26 +233,26 @@ namespace Ship_Game
                         spriteBatch.Draw(ResourceManager.Texture("TechIcons/" + tech.UID), IconRect, Color.White);
                     }
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), TitleRect, Color.White);
-                    string str2 = HelperFunctions.ParseText(TitleFont, TechName, TitleWidth);
+                    string str2 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray2 = Regex.Split(str2, "\n");
-                    Vector2 vector2_2 = new Vector2((float)(TitleRect.X + TitleRect.Width / 2) - TitleFont.MeasureString(str2).X / 2f, (float)(TitleRect.Y + 14) - TitleFont.MeasureString(str2).Y / 2f);
+                    Vector2 vector2_2 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str2).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str2).Y / 2f);
                     int num3 = 0;
                     foreach (string text in strArray2)
                     {
-                        Vector2 position = new Vector2((float)(TitleRect.X + TitleRect.Width / 2) - TitleFont.MeasureString(text).X / 2f, vector2_2.Y + (float)(num3 * TitleFont.LineSpacing));
-                        position = new Vector2((float)(int)position.X, (float)(int)position.Y);
-                        spriteBatch.DrawString(TitleFont, text, position, complete ? new Color((byte)132, (byte)172, (byte)208) : Color.White);
+                        Vector2 position = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(text).X / 2f, vector2_2.Y + num3 * TitleFont.LineSpacing);
+                        position = new Vector2((int)position.X, (int)position.Y);
+                        spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(132, 172, 208) : Color.White);
                         ++num3;
                     }
-                    int num4 = (int)((double)progressRect.Height - (double)(EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.TechTree[tech.UID].Cost) * (double)progressRect.Height);
+                    int num4 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / ResourceManager.TechTree[tech.UID].Cost * (double)progressRect.Height);
                     Rectangle destinationRectangle2 = progressRect;
                     destinationRectangle2.Height = num4;
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle2, Color.White);
                     break;
                 case NodeState.Press:
-                    spriteBatch.FillRectangle(UnlocksRect, new Color((byte)26, (byte)26, (byte)28));
-                    spriteBatch.DrawRectangle(UnlocksRect, new Color((byte)190, (byte)113, (byte)25));
+                    spriteBatch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
+                    spriteBatch.DrawRectangle(UnlocksRect, new Color(190, 113, 25));
                     grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
@@ -270,16 +267,16 @@ namespace Ship_Game
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), TitleRect, Color.White);
                     string str3 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray3 = Regex.Split(str3, "\n");
-                    Vector2 vector2_3 = new Vector2((float)(TitleRect.X + TitleRect.Width / 2) - TitleFont.MeasureString(str3).X / 2f, (float)(TitleRect.Y + 14) - TitleFont.MeasureString(str3).Y / 2f);
+                    Vector2 vector2_3 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str3).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str3).Y / 2f);
                     int num5 = 0;
                     foreach (string text in strArray3)
                     {
-                        Vector2 position = new Vector2((float)(TitleRect.X + TitleRect.Width / 2) - TitleFont.MeasureString(text).X / 2f, vector2_3.Y + (float)(num5 * TitleFont.LineSpacing));
-                        position = new Vector2((float)(int)position.X, (float)(int)position.Y);
-                        spriteBatch.DrawString(TitleFont, text, position, complete ? new Color((byte)163, (byte)198, (byte)236) : Color.White);
+                        Vector2 position = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(text).X / 2f, vector2_3.Y + num5 * TitleFont.LineSpacing);
+                        position = new Vector2((int)position.X, (int)position.Y);
+                        spriteBatch.DrawString(TitleFont, text, position, complete ? new Color(163, 198, 236) : Color.White);
                         ++num5;
                     }
-                    int num6 = (int)((double)progressRect.Height - (double)(EmpireManager.Player.GetTDict()[tech.UID].Progress / EmpireManager.Player.GetTDict()[tech.UID].TechCost) * (double)progressRect.Height);
+                    int num6 = (int)(progressRect.Height - EmpireManager.Player.GetTDict()[tech.UID].Progress / EmpireManager.Player.GetTDict()[tech.UID].TechCost * (double)progressRect.Height);
                     Rectangle destinationRectangle3 = progressRect;
                     destinationRectangle3.Height = num6;
                     spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress"), progressRect, Color.White);
@@ -303,11 +300,11 @@ namespace Ship_Game
 
         public bool HandleInput(InputState input, ScreenManager ScreenManager, Camera2D camera)
 		{
-			Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)BaseRect.X, (float)BaseRect.Y));
+			Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(BaseRect.X, BaseRect.Y));
 			Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, BaseRect.Width, BaseRect.Height);
-			Vector2 RectPos2 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)UnlocksRect.X, (float)UnlocksRect.Y));
+			Vector2 RectPos2 = camera.GetScreenSpaceFromWorldSpace(new Vector2(UnlocksRect.X, UnlocksRect.Y));
 			Rectangle moddedRect2 = new Rectangle((int)RectPos2.X, (int)RectPos2.Y, UnlocksRect.Width, UnlocksRect.Height);
-			Vector2 RectPos3 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)IconRect.X, (float)IconRect.Y));
+			Vector2 RectPos3 = camera.GetScreenSpaceFromWorldSpace(new Vector2(IconRect.X, IconRect.Y));
 			Rectangle moddedRect3 = new Rectangle((int)RectPos3.X, (int)RectPos3.Y, IconRect.Width, IconRect.Height);
 			if (moddedRect.HitTest(input.CursorPosition) || moddedRect2.HitTest(input.CursorPosition))
 			{
@@ -336,7 +333,7 @@ namespace Ship_Game
 			{
 				foreach (UnlocksGrid.GridItem gridItem in grid.GridOfUnlocks)
 				{
-					Vector2 RectPos4 = camera.GetScreenSpaceFromWorldSpace(new Vector2((float)gridItem.rect.X, (float)gridItem.rect.Y));
+					Vector2 RectPos4 = camera.GetScreenSpaceFromWorldSpace(new Vector2(gridItem.rect.X, gridItem.rect.Y));
 					Rectangle moddedRect4 = new Rectangle((int)RectPos4.X, (int)RectPos4.Y, gridItem.rect.Width, gridItem.rect.Height);
 					if (!moddedRect4.HitTest(input.CursorPosition))
 					{

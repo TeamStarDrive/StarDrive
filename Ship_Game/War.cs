@@ -1,6 +1,6 @@
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -48,7 +48,7 @@ namespace Ship_Game
 				foreach (Troop t in ship.TroopList)
 				{
 					War ourStartingGroundStrength = this;
-					ourStartingGroundStrength.OurStartingGroundStrength = ourStartingGroundStrength.OurStartingGroundStrength + (float)t.Strength;
+					ourStartingGroundStrength.OurStartingGroundStrength = ourStartingGroundStrength.OurStartingGroundStrength + t.Strength;
 				}
 			}
 			foreach (Planet p in us.GetPlanets())
@@ -63,7 +63,7 @@ namespace Ship_Game
                             continue;
                         }
                         War war = this;
-                        war.OurStartingGroundStrength = war.OurStartingGroundStrength + (float)t.Strength;
+                        war.OurStartingGroundStrength = war.OurStartingGroundStrength + t.Strength;
 
                     }
 			}
@@ -74,7 +74,7 @@ namespace Ship_Game
 				foreach (Troop t in ship.TroopList)
 				{
 					War theirStartingGroundStrength = this;
-					theirStartingGroundStrength.TheirStartingGroundStrength = theirStartingGroundStrength.TheirStartingGroundStrength + (float)t.Strength;
+					theirStartingGroundStrength.TheirStartingGroundStrength = theirStartingGroundStrength.TheirStartingGroundStrength + t.Strength;
 				}
 			}
 			foreach (Planet p in them.GetPlanets())
@@ -87,7 +87,7 @@ namespace Ship_Game
 						continue;
 					}
 					War theirStartingGroundStrength1 = this;
-					theirStartingGroundStrength1.TheirStartingGroundStrength = theirStartingGroundStrength1.TheirStartingGroundStrength + (float)t.Strength;
+					theirStartingGroundStrength1.TheirStartingGroundStrength = theirStartingGroundStrength1.TheirStartingGroundStrength + t.Strength;
 				}
 			}
 			foreach (KeyValuePair<Guid, SolarSystem> system in Empire.Universe.SolarSystemDict)
@@ -248,7 +248,7 @@ namespace Ship_Game
 			}
 			if (totalThreatAgainstUs / (Us.MilitaryScore + 0.01f) <= 1f)
 			{
-				float ColonyPercentage = (float)Us.GetPlanets().Count / (0.01f + (float)OurStartingColonies);
+				float ColonyPercentage = Us.GetPlanets().Count / (0.01f + OurStartingColonies);
 				if (ColonyPercentage > 1.25f)
 				{
 					return WarState.Dominating;
@@ -279,13 +279,13 @@ namespace Ship_Game
 				{
 					return WarState.EvenlyMatched;
 				}
-				if ((double)SpaceWarKD > 0.15)
+				if (SpaceWarKD > 0.15)
 				{
 					return WarState.LosingSlightly;
 				}
 				return WarState.LosingBadly;
 			}
-			float ColonyPercentage0 = (float)Us.GetPlanets().Count / (0.01f + (float)OurStartingColonies);
+			float ColonyPercentage0 = Us.GetPlanets().Count / (0.01f + OurStartingColonies);
 			if (ColonyPercentage0 < 0.75f)
 			{
 				return WarState.LosingSlightly;
@@ -312,7 +312,7 @@ namespace Ship_Game
 			{
 				return WarState.EvenlyMatched;
 			}
-			if ((double)SpaceWarKD0 > 0.5)
+			if (SpaceWarKD0 > 0.5)
 			{
 				return WarState.LosingSlightly;
 			}

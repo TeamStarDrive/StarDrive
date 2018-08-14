@@ -1,11 +1,11 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -170,7 +170,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                Vector2 NameCursor = new Vector2((float)(race.container.X + 62) - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, (float)(race.container.Y + 148 + 8));
+                Vector2 NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
                 if (race.e.data.Defeated)
                 {
                     if (race.e.data.AbsorbedBy == null)
@@ -209,7 +209,7 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                    NameCursor = new Vector2((float)(race.container.X + 62) - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, (float)(race.container.Y + 148 + 8));
+                    NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                 }
                 if (race.e != SelectedEmpire)
@@ -221,20 +221,20 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.FillRectangle(SelectedInfoRect, new Color(23, 20, 14));
             ScreenManager.SpriteBatch.FillRectangle(IntelligenceRect, new Color(23, 20, 14));
             ScreenManager.SpriteBatch.FillRectangle(OperationsRect, new Color(23, 20, 14));
-            Vector2 TextCursor = new Vector2((float)(SelectedInfoRect.X + 20), (float)(SelectedInfoRect.Y + 10));
+            Vector2 TextCursor = new Vector2(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 10);
             HelperFunctions.DrawDropShadowText(ScreenManager, SelectedEmpire.data.Traits.Name, TextCursor, Fonts.Arial20Bold);
             Rectangle FlagRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width - 60, SelectedInfoRect.Y + 10, 40, 40);
             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
             KeyValuePair<string, Texture2D> keyValuePair = ResourceManager.FlagTextures[SelectedEmpire.data.Traits.FlagIndex];
             spriteBatch1.Draw(keyValuePair.Value, FlagRect, SelectedEmpire.EmpireColor);
-            TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 4);
+            TextCursor.Y = TextCursor.Y + (Fonts.Arial20Bold.LineSpacing + 4);
             if (EmpireManager.Player == SelectedEmpire && !SelectedEmpire.data.Defeated)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1601), TextCursor, Color.White);
                 Vector2 ColumnBCursor = TextCursor;
                 ColumnBCursor.X = ColumnBCursor.X + 190f;
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 Array<Empire> Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
@@ -259,8 +259,8 @@ namespace Ship_Game
                         Sortlist.Add(e);
                     }
                 }
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
@@ -276,8 +276,8 @@ namespace Ship_Game
                     rank++;
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> ResSortedList = 
                     from empire in Sortlist
                     orderby GetScientificStr(empire) descending
@@ -293,8 +293,8 @@ namespace Ship_Game
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1602), TextCursor, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
                     from empire in Sortlist
                     orderby empire.currentMilitaryStrength descending
@@ -310,8 +310,8 @@ namespace Ship_Game
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1605), TextCursor, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> PopSortedList = 
                     from empire in Sortlist
                     orderby GetPop(empire) descending
@@ -327,14 +327,14 @@ namespace Ship_Game
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(385), TextCursor, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 Rectangle ArtifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 210, SelectedInfoRect.Width - 40, 130);
-                Vector2 ArtifactsCursor = new Vector2((float)ArtifactsRect.X, (float)(ArtifactsRect.Y - 8));
+                Vector2 ArtifactsCursor = new Vector2(ArtifactsRect.X, ArtifactsRect.Y - 8);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
-                ArtifactsCursor.Y = ArtifactsCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                ArtifactsCursor.Y = ArtifactsCursor.Y + Fonts.Arial12Bold.LineSpacing;
                 ArtifactsSL.Draw(ScreenManager.SpriteBatch);
                 foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
@@ -361,12 +361,12 @@ namespace Ship_Game
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(SelectedEmpire.data.DiplomaticPersonality.Name, " ", SelectedEmpire.data.EconomicPersonality.Name), TextCursor, Color.White);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 else
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Unknown", " ", "Unknown"), TextCursor, Color.White);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (EmpireManager.Player.GetRelations(SelectedEmpire).AtWar)
                 {
@@ -376,33 +376,33 @@ namespace Ship_Game
                 {
                     SpriteBatch spriteBatch2 = ScreenManager.SpriteBatch;
                     SpriteFont arial12Bold = Fonts.Arial12Bold;
-                    object[] objArray = new object[] { Localizer.Token(1213), " (", EmpireManager.Player.GetRelations(SelectedEmpire).PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
+                    object[] objArray = { Localizer.Token(1213), " (", EmpireManager.Player.GetRelations(SelectedEmpire).PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
                     spriteBatch2.DrawString(arial12Bold, string.Concat(objArray), TextCursor, Color.LightGreen);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_OpenBorders)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1609), TextCursor, Color.LightGreen);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Trade)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1610), TextCursor, Color.LightGreen);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_NAPact)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1611), TextCursor, Color.LightGreen);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Alliance)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1612), TextCursor, Color.LightGreen);
                 }
                 Rectangle ArtifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 210, SelectedInfoRect.Width - 40, 130);
-                Vector2 ArtifactsCursor = new Vector2((float)ArtifactsRect.X, (float)(ArtifactsRect.Y - 8));
+                Vector2 ArtifactsCursor = new Vector2(ArtifactsRect.X, ArtifactsRect.Y - 8);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
-                ArtifactsCursor.Y = ArtifactsCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                ArtifactsCursor.Y = ArtifactsCursor.Y + Fonts.Arial12Bold.LineSpacing;
                 ArtifactsSL.Draw(ScreenManager.SpriteBatch);
                 foreach (ScrollList.Entry e in ArtifactsSL.VisibleEntries)
                 {
@@ -441,8 +441,8 @@ namespace Ship_Game
                 Contact.Draw(ScreenManager);
                 Vector2 ColumnBCursor = TextCursor;
                 ColumnBCursor.X = ColumnBCursor.X + 190f;
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
@@ -459,8 +459,8 @@ namespace Ship_Game
                     rank++;
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> ResSortedList = 
                     from empire in Sortlist
                     orderby GetScientificStr(empire) descending
@@ -476,8 +476,8 @@ namespace Ship_Game
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1602), TextCursor, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
-                ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
                     from empire in Sortlist
                     orderby empire.currentMilitaryStrength descending
@@ -494,13 +494,13 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1605), TextCursor, Color.White);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
             }
-            TextCursor = new Vector2((float)(IntelligenceRect.X + 20), (float)(IntelligenceRect.Y + 10));
+            TextCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
             HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(6091), TextCursor, Fonts.Arial20Bold);
-            TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
+            TextCursor.Y = TextCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             if (IntelligenceLevel(SelectedEmpire) > 0)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6094), SelectedEmpire.data.Traits.HomeworldName), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             //Added by McShooterz:  intel report
             if (IntelligenceLevel(SelectedEmpire)>0)
@@ -508,49 +508,49 @@ namespace Ship_Game
                 if (SelectedEmpire.Capital != null)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6106), (SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), TextCursor, Color.White);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                 }
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6095), SelectedEmpire.GetPlanets().Count), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6096), SelectedEmpire.GetShips().Count), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6097), SelectedEmpire.Money.ToString("0.0")), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), SelectedEmpire.totalMaint.ToString("0.0")), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
 
                 if (!string.IsNullOrEmpty(SelectedEmpire.ResearchTopic))
                 {
                     if (IntelligenceLevel(SelectedEmpire)>1)
                     {
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", Localizer.Token(ResourceManager.TechTree[SelectedEmpire.ResearchTopic].NameIndex)), TextCursor, Color.White);
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", ResourceManager.TechTree[SelectedEmpire.ResearchTopic].TechnologyType.ToString()), TextCursor, Color.White);
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                     }
                     else
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", "Unknown"), TextCursor, Color.White);
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
 
                 }
             }
             if (IntelligenceLevel(SelectedEmpire)>1)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), SelectedEmpire.data.AgentList.Count), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             else if (IntelligenceLevel(SelectedEmpire)>0)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), (SelectedEmpire.data.AgentList.Count >=PlayerEmpire.data.AgentList.Count ? "Many":"Few" )), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             else 
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), "Unknown"), TextCursor, Color.White);
-                TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).ToString("0.0"), Localizer.Token(6101)), TextCursor, Color.White);
             //Diplomatic Relations
@@ -560,7 +560,7 @@ namespace Ship_Game
                     continue;
                 if (Relation.Key.data.Defeated)
                 {
-                    TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                    TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, Localizer.Token(6102)), TextCursor, Color.White);
                     continue;
                 }
@@ -568,40 +568,40 @@ namespace Ship_Game
                 {
                     if (Relation.Value.Treaty_Alliance)
                     {
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1612), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), TextCursor, Color.White);
                     }
                     else if (Relation.Value.Treaty_OpenBorders)
                     {
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1609), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), TextCursor, Color.White);
                     }
                     else if (Relation.Value.Treaty_NAPact)
                     {
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1611), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), TextCursor, Color.White);
                     }
                     else if (Relation.Value.Treaty_Peace)
                     {
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1213), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), TextCursor, Color.White);
                     }
                     else if (Relation.Value.AtWar)
                     {
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1608)), TextCursor, Color.White);
                     }
                     else
                     {
-                        TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12.LineSpacing + 2);
+                        TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 2);
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, (Relation.Value.Treaty_Trade) ? Localizer.Token(6104) : Localizer.Token(6105)), TextCursor, Color.White);
                     }
                 }
             }
             //End of intel report
-            TextCursor = new Vector2((float)(OperationsRect.X + 20), (float)(OperationsRect.Y + 10));
+            TextCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
             HelperFunctions.DrawDropShadowText(ScreenManager, (SelectedEmpire == EmpireManager.Player ? Localizer.Token(2181) : Localizer.Token(2212)), TextCursor, Fonts.Arial20Bold);
-            TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
+            TextCursor.Y = TextCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             //Added by McShooterz: Only display modified bonuses
             if (IntelligenceLevel(SelectedEmpire)>0)
             {
@@ -689,7 +689,7 @@ namespace Ship_Game
             //};
             HelperFunctions.ClampVectorToInt(ref nPos);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightPink);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }
 
         private void DrawGoodStat(string text, string text2, ref Vector2 Position)
@@ -702,7 +702,7 @@ namespace Ship_Game
             //};
             HelperFunctions.ClampVectorToInt(ref nPos);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightGreen);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }
 
         private void DrawStat(string text, float value, ref Vector2 Position, bool OppositeBonuses)
@@ -736,7 +736,7 @@ namespace Ship_Game
             string str1 = string.Concat(value.ToString("#.##"), "%");
             Vector2 vector2 = nPos;
             spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
-            Position.Y = Position.Y + (float)Fonts.Arial12Bold.LineSpacing;
+            Position.Y = Position.Y + Fonts.Arial12Bold.LineSpacing;
         }
 
         private void DrawStat(string text, string text2, ref Vector2 Position)
@@ -749,7 +749,7 @@ namespace Ship_Game
             //};
             HelperFunctions.ClampVectorToInt(ref nPos);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.White);
-            Position.Y = Position.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }
 
         private float GetMilitaryStr(Empire e)
@@ -1040,11 +1040,11 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            float screenWidth = (float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            float screenHeight = (float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            float screenWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
             Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
             TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1600)).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+            TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(1600)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 640, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
             DMenu = new Menu2(leftRect);
             close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
@@ -1054,7 +1054,7 @@ namespace Ship_Game
             ArtifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 180, SelectedInfoRect.Width - 40, 130);
             Submenu ArtifactsSub = new Submenu(ArtifactsRect);
             ArtifactsSL = new ScrollList(ArtifactsSub, 40);
-            Contact = new DanButton(new Vector2((float)(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91), (float)(SelectedInfoRect.Y + SelectedInfoRect.Height - 45)), Localizer.Token(1644))
+            Contact = new DanButton(new Vector2(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91, SelectedInfoRect.Y + SelectedInfoRect.Height - 45), Localizer.Token(1644))
             {
                 Toggled = true
             };
@@ -1092,7 +1092,7 @@ namespace Ship_Game
                 }
                 Races.Add(new RaceEntry { e = e });
             }
-            Vector2 Cursor = new Vector2(screenWidth / 2f - (float)(148 * Races.Count / 2), (float)(leftRect.Y + 10));
+            Vector2 Cursor = new Vector2(screenWidth / 2f - 148 * Races.Count / 2, leftRect.Y + 10);
             int j = 0;
             foreach (RaceEntry re in Races)
             {

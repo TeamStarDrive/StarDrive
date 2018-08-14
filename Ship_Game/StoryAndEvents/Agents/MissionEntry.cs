@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
@@ -156,7 +155,7 @@ namespace Ship_Game
                         break;
                     }
             }
-            if (EmpireManager.Player.Money < (float)cost || Component.Escreen.SelectedEmpire.data.Defeated || Component.SelectedAgent.Mission == AgentMission.Recovering)
+            if (EmpireManager.Player.Money < cost || Component.Escreen.SelectedEmpire.data.Defeated || Component.SelectedAgent.Mission == AgentMission.Recovering)
             {
                 Available = false;
             }

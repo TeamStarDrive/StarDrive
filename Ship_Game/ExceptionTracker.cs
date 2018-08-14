@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 ///Added by Crimsoned
@@ -71,14 +68,14 @@ namespace Ship_Game
             
             string msg = "Version: (" + GlobalStats.ExtendedVersion + "): "+rn;
             msg += data+rn+rn;
-            msg += "Exception : "+ ex.Message.ToString()+rn;
-            msg += "ExceptionClass : "+ex.GetType().ToString()+rn;
+            msg += "Exception : "+ ex.Message+rn;
+            msg += "ExceptionClass : "+ex.GetType()+rn;
             if(ex.StackTrace != null)
-            msg += "Stacktrace: " + rn + ex.StackTrace.ToString()+ rn ;
+            msg += "Stacktrace: " + rn + ex.StackTrace+ rn ;
             if (ex.InnerException != null)
             {
-                msg += "Inner Exception: " +ex.InnerException.Message.ToString() + rn ;
-                msg += "Inner Exception Stacktrace: " + rn + ex.InnerException.StackTrace.ToString();
+                msg += "Inner Exception: " +ex.InnerException.Message + rn ;
+                msg += "Inner Exception Stacktrace: " + rn + ex.InnerException.StackTrace;
             }
 
             /*string[] messageblock = new string[] { "Version: (", MainMenuScreen.Version, "): ",rn,

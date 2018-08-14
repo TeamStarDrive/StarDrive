@@ -1,8 +1,6 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -64,17 +62,13 @@ namespace Ship_Game
 			}
 		}
 
-		public RoundLineManager()
-		{
-		}
-
-		public float ComputeBlurThreshold(float lineRadius, Matrix viewProjMatrix, float viewportWidth)
+	    public float ComputeBlurThreshold(float lineRadius, Matrix viewProjMatrix, float viewportWidth)
 		{
 			Vector4 lineRadiusTestBase = new Vector4(0f, 0f, 0f, 1f);
 			Vector4 lineRadiusTest = new Vector4(lineRadius, 0f, 0f, 1f);
 			Vector4 output = Vector4.Transform(lineRadiusTest - lineRadiusTestBase, viewProjMatrix);
 			output.X = output.X * viewportWidth;
-			double newBlur = 0.125 * Math.Log((double)output.X) + 0.4;
+			double newBlur = 0.125 * Math.Log(output.X) + 0.4;
 			return MathHelper.Clamp((float)newBlur, 0.5f, 0.99f);
 		}
 
@@ -96,28 +90,28 @@ namespace Ship_Game
 				int iVertex = iv;
 				int num = iv;
 				iv = num + 1;
-				tri[num] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 0f), (float)instance);
+				tri[num] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 0f), instance);
 				int num1 = iv;
 				iv = num1 + 1;
-				tri[num1] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 1f), (float)instance);
+				tri[num1] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 1f), instance);
 				int num2 = iv;
 				iv = num2 + 1;
-				tri[num2] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 1f), (float)instance);
+				tri[num2] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 1f), instance);
 				int num3 = iv;
 				iv = num3 + 1;
-				tri[num3] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 0f), (float)instance);
+				tri[num3] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 0f), instance);
 				int num4 = iv;
 				iv = num4 + 1;
-				tri[num4] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 1f), (float)instance);
+				tri[num4] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 1f), instance);
 				int num5 = iv;
 				iv = num5 + 1;
-				tri[num5] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 0f), (float)instance);
+				tri[num5] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 0f), instance);
 				int num6 = iv;
 				iv = num6 + 1;
-				tri[num6] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 1f), (float)instance);
+				tri[num6] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 1f), instance);
 				int num7 = iv;
 				iv = num7 + 1;
-				tri[num7] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 0f), (float)instance);
+				tri[num7] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 0f), instance);
 				int num8 = ii;
 				ii = num8 + 1;
 				indices[num8] = (short)iVertex;
@@ -159,12 +153,12 @@ namespace Ship_Game
 				for (int i = 0; i < 13; i++)
 				{
 					float deltaTheta = 0.2617994f;
-					float theta0 = 1.57079637f + (float)i * deltaTheta;
+					float theta0 = 1.57079637f + i * deltaTheta;
 					float theta1 = theta0 + deltaTheta / 2f;
-					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 0f), (float)instance);
-					float x = (float)Math.Cos((double)theta0);
-					float y = (float)Math.Sin((double)theta0);
-					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 0f), (float)instance);
+					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 0f), instance);
+					float x = (float)Math.Cos(theta0);
+					float y = (float)Math.Sin(theta0);
+					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 0f), instance);
 					if (i < 12)
 					{
 						indices[iIndex] = (short)iVertex;
@@ -179,12 +173,12 @@ namespace Ship_Game
 				for (int i = 0; i < 13; i++)
 				{
 					float deltaTheta = 0.2617994f;
-					float theta0 = 4.712389f + (float)i * deltaTheta;
+					float theta0 = 4.712389f + i * deltaTheta;
 					float theta1 = theta0 + deltaTheta / 2f;
-					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 1f), (float)instance);
-					float x = (float)Math.Cos((double)theta0);
-					float y = (float)Math.Sin((double)theta0);
-					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 1f), (float)instance);
+					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 1f), instance);
+					float x = (float)Math.Cos(theta0);
+					float y = (float)Math.Sin(theta0);
+					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 1f), instance);
 					if (i < 12)
 					{
 						indices[iIndex] = (short)iVertex;
@@ -198,10 +192,10 @@ namespace Ship_Game
 				}
 			}
 			vb = new VertexBuffer(device, numVertices * bytesPerVertex, BufferUsage.None);
-			vb.SetData<RoundLineVertex>(tri);
+			vb.SetData(tri);
 			vdecl = new VertexDeclaration(device, RoundLineVertex.VertexElements);
 			ib = new IndexBuffer(device, numIndices * 2, BufferUsage.None, IndexElementSize.SixteenBits);
-			ib.SetData<short>(indices);
+			ib.SetData(indices);
 		}
 
 		public void Draw(RoundLine roundLine, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)

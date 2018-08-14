@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
     public class PerfTimer
     {
-        [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
+        [DllImport("Kernel32.dll")]
         private static extern bool QueryPerformanceCounter(out long perfcount);
 
-        [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
+        [DllImport("Kernel32.dll")]
         private static extern bool QueryPerformanceFrequency(out long freq);
 
         private static readonly long Frequency;

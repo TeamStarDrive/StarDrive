@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -48,7 +48,7 @@ namespace Ship_Game
             {
                 void DrawTitleAndDescr(string title, string descr)
                 {
-                    string wrappedDescr = HelperFunctions.ParseText(Fonts.Arial12, descr, entry.W - 100);
+                    string wrappedDescr = Fonts.Arial12.ParseText(descr, entry.W - 100);
                     float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
                     var pos = new Vector2(entry.X + 100, entry.CenterY - (int)(textHeight / 2f));
 

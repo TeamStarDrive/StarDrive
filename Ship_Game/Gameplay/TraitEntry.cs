@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework;
-using Ship_Game;
-using System;
 
 namespace Ship_Game.Gameplay
 {
@@ -13,9 +11,5 @@ namespace Ship_Game.Gameplay
 		public Rectangle rect;
 
 		public bool Excluded;
-
-		public TraitEntry()
-		{
-		}
 	}
 }

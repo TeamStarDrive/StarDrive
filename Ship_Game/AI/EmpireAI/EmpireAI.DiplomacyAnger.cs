@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI {
@@ -27,15 +24,14 @@ namespace Ship_Game.AI {
                     Relationship.Value.Trust < Relationship.Value.TotalAnger)
                 {
                     Relationship.Value.Posture = Posture.Neutral;
-                    return;
                 }
             }
             else if (Relationship.Value.Trust >= 50f)
             {
                 if (Relationship.Value.Trust - usedTrust >
-                    (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2))
+                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2)
                 {
-                    Offer NAPactOffer = new Offer()
+                    Offer NAPactOffer = new Offer
                     {
                         OpenBorders = true,
                         AcceptDL = "Open Borders Accepted",
@@ -43,8 +39,8 @@ namespace Ship_Game.AI {
                     };
                     Relationship value = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_OpenBorders,
-                        (bool x) => value.HaveRejected_OpenBorders = x);
-                    Offer OurOffer = new Offer()
+                        x => value.HaveRejected_OpenBorders = x);
+                    Offer OurOffer = new Offer
                     {
                         OpenBorders = true
                     };
@@ -56,17 +52,16 @@ namespace Ship_Game.AI {
                     }
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
-                    return;
                 }
             }
             else if (Relationship.Value.Trust >= 20f &&
                      Relationship.Value.Anger_TerritorialConflict + Relationship.Value.Anger_FromShipsInOurBorders >=
-                     0.75f * (float) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                     0.75f * OwnerEmpire.data.DiplomaticPersonality.Territorialism)
             {
                 if (Relationship.Value.Trust - usedTrust >
-                    (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2))
+                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2)
                 {
-                    Offer NAPactOffer = new Offer()
+                    Offer NAPactOffer = new Offer
                     {
                         OpenBorders = true,
                         AcceptDL = "Open Borders Accepted",
@@ -74,8 +69,8 @@ namespace Ship_Game.AI {
                     };
                     Relationship relationship = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => relationship.HaveRejected_OpenBorders,
-                        (bool x) => relationship.HaveRejected_OpenBorders = x);
-                    Offer OurOffer = new Offer()
+                        x => relationship.HaveRejected_OpenBorders = x);
+                    Offer OurOffer = new Offer
                     {
                         OpenBorders = true
                     };
@@ -87,7 +82,6 @@ namespace Ship_Game.AI {
                     }
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
-                    return;
                 }
             }
             else if (Relationship.Value.turnsSinceLastContact >= 10 && Relationship.Value.Known &&
@@ -95,7 +89,7 @@ namespace Ship_Game.AI {
             {
                 Relationship r = Relationship.Value;
                 if (r.Anger_FromShipsInOurBorders >
-                    (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4) && !r.AtWar &&
+                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4 && !r.AtWar &&
                     !r.WarnedAboutShips && r.turnsSinceLastContact > 10)
                 {
                     ThreatMatrix.ClearBorders();
@@ -110,7 +104,6 @@ namespace Ship_Game.AI {
                             Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
                     }
                     r.WarnedAboutShips = true;
-                    return;
                 }
             }
         }
@@ -131,7 +124,7 @@ namespace Ship_Game.AI {
                     if (Relationship.Value.Trust - usedTrust >
                         OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2f)
                     {
-                        Offer NAPactOffer = new Offer()
+                        Offer NAPactOffer = new Offer
                         {
                             OpenBorders = true,
                             AcceptDL = "Open Borders Accepted",
@@ -139,8 +132,8 @@ namespace Ship_Game.AI {
                         };
                         Relationship value = Relationship.Value;
                         NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_OpenBorders,
-                            (bool x) => value.HaveRejected_OpenBorders = x);
-                        Offer OurOffer = new Offer()
+                            x => value.HaveRejected_OpenBorders = x);
+                        Offer OurOffer = new Offer
                         {
                             OpenBorders = true
                         };
@@ -152,7 +145,6 @@ namespace Ship_Game.AI {
                         }
                         Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                             Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
-                        return;
                     }
                 }
                 else if (Relationship.Value.Trust >= 20f &&
@@ -162,7 +154,7 @@ namespace Ship_Game.AI {
                          Relationship.Value.Trust - usedTrust >
                          OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2f)
                 {
-                    var NAPactOffer = new Offer()
+                    var NAPactOffer = new Offer
                     {
                         OpenBorders = true,
                         AcceptDL = "Open Borders Accepted",
@@ -170,8 +162,8 @@ namespace Ship_Game.AI {
                     };
                     Relationship relationship = Relationship.Value;
                     NAPactOffer.ValueToModify = new Ref<bool>(() => relationship.HaveRejected_OpenBorders,
-                        (bool x) => relationship.HaveRejected_OpenBorders = x);
-                    Offer OurOffer = new Offer()
+                        x => relationship.HaveRejected_OpenBorders = x);
+                    Offer OurOffer = new Offer
                     {
                         OpenBorders = true
                     };
@@ -183,7 +175,6 @@ namespace Ship_Game.AI {
                     }
                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                         Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
-                    return;
                 }
             }
             else if (Relationship.Value.turnsSinceLastContact >= 10)
@@ -192,7 +183,7 @@ namespace Ship_Game.AI {
                 {
                     Relationship r = Relationship.Value;
                     if (r.Anger_FromShipsInOurBorders >
-                        (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4) && !r.AtWar &&
+                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4 && !r.AtWar &&
                         !r.WarnedAboutShips && r.turnsSinceLastContact > 10)
                     {
                         ThreatMatrix.ClearBorders();
@@ -207,7 +198,6 @@ namespace Ship_Game.AI {
                                 Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
                         }
                         r.WarnedAboutShips = true;
-                        return;
                     }
                 }
             }
@@ -215,7 +205,6 @@ namespace Ship_Game.AI {
                      Relationship.Value.Trust < Relationship.Value.TotalAnger)
             {
                 Relationship.Value.Posture = Posture.Neutral;
-                return;
             }
         }
 

@@ -1,8 +1,6 @@
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Ship_Game
 {
@@ -45,16 +43,16 @@ namespace Ship_Game
 				case NodeState.Normal:
 				{
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title"), TitleRect, Color.White);
-					text = HelperFunctions.ParseText(TitleFont, TechName, 93f);
+					text = TitleFont.ParseText(TechName, 93f);
 					textarray = Regex.Split(text, "\n");
-					TextPos = new Vector2((float)(TitleRect.X + 10 + 46) - TitleFont.MeasureString(text).X / 2f, (float)(TitleRect.Y + 7 + 12) - TitleFont.MeasureString(text).Y / 2f);
+					TextPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(text).X / 2f, TitleRect.Y + 7 + 12 - TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
 					string[] strArrays = textarray;
-					for (int i = 0; i < (int)strArrays.Length; i++)
+					for (int i = 0; i < strArrays.Length; i++)
 					{
 						string word = strArrays[i];
-						Vector2 newPos = new Vector2((float)(TitleRect.X + 10 + 46) - TitleFont.MeasureString(word).X / 2f, TextPos.Y + (float)(line * TitleFont.LineSpacing));
-						newPos = new Vector2((float)((int)newPos.X), (float)((int)newPos.Y));
+						Vector2 newPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(word).X / 2f, TextPos.Y + line * TitleFont.LineSpacing);
+						newPos = new Vector2((int)newPos.X, (int)newPos.Y);
 						spriteBatch.DrawString(TitleFont, word, newPos, new Color(131, 147, 172));
 						line++;
 					}
@@ -66,16 +64,16 @@ namespace Ship_Game
 				{
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), RootRect, Color.White);
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), TitleRect, Color.White);
-					text = HelperFunctions.ParseText(TitleFont, TechName, 93f);
+					text = TitleFont.ParseText(TechName, 93f);
 					textarray = Regex.Split(text, "\n");
-					TextPos = new Vector2((float)(TitleRect.X + 10 + 46) - TitleFont.MeasureString(text).X / 2f, (float)(TitleRect.Y + 7 + 12) - TitleFont.MeasureString(text).Y / 2f);
+					TextPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(text).X / 2f, TitleRect.Y + 7 + 12 - TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
 					string[] strArrays1 = textarray;
-					for (int j = 0; j < (int)strArrays1.Length; j++)
+					for (int j = 0; j < strArrays1.Length; j++)
 					{
 						string word = strArrays1[j];
-						Vector2 newPos = new Vector2((float)(TitleRect.X + 10 + 46) - TitleFont.MeasureString(word).X / 2f, TextPos.Y + (float)(line * TitleFont.LineSpacing));
-						newPos = new Vector2((float)((int)newPos.X), (float)((int)newPos.Y));
+						Vector2 newPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(word).X / 2f, TextPos.Y + line * TitleFont.LineSpacing);
+						newPos = new Vector2((int)newPos.X, (int)newPos.Y);
 						spriteBatch.DrawString(TitleFont, word, newPos, new Color(163, 198, 236));
 						line++;
 					}
@@ -87,16 +85,16 @@ namespace Ship_Game
 				{
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), RootRect, Color.White);
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), TitleRect, Color.White);
-					text = HelperFunctions.ParseText(TitleFont, TechName, 93f);
+					text = TitleFont.ParseText(TechName, 93f);
 					textarray = Regex.Split(text, "\n");
-					TextPos = new Vector2((float)(TitleRect.X + 10 + 46) - TitleFont.MeasureString(text).X / 2f, (float)(TitleRect.Y + 7 + 12) - TitleFont.MeasureString(text).Y / 2f);
+					TextPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(text).X / 2f, TitleRect.Y + 7 + 12 - TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
 					string[] strArrays2 = textarray;
-					for (int k = 0; k < (int)strArrays2.Length; k++)
+					for (int k = 0; k < strArrays2.Length; k++)
 					{
 						string word = strArrays2[k];
-						Vector2 newPos = new Vector2((float)(TitleRect.X + 10 + 46) - TitleFont.MeasureString(word).X / 2f, TextPos.Y + (float)(line * TitleFont.LineSpacing));
-						newPos = new Vector2((float)((int)newPos.X), (float)((int)newPos.Y));
+						Vector2 newPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(word).X / 2f, TextPos.Y + line * TitleFont.LineSpacing);
+						newPos = new Vector2((int)newPos.X, (int)newPos.Y);
 						spriteBatch.DrawString(TitleFont, word, newPos, new Color(163, 198, 236));
 						line++;
 					}

@@ -11,7 +11,6 @@ using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Universe.SolarBodies.AI;
 
-
 namespace Ship_Game
 {
 
@@ -25,7 +24,7 @@ namespace Ship_Game
             Research,
             Agricultural,
             Military,
-            TradeHub,
+            TradeHub
         }
         public GeodeticManager GeodeticManager;
         public SBCommodities SbCommodities;
@@ -153,7 +152,7 @@ namespace Ship_Game
                     (GrossMoneyPT + GrossMoneyPT * (float)Owner?.data.Traits.TaxMod) * (float)Owner?.data.TaxRate
                     + PlusFlatMoneyPerTurn + (Population / 1000 * PlusCreditsPerColonist);
         public float GrossUpkeep =>
-                    (float)((double)TotalMaintenanceCostsPerTurn + (double)TotalMaintenanceCostsPerTurn
+                    (float)(TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn
                     * (double)Owner?.data.Traits.MaintMod);
         public float NetIncome => GrossIncome - GrossUpkeep;
         public float PlusCreditsPerColonist;
@@ -173,12 +172,12 @@ namespace Ship_Game
         public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
-        public float RepairPerTurn = 0;
+        public float RepairPerTurn;
 
-        public float ExportPSWeight = 0;
-        public float ExportFSWeight = 0;
+        public float ExportPSWeight;
+        public float ExportFSWeight;
 
-        public float TradeIncomingColonists = 0;
+        public float TradeIncomingColonists;
 
         public bool RecentCombat => TroopManager.RecentCombat;
         public float GetDefendingTroopStrength() => TroopManager.GetDefendingTroopStrength();
@@ -494,8 +493,7 @@ namespace Ship_Game
         {
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
                 return NetProductionPerTurn - Consumption;
-            else
-                return NetProductionPerTurn;
+            return NetProductionPerTurn;
         }
 
         public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
@@ -726,9 +724,9 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
-        public float IncomingFood = 0;
-        public float IncomingProduction = 0;
-        public float IncomingColonists = 0;
+        public float IncomingFood;
+        public float IncomingProduction;
+        public float IncomingColonists;
 
         public void UpdateDevelopmentStatus()
         {
@@ -1061,8 +1059,7 @@ namespace Ship_Game
                 if (NetFoodPerTurn > 0 && FarmerPercentage < .3 || BuildingExists(building.Name))
 
                     return false;
-                else
-                    return true;
+                return true;
 
             }
             if (Owner.data.Traits.Cybernetic < 1 && income > building.Maintenance)
@@ -1071,10 +1068,6 @@ namespace Ship_Game
                 if (food * FarmerPercentage > 1)
                 {
                     return true;
-                }
-                else
-                {
-
                 }
             }
             if (Owner.data.Traits.Cybernetic > 0)
@@ -1458,7 +1451,8 @@ namespace Ship_Game
                     }
                     break;
                 }
-                else if (queueItem1.isBuilding && queueItem1.Building.Name == "Outpost")
+
+                if (queueItem1.isBuilding && queueItem1.Building.Name == "Outpost")
                 {
                     ConstructionQueue.Remove(queueItem1);
                     ConstructionQueue.Insert(0, queueItem1);
@@ -2225,7 +2219,8 @@ namespace Ship_Game
                     bldg.ScrapBuilding(this);
                     return;     //No mass scrappings
                 }
-                else if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {bldg.Name}  buildingValue: {buildingValue}    costWeight: {costWeight}");
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {bldg.Name}  buildingValue: {buildingValue}    costWeight: {costWeight}");
             }
         }
 
@@ -2716,7 +2711,7 @@ namespace Ship_Game
         {
             STORE,
             IMPORT,
-            EXPORT,
+            EXPORT
         }
 
         public void Dispose()

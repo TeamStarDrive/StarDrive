@@ -44,19 +44,19 @@ namespace Ship_Game
             Rectangle desRect = new Rectangle(HardAttackRect.X, HardAttackRect.Y - 10, LeftRect.Width + 8, 95);
             Submenu sub       = new Submenu(desRect);
             DescriptionSL     = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
-            TippedItem def    = new TippedItem()
+            TippedItem def    = new TippedItem
             {
                 r = DefenseRect,
                 TIP_ID = 33
             };
             ToolTipItems.Add(def);
-            def = new TippedItem()
+            def = new TippedItem
             {
                 r = SoftAttackRect,
                 TIP_ID = 34
             };
             ToolTipItems.Add(def);
-            def = new TippedItem()
+            def = new TippedItem
             {
                 r = HardAttackRect,
                 TIP_ID = 35

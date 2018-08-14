@@ -6,10 +6,6 @@ namespace Ship_Game
         public string SunPath = "star_yellow";
         public Array<Ring> RingList = new Array<Ring>();
 
-        public SolarSystemData()
-        {
-        }
-
         public struct Ring
         {
             public string Planet; //Planet Name

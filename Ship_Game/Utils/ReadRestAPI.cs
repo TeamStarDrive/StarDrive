@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -19,10 +16,6 @@ namespace Ship_Game.Utils
         public Array<string> Links;
         public Dictionary<string, string> FilesAndLinks;
         private readonly Array<UILabel> Versions = new Array<UILabel>();
-
-        public ReadRestAPI()
-        {
-        }
 
         // ReSharper disable InconsistentNaming
         public class BitbucketRest

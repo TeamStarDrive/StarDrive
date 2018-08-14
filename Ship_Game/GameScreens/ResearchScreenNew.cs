@@ -1,9 +1,8 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -65,7 +64,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            ScreenManager.FadeBackBufferToBlack((int)TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
             MainMenu.Draw();
@@ -105,7 +104,7 @@ namespace Ship_Game
             {
                 if (!(keyValuePair.Value is TreeNode)) continue;
 
-                Vector2 vector21 = new Vector2((float)((keyValuePair.Value as TreeNode).BaseRect.X + (keyValuePair.Value as TreeNode).BaseRect.Width - 25), (float)((keyValuePair.Value as TreeNode).BaseRect.Y + (keyValuePair.Value as TreeNode).BaseRect.Height / 2 - 10));
+                Vector2 vector21 = new Vector2((keyValuePair.Value as TreeNode).BaseRect.X + (keyValuePair.Value as TreeNode).BaseRect.Width - 25, (keyValuePair.Value as TreeNode).BaseRect.Y + (keyValuePair.Value as TreeNode).BaseRect.Height / 2 - 10);
                 Vector2 vector22 = vector21 + new Vector2(ColumnOffset / 2f, 0.0f);
                 vector22.Y = vector21.Y;
                 Array<Technology.LeadsToTech> leadsTo = ResourceManager.TechTree[keyValuePair.Key].LeadsTo;
@@ -136,7 +135,7 @@ namespace Ship_Game
                 {
                     TreeNode treeNode2 = (keyValuePair.Value as TreeNode);
                     Vector2 LeftPoint1 = new Vector2(treeNode2.BaseRect.X + treeNode2.BaseRect.Width - 25, treeNode2.BaseRect.Y + treeNode2.BaseRect.Height / 2 - 10);
-                    Vector2 RightPoint1 = LeftPoint1 + new Vector2((float)(ColumnOffset / 2), 0.0f);
+                    Vector2 RightPoint1 = LeftPoint1 + new Vector2(ColumnOffset / 2, 0.0f);
                     RightPoint1.Y = LeftPoint1.Y;
                     bool Complete1 = false;
                     for (int index = 0; index < technology2.LeadsTo.Count; ++index)
@@ -154,7 +153,7 @@ namespace Ship_Game
                                 Complete1 = true;
                             }
                             TreeNode treeNode3 = (SubNodes[techEntry2.UID] as TreeNode);
-                            Vector2 LeftPoint2 = new Vector2(RightPoint1.X, (float)(treeNode3.BaseRect.Y + treeNode3.BaseRect.Height / 2 - 10));
+                            Vector2 LeftPoint2 = new Vector2(RightPoint1.X, treeNode3.BaseRect.Y + treeNode3.BaseRect.Height / 2 - 10);
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
                             ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, complete2);
                         }
@@ -187,7 +186,7 @@ namespace Ship_Game
                                 Complete1 = true;
                             }
                             TreeNode treeNode4 = (SubNodes[techEntry3.UID] as TreeNode);
-                            Vector2 LeftPoint2 = new Vector2(RightPoint1.X, (float)(treeNode4.BaseRect.Y + treeNode4.BaseRect.Height / 2 - 10));
+                            Vector2 LeftPoint2 = new Vector2(RightPoint1.X, treeNode4.BaseRect.Y + treeNode4.BaseRect.Height / 2 - 10);
                             --LeftPoint2.Y;
                             Vector2 RightPoint2 = LeftPoint2 + new Vector2(Vector2.Distance(LeftPoint1, RightPoint1) + 13f, 0.0f);
                             ScreenManager.SpriteBatch.DrawResearchLineHorizontalGradient(LeftPoint2, RightPoint2, Complete2);
@@ -227,7 +226,7 @@ namespace Ship_Game
             int deepest = 0;
             foreach (KeyValuePair<string, Node> node in TechTree)
             {
-                if (node.Value.NodePosition.Y <= (float)deepest)
+                if (node.Value.NodePosition.Y <= deepest)
                 {
                     continue;
                 }
@@ -241,7 +240,7 @@ namespace Ship_Game
             int deepest = 0;
             foreach (KeyValuePair<string, Node> node in SubNodes)
             {
-                if (node.Value.NodePosition.Y <= (float)deepest)
+                if (node.Value.NodePosition.Y <= deepest)
                 {
                     continue;
                 }
@@ -366,7 +365,7 @@ namespace Ship_Game
                     qcomponent.SetVisible();
                     GameAudio.PlaySfxAsync("sd_ui_research_select");
                     var techToCheck = tech.Value.tech;
-                    var techsToAdd = new Array<string>()
+                    var techsToAdd = new Array<string>
                     {
                         techToCheck.UID
                     };
@@ -422,7 +421,7 @@ namespace Ship_Game
             Rectangle main      = new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
                 , ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
             MainMenu       = new Menu2(main);
-            MainMenuOffset = new Vector2((float)(main.X + 20), (float)(main.Y + 30));
+            MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
             close          = new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20));
             QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             qcomponent     = new QueueComponent(ScreenManager, QueueContainer, this);
@@ -453,7 +452,7 @@ namespace Ship_Game
                 }
             }
             RowOffset = (main.Height - 40) / numRoots;
-            MainMenuOffset.Y = (float)(main.Y + RowOffset / 3);
+            MainMenuOffset.Y = main.Y + RowOffset / 3;
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
             {
                 MainMenuOffset.Y = MainMenuOffset.Y + 8f;
@@ -470,7 +469,7 @@ namespace Ship_Game
                     continue;
                 }
                 Cursor.X = 0f;
-                Cursor.Y = (float)(FindDeepestY() + 1);
+                Cursor.Y = FindDeepestY() + 1;
                 SetNode(tech.Value);                
             }
             RowOffset = (main.Height - 40) / 6;
@@ -508,15 +507,15 @@ namespace Ship_Game
                 {
                     if (i != 0)
                     {
-                        Cursor.Y = (float)(FindDeepestYSubNodes() + 1);
+                        Cursor.Y = FindDeepestYSubNodes() + 1;
                     }
                     else
                     {
-                        Cursor.Y = (float)FindDeepestYSubNodes();
+                        Cursor.Y = FindDeepestYSubNodes();
                     }
                     Cursor.X = treenode.NodePosition.X + 1f;
                     TechEntry te = techEntry;
-                    TreeNode newNode = new TreeNode(MainMenuOffset + new Vector2((float)(ColumnOffset * (int)Cursor.X), (float)(RowOffset * (int)Cursor.Y)), te, this)
+                    TreeNode newNode = new TreeNode(MainMenuOffset + new Vector2(ColumnOffset * (int)Cursor.X, RowOffset * (int)Cursor.Y), te, this)
                     {
                         NodePosition = Cursor
                     };
@@ -548,8 +547,8 @@ namespace Ship_Game
                 TechEntry te = techEntry;
                 TreeNode newNode =
                     new TreeNode(
-                        MainMenuOffset + new Vector2((float) (ColumnOffset * (int) Cursor.X),
-                            (float) (RowOffset * (int) Cursor.Y)), te, this)
+                        MainMenuOffset + new Vector2(ColumnOffset * (int) Cursor.X,
+                            RowOffset * (int) Cursor.Y), te, this)
                     {
                         NodePosition = Cursor
                     };
@@ -693,7 +692,7 @@ namespace Ship_Game
             {
                 ClaimedSpots.Add(Position);
             }
-            RootNode newNode = new RootNode(MainMenuOffset + new Vector2((float)(ColumnOffset * (int)Cursor.X), (float)(RowOffset * ((int)Cursor.Y - 1))), tech)
+            RootNode newNode = new RootNode(MainMenuOffset + new Vector2(ColumnOffset * (int)Cursor.X, RowOffset * ((int)Cursor.Y - 1)), tech)
             {
                 NodePosition = Cursor
             };
@@ -797,10 +796,6 @@ namespace Ship_Game
             public Troop troop;
 
             public string Description;
-
-            public UnlockItem()
-            {
-            }
         }
     }
 }

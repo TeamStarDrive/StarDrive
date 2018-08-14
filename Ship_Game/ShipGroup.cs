@@ -1,13 +1,12 @@
-using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-
 
 namespace Ship_Game
 {

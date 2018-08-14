@@ -82,7 +82,7 @@ namespace Ship_Game
             OpsSL.AddItem(StealTech);
             OpsSL.AddItem(StealShip);
             OpsSL.AddItem(InciteRebellion);
-            RecruitButton = new DanButton(new Vector2((float)(ComponentRect.X), (float)(ComponentRect.Y + ComponentRect.Height + 5f)), Localizer.Token(2179))
+            RecruitButton = new DanButton(new Vector2(ComponentRect.X, ComponentRect.Y + ComponentRect.Height + 5f), Localizer.Token(2179))
             {
                 Toggled = true
             };

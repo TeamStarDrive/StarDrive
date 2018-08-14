@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {

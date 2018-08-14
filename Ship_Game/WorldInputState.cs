@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Ship_Game
 {
@@ -182,11 +181,7 @@ namespace Ship_Game
 			}
 		}
 
-		public WorldInputState()
-		{
-		}
-
-		private bool IsNewKeyPress(Keys key)
+	    private bool IsNewKeyPress(Keys key)
 		{
 			return CurrentKeyboardState.IsKeyDown(key);
 		}

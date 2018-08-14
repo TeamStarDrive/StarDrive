@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -23,7 +21,7 @@ namespace Ship_Game
 			leftRect = new Rectangle(r.X, r.Y, 42, 36);
 			FillRect = new Rectangle(r.X + 42, r.Y, r.Width - 42 - 30, 36);
 			RightRect = new Rectangle(r.X + r.Width - 30, r.Y, 30, 36);
-			TextPos = new Vector2((float)(leftRect.X + leftRect.Width + 4), (float)(leftRect.Y + leftRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2 + 1));
+			TextPos = new Vector2(leftRect.X + leftRect.Width + 4, leftRect.Y + leftRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2 + 1);
 		}
 
 		public void Draw(ScreenManager ScreenManager)

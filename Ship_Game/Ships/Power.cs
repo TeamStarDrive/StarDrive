@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-
-namespace Ship_Game.Ships
+﻿namespace Ship_Game.Ships
 {
     public struct Power
     {

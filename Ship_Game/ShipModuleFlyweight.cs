@@ -1,8 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Particle3DSample;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Gameplay
 {

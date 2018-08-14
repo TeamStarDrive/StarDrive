@@ -22,10 +22,6 @@ namespace Ship_Game
         [Serialize(14)] public float ModuleHPMod;
 
 
-        public Artifact()
-        {
-        }
-
         private bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits, string text, EventPopup popup)
         {
             if (inModifier <= 0f)

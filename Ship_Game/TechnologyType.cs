@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Ship_Game
+﻿namespace Ship_Game
 {
     public enum TechnologyType
     {
@@ -16,6 +11,6 @@ namespace Ship_Game
         ShipHull,
         ShipDefense,
         ShipWeapons,
-        ShipGeneral,
+        ShipGeneral
     }
 }
