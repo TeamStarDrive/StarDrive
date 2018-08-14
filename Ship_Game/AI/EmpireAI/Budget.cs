@@ -3,6 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI.Budget
 {
+    public class CommonValues
+    {
+        public static float TradeMoney(int treatyTurns) => (0.25f * treatyTurns - 3f).Clamped(-3f, 3f);
+    }
+
     public struct PlanetBudget
     {
         public readonly float SystemBudget;
