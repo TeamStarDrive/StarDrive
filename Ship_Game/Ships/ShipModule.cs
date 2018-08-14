@@ -804,6 +804,11 @@ namespace Ship_Game.Ships
                 return;
 
             SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
+            if (hangarShip == null)
+            {
+                Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
+                return;
+            }
 
             hangarShip.DoEscort(Parent);
             hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
