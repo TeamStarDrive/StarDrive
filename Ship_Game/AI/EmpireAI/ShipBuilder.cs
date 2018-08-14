@@ -200,7 +200,7 @@ namespace Ship_Game.AI
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
-            ShipData.RoleName role, float velocity)
+            ShipData.RoleName role, float velocity, float rotation)
         {
             float weaponRatio = (float)numWeaponSlots / shipSize;
             float modifiedStrength;
@@ -226,6 +226,7 @@ namespace Ship_Game.AI
                     break;
             }
 
+            modifiedStrength += modifiedStrength * rotation / 100f;
             return modifiedStrength * speedModifier;
         }
 
