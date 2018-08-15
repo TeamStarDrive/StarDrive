@@ -215,21 +215,25 @@ namespace Ship_Game
 
         public Planet()
         {
-            TroopManager = new TroopManager(this, Habitable);
+            TroopManager = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
-            SbCommodities = new SBCommodities(this);
+
+            SbCommodities = new SBCommodities(this);                
+            
             SbProduction = new SBProduction(this);
             HasShipyard = false;
-
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
+
+
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {
             var newOrbital = this;
-            TroopManager = new TroopManager(this, Habitable);
+            TroopManager = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
+
             SbCommodities = new SBCommodities(this);
             SbProduction = new SBProduction(this);
             Name = name;
@@ -827,8 +831,8 @@ namespace Ship_Game
             string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
             planet1.DevelopmentStatus = str1;
         }
-       
-        public TradeAI TradeAI;
+
+        public TradeAI TradeAI => SbCommodities.Trade;
 
         private void CalculateIncomingTrade()
         {
@@ -836,7 +840,7 @@ namespace Ship_Game
             IncomingProduction = 0;
             IncomingFood = 0;
             TradeIncomingColonists = 0;
-            TradeAI = new TradeAI(this);            
+            TradeAI.ClearHistory();
             using (Owner.GetShips().AcquireReadLock())
             {
                 foreach (var ship in Owner.GetShips())

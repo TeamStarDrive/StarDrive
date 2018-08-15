@@ -30,12 +30,28 @@ namespace Ship_Game.Universe.SolarBodies.AI
 
         public TradeAI(Planet planet)
         {
-            IncomingFreight = new Dictionary<int, Entry>();
-            OutGoingFreight = new Dictionary<int, Entry>();
+            IncomingFreight = new Map<int, Entry>();
+            OutGoingFreight = new Map<int, Entry>();
             TradePlanet = planet;
             AvgTradingFood = 0;
             AvgTradingProduction = 0;
-            AvgTradingColonists = 0;
+            AvgTradingColonists = 0;            
+            CreateSortedGoodSources(planet);
+        }
+        public void ClearHistory()
+        {
+            IncomingFreight.Clear();
+            OutGoingFreight.Clear();
+            CreateSortedGoodSources(TradePlanet);
+       
+        }
+        public void CreateSortedGoodSources(Planet planet)
+        {
+            if (planet.Owner == null)
+            {
+                ImportTargets = Empty<Planet>.Array;
+                return;
+            }
             ImportTargets = planet.Owner.GetPlanets().FilterBy(p => p.IsExporting());
             ImportTargets.Sort(p => p.Center.SqDist(planet.Center));
         }
