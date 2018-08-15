@@ -115,22 +115,22 @@ namespace Ship_Game.Ships
 
         private void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-            guid = save.guid;
-            Position = save.Position;
-            PlayerShip = save.IsPlayerShip;
-            experience = save.experience;
-            kills = save.kills;
-            PowerCurrent = save.Power;
-            yRotation = save.yRotation;
-            Ordinance = save.Ordnance;
-            Rotation = save.Rotation;
-            Velocity = save.Velocity;
-            isSpooling = save.AfterBurnerOn;
-            InCombatTimer = save.InCombatTimer;
-            TetherGuid = save.TetheredTo;
-            TetherOffset = save.TetherOffset;
-            InCombat = InCombatTimer > 0f;
-            TroopsLaunched = save.TroopsLaunched;
+            guid             = save.guid;
+            Position         = save.Position;
+            PlayerShip       = save.IsPlayerShip;
+            experience       = save.experience;
+            kills            = save.kills;
+            PowerCurrent     = save.Power;
+            yRotation        = save.yRotation;
+            Ordinance        = save.Ordnance;
+            Rotation         = save.Rotation;
+            Velocity         = save.Velocity;
+            isSpooling       = save.AfterBurnerOn;
+            InCombatTimer    = save.InCombatTimer;
+            TetherGuid       = save.TetheredTo;
+            TetherOffset     = save.TetherOffset;
+            InCombat         = InCombatTimer > 0f;
+            TroopsLaunched   = save.TroopsLaunched;
             FightersLaunched = save.FightersLaunched;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
