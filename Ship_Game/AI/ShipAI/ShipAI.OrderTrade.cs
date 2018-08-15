@@ -39,9 +39,8 @@ namespace Ship_Game.AI
                 case Goods.Colonists:  return "Pass";
             }
         }
-        private static float UniverseSize => UniverseScreen?.UniverseSize ?? 5000000f;
 
-        private void DropoffGoods()
+        private void DropOffGoods()
         {
             if (end != null)
             {
@@ -263,8 +262,9 @@ namespace Ship_Game.AI
         {
             if (start == null || end == null) return false;
             Owner.TradeTimer = 5f;
+            if (OrderQueue.NotEmpty) return true;
             if (Owner.GetFood() > 0f || Owner.GetProduction() > 0f)
-            {
+            {                
                 OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
 
                 AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
@@ -294,35 +294,48 @@ namespace Ship_Game.AI
             return Owner.loyalty.GetOwnedSystems().All(combat => combat.combatTimer > 0);
         }
 
-        public void OrderTradeFromSave(bool hasCargo, Guid startGUID, Guid endGUID)
+        private void ConvertGUIDsToEndStart(Guid startGUID, Guid endGUID)
+        {
+            if (start != null || end != null)
+                return;
+            foreach (Planet p in Owner.loyalty.GetPlanets())
+            {
+                if (p.guid == startGUID)
+                    start = p;
+                if (p.guid != endGUID)
+                    continue;
+                end = p;
+            }
+        }
+
+        public void OrderTradeFromSave(Goods good, Guid startGUID, Guid endGUID)
         {
             if (Owner.CargoSpaceMax <= 0 || State == AIState.Flee || ShouldSuspendTradeDueToCombat())
                 return;
+            if (State != AIState.SystemTrader && State != AIState.PassengerTransport)
+                return;
+            if (end == null)
+                return;
+            ConvertGUIDsToEndStart(startGUID, endGUID);    
 
-            if (start == null && end == null)
-                foreach (Planet p in Owner.loyalty.GetPlanets())
-                {
-                    if (p.guid == startGUID)
-                        start = p;
-                    if (p.guid != endGUID)
-                        continue;
-                    end = p;
-                }
-            if (!hasCargo && start != null)
+            if (OrderQueue.PeekLast.Plan == Plan.DropOffGoods || OrderQueue.PeekLast.Plan == Plan.TransportPassengers)
+                return;
+                       
+
+            if (good == Goods.Colonists)
             {
-                OrderMoveTowardsPosition(start.Center.RandomOffset(500f), 0f, Vector.Up(), true, start);
-                AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
-                State = AIState.SystemTrader;
-            }
-            if (!hasCargo || end == null)
-            {
-                if (!hasCargo && (start == null || end == null))
-                    OrderTrade(5f);
+                OrderTransportPassengersFromSave();
                 return;
             }
-            OrderMoveTowardsPosition(end.Center + RandomMath.RandomDirection() * 500f, 0f, Vector.Up(), true, end);
-            AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
-            State = AIState.SystemTrader;
+
+            if (good != Goods.None)
+            {
+                OrderMoveTowardsPosition(end.Center + RandomMath.RandomDirection() * 500f, 0f, Vector.Up(), true, end);
+                AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
+                State = AIState.SystemTrader;
+                return;
+            }
+            OrderMoveTowardsPosition(start.Center.RandomOffset(500f), 0f, Vector.Up(), true, start);
         }
 
         private bool PassengerDropOffTarget(Planet p)
@@ -405,6 +418,7 @@ namespace Ship_Game.AI
 
         public void OrderTransportPassengersFromSave()
         {
+            
             OrderTransportPassengers(0.33f);
         }
 

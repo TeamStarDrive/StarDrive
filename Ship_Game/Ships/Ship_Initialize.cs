@@ -50,7 +50,7 @@ namespace Ship_Game.Ships
                     continue;
 
                 ShipModule module = ShipModule.Create(uid, this, slotData, isTemplate, fromSave);
-                for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
+                for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x += 16)
                 {
                     for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)
                     {
@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
                 }
 
                 module.HangarShipGuid = slotData.HangarshipGuid;
-                module.hangarShipUID  = slotData.SlotOptions;
+                module.hangarShipUID = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
             }
 
@@ -75,12 +75,12 @@ namespace Ship_Game.Ships
         {
             var ship = new Ship
             {
-                Position   = new Vector2(200f, 200f),
-                Name       = data.Name,
-                Level      = data.Level,
+                Position = new Vector2(200f, 200f),
+                Name = data.Name,
+                Level = data.Level,
                 experience = data.experience,
-                shipData   = data,
-                loyalty    = empire
+                shipData = data,
+                loyalty = empire
             };
 
             ship.SetShipData(data);
@@ -115,27 +115,27 @@ namespace Ship_Game.Ships
 
         private void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-            guid             = save.guid;
-            Position         = save.Position;
-            PlayerShip       = save.IsPlayerShip;
-            experience       = save.experience;
-            kills            = save.kills;
-            PowerCurrent     = save.Power;
-            yRotation        = save.yRotation;
-            Ordinance        = save.Ordnance;
-            Rotation         = save.Rotation;
-            Velocity         = save.Velocity;
-            isSpooling       = save.AfterBurnerOn;
-            InCombatTimer    = save.InCombatTimer;
-            TetherGuid       = save.TetheredTo;
-            TetherOffset     = save.TetherOffset;
-            InCombat         = InCombatTimer > 0f;
-            TroopsLaunched   = save.TroopsLaunched;
+            guid = save.guid;
+            Position = save.Position;
+            PlayerShip = save.IsPlayerShip;
+            experience = save.experience;
+            kills = save.kills;
+            PowerCurrent = save.Power;
+            yRotation = save.yRotation;
+            Ordinance = save.Ordnance;
+            Rotation = save.Rotation;
+            Velocity = save.Velocity;
+            isSpooling = save.AfterBurnerOn;
+            InCombatTimer = save.InCombatTimer;
+            TetherGuid = save.TetheredTo;
+            TetherOffset = save.TetherOffset;
+            InCombat = InCombatTimer > 0f;
+            TroopsLaunched = save.TroopsLaunched;
             FightersLaunched = save.FightersLaunched;
 
-            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty 
+            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.Name;
-            
+
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
                 save.data.Hull = save.Hull;
@@ -162,19 +162,23 @@ namespace Ship_Game.Ships
             LoadProduction(save.ProdCount);
             LoadColonists(save.PopCount);
 
-            switch (AI.State)
-            {
-                case AIState.SystemTrader:
-                    bool hasCargo = save.FoodCount > 0f || save.ProdCount > 0f;
-                    AI.OrderTradeFromSave(hasCargo, save.AISave.startGuid, save.AISave.endGuid);
-                    break;
-                case AIState.PassengerTransport:
-                    AI.OrderTransportPassengersFromSave();
-                    break;
-            }
+            Goods saveGoods = ConvertSaveGoodToGoods(save);
+            AI.OrderTradeFromSave(saveGoods, save.AISave.startGuid, save.AISave.endGuid);
 
             foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
                 Projectile.Create(this, pdata);
+        }
+
+        private Goods ConvertSaveGoodToGoods (SavedGame.ShipSaveData save)
+        {
+            if (save.FoodCount > 0)
+                return Goods.Food;
+            if (save.ProdCount > 0)
+                return Goods.Production;
+            if (save.PopCount > 0)
+                return Goods.Colonists;
+
+            return Goods.None;
         }
 
         // Added by RedFox - Debug, Hangar Ship, and Platform creation

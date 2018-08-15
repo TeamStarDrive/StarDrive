@@ -255,11 +255,7 @@ namespace Ship_Game
                         Asteroids = false
                     });
                     RestoreCommodities(p, ring.Planet);
-                    p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()
-
-                    // @todo This is a hack. Crunchy must properly design TradeAI
-                    if (p.Owner != null)
-                        p.TradeAI = new Universe.SolarBodies.AI.TradeAI(p);
+                    p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()                 
                 }
             }
             return system;
