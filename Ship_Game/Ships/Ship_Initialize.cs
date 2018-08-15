@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using SgMotion;
-using SgMotion.Controllers;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
@@ -409,7 +405,7 @@ namespace Ship_Game.Ships
             
             SetSystem(System);
             InitExternalSlots();
-            base.Initialize();
+            Initialize();
 
             RecalculatePower();        
             ShipStatusChange();

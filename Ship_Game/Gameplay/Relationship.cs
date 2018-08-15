@@ -1,10 +1,8 @@
-using Ship_Game;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -181,7 +179,7 @@ namespace Ship_Game.Gameplay
             var s = new HashSet<SolarSystem>();
             foreach (var task in us.GetGSAI().TaskList)
             {
-                if (task.type != AI.Tasks.MilitaryTask.TaskType.DefendClaim) continue;
+                if (task.type != MilitaryTask.TaskType.DefendClaim) continue;
                 var p = task.TargetPlanet;
                 var ss = p.ParentSystem;
                 if (!s.Add(ss)) continue;
@@ -260,62 +258,57 @@ namespace Ship_Game.Gameplay
                         Relationship trust1 = this;
                         trust1.Trust = trust1.Trust - Amount;
                     }
-                    if (this.Treaty_Alliance)
+                    if (Treaty_Alliance)
                     {
                         Relationship timesSpiedOnAlly = this;
                         timesSpiedOnAlly.TimesSpiedOnAlly = timesSpiedOnAlly.TimesSpiedOnAlly + 1;
-                        if (this.TimesSpiedOnAlly == 1)
+                        if (TimesSpiedOnAlly == 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_Ally_1", true));
-                                return;
                             }
                         }
-                        else if (this.TimesSpiedOnAlly > 1)
+                        else if (TimesSpiedOnAlly > 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_Ally_2", true));
                             }
-                            this.Treaty_Alliance = false;
-                            this.Treaty_NAPact = false;
-                            this.Treaty_OpenBorders = false;
-                            this.Treaty_Trade = false;
-                            this.Posture = Ship_Game.Gameplay.Posture.Hostile;
-                            return;
+                            Treaty_Alliance = false;
+                            Treaty_NAPact = false;
+                            Treaty_OpenBorders = false;
+                            Treaty_Trade = false;
+                            Posture = Posture.Hostile;
                         }
                     }
-                    else if (this.SpiesDetected == 1 && !this.AtWar && Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
+                    else if (SpiesDetected == 1 && !AtWar && Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                     {
-                        if (this.SpiesDetected == 1)
+                        if (SpiesDetected == 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_1", true));
-                                return;
                             }
                         }
-                        else if (this.SpiesDetected == 2)
+                        else if (SpiesDetected == 2)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_2", true));
-                                return;
                             }
                         }
-                        else if (this.SpiesDetected >= 3)
+                        else if (SpiesDetected >= 3)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_3", true));
                             }
-                            this.Treaty_Alliance = false;
-                            this.Treaty_NAPact = false;
-                            this.Treaty_OpenBorders = false;
-                            this.Treaty_Trade = false;
-                            this.Posture = Ship_Game.Gameplay.Posture.Hostile;
-                            return;
+                            Treaty_Alliance = false;
+                            Treaty_NAPact = false;
+                            Treaty_OpenBorders = false;
+                            Treaty_Trade = false;
+                            Posture = Posture.Hostile;
                         }
                     }
                 }
@@ -338,36 +331,33 @@ namespace Ship_Game.Gameplay
                     }
                     Relationship spiesKilled = this;
                     spiesKilled.SpiesKilled = spiesKilled.SpiesKilled + 1;
-                    if (this.Treaty_Alliance)
+                    if (Treaty_Alliance)
                     {
                         Relationship timesSpiedOnAlly1 = this;
                         timesSpiedOnAlly1.TimesSpiedOnAlly = timesSpiedOnAlly1.TimesSpiedOnAlly + 1;
-                        if (this.TimesSpiedOnAlly == 1)
+                        if (TimesSpiedOnAlly == 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_Ally_1", true));
-                                return;
                             }
                         }
-                        else if (this.TimesSpiedOnAlly > 1)
+                        else if (TimesSpiedOnAlly > 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Caught_Spying_Ally_2", true));
                             }
-                            this.Treaty_Alliance = false;
-                            this.Treaty_NAPact = false;
-                            this.Treaty_OpenBorders = false;
-                            this.Treaty_Trade = false;
-                            this.Posture = Ship_Game.Gameplay.Posture.Hostile;
-                            return;
+                            Treaty_Alliance = false;
+                            Treaty_NAPact = false;
+                            Treaty_OpenBorders = false;
+                            Treaty_Trade = false;
+                            Posture = Posture.Hostile;
                         }
                     }
                     else if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                     {
                         Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Killed_Spy_1", true));
-                        return;
                     }
                 }
                 else if (str1 == "Insulted")
@@ -386,7 +376,6 @@ namespace Ship_Game.Gameplay
                         totalAnger4.TotalAnger = totalAnger4.TotalAnger + Amount;
                         Relationship trust4 = this;
                         trust4.Trust = trust4.Trust - Amount;
-                        return;
                     }
                 }
                 else if (str1 == "Colonized Owned System")
@@ -432,27 +421,26 @@ namespace Ship_Game.Gameplay
                     relationship4.Trust = relationship4.Trust - Amount;
                     
 
-                    if (this.Anger_TerritorialConflict < (float)Us.data.DiplomaticPersonality.Territorialism && !this.AtWar)
+                    if (Anger_TerritorialConflict < Us.data.DiplomaticPersonality.Territorialism && !AtWar)
                     {
-                        if (this.AtWar)
+                        if (AtWar)
                         {
                             return;
                         }
                         if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                         {
-                            if (!this.WarnedAboutShips)
+                            if (!WarnedAboutShips)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Colonized Warning", p));
                             }
-                            else if (!this.AtWar)
+                            else if (!AtWar)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Warning Ships then Colonized", p));
                             }
-                            this.turnsSinceLastContact = 0;
-                            this.WarnedAboutColonizing = true;
-                            this.contestedSystem = p.ParentSystem;
-                            this.contestedSystemGuid = p.ParentSystem.guid;
-                            return;
+                            turnsSinceLastContact = 0;
+                            WarnedAboutColonizing = true;
+                            contestedSystem = p.ParentSystem;
+                            contestedSystemGuid = p.ParentSystem.guid;
                         }
                     }
                 }
@@ -466,7 +454,7 @@ namespace Ship_Game.Gameplay
                     {
                         return;
                     }
-                    if (this.Anger_MilitaryConflict == 0f && !this.AtWar)
+                    if (Anger_MilitaryConflict == 0f && !AtWar)
                     {
                         Relationship angerMilitaryConflict = this;
                         angerMilitaryConflict.Anger_MilitaryConflict = angerMilitaryConflict.Anger_MilitaryConflict + Amount;
@@ -474,7 +462,7 @@ namespace Ship_Game.Gameplay
                         trust5.Trust = trust5.Trust - Amount;
                         if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                         {
-                            if (this.Anger_MilitaryConflict < 2f)
+                            if (Anger_MilitaryConflict < 2f)
                             {
                                 Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, Us, Them, "Aggression Warning"));
                             }
@@ -490,7 +478,7 @@ namespace Ship_Game.Gameplay
 
         public SolarSystem GetContestedSystem()
         {
-            return Empire.Universe.SolarSystemDict[this.contestedSystemGuid];
+            return Empire.Universe.SolarSystemDict[contestedSystemGuid];
         }
 
         public float GetStrength()

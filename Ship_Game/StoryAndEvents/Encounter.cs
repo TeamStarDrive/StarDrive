@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -35,27 +34,23 @@ namespace Ship_Game
 
 		private Empire empToDiscuss;
 
-		public Encounter()
+	    private bool CheckIfWeCanMeetDemand()
 		{
-		}
-
-		private bool CheckIfWeCanMeetDemand()
-		{
-			if ((float)this.MessageList[this.CurrentMessage].MoneyDemanded > this.playerEmpire.Money)
+			if (MessageList[CurrentMessage].MoneyDemanded > playerEmpire.Money)
 			{
 				return false;
 			}
 			return true;
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager ScreenManager)
 		{
-			ScreenManager.SpriteBatch.FillRectangle(this.BlackRect, Color.Black);
-			ScreenManager.SpriteBatch.FillRectangle(this.ResponseRect, Color.Black);
-			Vector2 TheirTextPos = new Vector2((float)(this.BlackRect.X + 10), (float)(this.BlackRect.Y + 10));
-			string theirText = this.parseText(this.MessageList[this.CurrentMessage].text, (float)(this.BlackRect.Width - 20), Fonts.Verdana12Bold);
-			TheirTextPos.X = (float)((int)TheirTextPos.X);
-			TheirTextPos.Y = (float)((int)TheirTextPos.Y);
+			ScreenManager.SpriteBatch.FillRectangle(BlackRect, Color.Black);
+			ScreenManager.SpriteBatch.FillRectangle(ResponseRect, Color.Black);
+			Vector2 TheirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
+			string theirText = parseText(MessageList[CurrentMessage].text, BlackRect.Width - 20, Fonts.Verdana12Bold);
+			TheirTextPos.X = (int)TheirTextPos.X;
+			TheirTextPos.Y = (int)TheirTextPos.Y;
 			ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12Bold, theirText, TheirTextPos, Color.White);
 			if (MessageList[CurrentMessage].EndTransmission)
 			{
@@ -126,7 +121,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			if (this.MessageList[this.CurrentMessage].EndTransmission && (input.Escaped || input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed))
+			if (MessageList[CurrentMessage].EndTransmission && (input.Escaped || input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed))
 			{
 				caller.ExitScreen();
 			}
@@ -147,132 +142,132 @@ namespace Ship_Game
 		{
 			string line = string.Empty;
 			string returnString = string.Empty;
-			string[] wordArray = text.Split(new char[] { ' ' });
-			for (int i = 0; i < (int)wordArray.Length; i++)
+			string[] wordArray = text.Split(' ');
+			for (int i = 0; i < wordArray.Length; i++)
 			{
 				if (wordArray[i] == "SING")
 				{
-					wordArray[i] = this.playerEmpire.data.Traits.Singular;
+					wordArray[i] = playerEmpire.data.Traits.Singular;
 				}
 				else if (wordArray[i] == "SING.")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Singular, ".");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Singular, ".");
 				}
 				else if (wordArray[i] == "SING,")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Singular, ",");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Singular, ",");
 				}
 				else if (wordArray[i] == "SING?")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Singular, "?");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Singular, "?");
 				}
 				else if (wordArray[i] == "SING!")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Singular, "!");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Singular, "!");
 				}
 				if (wordArray[i] == "PLURAL")
 				{
-					wordArray[i] = this.playerEmpire.data.Traits.Plural;
+					wordArray[i] = playerEmpire.data.Traits.Plural;
 				}
 				else if (wordArray[i] == "PLURAL.")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Plural, ".");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Plural, ".");
 				}
 				else if (wordArray[i] == "PLURAL,")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Plural, ",");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Plural, ",");
 				}
 				else if (wordArray[i] == "PLURAL?")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Plural, "?");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Plural, "?");
 				}
 				else if (wordArray[i] == "PLURAL!")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Plural, "!");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Plural, "!");
 				}
 				if (wordArray[i] == "TARSYS")
 				{
-					wordArray[i] = this.sysToDiscuss.Name;
+					wordArray[i] = sysToDiscuss.Name;
 				}
 				else if (wordArray[i] == "TARSYS.")
 				{
-					wordArray[i] = string.Concat(this.sysToDiscuss.Name, ".");
+					wordArray[i] = string.Concat(sysToDiscuss.Name, ".");
 				}
 				else if (wordArray[i] == "TARSYS,")
 				{
-					wordArray[i] = string.Concat(this.sysToDiscuss.Name, ",");
+					wordArray[i] = string.Concat(sysToDiscuss.Name, ",");
 				}
 				else if (wordArray[i] == "TARSYS?")
 				{
-					wordArray[i] = string.Concat(this.sysToDiscuss.Name, "?");
+					wordArray[i] = string.Concat(sysToDiscuss.Name, "?");
 				}
 				else if (wordArray[i] == "TARSYS!")
 				{
-					wordArray[i] = string.Concat(this.sysToDiscuss.Name, "!");
+					wordArray[i] = string.Concat(sysToDiscuss.Name, "!");
 				}
 				if (wordArray[i] == "TAREMP")
 				{
-					wordArray[i] = this.empToDiscuss.data.Traits.Name;
+					wordArray[i] = empToDiscuss.data.Traits.Name;
 				}
 				else if (wordArray[i] == "TAREMP.")
 				{
-					wordArray[i] = string.Concat(this.empToDiscuss.data.Traits.Name, ".");
+					wordArray[i] = string.Concat(empToDiscuss.data.Traits.Name, ".");
 				}
 				else if (wordArray[i] == "TAREMP,")
 				{
-					wordArray[i] = string.Concat(this.empToDiscuss.data.Traits.Name, ",");
+					wordArray[i] = string.Concat(empToDiscuss.data.Traits.Name, ",");
 				}
 				else if (wordArray[i] == "TAREMP?")
 				{
-					wordArray[i] = string.Concat(this.empToDiscuss.data.Traits.Name, "?");
+					wordArray[i] = string.Concat(empToDiscuss.data.Traits.Name, "?");
 				}
 				else if (wordArray[i] == "TAREMP!")
 				{
-					wordArray[i] = string.Concat(this.empToDiscuss.data.Traits.Name, "!");
+					wordArray[i] = string.Concat(empToDiscuss.data.Traits.Name, "!");
 				}
 				if (wordArray[i] == "ADJ1")
 				{
-					wordArray[i] = this.playerEmpire.data.Traits.Adj1;
+					wordArray[i] = playerEmpire.data.Traits.Adj1;
 				}
 				else if (wordArray[i] == "ADJ1.")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj1, ".");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj1, ".");
 				}
 				else if (wordArray[i] == "ADJ1,")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj1, ",");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj1, ",");
 				}
 				else if (wordArray[i] == "ADJ1?")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj1, "?");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj1, "?");
 				}
 				else if (wordArray[i] == "ADJ1!")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj1, "!");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj1, "!");
 				}
 				if (wordArray[i] == "ADJ2")
 				{
-					wordArray[i] = this.playerEmpire.data.Traits.Adj2;
+					wordArray[i] = playerEmpire.data.Traits.Adj2;
 				}
 				else if (wordArray[i] == "ADJ2.")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj2, ".");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj2, ".");
 				}
 				else if (wordArray[i] == "ADJ2,")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj2, ",");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj2, ",");
 				}
 				else if (wordArray[i] == "ADJ2?")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj2, "?");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj2, "?");
 				}
 				else if (wordArray[i] == "ADJ2!")
 				{
-					wordArray[i] = string.Concat(this.playerEmpire.data.Traits.Adj2, "!");
+					wordArray[i] = string.Concat(playerEmpire.data.Traits.Adj2, "!");
 				}
 			}
 			string[] strArrays = wordArray;
-			for (int j = 0; j < (int)strArrays.Length; j++)
+			for (int j = 0; j < strArrays.Length; j++)
 			{
 				string word = strArrays[j];
 				if (font.MeasureString(string.Concat(line, word)).Length() > Width)
@@ -287,7 +282,7 @@ namespace Ship_Game
 
 		public void SetPlayerEmpire(Empire e)
 		{
-			this.playerEmpire = e;
+			playerEmpire = e;
 		}
 
 		private void SetResponses()
@@ -301,12 +296,12 @@ namespace Ship_Game
 
 		public void SetSys(SolarSystem s)
 		{
-			this.sysToDiscuss = s;
+			sysToDiscuss = s;
 		}
 
 		public void SetTarEmp(Empire e)
 		{
-			this.empToDiscuss = e;
+			empToDiscuss = e;
 		}
 	}
 }

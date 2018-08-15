@@ -7,7 +7,7 @@ namespace Ship_Game
     public enum SliderStyle
     {
         Decimal, // example: 42000
-        Percent, // example: 51%
+        Percent // example: 51%
     }
 
     public sealed class FloatSlider : UIElementV2

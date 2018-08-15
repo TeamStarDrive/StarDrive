@@ -20,7 +20,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("SelectionBox/button_formation_active"),
             Inactive = ResourceManager.Texture("SelectionBox/button_formation_inactive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_formation_hover"),
-            Press    = ResourceManager.Texture("SelectionBox/button_formation_pressed"),
+            Press    = ResourceManager.Texture("SelectionBox/button_formation_pressed")
         };
 
         public static readonly ToggleButtonStyle Grid = new ToggleButtonStyle
@@ -30,7 +30,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("SelectionBox/button_grid_active"),
             Inactive = ResourceManager.Texture("SelectionBox/button_grid_inactive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_grid_hover"),
-            Press    = ResourceManager.Texture("SelectionBox/button_grid_pressed"),
+            Press    = ResourceManager.Texture("SelectionBox/button_grid_pressed")
         };
 
         public static readonly ToggleButtonStyle PlayerDesigns = new ToggleButtonStyle
@@ -40,7 +40,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("SelectionBox/PlayerDesignsPressed"),
             Inactive = ResourceManager.Texture("SelectionBox/PlayerDesignsActive"),
             Hover    = ResourceManager.Texture("SelectionBox/button_grid_hover"),
-            Press    = ResourceManager.Texture("SelectionBox/button_grid_pressed"),
+            Press    = ResourceManager.Texture("SelectionBox/button_grid_pressed")
         };
 
         public static readonly ToggleButtonStyle ArrowLeft = new ToggleButtonStyle
@@ -50,7 +50,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("SelectionBox/button_arrow_left"),
             Inactive = ResourceManager.Texture("SelectionBox/button_arrow_left"),
             Hover    = ResourceManager.Texture("SelectionBox/button_arrow_left_hover"),
-            Press    = ResourceManager.Texture("SelectionBox/button_arrow_left_hover"),
+            Press    = ResourceManager.Texture("SelectionBox/button_arrow_left_hover")
         };
 
         public static readonly ToggleButtonStyle ArrowRight = new ToggleButtonStyle
@@ -60,7 +60,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("SelectionBox/button_arrow_right"),
             Inactive = ResourceManager.Texture("SelectionBox/button_arrow_right"),
             Hover    = ResourceManager.Texture("SelectionBox/button_arrow_right_hover"),
-            Press    = ResourceManager.Texture("SelectionBox/button_arrow_right_hover"),
+            Press    = ResourceManager.Texture("SelectionBox/button_arrow_right_hover")
         };
 
         public static readonly ToggleButtonStyle ButtonB = new ToggleButtonStyle
@@ -70,7 +70,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("Minimap/button_B_normal"),
             Inactive = ResourceManager.Texture("Minimap/button_B_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_B_hover"),
-            Press    = ResourceManager.Texture("Minimap/button_B_normal"),
+            Press    = ResourceManager.Texture("Minimap/button_B_normal")
         };
 
         public static readonly ToggleButtonStyle ButtonC = new ToggleButtonStyle
@@ -80,7 +80,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("Minimap/button_C_normal"),
             Inactive = ResourceManager.Texture("Minimap/button_C_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_hover"),
-            Press    = ResourceManager.Texture("Minimap/button_C_normal"),
+            Press    = ResourceManager.Texture("Minimap/button_C_normal")
         };
 
         public static readonly ToggleButtonStyle Button = new ToggleButtonStyle
@@ -90,7 +90,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("Minimap/button_active"),
             Inactive = ResourceManager.Texture("Minimap/button_normal"),
             Hover    = ResourceManager.Texture("Minimap/button_hover"),
-            Press    = ResourceManager.Texture("Minimap/button_normal"),
+            Press    = ResourceManager.Texture("Minimap/button_normal")
         };
 
         public static readonly ToggleButtonStyle ButtonDown = new ToggleButtonStyle
@@ -100,7 +100,7 @@ namespace Ship_Game
             Active   = ResourceManager.Texture("Minimap/button_active"),
             Inactive = ResourceManager.Texture("Minimap/button_down_inactive"),
             Hover    = ResourceManager.Texture("Minimap/button_down_hover"),
-            Press    = ResourceManager.Texture("Minimap/button_down_inactive"),
+            Press    = ResourceManager.Texture("Minimap/button_down_inactive")
         };
     }
 
@@ -141,8 +141,8 @@ namespace Ship_Game
             
             if (iconPath.NotEmpty())
             {
-                IconTexture = ResourceManager.Texture(iconPath, "");
-                IconActive  = ResourceManager.Texture(iconPath+"_active", "");
+                IconTexture = ResourceManager.TextureOrNull(iconPath);
+                IconActive  = ResourceManager.TextureOrNull(iconPath+"_active");
             }
 
             if (IconTexture == null)

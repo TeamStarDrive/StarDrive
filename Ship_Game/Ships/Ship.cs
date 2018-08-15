@@ -264,8 +264,8 @@ namespace Ship_Game.Ships
 
             string roleName = DesignRole.ToString();
             string iconName = "TacticalIcons/symbol_";
-            return ResourceManager.Texture(iconName + roleName, "") ??
-                ResourceManager.Texture(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
+            return ResourceManager.TextureOrNull(iconName + roleName) ??
+                ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
 
         private int Calculatesize()
@@ -500,7 +500,7 @@ namespace Ship_Game.Ships
                 AI.OrderTransportPassengers(5f);
             }
         }
-        private bool TFood = false;
+        private bool TFood;
         public bool TransportingFood
         {
             get => AI.State != AIState.SystemTrader || TFood;
@@ -526,7 +526,7 @@ namespace Ship_Game.Ships
                 //AI.OrderTrade(0);
             }
         }
-        private bool TProd = false;
+        private bool TProd;
         public bool TransportingProduction
         {
             get => AI.State != AIState.SystemTrader || TProd;
@@ -713,7 +713,7 @@ namespace Ship_Game.Ships
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= ftlmodtemp;
-            maxFTLSpeed = (WarpThrust / base.Mass + WarpThrust / base.Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
+            maxFTLSpeed = (WarpThrust / Mass + WarpThrust / Mass * (loyalty?.data?.FTLModifier ?? 35)) * FTLModifier;
 
 
         }
@@ -831,7 +831,7 @@ namespace Ship_Game.Ships
                         if (yRotation < MaxBank)
                             yRotation += yBankAmount;
                     }
-                    else if (engineState == Ship.MoveState.Warp)
+                    else if (engineState == MoveState.Warp)
                     {
                         isSpooling = true;
                         isTurning = false;
@@ -988,9 +988,9 @@ namespace Ship_Game.Ships
             float halfArc = w.Module.FieldOfFire / 2f;
 
             Vector2 toTarget = target.Center - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
-            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
 
 
             if (facing > 360f)
@@ -1031,9 +1031,9 @@ namespace Ship_Game.Ships
 
             float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -1078,9 +1078,9 @@ namespace Ship_Game.Ships
 
             float halfArc = w.Module.FieldOfFire / 2f;
             Vector2 toTarget = pos - w.Center;
-            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float radians = (float)Math.Atan2(toTarget.X, toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
-            float facing = w.Module.Facing + MathHelper.ToDegrees(base.Rotation);
+            float facing = w.Module.Facing + MathHelper.ToDegrees(Rotation);
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -2603,7 +2603,7 @@ namespace Ship_Game.Ships
         public enum MoveState
         {
             Sublight,
-            Warp,
+            Warp
         }
 
         private float RecalculateMaxHealth()

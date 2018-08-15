@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI
     {
-        private EmpireAI.ResearchStrategy res_strat = EmpireAI.ResearchStrategy.Scripted;
-        private int ScriptIndex = 0;
+        private ResearchStrategy res_strat = ResearchStrategy.Scripted;
+        private int ScriptIndex;
         private int HullScaler = 3;
         private string postResearchTopic = "";
         Ship BestCombatShip;
@@ -90,12 +89,12 @@ namespace Ship_Game.AI {
             DebugLog($"ResearchStrategy : {res_strat.ToString()}");
             switch (res_strat)
             {
-                case EmpireAI.ResearchStrategy.Random:
+                case ResearchStrategy.Random:
                     {                        
                         ChooseRandomTech(wars, shipBuildBonus, researchDebt, cybernetic, needsFood, economics, command);
                         return;
                     }
-                case EmpireAI.ResearchStrategy.Scripted:
+                case ResearchStrategy.Scripted:
                     {
                         if (ProcessScript(wars > 0, economics > 4, researchDebt > 2, OwnerEmpire.Money < OwnerEmpire.GrossTaxes)) return;
                         break;
@@ -146,8 +145,7 @@ namespace Ship_Game.AI {
                     max++;
                 }
             }
-            ScriptedResearch(command, "RANDOM", "TECH" + sendToScript);            
-            return;
+            ScriptedResearch(command, "RANDOM", "TECH" + sendToScript);
         }
 
         private bool ProcessScript(bool atWar, bool highTaxes, bool lowResearch, bool lowincome)
@@ -359,7 +357,7 @@ namespace Ship_Game.AI {
             {
                 GoRandomOnce();
                 if (loopcount >= OwnerEmpire.getResStrat().TechPath.Count)
-                    res_strat = EmpireAI.ResearchStrategy.Random;
+                    res_strat = ResearchStrategy.Random;
 
             }
             return false;
@@ -368,9 +366,9 @@ namespace Ship_Game.AI {
         private bool GoRandomOnce(string command = "CHEAPEST")
         {
             DebugLog($"Go Random Once");
-            res_strat = EmpireAI.ResearchStrategy.Random;
+            res_strat = ResearchStrategy.Random;
             RunResearchPlanner(command);
-            res_strat = EmpireAI.ResearchStrategy.Scripted;
+            res_strat = ResearchStrategy.Scripted;
             return OwnerEmpire.ResearchTopic.NotEmpty();
         }
 
@@ -442,14 +440,14 @@ namespace Ship_Game.AI {
 
                             if (command1 == "CHEAPEST" && currentCost < previousCost)
                             {
-                                DebugLog($"BetterChoice : {researchtopic.ToString()}");
+                                DebugLog($"BetterChoice : {researchtopic}");
                                 researchtopic = Testresearchtopic;
                                 previousCost = currentCost;
                                 CostNormalizer += .005f;
                             }
                             else if (command1 == "EXPENSIVE" && currentCost > previousCost)
                             {
-                                DebugLog($"BetterChoice : {researchtopic.ToString()}");
+                                DebugLog($"BetterChoice : {researchtopic}");
                                 researchtopic = Testresearchtopic;
                                 previousCost = currentCost;
                                 CostNormalizer *= .25f;
@@ -478,11 +476,8 @@ namespace Ship_Game.AI {
 
             if (string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
                 return false;
-            else
-            {
-                postResearchTopic = OwnerEmpire.ResearchTopic;
-                return true;
-            }
+            postResearchTopic = OwnerEmpire.ResearchTopic;
+            return true;
         }
 
         private TechEntry GetScriptedTech(string command1, string techType, Array<TechEntry> availableTechs, float moneyNeeded)

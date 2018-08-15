@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -21,59 +19,59 @@ namespace Ship_Game
 		public ResearchQItem CurrentResearch;
 
 
-		public QueueComponent(Ship_Game.ScreenManager ScreenManager, Rectangle container, ResearchScreenNew screen)
+		public QueueComponent(ScreenManager ScreenManager, Rectangle container, ResearchScreenNew screen)
 		{
 			this.container = container;
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
-			this.Current = new Rectangle(container.X, container.Y, container.Width, 150);
-			this.ShowQueue = new DanButton(new Vector2((float)(container.X + container.Width - 192), (float)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55)), Localizer.Token(2136));
-			this.TimeLeft = new Rectangle(this.Current.X + this.Current.Width - 119, this.Current.Y + this.Current.Height - 24, 111, 20);
-			this.csub = new Submenu(true, this.Current);
-			this.csub.AddTab(Localizer.Token(1405));
-			this.Queue = new Rectangle(this.Current.X, this.Current.Y + 165, container.Width, container.Height - 165);
-			this.qsub = new Submenu(true, this.Queue);
-			this.qsub.AddTab(Localizer.Token(1404));
-			this.QSL = new ScrollList(this.qsub, 125);
+			Current = new Rectangle(container.X, container.Y, container.Width, 150);
+			ShowQueue = new DanButton(new Vector2(container.X + container.Width - 192, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55), Localizer.Token(2136));
+			TimeLeft = new Rectangle(Current.X + Current.Width - 119, Current.Y + Current.Height - 24, 111, 20);
+			csub = new Submenu(true, Current);
+			csub.AddTab(Localizer.Token(1405));
+			Queue = new Rectangle(Current.X, Current.Y + 165, container.Width, container.Height - 165);
+			qsub = new Submenu(true, Queue);
+			qsub.AddTab(Localizer.Token(1404));
+			QSL = new ScrollList(qsub, 125);
 		}
 
 		public void AddToQueue(TreeNode researchItem)
 		{
-			if (this.CurrentResearch == null)
+			if (CurrentResearch == null)
 			{
 				EmpireManager.Player.ResearchTopic = researchItem.tech.UID;
-				this.CurrentResearch = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
+				CurrentResearch = new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
 				return;
 			}
 			if (!EmpireManager.Player.data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.Player.ResearchTopic != researchItem.tech.UID)
 			{
 				EmpireManager.Player.data.ResearchQueue.Add(researchItem.tech.UID);
-				ResearchQItem qi = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
-				this.QSL.AddItem(qi);
+				ResearchQItem qi = new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
+				QSL.AddItem(qi);
 			}
 		}
 
 		public void Draw()
 		{
-			if (!this.Visible)
+			if (!Visible)
 			{
-				this.ShowQueue.DrawBlue(this.ScreenManager);
+				ShowQueue.DrawBlue(ScreenManager);
 				return;
 			}
-			this.ShowQueue.DrawBlue(this.ScreenManager);
-			this.ScreenManager.SpriteBatch.FillRectangle(this.container, Color.Black);
-			this.QSL.DrawBlue(this.ScreenManager.SpriteBatch);
-			this.csub.Draw();
+			ShowQueue.DrawBlue(ScreenManager);
+			ScreenManager.SpriteBatch.FillRectangle(container, Color.Black);
+			QSL.DrawBlue(ScreenManager.SpriteBatch);
+			csub.Draw();
             var tech = CurrentResearch?.Node?.tech;
-            var complete = tech == null || CurrentResearch.Node.complete == true || tech.TechCost == tech.Progress;
+            var complete = tech == null || CurrentResearch.Node.complete || tech.TechCost == tech.Progress;
 			if ( !complete)
 			{
-				this.CurrentResearch.Draw(this.ScreenManager);
-				this.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), this.TimeLeft, Color.White);
-				Vector2 Cursor = new Vector2((float)(this.TimeLeft.X + this.TimeLeft.Width - 7), (float)(this.TimeLeft.Y + this.TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2));
+				CurrentResearch.Draw(ScreenManager);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), TimeLeft, Color.White);
+				Vector2 Cursor = new Vector2(TimeLeft.X + TimeLeft.Width - 7, TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2);
 				float cost = tech.TechCost - tech.Progress;
 				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
-				if (cost % (float)numTurns != 0f)
+				if (cost % numTurns != 0f)
 				{
 					numTurns++;
 				}

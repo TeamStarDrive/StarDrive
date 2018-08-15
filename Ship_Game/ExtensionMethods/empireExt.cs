@@ -1,4 +1,5 @@
 ﻿using System;
+using Ship_Game.AI;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -20,7 +21,7 @@ namespace Ship_Game
                     || ship.shipData.Role != ShipData.RoleName.troop
                     || ship.fleet         != null
                     || ship.Mothership    != null
-                    || ship.AI.State      == AI.AIState.Scrap
+                    || ship.AI.State      == AIState.Scrap
                     || ship.AI.HasPriorityOrder)
                     continue;
                 ships.Add(ship);

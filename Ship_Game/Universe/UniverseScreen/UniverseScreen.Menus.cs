@@ -17,32 +17,32 @@ namespace Ship_Game {
 
         private void LoadMenuNodes(bool Owned, bool Habitable)
         {
-            this.planetMenu.Children.Clear();
-            this.planetMenu.Add(new PieMenuNode(Localizer.Token(1421), ResourceManager.Texture("UI/viewPlanetIcon"),
-                new SimpleDelegate(this.ViewPlanet)));
+            planetMenu.Children.Clear();
+            planetMenu.Add(new PieMenuNode(Localizer.Token(1421), ResourceManager.Texture("UI/viewPlanetIcon"),
+                ViewPlanet));
             if (!Owned && Habitable)
-                this.planetMenu.Add(new PieMenuNode(Localizer.Token(1422),
-                    ResourceManager.Texture("UI/ColonizeIcon"), new SimpleDelegate(this.MarkForColonization)));
+                planetMenu.Add(new PieMenuNode(Localizer.Token(1422),
+                    ResourceManager.Texture("UI/ColonizeIcon"), MarkForColonization));
             if (!Habitable)
                 return;
-            this.planetMenu.Add(new PieMenuNode(Localizer.Token(1423), ResourceManager.Texture("UI/ColonizeIcon"),
-                new SimpleDelegate(this.OpenCombatMenu)));
+            planetMenu.Add(new PieMenuNode(Localizer.Token(1423), ResourceManager.Texture("UI/ColonizeIcon"),
+                OpenCombatMenu));
         }
 
         public void OpenCombatMenu(object sender)
         {
-            this.workersPanel = new CombatScreen(this, SelectedPlanet);
-            this.LookingAtPlanet = true;
-            this.transitionStartPosition = this.CamPos;
-            this.CamDestination = new Vector3(this.SelectedPlanet.Center.X,
-                this.SelectedPlanet.Center.Y + 400f, 2500f);
-            this.AdjustCamTimer = 2f;
-            this.transitionElapsedTime = 0.0f;
-            this.transDuration = 5f;
-            if (this.ViewingShip)
-                this.returnToShip = true;
-            this.ViewingShip = false;
-            this.snappingToShip = false;
+            workersPanel = new CombatScreen(this, SelectedPlanet);
+            LookingAtPlanet = true;
+            transitionStartPosition = CamPos;
+            CamDestination = new Vector3(SelectedPlanet.Center.X,
+                SelectedPlanet.Center.Y + 400f, 2500f);
+            AdjustCamTimer = 2f;
+            transitionElapsedTime = 0.0f;
+            transDuration = 5f;
+            if (ViewingShip)
+                returnToShip = true;
+            ViewingShip = false;
+            snappingToShip = false;
         }
 
         public void RefitTo(object sender)

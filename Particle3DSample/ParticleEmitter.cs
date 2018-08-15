@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using System;
 using Ship_Game;
 
 namespace Particle3DSample

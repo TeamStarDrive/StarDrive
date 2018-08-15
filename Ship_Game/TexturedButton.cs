@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -40,40 +37,40 @@ namespace Ship_Game
 
 		public TexturedButton(Rectangle r, string TexturePath, string HoverPath, string PressPath)
 		{
-			this.tPath = TexturePath;
-			this.hPath = HoverPath;
-			this.pPath = PressPath;
+			tPath = TexturePath;
+			hPath = HoverPath;
+			pPath = PressPath;
 			this.r = r;
 		}
 
 		public void Draw(ScreenManager screenManager)
 		{
-			if (this.Hover)
+			if (Hover)
 			{
-				screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.hPath), this.r, Color.White);
+				screenManager.SpriteBatch.Draw(ResourceManager.Texture(hPath), r, Color.White);
 				return;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.Texture(this.tPath), this.r, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture(tPath), r, Color.White);
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			if (!this.r.HitTest(input.CursorPosition))
+			if (!r.HitTest(input.CursorPosition))
 			{
-				this.Hover = false;
+				Hover = false;
 			}
 			else
 			{
-				this.Hover = true;
-				if (this.LocalizerTip != 0)
+				Hover = true;
+				if (LocalizerTip != 0)
 				{
-					if (string.IsNullOrEmpty(this.Hotkey))
+					if (string.IsNullOrEmpty(Hotkey))
 					{
-						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip), this.Hotkey);
+						ToolTip.CreateTooltip(Localizer.Token(LocalizerTip), Hotkey);
 					}
 					else
 					{
-						ToolTip.CreateTooltip(Localizer.Token(this.LocalizerTip));
+						ToolTip.CreateTooltip(Localizer.Token(LocalizerTip));
 					}
 				}
 				if (input.InGameSelect)

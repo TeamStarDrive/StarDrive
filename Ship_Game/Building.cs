@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
-using Ship_Game.Gameplay;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -73,7 +73,7 @@ namespace Ship_Game
         public void SetPlanet(Planet p)
         {
             p.BuildingList.Add(this);
-            this.AssignBuildingToTile(p);
+            AssignBuildingToTile(p);
         }
 
         public Building Clone()
@@ -134,20 +134,20 @@ namespace Ship_Game
             if (AssignBuildingToRandomTile(solarSystemBody, true) != null)
                 return true;
             PlanetGridSquare targetPGS;
-            if (!string.IsNullOrEmpty(this.EventTriggerUID))
+            if (!string.IsNullOrEmpty(EventTriggerUID))
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)                
                     return targetPGS.Habitable = true;                    
                 
             }
-            if (this.Name == "Outpost" || !string.IsNullOrEmpty(this.EventTriggerUID))
+            if (Name == "Outpost" || !string.IsNullOrEmpty(EventTriggerUID))
             {
                 targetPGS = AssignBuildingToRandomTile(solarSystemBody);
                 if (targetPGS != null)
                     return targetPGS.Habitable = true;
             }
-            if (this.Name == "Biospheres")
+            if (Name == "Biospheres")
                 return AssignBuildingToRandomTile(solarSystemBody) != null;                    
             return false;            
         }
@@ -177,14 +177,14 @@ namespace Ship_Game
 
         public bool AssignBuildingToTileOnColonize(Planet planet)
         {
-            if (this.AssignBuildingToRandomTile(planet, habitable: true) != null) return true;
-            return this.AssignBuildingToRandomTile(planet) != null;
+            if (AssignBuildingToRandomTile(planet, habitable: true) != null) return true;
+            return AssignBuildingToRandomTile(planet) != null;
         }
 
         public bool AssignBuildingToTile(QueueItem qi, Planet planet)
         {
             Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-            if (this.Name == "Biospheres") //biospheres are handled specifically, later in the calling function
+            if (Name == "Biospheres") //biospheres are handled specifically, later in the calling function
                 return false;
 
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList) //Check all planet tiles
@@ -217,7 +217,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (this.CanBuildAnywhere)     //I would like buildings that CanBuildAnywhere to prefer uninhabitable tiles
+            else if (CanBuildAnywhere)     //I would like buildings that CanBuildAnywhere to prefer uninhabitable tiles
             {
                 PlanetGridSquare planetGridSquare1 = planet.TilesList[(int)RandomMath.RandomBetween(0.0f, planet.TilesList.Count)];
                 foreach (PlanetGridSquare planetGridSquare2 in planet.TilesList)
@@ -245,7 +245,7 @@ namespace Ship_Game
                     building1 = building2;
             }
             planet.BuildingList.Remove(building1);
-            planet.ProductionHere += ResourceManager.BuildingsDict[this.Name].Cost / 2f;
+            planet.ProductionHere += ResourceManager.BuildingsDict[Name].Cost / 2f;
             foreach (PlanetGridSquare planetGridSquare in planet.TilesList)
             {
                 if (planetGridSquare.building != null && planetGridSquare.building == building1)

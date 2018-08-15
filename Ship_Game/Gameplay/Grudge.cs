@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game.Gameplay
 {
 	public sealed class Grudge
@@ -7,9 +5,5 @@ namespace Ship_Game.Gameplay
 		public GrudgeType type;
 
 		public object RelevantObject;
-
-		public Grudge()
-		{
-		}
 	}
 }

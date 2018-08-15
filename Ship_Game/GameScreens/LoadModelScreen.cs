@@ -1,8 +1,7 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -30,14 +29,14 @@ namespace Ship_Game
         public LoadModelScreen(ShipToolScreen screen) : base(screen)
         {
             this.screen = screen;
-            base.IsPopup = true;
+            IsPopup = true;
         }
 
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
-            this.SaveMenu.Draw();
-            this.AllSaves.Draw();
+            SaveMenu.Draw();
+            AllSaves.Draw();
             var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
             foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
@@ -54,7 +53,7 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
                 }
             }
-            this.SavesSL.Draw(batch);
+            SavesSL.Draw(batch);
             base.Draw(batch);
             selector?.Draw(batch);
             batch.End();
@@ -76,13 +75,13 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.selector = null;
+            selector = null;
             if (input.Escaped || input.RightMouseClick)
             {
-                this.ExitScreen();
+                ExitScreen();
             }
 
-            this.SavesSL.HandleInput(input);
+            SavesSL.HandleInput(input);
             foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
             {
                 if (!e.CheckHover(input.CursorPosition))

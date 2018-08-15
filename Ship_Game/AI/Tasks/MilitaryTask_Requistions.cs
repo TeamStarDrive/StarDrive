@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -118,7 +119,7 @@ namespace Ship_Game.AI.Tasks {
             }
 
 
-            Fleet newFleet = new Fleet()
+            Fleet newFleet = new Fleet
             {
                 Owner = Owner,
                 Name = fleetName
@@ -175,7 +176,7 @@ namespace Ship_Game.AI.Tasks {
             var newFleet = new Fleet
             {
                 Name = Name,
-                Owner = Owner,
+                Owner = Owner
 
                                
             };
@@ -392,7 +393,7 @@ namespace Ship_Game.AI.Tasks {
                     break;
 
                 potentialTroops.Add(t);
-                troopStr += (float) t.Strength;
+                troopStr += t.Strength;
                 numOfTroops++;
             }
 
@@ -411,12 +412,12 @@ namespace Ship_Game.AI.Tasks {
                         Owner.GetRelations(TargetPlanet.Owner).PreparingForWarType);
                 }
 
-                var closestAO = sorted.First<AO>();
+                var closestAO = sorted.First();
                 var assault = new MilitaryTask(Owner)
                 {
                     AO = TargetPlanet.Center,
                     AORadius = 75000f,
-                    type = MilitaryTask.TaskType.AssaultPlanet
+                    type = TaskType.AssaultPlanet
                 };
 
                 closestAO.GetCoreFleet().Owner.GetGSAI().TasksToAdd.Add(assault);
@@ -455,12 +456,12 @@ namespace Ship_Game.AI.Tasks {
                     {
                         AO = TargetPlanet.Center,
                         AORadius = 75000f,
-                        type = MilitaryTask.TaskType.GlassPlanet,
+                        type = TaskType.GlassPlanet,
                         TargetPlanet = TargetPlanet,
                         WaitForCommand = true
                     };
 
-                    var bomberFleet = new Fleet()
+                    var bomberFleet = new Fleet
                     {
                         Owner = Owner
                     };
@@ -715,7 +716,7 @@ namespace Ship_Game.AI.Tasks {
                                                ao => -ao.Center.SqDist(AO));
             if (closestAo == null)
             {                
-                Empire.Universe?.DebugWin?.DebugLogText($"Tasks ({Owner.Name}) Requistiions: No Core Fleets Stronger than ({strWanted}) found. CoreFleets#: {aos.Count} ", Debug.DebugModes.Normal);
+                Empire.Universe?.DebugWin?.DebugLogText($"Tasks ({Owner.Name}) Requistiions: No Core Fleets Stronger than ({strWanted}) found. CoreFleets#: {aos.Count} ", DebugModes.Normal);
                 return null;
             }
             return closestAo.GetCoreFleet();
@@ -779,7 +780,7 @@ namespace Ship_Game.AI.Tasks {
 
 
             foreach (Troop t in potentialTroops)
-                ourAvailableStrength = ourAvailableStrength + (float) t.Strength;
+                ourAvailableStrength = ourAvailableStrength + t.Strength;
 
 
             float tfstrength = 0f;

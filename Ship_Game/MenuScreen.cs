@@ -1,8 +1,7 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -16,17 +15,17 @@ namespace Ship_Game
 
 	    protected MenuScreen(GameScreen parent) : base(parent, new Rectangle(0,0, 400, 400), false)
 		{
-			base.TransitionOnTime = TimeSpan.FromSeconds(1);
-			base.TransitionOffTime = TimeSpan.FromSeconds(1);
+			TransitionOnTime = TimeSpan.FromSeconds(1);
+			TransitionOffTime = TimeSpan.FromSeconds(1);
 		}
 
 		public override void Draw(SpriteBatch batch)
 		{
-			Viewport viewport = base.Viewport;
-			Vector2 viewportSize = new Vector2((float)viewport.Width, (float)viewport.Height);
+			Viewport viewport = Viewport;
+			Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
 			Vector2 position = new Vector2(0f, viewportSize.Y * 0.65f);
-			float transitionOffset = (float)Math.Pow((double)base.TransitionPosition, 2);
-			if (base.ScreenState != Ship_Game.ScreenState.TransitionOn)
+			float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
+			if (ScreenState != ScreenState.TransitionOn)
 			{
 				position.Y = position.Y + transitionOffset * 512f;
 			}
@@ -34,26 +33,26 @@ namespace Ship_Game
 			{
 				position.Y = position.Y + transitionOffset * 256f;
 			}
-			base.ScreenManager.SpriteBatch.Begin();
-			for (int i = 0; i < this.menuEntries.Count; i++)
+			ScreenManager.SpriteBatch.Begin();
+			for (int i = 0; i < menuEntries.Count; i++)
 			{
 				Color color = Color.White;
 				float scale = 1f;
-				if (base.IsActive && i == this.selectedEntry)
+				if (IsActive && i == selectedEntry)
 				{
 					double time = Game1.Instance.GameTime.TotalGameTime.TotalSeconds;
 					float pulsate = (float)Math.Sin(time * 6) + 1f;
 					color = Color.Orange;
 					scale = scale + pulsate * 0.05f;
 				}
-				color = new Color(color.R, color.G, color.B, base.TransitionAlpha);
-				Vector2 origin = new Vector2(0f, (float)(Fonts.Arial12Bold.LineSpacing / 2));
-				Vector2 size = Fonts.Arial12Bold.MeasureString(this.menuEntries[i]);
+				color = new Color(color.R, color.G, color.B, TransitionAlpha);
+				Vector2 origin = new Vector2(0f, Fonts.Arial12Bold.LineSpacing / 2);
+				Vector2 size = Fonts.Arial12Bold.MeasureString(menuEntries[i]);
 				position.X = viewportSize.X / 2f - size.X / 2f * scale;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.menuEntries[i], position, color, 0f, origin, scale, SpriteEffects.None, 0f);
-				position.Y = position.Y + (float)Fonts.Arial12Bold.LineSpacing;
+				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, menuEntries[i], position, color, 0f, origin, scale, SpriteEffects.None, 0f);
+				position.Y = position.Y + Fonts.Arial12Bold.LineSpacing;
 			}
-			base.ScreenManager.SpriteBatch.End();
+			ScreenManager.SpriteBatch.End();
 		}
 
 		public override bool HandleInput(InputState input)
@@ -72,12 +71,12 @@ namespace Ship_Game
 			}
 			if (input.MenuSelect)
 			{
-				this.OnSelectEntry(this.selectedEntry);
+				OnSelectEntry(selectedEntry);
 				return true;
 			}
 			if (input.MenuCancel)
 			{
-				this.OnCancel();
+				OnCancel();
 			}
             return base.HandleInput(input);
 		}
