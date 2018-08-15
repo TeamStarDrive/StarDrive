@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -94,13 +92,13 @@ namespace Ship_Game
                         out float sysScreenPosDisToRight);
 
                     lock (GlobalStats.ClickableSystemsLock)
-                        ClickableSystems.Add(new UniverseScreen.ClickableSystem()
+                        ClickableSystems.Add(new ClickableSystem
                         {
                             Radius = sysScreenPosDisToRight < 8f ? 8f : sysScreenPosDisToRight,
                             ScreenPos = sysScreenPos,
                             systemToClick = solarSystem
                         });
-                    if (viewState <= UniverseScreen.UnivScreenState.SectorView)
+                    if (viewState <= UnivScreenState.SectorView)
                     {
                         for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                         {
@@ -115,27 +113,27 @@ namespace Ship_Game
                                     (planet.PlanetType == 13 || planet.PlanetType == 21) ||
                                     (planet.PlanetType == 22 || planet.PlanetType == 25 ||
                                      (planet.PlanetType == 27 || planet.PlanetType == 29)))
-                                    this.ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
+                                    ScreenManager.SpriteBatch.Draw(Glow_Terran, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 5 || planet.PlanetType == 7 ||
                                          (planet.PlanetType == 8 || planet.PlanetType == 9) || planet.PlanetType == 23)
-                                    this.ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
+                                    ScreenManager.SpriteBatch.Draw(Glow_Red, planetScreenPos, new Rectangle?(),
                                         Color.White, 0.0f, new Vector2(128f, 128f), scale, SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 17)
-                                    this.ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
+                                    ScreenManager.SpriteBatch.Draw(Glow_White, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 19)
-                                    this.ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
+                                    ScreenManager.SpriteBatch.Draw(Glow_Aqua, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 else if (planet.PlanetType == 14 || planet.PlanetType == 18)
-                                    this.ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
+                                    ScreenManager.SpriteBatch.Draw(Glow_Orange, planetScreenPos,
                                         new Rectangle?(), Color.White, 0.0f, new Vector2(128f, 128f), scale,
                                         SpriteEffects.None, 1f);
                                 lock (GlobalStats.ClickableSystemsLock)
-                                    this.ClickPlanetList.Add(new UniverseScreen.ClickablePlanets()
+                                    ClickPlanetList.Add(new ClickablePlanets
                                     {
                                         ScreenPos = planetScreenPos,
                                         Radius = planetScreenRadius < 8f ? 8f : planetScreenRadius,
@@ -198,31 +196,31 @@ namespace Ship_Game
 
         private void RenderGalaxyBackdrop()
         {
-            this.bg.DrawGalaxyBackdrop(this, this.starfield);
-            this.ScreenManager.SpriteBatch.Begin();
+            bg.DrawGalaxyBackdrop(this, starfield);
+            ScreenManager.SpriteBatch.Begin();
             for (int index = 0; index < 41; ++index)
             {
-                Vector3 vector3_1 = this.Viewport.Project(
-                    new Vector3((float) ((double) index * (double) this.UniverseSize / 40.0), 0.0f, 0.0f), this.projection,
-                    this.view, Matrix.Identity);
-                Vector3 vector3_2 = this.Viewport.Project(
-                    new Vector3((float) ((double) index * (double) this.UniverseSize / 40.0), this.UniverseSize, 0.0f),
-                    this.projection, this.view, Matrix.Identity);
-                this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
-                    new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
+                Vector3 vector3_1 = Viewport.Project(
+                    new Vector3((float) (index * (double) UniverseSize / 40.0), 0.0f, 0.0f), projection,
+                    view, Matrix.Identity);
+                Vector3 vector3_2 = Viewport.Project(
+                    new Vector3((float) (index * (double) UniverseSize / 40.0), UniverseSize, 0.0f),
+                    projection, view, Matrix.Identity);
+                ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
+                    new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
             }
             for (int index = 0; index < 41; ++index)
             {
-                Vector3 vector3_1 = this.Viewport.Project(
-                    new Vector3(0.0f, (float) ((double) index * (double) this.UniverseSize / 40.0), 40f), this.projection,
-                    this.view, Matrix.Identity);
-                Vector3 vector3_2 = this.Viewport.Project(
-                    new Vector3(this.UniverseSize, (float) ((double) index * (double) this.UniverseSize / 40.0), 0.0f),
-                    this.projection, this.view, Matrix.Identity);
-                this.ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
-                    new Vector2(vector3_2.X, vector3_2.Y), new Color((byte) 211, (byte) 211, (byte) 211, (byte) 70));
+                Vector3 vector3_1 = Viewport.Project(
+                    new Vector3(0.0f, (float) (index * (double) UniverseSize / 40.0), 40f), projection,
+                    view, Matrix.Identity);
+                Vector3 vector3_2 = Viewport.Project(
+                    new Vector3(UniverseSize, (float) (index * (double) UniverseSize / 40.0), 0.0f),
+                    projection, view, Matrix.Identity);
+                ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
+                    new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
             }
-            this.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
 
         private void RenderOverFog(GameTime gameTime)
@@ -236,11 +234,11 @@ namespace Ship_Game
                 projection, view, Matrix.Identity);
             Rectangle rectangle1 = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                 (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
-            if (viewState >= UniverseScreen.UnivScreenState.SectorView)
+            if (viewState >= UnivScreenState.SectorView)
             {
-                float num = (float) ((double) byte.MaxValue * (double) CamHeight / 9000000.0);
-                if ((double) num > (double) byte.MaxValue)
-                    num = (float) byte.MaxValue;
+                float num = (float) (byte.MaxValue * (double) CamHeight / 9000000.0);
+                if (num > (double) byte.MaxValue)
+                    num = byte.MaxValue;
                 Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) num);
                 ScreenManager.SpriteBatch.End();
                 ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
@@ -249,9 +247,9 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.End();
                 ScreenManager.SpriteBatch.Begin();
             }
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                if (viewState >= UniverseScreen.UnivScreenState.SectorView)
+                if (viewState >= UnivScreenState.SectorView)
                 {
                     Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
                     if (Frustum.Contains(vector3_3) != ContainmentType.Disjoint)
@@ -277,10 +275,10 @@ namespace Ship_Game
                             Vector3 vector3_6 =
                                 Viewport.Project(
                                     new Vector3(
-                                        new Vector2(100000f * UniverseScreen.GameScaleStatic, 0.0f) +
+                                        new Vector2(100000f * GameScaleStatic, 0.0f) +
                                         solarSystem.Position, 0.0f), projection, view, Matrix.Identity);
                             float radius = Vector2.Distance(new Vector2(vector3_6.X, vector3_6.Y), position);
-                            if (viewState == UniverseScreen.UnivScreenState.SectorView)
+                            if (viewState == UnivScreenState.SectorView)
                             {
                                 vector2.Y += radius;
                                 var transparentDarkGray = new Color(50, 50, 50, 90);
@@ -311,7 +309,7 @@ namespace Ship_Game
                             if (owners.Count == 0)
                             {
                                 if (SelectedSystem != solarSystem ||
-                                    viewState < UniverseScreen.UnivScreenState.GalaxyView)
+                                    viewState < UnivScreenState.GalaxyView)
                                     ScreenManager.SpriteBatch.DrawString(SystemInfoUIElement.SysFont,
                                         solarSystem.Name, vector2, Color.Gray);
                                 int num3 = 0;
@@ -339,7 +337,7 @@ namespace Ship_Game
                                     vector2.Y -= 2f;
                                     Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
                                         (byte) (Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) *
-                                                (float) byte.MaxValue));
+                                                byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                                     ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, color);
@@ -350,12 +348,12 @@ namespace Ship_Game
                                 TimeSpan totalGameTime;
                                 if (solarSystem.CombatInSystem)
                                 {
-                                    vector2.X += (float) (num3 * 20);
+                                    vector2.X += num3 * 20;
                                     vector2.Y -= 2f;
                                     totalGameTime = gameTime.TotalGameTime;
                                     Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
                                         (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
-                                                (float) byte.MaxValue));
+                                                byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
@@ -372,7 +370,7 @@ namespace Ship_Game
                                     totalGameTime = gameTime.TotalGameTime;
                                     Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
                                         (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
-                                                (float) byte.MaxValue));
+                                                byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
@@ -439,7 +437,7 @@ namespace Ship_Game
                                     vector2.Y -= 2f;
                                     Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
                                         (byte) (Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) *
-                                                (float) byte.MaxValue));
+                                                byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                                     ScreenManager.SpriteBatch.Draw(
                                         ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, color);
@@ -450,12 +448,12 @@ namespace Ship_Game
                                 TimeSpan totalGameTime;
                                 if (solarSystem.CombatInSystem)
                                 {
-                                    vector2.X += (float) (num3 * 20);
+                                    vector2.X += num3 * 20;
                                     vector2.Y -= 2f;
                                     totalGameTime = gameTime.TotalGameTime;
                                     Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
                                         (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
-                                                (float) byte.MaxValue));
+                                                byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
@@ -465,14 +463,14 @@ namespace Ship_Game
                                         ToolTip.CreateTooltip(122);
                                     ++num3;
                                 }
-                                if ((double) solarSystem.DangerTimer > 0.0)
+                                if (solarSystem.DangerTimer > 0.0)
                                 {
                                     if (num3 == 1 || num3 == 2)
                                         vector2.X += 20f;
                                     totalGameTime = gameTime.TotalGameTime;
                                     Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
                                         (byte) (Math.Abs((float) Math.Sin(totalGameTime.TotalSeconds)) *
-                                                (float) byte.MaxValue));
+                                                byte.MaxValue));
                                     Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                                         ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
@@ -487,7 +485,7 @@ namespace Ship_Game
                             vector2.X -= SystemInfoUIElement.SysFont.MeasureString(solarSystem.Name).X / 2f;
                     }
                 }
-                if (viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+                if (viewState >= UnivScreenState.GalaxyView)
                 {
                     float scale = 0.05f;
                     Vector3 vector3_3 = new Vector3(solarSystem.Position, 0.0f);
@@ -497,13 +495,13 @@ namespace Ship_Game
                     Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Suns/" + solarSystem.SunPath),
                         position, new Rectangle?(), Color.White, Zrotate,
-                        new Vector2((float) (ResourceManager.Texture("Suns/" + solarSystem.SunPath).Width / 2),
-                            (float) (ResourceManager.Texture("Suns/" + solarSystem.SunPath).Height / 2)), scale,
+                        new Vector2(ResourceManager.Texture("Suns/" + solarSystem.SunPath).Width / 2,
+                            ResourceManager.Texture("Suns/" + solarSystem.SunPath).Height / 2), scale,
                         SpriteEffects.None, 0.9f);
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Suns/" + solarSystem.SunPath),
                         position, new Rectangle?(), Color.White, (float) (-(double) Zrotate / 2.0),
-                        new Vector2((float) (ResourceManager.Texture("Suns/" + solarSystem.SunPath).Width / 2),
-                            (float) (ResourceManager.Texture("Suns/" + solarSystem.SunPath).Height / 2)), scale,
+                        new Vector2(ResourceManager.Texture("Suns/" + solarSystem.SunPath).Width / 2,
+                            ResourceManager.Texture("Suns/" + solarSystem.SunPath).Height / 2), scale,
                         SpriteEffects.None, 0.9f);
                 }
             }
@@ -542,19 +540,19 @@ namespace Ship_Game
             if (DefiningAO && SelectedShip != null)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Localizer.Token(1411),
-                    new Vector2((float) SelectedStuffRect.X,
-                        (float) (SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2)), Color.White);
-                for (int index = 0; index < this.SelectedShip.AreaOfOperation.Count; index++)
+                    new Vector2(SelectedStuffRect.X,
+                        SelectedStuffRect.Y - Fonts.Pirulen16.LineSpacing - 2), Color.White);
+                for (int index = 0; index < SelectedShip.AreaOfOperation.Count; index++)
                 {
-                    Rectangle rectangle = this.SelectedShip.AreaOfOperation[index];
-                    this.DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 50));
+                    Rectangle rectangle = SelectedShip.AreaOfOperation[index];
+                    DrawRectangleProjected(rectangle, Color.Red, new Color(Color.Red, 50));
                 }
             }
             else
                 DefiningAO = false;
             SelectShipLinesToDraw();
-            this.ScreenManager.SpriteBatch.End();
-            this.DrawBombs();
+            ScreenManager.SpriteBatch.End();
+            DrawBombs();
             ScreenManager.RenderSceneObjects();
 
             if (viewState < UnivScreenState.SectorView)
@@ -686,11 +684,11 @@ namespace Ship_Game
                 }
                 else if (SelectedShipList.Count > 0)
                 {
-                    for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
+                    for (int index1 = 0; index1 < SelectedShipList.Count; ++index1)
                     {
                         try
                         {
-                            Ship ship = this.SelectedShipList[index1];
+                            Ship ship = SelectedShipList[index1];
                             if (player.IsEmpireAttackable(SelectedShip?.loyalty) && !Debug) continue;
                             DrawShipLines(ship, alpha);
                         }

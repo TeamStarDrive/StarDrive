@@ -1,8 +1,8 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
@@ -10,7 +10,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.Gameplay
 {
     [Flags]
-    public enum WeaponTag : int
+    public enum WeaponTag
     {
         Kinetic   = (1 << 0),
         Energy    = (1 << 1),
@@ -32,7 +32,7 @@ namespace Ship_Game.Gameplay
         PD        = (1 << 17),
         Flak      = (1 << 18),
         Array     = (1 << 19),
-        Tractor   = (1 << 20),
+        Tractor   = (1 << 20)
     }
 
     public sealed class Weapon : IDisposable, IDamageModifier
@@ -431,7 +431,7 @@ namespace Ship_Game.Gameplay
                 return Vector2.Zero; //|| Tag_PD 
 
             //calaculate level. 
-            int trackingPower = (int)(Owner?.TrackingPower ?? 1);                        
+            int trackingPower = Owner?.TrackingPower ?? 1;                        
             if(level == -1)
                 level = (Owner?.Level ?? level) 
                     + trackingPower //(Owner?.TrackingPower  ?? 0)

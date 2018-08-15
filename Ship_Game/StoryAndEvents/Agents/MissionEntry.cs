@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
@@ -24,8 +23,8 @@ namespace Ship_Game
 
 		public MissionEntry(AgentMission am, AgentComponent parent)
 		{
-			this.Component = parent;
-			this.TheMission = am;
+			Component = parent;
+			TheMission = am;
             DoMission = new UIButton(null, ButtonStyle.Low80, 0f, 0f, "Go");
             DoMission.OnClick += DoMission_OnClick;
 		}
@@ -40,10 +39,10 @@ namespace Ship_Game
         public void Draw(SpriteBatch batch, Rectangle clickRect)
 		{
             var cursor = new Vector2(clickRect.X, (clickRect.Y + clickRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-		    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(this.NameIndex), cursor, (this.Available ? Color.White : Color.Gray));
+		    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(NameIndex), cursor, (Available ? Color.White : Color.Gray));
 			cursor.X += 120f;
 			HelperFunctions.ClampVectorToInt(ref cursor);
-		    batch.DrawString(Fonts.Arial12Bold, string.Concat(this.turns, " turns"), cursor, (this.Available ? Color.White : Color.Gray));
+		    batch.DrawString(Fonts.Arial12Bold, string.Concat(turns, " turns"), cursor, (Available ? Color.White : Color.Gray));
 			cursor.X += 70f;
 			var smallmoney = new Rectangle((int)cursor.X, (int)cursor.Y - 3, 21, 20);
 		    batch.Draw(ResourceManager.Texture("NewUI/icon_money"), smallmoney, Color.White);
@@ -68,97 +67,97 @@ namespace Ship_Game
         //added by gremlin deveks missionInit
         public void Initialize()
         {
-            this.Available = false;
-            switch (this.TheMission)
+            Available = false;
+            switch (TheMission)
             {
                 case AgentMission.Training:
                     {
-                        if (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover)
+                        if (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover)
 				        {
-					        this.Available = true;
+					        Available = true;
 				        }
-                        this.turns = ResourceManager.AgentMissionData.TrainingTurns;
-                        this.cost = ResourceManager.AgentMissionData.TrainingCost;
-                        this.NameIndex = 2196;
-                        this.DescriptionIndex = 2197;
+                        turns = ResourceManager.AgentMissionData.TrainingTurns;
+                        cost = ResourceManager.AgentMissionData.TrainingCost;
+                        NameIndex = 2196;
+                        DescriptionIndex = 2197;
                         break;
                     }
                 case AgentMission.Infiltrate:
                     {
-                        if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
+                        if (Component.Escreen.SelectedEmpire != EmpireManager.Player && (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover))
                         {
-                            this.Available = true;
+                            Available = true;
                         }
-                        this.turns = ResourceManager.AgentMissionData.InfiltrateTurns;
-                        this.cost = ResourceManager.AgentMissionData.InfiltrateCost;
-                        this.NameIndex = 2188;
-                        this.DescriptionIndex = 2189;
+                        turns = ResourceManager.AgentMissionData.InfiltrateTurns;
+                        cost = ResourceManager.AgentMissionData.InfiltrateCost;
+                        NameIndex = 2188;
+                        DescriptionIndex = 2189;
                         break;
                     }
                 case AgentMission.Assassinate:
                     {
-                        if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
+                        if (Component.Escreen.SelectedEmpire != EmpireManager.Player && (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover))
                         {
-                            this.Available = true;
+                            Available = true;
                         }
-                        this.turns = ResourceManager.AgentMissionData.AssassinateTurns;
-                        this.cost = ResourceManager.AgentMissionData.AssassinateCost;
-                        this.NameIndex = 2184;
-                        this.DescriptionIndex = 2185;
+                        turns = ResourceManager.AgentMissionData.AssassinateTurns;
+                        cost = ResourceManager.AgentMissionData.AssassinateCost;
+                        NameIndex = 2184;
+                        DescriptionIndex = 2185;
                         break;
                     }
                 case AgentMission.Sabotage:
                     {
-                        if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
+                        if (Component.Escreen.SelectedEmpire != EmpireManager.Player && (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover))
                         {
-                            this.Available = true;
+                            Available = true;
                         }
-                        this.turns = ResourceManager.AgentMissionData.SabotageTurns;
-                        this.cost = ResourceManager.AgentMissionData.SabotageCost;
-                        this.NameIndex = 2190;
-                        this.DescriptionIndex = 2191;
+                        turns = ResourceManager.AgentMissionData.SabotageTurns;
+                        cost = ResourceManager.AgentMissionData.SabotageCost;
+                        NameIndex = 2190;
+                        DescriptionIndex = 2191;
                         break;
                     }
                 case AgentMission.StealTech:
                     {
-                        if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
+                        if (Component.Escreen.SelectedEmpire != EmpireManager.Player && (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover))
                         {
-                            this.Available = true;
+                            Available = true;
                         }
-                        this.turns = ResourceManager.AgentMissionData.StealTechTurns;
-                        this.cost = ResourceManager.AgentMissionData.StealTechCost;
-                        this.NameIndex = 2194;
-                        this.DescriptionIndex = 2195;
+                        turns = ResourceManager.AgentMissionData.StealTechTurns;
+                        cost = ResourceManager.AgentMissionData.StealTechCost;
+                        NameIndex = 2194;
+                        DescriptionIndex = 2195;
                         break;
                     }
                 case AgentMission.Robbery:
                     {
-                        if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
+                        if (Component.Escreen.SelectedEmpire != EmpireManager.Player && (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover))
                         {
-                            this.Available = true;
+                            Available = true;
                         }
-                        this.turns = ResourceManager.AgentMissionData.RobberyTurns;
-                        this.cost = ResourceManager.AgentMissionData.RobberyCost;
-                        this.NameIndex = 2192;
-                        this.DescriptionIndex = 2193;
+                        turns = ResourceManager.AgentMissionData.RobberyTurns;
+                        cost = ResourceManager.AgentMissionData.RobberyCost;
+                        NameIndex = 2192;
+                        DescriptionIndex = 2193;
                         break;
                     }
                 case AgentMission.InciteRebellion:
                     {
-                        if (this.Component.Escreen.SelectedEmpire != EmpireManager.Player && (this.Component.SelectedAgent.Mission == AgentMission.Defending || this.Component.SelectedAgent.Mission == AgentMission.Undercover))
+                        if (Component.Escreen.SelectedEmpire != EmpireManager.Player && (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover))
                         {
-                            this.Available = true;
+                            Available = true;
                         }
-                        this.turns = ResourceManager.AgentMissionData.RebellionTurns;
-                        this.cost = ResourceManager.AgentMissionData.RebellionCost;
-                        this.NameIndex = 2186;
-                        this.DescriptionIndex = 2187;
+                        turns = ResourceManager.AgentMissionData.RebellionTurns;
+                        cost = ResourceManager.AgentMissionData.RebellionCost;
+                        NameIndex = 2186;
+                        DescriptionIndex = 2187;
                         break;
                     }
             }
-            if (EmpireManager.Player.Money < (float)this.cost || this.Component.Escreen.SelectedEmpire.data.Defeated || this.Component.SelectedAgent.Mission == AgentMission.Recovering)
+            if (EmpireManager.Player.Money < cost || Component.Escreen.SelectedEmpire.data.Defeated || Component.SelectedAgent.Mission == AgentMission.Recovering)
             {
-                this.Available = false;
+                Available = false;
             }
         }
 	}

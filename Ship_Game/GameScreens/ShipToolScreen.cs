@@ -1,14 +1,13 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.IO;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -79,25 +78,25 @@ namespace Ship_Game
 
         public ShipToolScreen(GameScreen parent) : base(parent)
         {
-            base.TransitionOnTime = TimeSpan.FromSeconds(0);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0);
-            this.designInputState = new InputState();
+            TransitionOnTime = TimeSpan.FromSeconds(0);
+            TransitionOffTime = TimeSpan.FromSeconds(0);
+            designInputState = new InputState();
         }
 
         private void ConfigureSlots()
         {
-            this.border = new PrimitiveQuad(this.aspect.X / 2f - 256f, this.aspect.Y / 2f - 256f, 512f, 512f);
+            border = new PrimitiveQuad(aspect.X / 2f - 256f, aspect.Y / 2f - 256f, 512f, 512f);
             for (int x = -32; x < 32; x++)
             {
                 for (int y = -32; y < 32; y++)
                 {
                     var newCell = new PrimitiveQuad(((int)Center.X + 16 * x), ((int)Center.Y + 16 * y), slotsize, slotsize);
-                    var newslot = new SlotStruct()
+                    var newslot = new SlotStruct
                     {
                         PQ = newCell,
                         Restrictions = Restrictions.I
                     };
-                    this.SlotList.Add(newslot);
+                    SlotList.Add(newslot);
                 }
             }
         }
@@ -107,43 +106,43 @@ namespace Ship_Game
             GameTime gameTime = Game1.Instance.GameTime;
             ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
 
-            base.ScreenManager.GraphicsDevice.Clear(Color.Black);
-            if (this.applyThruster)
+            ScreenManager.GraphicsDevice.Clear(Color.Black);
+            if (applyThruster)
             {
-                this.thruster.Draw(ref this.view, ref this.projection);
+                thruster.Draw(ref view, ref projection);
             }
             ScreenManager.RenderSceneObjects();
-            Rectangle rectangle = new Rectangle(this.border.X, this.border.Y, 512, 512);
+            Rectangle rectangle = new Rectangle(border.X, border.Y, 512, 512);
             batch.Begin();
             Vector2 TitlePos = new Vector2(20f, 20f);
-            HelperFunctions.DrawDropShadowText(base.ScreenManager, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
-            TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 3);
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Use this tool to create module patterns for your ships", TitlePos, Color.White);
-            if (this.shipSO != null)
+            HelperFunctions.DrawDropShadowText(ScreenManager, "Ship Mod Tools", TitlePos, Fonts.Arial20Bold);
+            TitlePos.Y = TitlePos.Y + (Fonts.Arial20Bold.LineSpacing + 3);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Use this tool to create module patterns for your ships", TitlePos, Color.White);
+            if (shipSO != null)
             {
-                TitlePos = new Vector2((float)this.what.X, 20f);
+                TitlePos = new Vector2(what.X, 20f);
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
-                float radius = this.shipSO.WorldBoundingSphere.Radius;
+                float radius = shipSO.WorldBoundingSphere.Radius;
                 batch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
                 TitlePos.Y = TitlePos.Y + 20f;
                 string text = "If you can't see your model then your radius is likely too big or too small. A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. If it is rotated oddly change the X, Y, and Z axis. If the model is off-center then you will need to re-export the 3D model from Blender, making sure to Set Origin to the desired pivot point of your model";
-                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Fonts.Arial12.ParseText(text, 600f), TitlePos, Color.White);
             }
             var whichSelectionPos = new Vector2(what.X, what.Y - Fonts.Arial20Bold.LineSpacing);
             batch.DrawString(Fonts.Arial20Bold, string.Concat(DesignState, " - ", GetDesignStateText()), whichSelectionPos, Color.Orange);
             whichSelectionPos.X = whichSelectionPos.X + 150f;
-            whichSelectionPos.Y = whichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
-            whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
-            base.ScreenManager.SpriteBatch.DrawRectangle(this.what, Color.White);
-            foreach (SlotStruct slot in this.SlotList)
+            whichSelectionPos.Y = whichSelectionPos.Y + Fonts.Arial20Bold.LineSpacing;
+            whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(Fonts.Arial12Bold.ParseText(DescriptionOfState, 512f)).Y;
+            ScreenManager.SpriteBatch.DrawRectangle(what, Color.White);
+            foreach (SlotStruct slot in SlotList)
             {
-                if (!this.applyThruster && slot.PQ.Filled)
+                if (!applyThruster && slot.PQ.Filled)
                 {
                     slot.Draw(batch, moduleSlot, Color.White);
                     batch.DrawString(Fonts.Arial20Bold, " "+slot.Restrictions, 
                         slot.PosVec2, Color.Navy, 0f, Vector2.Zero, 0.4f, SpriteEffects.None, 1f);
                 }
-                if (this.applyThruster || slot.ModuleUID == null)
+                if (applyThruster || slot.ModuleUID == null)
                 {
                     continue;
                 }
@@ -156,17 +155,17 @@ namespace Ship_Game
                     slot.Draw(batch, slot.Tex, Color.White);
                 }
             }
-            this.DrawHorizontalLine(batch, this.SelectionBox.Y);
-            this.DrawHorizontalLine(batch, this.SelectionBox.Y + this.SelectionBox.Height);
-            this.DrawVerticalLine(batch, this.SelectionBox.X);
-            this.DrawVerticalLine(batch, this.SelectionBox.X + this.SelectionBox.Width);
-            foreach (ToggleButton button in this.DesignStateButtons)
+            DrawHorizontalLine(batch, SelectionBox.Y);
+            DrawHorizontalLine(batch, SelectionBox.Y + SelectionBox.Height);
+            DrawVerticalLine(batch, SelectionBox.X);
+            DrawVerticalLine(batch, SelectionBox.X + SelectionBox.Width);
+            foreach (ToggleButton button in DesignStateButtons)
             {
-                button.Draw(base.ScreenManager);
+                button.Draw(ScreenManager);
             }
-            if (this.ActiveModule != null)
+            if (ActiveModule != null)
             {
-                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath), new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+                batch.Draw(ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath), new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 16 * ActiveModule.XSIZE, 16 * ActiveModule.YSIZE), Color.White);
                 
                 
                 for (int i = 0; i < ActiveModule.XSIZE; i++)
@@ -177,35 +176,35 @@ namespace Ship_Game
                 }
 
             }
-            Vector2 InfoPos = new Vector2((float)(this.SaveHullButton.r.X - 50), (float)(this.SaveHullButton.r.Y - 20));
-            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
-            this.ShipNameBox.Draw(Fonts.Arial20Bold, base.ScreenManager.SpriteBatch, new Vector2((float)this.ShipNameBox.ClickableArea.X, (float)this.ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
-            this.SaveHullButton.Draw(base.ScreenManager);
-            this.LoadModelButton.Draw(base.ScreenManager);
+            Vector2 InfoPos = new Vector2(SaveHullButton.r.X - 50, SaveHullButton.r.Y - 20);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
+            ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
+            SaveHullButton.Draw(ScreenManager);
+            LoadModelButton.Draw(ScreenManager);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
 
         private void DrawHorizontalLine(SpriteBatch spriteBatch, int thePositionY)
         {
-            if (this.SelectionBox.Width > 0)
+            if (SelectionBox.Width > 0)
             {
-                for (int aCounter = 0; aCounter <= this.SelectionBox.Width - 10; aCounter = aCounter + 10)
+                for (int aCounter = 0; aCounter <= SelectionBox.Width - 10; aCounter = aCounter + 10)
                 {
-                    if (this.SelectionBox.Width - aCounter >= 0)
+                    if (SelectionBox.Width - aCounter >= 0)
                     {
-                        spriteBatch.Draw(this.DottedLine, new Rectangle(this.SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
+                        spriteBatch.Draw(DottedLine, new Rectangle(SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
                     }
                 }
                 return;
             }
-            if (this.SelectionBox.Width < 0)
+            if (SelectionBox.Width < 0)
             {
-                for (int aCounter = -10; aCounter >= this.SelectionBox.Width; aCounter = aCounter - 10)
+                for (int aCounter = -10; aCounter >= SelectionBox.Width; aCounter = aCounter - 10)
                 {
-                    if (this.SelectionBox.Width - aCounter <= 0)
+                    if (SelectionBox.Width - aCounter <= 0)
                     {
-                        spriteBatch.Draw(this.DottedLine, new Rectangle(this.SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
+                        spriteBatch.Draw(DottedLine, new Rectangle(SelectionBox.X + aCounter, thePositionY, 10, 5), Color.White);
                     }
                 }
             }
@@ -213,47 +212,47 @@ namespace Ship_Game
 
         private void DrawVerticalLine(SpriteBatch spriteBatch, int thePositionX)
         {
-            if (this.SelectionBox.Height <= 0)
+            if (SelectionBox.Height <= 0)
             {
-                if (this.SelectionBox.Height < 0)
+                if (SelectionBox.Height < 0)
                 {
-                    for (int aCounter = 0; aCounter >= this.SelectionBox.Height; aCounter = aCounter - 10)
+                    for (int aCounter = 0; aCounter >= SelectionBox.Height; aCounter = aCounter - 10)
                     {
-                        if (this.SelectionBox.Height - aCounter <= 0)
+                        if (SelectionBox.Height - aCounter <= 0)
                         {
-                            spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX - 10, this.SelectionBox.Y + aCounter, 10, 5), Color.White);
+                            spriteBatch.Draw(DottedLine, new Rectangle(thePositionX - 10, SelectionBox.Y + aCounter, 10, 5), Color.White);
                         }
                     }
                 }
                 return;
             }
-            for (int aCounter = -2; aCounter <= this.SelectionBox.Height; aCounter = aCounter + 10)
+            for (int aCounter = -2; aCounter <= SelectionBox.Height; aCounter = aCounter + 10)
             {
-                if (this.SelectionBox.Height - aCounter >= 0)
+                if (SelectionBox.Height - aCounter >= 0)
                 {
-                    spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX, this.SelectionBox.Y + aCounter, 10, 5), new Rectangle?(new Rectangle(0, 0, this.DottedLine.Width, this.DottedLine.Height)), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
+                    spriteBatch.Draw(DottedLine, new Rectangle(thePositionX, SelectionBox.Y + aCounter, 10, 5), new Rectangle(0, 0, DottedLine.Width, DottedLine.Height), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
                 }
             }
         }
 
         public override void ExitScreen()
         {
-            base.ScreenManager.AddScreen(new MainMenuScreen());
+            ScreenManager.AddScreen(new MainMenuScreen());
             base.ExitScreen();
         }
 
         private string GetDesignStateText()
         {
-            switch (this.DesignState)
+            switch (DesignState)
             {
                 case Restrictions.I:
                 {
-                    this.DescriptionOfState = "Internal hull slots are important to the health of your ship. If these slots are 70% destroyed or more, then your ship will die. There are many modules, such as power plants, that can only be placed in Internal slots";
+                    DescriptionOfState = "Internal hull slots are important to the health of your ship. If these slots are 70% destroyed or more, then your ship will die. There are many modules, such as power plants, that can only be placed in Internal slots";
                     return "Internal";
                 }
                 case Restrictions.IO:
                 {
-                    this.DescriptionOfState = "IO slots are dual-purpose slots that can be equipped with modules bearing either the I or the O restriction";
+                    DescriptionOfState = "IO slots are dual-purpose slots that can be equipped with modules bearing either the I or the O restriction";
                     return "Internal / Outside";
                 }
                 case Restrictions.IOE:
@@ -262,12 +261,12 @@ namespace Ship_Game
                 }
                 case Restrictions.O:
                 {
-                    this.DescriptionOfState = "O slots are slots that are on the outside of your ship. Typically weapons and armor go in external slots";
+                    DescriptionOfState = "O slots are slots that are on the outside of your ship. Typically weapons and armor go in external slots";
                     return "Outside";
                 }
                 case Restrictions.E:
                 {
-                    this.DescriptionOfState = "Engine slots may only be equipped with engine modules";
+                    DescriptionOfState = "Engine slots may only be equipped with engine modules";
                     return "Engine";
                 }
                 default:
@@ -279,7 +278,7 @@ namespace Ship_Game
 
         public Ship GetDisplayedShip()
         {
-            return this.StartingShipList[this.selectedShip];
+            return StartingShipList[selectedShip];
         }
 
         public Restrictions GetRestrictionFromText(string text)
@@ -310,41 +309,41 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (!base.IsActive)
+            if (!IsActive)
             {
                 return false;
             }
-            if (this.LoadModelButton.HandleInput(input))
+            if (LoadModelButton.HandleInput(input))
             {
-                base.ScreenManager.AddScreen(new LoadModelScreen(this));
+                ScreenManager.AddScreen(new LoadModelScreen(this));
             }
             if (input.Escaped)
             {
-                this.ActiveModule = null;
-                this.ExitScreen();
+                ActiveModule = null;
+                ExitScreen();
             }
-            if (this.ShipNameBox.HandlingInput)
+            if (ShipNameBox.HandlingInput)
             {
-                this.ShipNameBox.HandleTextInput(ref this.HullName, input);
-                this.ShipNameBox.Text = this.HullName;
+                ShipNameBox.HandleTextInput(ref HullName, input);
+                ShipNameBox.Text = HullName;
             }
-            if (!this.ShipNameBox.ClickableArea.HitTest(input.CursorPosition))
+            if (!ShipNameBox.ClickableArea.HitTest(input.CursorPosition))
             {
-                this.ShipNameBox.Hover = false;
+                ShipNameBox.Hover = false;
                 if (input.InGameSelect)
                 {
-                    this.ShipNameBox.HandlingInput = false;
+                    ShipNameBox.HandlingInput = false;
                 }
             }
             else
             {
-                this.ShipNameBox.Hover = true;
+                ShipNameBox.Hover = true;
                 if (input.InGameSelect)
                 {
-                    this.ShipNameBox.HandlingInput = true;
+                    ShipNameBox.HandlingInput = true;
                 }
             }
-            foreach (ToggleButton button in this.DesignStateButtons)
+            foreach (ToggleButton button in DesignStateButtons)
             {
                 if (!button.Rect.HitTest(input.CursorPosition))
                 {
@@ -364,10 +363,10 @@ namespace Ship_Game
                     if (input.InGameSelect)
                     {
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                        this.SetRestrictionFromText(button.Action);
+                        SetRestrictionFromText(button.Action);
                     }
                 }
-                if (this.GetRestrictionFromText(button.Action) != this.DesignState)
+                if (GetRestrictionFromText(button.Action) != DesignState)
                 {
                     button.Active = false;
                 }
@@ -378,38 +377,38 @@ namespace Ship_Game
             }
             if (input.C)
             {
-                this.MarkThruster();
+                MarkThruster();
             }
-            if (this.SaveHullButton.HandleInput(input))
+            if (SaveHullButton.HandleInput(input))
             {
-                this.SaveShipData("New Ship");
+                SaveShipData("New Ship");
             }
             if (input.ScrollIn)  tscale += 1f;
             if (input.ScrollOut) tscale -= 1f;
             if (input.Right)
             {
-                this.heat = 1f;
+                heat = 1f;
             }
             if (input.Left)
             {
-                this.heat = 0.01f;
+                heat = 0.01f;
             }
             if (input.Up)
             {
-                this.applyThruster = true;
+                applyThruster = true;
             }
             if (input.Down)
             {
-                this.applyThruster = false;
+                applyThruster = false;
             }
             if (input.YButtonDown || input.Right)
             {
-                this.NextDesignState();
+                NextDesignState();
                 return true;
             }
             if (input.BButtonDown)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
             return false;
@@ -417,37 +416,37 @@ namespace Ship_Game
 
         public void HandleInput()
         {
-            if (!base.IsActive)
+            if (!IsActive)
             {
                 return;
             }
             if (Input.LeftMouseClick)
             {
-                this.SelectionBox = new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 0, 0);
+                SelectionBox = new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 0, 0);
             }
             if (Input.LeftMouseDown)
             {
-                this.SelectionBox = new Rectangle(this.SelectionBox.X, this.SelectionBox.Y, Input.MouseCurr.X - this.SelectionBox.X, Input.MouseCurr.Y - this.SelectionBox.Y);
+                SelectionBox = new Rectangle(SelectionBox.X, SelectionBox.Y, Input.MouseCurr.X - SelectionBox.X, Input.MouseCurr.Y - SelectionBox.Y);
             }
             else if (Input.LeftMouseClick)
             {
-                foreach (SlotStruct slot in this.SlotList)
+                foreach (SlotStruct slot in SlotList)
                 {
-                    if (!slot.Intersects(SelectionBox) || this.ActiveModule != null)
+                    if (!slot.Intersects(SelectionBox) || ActiveModule != null)
                     {
                         continue;
                     }
                     slot.PQ.Filled = !slot.PQ.Filled;
-                    slot.Restrictions = this.DesignState;
+                    slot.Restrictions = DesignState;
                 }
             }
             if (Input.LeftMouseUp)
             {
-                this.SelectionBox = new Rectangle(-1, -1, 0, 0);
+                SelectionBox = new Rectangle(-1, -1, 0, 0);
             }
-            if (this.applyThruster)
+            if (applyThruster)
             {
-                this.tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
+                tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
                                         Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
             }
         }
@@ -477,10 +476,10 @@ namespace Ship_Game
 
             LoadModelButton = new DanButton(new Vector2(20f, (screenHeight - 50)), "Load Model");
             SaveHullButton = new DanButton(new Vector2((screenWidth - 200), (screenHeight - 50)), "Save Hull");
-            ShipNameBox = new UITextEntry()
+            ShipNameBox = new UITextEntry
             {
                 ClickableArea = new Rectangle(screenWidth - 200, screenHeight - 115, 180, 20),
-                Text = this.HullName
+                Text = HullName
             };
             AssignLightRig("example/ShipyardLightrig");
             ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
@@ -491,7 +490,7 @@ namespace Ship_Game
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
             moduleSlot = TransientContent.Load<Texture2D>("Textures/Ships/singlebox");
             DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
-            Center = new Vector2((int)(screenWidth / 2), (int)(screenHeight / 2));
+            Center = new Vector2(screenWidth / 2, screenHeight / 2);
             ConfigureSlots();
             thruster = new Thruster();
             thruster.LoadAndAssignDefaultEffects(TransientContent);
@@ -520,10 +519,10 @@ namespace Ship_Game
         private void MarkThruster()
         {
             ThrusterZone z = new ThrusterZone();
-            Vector2 thrPos = (this.tPos + new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2))) - new Vector2((float)this.border.X, (float)this.border.Y);
+            Vector2 thrPos = (tPos + new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)) - new Vector2(border.X, border.Y);
             z.Position = thrPos;
-            z.Scale = this.tscale;
-            this.TList.Add(z);
+            z.Scale = tscale;
+            TList.Add(z);
         }
 
         private void NextDesignState()
@@ -540,7 +539,7 @@ namespace Ship_Game
 
         public void SaveShipData(string name)
         {
-            var data = new ShipData()
+            var data = new ShipData
             {
                 Name      = HullName,
                 ModelPath = Path.GetFileNameWithoutExtension(ModelPath),
@@ -590,14 +589,14 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            base.ScreenManager.editor.Update(gameTime);
-            Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-            this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            this.designInputState.Update(gameTime);
-            this.HandleInput();
+            ScreenManager.editor.Update(gameTime);
+            Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+            view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+            designInputState.Update(gameTime);
+            HandleInput();
             thruster.tscale = tscale;
             thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);
-            this.thruster.Update(new Vector3(0f, -1f, 0f), this.heat, 0.002f, camPos);
+            thruster.Update(new Vector3(0f, -1f, 0f), heat, 0.002f, camPos);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

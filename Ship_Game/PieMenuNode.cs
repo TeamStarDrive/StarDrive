@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -20,11 +18,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.children;
+				return children;
 			}
 			set
 			{
-				this.children = value;
+				children = value;
 			}
 		}
 
@@ -32,11 +30,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.icon;
+				return icon;
 			}
 			set
 			{
-				this.icon = value;
+				icon = value;
 			}
 		}
 
@@ -44,11 +42,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				if (this.children == null)
+				if (children == null)
 				{
 					return true;
 				}
-				return this.children.Count == 0;
+				return children.Count == 0;
 			}
 		}
 
@@ -56,11 +54,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.onSelect;
+				return onSelect;
 			}
 			set
 			{
-				this.onSelect = value;
+				onSelect = value;
 			}
 		}
 
@@ -68,11 +66,11 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.text;
+				return text;
 			}
 			set
 			{
-				this.text = value;
+				text = value;
 			}
 		}
 
@@ -89,19 +87,19 @@ namespace Ship_Game
 
 		public void Add(PieMenuNode newChild)
 		{
-			if (this.children == null)
+			if (children == null)
 			{
-				this.children = new Array<PieMenuNode>();
+				children = new Array<PieMenuNode>();
 			}
 			newChild.parent = this;
-			this.children.Add(newChild);
+			children.Add(newChild);
 		}
 
 		public void Select()
 		{
-			if (this.OnSelect != null)
+			if (OnSelect != null)
 			{
-				this.OnSelect(this);
+				OnSelect(this);
 			}
 		}
 	}

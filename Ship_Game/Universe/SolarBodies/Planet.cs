@@ -11,7 +11,6 @@ using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Universe.SolarBodies.AI;
 
-
 namespace Ship_Game
 {
 
@@ -25,7 +24,7 @@ namespace Ship_Game
             Research,
             Agricultural,
             Military,
-            TradeHub,
+            TradeHub
         }
         public GeodeticManager GeodeticManager;
         public SBCommodities SbCommodities;
@@ -150,12 +149,12 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
         public float GrossMoneyPT;
         public float GrossIncome =>
-                    (this.GrossMoneyPT + this.GrossMoneyPT * (float)this.Owner?.data.Traits.TaxMod) * (float)this.Owner?.data.TaxRate
-                    + this.PlusFlatMoneyPerTurn + (this.Population / 1000 * this.PlusCreditsPerColonist);
+                    (GrossMoneyPT + GrossMoneyPT * (float)Owner?.data.Traits.TaxMod) * (float)Owner?.data.TaxRate
+                    + PlusFlatMoneyPerTurn + (Population / 1000 * PlusCreditsPerColonist);
         public float GrossUpkeep =>
-                    (float)((double)this.TotalMaintenanceCostsPerTurn + (double)this.TotalMaintenanceCostsPerTurn
-                    * (double)this.Owner?.data.Traits.MaintMod);
-        public float NetIncome => this.GrossIncome - this.GrossUpkeep;
+                    (float)(TotalMaintenanceCostsPerTurn + TotalMaintenanceCostsPerTurn
+                    * (double)Owner?.data.Traits.MaintMod);
+        public float NetIncome => GrossIncome - GrossUpkeep;
         public float PlusCreditsPerColonist;
         public bool HasWinBuilding;
         public float ShipBuildingModifier;
@@ -173,12 +172,12 @@ namespace Ship_Game
         public Array<string> CommoditiesPresent => SbCommodities.CommoditiesPresent;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
-        public float RepairPerTurn = 0;
+        public float RepairPerTurn;
 
-        public float ExportPSWeight = 0;
-        public float ExportFSWeight = 0;
+        public float ExportPSWeight;
+        public float ExportFSWeight;
 
-        public float TradeIncomingColonists = 0;
+        public float TradeIncomingColonists;
 
         public bool RecentCombat => TroopManager.RecentCombat;
         public float GetDefendingTroopStrength() => TroopManager.GetDefendingTroopStrength();
@@ -219,7 +218,7 @@ namespace Ship_Game
             TroopManager = new TroopManager(this, Habitable);
             GeodeticManager = new GeodeticManager(this);
             SbCommodities = new SBCommodities(this);
-            base.SbProduction = new SBProduction(this);
+            SbProduction = new SBProduction(this);
             HasShipyard = false;
 
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
@@ -292,10 +291,10 @@ namespace Ship_Game
         }
 
         private void DebugImportFood(float predictedFood, string text) =>                   
-            Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IFOOD PREDFD:{predictedFood:0.#} {text} {this}", DebugModes.Trade);
         
         private void DebugImportProd(float predictedFood, string text) =>                    
-            Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", Debug.DebugModes.Trade);
+            Empire.Universe?.DebugWin?.DebugLogText($"IPROD PREDFD:{predictedFood:0.#} {text} {this}", DebugModes.Trade);
         
    
 
@@ -305,7 +304,7 @@ namespace Ship_Game
             if (ImportFood && ExportProd) return Goods.Food;
             if (ImportProd && ExportFood) return Goods.Production;
 
-            bool debug = System.Diagnostics.Debugger.IsAttached;
+            bool debug = Debugger.IsAttached;
             const int lookahead = 30; // 1 turn ~~ 5 second, 12 turns ~~ 1min, 60 turns ~~ 5min
             float predictedFood = ProjectedFood(lookahead);
 
@@ -494,8 +493,7 @@ namespace Ship_Game
         {
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
                 return NetProductionPerTurn - Consumption;
-            else
-                return NetProductionPerTurn;
+            return NetProductionPerTurn;
         }
 
         public bool TryBiosphereBuild(Building b, QueueItem qi) => SbProduction.TryBiosphereBuild(b, qi);
@@ -726,9 +724,9 @@ namespace Ship_Game
             CalculateIncomingTrade();
         }
 
-        public float IncomingFood = 0;
-        public float IncomingProduction = 0;
-        public float IncomingColonists = 0;
+        public float IncomingFood;
+        public float IncomingProduction;
+        public float IncomingColonists;
 
         public void UpdateDevelopmentStatus()
         {
@@ -832,7 +830,6 @@ namespace Ship_Game
        
         public TradeAI TradeAI;
 
-
         private void CalculateIncomingTrade()
         {
             if (Owner == null || Owner.isFaction) return;
@@ -849,7 +846,6 @@ namespace Ship_Game
                     if (ship.AI.OrderQueue.IsEmpty) continue;
 
                     TradeAI.AddTrade(ship);
-                                                                             
                 }
             }
             TradeAI.ComputeAverages();
@@ -987,7 +983,7 @@ namespace Ship_Game
 
         }
 
-        public bool WeCanAffordThis(Building building, Planet.ColonyType governor)
+        public bool WeCanAffordThis(Building building, ColonyType governor)
         {
             if (governor == ColonyType.TradeHub)
                 return true;
@@ -1063,8 +1059,7 @@ namespace Ship_Game
                 if (NetFoodPerTurn > 0 && FarmerPercentage < .3 || BuildingExists(building.Name))
 
                     return false;
-                else
-                    return true;
+                return true;
 
             }
             if (Owner.data.Traits.Cybernetic < 1 && income > building.Maintenance)
@@ -1073,10 +1068,6 @@ namespace Ship_Game
                 if (food * FarmerPercentage > 1)
                 {
                     return true;
-                }
-                else
-                {
-
                 }
             }
             if (Owner.data.Traits.Cybernetic > 0)
@@ -1460,7 +1451,8 @@ namespace Ship_Game
                     }
                     break;
                 }
-                else if (queueItem1.isBuilding && queueItem1.Building.Name == "Outpost")
+
+                if (queueItem1.isBuilding && queueItem1.Building.Name == "Outpost")
                 {
                     ConstructionQueue.Remove(queueItem1);
                     ConstructionQueue.Insert(0, queueItem1);
@@ -2227,7 +2219,8 @@ namespace Ship_Game
                     bldg.ScrapBuilding(this);
                     return;     //No mass scrappings
                 }
-                else if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {bldg.Name}  buildingValue: {buildingValue}    costWeight: {costWeight}");
+
+                if (Name == ExtraInfoOnPlanet) Log.Info($"Evaluated SCRAP of {bldg.Name}  buildingValue: {buildingValue}    costWeight: {costWeight}");
             }
         }
 
@@ -2249,7 +2242,7 @@ namespace Ship_Game
             MaxPopulationBillion = (MaxPopulation + MaxPopBonus) / 1000f;
             BuildOutpostifAble();   //If there is no Outpost or Capital, build it
 
-            if (colonyType == Planet.ColonyType.Colony) return; //No Governor? Nevermind!            
+            if (colonyType == ColonyType.Colony) return; //No Governor? Nevermind!            
 
             float budget = BuildingBudget();
 
@@ -2266,14 +2259,14 @@ namespace Ship_Game
 
             switch (colonyType)
             {
-                case Planet.ColonyType.TradeHub:
-                case Planet.ColonyType.Core:
+                case ColonyType.TradeHub:
+                case ColonyType.Core:
                     {
                         //New resource management by Gretman
                         FarmerPercentage = CalculateFoodWorkers();
                         FillOrResearch(1 - FarmerPercentage);
 
-                        if (colonyType == Planet.ColonyType.TradeHub)
+                        if (colonyType == ColonyType.TradeHub)
                         {
                             DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
                             DetermineProdState(0.15f, 0.95f);
@@ -2288,7 +2281,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Industrial:
+                case ColonyType.Industrial:
                     {
                         //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
                         FarmerPercentage = FarmToPercentage(0.333f);
@@ -2304,7 +2297,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Research:
+                case ColonyType.Research:
                     {
                         //This governor will rely on imports, focusing on research as long as no one is starving
                         FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
@@ -2320,7 +2313,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Agricultural:
+                case ColonyType.Agricultural:
                     {
                         FarmerPercentage = FarmToPercentage(1);     //Farm all you can
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
@@ -2335,7 +2328,7 @@ namespace Ship_Game
                         break;
                     }
 
-                case Planet.ColonyType.Military:    //This on is incomplete
+                case ColonyType.Military:    //This on is incomplete
                     {
                         FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
                         WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
@@ -2718,7 +2711,7 @@ namespace Ship_Game
         {
             STORE,
             IMPORT,
-            EXPORT,
+            EXPORT
         }
 
         public void Dispose()

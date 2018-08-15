@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
 
 namespace Ship_Game
@@ -27,7 +23,7 @@ namespace Ship_Game
                 ModPath = GlobalStats.ActiveMod.ModName;
             }
             Version = Convert.ToInt32( ConfigurationManager.AppSettings["SaveVersion"] );
-            this.Traits = traits;
+            Traits = traits;
         }
     }
 }

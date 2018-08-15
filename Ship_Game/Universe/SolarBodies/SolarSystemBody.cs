@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Universe.SolarBodies.AI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -25,7 +24,7 @@ namespace Ship_Game
     {
         Other,
         Barren,
-        Terran,
+        Terran
     }
     public enum Richness
     {
@@ -33,7 +32,7 @@ namespace Ship_Game
         Poor,
         Average,
         Rich,
-        UltraRich,
+        UltraRich
     }
     public class OrbitalDrop
     {
@@ -923,8 +922,7 @@ namespace Ship_Game
                 return Localizer.Token(1444);
             if (MineralRichness > 0.25)
                 return Localizer.Token(1445);
-            else
-                return Localizer.Token(1446);
+            return Localizer.Token(1446);
         }
 
         public string GetOwnerName()
@@ -1399,7 +1397,7 @@ namespace Ship_Game
             if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
 
-            if (this.IsExploredBy(Empire.Universe.PlayerEmpire))
+            if (IsExploredBy(Empire.Universe.PlayerEmpire))
             {
                 if (!newOwner.isFaction)
                     Empire.Universe.NotificationManager.AddConqueredNotification((Planet)this, newOwner, Owner);
@@ -1470,7 +1468,7 @@ namespace Ship_Game
                 if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
                     ParentSystem.OwnerList.Add(planet.Owner);                
             }
-            ((Planet)this).TradeAI = new Universe.SolarBodies.AI.TradeAI((Planet)this);
+            ((Planet)this).TradeAI = new TradeAI((Planet)this);
             colonyType = Planet.ColonyType.Colony;                        
             GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
             if (GovernorOn)

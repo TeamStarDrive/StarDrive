@@ -9,12 +9,8 @@ namespace Ship_Game
 
 		static StatTracker()
 		{
-			StatTracker.SnapshotsDict = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
+			SnapshotsDict = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
 		}
-
-		public StatTracker()
-		{
-        }
 
 	    public static void StatAddColony(Object add,Empire owner,UniverseScreen universeScreen)
 	    {
@@ -26,7 +22,7 @@ namespace Ship_Game
 	        {
                 SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(owner)].Events.Add(
                         string.Concat(owner.data.Traits.Name, " colonized ", planet.Name));
-                var nro = new NRO()
+                var nro = new NRO
                 {
                     Node = planet.Center,
                     Radius = 300000f,
@@ -44,7 +40,7 @@ namespace Ship_Game
 	            return;
 	        RoadNode node = add as RoadNode;
 	        if (node is null) return;
-            var nro = new NRO()
+            var nro = new NRO
             {
                 Node = node.Position,
                 Radius = 300000f,

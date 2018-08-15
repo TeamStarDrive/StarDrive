@@ -38,7 +38,7 @@ namespace Algorithms
         #endregion
 
         #region Win32APIs
-        [System.Runtime.InteropServices.DllImport("KERNEL32.DLL", EntryPoint="RtlZeroMemory")]
+        [DllImport("KERNEL32.DLL", EntryPoint="RtlZeroMemory")]
         public unsafe static extern bool ZeroMemory(byte* destination, int length);
         #endregion
 
@@ -48,44 +48,44 @@ namespace Algorithms
 
         #region Variables Declaration
         // Heap variables are initializated to default, but I like to do it anyway
-        private byte[,]                         mGrid                   = null;
-        private PriorityQueueB<int>             mOpen                   = null;
+        private byte[,]                         mGrid;
+        private PriorityQueueB<int>             mOpen;
         private Array<PathFinderNode>            mClose                  = new Array<PathFinderNode>();
-        private bool                            mStop                   = false;
+        private bool                            mStop;
         private bool                            mStopped                = true;
-        private int                             mHoriz                  = 0;
+        private int                             mHoriz;
         private HeuristicFormula                mFormula                = HeuristicFormula.Manhattan;
         private bool                            mDiagonals              = true;
         private int                             mHEstimate              = 2;
-        private bool                            mPunishChangeDirection  = false;
+        private bool                            mPunishChangeDirection;
         private bool                            mReopenCloseNodes       = true;
-        private bool                            mTieBreaker             = false;
-        private bool                            mHeavyDiagonals         = false;
+        private bool                            mTieBreaker;
+        private bool                            mHeavyDiagonals;
         private int                             mSearchLimit            = 2000;
-        private double                          mCompletedTime          = 0;
-        private bool                            mDebugProgress          = false;
-        private bool                            mDebugFoundPath         = false;
-        private PathFinderNodeFast[]            mCalcGrid               = null;
+        private double                          mCompletedTime;
+        private bool                            mDebugProgress;
+        private bool                            mDebugFoundPath;
+        private PathFinderNodeFast[]            mCalcGrid;
         private byte                            mOpenNodeValue          = 1;
         private byte                            mCloseNodeValue         = 2;
         
         //Promoted local variables to member variables to avoid recreation between calls
-        private int                             mH                      = 0;
-        private int                             mLocation               = 0;
-        private int                             mNewLocation            = 0;
-        private ushort                          mLocationX              = 0;
-        private ushort                          mLocationY              = 0;
-        private ushort                          mNewLocationX           = 0;
-        private ushort                          mNewLocationY           = 0;
-        private int                             mCloseNodeCounter       = 0;
-        private ushort                          mGridX                  = 0;
-        private ushort                          mGridY                  = 0;
-        private ushort                          mGridXMinus1            = 0;
-        private ushort                          mGridYLog2              = 0;
-        private bool                            mFound                  = false;
+        private int                             mH;
+        private int                             mLocation;
+        private int                             mNewLocation;
+        private ushort                          mLocationX;
+        private ushort                          mLocationY;
+        private ushort                          mNewLocationX;
+        private ushort                          mNewLocationY;
+        private int                             mCloseNodeCounter;
+        private ushort                          mGridX;
+        private ushort                          mGridY;
+        private ushort                          mGridXMinus1;
+        private ushort                          mGridYLog2;
+        private bool                            mFound;
         private sbyte[,]                        mDirection              = new sbyte[8,2]{{0,-1} , {1,0}, {0,1}, {-1,0}, {1,-1}, {1,1}, {-1,1}, {-1,-1}};
-        private int                             mEndLocation            = 0;
-        private int                             mNewG                   = 0;
+        private int                             mEndLocation;
+        private int                             mNewG;
         #endregion
 
         #region Constructors
@@ -454,7 +454,7 @@ namespace Algorithms
             {
                 if (mMatrix[a].F > mMatrix[b].F)
                     return 1;
-                else if (mMatrix[a].F < mMatrix[b].F)
+                if (mMatrix[a].F < mMatrix[b].F)
                     return -1;
                 return 0;
             }

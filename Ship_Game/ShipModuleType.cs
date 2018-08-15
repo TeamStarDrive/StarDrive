@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game
 {
     public enum ShipModuleType
@@ -27,6 +25,6 @@ namespace Ship_Game
         Transporter,
         Troop,
         Ordnance,
-        Construction,
+        Construction
     }
 }
