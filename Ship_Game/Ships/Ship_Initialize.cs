@@ -465,28 +465,28 @@ namespace Ship_Game.Ships
 
         public void InitializeStatus(bool fromSave)
         {
-            Mass                      = 0f;
-            Thrust                    = 0f;
-            WarpThrust                = 0f;
-            PowerStoreMax             = 0f;
-            PowerFlowMax              = 0f;
-            shield_max                = 0f;
-            shield_power              = 0f;
-            armor_max                 = 0f;
-            velocityMaximum           = 0f;
-            Speed                     = 0f;
-            SensorRange               = 0f;
-            OrdinanceMax              = 0f;
-            OrdAddedPerSecond         = 0f;
-            rotationRadiansPerSecond  = 0f;
-            Health                    = 0f;
-            TroopCapacity             = 0;
-            ECMValue                  = 0f;
-            FTLSpoolTime              = 0f;
-            RangeForOverlay           = 0f;
-            Size                      = Calculatesize();
-            BaseCost                  = GetBaseCost();
-            MaxBank                   = GetMaxBank(MaxBank);
+            Mass                     = 0f;
+            Thrust                   = 0f;
+            WarpThrust               = 0f;
+            PowerStoreMax            = 0f;
+            PowerFlowMax             = 0f;
+            shield_max               = 0f;
+            shield_power             = 0f;
+            armor_max                = 0f;
+            velocityMaximum          = 0f;
+            Speed                    = 0f;
+            SensorRange              = 0f;
+            OrdinanceMax             = 0f;
+            OrdAddedPerSecond        = 0f;
+            rotationRadiansPerSecond = 0f;
+            Health                   = 0f;
+            TroopCapacity            = 0;
+            ECMValue                 = 0f;
+            FTLSpoolTime             = 0f;
+            RangeForOverlay          = 0f;
+            Size                     = Calculatesize();
+            BaseCost                 = GetBaseCost();
+            MaxBank                  = GetMaxBank(MaxBank);
 
             foreach (Weapon w in Weapons)
             {
@@ -501,11 +501,10 @@ namespace Ship_Game.Ships
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
-            rotationRadiansPerSecond = Speed / Size;
+            rotationRadiansPerSecond = TurnThrust / Mass / 700f; ;
             ShipMass                 = Mass;
-
-            BaseStrength = CalculateShipStrength();
-            CurrentStrength = BaseStrength;
+            BaseStrength             = CalculateShipStrength();
+            CurrentStrength          = BaseStrength;
 
             // @todo Do we need to recalculate this every time? This whole thing looks fishy
             if (shipData.BaseStrength <= 0f)
