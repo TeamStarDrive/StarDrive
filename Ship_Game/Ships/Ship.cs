@@ -332,7 +332,7 @@ namespace Ship_Game.Ships
             Mass += massDamage;
             velocityMaximum = Thrust / Mass;
             Speed = velocityMaximum;
-            rotationRadiansPerSecond = Speed / 700f;
+            rotationRadiansPerSecond = TurnThrust / Mass / 700f; 
             shipStatusChanged = true; 
         }
 
@@ -2683,6 +2683,8 @@ namespace Ship_Game.Ships
             bool fighters      = false;
             bool weapons       = false;
             int numWeaponSlots = 0;
+            float mass         = Size / 2f;
+            float turnThrust   = 0;
 
             foreach (ShipModule slot in ModuleSlotList)
             {
@@ -2694,16 +2696,19 @@ namespace Ship_Game.Ships
                 }
                 fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
 
-                offense += slot.CalculateModuleOffense();
-                defense += slot.CalculateModuleDefense(Size);
+                offense    += slot.CalculateModuleOffense();
+                defense    += slot.CalculateModuleDefense(Size);
+                mass       += slot.Mass;
+                turnThrust += slot.TurnThrust;
 
                 BaseCanWarp |= slot.WarpThrust > 0;
             }
             DPS = (int)offense;
+            float rotationSpeed = (turnThrust / mass / 700).ToDegrees();
 
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, velocityMaximum, rotationRadiansPerSecond) ;
+            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, rotationSpeed);
         }
 
         private void ApplyRepairToShields(float repairPool)

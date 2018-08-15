@@ -931,10 +931,8 @@ namespace Ship_Game.Gameplay
             off *= restrictions;
 
             //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-            off *= OffPowerMod;
-
             if (m == null)
-                return off;
+                return off * OffPowerMod;
 
             //FB: Kinetics which does also require more than minimal power to shoot is less effective
             off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
@@ -947,7 +945,8 @@ namespace Ship_Game.Gameplay
             // FB: Field of Fire is also important
             off *= m.FieldOfFire > 60 ? m.FieldOfFire / 60f : 1f;
 
-            return off;
+            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+            return off * OffPowerMod;
         }
 
         public void Dispose()
