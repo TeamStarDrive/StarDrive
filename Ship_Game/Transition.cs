@@ -1,5 +1,5 @@
-using Microsoft.Xna.Framework;
 using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -13,17 +13,17 @@ namespace Ship_Game
 
         public Action OnTransitionEnd;
 
-        public float CurrentPosition => MathHelper.Lerp(0f, 1f, this.timeLerp());
+        public float CurrentPosition => MathHelper.Lerp(0f, 1f, timeLerp());
 
         public bool Finished
         {
             get
             {
-                if (this.direction == Direction.Ascending)
+                if (direction == Direction.Ascending)
                 {
-                    return this.currentPosition >= 1f;
+                    return currentPosition >= 1f;
                 }
-                return this.currentPosition <= 0f;
+                return currentPosition <= 0f;
             }
         }
 
@@ -31,60 +31,60 @@ namespace Ship_Game
 
         public Transition(Direction direction, TransitionCurve transitionCurve, float transitionDuration)
         {
-            this.currentPosition = 0f;
-            this.InterpolationCurve = transitionCurve;
-            this.Reset(direction, transitionDuration);
+            currentPosition = 0f;
+            InterpolationCurve = transitionCurve;
+            Reset(direction, transitionDuration);
         }
 
         public void Reset(Direction direction, float transitionLength)
         {
             this.direction = direction;
-            this.speed = 1f / transitionLength;
-            this.Reset();
+            speed = 1f / transitionLength;
+            Reset();
         }
 
         public void Reset(Direction direction)
         {
             this.direction = direction;
-            this.Reset();
+            Reset();
         }
 
         public void Reset()
         {
-            if (this.direction == Direction.Ascending)
+            if (direction == Direction.Ascending)
             {
-                this.currentPosition = 0f;
+                currentPosition = 0f;
                 return;
             }
-            this.currentPosition = 1f;
+            currentPosition = 1f;
         }
 
         private float timeLerp()
         {
-            if (this.direction != Direction.Ascending)
+            if (direction != Direction.Ascending)
             {
-                if (this.currentPosition < 0f)
+                if (currentPosition < 0f)
                 {
                     return 1f;
                 }
-                if (this.currentPosition > 1f)
+                if (currentPosition > 1f)
                 {
                     return 0f;
                 }
             }
             else
             {
-                if (this.currentPosition < 0f)
+                if (currentPosition < 0f)
                 {
                     return 0f;
                 }
-                if (this.currentPosition > 1f)
+                if (currentPosition > 1f)
                 {
                     return 1f;
                 }
             }
-            double timelerp = (double)this.currentPosition;
-            switch (this.InterpolationCurve)
+            double timelerp = currentPosition;
+            switch (InterpolationCurve)
             {
                 case TransitionCurve.Linear:
                 {
@@ -92,7 +92,7 @@ namespace Ship_Game
                 }
                 case TransitionCurve.SmoothStep:
                 {
-                    timelerp = (double)((float)MathHelper.SmoothStep(0f, 1f, (float)timelerp));
+                    timelerp = MathHelper.SmoothStep(0f, 1f, (float)timelerp);
                     return (float)timelerp;
                 }
                 case TransitionCurve.Exponential:

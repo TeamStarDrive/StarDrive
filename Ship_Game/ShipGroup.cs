@@ -1,13 +1,12 @@
-using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-
 
 namespace Ship_Game
 {
@@ -171,18 +170,18 @@ namespace Ship_Game
                 {
                     if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
                         continue;
-                    distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset) - 100);
+                    distances.Add(Vector2.Distance(distance.Center, Position + distance.FleetOffset) - 100);
                 }
 
             if (distances.Count <= 2)
             {
-                this.StoredFleetDistancetoMove = Vector2.Distance(this.StoredFleetPosition, this.Position);
+                StoredFleetDistancetoMove = Vector2.Distance(StoredFleetPosition, Position);
                 return;
             }
             float avgdistance = distances.Average();
             float sum = (float)distances.Sum(distance => Math.Pow(distance - avgdistance, 2));
             float stddev = (float)Math.Sqrt((sum) / (distances.Count - 1));
-            this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average();
+            StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average();
         }
 
         protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
@@ -194,7 +193,7 @@ namespace Ship_Game
             //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
             for (int index = 0; index < Ships.Count; index++)
             {
-                Ship ship = this.Ships[index];
+                Ship ship = Ships[index];
                 if (ship.AI.HasPriorityOrder) continue;
                 currentAmmo += ship.Ordinance;
                 maxAmmo += ship.OrdinanceMax;
@@ -214,7 +213,7 @@ namespace Ship_Game
             Position = movePosition;
             Facing = facing;
             AssembleFleet(facing, fVec);
-            foreach (Ship ship in this.Ships)
+            foreach (Ship ship in Ships)
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
@@ -254,10 +253,10 @@ namespace Ship_Game
 
         public void MoveToNow(Vector2 movePosition, float facing, Vector2 fVec)
         {
-            this.Position = movePosition;
-            this.Facing = facing;
-            this.AssembleFleet(facing, fVec, true);
-            foreach (Ship ship in this.Ships)
+            Position = movePosition;
+            Facing = facing;
+            AssembleFleet(facing, fVec, true);
+            foreach (Ship ship in Ships)
             {
                 ship.AI.SetPriorityOrder(false);
                 ship.AI.OrderMoveTowardsPosition(movePosition + ship.FleetOffset, facing, fVec, true, null);
@@ -266,18 +265,18 @@ namespace Ship_Game
 
         public void AttackMoveTo(Vector2 movePosition)
         {
-            this.GoalStack.Clear();
-            Vector2 fVec = this.FindAveragePosition().DirectionToTarget(movePosition);
-            this.Position = this.FindAveragePosition() + fVec * 3500f;
-            this.GoalStack.Push(new Fleet.FleetGoal(this, movePosition, FindAveragePosition().RadiansToTarget(movePosition), fVec, Fleet.FleetGoalType.AttackMoveTo));
+            GoalStack.Clear();
+            Vector2 fVec = FindAveragePosition().DirectionToTarget(movePosition);
+            Position = FindAveragePosition() + fVec * 3500f;
+            GoalStack.Push(new Fleet.FleetGoal(this, movePosition, FindAveragePosition().RadiansToTarget(movePosition), fVec, Fleet.FleetGoalType.AttackMoveTo));
         }
 
         public float GetStrength()
         {
             float num = 0.0f;            
-            for (int index = 0; index < this.Ships.Count; index++)
+            for (int index = 0; index < Ships.Count; index++)
             {
-                Ship ship = this.Ships[index];
+                Ship ship = Ships[index];
                 if (ship.Active)
                     num += ship.GetStrength();
             }
@@ -292,9 +291,9 @@ namespace Ship_Game
         public int CountShipsWithStrength(bool any = false)
         {
             int num = 0;
-            for (int index = 0; index < this.Ships.Count; index++)
+            for (int index = 0; index < Ships.Count; index++)
             {
-                Ship ship = this.Ships[index];
+                Ship ship = Ships[index];
                 if (ship.Active && ship.GetStrength() > 0)
                     num++;
                 if (any) break;

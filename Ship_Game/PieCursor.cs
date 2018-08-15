@@ -1,8 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Ship_Game
 {
@@ -28,18 +27,18 @@ namespace Ship_Game
 
 		public CursorMode CurrentCursorMode { get; set; }
 
-	    public Vector2 Position => this.position;
+	    public Vector2 Position => position;
 
 	    public PieCursor(Game1 game, GameContentManager content) : base(game)
 		{
-			this.pieMenu = new PieMenu();
+			pieMenu = new PieMenu();
 			this.content = content;
 		}
 
 		public Ray CalculateCursorRay(Matrix projectionMatrix, Matrix viewMatrix)
 		{
-			Vector3 nearSource = new Vector3(this.Position, 0f);
-			Vector3 farSource = new Vector3(this.Position, 1f);
+			Vector3 nearSource = new Vector3(Position, 0f);
+			Vector3 farSource = new Vector3(Position, 1f);
 			Vector3 nearPoint = Game1.Instance.Viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
 			Vector3 farPoint = Game1.Instance.Viewport.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
@@ -49,68 +48,68 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			this.pieMenu.Draw(this.spriteBatch, this.spriteFont);
-			this.spriteBatch.Begin();
+			pieMenu.Draw(spriteBatch, spriteFont);
+			spriteBatch.Begin();
 			Rectangle? nullable = null;
-			this.spriteBatch.Draw(this.cursorTexture, this.Position, nullable, Color.White, 0f, this.textureCenter, 1f, SpriteEffects.None, 0f);
-			this.spriteBatch.End();
+			spriteBatch.Draw(cursorTexture, Position, nullable, Color.White, 0f, textureCenter, 1f, SpriteEffects.None, 0f);
+			spriteBatch.End();
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			bool retVal = this.pieMenu.Visible;
-			if (this.CurrentCursorMode != CursorMode.GamePad)
+			bool retVal = pieMenu.Visible;
+			if (CurrentCursorMode != CursorMode.GamePad)
 			{
-				Vector2 selDir = this.position - this.pieMenu.Position;
+				Vector2 selDir = position - pieMenu.Position;
 				selDir.Y = selDir.Y * -1f;
-				selDir = selDir / this.pieMenu.Radius;
-				this.pieMenu.HandleInput(input, selDir);
+				selDir = selDir / pieMenu.Radius;
+				pieMenu.HandleInput(input, selDir);
 			}
 			else
 			{
-				this.pieMenu.HandleInput(input);
+				pieMenu.HandleInput(input);
 			}
-			this.deltaMovement = input.GamepadCurr.ThumbSticks.Left;
-			this.deltaMovement.Y = this.deltaMovement.Y * -1f;
+			deltaMovement = input.GamepadCurr.ThumbSticks.Left;
+			deltaMovement.Y = deltaMovement.Y * -1f;
 			return retVal;
 		}
 
 		protected override void LoadContent()
 		{
-			this.cursorTexture = this.content.Load<Texture2D>("cursor");
-			this.textureCenter = new Vector2((float)(this.cursorTexture.Width / 2), (float)(this.cursorTexture.Height / 2));
-			this.spriteBatch = new SpriteBatch(base.GraphicsDevice);
-			this.spriteFont = this.content.Load<SpriteFont>("menufont");
+			cursorTexture = content.Load<Texture2D>("cursor");
+			textureCenter = new Vector2(cursorTexture.Width / 2, cursorTexture.Height / 2);
+			spriteBatch = new SpriteBatch(GraphicsDevice);
+			spriteFont = content.Load<SpriteFont>("menufont");
 			base.LoadContent();
 		}
 
 		public void ShowPieMenu(PieMenuNode node)
 		{
-			this.pieMenu.RootNode = node;
-			this.ShowPieMenu();
+			pieMenu.RootNode = node;
+			ShowPieMenu();
 		}
 
 		public void ShowPieMenu()
 		{
-			this.pieMenu.Show(this.position);
+			pieMenu.Show(position);
 		}
 
 		public override void Update(GameTime gameTime)
 		{
-			this.pieMenu.Update(gameTime);
-			if (this.pieMenu.Visible && this.CurrentCursorMode == CursorMode.GamePad)
+			pieMenu.Update(gameTime);
+			if (pieMenu.Visible && CurrentCursorMode == CursorMode.GamePad)
 			{
 				return;
 			}
 			MouseState mouseState = Mouse.GetState();
-			this.position.X = (float)mouseState.X;
-			this.position.Y = (float)mouseState.Y;
+			position.X = mouseState.X;
+			position.Y = mouseState.Y;
 			PieCursor totalSeconds = this;
 			Vector2 vector2 = totalSeconds.position;
-			Vector2 cursorSpeed = this.deltaMovement * this.CursorSpeed;
+			Vector2 cursorSpeed = deltaMovement * CursorSpeed;
 			TimeSpan elapsedGameTime = gameTime.ElapsedGameTime;
 			totalSeconds.position = vector2 + (cursorSpeed * (float)elapsedGameTime.TotalSeconds);
-			Mouse.SetPosition((int)this.position.X, (int)this.position.Y);
+			Mouse.SetPosition((int)position.X, (int)position.Y);
 		}
 	}
 }

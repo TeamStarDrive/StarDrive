@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -11,13 +12,13 @@ namespace Ship_Game.AI {
     {
         public void CallAllyToWar(Empire ally, Empire enemy)
         {
-            var offer = new Offer()
+            var offer = new Offer
             {
                 AcceptDL = "HelpUS_War_Yes",
                 RejectDL = "HelpUS_War_No"
             };
             const string dialogue = "HelpUS_War";
-            var ourOffer = new Offer()
+            var ourOffer = new Offer
             {
                 ValueToModify = new Ref<bool>(() => ally.GetRelations(enemy).AtWar, x =>
                 {
@@ -254,16 +255,14 @@ namespace Ship_Game.AI {
                             relationship.Anger_DiplomaticConflict        = relationship.Anger_DiplomaticConflict + 50f;
                             break;
                         }
-                        else
-                        {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Defense"));
-                            Relationship item1             = OwnerEmpire.GetRelations(them);
-                            item1.Anger_DiplomaticConflict = item1.Anger_DiplomaticConflict + 25f;
-                            Relationship trust1            = OwnerEmpire.GetRelations(them);
-                            trust1.Trust                   = trust1.Trust - 25f;
-                            break;
-                        }
+
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
+                            "Declare War Defense"));
+                        Relationship item1             = OwnerEmpire.GetRelations(them);
+                        item1.Anger_DiplomaticConflict = item1.Anger_DiplomaticConflict + 25f;
+                        Relationship trust1            = OwnerEmpire.GetRelations(them);
+                        trust1.Trust                   = trust1.Trust - 25f;
+                        break;
                     }
                     case WarType.GenocidalWar:
                         break;
@@ -367,7 +366,7 @@ namespace Ship_Game.AI {
 
                 using (TaskList.AcquireReadLock())
                 {
-                    foreach (Tasks.MilitaryTask task in TaskList)
+                    foreach (MilitaryTask task in TaskList)
                     {
                         if (task.TargetPlanet != target)
                         {
@@ -379,7 +378,7 @@ namespace Ship_Game.AI {
                 }
                 if (ok)
                 {
-                    var invadeTask = new Tasks.MilitaryTask(target, OwnerEmpire);
+                    var invadeTask = new MilitaryTask(target, OwnerEmpire);
                     {
                         TaskList.Add(invadeTask);
                         //if (r.Key.isFaction) return;
@@ -390,7 +389,7 @@ namespace Ship_Game.AI {
             {
                 TaskList.ForEach(task =>
                 {
-                    if (task.type != Tasks.MilitaryTask.TaskType.AssaultPlanet || task.TargetPlanet.Owner == null ||
+                    if (task.type != MilitaryTask.TaskType.AssaultPlanet || task.TargetPlanet.Owner == null ||
                         task.TargetPlanet.Owner != r.Key)
                     {
                         return;
@@ -417,7 +416,7 @@ namespace Ship_Game.AI {
                         break;
                     }
                     planetsWeAreInvading.Add(p);
-                    var invade = new Tasks.MilitaryTask(p, OwnerEmpire);
+                    var invade = new MilitaryTask(p, OwnerEmpire);
                     {
                         TaskList.Add(invade);
                     }
@@ -429,9 +428,9 @@ namespace Ship_Game.AI {
         {
             float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
                               OwnerEmpire.getResStrat().MilitaryPriority;
-            foreach (Tasks.MilitaryTask militaryTask in TaskList)
+            foreach (MilitaryTask militaryTask in TaskList)
             {
-                if (militaryTask.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
+                if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
                 {
                     warWeight--;
                 }
@@ -487,7 +486,7 @@ namespace Ship_Game.AI {
 
         public void OfferPeace(KeyValuePair<Empire, Relationship> relationship, string whichPeace)
         {
-            var offerPeace = new Offer()
+            var offerPeace = new Offer
             {
                 PeaceTreaty = true,
                 AcceptDL = "OFFERPEACE_ACCEPTED",
@@ -618,14 +617,14 @@ namespace Ship_Game.AI {
                 TaskList.ForEach(task =>
                 {
                     if (task.TargetPlanet == planet &&
-                        task.type == Tasks.MilitaryTask.TaskType.AssaultPlanet)
+                        task.type == MilitaryTask.TaskType.AssaultPlanet)
                     {
                         assault = false;
                     }
                 }, false, false);
                 if (assault)
                 {
-                    var invasionTask = new Tasks.MilitaryTask(planet, OwnerEmpire);                   
+                    var invasionTask = new MilitaryTask(planet, OwnerEmpire);                   
                     TaskList.Add(invasionTask);
 
                 }

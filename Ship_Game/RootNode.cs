@@ -1,8 +1,6 @@
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Ship_Game
 {
@@ -24,14 +22,14 @@ namespace Ship_Game
 		{
 			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
-				this.TitleFont = Fonts.Arial10;
+				TitleFont = Fonts.Arial10;
 			}
-			this.tech = Tech;
-			this.TechName = Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex);
-			this.RootRect.X = (int)Position.X;
-			this.RootRect.Y = (int)Position.Y;
-			this.IconRect = new Rectangle(this.RootRect.X + this.RootRect.Width / 2 - 39, this.RootRect.Y + this.RootRect.Height / 2 - 29, 78, 58);
-			this.TitleRect = new Rectangle(this.RootRect.X + 2, this.RootRect.Y - 21, 108, 61);
+			tech = Tech;
+			TechName = Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex);
+			RootRect.X = (int)Position.X;
+			RootRect.Y = (int)Position.Y;
+			IconRect = new Rectangle(RootRect.X + RootRect.Width / 2 - 39, RootRect.Y + RootRect.Height / 2 - 29, 78, 58);
+			TitleRect = new Rectangle(RootRect.X + 2, RootRect.Y - 21, 108, 61);
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
@@ -40,68 +38,68 @@ namespace Ship_Game
 			string[] textarray;
 			Vector2 TextPos;
 			int line;
-			switch (this.nodeState)
+			switch (nodeState)
 			{
 				case NodeState.Normal:
 				{
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title"), this.TitleRect, Color.White);
-					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title"), TitleRect, Color.White);
+					text = TitleFont.ParseText(TechName, 93f);
 					textarray = Regex.Split(text, "\n");
-					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
+					TextPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(text).X / 2f, TitleRect.Y + 7 + 12 - TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
 					string[] strArrays = textarray;
-					for (int i = 0; i < (int)strArrays.Length; i++)
+					for (int i = 0; i < strArrays.Length; i++)
 					{
 						string word = strArrays[i];
-						Vector2 newPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(word).X / 2f, TextPos.Y + (float)(line * this.TitleFont.LineSpacing));
-						newPos = new Vector2((float)((int)newPos.X), (float)((int)newPos.Y));
-						spriteBatch.DrawString(this.TitleFont, word, newPos, new Color(131, 147, 172));
+						Vector2 newPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(word).X / 2f, TextPos.Y + line * TitleFont.LineSpacing);
+						newPos = new Vector2((int)newPos.X, (int)newPos.Y);
+						spriteBatch.DrawString(TitleFont, word, newPos, new Color(131, 147, 172));
 						line++;
 					}
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath)), this.IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath)), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Hover:
 				{
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), this.TitleRect, Color.White);
-					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), TitleRect, Color.White);
+					text = TitleFont.ParseText(TechName, 93f);
 					textarray = Regex.Split(text, "\n");
-					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
+					TextPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(text).X / 2f, TitleRect.Y + 7 + 12 - TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
 					string[] strArrays1 = textarray;
-					for (int j = 0; j < (int)strArrays1.Length; j++)
+					for (int j = 0; j < strArrays1.Length; j++)
 					{
 						string word = strArrays1[j];
-						Vector2 newPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(word).X / 2f, TextPos.Y + (float)(line * this.TitleFont.LineSpacing));
-						newPos = new Vector2((float)((int)newPos.X), (float)((int)newPos.Y));
-						spriteBatch.DrawString(this.TitleFont, word, newPos, new Color(163, 198, 236));
+						Vector2 newPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(word).X / 2f, TextPos.Y + line * TitleFont.LineSpacing);
+						newPos = new Vector2((int)newPos.X, (int)newPos.Y);
+						spriteBatch.DrawString(TitleFont, word, newPos, new Color(163, 198, 236));
 						line++;
 					}
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_selhover"), this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath, "_hover")), this.IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_selhover"), RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath, "_hover")), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Press:
 				{
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), this.TitleRect, Color.White);
-					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_underglow_selhoverpress"), RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_title_selhoverpress"), TitleRect, Color.White);
+					text = TitleFont.ParseText(TechName, 93f);
 					textarray = Regex.Split(text, "\n");
-					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
+					TextPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(text).X / 2f, TitleRect.Y + 7 + 12 - TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
 					string[] strArrays2 = textarray;
-					for (int k = 0; k < (int)strArrays2.Length; k++)
+					for (int k = 0; k < strArrays2.Length; k++)
 					{
 						string word = strArrays2[k];
-						Vector2 newPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(word).X / 2f, TextPos.Y + (float)(line * this.TitleFont.LineSpacing));
-						newPos = new Vector2((float)((int)newPos.X), (float)((int)newPos.Y));
-						spriteBatch.DrawString(this.TitleFont, word, newPos, new Color(163, 198, 236));
+						Vector2 newPos = new Vector2(TitleRect.X + 10 + 46 - TitleFont.MeasureString(word).X / 2f, TextPos.Y + line * TitleFont.LineSpacing);
+						newPos = new Vector2((int)newPos.X, (int)newPos.Y);
+						spriteBatch.DrawString(TitleFont, word, newPos, new Color(163, 198, 236));
 						line++;
 					}
-					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_press"), this.RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[this.tech.UID].IconPath, "_hover")), this.IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body_press"), RootRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[tech.UID].IconPath, "_hover")), IconRect, Color.White);
 					return;
 				}
 				default:
@@ -113,24 +111,24 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			if (this.RootRect.HitTest(input.CursorPosition))
+			if (RootRect.HitTest(input.CursorPosition))
 			{
-				if (this.nodeState != NodeState.Press)
+				if (nodeState != NodeState.Press)
 				{
-					if (this.nodeState != NodeState.Hover)
+					if (nodeState != NodeState.Hover)
 					{
 						GameAudio.PlaySfxAsync("mouse_over4");
 					}
-					this.nodeState = NodeState.Hover;
+					nodeState = NodeState.Hover;
 				}
 				if (input.InGameSelect)
 				{
 					return true;
 				}
 			}
-			else if (this.nodeState != NodeState.Press)
+			else if (nodeState != NodeState.Press)
 			{
-				this.nodeState = NodeState.Normal;
+				nodeState = NodeState.Normal;
 			}
 			return false;
 		}

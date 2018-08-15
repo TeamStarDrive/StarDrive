@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
+using Ship_Game.Debug;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -68,10 +68,10 @@ namespace Ship_Game.AI
             if (!DefensiveForcePool.Remove(ship))
             {
                 if (ship.Active && systoDefend != null)
-                    Debug.DebugInfoScreen.DefenseCoLogsNotInPool();
+                    DebugInfoScreen.DefenseCoLogsNotInPool();
             }
             else if (ship.Active && systoDefend == null)
-                Debug.DebugInfoScreen.DefenseCoLogsSystemNull();                
+                DebugInfoScreen.DefenseCoLogsSystemNull();                
 
 
             bool found = false;
@@ -80,7 +80,7 @@ namespace Ship_Game.AI
                 if (!sysCom.RemoveShip(ship))
                 {
                     if (ship.Active)
-                        Debug.DebugInfoScreen.DefenseCoLogsNotInSystem();                        
+                        DebugInfoScreen.DefenseCoLogsNotInSystem();                        
                 }
                 else found = true;
                 // return; // when sysdefense is safe enable. 
@@ -91,10 +91,10 @@ namespace Ship_Game.AI
                 if (!kv.Value.RemoveShip(ship) ) continue;
                 if (!found)
                     found = true;
-                else Debug.DebugInfoScreen.DefenseCoLogsMultipleSystems();
+                else DebugInfoScreen.DefenseCoLogsMultipleSystems();
 
             }
-            Debug.DebugInfoScreen.DefenseCoLogsNull(found, ship, systoDefend);
+            DebugInfoScreen.DefenseCoLogsNull(found, ship, systoDefend);
             
             
             

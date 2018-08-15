@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System.Collections.Generic;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -38,7 +36,7 @@ namespace Ship_Game
 
         public UnlocksGrid(Array<UnlockItem> Unlocks, Rectangle r)
 		{
-			Vector2 Cursor = new Vector2((float)r.X, (float)r.Y);
+			Vector2 Cursor = new Vector2(r.X, r.Y);
 			int Column = 0;
 			int Row = 0;
 			foreach (UnlockItem item in Unlocks)
@@ -48,7 +46,7 @@ namespace Ship_Game
 					rect = new Rectangle((int)Cursor.X + 32 * Column, (int)Cursor.Y + 32 * Row, 32, 32),
 					item = item
 				};
-				this.GridOfUnlocks.Add(gi);
+				GridOfUnlocks.Add(gi);
 				Row++;
 				if (Row != 2)
 				{

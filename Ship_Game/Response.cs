@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game
 {
 	public sealed class Response
@@ -23,9 +21,5 @@ namespace Ship_Game
 		public string SetResearchTo;
 
         public string UnlockTech;
-
-		public Response()
-		{
-		}
 	}
 }

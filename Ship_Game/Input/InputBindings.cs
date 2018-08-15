@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
@@ -13,7 +10,7 @@ namespace Ship_Game
         Right,
         Middle,
         XButton1,
-        XButton2,
+        XButton2
     }
 
     /// <summary>
@@ -26,7 +23,7 @@ namespace Ship_Game
         {
             OnDown,  // was up, but now is pressed down
             OnHeld,  // continuous event type: while was down before and is down now
-            OnPress, // down and then released. the event is triggered on release (!)
+            OnPress // down and then released. the event is triggered on release (!)
         }
 
         private struct TriggerCondition

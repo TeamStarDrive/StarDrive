@@ -1,11 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using System;
-using System.Collections.Generic;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -78,7 +76,7 @@ namespace Ship_Game
         public static void AddExplosion(Vector3 position, float radius, float intensity, float duration
             , string explosionPath = "", string explosionAnimation = "")
         {
-            Explosion newExp = new Explosion()
+            Explosion newExp = new Explosion
             {
                 duration = 2.25f,
                 pos = position.ToVec2()
@@ -98,7 +96,7 @@ namespace Ship_Game
 
         public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, int nosparks)
         {
-            Explosion newExp = new Explosion()
+            Explosion newExp = new Explosion
             {
                 sparks = false,
                 duration = 2.25f,
@@ -113,7 +111,7 @@ namespace Ship_Game
 
         public static void AddExplosion(Vector3 position, float radius, float intensity, float duration, ShipModule mod)
         {
-            Explosion newExp = new Explosion()
+            Explosion newExp = new Explosion
             {
                 duration = 2.25f,
                 pos = position.ToVec2()
@@ -138,7 +136,7 @@ namespace Ship_Game
 
         public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity, float duration)
         {
-            Explosion newExp = new Explosion()
+            Explosion newExp = new Explosion
             {
                 duration = 2.25f,
                 pos = position.ToVec2()
@@ -152,7 +150,7 @@ namespace Ship_Game
 
         public static void AddProjectileExplosion(Vector3 position, float radius, float intensity, float duration, string which)
         {
-            Explosion newExp = new Explosion()
+            Explosion newExp = new Explosion
             {
                 ExpColor = which,
                 duration = 2.25f,
@@ -167,7 +165,7 @@ namespace Ship_Game
 
         public static void AddWarpExplosion(Vector3 position, float radius, float intensity, float duration)
         {
-            Explosion newExp = new Explosion()
+            Explosion newExp = new Explosion
             {
                 duration = 2.25f,
                 pos = position.ToVec2()

@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -118,35 +117,35 @@ namespace Ship_Game
         private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int) (this.UniverseSize / this.reducer);
+            int granularity = (int) (UniverseSize / reducer);
             foreach (var node in empire.BorderNodes)
             {
                 SolarSystem ss = node.SourceObject as SolarSystem;
                 Planet p = node.SourceObject as Planet;
-                if (this.FTLModifier < 1 && ss != null)
+                if (FTLModifier < 1 && ss != null)
                     weight += 20;
-                if ((this.EnemyFTLModifier < 1 || !this.FTLInNuetralSystems) && ss != null && weight > 1)
+                if ((EnemyFTLModifier < 1 || !FTLInNuetralSystems) && ss != null && weight > 1)
                     weight += 20;
                 if (p != null && weight > 1)
                     weight += 20;
                 float xround = node.Position.X > 0 ? .5f : -.5f;
                 float yround = node.Position.Y > 0 ? .5f : -.5f;
-                int ocx = (int) (node.Position.X / this.reducer + xround);
-                int ocy = (int) (node.Position.Y / this.reducer + yround);
+                int ocx = (int) (node.Position.X / reducer + xround);
+                int ocy = (int) (node.Position.Y / reducer + yround);
                 int cx = ocx + granularity;
                 int cy = ocy + granularity;
                 cy = cy < 0 ? 0 : cy;
                 cy = cy > granularity * 2 ? granularity * 2 : cy;
                 cx = cx < 0 ? 0 : cx;
                 cx = cx > granularity * 2 ? granularity * 2 : cx;
-                Vector2 upscale = new Vector2((float) (ocx * this.reducer),
-                    (float) (ocy * this.reducer));
+                Vector2 upscale = new Vector2(ocx * reducer,
+                    ocy * reducer);
                 if (Vector2.Distance(upscale, node.Position) < node.Radius)
                     grid[cx, cy] = weight;
                 if (weight > 1 || weight == 0 || node.Radius > empire.ProjectorRadius)
                 {
                     float test = node.Radius > empire.ProjectorRadius ? 1 : 2;
-                    int rad = (int) (Math.Ceiling((double) (node.Radius / ((float) reducer) * test)));
+                    int rad = (int) (Math.Ceiling(node.Radius / reducer * test));
                     //rad--;
 
                     int negx = cx - rad;
@@ -166,8 +165,8 @@ namespace Ship_Game
                     {
                         //if (grid[x, y] >= 80 || grid[x, y] <= weight)
                         {
-                            upscale = new Vector2((float) ((x - granularity) * reducer),
-                                (float) ((y - granularity) * reducer));
+                            upscale = new Vector2((x - granularity) * reducer,
+                                (y - granularity) * reducer);
                             if (Vector2.Distance(upscale, node.Position) <= node.Radius * test)
                                 grid[x, y] = weight;
                         }
@@ -235,30 +234,30 @@ namespace Ship_Game
 
         private void ProcessTurnUpdateMisc(float elapsedTime)
         {
-            this.UpdateClickableItems();
-            if (this.LookingAtPlanet)
-                this.workersPanel.Update(elapsedTime);
+            UpdateClickableItems();
+            if (LookingAtPlanet)
+                workersPanel.Update(elapsedTime);
             bool flag1 = false;
             lock (GlobalStats.ClickableSystemsLock)
             {
-                for (int i = 0; i < this.ClickPlanetList.Count; ++i)
+                for (int i = 0; i < ClickPlanetList.Count; ++i)
                 {
-                    ClickablePlanets local_12 = this.ClickPlanetList[i];
-                    if (Vector2.Distance(new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y),
+                    ClickablePlanets local_12 = ClickPlanetList[i];
+                    if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
                             local_12.ScreenPos) <= local_12.Radius)
                     {
                         flag1 = true;
-                        this.TooltipTimer -= 0.01666667f;
-                        this.tippedPlanet = local_12;
+                        TooltipTimer -= 0.01666667f;
+                        tippedPlanet = local_12;
                     }
                 }
             }
-            if (this.TooltipTimer <= 0f && !this.LookingAtPlanet)
-                this.TooltipTimer = 0.5f;
+            if (TooltipTimer <= 0f && !LookingAtPlanet)
+                TooltipTimer = 0.5f;
             if (!flag1)
             {
-                this.ShowingPlanetToolTip = false;
-                this.TooltipTimer = 0.5f;
+                ShowingPlanetToolTip = false;
+                TooltipTimer = 0.5f;
             }
 
             bool flag2 = false;
@@ -266,24 +265,24 @@ namespace Ship_Game
             {
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    for (int local_15 = 0; local_15 < this.ClickableSystems.Count; ++local_15)
+                    for (int local_15 = 0; local_15 < ClickableSystems.Count; ++local_15)
                     {
                         ClickableSystem local_16 = ClickableSystems[local_15];
-                        if (Vector2.Distance(new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y),
+                        if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
                                 local_16.ScreenPos) <= local_16.Radius)
                         {
-                            this.sTooltipTimer -= 0.01666667f;
-                            this.tippedSystem = local_16;
+                            sTooltipTimer -= 0.01666667f;
+                            tippedSystem = local_16;
                             flag2 = true;
                         }
                     }
                 }
-                if (this.sTooltipTimer <= 0f)
-                    this.sTooltipTimer = 0.5f;
+                if (sTooltipTimer <= 0f)
+                    sTooltipTimer = 0.5f;
             }
             if (!flag2)
-                this.ShowingSysTooltip = false;
-            this.Zrotate += 0.03f * elapsedTime;
+                ShowingSysTooltip = false;
+            Zrotate += 0.03f * elapsedTime;
 
             JunkList.ApplyPendingRemovals();
 
@@ -304,16 +303,16 @@ namespace Ship_Game
             {
                 using (BombList.AcquireReadLock())
                 {
-                    for (int local_19 = 0; local_19 < this.BombList.Count; ++local_19)
+                    for (int local_19 = 0; local_19 < BombList.Count; ++local_19)
                     {
-                        Bomb local_20 = this.BombList[local_19];
+                        Bomb local_20 = BombList[local_19];
                         if (local_20 != null)
                             local_20.Update(elapsedTime);
                     }
                 }
                 BombList.ApplyPendingRemovals();
             }
-            this.anomalyManager.AnomaliesList.ApplyPendingRemovals();
+            anomalyManager.AnomaliesList.ApplyPendingRemovals();
             if (elapsedTime > 0)
             {
                 ShieldManager.Update();

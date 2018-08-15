@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ship_Game
+﻿namespace Ship_Game
 {
     public enum UniverseKeys
     {
@@ -22,6 +16,6 @@ namespace Ship_Game
         Fleet8,
         Fleet9,
 
-        ShowPieMenu,
+        ShowPieMenu
     }
 }

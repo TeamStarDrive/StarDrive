@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
@@ -39,7 +38,6 @@ namespace Ship_Game.Universe.SolarBodies.AI
             AvgTradingColonists = 0;
             ImportTargets = planet.Owner.GetPlanets().FilterBy(p => p.IsExporting());
             ImportTargets.Sort(p => p.Center.SqDist(planet.Center));
-
         }
 
         public float AvgTradingFood {get; private set;}

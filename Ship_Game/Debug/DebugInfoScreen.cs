@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Universe.SolarBodies.AI;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -27,7 +26,7 @@ namespace Ship_Game.Debug
         SpatialManager,
         input,
         Tech,
-        Last, // dummy value
+        Last // dummy value
     }
     public struct DebugTextBlock
     {

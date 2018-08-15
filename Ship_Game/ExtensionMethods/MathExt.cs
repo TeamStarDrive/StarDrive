@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using static System.Math;
 
@@ -416,14 +418,14 @@ namespace Ship_Game
             return deltaV / deltaTime;
         }
 
-        public static Vector2 PredictImpact(this Ships.Ship ourShip, GameplayObject target)
+        public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
-            return new Gameplay.ImpactPredictor(ourShip, target).Predict();
+            return new ImpactPredictor(ourShip, target).Predict();
         }
 
-        public static Vector2 PredictImpact(this Gameplay.Projectile proj, GameplayObject target)
+        public static Vector2 PredictImpact(this Projectile proj, GameplayObject target)
         {
-            return new Gameplay.ImpactPredictor(proj, target).Predict();
+            return new ImpactPredictor(proj, target).Predict();
         }
 
         // can be used for collision detection

@@ -31,38 +31,38 @@ namespace Ship_Game
 			this.p = p;
 			if (ScreenWidth <= 1280)
 			{
-				this.LowRes = true;
+				LowRes = true;
 			}
 			Rectangle titleRect = new Rectangle(5, 44, 405, 80);
-			if (this.LowRes)
+			if (LowRes)
 			{
 				titleRect.Width = 365;
 			}
-			this.TitleBar = new Menu2(titleRect);
-			this.TitlePos = new Vector2((float)(titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(p.Name).X / 2f, (float)(titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
+			TitleBar = new Menu2(titleRect);
+			TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
 			Rectangle leftRect = new Rectangle(5, titleRect.Y + titleRect.Height + 5, titleRect.Width, 
                 ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
-			this.PlanetMenu = new Menu1(leftRect);
+			PlanetMenu = new Menu1(leftRect);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-			this.PlanetInfo = new Submenu(psubRect);
-			this.PlanetInfo.AddTab("Planet Info");
-			this.PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
+			PlanetInfo = new Submenu(psubRect);
+			PlanetInfo.AddTab("Planet Info");
+			PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
 		}
 
 		public override void Draw(SpriteBatch batch)
 		{
-			float x = (float)Mouse.GetState().X;
+			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
-			Vector2 MousePos = new Vector2(x, (float)state.Y);
-			this.TitleBar.Draw();
+			Vector2 MousePos = new Vector2(x, state.Y);
+			TitleBar.Draw();
 			Color c = new Color(255, 239, 208);
-			batch.DrawString(Fonts.Laserian14, this.p.Name, this.TitlePos, c);
-			this.PlanetMenu.Draw();
-			this.PlanetInfo.Draw();
-			batch.Draw(ResourceManager.Texture(string.Concat("Planets/", this.p.PlanetType)), this.PlanetIcon, Color.White);
-			Vector2 PNameCursor = new Vector2((float)(this.PlanetInfo.Menu.X + 20), (float)(this.PlanetInfo.Menu.Y + 45));
-			batch.DrawString(Fonts.Arial20Bold, this.p.Name, PNameCursor, new Color(255, 239, 208));
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
+			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
+			PlanetMenu.Draw();
+			PlanetInfo.Draw();
+			batch.Draw(ResourceManager.Texture(string.Concat("Planets/", p.PlanetType)), PlanetIcon, Color.White);
+			Vector2 PNameCursor = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
+			batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, new Color(255, 239, 208));
+			PNameCursor.Y = PNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
 			string fmt = "#.#";
 			float amount = 80f;
 			if (GlobalStats.IsGerman)
@@ -71,47 +71,47 @@ namespace Ship_Game
 			}
 			batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
 			Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-			batch.DrawString(Fonts.Arial12Bold, this.p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			batch.DrawString(Fonts.Arial12Bold, p.GetTypeTranslation(), InfoCursor, new Color(255, 239, 208));
+			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
-			SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
+			SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			float population = this.p.Population / 1000f;
+			float population = p.Population / 1000f;
 			string str = population.ToString(fmt);
-			float maxPopulation = (this.p.MaxPopulation + this.p.MaxPopBonus) / 1000f;
+			float maxPopulation = (p.MaxPopulation + p.MaxPopBonus) / 1000f;
 			spriteBatch1.DrawString(arial12Bold, string.Concat(str, " / ", maxPopulation.ToString(fmt)), InfoCursor, new Color(255, 239, 208));
 			Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(75);
 			}
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.Fertility.ToString(fmt), InfoCursor, new Color(255, 239, 208));
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.Fertility.ToString(fmt), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(20);
 			}
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+			PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
-			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.MineralRichness.ToString(fmt), InfoCursor, new Color(255, 239, 208));
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.ToString(fmt), InfoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(MousePos))
 			{
 				ToolTip.CreateTooltip(21);
 			}
-			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
-			batch.DrawString(Fonts.Arial12Bold, this.parseText(this.p.Description, (float)(this.PlanetInfo.Menu.Width - 40)), PNameCursor, new Color(255, 239, 208));
+			PNameCursor.Y = PNameCursor.Y + Fonts.Arial12Bold.LineSpacing * 2;
+			batch.DrawString(Fonts.Arial12Bold, parseText(p.Description, PlanetInfo.Menu.Width - 40), PNameCursor, new Color(255, 239, 208));
 		}
 
 		public override bool HandleInput(InputState input)
 		{
-			this.currentMouse = Mouse.GetState();
-			this.previousMouse = Mouse.GetState();
+			currentMouse = Mouse.GetState();
+			previousMouse = Mouse.GetState();
             return base.HandleInput(input);
 		}
 
@@ -119,8 +119,8 @@ namespace Ship_Game
 		{
 			string line = string.Empty;
 			string returnString = string.Empty;
-			string[] strArrays = text.Split(new char[] { ' ' });
-			for (int i = 0; i < (int)strArrays.Length; i++)
+			string[] strArrays = text.Split(' ');
+			for (int i = 0; i < strArrays.Length; i++)
 			{
 				string word = strArrays[i];
 				if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)

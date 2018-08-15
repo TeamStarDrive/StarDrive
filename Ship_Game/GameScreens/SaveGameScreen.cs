@@ -12,21 +12,21 @@ namespace Ship_Game
             : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDate.ToString(screen.StarDateFmt), "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
         {
             this.screen = screen;
-            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Games/");
+            Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Games/");
             //this.selectedFile = new FileData();
         }
 
         public override void DoSave()
         {
-            SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
-            this.ExitScreen();
+            SavedGame savedGame = new SavedGame(screen, EnterNameArea.Text);
+            ExitScreen();
         }
 
         protected override void DeleteFile(object sender, EventArgs e)
         {
             try
             {
-                FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
+                FileInfo headerToDel = new FileInfo(string.Concat(Path, "Headers/", fileToDel.Name.Substring(0, fileToDel.Name.LastIndexOf('.'))));       // find header of save file
                 //Log.Info(headerToDel.FullName);
                 headerToDel.Delete();
             }

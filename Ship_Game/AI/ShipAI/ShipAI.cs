@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI
 {
@@ -40,7 +41,7 @@ namespace Ship_Game.AI
         {
             Owner = owner;
             State = AIState.AwaitingOrders;
-            WayPoints = new Ships.AI.WayPoints(Owner);
+            WayPoints = new WayPoints(Owner);
         }
 
         private void Colonize(Planet TargetPlanet)
@@ -222,7 +223,8 @@ namespace Ship_Game.AI
                 DoOrbit(goal.TargetPlanet, elapsedTime);
                 return;
             }
-            else if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
+
+            if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
                 ThrustTowardsPosition(goal.TargetPlanet.Center, elapsedTime, 200);
                 return;
@@ -288,11 +290,6 @@ namespace Ship_Game.AI
             if (!Owner.isTurning)
             {
                 DeRotate();
-                return;
-            }
-            else
-            {
-                return;
             }
         }
 
@@ -543,12 +540,9 @@ namespace Ship_Game.AI
                                 if (state == AIState.ReturnToHangar)
                                 {
                                     DoReturnToHangar(elapsedTime);
-                                    break;
                                 }
-                                else
-                                {
-                                    break;
-                                }
+
+                                break;
                             }
                         }
                     }
@@ -949,8 +943,6 @@ namespace Ship_Game.AI
                 AwaitOrders(elapsedTime);
                 State = AIState.SystemTrader;
             }
-
-            return;
         }
 
         private void AIStateEscort(float elapsedTime)

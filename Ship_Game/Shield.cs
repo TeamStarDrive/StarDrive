@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Lights;
-
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {

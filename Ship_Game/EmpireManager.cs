@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -124,7 +123,7 @@ namespace Ship_Game
             var empire = new Empire
             {
                 data = new EmpireData(),
-                Id = -1,
+                Id = -1
             };
             empire.data.Traits = new RacialTrait {Name = "Void"};
             return empire;
@@ -163,8 +162,8 @@ namespace Ship_Game
             empire.data.Traits.Singular = data.RebelSing;
             empire.data.Traits.Plural = data.RebelPlur;
             empire.isFaction = true;
-            EmpireManager.Add(empire);
-            foreach (Empire key in EmpireManager.Empires)
+            Add(empire);
+            foreach (Empire key in Empires)
             {
                 key.AddRelation(empire);
                 empire.AddRelation(key);

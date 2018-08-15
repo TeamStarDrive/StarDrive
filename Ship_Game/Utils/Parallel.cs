@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Management;
 using System.Threading;
 
 namespace Ship_Game
@@ -145,7 +145,7 @@ namespace Ship_Game
             {
                 if (PhysicalCoreCount == 0)
                 {
-                    var results = new System.Management.ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get();
+                    var results = new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get();
                     if (results.Count > 0)
                     {
                         foreach (var item in results)

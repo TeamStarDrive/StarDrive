@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.IO;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.IO;
 
 namespace Ship_Game
 {
@@ -28,7 +28,7 @@ namespace Ship_Game
 
         protected UIButton DoBtn;
 
-        public enum SLMode { Load, Save };
+        public enum SLMode { Load, Save }
 
         protected SLMode mode;
 
@@ -59,9 +59,9 @@ namespace Ship_Game
             this.InitText = InitText;
             this.TitleText = TitleText;
             this.TabText = TabText;
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
         public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) 
@@ -94,12 +94,12 @@ namespace Ship_Game
             
             try
             {
-                this.fileToDel.Delete();        // delete the file
+                fileToDel.Delete();        // delete the file
             } catch { }
 
-            int iAT = this.SavesSL.FirstVisibleIndex;
-            this.LoadContent();
-            this.SavesSL.FirstVisibleIndex = iAT;
+            int iAT = SavesSL.FirstVisibleIndex;
+            LoadContent();
+            SavesSL.FirstVisibleIndex = iAT;
 
         }
 
@@ -142,11 +142,11 @@ namespace Ship_Game
 
         protected void SwitchFile(ScrollList.Entry e)
         {
-            if( SLMode.Load == this.mode )
-                this.selectedFile = (e.item as FileData);
+            if( SLMode.Load == mode )
+                selectedFile = (e.item as FileData);
 
             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-            this.EnterNameArea.Text = (e.item as FileData).FileName;
+            EnterNameArea.Text = (e.item as FileData).FileName;
         }
 
 
@@ -173,9 +173,9 @@ namespace Ship_Game
                     SwitchFile(e);
                 }
             }
-            if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
             if (SLMode.Save == mode)       // Only check name field change when saving
@@ -210,24 +210,24 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            this.Window = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
-            this.SaveMenu = new Menu1(this.Window);
-            this.close = new CloseButton(this, new Rectangle(this.Window.X + this.Window.Width - 35, this.Window.Y + 10, 20, 20));
-            var sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
-            this.NameSave = new Submenu(sub);
-            this.NameSave.AddTab(this.TitleText);
-            this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
-            this.AllSaves = new Submenu(scrollList);
-            this.AllSaves.AddTab(this.TabText);
+            Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
+            SaveMenu = new Menu1(Window);
+            close = new CloseButton(this, new Rectangle(Window.X + Window.Width - 35, Window.Y + 10, 20, 20));
+            var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+            NameSave = new Submenu(sub);
+            NameSave.AddTab(TitleText);
+            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
+            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
+            AllSaves = new Submenu(scrollList);
+            AllSaves.AddTab(TabText);
             SavesSL = new ScrollList(AllSaves, eHeight, ListControls.Cancel);
             InitSaveList();
 
             EnternamePos = TitlePosition;
             EnterNameArea = new UITextEntry();
 
-            EnterNameArea.Text = this.InitText;
-            EnterNameArea.ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(this.EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+            EnterNameArea.Text = InitText;
+            EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
             string title = mode == SLMode.Save ? "Save" : "Load";
             DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, title, b =>
@@ -283,32 +283,32 @@ namespace Ship_Game
 
             public FileData(FileInfo fileLink, object data, string fileName)
             {
-                this.icon = ResourceManager.Texture("ShipIcons/Wisp");
-                this.FileName = fileName;
-                this.Info = "";
-                this.ExtraInfo = "";
-                this.FileLink = fileLink;
-                this.Data = data;
+                icon = ResourceManager.Texture("ShipIcons/Wisp");
+                FileName = fileName;
+                Info = "";
+                ExtraInfo = "";
+                FileLink = fileLink;
+                Data = data;
             }
 
             public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo)
             {
-                this.icon = ResourceManager.Texture("ShipIcons/Wisp");
-                this.FileName = fileName;
-                this.Info = info;
-                this.ExtraInfo = extraInfo;
-                this.FileLink = fileLink;
-                this.Data = data;
+                icon = ResourceManager.Texture("ShipIcons/Wisp");
+                FileName = fileName;
+                Info = info;
+                ExtraInfo = extraInfo;
+                FileLink = fileLink;
+                Data = data;
             }
 
             public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo, Texture2D icon)
             {
                 this.icon = icon;
-                this.FileName = fileName;
-                this.Info = info;
-                this.ExtraInfo = extraInfo;
-                this.FileLink = fileLink;
-                this.Data = data;
+                FileName = fileName;
+                Info = info;
+                ExtraInfo = extraInfo;
+                FileLink = fileLink;
+                Data = data;
             }
         }
     }

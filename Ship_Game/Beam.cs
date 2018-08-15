@@ -1,12 +1,10 @@
-using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
-using Ship_Game.AI;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-
 
 namespace Ship_Game
 {
@@ -308,7 +306,7 @@ namespace Ship_Game
                 if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
                 {
                     if (ship != null)
-                        Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
+                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
                     Log.Info("Beam killed because of angle");
                     Die(null, true);
                     return;

@@ -1,13 +1,13 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -256,7 +256,10 @@ namespace Ship_Game
                     });
                     RestoreCommodities(p, ring.Planet);
                     p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()
-                    
+
+                    // @todo This is a hack. Crunchy must properly design TradeAI
+                    if (p.Owner != null)
+                        p.TradeAI = new Universe.SolarBodies.AI.TradeAI(p);
                 }
             }
             return system;
@@ -378,7 +381,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
-            text = HelperFunctions.ParseText(Fonts.Arial12Bold, ResourceManager.LoadRandomAdvice(), 500f);
+            text = Fonts.Arial12Bold.ParseText(ResourceManager.LoadRandomAdvice(), 500f);
             base.LoadContent();
         }
 

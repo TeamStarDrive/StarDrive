@@ -1,13 +1,13 @@
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
-using SgMotion;
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml.Serialization;
 using System.Linq;
+using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using SgMotion;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -721,10 +721,9 @@ namespace Ship_Game
             content = content ?? RootContent;
             if (RawContentLoader.IsSupportedMesh(modelName))
                 return SceneObjectFromStaticMesh(content, modelName);
-            else if (animated)
+            if (animated)
                 return SceneObjectFromSkinnedModel(content, modelName);
-            else 
-                return SceneObjectFromModel(content, modelName);
+            return SceneObjectFromModel(content, modelName);
         }
 
         public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
@@ -793,22 +792,28 @@ namespace Ship_Game
 
 
         // Gets a loaded texture using the given abstract texture path
-        public static Texture2D Texture(string texturePath, bool returnNull) => Texture(texturePath, returnNull ? "" : "NewUI/x_red");
-        
-        public static Texture2D Texture(string texturePath, string defaultTex = "NewUI/x_red")
+        public static Texture2D TextureOrNull(string texturePath)
         {
-            if (texturePath.NotEmpty() && Textures.TryGetValue(texturePath, out Texture2D texture))
+            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : null;
+        }
+
+        public static Texture2D TextureOrDefault(string texturePath, string defaultTex)
+        {
+            return Textures.TryGetValue(texturePath, out Texture2D texture) ? texture : Texture(defaultTex);
+        }
+
+        public static Texture2D Texture(string texturePath)
+        {
+            if (Textures.TryGetValue(texturePath, out Texture2D texture))
                 return texture;
-            if (defaultTex == "")
-                return null;
             if (LastFailedTexture != texturePath)
             {
                 LastFailedTexture = texturePath;
-                Log.WarningWithCallStack($"texture path not found: {texturePath} replaces with NewUI / x_red");
+                Log.WarningWithCallStack($"texture path not found: '{texturePath}' replacing with 'NewUI/x_red'");
             }
-            return Textures[defaultTex];
+            return Textures["NewUI/x_red"];
         }
-        
+
         public static bool TextureLoaded(string texturePath)
         {
             return Textures.ContainsKey(texturePath);
