@@ -1468,7 +1468,7 @@ namespace Ship_Game
                 if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
                     ParentSystem.OwnerList.Add(planet.Owner);                
             }
-            ((Planet)this).TradeAI = new TradeAI((Planet)this);
+            ((Planet)this).TradeAI.ClearHistory();
             colonyType = Planet.ColonyType.Colony;                        
             GovernorOn = !newOwner.isPlayer || newOwner.AutoColonize;
             if (GovernorOn)
