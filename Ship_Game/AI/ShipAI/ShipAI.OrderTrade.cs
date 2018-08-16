@@ -144,7 +144,7 @@ namespace Ship_Game.AI
                 OrderMoveTowardsPosition(start.Center + RandomMath.RandomDirection() * 500f, 0f,
                     new Vector2(0f, -1f), true, start);
 
-                AddShipGoal(Plan.PickupGoods, Vector2.Zero, 0f);
+                AddShipGoal(GoodToPlan.Pickup(trading), Vector2.Zero, 0f);
             }
             else if(end == null || Owner.GetCargo().Good != trading)            
             {
@@ -187,22 +187,6 @@ namespace Ship_Game.AI
             FoodOrProd = Goods.Production;
         }
 
-        private void GetShipment(Goods good)
-        {
-            if (end == null || start != null)
-                return;
-            Cargo cargo = Owner.GetCargo();
-            if (cargo.Good == good) return;
-            start = end.TradeAI.GetNearestSupplierFor(good);
-            if (start == null)
-            {
-                var planets = GetTradePlanets(good, Planet.GoodState.EXPORT);
-                if (planets.Length <= 0)
-                    return;
-                start = planets.FindMin(p => p.Center.SqDist(Owner.Center));
-            }                        
-        }
-
         private TradeAI.TradeRoute[] GetTradeRoutes(Goods good, Planet[] tradePlanets)
         {
             var routes = new TradeAI.TradeRoute[tradePlanets.Length];
@@ -235,7 +219,7 @@ namespace Ship_Game.AI
             WayPoints.Clear();
             OrderQueue.Clear();            
             OrderMoveTowardsPosition(end.Center, 0f, new Vector2(0f, -1f), true, end);
-            AddShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f);
+            AddShipGoal(GoodToPlan.DropOff(good), Vector2.Zero, 0f);
             State = AIState.SystemTrader;
             return end != null;
         }
@@ -318,50 +302,63 @@ namespace Ship_Game.AI
                 return;
             }
       
-            Planet[] safePlanets = Owner.loyalty.GetPlanets().FilterBy(combat => combat.ParentSystem.combatTimer <= 0f);
+            //Planet[] safePlanets = Owner.loyalty.GetPlanets().FilterBy(combat => combat.ParentSystem.combatTimer <= 0f);
             OrderQueue.Clear();
 
             // RedFox: We have already have colonists, so find a drop-off planet
-            if (Owner.GetColonists() > 0f)
-            {
-                // try to find a reasonable drop-off planet
-                if (SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget))
-                {
-                    OrderMoveTowardsPosition(end.Center, 0f, Vector.Up(), true, end);
-                    State = AIState.PassengerTransport;
-                    FoodOrProd = Goods.Colonists;
-                    AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
-                    end.IncomingColonists += Owner.GetColonists();
-                }
-                // try to find ANY safe planet
-                else if (SelectPlanetByFilter(safePlanets, out end, p => p.Population < p.MaxPopulation))
-                {
-                    OrderMoveTowardsPosition(end.Center, 0f, Vector.Up(), true, end);
-                    State = AIState.PassengerTransport;
-                    FoodOrProd = Goods.Colonists;
-                    AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
-                    end.IncomingColonists += Owner.GetColonists();
-                }
-                else
-                {
-                    Owner.ClearCargo(); // Space the colonists
-                }
-                return;
-            }
+            //if (Owner.GetColonists() > 0f)
+            //{
+            //    // try to find a reasonable drop-off planet
+            //    if (SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget))
+            //    {
+            //        OrderMoveTowardsPosition(end.Center, 0f, Vector.Up(), true, end);
+            //        State = AIState.PassengerTransport;
+            //        FoodOrProd = Goods.Colonists;
+            //        AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
+            //        end.IncomingColonists += Owner.GetColonists();
+            //    }
 
+            //    //try to find ANY safe planet
+            //    else if (SelectPlanetByFilter(safePlanets, out end, p => p.Population < p.MaxPopulation))
+            //    {
+            //        OrderMoveTowardsPosition(end.Center, 0f, Vector.Up(), true, end);
+            //        State = AIState.PassengerTransport;
+            //        FoodOrProd = Goods.Colonists;
+            //        AddShipGoal(Plan.DropoffPassengers, Vector2.Zero, 0f);
+            //        end.IncomingColonists += Owner.GetColonists();
+            //    }
+            //    else
+            //    {
+            //        Owner.ClearCargo(); // Space the colonists
+            //    }
+            //    return;
+            //}
+            if (DeliverShipment(Goods.Colonists))
+            {
+                State = AIState.PassengerTransport;
+                Owner.TradingProd = false;
+                Owner.TradingFood = false;
+                FoodOrProd = Goods.Colonists;
+            }
+            else
+            {
+                Owner.TradingProd = false;
+                Owner.TradingFood = false;
+                FoodOrProd = Goods.None;
+            }
             // RedFox: Where to load & drop nearest Population
-            SelectPlanetByFilter(safePlanets, out start, PassengerPickUpTarget);
-            SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
+            //SelectPlanetByFilter(safePlanets, out start, PassengerPickUpTarget);
+            //SelectPlanetByFilter(safePlanets, out end, PassengerDropOffTarget);
 
             // go pick them up!
-            if (start != null && end != null)
+            if (start != null && end != null && start != end)
             {
                 OrderMoveTowardsPosition(start.Center.RandomOffset(500f), 0f, Vector.Up(), true, start);
                 end.IncomingColonists += Owner.CargoSpaceMax; // resort colony adverts for suckers
                 start.IncomingColonists -= Owner.CargoSpaceMax;
-                AddShipGoal(Plan.PickupPassengers, Vector2.Zero, 0f);
+                AddShipGoal(GoodToPlan.Pickup(FoodOrProd), Vector2.Zero, 0f);
             }
-            else
+            else if (end == null || Owner.GetCargo().Good != Goods.Colonists)
             {
                 AwaitClosest = start ?? end;
                 start = null;
@@ -370,6 +367,8 @@ namespace Ship_Game.AI
             Owner.TradeTimer = 5f;
             State = AIState.PassengerTransport;
             FoodOrProd = Goods.Colonists;
+            end?.TradeAI.AddTrade(Owner);
+            start?.TradeAI.AddTrade(Owner);
         }
 
         public void OrderTransportPassengersFromSave()
@@ -455,19 +454,6 @@ namespace Ship_Game.AI
             ChooseDropDestination,
             GotoDrop,
             DoDrop
-        }
-
-        struct TradePlanets
-        {
-            public Array<Planet> Planets;
-            public Array<Planet> SecondaryPlanets;
-            public TradePlanets(bool init)
-            {
-                
-                Planets = new Array<Planet>();
-                SecondaryPlanets = new Array<Planet>();
-                
-            }
         }
     }
 }
