@@ -185,12 +185,27 @@ namespace Ship_Game.Universe.SolarBodies.AI
             public Planet Start;
             public int Eta;
         }
+
+        private float GetMaxAmount(Goods good)
+        {
+            switch(good)
+            {
+                case Goods.Food:
+                case Goods.Production:
+                    return TradePlanet.MaxStorage;
+                case Goods.Colonists:
+                    return TradePlanet.MaxPopulation / 1000f;
+
+            }
+            return 0;
+        }
+
         //wip
         public TradeRoute GetTradeRoute(Goods good, Ship ship)
         {
             float incoming = PredictedTradeFor(good, ShipAI.Plan.DropOffGoods);
             TradeRoute route = new TradeRoute { Eta = int.MaxValue };
-            if (incoming > TradePlanet.MaxStorage) return route;
+            if (incoming > GetMaxAmount(good)) return route;
             if (ship.loyalty != TradePlanet.Owner) return route;
             Planet[] potentialSources = ImportTargets.FilterBy(exporter =>
             {
