@@ -47,7 +47,6 @@ namespace Ship_Game
         public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(espionageScreen, r)
         {
             EspionageScreen = espionageScreen;
-            espionageScreen.Add(this);
 
             ComponentRect = r;
             ScreenManager = Empire.Universe.ScreenManager;
@@ -59,8 +58,7 @@ namespace Ship_Game
 
             Rectangle c = ComponentRect;
             c.X = OpsSubRect.X;
-            Submenu opssub = new Submenu(c);
-            OpsSL = new ScrollList(opssub, 30);
+            OpsSL = new ScrollList(new Submenu(c), 30);
             Training        = new MissionEntry(AgentMission.Training, this);
             Infiltrate      = new MissionEntry(AgentMission.Infiltrate, this);
             Assassinate     = new MissionEntry(AgentMission.Assassinate, this);
@@ -85,11 +83,14 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            Texture2D money    = ResourceManager.Texture("NewUI/icon_money");
+            Texture2D iconLock = ResourceManager.Texture("NewUI/icon_lock");
+
             batch.FillRectangle(SubRect, Color.Black);
             AgentSL.Draw(batch);
             RecruitButton.Draw(ScreenManager);
             var moneyRect = new Rectangle(RecruitButton.r.X, RecruitButton.r.Y + 30, 21, 20);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_money"), moneyRect, Color.White);
+            batch.Draw(money, moneyRect, Color.White);
 
             var costPos = new Vector2(moneyRect.X + 25, moneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2);
 
@@ -99,13 +100,13 @@ namespace Ship_Game
             base.Draw(batch);
 
             var spyLimit = new Rectangle(moneyRect.X + 65, moneyRect.Y, 21, 20);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_lock"), spyLimit, Color.White);
+            batch.Draw(iconLock, spyLimit, Color.White);
             var spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
 
-            empirePlanetSpys = EmpireManager.Player.GetPlanets().Count / 3 + 3;
+            empirePlanetSpys = EmpireManager.Player.NumPlanets / 3 + 3;
             spyLimitCount = (empirePlanetSpys - EmpireManager.Player.data.AgentList.Count);
             if (empirePlanetSpys < 0) empirePlanetSpys = 0;
-            batch.DrawString(Fonts.Arial12, string.Concat("For Hire : ", spyLimitCount.ToString(), " / ", empirePlanetSpys.ToString()), spyLimitPos, Color.White);
+            batch.DrawString(Fonts.Arial12, $"For Hire : {spyLimitCount} / {empirePlanetSpys}", spyLimitPos, Color.White);
 
             foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
             {
