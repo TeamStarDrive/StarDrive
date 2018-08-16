@@ -155,9 +155,9 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, new Color(255, 239, 208));
-            EMenu.Draw();
+            EMenu.Draw(batch);
             Color TextColor = new Color(118, 102, 67, 50);
             ShipSL.Draw(ScreenManager.SpriteBatch);
             cb_hide_proj.Draw(ScreenManager.SpriteBatch);

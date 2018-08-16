@@ -56,7 +56,7 @@ namespace Ship_Game
                 Vector2 pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
                 batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
             }
-            window.Draw();
+            window.Draw(batch);
 
             Save.Enabled = SavedGame.NotSaving;
             base.Draw(batch);

@@ -999,7 +999,7 @@ namespace Ship_Game
                 rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
                 numTraits++;
             }
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
             Left.Draw();
             Traits.Draw();
