@@ -53,7 +53,7 @@ namespace Ship_Game
             Add(new OperationsPanel(this, operationsRect));
 
             var agentComponentRect = new Rectangle(agentsRect.X + 20, agentsRect.Y + 35, agentsRect.Width - 40, agentsRect.Height - 95);
-            Agents = new AgentComponent(this, agentComponentRect, operationsRect);
+            Agents = Add(new AgentComponent(this, agentComponentRect, operationsRect));
 
             GameAudio.MuteRacialMusic();
         }
@@ -238,15 +238,9 @@ namespace Ship_Game
 
         private class AgentsPanel : UIPanel
         {
-            private readonly EspionageScreen Screen;
             public AgentsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
             {
-                Screen = screen;
                 Label(rect.X + 20, rect.Y + 10, 6090, Fonts.Arial20Bold);
-            }
-            public override void Draw(SpriteBatch batch)
-            {
-                base.Draw(batch);
             }
         }
 
