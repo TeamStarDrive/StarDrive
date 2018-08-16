@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            Window.Draw();
+            Window.Draw(batch);
             string title     = Localizer.Token(310);
             SpriteFont arial12Bold     = Fonts.Arial12Bold;
             Vector2 cursor   = new Vector2(Window.Menu.X + Window.Menu.Width / 2 - arial12Bold.MeasureString(title).X / 2f, Window.Menu.Y + 20);
