@@ -99,151 +99,140 @@ namespace Ship_Game
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        private class EmpiresPanel : UIElementV2
+        private class EmpiresPanel : UIElementContainer
         {
             private readonly EspionageScreen Screen;
-            private readonly Array<RaceEntry> Races = new Array<RaceEntry>();
             private readonly ScrollList OperationsSL;
 
             public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
             {
                 Screen = screen;
 
-                var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, operationsRect.Width - 40, operationsRect.Height - 45);
+                var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
+                                            operationsRect.Width - 40, operationsRect.Height - 45);
                 OperationsSL = new ScrollList(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
 
+                var empires = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
-                {
-                    if (e != EmpireManager.Player)
-                    {
-                        if (e.isFaction)
-                            continue;
-                    }
-                    else
-                    {
-                        Screen.SelectedEmpire = e;
-                    }
-                    Races.Add(new RaceEntry { e = e });
-                }
+                    if (!e.isFaction) empires.Add(e);
 
-                var cursor = new Vector2(Screen.ScreenWidth / 2f - 148f * Races.Count / 2, rect.Y + 10);
-                base.Pos = cursor;
-                base.Size = new Vector2(Races.Count * 148, 188);
-                int j = 0;
-                foreach (RaceEntry re in Races)
+                float x = Screen.ScreenWidth / 2f - (148f * empires.Count) / 2f;
+                Pos = new Vector2(x, rect.Y + 10);
+                BeginHLayout(Pos.X + 10, rect.Y + 40, 148);
+                foreach (Empire e in empires)
                 {
-                    re.container = new Rectangle((int)cursor.X + 10 + j * 148, rect.Y + 40, 124, 148);
-                    ++j;
+                    Vector2 pos = LayoutNext();
+                    var r = new Rectangle((int)pos.X, (int)pos.Y, 134, 148);
+                    Add(new EmpireButton(screen, e, r, OnEmpireSelected));
                 }
+                Vector2 end = EndLayout();
+
+                Size = new Vector2(end.X, 188);
+                Screen.SelectedEmpire = EmpireManager.Player;
             }
 
-            public override void Draw(SpriteBatch batch)
+            private void OnEmpireSelected(EmpireButton button)
             {
-                foreach (RaceEntry race in Races)
-                    if (!race.e.isFaction)
-                        DrawRaceEntry(batch, race);
+                if (EmpireManager.Player == button.Empire || EmpireManager.Player.GetRelations(button.Empire).Known)
+                {
+                    Screen.SelectedEmpire = button.Empire;
+                    if (EmpireManager.Player == button.Empire)
+                    {
+                        foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
+                            f.Get<Operation>().Selected = false;
+                    }
+                    Screen.Agents.Reinitialize();
+                }
+            }
+        }
+
+
+        private class EmpireButton : UIElementV2
+        {
+            public readonly Empire Empire;
+            private readonly EspionageScreen Screen;
+            private readonly Action<EmpireButton> OnClick;
+
+            public EmpireButton(EspionageScreen screen, Empire e, Rectangle rect, Action<EmpireButton> onClick) : base(null, rect)
+            {
+                Empire = e;
+                Screen = screen;
+                OnClick = onClick;
             }
 
             public override bool HandleInput(InputState input)
             {
-                if (input.InGameSelect && HandleSelectEmpire(input))
+                if (input.InGameSelect && Rect.HitTest(input.CursorPosition))
                 {
-                    Screen.Agents.Reinitialize();
+                    GameAudio.PlaySfxAsync("echo_affirm");
+                    OnClick(this);
                     return true;
                 }
                 return false;
             }
 
-            private bool HandleSelectEmpire(InputState input)
-            {
-                foreach (RaceEntry race in Races)
-                {
-                    if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)
-                    {
-                        if (EmpireManager.Player == race.e && race.container.HitTest(input))
-                        {
-                            Screen.SelectedEmpire = race.e;
-                            GameAudio.PlaySfxAsync("echo_affirm");
-                            foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
-                                f.Get<Operation>().Selected = false;
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        if (race.container.HitTest(input))
-                        {
-                            Screen.SelectedEmpire = race.e;
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-
-            private void DrawRaceEntry(SpriteBatch batch, RaceEntry race)
+            public override void Draw(SpriteBatch batch)
             {
                 // red background:
-                if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
+                if (EmpireManager.Player != Empire && EmpireManager.Player.GetRelations(Empire).AtWar && !Empire.data.Defeated)
                 {
-                    var war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4,
-                        race.container.Height + 4);
-                    batch.FillRectangle(war, Color.Red);
+                    batch.FillRectangle(Rect.Bevel(2), Color.Red);
                 }
 
                 void DrawRacePortrait()
                 {
-                    var nameCursor =
-                        new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f,
-                            race.container.Y + 148 + 8);
-                    batch.Draw(ResourceManager.Texture("Portraits/" + race.e.data.PortraitName), race.container, Color.White);
-                    batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                    batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, nameCursor, Color.White);
+                    batch.Draw(ResourceManager.Texture("Portraits/" + Empire.data.PortraitName), Rect, Color.White);
+                    batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), Rect, Color.White);
+
+                    Vector2 size = Fonts.Arial12Bold.MeasureString(Empire.data.Traits.Name);
+                    var nameCursor = new Vector2(Rect.X + 62 - size.X / 2f, Rect.Y + 148 + 8);
+                    batch.DrawString(Fonts.Arial12Bold, Empire.data.Traits.Name, nameCursor, Color.White);
                 }
 
-                if (race.e.data.Defeated)
+                if (Empire.data.Defeated)
                 {
                     DrawRacePortrait();
 
-                    if (race.e.data.AbsorbedBy == null)
+                    if (Empire.data.AbsorbedBy == null)
                     {
-                        batch.Draw(ResourceManager.Texture("NewUI/x_red"), race.container, Color.White);
+                        batch.Draw(ResourceManager.Texture("NewUI/x_red"), Rect, Color.White);
                     }
                     else
                     {
-                        var r = new Rectangle(race.container.X, race.container.Y, 124, 124);
+                        var r = new Rectangle(Rect.X, Rect.Y, 124, 124);
                         KeyValuePair<string, Texture2D> item =
                             ResourceManager.FlagTextures[
-                                EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
-                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
+                                EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy).data.Traits.FlagIndex];
+                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy).EmpireColor);
                     }
                 }
-                else if (EmpireManager.Player == race.e || EmpireManager.Player.GetRelations(race.e).Known)
+                else if (EmpireManager.Player == Empire || EmpireManager.Player.GetRelations(Empire).Known)
                 {
                     DrawRacePortrait();
 
-                    // Added by McShooterz: Display Spy Defense value
-                    var defenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164,
-                        ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
-                    batch.Draw(ResourceManager.Texture("UI/icon_shield"), defenseIcon, Color.White);
+                    Texture2D shield = ResourceManager.Texture("UI/icon_shield");
 
-                    float espionageDefense = GetEspionageDefense(race.e);
-                    var defPos = new Vector2(defenseIcon.X + defenseIcon.Width + 2,
-                        defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+                    // Added by McShooterz: Display Spy Defense value
+                    var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y + Fonts.Arial12.LineSpacing + 164, shield.Width, shield.Height);
+                    batch.Draw(shield, defenseIcon, Color.White);
+
+                    float espionageDefense = GetEspionageDefense(Empire);
+                    var defPos = new Vector2(defenseIcon.Right + 2, defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                     batch.DrawString(Fonts.Arial12Bold, espionageDefense.String(1), defPos, Color.White);
 
-                    if (defenseIcon.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
+                    if (defenseIcon.HitTest(Screen.Input.CursorPosition))
                         ToolTip.CreateTooltip(Localizer.Token(7031));
                 }
-                else if (EmpireManager.Player != race.e)
+                else if (EmpireManager.Player != Empire)
                 {
-                    batch.Draw(ResourceManager.Texture("Portraits/unknown"), race.container, Color.White);
+                    batch.Draw(ResourceManager.Texture("Portraits/unknown"), Rect, Color.White);
                 }
 
-                if (race.e == Screen.SelectedEmpire)
-                    batch.DrawRectangle(race.container, Color.Orange);
+                if (Empire == Screen.SelectedEmpire)
+                    batch.DrawRectangle(Rect, Color.Orange);
             }
         }
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
