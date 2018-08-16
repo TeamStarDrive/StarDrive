@@ -55,7 +55,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, state.Y);
