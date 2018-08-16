@@ -54,7 +54,7 @@ namespace Ship_Game
 			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, state.Y);
-			TitleBar.Draw();
+			TitleBar.Draw(batch);
 			Color c = new Color(255, 239, 208);
 			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
 			PlanetMenu.Draw();

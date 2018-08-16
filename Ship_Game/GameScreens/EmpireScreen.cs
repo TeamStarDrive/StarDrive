@@ -136,9 +136,9 @@ namespace Ship_Game
             Vector2 MousePos = new Vector2(x, state.Y);
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(383), TitlePos, new Color(255, 239, 208));
-            EMenu.Draw();
+            EMenu.Draw(batch);
             Color TextColor = new Color(118, 102, 67, 50);
             ColoniesList.Draw(ScreenManager.SpriteBatch);
             EmpireScreenEntry e1 = ColoniesList.ItemAtTop<EmpireScreenEntry>();
