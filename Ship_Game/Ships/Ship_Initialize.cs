@@ -162,34 +162,15 @@ namespace Ship_Game.Ships
             LoadProduction(save.ProdCount);
             LoadColonists(save.PopCount);
 
-            Goods saveGoods = ConvertSaveGoodToGoods(save);
-            AI.OrderTradeFromSave(saveGoods, save.AISave.startGuid, save.AISave.endGuid);
-
             foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
                 Projectile.Create(this, pdata);
         }
-
-        private Goods ConvertSaveGoodToGoods (SavedGame.ShipSaveData save)
-        {
-            if (save.FoodCount > 0)
-                return Goods.Food;
-            if (save.ProdCount > 0)
-                return Goods.Production;
-            if (save.PopCount > 0)
-                return Goods.Colonists;
-
-            return Goods.None;
-        }
-
+        
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                //var stackTrace = new Exception();
-                //MessageBox.Show(
-                //    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
-                //     "Ship spawn failed!", MessageBoxButtons.OK);
                 Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
                 if (!ResourceManager.ShipsDict.TryGetValue("Vulcan Scout", out template))  // try to spawn Vulcan Scout
                      return null;
