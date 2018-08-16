@@ -623,7 +623,7 @@ namespace Ship_Game
                             task.WhichFleet = 0;
                         }
                     }
-                }
+                }                 
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                 {
                     foreach (Ship ship in data.MasterShipList)
@@ -669,7 +669,7 @@ namespace Ship_Game
                             ship.AI.OrderQueue.Enqueue(g);
                             if (g.Plan == ShipAI.Plan.DeployStructure)
                                 ship.isConstructor = true;
-                        }
+                        }                                                
                     }
                 }
             }

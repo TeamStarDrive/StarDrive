@@ -268,7 +268,7 @@ namespace Ship_Game
             PlayerEmpire.isPlayer       = true;
             SubSpaceProjectors          = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
-            
+            DoPathingMapRebuild();
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -288,9 +288,10 @@ namespace Ship_Game
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
+            DoPathingMapRebuild();
             
         }
-
+        
         public void ResetLighting() => SetLighting(UseRealLights);
 
         private void SetLighting(bool useRealLights)
