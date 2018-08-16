@@ -31,10 +31,7 @@ namespace Ship_Game
 		{
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 		    batch.Begin();
-		    {
-		        MainMenu.Draw(Color.Black);
-		        base.Draw(batch);
-		    }
+		    base.Draw(batch);
 		    batch.End();
 		}
 
@@ -113,7 +110,7 @@ namespace Ship_Game
 		    TurnTimer.Tooltip = "Time in seconds for turns";
 		    StartingRichness.Tooltip = "Add to all Starting Empire Planets this Value";
 
-			MainMenu = new Menu2(leftRect);
+		    MainMenu = Add(new Menu2(this, leftRect, Color.Black));
 
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, "Advanced Rule Options", Fonts.Arial20Bold);
 		    string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);

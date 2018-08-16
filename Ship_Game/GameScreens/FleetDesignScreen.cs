@@ -394,7 +394,7 @@ namespace Ship_Game
             ScreenManager.RenderSceneObjects();
 
             batch.Begin();
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
             const int numEntries = 9;
             int k = 9;
@@ -441,7 +441,7 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                ShipDesigns.Draw();
+                ShipDesigns.Draw(batch);
                 batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
                 batch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
                 SubShips.Draw();

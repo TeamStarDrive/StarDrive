@@ -67,7 +67,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), Color.Black);
-            MainMenu.Draw();
+            MainMenu.Draw(batch);
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
             foreach (KeyValuePair<string, Node> keyValuePair in TechTree)
@@ -207,7 +207,7 @@ namespace Ship_Game
             }
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
-            MainMenu.DrawHollow();
+            //MainMenu.DrawHollow();
             close.Draw(batch);
             qcomponent.Draw();
             ToolTip.Draw(ScreenManager.SpriteBatch);

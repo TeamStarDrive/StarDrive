@@ -288,7 +288,7 @@ namespace Ship_Game
             p.UpdateIncomes(false);
             LeftMenu.Draw();
             RightMenu.Draw();
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             LeftColony.Draw(ScreenManager);
             RightColony.Draw(ScreenManager);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(byte.MaxValue, 239, 208));
