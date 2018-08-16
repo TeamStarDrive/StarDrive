@@ -255,7 +255,7 @@ namespace Ship_Game
             return LayoutCursor;
         }
 
-        private Vector2 LayoutNext()
+        protected Vector2 LayoutNext()
         {
             if (!LayoutStarted)
                 throw new InvalidOperationException("You must call BeginLayout befor calling auto-layout methods");
