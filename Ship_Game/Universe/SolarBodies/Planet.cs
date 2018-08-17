@@ -67,22 +67,31 @@ namespace Ship_Game
         public bool ImportProd => PS == GoodState.IMPORT;
         public bool ExportFood => FS == GoodState.EXPORT;
         public bool ExportProd => PS == GoodState.EXPORT;
-        private float PopulationPercent => Population + IncomingColonists <= 0 ? 0 : (Population + IncomingColonists) / MaxPopulation;
+        private float PopulationPercent
+        {
+            get
+            {                
+                if (Population + TradeAI.AvgTradingColonists <= 0) return 0;
+                return  (Population + TradeAI.AvgTradingColonists ) / MaxPopulation ;
+            }
+        }
+
         private GoodState ColonistsTradeState
         {
             get
             {                
-                if (PopulationBillion <= .1f)
+                if (PopulationBillion <= .2f)
                 {
                     if (PopulationPercent > .9f) return GoodState.STORE;                    
                     if (AvgPopulationGrowth < 0) return GoodState.STORE;
                     return GoodState.IMPORT;
                 }
                 
-                if (AvgPopulationGrowth < 0) return GoodState.EXPORT;
-                if (PopulationPercent < .9f) return GoodState.IMPORT;
-                if (PopulationPercent > .25f) return GoodState.EXPORT;
-                return GoodState.STORE;
+                if (AvgPopulationGrowth <= 0)
+                    return GoodState.EXPORT;
+                if (PopulationPercent < .9f)
+                    return GoodState.IMPORT;                
+                return GoodState.EXPORT;
             }
         }
         
@@ -407,7 +416,7 @@ namespace Ship_Game
         private float ProjectedFood(int turns)
         {
             float incomingAvg = IncomingFood;
-            float netFood = GetNetFoodPerTurn();
+            float netFood = NetFoodPerTurn;
             return FoodHere + incomingAvg + netFood * turns;
         }
 

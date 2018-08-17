@@ -161,7 +161,7 @@ namespace Ship_Game.Ships
             LoadFood(save.FoodCount);
             LoadProduction(save.ProdCount);
             LoadColonists(save.PopCount);
-
+            
             foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
                 Projectile.Create(this, pdata);
         }
