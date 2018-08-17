@@ -50,7 +50,7 @@ namespace Ship_Game.Ships
                     continue;
 
                 ShipModule module = ShipModule.Create(uid, this, slotData, isTemplate, fromSave);
-                for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x+=16)
+                for (float x = module.XMLPosition.X; x < module.XMLPosition.X + module.XSIZE * 16; x += 16)
                 {
                     for (float y = module.XMLPosition.Y; y < module.XMLPosition.Y + module.YSIZE * 16; y += 16)
                     {
@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
                 }
 
                 module.HangarShipGuid = slotData.HangarshipGuid;
-                module.hangarShipUID  = slotData.SlotOptions;
+                module.hangarShipUID = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
             }
 
@@ -75,12 +75,12 @@ namespace Ship_Game.Ships
         {
             var ship = new Ship
             {
-                Position   = new Vector2(200f, 200f),
-                Name       = data.Name,
-                Level      = data.Level,
+                Position = new Vector2(200f, 200f),
+                Name = data.Name,
+                Level = data.Level,
                 experience = data.experience,
-                shipData   = data,
-                loyalty    = empire
+                shipData = data,
+                loyalty = empire
             };
 
             ship.SetShipData(data);
@@ -133,9 +133,9 @@ namespace Ship_Game.Ships
             TroopsLaunched   = save.TroopsLaunched;
             FightersLaunched = save.FightersLaunched;
 
-            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty 
+            VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.Name;
-            
+
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
                 save.data.Hull = save.Hull;
@@ -161,31 +161,16 @@ namespace Ship_Game.Ships
             LoadFood(save.FoodCount);
             LoadProduction(save.ProdCount);
             LoadColonists(save.PopCount);
-
-            switch (AI.State)
-            {
-                case AIState.SystemTrader:
-                    bool hasCargo = save.FoodCount > 0f || save.ProdCount > 0f;
-                    AI.OrderTradeFromSave(hasCargo, save.AISave.startGuid, save.AISave.endGuid);
-                    break;
-                case AIState.PassengerTransport:
-                    AI.OrderTransportPassengersFromSave();
-                    break;
-            }
-
+            
             foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
                 Projectile.Create(this, pdata);
         }
-
+        
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
             if (!ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                //var stackTrace = new Exception();
-                //MessageBox.Show(
-                //    $"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
-                //     "Ship spawn failed!", MessageBoxButtons.OK);
                 Log.Warning($"Failed to create new ship '{shipName}'. This is a bug caused by mismatched or missing ship designs");
                 if (!ResourceManager.ShipsDict.TryGetValue("Vulcan Scout", out template))  // try to spawn Vulcan Scout
                      return null;

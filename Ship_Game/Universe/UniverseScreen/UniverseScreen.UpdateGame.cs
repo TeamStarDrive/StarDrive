@@ -523,7 +523,7 @@ namespace Ship_Game
             return false;
         }
 
-        private void DoPathingMapRebuild()
+        public void DoPathingMapRebuild()
         {
             reducer = (int) (SubSpaceProjectors.Radius * .75f);
             int granularity = (int) (UniverseSize / reducer);

@@ -703,7 +703,7 @@ namespace Ship_Game.AI
                         PickupGoods();
                         break;
                     case Plan.DropOffGoods:
-                        DropoffGoods();
+                        DropOffGoods();
                         break;
                     case Plan.ReturnToHangar:
                         DoReturnToHangar(elapsedTime);

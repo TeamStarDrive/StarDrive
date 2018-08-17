@@ -67,22 +67,31 @@ namespace Ship_Game
         public bool ImportProd => PS == GoodState.IMPORT;
         public bool ExportFood => FS == GoodState.EXPORT;
         public bool ExportProd => PS == GoodState.EXPORT;
-        private float PopulationPercent => Population + IncomingColonists <= 0 ? 0 : (Population + IncomingColonists) / MaxPopulation;
+        private float PopulationPercent
+        {
+            get
+            {                
+                if (Population + TradeAI.AvgTradingColonists <= 0) return 0;
+                return  (Population + TradeAI.AvgTradingColonists ) / MaxPopulation ;
+            }
+        }
+
         private GoodState ColonistsTradeState
         {
             get
             {                
-                if (PopulationBillion <= .1f)
+                if (PopulationBillion <= .2f)
                 {
                     if (PopulationPercent > .9f) return GoodState.STORE;                    
                     if (AvgPopulationGrowth < 0) return GoodState.STORE;
                     return GoodState.IMPORT;
                 }
                 
-                if (AvgPopulationGrowth < 0) return GoodState.EXPORT;
-                if (PopulationPercent < .9f) return GoodState.IMPORT;
-                if (PopulationPercent > .25f) return GoodState.EXPORT;
-                return GoodState.STORE;
+                if (AvgPopulationGrowth <= 0)
+                    return GoodState.EXPORT;
+                if (PopulationPercent < .9f)
+                    return GoodState.IMPORT;                
+                return GoodState.EXPORT;
             }
         }
         
@@ -215,21 +224,25 @@ namespace Ship_Game
 
         public Planet()
         {
-            TroopManager = new TroopManager(this, Habitable);
+            TroopManager = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
-            SbCommodities = new SBCommodities(this);
+
+            SbCommodities = new SBCommodities(this);                
+            
             SbProduction = new SBProduction(this);
             HasShipyard = false;
-
             foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
                 AddGood(keyValuePair.Key, 0);
+
+
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null)
         {
             var newOrbital = this;
-            TroopManager = new TroopManager(this, Habitable);
+            TroopManager = new TroopManager(this);
             GeodeticManager = new GeodeticManager(this);
+
             SbCommodities = new SBCommodities(this);
             SbProduction = new SBProduction(this);
             Name = name;
@@ -403,7 +416,7 @@ namespace Ship_Game
         private float ProjectedFood(int turns)
         {
             float incomingAvg = IncomingFood;
-            float netFood = GetNetFoodPerTurn();
+            float netFood = NetFoodPerTurn;
             return FoodHere + incomingAvg + netFood * turns;
         }
 
@@ -827,8 +840,8 @@ namespace Ship_Game
             string str1 = planet1.DevelopmentStatus + Localizer.Token(1779);
             planet1.DevelopmentStatus = str1;
         }
-       
-        public TradeAI TradeAI;
+
+        public TradeAI TradeAI => SbCommodities.Trade;
 
         private void CalculateIncomingTrade()
         {
@@ -836,7 +849,7 @@ namespace Ship_Game
             IncomingProduction = 0;
             IncomingFood = 0;
             TradeIncomingColonists = 0;
-            TradeAI = new TradeAI(this);            
+            TradeAI.ClearHistory();
             using (Owner.GetShips().AcquireReadLock())
             {
                 foreach (var ship in Owner.GetShips())
