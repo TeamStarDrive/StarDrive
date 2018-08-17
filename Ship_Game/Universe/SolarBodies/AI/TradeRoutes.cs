@@ -30,12 +30,28 @@ namespace Ship_Game.Universe.SolarBodies.AI
 
         public TradeAI(Planet planet)
         {
-            IncomingFreight = new Dictionary<int, Entry>();
-            OutGoingFreight = new Dictionary<int, Entry>();
+            IncomingFreight = new Map<int, Entry>();
+            OutGoingFreight = new Map<int, Entry>();
             TradePlanet = planet;
             AvgTradingFood = 0;
             AvgTradingProduction = 0;
-            AvgTradingColonists = 0;
+            AvgTradingColonists = 0;            
+            CreateSortedGoodSources(planet);
+        }
+        public void ClearHistory()
+        {
+            IncomingFreight.Clear();
+            OutGoingFreight.Clear();
+            CreateSortedGoodSources(TradePlanet);
+       
+        }
+        public void CreateSortedGoodSources(Planet planet)
+        {
+            if (planet.Owner == null)
+            {
+                ImportTargets = Empty<Planet>.Array;
+                return;
+            }
             ImportTargets = planet.Owner.GetPlanets().FilterBy(p => p.IsExporting());
             ImportTargets.Sort(p => p.Center.SqDist(planet.Center));
         }
@@ -47,6 +63,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
         public bool AddTrade(Ship ship)
         {            
             if (ship.AI.end != TradePlanet && ship.AI.start != TradePlanet) return false;
+
             int eta;            
             switch (ship.AI.OrderQueue.PeekLast.Plan)
             {
@@ -169,12 +186,27 @@ namespace Ship_Game.Universe.SolarBodies.AI
             public Planet Start;
             public int Eta;
         }
+
+        private float GetMaxAmount(Goods good)
+        {
+            switch(good)
+            {
+                case Goods.Food:
+                case Goods.Production:
+                    return TradePlanet.MaxStorage - TradePlanet.GetGoodHere(good);
+                case Goods.Colonists:
+                    return TradePlanet.MaxPopulation / 1000f - TradePlanet.Population /1000f;
+
+            }
+            return 0;
+        }
+
         //wip
         public TradeRoute GetTradeRoute(Goods good, Ship ship)
         {
             float incoming = PredictedTradeFor(good, ShipAI.Plan.DropOffGoods);
             TradeRoute route = new TradeRoute { Eta = int.MaxValue };
-            if (incoming > TradePlanet.MaxStorage) return route;
+            if (incoming >= GetMaxAmount(good)) return route;
             if (ship.loyalty != TradePlanet.Owner) return route;
             Planet[] potentialSources = ImportTargets.FilterBy(exporter =>
             {

@@ -140,7 +140,7 @@ namespace Ship_Game.Debug
                 text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
                 {
-                    if (empire.isFaction) continue;
+                    if (empire.isFaction || empire.data.Defeated) continue;
 
                     var block = empire.DebugEmpireTradeInfo();
                     block.Header = empire.Name;
