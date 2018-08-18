@@ -1,11 +1,11 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game
 {
-	public sealed class RuleOptionsScreen : GameScreen
+    public sealed class RuleOptionsScreen : GameScreen
 	{
 		public bool isOpen;
 		private Menu2 MainMenu;
@@ -35,7 +35,7 @@ namespace Ship_Game
 		    batch.End();
 		}
 
-	
+
 		public override bool HandleInput(InputState input)
 		{
             if (base.HandleInput(input))
@@ -70,8 +70,8 @@ namespace Ship_Game
 				leftRect.Height = 580;
 
 		    int x = leftRect.X + 60;
-
-			CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
+		    MainMenu = Add(new Menu2(this, leftRect, Color.Black));
+            CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
 
             var ftlRect = new Rectangle(x, leftRect.Y + 100, 270, 50);
 			FTLPenaltySlider = SliderPercent(ftlRect, Localizer.Token(4007), 0f, 1f, GlobalStats.FTLInSystemModifier);
@@ -110,7 +110,7 @@ namespace Ship_Game
 		    TurnTimer.Tooltip = "Time in seconds for turns";
 		    StartingRichness.Tooltip = "Add to all Starting Empire Planets this Value";
 
-		    MainMenu = Add(new Menu2(this, leftRect, Color.Black));
+
 
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, "Advanced Rule Options", Fonts.Arial20Bold);
 		    string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);
