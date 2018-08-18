@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,6 +11,9 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -238,7 +238,7 @@ namespace Ship_Game
         public float Lag = 0;
         public Ship previousSelection;
 
-        public UIButton ShipsInCombat;    
+        public UIButton ShipsInCombat;
         public UIButton PlanetsInCombat;
         public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
@@ -248,7 +248,7 @@ namespace Ship_Game
 
         // for really specific debuggingD
         public static int FrameId;
-        
+
         private UniverseScreen() : base(null)
         {
         }
@@ -289,9 +289,9 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
-            
+
         }
-        
+
         public void ResetLighting() => SetLighting(UseRealLights);
 
         private void SetLighting(bool useRealLights)
@@ -303,7 +303,7 @@ namespace Ship_Game
             }
 
             ScreenManager.RemoveAllLights();
-            
+
             AddLight("Global Fill Light", new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
             AddLight("Global Back Light", new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, +MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
 
@@ -331,12 +331,12 @@ namespace Ship_Game
                     case "star_blue":
                         color = Color.LightBlue;
                         break;
-                    case "star_binary":                            
+                    case "star_binary":
                         intensity += .2f;
                         radius += 50000f;
-                        break; 
+                        break;
                 }
-                
+
                 AddLight("Key",               system, intensity,         radius,         color, -5500);
                 AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
                 AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
@@ -347,11 +347,11 @@ namespace Ship_Game
 
         private void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
         {
-            AddLight($"{system.Name} - {system.SunPath} - {name}", system.Position, intensity, radius, color, 
+            AddLight($"{system.Name} - {system.SunPath} - {name}", system.Position, intensity, radius, color,
                 zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
 
-        private void AddLight(string name, Vector2 source, float intensity, float radius, Color color, 
+        private void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
                               float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
@@ -375,7 +375,7 @@ namespace Ship_Game
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
         }
-        
+
         public void ContactLeader(object sender)
         {
             if (SelectedShip == null)
@@ -498,7 +498,7 @@ namespace Ship_Game
             while (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
             {
                 float univRadius = UniverseSize / 2f;
-                Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight), 
+                Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
                                                                 new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
 
                 Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, projection, camMaxToUnivCenter, Matrix.Identity);
@@ -735,7 +735,7 @@ namespace Ship_Game
 
         public void PlayNegativeSound() => GameAudio.PlaySfxAsync("UI_Misc20");
 
-        private void ReportManual(string reportType, bool kudos) //@TODO this should be mostly moved to a exception tracker constructor i think. 
+        private void ReportManual(string reportType, bool kudos) //@TODO this should be mostly moved to a exception tracker constructor i think.
         {
             bool switchedmode = false;
             #if RELEASE //only switch screens in release
@@ -816,7 +816,7 @@ namespace Ship_Game
                 solarSystem.MoonList.Clear();
             }
             foreach (Empire empire in EmpireManager.Empires)
-                empire.CleanOut();            
+                empire.CleanOut();
             JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
                 spaceJunk.DestroySceneObject();
@@ -865,11 +865,11 @@ namespace Ship_Game
             ExplosionManager.Universe             = null;
             DroneAI.UniverseScreen                = null;
             StatTracker.SnapshotsDict.Clear();
-            EmpireManager.Clear();            
+            EmpireManager.Clear();
             HelperFunctions.CollectMemory();
             base.ExitScreen();
             Dispose();
-            
+
         }
 
         private void ClearParticles()
@@ -961,8 +961,8 @@ namespace Ship_Game
         // @todo fleetIconScreenRadius could be replaced with clickableFleet.ClickRadius ????
 
 
-        //This will likely only work with "this UI\planetNamePointer" texture 
-        //Other textures might work but would need the x and y offset adjusted. 
+        //This will likely only work with "this UI\planetNamePointer" texture
+        //Other textures might work but would need the x and y offset adjusted.
 
         public void QueueGameplayObjectRemoval (GameplayObject gameplayObject)
         {
@@ -972,16 +972,16 @@ namespace Ship_Game
 
         public void TotallyRemoveGameplayObjects()
         {
-            while (!GamePlayObjectToRemove.IsEmpty)            
-                GamePlayObjectToRemove.PopLast().RemoveFromUniverseUnsafe();             
+            while (!GamePlayObjectToRemove.IsEmpty)
+                GamePlayObjectToRemove.PopLast().RemoveFromUniverseUnsafe();
         }
 
         public void QueueShipToWorldScene(Ship ship)
-        {            
+        {
             ShipsToAddToWorld.Add(ship);
         }
         private void AddShipSceneObjectsFromQueue()
-        {            
+        {
             while (!ShipsToAddToWorld.IsEmpty)
             {
                 var ship = ShipsToAddToWorld.PopLast();
@@ -996,11 +996,11 @@ namespace Ship_Game
                     ship.RemoveFromUniverseUnsafe();
 
                 }
-            }           
+            }
         }
 
         protected override void Destroy()
-        {            
+        {
             starfield               ?.Dispose(ref starfield);
             DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
             EmpireDone              ?.Dispose(ref EmpireDone);
@@ -1027,7 +1027,7 @@ namespace Ship_Game
             explosionParticles      ?.Dispose(ref explosionParticles);
             explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
             fireTrailParticles      ?.Dispose(ref fireTrailParticles);
-            fireParticles           ?.Dispose(ref fireParticles);            
+            fireParticles           ?.Dispose(ref fireParticles);
             flameParticles          ?.Dispose(ref flameParticles);
             SmallflameParticles     ?.Dispose(ref SmallflameParticles);
             beamflashes             ?.Dispose(ref beamflashes);
