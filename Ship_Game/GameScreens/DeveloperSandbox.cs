@@ -1,18 +1,38 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        //private UniverseScreen Universe;
-
+        GameScreen BaseScreen;
         public DeveloperSandbox(GameScreen parent) : base(parent)
         {
+            parent.ExitScreen();
+            IsPopup = true;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            ScreenState = ScreenState.Active;
+            base.Update(deltaTime);
         }
 
         public override void LoadContent()
         {
             Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
+
+            ResourceManager.LoadItAll();
+            //EmpireManager.
+            //    UniverseData universeData = new UniverseData
+            //    {
+            //        difficulty = UniverseData.GameDifficulty.Normal,
+            //        Size = new Microsoft.Xna.Framework.Vector2(1000000f),
+
+
+
+            //    };
+
 
 
             //var playerEmpire = new Empire()
@@ -40,20 +60,40 @@ namespace Ship_Game
             //    GameScale = Scale
             //};
         }
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        {
+            base.Update(gameTime, false, false);
+            HandleInput();
+
+        }
 
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
             base.Draw(batch);
             batch.End();
+
         }
 
+        //after Creating the universe
+        public void HandleInput()
+        {
+            base.HandleInput(Input);
+        }
+
+        //as a normal game screen
         public override bool HandleInput(InputState input)
         {
             if (input.Escaped)
             {
                 ExitScreen();
+                ScreenManager.AddScreen(new MainMenuScreen());
                 return true;
+            }
+            if (Input.LeftMouseClick)
+            {
+                ScreenManager.AddScreen(new LoadSaveScreen(this));
+                ScreenState = ScreenState.Active;
             }
             return base.HandleInput(input);
         }
