@@ -118,6 +118,7 @@ namespace Ship_Game
                         }
                         playerEmpire.GetRelations(empToDiscuss).EncounterStep = MessageList[CurrentMessage].SetEncounterStep;
                         SetResponses();
+                        break;
                     }
                 }
             }
