@@ -6,6 +6,7 @@ namespace Ship_Game
     internal class DeveloperSandbox : GameScreen
     {
         GameScreen BaseScreen;
+        UniverseScreen UniverseScreen;
         public DeveloperSandbox(GameScreen parent) : base(parent)
         {
             parent.ExitScreen();
@@ -21,18 +22,20 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
-
             ResourceManager.LoadItAll();
-            //EmpireManager.
-            //    UniverseData universeData = new UniverseData
-            //    {
-            //        difficulty = UniverseData.GameDifficulty.Normal,
-            //        Size = new Microsoft.Xna.Framework.Vector2(1000000f),
+            UniverseData universeSandBox = new UniverseData
+            {
+                Size = new Vector2(1000000f)
+            };
+            
+            foreach(var empireData in ResourceManager.Empires)
+            {
+                Empire empireFromEmpireData = EmpireManager.CreateEmpireFromEmpireData(empireData);
+                universeSandBox.EmpireList.Add(empireFromEmpireData);
+                EmpireManager.Add(empireFromEmpireData);
+            }
 
-
-
-            //    };
-
+            UniverseScreen = new UniverseScreen(universeSandBox);
 
 
             //var playerEmpire = new Empire()
@@ -78,6 +81,10 @@ namespace Ship_Game
         //after Creating the universe
         public void HandleInput()
         {
+            if (Input.Escaped)
+            {
+
+            }
             base.HandleInput(Input);
         }
 
@@ -92,8 +99,8 @@ namespace Ship_Game
             }
             if (Input.LeftMouseClick)
             {
-                ScreenManager.AddScreen(new LoadSaveScreen(this));
-                ScreenState = ScreenState.Active;
+                //ScreenManager.AddScreen(new LoadSaveScreen(this));
+                ScreenManager.AddScreen(UniverseScreen);
             }
             return base.HandleInput(input);
         }
