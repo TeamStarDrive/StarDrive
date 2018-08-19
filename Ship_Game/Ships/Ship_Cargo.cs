@@ -191,11 +191,20 @@ namespace Ship_Game.Ships
         {
             // Colonists get special treatment due to Cryogenic Freezing and Manifest Destiny passenger modifiers
             float mod = PassengerModifier;
+            CargoCont.GoodType = Goods.Colonists;
             // if mod is 0f, we have a serious bug during savegame loading
             return CargoCont.LoadCargoRef(ref Cargo.Colonists, amount / mod) * mod;
         }
-        public float LoadProduction(float amount) => CargoCont.LoadCargoRef(ref Cargo.Production, amount);
-        public float LoadFood(float amount)       => CargoCont.LoadCargoRef(ref Cargo.Food,       amount);
+        public float LoadProduction(float amount)
+        {
+            CargoCont.GoodType = Goods.Production;
+            return CargoCont.LoadCargoRef(ref Cargo.Production, amount);
+        }
+        public float LoadFood(float amount)
+        {
+            CargoCont.GoodType = Goods.Food;
+            return CargoCont.LoadCargoRef(ref Cargo.Food, amount);
+        } 
 
         // Unloads the specified amount of cargo (or all, by default) (or none if there's no cargo)
         // If there's less than maxAmount, all available cargo will be unloaded

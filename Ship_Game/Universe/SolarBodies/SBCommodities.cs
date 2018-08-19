@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     public class SBCommodities
     {
         private readonly Planet Ground;
-
-        //private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private Empire Owner => Ground.Owner;
-        //private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
+        public TradeAI Trade { get;}
+        private Empire Owner => Ground.Owner;        
         private Array<Building> BuildingList => Ground.BuildingList;
-        //private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
-        //private SolarSystem ParentSystem => Ground.ParentSystem;        
         private Map<string, float> Commoditites = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         public IReadOnlyDictionary<string, float> ResourcesDictionary => Commoditites;
         private float Waste;
@@ -20,6 +17,7 @@ namespace Ship_Game.Universe.SolarBodies
         public SBCommodities (Planet planet)
         {
             Ground = planet;
+            Trade = new TradeAI(planet);
         }
 
         public float FoodHere
