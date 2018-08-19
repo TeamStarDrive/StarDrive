@@ -82,44 +82,42 @@ namespace Ship_Game
             {
                 if (e.CheckHover(input))
                 {
-                    if (input.InGameSelect && e.item is Response r)
+                    if (!input.InGameSelect || !(e.item is Response r)) continue;
+                    if (r.DefaultIndex != -1)
                     {
-                        if (r.DefaultIndex != -1)
+                        CurrentMessage = r.DefaultIndex;
+                    }
+                    else
+                    {
+                        bool ok = !(r.MoneyToThem > 0 && playerEmpire.Money < r.MoneyToThem);
+                        if (r.RequiredTech != null && !playerEmpire.GetTDict()[r.RequiredTech].Unlocked)
+                            ok = false;
+                        if (r.FailIfNotAlluring && playerEmpire.data.Traits.DiplomacyMod < 0.2)
+                            ok = false;
+                        if (!ok)
                         {
-                            CurrentMessage = r.DefaultIndex;
+                            CurrentMessage = r.FailIndex;
                         }
                         else
                         {
-                            bool ok = !(r.MoneyToThem > 0 && playerEmpire.Money < r.MoneyToThem);
-                            if (r.RequiredTech != null && !playerEmpire.GetTDict()[r.RequiredTech].Unlocked)
-                                ok = false;
-                            if (r.FailIfNotAlluring && playerEmpire.data.Traits.DiplomacyMod < 0.2)
-                                ok = false;
-                            if (!ok)
+                            CurrentMessage = r.SuccessIndex;
+                            if (r.MoneyToThem > 0 && playerEmpire.Money >= r.MoneyToThem)
                             {
-                                CurrentMessage = r.FailIndex;
-                            }
-                            else
-                            {
-                                CurrentMessage = r.SuccessIndex;
-                                if (r.MoneyToThem > 0 && playerEmpire.Money >= r.MoneyToThem)
-                                {
-                                    playerEmpire.Money -= r.MoneyToThem;
-                                }
+                                playerEmpire.Money -= r.MoneyToThem;
                             }
                         }
-                        if (MessageList[CurrentMessage].SetWar)
-                        {
-                            empToDiscuss.GetGSAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
-                        }
-                        if (MessageList[CurrentMessage].EndWar)
-                        {
-                            empToDiscuss.GetGSAI().EndWarFromEvent(playerEmpire);
-                        }
-                        playerEmpire.GetRelations(empToDiscuss).EncounterStep = MessageList[CurrentMessage].SetEncounterStep;
-                        SetResponses();
-                        break;
                     }
+                    if (MessageList[CurrentMessage].SetWar)
+                    {
+                        empToDiscuss.GetGSAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
+                    }
+                    if (MessageList[CurrentMessage].EndWar)
+                    {
+                        empToDiscuss.GetGSAI().EndWarFromEvent(playerEmpire);
+                    }
+                    playerEmpire.GetRelations(empToDiscuss).EncounterStep = MessageList[CurrentMessage].SetEncounterStep;
+                    SetResponses();
+                    break;
                 }
             }
             if (MessageList[CurrentMessage].EndTransmission && (input.Escaped || input.MouseCurr.RightButton == ButtonState.Released && input.MousePrev.RightButton == ButtonState.Pressed))
