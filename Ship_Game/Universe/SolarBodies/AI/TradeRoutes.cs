@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game.Universe.SolarBodies.AI
 {
     public class TradeAI
     {
-        
+
 
         public override string ToString()
         {
@@ -20,22 +20,38 @@ namespace Ship_Game.Universe.SolarBodies.AI
         {
             public Array<Cargo> Cargo;
             public void AddCargo(Cargo cargo) => Cargo.Add(cargo);
-        }                                
+        }
 
         private readonly Planet TradePlanet;
-        
+
         private Dictionary<int, Entry> IncomingFreight;
         private Dictionary<int, Entry> OutGoingFreight;
         private Planet[] ImportTargets;
 
         public TradeAI(Planet planet)
         {
-            IncomingFreight = new Dictionary<int, Entry>();
-            OutGoingFreight = new Dictionary<int, Entry>();
+            IncomingFreight = new Map<int, Entry>();
+            OutGoingFreight = new Map<int, Entry>();
             TradePlanet = planet;
             AvgTradingFood = 0;
             AvgTradingProduction = 0;
             AvgTradingColonists = 0;
+            CreateSortedGoodSources(planet);
+        }
+        public void ClearHistory()
+        {
+            IncomingFreight.Clear();
+            OutGoingFreight.Clear();
+            CreateSortedGoodSources(TradePlanet);
+
+        }
+        public void CreateSortedGoodSources(Planet planet)
+        {
+            if (planet.Owner == null)
+            {
+                ImportTargets = Empty<Planet>.Array;
+                return;
+            }
             ImportTargets = planet.Owner.GetPlanets().FilterBy(p => p.IsExporting());
             ImportTargets.Sort(p => p.Center.SqDist(planet.Center));
         }
@@ -45,9 +61,10 @@ namespace Ship_Game.Universe.SolarBodies.AI
         public float AvgTradingColonists { get; private set; }
 
         public bool AddTrade(Ship ship)
-        {            
+        {
             if (ship.AI.end != TradePlanet && ship.AI.start != TradePlanet) return false;
-            int eta;            
+
+            int eta;
             switch (ship.AI.OrderQueue.PeekLast.Plan)
             {
                 case ShipAI.Plan.PickupGoods:
@@ -66,13 +83,13 @@ namespace Ship_Game.Universe.SolarBodies.AI
                     break;
                 case ShipAI.Plan.DropOffGoods:
                 case ShipAI.Plan.DropoffPassengers:
-                    if (ship.AI.end != TradePlanet) return false;                    
+                    if (ship.AI.end != TradePlanet) return false;
                     eta = (int)ship.AI.TimeToTarget(ship.AI.end);
                     AddToIncomingFreight(ship, eta);
                     break;
                 default:
                     return false;
-            }                                  
+            }
             return true;
         }
         private void AddToIncomingFreight(Ship ship, int eta)=> AddToFreight(ship, eta, ShipAI.Plan.DropOffGoods);
@@ -80,14 +97,14 @@ namespace Ship_Game.Universe.SolarBodies.AI
         private void AddToFreight(Ship ship, int eta, ShipAI.Plan plan)
         {
             Dictionary<int, Entry> freight;
-            Cargo cargo = ship.GetCargo();
-            Goods type = Goods.Colonists;            
+            Cargo cargo  = ship.GetCargo();
+            Goods type   = Goods.Colonists;
             if (ship.TradingFood || ship.TradingProd)
                 type = ship.TradingProd ? Goods.Production : Goods.Food;
-            cargo.Good = type;
+            cargo.Good   = type;
             cargo.Amount = cargo.Amount <=0 ? ship.CargoSpaceMax : cargo.Amount;
-            freight = plan == ShipAI.Plan.PickupGoods ? OutGoingFreight : IncomingFreight;
-                        
+            freight      = plan == ShipAI.Plan.PickupGoods ? OutGoingFreight : IncomingFreight;
+
             freight.TryGetValue(eta, out Entry entry);
             entry.Cargo = entry.Cargo ?? new Array<Cargo>();
             entry.AddCargo(cargo);
@@ -97,7 +114,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
         public Dictionary<int, float> GetGoodsEtaDict(Goods good, ShipAI.Plan type = ShipAI.Plan.DropOffGoods)
         {
             var data = new Dictionary<int, float>();
-            Dictionary<int, Entry> sourceDictionary = 
+            Dictionary<int, Entry> sourceDictionary =
                 type == ShipAI.Plan.PickupGoods ? OutGoingFreight : IncomingFreight;
 
             foreach (var entry in sourceDictionary)
@@ -112,10 +129,10 @@ namespace Ship_Game.Universe.SolarBodies.AI
         }
         public float GetAverageTradeFor(Goods good)
         {
-            var goods = GetGoodsEtaDict(good);
+            var goods       = GetGoodsEtaDict(good);
             if (goods.Count == 0) return 0;
-            float time = goods.Keys.Sum();            
-            float amount = goods.Values.Sum();
+            float time      = goods.Keys.Sum();
+            float amount    = goods.Values.Sum();
             if (amount <= 0 || time <= 0)
             {
                 Log.Info("TradeTracking: avg trade amount was 0");
@@ -130,7 +147,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
             AvgTradingFood       = GetAverageTradeFor(Goods.Food);
             AvgTradingProduction = GetAverageTradeFor(Goods.Production);
         }
-        
+
         public bool NeedsMore(Goods good)
         {
             float incoming = PredictedTradeFor(good, ShipAI.Plan.DropOffGoods);
@@ -139,10 +156,10 @@ namespace Ship_Game.Universe.SolarBodies.AI
 
         public float PredictedTradeFor(Goods good, ShipAI.Plan route)
         {
-            var goods = GetGoodsEtaDict(good,route);
+            var goods       = GetGoodsEtaDict(good,route);
             if (goods.Count == 0) return 0;
-            float time = goods.Keys.Sum();
-            float amount = goods.Values.Sum();
+            float time      = goods.Keys.Sum();
+            float amount    = goods.Values.Sum();
             if (amount <= 0 || time <= 0)
             {
                 Log.Info("TradeTracking: avg trade amount was 0");
@@ -150,31 +167,33 @@ namespace Ship_Game.Universe.SolarBodies.AI
             }
             return amount;
         }
-
-        public Planet GetNearestSupplierFor(Goods good)
-        {
-
-            return ImportTargets.Find(exporter =>
-            {                
-                if (exporter.GetGoodState(good) != Planet.GoodState.EXPORT) return false;
-                if (exporter == TradePlanet) return false;
-                return exporter.TradeAI.PredictedTradeFor(good, ShipAI.Plan.PickupGoods) 
-                       < exporter.SbCommodities.GetGoodAmount(good);
-            });
-
-        }
         public struct TradeRoute
         {
             public Planet End;
             public Planet Start;
             public int Eta;
         }
+
+        private float GetMaxAmount(Goods good)
+        {
+            switch(good)
+            {
+                case Goods.Food:
+                case Goods.Production:
+                    return TradePlanet.MaxStorage - TradePlanet.GetGoodHere(good);
+                case Goods.Colonists:
+                    return TradePlanet.MaxPopulation / 1000f - TradePlanet.Population /1000f;
+
+            }
+            return 0;
+        }
+
         //wip
         public TradeRoute GetTradeRoute(Goods good, Ship ship)
         {
             float incoming = PredictedTradeFor(good, ShipAI.Plan.DropOffGoods);
             TradeRoute route = new TradeRoute { Eta = int.MaxValue };
-            if (incoming > TradePlanet.MaxStorage) return route;
+            if (incoming >= GetMaxAmount(good)) return route;
             if (ship.loyalty != TradePlanet.Owner) return route;
             Planet[] potentialSources = ImportTargets.FilterBy(exporter =>
             {
@@ -194,12 +213,12 @@ namespace Ship_Game.Universe.SolarBodies.AI
             if (startPlanet == null) return route;
 
             float eta = TradePlanet.Center.Distance(startPlanet.Center) + ship.Center.Distance(startPlanet.Center);
-            eta /= Math.Max(ship.GetmaxFTLSpeed,1);
-            route = new TradeRoute
+            eta      /= Math.Max(ship.GetmaxFTLSpeed,1);
+            route     = new TradeRoute
             {
-                End = TradePlanet,
+                End   = TradePlanet,
                 Start = startPlanet,
-                Eta = (int)Math.Max(1, eta)
+                Eta   = (int)Math.Max(1, eta)
             };
 
             return route;
@@ -209,8 +228,8 @@ namespace Ship_Game.Universe.SolarBodies.AI
 
 
        //All of the below is debug information
-       
-       
+
+
         public DebugSummaryTotal DebugSummarizeIncomingFreight(Array<string> lines) =>
             DebugSummarizeFreight(lines, IncomingFreight);
         public DebugSummaryTotal DebugSummarizeOutgoingFreight(Array<string> lines) =>
@@ -225,22 +244,22 @@ namespace Ship_Game.Universe.SolarBodies.AI
             foreach (var kv in freight.OrderBy(k => k.Key))
             {
                 int foodSum = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Food ? t.Amount : 0);
-                int prodt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Production ? t.Amount : 0);
-                int colt = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Colonists ? t.Amount : 0);
-                int totalC = kv.Value.Cargo.Count;
+                int prodt   = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Production ? t.Amount : 0);
+                int colt    = (int)kv.Value.Cargo.Sum(t => t.Good == Goods.Colonists ? t.Amount : 0);
+                int totalC  = kv.Value.Cargo.Count;
                 lines.Add($"ETA: {kv.Key} - food: {foodSum} - prod: {prodt} - Colo: {colt}  T:{totalC}");
 
-                foodT2 += foodSum;
-                prodT2 += prodt;
-                coltT2 += colt;
+                foodT2  += foodSum;
+                prodT2  += prodt;
+                coltT2  += colt;
                 totalT2 += totalC;
             }
             return new DebugSummaryTotal
             {
-                Food = foodT2,
-                Prod = prodT2,
+                Food      = foodT2,
+                Prod      = prodT2,
                 Colonists = coltT2,
-                Total = totalT2
+                Total     = totalT2
             };
 
         }
