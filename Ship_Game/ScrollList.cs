@@ -54,12 +54,12 @@ namespace Ship_Game
         private readonly Texture2D ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
         private readonly Texture2D ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
         private readonly Texture2D ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
-        
+
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None)
         {
             Parent = p;
-            MaxVisibleEntries = (p.Menu.Height - 25) / 40;         
+            MaxVisibleEntries = (p.Menu.Height - 25) / 40;
             IsDraggable = options == ListOptions.Draggable;
             InitializeRects(p, 30);
         }
@@ -426,11 +426,11 @@ namespace Ship_Game
 
             if (!ScrollBar.HitTest(input.CursorPosition))
                 return false;
-            
+
             ScrollBarHover = 1;
             if (!input.LeftMouseClick)
                 return false;
-            
+
             ScrollBarHover = 2;
             StartDragPos = (int)input.CursorPosition.Y;
             ScrollBarStartDragPos = ScrollBar.Y;
@@ -472,7 +472,7 @@ namespace Ship_Game
             bool hit = HandleScrollUpDownButtons(input);
             hit |= HandleScrollDragInput(input);
             hit |= HandleScrollBarDragging(input);
-            
+
             if (DraggingScrollBar && input.LeftMouseUp)
                 DraggingScrollBar = false;
             return hit;
@@ -636,7 +636,7 @@ namespace Ship_Game
             foreach (Entry e in Entries)
                 e.ExpandSubEntries(ExpandedEntries);
 
-            FirstVisibleIndex = FirstVisibleIndex.Clamped(0, 
+            FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
                 Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
 
             int j = 0;

@@ -467,7 +467,11 @@ namespace Ship_Game.AI {
                 ResupplyTarget = item;
                 OrderQueue.Enqueue(orbit);
                 State = AIState.Orbit;
+                return;
             }
+            var emergencyPlanet = Empire.Universe.PlanetsDict.Values.ToArray().FilterBy(p => p.Owner == null);
+            emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Center));
+            OrbitTarget = emergencyPlanet[0];
         }
 
         public void OrderFlee(bool ClearOrders)

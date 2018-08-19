@@ -87,7 +87,7 @@ namespace Ship_Game
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {            
-            Active = false;            
+            Active = false; 
             Empire.Universe.QueueGameplayObjectRemoval(this);
         }
 
