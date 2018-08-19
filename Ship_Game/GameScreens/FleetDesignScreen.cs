@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
+using System;
+using System.Collections.Generic;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -1143,7 +1143,8 @@ namespace Ship_Game
                 {
                     if (e.item is ModuleHeader header)
                     {
-                        header.HandleInput(input, e);
+                        if (header.HandleInput(input, e))
+                            break;
                     }
                     else
                     {
