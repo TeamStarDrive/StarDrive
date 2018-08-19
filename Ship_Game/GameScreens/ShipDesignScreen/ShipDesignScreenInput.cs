@@ -331,7 +331,7 @@ namespace Ship_Game
 
         private static bool IsMirrorSlotValid(SlotStruct slot, MirrorSlot mirrored)
         {
-            return IsMirrorModuleValid(slot.Module, mirrored.Slot?.Root.Module);
+            return IsMirrorModuleValid(slot.Module, mirrored.Slot?.Module);
         }
 
         private static bool IsMirrorSlotPresent(MirrorSlot mirrored, SlotStruct slot)
