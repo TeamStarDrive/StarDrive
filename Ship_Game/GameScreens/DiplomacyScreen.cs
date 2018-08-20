@@ -1032,9 +1032,10 @@ namespace Ship_Game
 
         private static ItemToOffer FindItemToOffer(ScrollList items, string response)
         {
-            foreach (ItemToOffer item in items.VisibleExpandedItems<ItemToOffer>())
-                if (item.Response == response)
-                    return item;
+            foreach (ScrollList.Entry entry in items.AllEntries)
+                if (entry.TryGet(out ItemToOffer item))
+                    if (item.Response == response)
+                        return item;
             return null;
         }
 
