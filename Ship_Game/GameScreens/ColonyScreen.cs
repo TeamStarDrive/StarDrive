@@ -1214,17 +1214,34 @@ namespace Ship_Game
                     DrawMultiLine(ref bCursor, p.Description);
                     string desc = "";
                     if (p.Owner.data.Traits.Cybernetic != 0)  desc = Localizer.Token(2028);
-                    else if (p.FS == Planet.GoodState.EXPORT) desc = Localizer.Token(2025);
-                    else if (p.FS == Planet.GoodState.IMPORT) desc = Localizer.Token(2026);
-                    else if (p.FS == Planet.GoodState.STORE)  desc = Localizer.Token(2027);
-                    DrawMultiLine(ref bCursor, desc);
+                    else switch (p.FS)
+                    {
+                        case Planet.GoodState.EXPORT:
+                            desc = Localizer.Token(2025);
+                            break;
+                        case Planet.GoodState.IMPORT:
+                            desc = Localizer.Token(2026);
+                            break;
+                        case Planet.GoodState.STORE:
+                            desc = Localizer.Token(2027);
+                            break;
+                    }
 
+                    DrawMultiLine(ref bCursor, desc);
                     desc = "";
-                    if      (p.PS == Planet.GoodState.EXPORT) desc = Localizer.Token(345);
-                    else if (p.PS == Planet.GoodState.IMPORT) desc = Localizer.Token(346);
-                    else if (p.PS == Planet.GoodState.STORE)  desc = Localizer.Token(347);
+                    switch (p.PS)
+                    {
+                        case Planet.GoodState.EXPORT:
+                            desc = Localizer.Token(345);
+                            break;
+                        case Planet.GoodState.IMPORT:
+                            desc = Localizer.Token(346);
+                            break;
+                        case Planet.GoodState.STORE:
+                            desc = Localizer.Token(347);
+                            break;
+                    }
                     DrawMultiLine(ref bCursor, desc);
-
                     bool cybernetic  = p.Owner.data.Traits.Cybernetic != 0;
                     float production = cybernetic ? p.ProductionHere + p.NetProductionPerTurn : p.FoodHere + p.NetFoodPerTurn;
                     if (production - p.Consumption < 0f)
