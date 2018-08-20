@@ -89,7 +89,7 @@ namespace Ship_Game
 
                 if (AvgPopulationGrowth <= 0)
                     return GoodState.EXPORT;
-                if (PopulationPercent < .9f)
+                if (PopulationPercent < .5f)
                     return GoodState.IMPORT;
                 return GoodState.EXPORT;
             }
