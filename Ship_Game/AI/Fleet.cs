@@ -1427,10 +1427,8 @@ namespace Ship_Game.AI
                 }
                 if (ship.AI.State == AIState.FormationWarp)
                 {
-                    if (SetCombatMoveAtPositon(ship, Position, 7500) != CombatStatus.ClearSpace)
-                    {
-                        ship.AI.State = AIState.AwaitingOrders;
-                    }
+                    SetCombatMoveAtPositon(ship, Position, 7500);
+                   
                 }
                 AddShip(ship, true);
                 ReadyForWarp = ReadyForWarp && ship.ShipReadyForWarp();
