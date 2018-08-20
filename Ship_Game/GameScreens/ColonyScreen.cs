@@ -1233,237 +1233,122 @@ namespace Ship_Game
             }
             else if (detailInfo is PlanetGridSquare pgs)
             {
-                if (pgs.building == null && pgs.Habitable && pgs.Biosphere)
+                Color color = Color.Wheat;
+                switch (pgs.building)
                 {
-                    spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(348), bCursor, new Color(255, 239, 208));
-                    bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, new Color(255, 239, 208));
-                    return;
+                    case null when pgs.Habitable && pgs.Biosphere:
+                        spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(348), bCursor, color);
+                        bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
+                        spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, color);
+                        return;
+                    case null when pgs.Habitable:
+                        spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(350), bCursor, color);
+                        bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
+                        spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, color);
+                        return;
                 }
-                if (pgs.building == null && pgs.Habitable)
-                {
-                    spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(350), bCursor, new Color(255, 239, 208));
-                    bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, new Color(255, 239, 208));
-                    return;
-                }
+
                 if (!pgs.Habitable && pgs.building == null)
                 {
                     if (p.Type == "Barren")
                     {
-                        spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, color);
                         bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(352), bCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(352), bCursor, color);
                         return;
                     }
-                    spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, color);
                     bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(353), bCursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(353), bCursor, color);
                     return;
                 }
-                if (pgs.building != null)
+
+                if (pgs.building == null)
+                    return;
+
+                Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                spriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
+                spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
+                bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
+                string text = MultiLineFormat(pgs.building.DescriptionIndex);
+                spriteBatch.DrawString(Fonts.Arial12Bold, text, bCursor, Color.Wheat);
+                bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(text).Y + Fonts.Arial20Bold.LineSpacing);
+                if (Math.Abs(pgs.building.PlusFlatFoodAmount) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusFlatFoodAmount,
+                        ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(354));
+
+                if (Math.Abs(pgs.building.PlusFoodPerColonist) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusFoodPerColonist,
+                        ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(2042));
+
+                if (pgs.building.IsSensor && Math.Abs(pgs.building.SensorRange) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.SensorRange,
+                        ResourceManager.Texture("NewUI/icon_sensors"), Localizer.Token(6000), signs: false);
+
+                if (pgs.building.IsProjector && Math.Abs(pgs.building.ProjectorRange) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.ProjectorRange,
+                        ResourceManager.Texture("NewUI/icon_projection"), Localizer.Token(6001), signs: false);
+
+                if (Math.Abs(pgs.building.PlusFlatProductionAmount) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusFlatProductionAmount,
+                        ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(355));
+
+                if (Math.Abs(pgs.building.PlusProdPerColonist) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusProdPerColonist,
+                        ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(356));
+
+                if (Math.Abs(pgs.building.PlusFlatPopulation) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusFlatPopulation / 1000,
+                        ResourceManager.Texture("NewUI/icon_population"), Localizer.Token(2043));
+
+                if (Math.Abs(pgs.building.PlusFlatResearchAmount) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusFlatResearchAmount,
+                        ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(357));
+
+                if (Math.Abs(pgs.building.PlusResearchPerColonist) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusResearchPerColonist,
+                        ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(358));
+
+                if (Math.Abs(pgs.building.PlusTaxPercentage) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusTaxPercentage * 100,
+                        ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(359), percent: true);
+
+                if (Math.Abs(pgs.building.MinusFertilityOnBuild) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, -pgs.building.MinusFertilityOnBuild,
+                        ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(360), percent: true);
+
+                if (Math.Abs(pgs.building.PlanetaryShieldStrengthAdded) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlanetaryShieldStrengthAdded,
+                        ResourceManager.Texture("NewUI/icon_planetshield"), Localizer.Token(361));
+
+                if (Math.Abs(pgs.building.CreditsPerColonist) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.CreditsPerColonist,
+                        ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(362));
+
+                if (Math.Abs(pgs.building.PlusProdPerRichness) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.PlusProdPerRichness,
+                        ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
+
+                if (pgs.building.CombatStrength > 0)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.CombatStrength,
+                        ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
+
+                if (Math.Abs(pgs.building.ShipRepair) > 0f)
+                    DrawBuildingInfo(ref bCursor, spriteBatch, pgs.building.ShipRepair,
+                        ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
+
+                if (pgs.building.Maintenance > 0f)
                 {
-                    Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    spriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, new Color(255, 239, 208));
-                    bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
-                    string text = MultiLineFormat(pgs.building.DescriptionIndex);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, text, bCursor, new Color(255, 239, 208));
-                    bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(text).Y + Fonts.Arial20Bold.LineSpacing);
-                    if (pgs.building.PlusFlatFoodAmount != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteFont arial12Bold = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+", pgs.building.PlusFlatFoodAmount, " ", Localizer.Token(354) };
-                        spriteBatch.DrawString(arial12Bold, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusFoodPerColonist != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch1 = spriteBatch;
-                        SpriteFont spriteFont = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+", pgs.building.PlusFoodPerColonist, " ", Localizer.Token(2042) };
-                        spriteBatch1.DrawString(spriteFont, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.IsSensor && pgs.building.SensorRange != 0f)
-                    {
-                        Rectangle fIcon;
-                        if (ResourceManager.TextureLoaded("NewUI/icon_sensors"))
-                        {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_sensors").Width, ResourceManager.Texture("NewUI/icon_sensors").Height);
-                            spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_sensors"), fIcon, Color.White);
-                        }
-                        else
-                        {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("transparent").Width, ResourceManager.Texture("Textures/transparent").Height);
-                            spriteBatch.Draw(ResourceManager.Texture("transparent"), fIcon, Color.White);
-                        }
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch1 = spriteBatch;
-                        SpriteFont spriteFont = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "", pgs.building.SensorRange, " ", Localizer.Token(6000) };
-                        spriteBatch1.DrawString(spriteFont, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.IsProjector && pgs.building.ProjectorRange != 0f)
-                    {
-                        Rectangle fIcon;
-                        if (ResourceManager.TextureLoaded("NewUI/icon_projection"))
-                        {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_projection").Width, ResourceManager.Texture("NewUI/icon_projection").Height);
-                            spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_projection"), fIcon, Color.White);
-                        }
-                        else
-                        {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("transparent").Width, ResourceManager.Texture("Textures/transparent").Height);
-                            spriteBatch.Draw(ResourceManager.Texture("transparent"), fIcon, Color.White);
-                        }
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch1 = spriteBatch;
-                        SpriteFont spriteFont = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "", pgs.building.ProjectorRange, " ", Localizer.Token(6001) };
-                        spriteBatch1.DrawString(spriteFont, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusFlatProductionAmount != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch2 = spriteBatch;
-                        SpriteFont arial12Bold1 = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+", pgs.building.PlusFlatProductionAmount, " ", Localizer.Token(355) };
-                        spriteBatch2.DrawString(arial12Bold1, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusProdPerColonist != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch3 = spriteBatch;
-                        SpriteFont spriteFont1 = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+", pgs.building.PlusProdPerColonist, " ", Localizer.Token(356) };
-                        spriteBatch3.DrawString(spriteFont1, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusFlatPopulation != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X - 4, (int)bCursor.Y - 4, ResourceManager.Texture("NewUI/icon_population").Width, ResourceManager.Texture("NewUI/icon_population").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_population"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch4 = spriteBatch;
-                        SpriteFont arial12Bold2 = Fonts.Arial12Bold;
-                        plusFlatPopulation = pgs.building.PlusFlatPopulation / 1000f;
-                        spriteBatch4.DrawString(arial12Bold2, string.Concat("+", plusFlatPopulation.ToString("#.00"), " ", Localizer.Token(2043)), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusFlatResearchAmount != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch5 = spriteBatch;
-                        SpriteFont spriteFont2 = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+", pgs.building.PlusFlatResearchAmount, " ", Localizer.Token(357) };
-                        spriteBatch5.DrawString(spriteFont2, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusResearchPerColonist != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch6 = spriteBatch;
-                        SpriteFont arial12Bold3 = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+", pgs.building.PlusResearchPerColonist, " ", Localizer.Token(358) };
-                        spriteBatch6.DrawString(arial12Bold3, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusTaxPercentage != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_money"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch7 = spriteBatch;
-                        SpriteFont spriteFont3 = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "+ ", pgs.building.PlusTaxPercentage * 100f, "% ", Localizer.Token(359) };
-                        spriteBatch7.DrawString(spriteFont3, string.Concat(plusFlatFoodAmount), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.MinusFertilityOnBuild != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.LightPink);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(360), ": ", pgs.building.MinusFertilityOnBuild), tCursor, Color.LightPink);
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlanetaryShieldStrengthAdded != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X - 4, (int)bCursor.Y - 4, ResourceManager.Texture("NewUI/icon_planetshield").Width, ResourceManager.Texture("NewUI/icon_planetshield").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_planetshield"), fIcon, Color.Green);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(361), ": "), tCursor, Color.White);
-                        tCursor.X = tCursor.X + Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(361), ": ")).X;
-                        spriteBatch.DrawString(Fonts.Arial12Bold, pgs.building.PlanetaryShieldStrengthAdded.ToString(), tCursor, Color.LightGreen);
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.CreditsPerColonist != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_money"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(362), ": ", pgs.building.CreditsPerColonist), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.PlusProdPerRichness != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(363), ": ", pgs.building.PlusProdPerRichness), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.CombatStrength > 0)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("Ground_UI/Ground_Attack").Width, ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(364), ": ", pgs.building.CombatStrength), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.Maintenance > 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_science").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_money"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        SpriteBatch spriteBatch8 = spriteBatch;
-                        SpriteFont arial12Bold4 = Fonts.Arial12Bold;
-                        plusFlatFoodAmount = new object[] { "-", pgs.building.Maintenance + pgs.building.Maintenance * p.Owner.data.Traits.MaintMod, " ", Localizer.Token(365) };
-                        spriteBatch8.DrawString(arial12Bold4, string.Concat(plusFlatFoodAmount), tCursor, Color.LightPink);
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    }
-                    if (pgs.building.ShipRepair != 0f)
-                    {
-                        Rectangle fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height);
-                        spriteBatch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), fIcon, Color.White);
-                        Vector2 tCursor = new Vector2(bCursor.X + fIcon.Width + 5f, bCursor.Y + 3f);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("+", pgs.building.ShipRepair, " ", Localizer.Token(6137)), tCursor, new Color(255, 239, 208));
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 12);
-                    }
-                    if (pgs.building.Scrappable)
-                    {
-                        bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                        spriteBatch.DrawString(Fonts.Arial12Bold, "You may scrap this building by right clicking it", bCursor, Color.White);
-                    }
+                    float maintenance = -(pgs.building.Maintenance + pgs.building.Maintenance * p.Owner.data.Traits.MaintMod);
+                    DrawBuildingInfo(ref bCursor, spriteBatch, maintenance,
+                        ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(365));
                 }
+
+                if (!pgs.building.Scrappable)
+                    return;
+
+                bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
+                spriteBatch.DrawString(Fonts.Arial12Bold, "You may scrap this building by right clicking it", bCursor, Color.White);
             }
             else if (detailInfo is ScrollList.Entry entry)
             {
@@ -1645,6 +1530,27 @@ namespace Ship_Game
                     bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
                 }
             }
+        }
+
+        private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, Texture2D texture, 
+                                      string toolTip, bool percent = false, bool signs = true)
+        {
+            SpriteFont font    = Fonts.Arial12Bold;
+            Rectangle fIcon    = new Rectangle((int)cursor.X, (int)cursor.Y, texture.Width, texture.Height);
+            Vector2 tCursor    = new Vector2(cursor.X + fIcon.Width + 5f, cursor.Y + 3f);
+            string plusOrMinus = "";
+            Color color = Color.White;
+            if (signs)
+            {
+                plusOrMinus = value < 0 ? "- " : "+";
+                color = value < 0 ? Color.Pink : Color.Green;
+            }
+            spriteBatch.Draw(texture, fIcon, Color.White);
+            SpriteBatch spriteBatch2 = spriteBatch;
+            string percentage = percent ? "% " : " ";
+            var valueobj             = new object[] { plusOrMinus, Math.Abs(value), percentage, toolTip };
+            spriteBatch2.DrawString(font, string.Concat(valueobj), tCursor, color);
+            cursor.Y += font.LineSpacing + 10;
         }
 
         private void DrawTroopLevel(Troop troop, Rectangle rect)
