@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -107,14 +107,14 @@ namespace Ship_Game
             }
         }
         public void AssembleAdhocGroup(Array<Ship> shipList, Vector2 fleetRightCorner, Vector2 fleetLeftCorner,  float facingRadians, Vector2 fVec,  Empire owner)
-        {                                    
+        {
             float clickDistance = Vector2.Distance(fleetLeftCorner, fleetRightCorner);
             int row = 0;
             int column = 0;
             float maxRadius = 0.0f;
-            for (int i = 0; i < shipList.Count; ++i)                            
+            for (int i = 0; i < shipList.Count; ++i)
                 maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
-            
+
             if (shipList.Count * maxRadius > clickDistance)
             {
                 for (int i = 0; i < shipList.Count; ++i)
@@ -231,7 +231,7 @@ namespace Ship_Game
         {
             GoalStack?.Clear();
             Position = movePosition;
-            Facing = facing;            
+            Facing = facing;
             AssembleFleet(facing, fvec, !queueOrder);
             using(Ships.AcquireReadLock())
             foreach (Ship ship in Ships)
@@ -249,7 +249,7 @@ namespace Ship_Game
             GoalStack?.Clear();
             MoveDirectlyNow(movePosition, facing, fVec);
         }
-        
+
 
         public void MoveToNow(Vector2 movePosition, float facing, Vector2 fVec)
         {
@@ -273,7 +273,7 @@ namespace Ship_Game
 
         public float GetStrength()
         {
-            float num = 0.0f;            
+            float num = 0.0f;
             for (int index = 0; index < Ships.Count; index++)
             {
                 Ship ship = Ships[index];
@@ -301,7 +301,7 @@ namespace Ship_Game
             return num;
         }
         /// <summary>
-        /// This will force all ships in fleet to orbit planet. 
+        /// This will force all ships in fleet to orbit planet.
         /// There are no checks here for ships already in some action.
         /// this can cause a cancel current order and orbit loop.
         /// </summary>
@@ -335,9 +335,9 @@ namespace Ship_Game
         {
             InCombat = 0,
             Dispersed,
-            Assembled            
+            Assembled
         }
-        
+
         public MoveStatus IsFleetAssembled(float radius, Vector2 position = default(Vector2))
         {
             if (position == default(Vector2))
@@ -375,7 +375,7 @@ namespace Ship_Game
                 CombatStatus status = SetCombatMoveAtPositon(ship, position, radius);
                 if (status != CombatStatus.ClearSpace)
                     return status;
-            }             
+            }
             return CombatStatus.ClearSpace;
         }
         protected CombatStatus SetCombatMoveAtPositon(Ship ship, Vector2 position, float radius)
