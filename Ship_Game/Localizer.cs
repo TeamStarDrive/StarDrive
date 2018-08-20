@@ -61,14 +61,8 @@ namespace Ship_Game
 
         public static string GetRole(ShipData.RoleName role, Empire owner)
         {
-            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
-                return "unknown";
-
-            foreach (ShipRole.Race race in shipRole.RaceList)
-                if (race.ShipType == owner.data.Traits.ShipType)
-                    return Token(race.Localization);
-
-            return Token(shipRole.Localization);
+            int localIndex = ShipRole.GetRoleName(role, owner);
+            return localIndex > 0 ? Token(localIndex) : "unknown";
         }
 
         // statistic for amount of memory used for storing strings
