@@ -1366,13 +1366,13 @@ namespace Ship_Game
                 DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerRichness,
                     ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
 
-            if (building.CombatStrength > 0)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
-                    ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
-
             if (Math.Abs(building.ShipRepair) > 0f)
                 DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair,
                     ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
+
+            if (building.CombatStrength > 0)
+                DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
+                    ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
 
             if (building.Maintenance > 0f)
             {
@@ -1380,6 +1380,22 @@ namespace Ship_Game
                 DrawBuildingInfo(ref bCursor, spriteBatch, maintenance,
                     ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(365));
             }
+
+            if (building.TheWeapon == null)
+                return;
+
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.Range,
+                ResourceManager.Texture("UI/icon_offense"), "Range", signs: false);
+            if (building.TheWeapon.DamageAmount > 0)
+                DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.DamageAmount,
+                    ResourceManager.Texture("UI/icon_offense"), "Damage", signs: false);
+
+            if (building.TheWeapon.EMPDamage > 0)
+                DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.DamageAmount,
+                    ResourceManager.Texture("UI/icon_offense"), "EMP Damage", signs: false);
+
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.NetFireDelay,
+                ResourceManager.Texture("UI/icon_offense"), "Fire Delay", signs: false);
         }
 
         private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, Texture2D texture, 
