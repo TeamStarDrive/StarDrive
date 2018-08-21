@@ -13,8 +13,8 @@ namespace Ship_Game
 {
     public sealed class ColonyScreen : PlanetScreen, IListScreen
     {
-        public Planet p;
-        public ToggleButton PlayerDesignsToggle;
+        public Planet P;
+        private ToggleButton PlayerDesignsToggle;
 
         private Menu2 TitleBar;
         private Vector2 TitlePos;
@@ -94,7 +94,7 @@ namespace Ship_Game
         {
             empUI.empire.UpdateShipsWeCanBuild();
             eui = empUI;
-            this.p = p;
+            this.P = p;
             if (ScreenWidth <= 1366)
                 LowRes = true;
             Rectangle theMenu1 = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
@@ -238,22 +238,22 @@ namespace Ship_Game
                 GovernorDropdown.AddOption(Localizer.Token(4068), 5);
                 GovernorDropdown.AddOption(Localizer.Token(5087), 6);
                 GovernorDropdown.ActiveIndex = GetIndex(p);
-                if ((Planet.ColonyType)GovernorDropdown.ActiveValue != this.p.colonyType)
+                if ((Planet.ColonyType)GovernorDropdown.ActiveValue != this.P.colonyType)
                 {
-                    this.p.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                    if (this.p.colonyType == Planet.ColonyType.Colony)
+                    this.P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
+                    if (this.P.colonyType == Planet.ColonyType.Colony)
                     {
-                        this.p.GovernorOn = false;
-                        this.p.FoodLocked = false;
-                        this.p.ProdLocked = false;
-                        this.p.ResLocked = false;
+                        this.P.GovernorOn = false;
+                        this.P.FoodLocked = false;
+                        this.P.ProdLocked = false;
+                        this.P.ResLocked = false;
                     }
                     else
                     {
-                        this.p.FoodLocked = true;
-                        this.p.ProdLocked = true;
-                        this.p.ResLocked = true;
-                        this.p.GovernorOn = true;
+                        this.P.FoodLocked = true;
+                        this.P.ProdLocked = true;
+                        this.P.ResLocked = true;
+                        this.P.GovernorOn = true;
                     }
                 }
 
@@ -272,22 +272,22 @@ namespace Ship_Game
 
         private void AddTroopToQ()
         {
-            QueueItem qItem = new QueueItem(p)
+            QueueItem qItem = new QueueItem(P)
             {
                 isTroop = true,
                 troopType = "Terran/Space Marine",
                 Cost = ResourceManager.GetTroopCost("Terran/Space Marine"),
                 productionTowards = 0f
             };
-            p.ConstructionQueue.Add(qItem);
+            P.ConstructionQueue.Add(qItem);
         }
 
         public override void Draw(SpriteBatch batch)
         {
             ClickTimer += (float)GameTime.ElapsedGameTime.TotalSeconds;
-            if (p.Owner == null)
+            if (P.Owner == null)
                 return;
-            p.UpdateIncomes(false);
+            P.UpdateIncomes(false);
             LeftMenu.Draw();
             RightMenu.Draw();
             TitleBar.Draw(batch);
@@ -296,10 +296,10 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(byte.MaxValue, 239, 208));
             if (!GlobalStats.HardcoreRuleset)
             {
-                FoodStorage.Max = p.MaxStorage;
-                FoodStorage.Progress = p.SbCommodities.FoodHereActual;
-                ProdStorage.Max = p.MaxStorage;
-                ProdStorage.Progress = p.ProductionHere;
+                FoodStorage.Max = P.MaxStorage;
+                FoodStorage.Progress = P.SbCommodities.FoodHereActual;
+                ProdStorage.Max = P.MaxStorage;
+                ProdStorage.Progress = P.ProductionHere;
             }
             PlanetInfo.Draw();
             pDescription.Draw();
@@ -307,8 +307,8 @@ namespace Ship_Game
             pStorage.Draw();
             subColonyGrid.Draw();
             var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
-            batch.Draw(ResourceManager.Texture("PlanetTiles/" + p.GetTile()), destinationRectangle1, Color.White);
-            foreach (PlanetGridSquare pgs in p.TilesList)
+            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.GetTile()), destinationRectangle1, Color.White);
+            foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (!pgs.Habitable)
                     batch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
@@ -331,7 +331,7 @@ namespace Ship_Game
                 }
                 DrawPGSIcons(pgs);
             }
-            foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+            foreach (PlanetGridSquare planetGridSquare in P.TilesList)
             {
                 if (planetGridSquare.highlighted)
                     batch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
@@ -344,15 +344,15 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48"), r, Color.White);
             }
             pFacilities.Draw();
-            launchTroops.Visible = p.Owner == Empire.Universe.player && p.TroopsHere.Count > 0;
+            launchTroops.Visible = P.Owner == Empire.Universe.player && P.TroopsHere.Count > 0;
 
             //fbedard: Display button
-            if (p.Owner == Empire.Universe.player)
+            if (P.Owner == Empire.Universe.player)
             {
                 int troopsInvading = eui.empire.GetShips()
                     .Where(troop => troop.TroopList.Count > 0)
                     .Where(ai => ai.AI.State != AIState.Resupply)
-                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
+                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
                 if (troopsInvading > 0)
                     SendTroops.Text = "Landing: " + troopsInvading;
                 else
@@ -366,11 +366,11 @@ namespace Ship_Game
             {
                 DrawBuildingsWeCanBuild(batch);
             }
-            else if (p.HasShipyard && build.Tabs[1].Selected)
+            else if (P.HasShipyard && build.Tabs[1].Selected)
             {
                 DrawBuildableShipsList(batch);
             }
-            else if (!p.HasShipyard && p.AllowInfantry && build.Tabs[1].Selected)
+            else if (!P.HasShipyard && P.AllowInfantry && build.Tabs[1].Selected)
             {
                 DrawBuildTroopsList(batch);
             }
@@ -384,34 +384,34 @@ namespace Ship_Game
             buildSL.Draw(batch);
             Selector?.Draw(batch);
             string format = "0.#";
-            batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             batch.DrawRectangle(ColonySliderFood.sRect, ColonySliderFood.Color);
             Rectangle rectangle1 = new Rectangle(ColonySliderFood.sRect.X - 40, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), rectangle1, p.Owner.data.Traits.Cybernetic > 0 ? new Color(110, 110, 110, byte.MaxValue) : Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), rectangle1, P.Owner.data.Traits.Cybernetic > 0 ? new Color(110, 110, 110, byte.MaxValue) : Color.White);
             if (rectangle1.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
             {
-                ToolTip.CreateTooltip(p.Owner.data.Traits.Cybernetic == 0 ? 70 : 77);
+                ToolTip.CreateTooltip(P.Owner.data.Traits.Cybernetic == 0 ? 70 : 77);
             }
 
             batch.Draw(ColonySliderFood.cState == "normal"
                     ? ResourceManager.Texture("NewUI/slider_crosshair")
                     : ResourceManager.Texture("NewUI/slider_crosshair_hover"), ColonySliderFood.cursor,
-                    p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
+                    P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
 
             for (int index = 0; index < 11; ++index)
             {
                 Vector2 position1 = new Vector2(ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width / 10 * index, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height + 2);
                 if (ColonySliderFood.state == "normal")
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), position1, p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), position1, P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
                 else
-                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             }
             Vector2 position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - Font12.LineSpacing / 2);
             if (LowRes)
                 position2.X -= 15f;
-            string text1 = p.Owner.data.Traits.Cybernetic == 0 ? p.GetNetFoodPerTurn().ToString(format) : "Unnecessary";
+            string text1 = P.Owner.data.Traits.Cybernetic == 0 ? P.GetNetFoodPerTurn().ToString(format) : "Unnecessary";
             position2.X -= Font12.MeasureString(text1).X;
-            if (p.NetFoodPerTurn - (double)p.Consumption < 0.0 && p.Owner.data.Traits.Cybernetic != 1 && text1 != "0")
+            if (P.NetFoodPerTurn - (double)P.Consumption < 0.0 && P.Owner.data.Traits.Cybernetic != 1 && text1 != "0")
                 batch.DrawString(Font12, text1, position2, Color.LightPink);
             else
                 batch.DrawString(Font12, text1, position2, new Color(byte.MaxValue, 239, 208));
@@ -438,29 +438,29 @@ namespace Ship_Game
                 position2.X -= 15f;
             float num4;
             string str1;
-            if (p.Owner.data.Traits.Cybernetic == 0)
+            if (P.Owner.data.Traits.Cybernetic == 0)
             {
-                str1 = p.NetProductionPerTurn.ToString(format);
+                str1 = P.NetProductionPerTurn.ToString(format);
             }
             else
             {
-                num4 = p.NetProductionPerTurn - p.Consumption;
+                num4 = P.NetProductionPerTurn - P.Consumption;
                 str1 = num4.ToString(format);
             }
             string text2 = str1;
-            if (p.CrippledTurns > 0)
+            if (P.CrippledTurns > 0)
             {
                 text2 = Localizer.Token(2202);
                 position2.X -= Font12.MeasureString(text2).X;
             }
-            else if (p.RecentCombat)
+            else if (P.RecentCombat)
             {
                 text2 = Localizer.Token(2257);
                 position2.X -= Font12.MeasureString(text2).X;
             }
             else
                 position2.X -= Font12.MeasureString(text2).X;
-            if (p.CrippledTurns > 0 || p.RecentCombat || p.Owner.data.Traits.Cybernetic != 0 && p.NetProductionPerTurn - (double)p.Consumption < 0.0 && text2 != "0")
+            if (P.CrippledTurns > 0 || P.RecentCombat || P.Owner.data.Traits.Cybernetic != 0 && P.NetProductionPerTurn - (double)P.Consumption < 0.0 && text2 != "0")
                 batch.DrawString(Font12, text2, position2, Color.LightPink);
             else
                 batch.DrawString(Font12, text2, position2, new Color(byte.MaxValue, 239, 208));
@@ -485,10 +485,10 @@ namespace Ship_Game
             position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - Font12.LineSpacing / 2);
             if (LowRes)
                 position2.X -= 15f;
-            string text3 = p.NetResearchPerTurn.ToString(format);
+            string text3 = P.NetResearchPerTurn.ToString(format);
             position2.X -= Font12.MeasureString(text3).X;
             batch.DrawString(Font12, text3, position2, new Color(byte.MaxValue, 239, 208));
-            if (p.Owner.data.Traits.Cybernetic == 0)
+            if (P.Owner.data.Traits.Cybernetic == 0)
             {
                 if (!FoodLock.Hover && !FoodLock.Locked)
                     batch.Draw(ResourceManager.Texture(FoodLock.Path), FoodLock.LockRect, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 50));
@@ -509,14 +509,14 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture(ResLock.Path), ResLock.LockRect, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 150));
             else
                 batch.Draw(ResourceManager.Texture(ResLock.Path), ResLock.LockRect, Color.White);
-            batch.Draw(ResourceManager.Texture("Planets/" + p.PlanetType), PlanetIcon, Color.White);
+            batch.Draw(ResourceManager.Texture("Planets/" + P.PlanetType), PlanetIcon, Color.White);
             float num5 = 80f;
             if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
             Vector2 vector2_2 = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
-            p.Name = PlanetName.Text;
+            P.Name = PlanetName.Text;
             PlanetName.Draw(Font20, batch, vector2_2, GameTime, new Color(byte.MaxValue, 239, 208));
-            EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(p.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
+            EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
             if (EditHoverState == 0 && !PlanetName.HandlingInput)
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
             else
@@ -527,16 +527,16 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing;
             batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, p.Type, position3, new Color(byte.MaxValue, 239, 208));
+            batch.DrawString(Font12, P.Type, position3, new Color(byte.MaxValue, 239, 208));
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
             SpriteBatch spriteBatch1 = batch;
             SpriteFont arial12Bold = Font12;
-            num4 = p.Population / 1000f;
+            num4 = P.Population / 1000f;
             string str2 = num4.ToString(format);
             string str3 = " / ";
-            num4 = (float)((p.MaxPopulation + (double)p.MaxPopBonus) / 1000.0);
+            num4 = (float)((P.MaxPopulation + (double)P.MaxPopBonus) / 1000.0);
             string str4 = num4.ToString(format);
             string text4 = str2 + str3 + str4;
             Vector2 position4 = position3;
@@ -548,14 +548,14 @@ namespace Ship_Game
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Font12, p.Fertility.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
+            batch.DrawString(Font12, P.Fertility.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Font12, p.MineralRichness.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
+            batch.DrawString(Font12, P.MineralRichness.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
 
 
@@ -566,9 +566,9 @@ namespace Ship_Game
             string nIncome = Localizer.Token(6127);
             string nLosses = Localizer.Token(6129);
 
-            float grossIncome = p.GrossIncome;
-            float grossUpkeep = p.GrossUpkeep;
-            float netIncome = p.NetIncome;
+            float grossIncome = P.GrossIncome;
+            float grossUpkeep = P.GrossUpkeep;
+            float netIncome = P.NetIncome;
 
             Vector2 positionGIncome = vector2_2;
             positionGIncome.X = vector2_2.X + 1;
@@ -601,7 +601,7 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
-            if (ResourceManager.TextureLoaded("Portraits/" + p.Owner.data.PortraitName))
+            if (ResourceManager.TextureLoaded("Portraits/" + P.Owner.data.PortraitName))
             {
                 Rectangle rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
                 while (rectangle4.Y + rectangle4.Height > pDescription.Menu.Y + 30 + pDescription.Menu.Height - 30)
@@ -609,14 +609,14 @@ namespace Ship_Game
                     rectangle4.Height -= (int)(0.100000001490116 * rectangle4.Height);
                     rectangle4.Width -= (int)(0.100000001490116 * rectangle4.Width);
                 }
-                batch.Draw(ResourceManager.Texture("Portraits/" + p.Owner.data.PortraitName), rectangle4, Color.White);
+                batch.Draw(ResourceManager.Texture("Portraits/" + P.Owner.data.PortraitName), rectangle4, Color.White);
                 batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), rectangle4, Color.White);
                 batch.DrawRectangle(rectangle4, Color.Orange);
-                if (p.colonyType == Planet.ColonyType.Colony)
+                if (P.colonyType == Planet.ColonyType.Colony)
                     batch.Draw(ResourceManager.Texture("NewUI/x_red"), rectangle4, Color.White);
                 Vector2 position5 = new Vector2((rectangle4.X + rectangle4.Width + 15), rectangle4.Y);
                 Vector2 vector2_3 = position5;
-                switch (p.colonyType)
+                switch (P.colonyType)
                 {
                     case Planet.ColonyType.Core:         Localizer.Token(372); break;
                     case Planet.ColonyType.Colony:       Localizer.Token(376); break;
@@ -631,7 +631,7 @@ namespace Ship_Game
 
                 int ColonyTypeLocalization()
                 {
-                    switch (p.colonyType)
+                    switch (P.colonyType)
                     {
                         default:
                         case Planet.ColonyType.Core: return 378;
@@ -654,16 +654,16 @@ namespace Ship_Game
             if (GlobalStats.HardcoreRuleset)
             {
                 foreach (ThreeStateButton threeStateButton in ResourceButtons)
-                    threeStateButton.Draw(ScreenManager, (int)p.GetGoodAmount(threeStateButton.Good));
+                    threeStateButton.Draw(ScreenManager, (int)P.GetGoodAmount(threeStateButton.Good));
             }
             else
             {
-                FoodStorage.Progress = p.SbCommodities.FoodHereActual;
-                ProdStorage.Progress = p.ProductionHere;
-                if      (p.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
-                else if (p.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
-                else if (p.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
-                if (p.Owner.data.Traits.Cybernetic == 0)
+                FoodStorage.Progress = P.SbCommodities.FoodHereActual;
+                ProdStorage.Progress = P.ProductionHere;
+                if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
+                else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
+                else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
+                if (P.Owner.data.Traits.Cybernetic == 0)
                 {
                     FoodStorage.Draw(batch);
                     foodDropDown.Draw(batch);
@@ -674,9 +674,9 @@ namespace Ship_Game
                     foodDropDown.DrawGrayed(batch);
                 }
                 ProdStorage.Draw(batch);
-                if      (p.PS == Planet.GoodState.STORE)  prodDropDown.ActiveIndex = 0;
-                else if (p.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
-                else if (p.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
+                if      (P.PS == Planet.GoodState.STORE)  prodDropDown.ActiveIndex = 0;
+                else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
+                else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
                 prodDropDown.Draw(batch);
                 if (!LowRes)
                 {
@@ -711,7 +711,7 @@ namespace Ship_Game
                 buildSL.Reset();
                 foreach (string troopType in ResourceManager.TroopTypes)
                 {
-                    if (p.Owner.WeCanBuildTroop(troopType))
+                    if (P.Owner.WeCanBuildTroop(troopType))
                         buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
                 }
 
@@ -728,7 +728,7 @@ namespace Ship_Game
                 {
                     troop.Draw(batch, new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30));
                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(P.Owner), position, Color.White);
                     position.Y += Font12.LineSpacing;
                     batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
                     position.X = entry.Right - 100;
@@ -746,7 +746,7 @@ namespace Ship_Game
                     vector2_1.Y = entry.Y;
                     troop.Draw(batch, new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30));
                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(P.Owner), position, Color.White);
                     position.Y += Font12.LineSpacing;
                     batch.DrawString(Font8, troop.Class, position, Color.Orange);
                     position.X = entry.Right - 100;
@@ -765,7 +765,7 @@ namespace Ship_Game
         private void DrawBuildableShipsList(SpriteBatch batch)
         {
             var added = new HashSet<string>();
-            if (ShipsCanBuildLast != p.Owner.ShipsWeCanBuild.Count || Reset)
+            if (ShipsCanBuildLast != P.Owner.ShipsWeCanBuild.Count || Reset)
             {
                 buildSL.Reset();
 
@@ -775,11 +775,11 @@ namespace Ship_Game
                     buildSL.AddItem(new ModuleHeader("Coloniser"));
                 }
 
-                foreach (string shipToBuild in p.Owner.ShipsWeCanBuild)
+                foreach (string shipToBuild in P.Owner.ShipsWeCanBuild)
                 {
                     var ship = ResourceManager.GetShipTemplate(shipToBuild);
                     var role = ResourceManager.ShipRoles[ship.shipData.Role];
-                    var header = Localizer.GetRole(ship.DesignRole, p.Owner);
+                    var header = Localizer.GetRole(ship.DesignRole, P.Owner);
                     if (role.Protected || role.NoBuild )
                         continue;
                     if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) && !added.Contains(header))
@@ -821,7 +821,7 @@ namespace Ship_Game
 
                         Ship ship = kv.Value;
                         if ((GlobalStats.ShowAllDesigns || ship.IsPlayerDesign) &&
-                            Localizer.GetRole(ship.DesignRole, p.Owner) == header)
+                            Localizer.GetRole(ship.DesignRole, P.Owner) == header)
                             entry.AddSubItem(ship, addAndEdit: true);
                     }
                 }
@@ -867,11 +867,11 @@ namespace Ship_Game
                     string upkeep;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
-                        upkeep = ship.GetMaintCostRealism(p.Owner).ToString("F2");
+                        upkeep = ship.GetMaintCostRealism(P.Owner).ToString("F2");
                     }
                     else
                     {
-                        upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
+                        upkeep = ship.GetMaintCost(P.Owner).ToString("F2");
                     }
 
                     batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
@@ -881,7 +881,7 @@ namespace Ship_Game
                     position = new Vector2(destinationRectangle2.X + 26,
                         destinationRectangle2.Y + destinationRectangle2.Height / 2 -
                         Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int) (ship.GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(),
+                    batch.DrawString(Font12, ((int) (ship.GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(),
                         position, Color.White);
                 }
                 else
@@ -919,11 +919,11 @@ namespace Ship_Game
                     string upkeep;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
-                        upkeep = entry.Get<Ship>().GetMaintCostRealism(p.Owner).ToString("F2");
+                        upkeep = entry.Get<Ship>().GetMaintCostRealism(P.Owner).ToString("F2");
                     }
                     else
                     {
-                        upkeep = entry.Get<Ship>().GetMaintCost(p.Owner).ToString("F2");
+                        upkeep = entry.Get<Ship>().GetMaintCost(P.Owner).ToString("F2");
                     }
 
                     batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
@@ -933,7 +933,7 @@ namespace Ship_Game
                     position = new Vector2((destinationRectangle2.X + 26),
                         (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
                     batch.DrawString(Font12,
-                        ((int) (entry.Get<Ship>().GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(), position,
+                        ((int) (entry.Get<Ship>().GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(), position,
                         Color.White);
                     entry.DrawPlusEdit(batch);
                 }
@@ -949,7 +949,7 @@ namespace Ship_Game
                 buildSL.Reset();
                 foreach (string troopType in ResourceManager.TroopTypes)
                 {
-                    if (p.Owner.WeCanBuildTroop(troopType))
+                    if (P.Owner.WeCanBuildTroop(troopType))
                         buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
                 }
 
@@ -966,7 +966,7 @@ namespace Ship_Game
                 {
                     troop.Draw(batch, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30));
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(P.Owner), position, Color.White);
                     position.Y += Font12.LineSpacing;
                     batch.DrawString(Font8, troop.Class, position, Color.Orange);
                     position.X = (entry.Right - 100);
@@ -984,7 +984,7 @@ namespace Ship_Game
                     topLeft.Y = entry.Y;
                     troop.Draw(batch, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30));
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(P.Owner), position, Color.White);
                     position.Y += Font12.LineSpacing;
                     batch.DrawString(Font8, troop.Class, position, Color.Orange);
                     position.X = (entry.Right - 100);
@@ -1002,7 +1002,7 @@ namespace Ship_Game
 
         private void DrawConstructionQueue(SpriteBatch batch)
         {
-            QSL.SetItems(p.ConstructionQueue);
+            QSL.SetItems(P.ConstructionQueue);
             QSL.DrawDraggedEntry(batch);
 
             foreach (ScrollList.Entry entry in QSL.VisibleExpandedEntries)
@@ -1023,7 +1023,7 @@ namespace Ship_Game
                 else if (qi.isShip)
                 {
                     batch.Draw(qi.sData.Icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    new ProgressBar(r, qi.Cost * p.ShipBuildingModifier, qi.productionTowards).Draw(batch);
+                    new ProgressBar(r, qi.Cost * P.ShipBuildingModifier, qi.productionTowards).Draw(batch);
                 }
                 else if (qi.isTroop)
                 {
@@ -1041,8 +1041,8 @@ namespace Ship_Game
 
         private void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
-            Array<Building> buildingsWeCanBuildHere = p.GetBuildingsCanBuild();
-            if (p.BuildingList.Count != BuildingsHereLast || BuildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
+            Array<Building> buildingsWeCanBuildHere = P.GetBuildingsCanBuild();
+            if (P.BuildingList.Count != BuildingsHereLast || BuildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
             {
                 BuildingsCanBuild = buildingsWeCanBuildHere;
                 buildSL.SetItems(BuildingsCanBuild);
@@ -1057,7 +1057,7 @@ namespace Ship_Game
                 Texture2D icon = ResourceManager.Texture($"Buildings/icon_{building.Icon}_48x48");
                 Texture2D iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-                bool unprofitable = !p.WeCanAffordThis(building, p.colonyType) && building.Maintenance > 0f;
+                bool unprofitable = !P.WeCanAffordThis(building, P.colonyType) && building.Maintenance > 0f;
                 Color buildColor = unprofitable ? Color.IndianRed : Color.White;
                 if (entry.Hovered) buildColor = Color.White; // hover color
 
@@ -1107,7 +1107,7 @@ namespace Ship_Game
 
                     position = new Vector2((r.X - 60),
                                            (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                    float actualMaint = building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod;
+                    float actualMaint = building.Maintenance + building.Maintenance * P.Owner.data.Traits.MaintMod;
                     string maintenance = actualMaint.ToString("F2");
                     batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
@@ -1198,7 +1198,7 @@ namespace Ship_Game
             switch (DetailInfo)
             {
                 case Troop t:
-                    spriteBatch.DrawString(Font20, t.DisplayNameEmpire(p.Owner), bCursor, TextColor);
+                    spriteBatch.DrawString(Font20, t.DisplayNameEmpire(P.Owner), bCursor, TextColor);
                     bCursor.Y += Font20.LineSpacing + 2;
                     string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
                         : t.ActualStrengthMax.String(1);
@@ -1213,10 +1213,10 @@ namespace Ship_Game
                     break;
 
                 case string _:
-                    DrawMultiLine(ref bCursor, p.Description);
+                    DrawMultiLine(ref bCursor, P.Description);
                     string desc = "";
-                    if (p.Owner.data.Traits.Cybernetic != 0)  desc = Localizer.Token(2028);
-                    else switch (p.FS)
+                    if (P.Owner.data.Traits.Cybernetic != 0)  desc = Localizer.Token(2028);
+                    else switch (P.FS)
                     {
                         case Planet.GoodState.EXPORT:
                             desc = Localizer.Token(2025);
@@ -1231,7 +1231,7 @@ namespace Ship_Game
 
                     DrawMultiLine(ref bCursor, desc);
                     desc = "";
-                    switch (p.PS)
+                    switch (P.PS)
                     {
                         case Planet.GoodState.EXPORT:
                             desc = Localizer.Token(345);
@@ -1244,9 +1244,9 @@ namespace Ship_Game
                             break;
                     }
                     DrawMultiLine(ref bCursor, desc);
-                    bool cybernetic  = p.Owner.data.Traits.Cybernetic != 0;
-                    float production = cybernetic ? p.ProductionHere + p.NetProductionPerTurn : p.FoodHere + p.NetFoodPerTurn;
-                    if (production - p.Consumption < 0f)
+                    bool cybernetic  = P.Owner.data.Traits.Cybernetic != 0;
+                    float production = cybernetic ? P.ProductionHere + P.NetProductionPerTurn : P.FoodHere + P.NetFoodPerTurn;
+                    if (production - P.Consumption < 0f)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
                     break;
 
@@ -1267,7 +1267,7 @@ namespace Ship_Game
 
                     if (!pgs.Habitable && pgs.building == null)
                     {
-                        if (p.Type == "Barren")
+                        if (P.Type == "Barren")
                         {
                             spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
@@ -1344,7 +1344,7 @@ namespace Ship_Game
                 ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
                 ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
-            float maintenance = -(building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod);
+            float maintenance = -(building.Maintenance + building.Maintenance * P.Owner.data.Traits.MaintMod);
             DrawBuildingInfo(ref bCursor, spriteBatch, maintenance,
                 ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(365));
             if (building.TheWeapon == null)
@@ -1418,21 +1418,21 @@ namespace Ship_Game
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
                 {
-                    numFood = numFood + pgs.building.PlusFoodPerColonist * p.Population / 1000f * p.FarmerPercentage;
+                    numFood = numFood + pgs.building.PlusFoodPerColonist * P.Population / 1000f * P.FarmerPercentage;
                     numFood = numFood + pgs.building.PlusFlatFoodAmount;
                 }
                 if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
                 {
                     numProd = numProd + pgs.building.PlusFlatProductionAmount;
-                    numProd = numProd + pgs.building.PlusProdPerColonist * p.Population / 1000f * p.WorkerPercentage;
+                    numProd = numProd + pgs.building.PlusProdPerColonist * P.Population / 1000f * P.WorkerPercentage;
                 }
                 if (pgs.building.PlusProdPerRichness > 0f)
                 {
-                    numProd = numProd + pgs.building.PlusProdPerRichness * p.MineralRichness;
+                    numProd = numProd + pgs.building.PlusProdPerRichness * P.MineralRichness;
                 }
                 if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes = numRes + pgs.building.PlusResearchPerColonist * p.Population / 1000f * p.ResearcherPercentage;
+                    numRes = numRes + pgs.building.PlusResearchPerColonist * P.Population / 1000f * P.ResearcherPercentage;
                     numRes = numRes + pgs.building.PlusFlatResearchAmount;
                 }
             }
@@ -1508,7 +1508,7 @@ namespace Ship_Game
                 }
             }
             if (DetailInfo == null)
-                DetailInfo = p.Description;
+                DetailInfo = P.Description;
         }
 
         public override bool HandleInput(InputState input)
@@ -1524,16 +1524,16 @@ namespace Ship_Game
             }
             // Changed by MadMudMonster: only respond to mouse press, not release
             if ((input.Right || RightColony.HandleInput(input) && input.LeftMouseClick)
-                && (Empire.Universe.Debug || p.Owner == EmpireManager.Player))
+                && (Empire.Universe.Debug || P.Owner == EmpireManager.Player))
             {
                 try
                 {
-                    int thisindex = p.Owner.GetPlanets().IndexOf(p);
-                    thisindex = (thisindex >= p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
-                    if (p.Owner.GetPlanets()[thisindex] != p)
+                    int thisindex = P.Owner.GetPlanets().IndexOf(P);
+                    thisindex = (thisindex >= P.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
+                    if (P.Owner.GetPlanets()[thisindex] != P)
                     {
-                        p = p.Owner.GetPlanets()[thisindex];
-                        Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, p, eui);
+                        P = P.Owner.GetPlanets()[thisindex];
+                        Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, P, eui);
                     }
                 }
                 catch (Exception ex)
@@ -1549,18 +1549,18 @@ namespace Ship_Game
             }
             // Changed by MadMudMonster: only respond to mouse press, not release
             if ((input.Left || LeftColony.HandleInput(input) && input.LeftMouseClick)
-                && (Empire.Universe.Debug || p.Owner == EmpireManager.Player))
+                && (Empire.Universe.Debug || P.Owner == EmpireManager.Player))
             {
-                int thisindex = p.Owner.GetPlanets().IndexOf(p);
-                thisindex = (thisindex <= 0 ? p.Owner.GetPlanets().Count - 1 : thisindex - 1);
-                if (p.Owner.GetPlanets()[thisindex] != p)
+                int thisindex = P.Owner.GetPlanets().IndexOf(P);
+                thisindex = (thisindex <= 0 ? P.Owner.GetPlanets().Count - 1 : thisindex - 1);
+                if (P.Owner.GetPlanets()[thisindex] != P)
                 {
                     //Console.Write("Switch Colony Screen");
                     //Console.WriteLine(thisindex);
                     //System.Threading.Thread.Sleep(1000);
 
-                    p = p.Owner.GetPlanets()[thisindex];
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, p, eui);
+                    P = P.Owner.GetPlanets()[thisindex];
+                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, P, eui);
                 }
                 if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
                 {
@@ -1569,13 +1569,13 @@ namespace Ship_Game
                 }
                 return true;
             }
-            p.UpdateIncomes(false);
+            P.UpdateIncomes(false);
             HandleDetailInfo(input);
             CurrentMouse = Mouse.GetState();
             Vector2 MousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
             buildSL.HandleInput(input);
             build.HandleInput(this);
-            if (p.Owner != EmpireManager.Player)
+            if (P.Owner != EmpireManager.Player)
             {
                 HandleDetailInfo(input);
                 if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
@@ -1619,11 +1619,11 @@ namespace Ship_Game
                 if (empty)
                 {
                     int ringnum = 1;
-                    foreach (SolarSystem.Ring ring in p.ParentSystem.RingList)
+                    foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
                     {
-                        if (ring.planet == p)
+                        if (ring.planet == P)
                         {
-                            PlanetName.Text = string.Concat(p.ParentSystem.Name, " ", NumberToRomanConvertor.NumberToRoman(ringnum));
+                            PlanetName.Text = string.Concat(P.ParentSystem.Name, " ", NumberToRomanConvertor.NumberToRoman(ringnum));
                         }
                         ringnum++;
                     }
@@ -1635,26 +1635,26 @@ namespace Ship_Game
                 PlanetName.HandleTextInput(ref PlanetName.Text, input);
             }
             GovernorDropdown.HandleInput(input);
-            if (GovernorDropdown.ActiveValue != (int)p.colonyType)
+            if (GovernorDropdown.ActiveValue != (int)P.colonyType)
             {
-                p.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                if (p.colonyType != Planet.ColonyType.Colony)
+                P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
+                if (P.colonyType != Planet.ColonyType.Colony)
                 {
-                    p.FoodLocked = true;
-                    p.ProdLocked = true;
-                    p.ResLocked = true;
-                    p.GovernorOn = true;
+                    P.FoodLocked = true;
+                    P.ProdLocked = true;
+                    P.ResLocked = true;
+                    P.GovernorOn = true;
                 }
                 else
                 {
-                    p.GovernorOn = false;
-                    p.FoodLocked = false;
-                    p.ProdLocked = false;
-                    p.ResLocked = false;
+                    P.GovernorOn = false;
+                    P.FoodLocked = false;
+                    P.ProdLocked = false;
+                    P.ResLocked = false;
                 }
             }
             HandleSlider(input);
-            if (p.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
+            if (P.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
             {
                 if (PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
                 {
@@ -1675,7 +1675,7 @@ namespace Ship_Game
                     Reset = true;
                 }
             }
-            if (p.colonyType != Planet.ColonyType.Colony)
+            if (P.colonyType != Planet.ColonyType.Colony)
             {
                 FoodLock.Locked = true;
                 ProdLock.Locked = true;
@@ -1683,7 +1683,7 @@ namespace Ship_Game
             }
             else
             {
-                if (!FoodLock.LockRect.HitTest(MousePos) || p.Owner == null || p.Owner.data.Traits.Cybernetic != 0)
+                if (!FoodLock.LockRect.HitTest(MousePos) || P.Owner == null || P.Owner.data.Traits.Cybernetic != 0)
                 {
                     FoodLock.Hover = false;
                 }
@@ -1694,7 +1694,7 @@ namespace Ship_Game
                         FoodLock.Hover = false;
                         if (input.LeftMouseClick)
                         {
-                            p.FoodLocked = false;
+                            P.FoodLocked = false;
                             FoodLock.Locked = false;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
@@ -1704,7 +1704,7 @@ namespace Ship_Game
                         FoodLock.Hover = true;
                         if (input.LeftMouseClick)
                         {
-                            p.FoodLocked = true;
+                            P.FoodLocked = true;
                             FoodLock.Locked = true;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
@@ -1722,7 +1722,7 @@ namespace Ship_Game
                         ProdLock.Hover = false;
                         if (input.LeftMouseClick)
                         {
-                            p.ProdLocked = false;
+                            P.ProdLocked = false;
                             ProdLock.Locked = false;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
@@ -1732,7 +1732,7 @@ namespace Ship_Game
                         ProdLock.Hover = true;
                         if (input.LeftMouseClick)
                         {
-                            p.ProdLocked = true;
+                            P.ProdLocked = true;
                             ProdLock.Locked = true;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
@@ -1750,7 +1750,7 @@ namespace Ship_Game
                         ResLock.Hover = false;
                         if (input.LeftMouseClick)
                         {
-                            p.ResLocked = false;
+                            P.ResLocked = false;
                             ResLock.Locked = false;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
@@ -1760,7 +1760,7 @@ namespace Ship_Game
                         ResLock.Hover = true;
                         if (input.LeftMouseClick)
                         {
-                            p.ResLocked = true;
+                            P.ResLocked = true;
                             ResLock.Locked = true;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
@@ -1770,7 +1770,7 @@ namespace Ship_Game
             }
             Selector = null;
             ClickedTroop = false;
-            foreach (PlanetGridSquare pgs in p.TilesList)
+            foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (!pgs.ClickRect.HitTest(MousePos))
                 {
@@ -1792,8 +1792,8 @@ namespace Ship_Game
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
                     GameAudio.PlaySfxAsync("sd_troop_takeoff");
-                    Ship.CreateTroopShipAtPoint(p.Owner.data.DefaultTroopShip, p.Owner, p.Center, pgs.TroopsHere[0]);
-                    p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                    Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
+                    P.TroopsHere.Remove(pgs.TroopsHere[0]);
                     pgs.TroopsHere[0].SetPlanet(null);
                     pgs.TroopsHere.Clear();
                     ClickedTroop = true;
@@ -1804,7 +1804,7 @@ namespace Ship_Game
             }
             if (!ClickedTroop)
             {
-                foreach (PlanetGridSquare pgs in p.TilesList)
+                foreach (PlanetGridSquare pgs in P.TilesList)
                 {
                     if (pgs.ClickRect.HitTest(input.CursorPosition))
                     {
@@ -1839,17 +1839,17 @@ namespace Ship_Game
                 {
                     foodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    p.FS = (Planet.GoodState)((int)p.FS + (int)Planet.GoodState.IMPORT);
-                    if (p.FS > Planet.GoodState.EXPORT)
-                        p.FS = Planet.GoodState.STORE;
+                    P.FS = (Planet.GoodState)((int)P.FS + (int)Planet.GoodState.IMPORT);
+                    if (P.FS > Planet.GoodState.EXPORT)
+                        P.FS = Planet.GoodState.STORE;
                 }
                 if (prodDropDown.r.HitTest(MousePos) && input.LeftMouseClick)
                 {
                     prodDropDown.Toggle();
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
-                    p.PS = (Planet.GoodState)((int)p.PS + (int)Planet.GoodState.IMPORT);
-                    if (p.PS > Planet.GoodState.EXPORT)
-                        p.PS = Planet.GoodState.STORE;
+                    P.PS = (Planet.GoodState)((int)P.PS + (int)Planet.GoodState.IMPORT);
+                    if (P.PS > Planet.GoodState.EXPORT)
+                        P.PS = Planet.GoodState.STORE;
                 }
             }
             else
@@ -1862,7 +1862,7 @@ namespace Ship_Game
 
             if (ActiveBuildingEntry != null)
             {
-                foreach (PlanetGridSquare pgs in p.TilesList)
+                foreach (PlanetGridSquare pgs in P.TilesList)
                 {
                     if (!pgs.ClickRect.HitTest(MousePos) || CurrentMouse.LeftButton != ButtonState.Released || PreviousMouse.LeftButton != ButtonState.Pressed)
                     {
@@ -1870,7 +1870,7 @@ namespace Ship_Game
                     }
                     if (pgs.Habitable && pgs.building == null && pgs.QItem == null && (ActiveBuildingEntry.item as Building).Name != "Biospheres")
                     {
-                        QueueItem qi = new QueueItem(p);
+                        QueueItem qi = new QueueItem(P);
                         //p.SbProduction.AddBuildingToCQ(this.ActiveBuildingEntry.item as Building, PlayerAdded: true);
                         qi.isBuilding = true;
                         qi.Building = ActiveBuildingEntry.item as Building;       //ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
@@ -1880,7 +1880,7 @@ namespace Ship_Game
                         qi.pgs = pgs;
                         //};
                         pgs.QItem = qi;
-                        p.ConstructionQueue.Add(qi);
+                        P.ConstructionQueue.Add(qi);
                         ActiveBuildingEntry = null;
                         break;
                     }
@@ -1893,7 +1893,7 @@ namespace Ship_Game
                     }
 
                     {
-                        QueueItem qi = new QueueItem(p);
+                        QueueItem qi = new QueueItem(P);
                         //{
                         qi.isBuilding = true;
                         qi.Building = ActiveBuildingEntry.item as Building;
@@ -1903,14 +1903,14 @@ namespace Ship_Game
                         qi.IsPlayerAdded = true;
                         //};
                         pgs.QItem = qi;
-                        p.ConstructionQueue.Add(qi);
+                        P.ConstructionQueue.Add(qi);
                         ActiveBuildingEntry = null;
                         break;
                     }
                 }
                 if (ActiveBuildingEntry != null)
                 {
-                    foreach (QueueItem qi in p.ConstructionQueue)
+                    foreach (QueueItem qi in P.ConstructionQueue)
                     {
                         if (!qi.isBuilding || qi.Building.Name != (ActiveBuildingEntry.item as Building).Name || !(ActiveBuildingEntry.item as Building).Unique)
                         {
@@ -1956,14 +1956,14 @@ namespace Ship_Game
                         {
                             if (!e.WasPlusHovered(input))
                             {
-                                var qi = new QueueItem(p);
+                                var qi = new QueueItem(P);
                                 if (e.TryGet(out Ship ship))
                                 {
                                     qi.isShip = true;
                                     qi.sData = ship.shipData;
-                                    qi.Cost = ship.GetCost(p.Owner);
+                                    qi.Cost = ship.GetCost(P.Owner);
                                     qi.productionTowards = 0f;
-                                    p.ConstructionQueue.Add(qi);
+                                    P.ConstructionQueue.Add(qi);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.TryGet(out Troop troop))
@@ -1972,12 +1972,12 @@ namespace Ship_Game
                                     qi.troopType = troop.Name;
                                     qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                     qi.productionTowards = 0f;
-                                    p.ConstructionQueue.Add(qi);
+                                    P.ConstructionQueue.Add(qi);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                                 else if (e.TryGet(out Building building))
                                 {
-                                    p.AddBuildingToCQ(building, true);
+                                    P.AddBuildingToCQ(building, true);
                                     GameAudio.PlaySfxAsync("sd_ui_mouseover");
                                 }
                             }
@@ -1989,20 +1989,20 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(51);
                     if (input.LeftMouseClick)
                     {
-                        var qi = new QueueItem(p);
+                        var qi = new QueueItem(P);
                         if (e.item is Building building)
                         {
                             //Building b = ResourceManager.GetBuilding((e.item as Building).Name);
                             //b.IsPlayerAdded =true;
-                            p.AddBuildingToCQ(building, true);
+                            P.AddBuildingToCQ(building, true);
                         }
                         else if (e.item is Ship ship)
                         {
                             qi.isShip = true;
                             qi.sData = ship.shipData;
-                            qi.Cost = ship.GetCost(p.Owner);
+                            qi.Cost = ship.GetCost(P.Owner);
                             qi.productionTowards = 0f;
-                            p.ConstructionQueue.Add(qi);
+                            P.ConstructionQueue.Add(qi);
                         }
                         else if (e.item is Troop troop)
                         {
@@ -2010,7 +2010,7 @@ namespace Ship_Game
                             qi.troopType = troop.Name;
                             qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                             qi.productionTowards = 0f;
-                            p.ConstructionQueue.Add(qi);
+                            P.ConstructionQueue.Add(qi);
                         }
                     }
                 }
@@ -2025,8 +2025,8 @@ namespace Ship_Game
                     }
                 }
             }
-            ShipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
-            BuildingsHereLast = p.BuildingList.Count;
+            ShipsCanBuildLast = P.Owner.ShipsWeCanBuild.Count;
+            BuildingsHereLast = P.BuildingList.Count;
             BuildingsCanBuildLast = BuildingsCanBuild.Count;
 
             if (Popup)
@@ -2065,16 +2065,16 @@ namespace Ship_Game
                     .Where(troop => troop.TroopList.Count > 0
                                     && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
                                     && troop.fleet == null && !troop.InCombat)
-                    .OrderBy(distance => Vector2.Distance(distance.Center, p.Center)));
+                    .OrderBy(distance => Vector2.Distance(distance.Center, P.Center)));
 
             Array<Planet> planetTroops = new Array<Planet>(eui.empire.GetPlanets()
-                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, p.Center))
-                .Where(Name => Name.Name != p.Name));
+                .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Center, P.Center))
+                .Where(Name => Name.Name != P.Name));
 
             if (troopShips.Count > 0)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                troopShips.First().AI.OrderRebase(p, true);
+                troopShips.First().AI.OrderRebase(P, true);
             }
             else if (planetTroops.Count > 0)
             {
@@ -2085,7 +2085,7 @@ namespace Ship_Game
                     if (troop != null)
                     {
                         GameAudio.PlaySfxAsync("echo_affirm");
-                        troop.AI.OrderRebase(p, true);
+                        troop.AI.OrderRebase(P, true);
                     }
                 }
             }
@@ -2098,14 +2098,14 @@ namespace Ship_Game
         private void OnLaunchTroopsClicked(UIButton b)
         {
             bool play = false;
-            foreach (PlanetGridSquare pgs in p.TilesList)
+            foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
                     continue;
 
                 play = true;
-                Ship.CreateTroopShipAtPoint(p.Owner.data.DefaultTroopShip, p.Owner, p.Center, pgs.TroopsHere[0]);
-                p.TroopsHere.Remove(pgs.TroopsHere[0]);
+                Ship.CreateTroopShipAtPoint(P.Owner.data.DefaultTroopShip, P.Owner, P.Center, pgs.TroopsHere[0]);
+                P.TroopsHere.Remove(pgs.TroopsHere[0]);
                 pgs.TroopsHere[0].SetPlanet(null);
                 pgs.TroopsHere.Clear();
                 ClickedTroop = true;
@@ -2135,17 +2135,17 @@ namespace Ship_Game
                     {
                         if (input.LeftMouseClick && i > 0)
                         {
-                            QueueItem item = p.ConstructionQueue[i - 1];
-                            p.ConstructionQueue[i - 1] = p.ConstructionQueue[i];
-                            p.ConstructionQueue[i] = item;
+                            QueueItem item = P.ConstructionQueue[i - 1];
+                            P.ConstructionQueue[i - 1] = P.ConstructionQueue[i];
+                            P.ConstructionQueue[i] = item;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     else if (i > 0)
                     {
-                        QueueItem item = p.ConstructionQueue[i];
-                        p.ConstructionQueue.Remove(item);
-                        p.ConstructionQueue.Insert(0, item);
+                        QueueItem item = P.ConstructionQueue[i];
+                        P.ConstructionQueue.Remove(item);
+                        P.ConstructionQueue.Insert(0, item);
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         break;
                     }
@@ -2158,38 +2158,38 @@ namespace Ship_Game
                     {
                         if (input.LeftMouseClick && i + 1 < QSL.NumExpandedEntries)
                         {
-                            QueueItem item = p.ConstructionQueue[i + 1];
-                            p.ConstructionQueue[i + 1] = p.ConstructionQueue[i];
-                            p.ConstructionQueue[i] = item;
+                            QueueItem item = P.ConstructionQueue[i + 1];
+                            P.ConstructionQueue[i + 1] = P.ConstructionQueue[i];
+                            P.ConstructionQueue[i] = item;
                             GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         }
                     }
                     else if (i + 1 < QSL.NumExpandedEntries)
                     {
-                        QueueItem item = p.ConstructionQueue[i];
-                        p.ConstructionQueue.Remove(item);
-                        p.ConstructionQueue.Insert(0, item);
+                        QueueItem item = P.ConstructionQueue[i];
+                        P.ConstructionQueue.Remove(item);
+                        P.ConstructionQueue.Insert(0, item);
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                         break;
                     }
                 }
 
-                if (e.WasApplyHovered(input) && !p.RecentCombat && p.CrippledTurns <= 0)
+                if (e.WasApplyHovered(input) && !P.RecentCombat && P.CrippledTurns <= 0)
                 {
                     if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
                     {
                         if (input.LeftMouseClick)
                         {
-                            GameAudio.PlaySfxAsync(p.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
+                            GameAudio.PlaySfxAsync(P.ApplyStoredProduction(i) ? "sd_ui_accept_alt3" : "UI_Misc20");
                         }
                     }
-                    else if (p.ProductionHere == 0f)
+                    else if (P.ProductionHere == 0f)
                     {
                         GameAudio.PlaySfxAsync("UI_Misc20");
                     }
                     else
                     {
-                        p.ApplyAllStoredProduction(i);
+                        P.ApplyAllStoredProduction(i);
                         GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     }
                 }
@@ -2197,7 +2197,7 @@ namespace Ship_Game
                 if (e.WasCancelHovered(input) && input.LeftMouseClick)
                 {
                     var item = e.Get<QueueItem>();
-                    p.ProductionHere += item.productionTowards;
+                    P.ProductionHere += item.productionTowards;
 
                     if (item.pgs != null)
                     {
@@ -2208,26 +2208,26 @@ namespace Ship_Game
                     {
                         if (item.Goal is BuildConstructionShip)
                         {
-                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                            P.Owner.GetGSAI().Goals.Remove(item.Goal);
                         }
 
                         if (item.Goal.GetFleet() != null)
-                            p.Owner.GetGSAI().Goals.Remove(item.Goal);
+                            P.Owner.GetGSAI().Goals.Remove(item.Goal);
                     }
 
-                    p.ConstructionQueue.Remove(item);
+                    P.ConstructionQueue.Remove(item);
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                 }
                 ++i;
             }
 
-            QSL.HandleInput(input, p);
+            QSL.HandleInput(input, P);
         }
 
         private void HandleSlider(InputState input)
         {
             Vector2 mousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
-            if (p.Owner.data.Traits.Cybernetic == 0)
+            if (P.Owner.data.Traits.Cybernetic == 0)
             {
                 if (ColonySliderFood.sRect.HitTest(mousePos) || DraggingSlider1)
                 {
@@ -2311,45 +2311,45 @@ namespace Ship_Game
                 {
                     DraggingSlider1 = false;
                 }
-                fPercentLast = p.FarmerPercentage;
-                p.FarmerPercentage = (ColonySliderFood.cursor.X - (float)ColonySliderFood.sRect.X) / ColonySliderFood.sRect.Width;
-                float difference = fPercentLast - p.FarmerPercentage;
+                fPercentLast = P.FarmerPercentage;
+                P.FarmerPercentage = (ColonySliderFood.cursor.X - (float)ColonySliderFood.sRect.X) / ColonySliderFood.sRect.Width;
+                float difference = fPercentLast - P.FarmerPercentage;
                 if (!ProdLock.Locked && !ResLock.Locked)
                 {
-                    Planet workerPercentage = p;
+                    Planet workerPercentage = P;
                     workerPercentage.WorkerPercentage = workerPercentage.WorkerPercentage + difference / 2f;
-                    if (p.WorkerPercentage < 0f)
+                    if (P.WorkerPercentage < 0f)
                     {
-                        Planet farmerPercentage = p;
-                        farmerPercentage.FarmerPercentage = farmerPercentage.FarmerPercentage + p.WorkerPercentage;
-                        p.WorkerPercentage = 0f;
+                        Planet farmerPercentage = P;
+                        farmerPercentage.FarmerPercentage = farmerPercentage.FarmerPercentage + P.WorkerPercentage;
+                        P.WorkerPercentage = 0f;
                     }
-                    Planet researcherPercentage = p;
+                    Planet researcherPercentage = P;
                     researcherPercentage.ResearcherPercentage = researcherPercentage.ResearcherPercentage + difference / 2f;
-                    if (p.ResearcherPercentage < 0f)
+                    if (P.ResearcherPercentage < 0f)
                     {
-                        Planet planet = p;
-                        planet.FarmerPercentage = planet.FarmerPercentage + p.ResearcherPercentage;
-                        p.ResearcherPercentage = 0f;
+                        Planet planet = P;
+                        planet.FarmerPercentage = planet.FarmerPercentage + P.ResearcherPercentage;
+                        P.ResearcherPercentage = 0f;
                     }
                 }
                 else if (ProdLock.Locked && !ResLock.Locked)
                 {
-                    p.ResearcherPercentage += difference;
-                    if (p.ResearcherPercentage < 0f)
+                    P.ResearcherPercentage += difference;
+                    if (P.ResearcherPercentage < 0f)
                     {
-                        p.FarmerPercentage += p.ResearcherPercentage;
-                        p.ResearcherPercentage = 0f;
+                        P.FarmerPercentage += P.ResearcherPercentage;
+                        P.ResearcherPercentage = 0f;
                     }
                 }
                 else if (!ProdLock.Locked && ResLock.Locked)
                 {
-                    Planet workerPercentage1 = p;
-                    p.WorkerPercentage += difference;
-                    if (p.WorkerPercentage < 0f)
+                    Planet workerPercentage1 = P;
+                    P.WorkerPercentage += difference;
+                    if (P.WorkerPercentage < 0f)
                     {
-                        p.FarmerPercentage += p.WorkerPercentage;
-                        p.WorkerPercentage = 0f;
+                        P.FarmerPercentage += P.WorkerPercentage;
+                        P.WorkerPercentage = 0f;
                     }
                 }
             }
@@ -2368,48 +2368,48 @@ namespace Ship_Game
                 {
                     DraggingSlider2 = false;
                 }
-                pPercentLast = p.WorkerPercentage;
-                p.WorkerPercentage = (ColonySliderProd.cursor.X - (float)ColonySliderProd.sRect.X) / ColonySliderProd.sRect.Width;
-                float difference = pPercentLast - p.WorkerPercentage;
+                pPercentLast = P.WorkerPercentage;
+                P.WorkerPercentage = (ColonySliderProd.cursor.X - (float)ColonySliderProd.sRect.X) / ColonySliderProd.sRect.Width;
+                float difference = pPercentLast - P.WorkerPercentage;
                 if (!FoodLock.Locked && !ResLock.Locked)
                 {
-                    Planet farmerPercentage2 = p;
+                    Planet farmerPercentage2 = P;
                     farmerPercentage2.FarmerPercentage = farmerPercentage2.FarmerPercentage + difference / 2f;
-                    if (p.FarmerPercentage < 0f)
+                    if (P.FarmerPercentage < 0f)
                     {
-                        Planet workerPercentage2 = p;
-                        workerPercentage2.WorkerPercentage = workerPercentage2.WorkerPercentage + p.FarmerPercentage;
-                        p.FarmerPercentage = 0f;
+                        Planet workerPercentage2 = P;
+                        workerPercentage2.WorkerPercentage = workerPercentage2.WorkerPercentage + P.FarmerPercentage;
+                        P.FarmerPercentage = 0f;
                     }
-                    Planet researcherPercentage2 = p;
+                    Planet researcherPercentage2 = P;
                     researcherPercentage2.ResearcherPercentage = researcherPercentage2.ResearcherPercentage + difference / 2f;
-                    if (p.ResearcherPercentage < 0f)
+                    if (P.ResearcherPercentage < 0f)
                     {
-                        Planet planet2 = p;
-                        planet2.WorkerPercentage = planet2.WorkerPercentage + p.ResearcherPercentage;
-                        p.ResearcherPercentage = 0f;
+                        Planet planet2 = P;
+                        planet2.WorkerPercentage = planet2.WorkerPercentage + P.ResearcherPercentage;
+                        P.ResearcherPercentage = 0f;
                     }
                 }
                 else if (FoodLock.Locked && !ResLock.Locked)
                 {
-                    Planet researcherPercentage3 = p;
+                    Planet researcherPercentage3 = P;
                     researcherPercentage3.ResearcherPercentage = researcherPercentage3.ResearcherPercentage + difference;
-                    if (p.ResearcherPercentage < 0f)
+                    if (P.ResearcherPercentage < 0f)
                     {
-                        Planet workerPercentage3 = p;
-                        workerPercentage3.WorkerPercentage = workerPercentage3.WorkerPercentage + p.ResearcherPercentage;
-                        p.ResearcherPercentage = 0f;
+                        Planet workerPercentage3 = P;
+                        workerPercentage3.WorkerPercentage = workerPercentage3.WorkerPercentage + P.ResearcherPercentage;
+                        P.ResearcherPercentage = 0f;
                     }
                 }
                 else if (!FoodLock.Locked && ResLock.Locked)
                 {
-                    Planet farmerPercentage3 = p;
+                    Planet farmerPercentage3 = P;
                     farmerPercentage3.FarmerPercentage = farmerPercentage3.FarmerPercentage + difference;
-                    if (p.FarmerPercentage < 0f)
+                    if (P.FarmerPercentage < 0f)
                     {
-                        Planet planet3 = p;
-                        planet3.WorkerPercentage = planet3.WorkerPercentage + p.FarmerPercentage;
-                        p.FarmerPercentage = 0f;
+                        Planet planet3 = P;
+                        planet3.WorkerPercentage = planet3.WorkerPercentage + P.FarmerPercentage;
+                        P.FarmerPercentage = 0f;
                     }
                 }
             }
@@ -2428,48 +2428,48 @@ namespace Ship_Game
                 {
                     DraggingSlider3 = false;
                 }
-                rPercentLast = p.ResearcherPercentage;
-                p.ResearcherPercentage = (ColonySliderRes.cursor.X - (float)ColonySliderRes.sRect.X) / ColonySliderRes.sRect.Width;
-                float difference = rPercentLast - p.ResearcherPercentage;
+                rPercentLast = P.ResearcherPercentage;
+                P.ResearcherPercentage = (ColonySliderRes.cursor.X - (float)ColonySliderRes.sRect.X) / ColonySliderRes.sRect.Width;
+                float difference = rPercentLast - P.ResearcherPercentage;
                 if (!ProdLock.Locked && !FoodLock.Locked)
                 {
-                    Planet workerPercentage4 = p;
+                    Planet workerPercentage4 = P;
                     workerPercentage4.WorkerPercentage = workerPercentage4.WorkerPercentage + difference / 2f;
-                    if (p.WorkerPercentage < 0f)
+                    if (P.WorkerPercentage < 0f)
                     {
-                        Planet researcherPercentage4 = p;
-                        researcherPercentage4.ResearcherPercentage = researcherPercentage4.ResearcherPercentage + p.WorkerPercentage;
-                        p.WorkerPercentage = 0f;
+                        Planet researcherPercentage4 = P;
+                        researcherPercentage4.ResearcherPercentage = researcherPercentage4.ResearcherPercentage + P.WorkerPercentage;
+                        P.WorkerPercentage = 0f;
                     }
-                    Planet farmerPercentage4 = p;
+                    Planet farmerPercentage4 = P;
                     farmerPercentage4.FarmerPercentage = farmerPercentage4.FarmerPercentage + difference / 2f;
-                    if (p.FarmerPercentage < 0f)
+                    if (P.FarmerPercentage < 0f)
                     {
-                        Planet planet4 = p;
-                        planet4.ResearcherPercentage = planet4.ResearcherPercentage + p.FarmerPercentage;
-                        p.FarmerPercentage = 0f;
+                        Planet planet4 = P;
+                        planet4.ResearcherPercentage = planet4.ResearcherPercentage + P.FarmerPercentage;
+                        P.FarmerPercentage = 0f;
                     }
                 }
                 else if (ProdLock.Locked && !FoodLock.Locked)
                 {
-                    Planet farmerPercentage5 = p;
+                    Planet farmerPercentage5 = P;
                     farmerPercentage5.FarmerPercentage = farmerPercentage5.FarmerPercentage + difference;
-                    if (p.FarmerPercentage < 0f)
+                    if (P.FarmerPercentage < 0f)
                     {
-                        Planet researcherPercentage5 = p;
-                        researcherPercentage5.ResearcherPercentage = researcherPercentage5.ResearcherPercentage + p.FarmerPercentage;
-                        p.FarmerPercentage = 0f;
+                        Planet researcherPercentage5 = P;
+                        researcherPercentage5.ResearcherPercentage = researcherPercentage5.ResearcherPercentage + P.FarmerPercentage;
+                        P.FarmerPercentage = 0f;
                     }
                 }
                 else if (!ProdLock.Locked && FoodLock.Locked)
                 {
-                    Planet workerPercentage5 = p;
+                    Planet workerPercentage5 = P;
                     workerPercentage5.WorkerPercentage = workerPercentage5.WorkerPercentage + difference;
-                    if (p.WorkerPercentage < 0f)
+                    if (P.WorkerPercentage < 0f)
                     {
-                        Planet planet5 = p;
-                        planet5.ResearcherPercentage = planet5.ResearcherPercentage + p.WorkerPercentage;
-                        p.WorkerPercentage = 0f;
+                        Planet planet5 = P;
+                        planet5.ResearcherPercentage = planet5.ResearcherPercentage + P.WorkerPercentage;
+                        P.WorkerPercentage = 0f;
                     }
                 }
             }
@@ -2478,15 +2478,15 @@ namespace Ship_Game
             //MathHelper.Clamp(p.WorkerPercentage, 0f, 1f);
             //MathHelper.Clamp(p.ResearcherPercentage, 0f, 1f);
 
-            ColonySliderFood.amount = p.FarmerPercentage;
-            ColonySliderProd.amount = p.WorkerPercentage;
-            ColonySliderRes.amount = p.ResearcherPercentage;
+            ColonySliderFood.amount = P.FarmerPercentage;
+            ColonySliderProd.amount = P.WorkerPercentage;
+            ColonySliderRes.amount = P.ResearcherPercentage;
 
             ColonySliderFood.cursor = CursorRectForSlider(ColonySliderFood);
             ColonySliderProd.cursor = CursorRectForSlider(ColonySliderProd);
             ColonySliderRes.cursor = CursorRectForSlider(ColonySliderRes);
 
-            p.UpdateIncomes(false);
+            P.UpdateIncomes(false);
         }
 
         private static Rectangle CursorRectForSlider(ColonySlider colonySlider)
@@ -2506,15 +2506,15 @@ namespace Ship_Game
         {
             if (ToScrap != null)
             {
-                ToScrap.ScrapBuilding(p);
+                ToScrap.ScrapBuilding(P);
             }
             Update(0f);
         }
 
         public override void Update(float elapsedTime)
         {
-            p.UpdateIncomes(false);
-            if (!p.CanBuildInfantry())
+            P.UpdateIncomes(false);
+            if (!P.CanBuildInfantry())
             {
                 bool remove = false;
                 foreach (Submenu.Tab tab in build.Tabs)
@@ -2529,7 +2529,7 @@ namespace Ship_Game
                 {
                     build.Tabs.Clear();
                     build.AddTab(Localizer.Token(334));
-                    if (p.HasShipyard)
+                    if (P.HasShipyard)
                     {
                         build.AddTab(Localizer.Token(335));
                     }
@@ -2551,14 +2551,14 @@ namespace Ship_Game
                 {
                     build.Tabs.Clear();
                     build.AddTab(Localizer.Token(334));
-                    if (p.HasShipyard)
+                    if (P.HasShipyard)
                     {
                         build.AddTab(Localizer.Token(335));
                     }
                     build.AddTab(Localizer.Token(336));
                 }
             }
-            if (!p.HasShipyard)
+            if (!P.HasShipyard)
             {
                 bool remove = false;
                 foreach (Submenu.Tab tab in build.Tabs)
@@ -2573,7 +2573,7 @@ namespace Ship_Game
                 {
                     build.Tabs.Clear();
                     build.AddTab(Localizer.Token(334));
-                    if (p.AllowInfantry)
+                    if (P.AllowInfantry)
                     {
                         build.AddTab(Localizer.Token(336));
                     }
@@ -2595,7 +2595,7 @@ namespace Ship_Game
                     build.Tabs.Clear();
                     build.AddTab(Localizer.Token(334));
                     build.AddTab(Localizer.Token(335));
-                    if (p.AllowInfantry)
+                    if (P.AllowInfantry)
                     {
                         build.AddTab(Localizer.Token(336));
                     }
