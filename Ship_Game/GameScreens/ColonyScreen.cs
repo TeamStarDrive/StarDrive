@@ -2543,8 +2543,9 @@ namespace Ship_Game
                     if (tab.Title != Localizer.Token(336))
                         continue;
                     add = false;
-                    foreach (Troop troop in buildSL.VisibleItems<Troop>())
-                        troop.Update(elapsedTime);
+                    foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
+                        if (entry.TryGet(out Troop troop))
+                            troop.Update(elapsedTime);
                 }
                 if (add)
                 {
