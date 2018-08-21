@@ -2326,9 +2326,9 @@ namespace Ship_Game.Ships
         }
 
         public void AddToShipLevel(int amountToAdd) => Level = Math.Min(255, Level + amountToAdd);
-        private void ExplodeShip(Tuple<float , bool> splode)
+        private void ExplodeShip(SplodeData splode)
         {
-            ExplodeShip(splode.Item1, splode.Item2);
+            ExplodeShip(splode.Size, splode.Warp);
         }
         private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)
         {
@@ -2345,8 +2345,18 @@ namespace Ship_Game.Ships
                 ExplosionManager.AddWarpExplosion(position, explodeRadius*1.75f, 12f, 0.2f);
             }
         }
+        private struct SplodeData
+        {
+            public SplodeData(float size, bool warp)
+            {
+                Size = size;
+                Warp = warp;
+            }
 
-        private static Tuple<float, bool> SetSplodeData(float size, bool warp) => new Tuple<float, bool>(size, warp);
+            public float Size { get; private set; }
+            public bool Warp { get; private set; }
+        }
+        private static SplodeData SetSplodeData(float size, bool warp) => new SplodeData(size, warp);
 
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -2413,7 +2423,7 @@ namespace Ship_Game.Ships
             if (Active)
             {
                 Active = false;
-                Tuple<float, bool> splodeType;
+                SplodeData splodeType;
                 switch (shipData.HullRole)
                 {
                     case ShipData.RoleName.freighter: splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
@@ -2429,7 +2439,7 @@ namespace Ship_Game.Ships
                     default:                          splodeType = SetSplodeData(size * 8, cleanupOnly);  break;
                 }
                 ExplodeShip(splodeType);
-                UniverseScreen.SpaceManager.ShipExplode(this, splodeType.Item1 * 50, Center, Radius);
+                UniverseScreen.SpaceManager.ShipExplode(this, splodeType.Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {
