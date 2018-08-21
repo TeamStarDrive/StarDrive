@@ -528,7 +528,7 @@ namespace Ship_Game
                 return NetFoodPerTurn;
 
             float minimumFoodAdded = -Consumption + FlatFoodAdded; // FB: added this one so if buildings have negative food per colonist
-            // it can never be lower than the max consumption of the planet minus flat food and then i am clamping it a line below
+            // it can never be lower than the max consumption of the planet minus flat food and then i am clamping it the line below
             return (NetFoodPerTurn - Consumption).Clamped(minimumFoodAdded, NetFoodPerTurn); //This is already the correct value. whats incorrect is
             //how the variable is named at initial assignment.
             //it should be gross food. That will take a lot of invasive work to fix.
@@ -2662,7 +2662,6 @@ namespace Ship_Game
             else
                 HasShipyard = false;
 
-            Consumption = ((Population / 1000) + Owner.data.Traits.ConsumptionModifier * (Population / 1000));
             //Research
             NetResearchPerTurn = (ResearcherPercentage * (Population / 1000)) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn + Owner.data.Traits.ResearchMod * NetResearchPerTurn;
@@ -2673,7 +2672,7 @@ namespace Ship_Game
             NetProductionPerTurn = (WorkerPercentage * (Population / 1000) * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
             MaxProductionPerTurn = GetMaxProductionPotentialCalc();
-
+            Consumption = ((Population / 1000) + Owner.data.Traits.ConsumptionModifier * (Population / 1000));
             if (Owner.data.Traits.Cybernetic > 0)
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else
