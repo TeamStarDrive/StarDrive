@@ -14,7 +14,7 @@ namespace Ship_Game
     public sealed class ColonyScreen : PlanetScreen, IListScreen
     {
         public Planet p;
-        public ToggleButton playerDesignsToggle;
+        public ToggleButton PlayerDesignsToggle;
 
         private Menu2 TitleBar;
         private Vector2 TitlePos;
@@ -47,7 +47,7 @@ namespace Ship_Game
         private Rectangle MoneyRect;
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
         private ScrollList CommoditiesSL;
-        private Rectangle gridPos;
+        private Rectangle GridPos;
         private Submenu subColonyGrid;
         private ScrollList buildSL;
         private ScrollList QSL;
@@ -55,38 +55,40 @@ namespace Ship_Game
         private DropDownMenu prodDropDown;
         private ProgressBar FoodStorage;
         private ProgressBar ProdStorage;
-        private Rectangle foodStorageIcon;
-        private Rectangle profStorageIcon;
+        private Rectangle FoodStorageIcon;
+        private Rectangle ProfStorageIcon;
         private ColonySlider ColonySliderFood;
         private ColonySlider ColonySliderProd;
         private ColonySlider ColonySliderRes;
 
-        private object detailInfo;
-        private Building toScrap;
+        private object DetailInfo;
+        private Building ToScrap;
         private ScrollList.Entry ActiveBuildingEntry;
 
-        public bool ClickedTroop;
         private float fPercentLast;
         private float pPercentLast;
         private float rPercentLast;
-
-        private bool draggingSlider1;
-        private bool draggingSlider2;
-        private bool draggingSlider3;
-        private Selector selector;
-        private int buildingsHereLast;
-        private int buildingsCanBuildLast;
-        private int shipsCanBuildLast;
+        public bool ClickedTroop;
+        private bool DraggingSlider1;
+        private bool DraggingSlider2;
+        private bool DraggingSlider3;
         public bool Reset;
-        private int editHoverState;
+        private int BuildingsHereLast;
+        private int BuildingsCanBuildLast;
+        private int ShipsCanBuildLast;
+        private int EditHoverState;
 
-        private Rectangle edit_name_button;
+        private Selector Selector;
+        private Rectangle EditNameButton;
         private Array<Building> BuildingsCanBuild = new Array<Building>();
         private GenericButton ChangeGovernor = new GenericButton(new Rectangle(), Localizer.Token(370), Fonts.Pirulen16);
-        private MouseState currentMouse;
-        private MouseState previousMouse;
-        private bool rmouse;
-        private static bool popup;  //fbedard
+        private MouseState CurrentMouse;
+        private MouseState PreviousMouse;
+        private bool Rmouse;
+        private static bool Popup;  //fbedard
+        private readonly SpriteFont Font8 = Fonts.Arial8Bold;
+        private readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        private readonly SpriteFont Font20 = Fonts.Arial20Bold;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
         {
@@ -168,12 +170,12 @@ namespace Ship_Game
                 foodDropDown.AddOption(Localizer.Token(331));
                 foodDropDown.ActiveIndex = (int)p.FS;
                 var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
-                foodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
+                FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
                 ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
                 ProdStorage.Max = p.MaxStorage;
                 ProdStorage.Progress = p.ProductionHere;
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
-                profStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
+                ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
                 prodDropDown = LowRes ? new DropDownMenu(new Rectangle(theMenu7.X + 90 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18)) : new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
                 prodDropDown.AddOption(Localizer.Token(329));
                 prodDropDown.AddOption(Localizer.Token(330));
@@ -196,11 +198,11 @@ namespace Ship_Game
             build = new Submenu(theMenu10);
             build.AddTab(Localizer.Token(334));
             buildSL = new ScrollList(build);
-            playerDesignsToggle = new ToggleButton(
+            PlayerDesignsToggle = new ToggleButton(
                 new Vector2(build.Menu.X + build.Menu.Width - 270, build.Menu.Y),
                 ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
 
-            playerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
+            PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
             if (p.HasShipyard)
                 build.AddTab(Localizer.Token(335));
             if (p.AllowInfantry)
@@ -212,19 +214,19 @@ namespace Ship_Game
             QSL = new ScrollList(queue, ListOptions.Draggable);
 
             PlanetIcon = new Rectangle(theMenu4.X + theMenu4.Width - 148, theMenu4.Y + (theMenu4.Height - 25) / 2 - 64 + 25, 128, 128);
-            gridPos = new Rectangle(subColonyGrid.Menu.X + 10, subColonyGrid.Menu.Y + 30, subColonyGrid.Menu.Width - 20, subColonyGrid.Menu.Height - 35);
-            int width = gridPos.Width / 7;
-            int height = gridPos.Height / 5;
+            GridPos = new Rectangle(subColonyGrid.Menu.X + 10, subColonyGrid.Menu.Y + 30, subColonyGrid.Menu.Width - 20, subColonyGrid.Menu.Height - 35);
+            int width = GridPos.Width / 7;
+            int height = GridPos.Height / 5;
             foreach (PlanetGridSquare planetGridSquare in p.TilesList)
-                planetGridSquare.ClickRect = new Rectangle(gridPos.X + planetGridSquare.x * width, gridPos.Y + planetGridSquare.y * height, width, height);
+                planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.x * width, GridPos.Y + planetGridSquare.y * height, width, height);
             PlanetName.Text = p.Name;
             PlanetName.MaxCharacters = 12;
             if (p.Owner != null)
             {
-                shipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
-                buildingsHereLast = p.BuildingList.Count;
-                buildingsCanBuildLast = BuildingsCanBuild.Count;
-                detailInfo = p.Description;
+                ShipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
+                BuildingsHereLast = p.BuildingList.Count;
+                BuildingsCanBuildLast = BuildingsCanBuild.Count;
+                DetailInfo = p.Description;
                 Rectangle rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
                 Rectangle rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
                 GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
@@ -256,11 +258,11 @@ namespace Ship_Game
                 }
 
                 // @todo add localization
-                GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing * 2 + 15, 
-                                            () => p.GovBuildings, Fonts.Arial12Bold, "Governor manages buildings", 0);
+                GovBuildings = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing * 2 + 15, 
+                                            () => p.GovBuildings, Font12, "Governor manages buildings", 0);
 
-                GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing + 10,
-                                          () => p.GovSliders, Fonts.Arial12Bold, "Governor manages labor sliders", 0);
+                GovSliders = new UICheckBox(this, rectangle5.X - 10, rectangle5.Y - Font12.LineSpacing + 10,
+                                          () => p.GovSliders, Font12, "Governor manages labor sliders", 0);
             }
             else
             {
@@ -304,7 +306,7 @@ namespace Ship_Game
             pLabor.Draw();
             pStorage.Draw();
             subColonyGrid.Draw();
-            var destinationRectangle1 = new Rectangle(gridPos.X, gridPos.Y + 1, gridPos.Width - 4, gridPos.Height - 3);
+            var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
             batch.Draw(ResourceManager.Texture("PlanetTiles/" + p.GetTile()), destinationRectangle1, Color.White);
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
@@ -380,7 +382,7 @@ namespace Ship_Game
             DrawConstructionQueue(batch);
 
             buildSL.Draw(batch);
-            selector?.Draw(batch);
+            Selector?.Draw(batch);
             string format = "0.#";
             batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             batch.DrawRectangle(ColonySliderFood.sRect, ColonySliderFood.Color);
@@ -404,15 +406,15 @@ namespace Ship_Game
                 else
                     batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, p.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             }
-            Vector2 position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+            Vector2 position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - Font12.LineSpacing / 2);
             if (LowRes)
                 position2.X -= 15f;
             string text1 = p.Owner.data.Traits.Cybernetic == 0 ? p.GetNetFoodPerTurn().ToString(format) : "Unnecessary";
-            position2.X -= Fonts.Arial12Bold.MeasureString(text1).X;
+            position2.X -= Font12.MeasureString(text1).X;
             if (p.NetFoodPerTurn - (double)p.Consumption < 0.0 && p.Owner.data.Traits.Cybernetic != 1 && text1 != "0")
-                batch.DrawString(Fonts.Arial12Bold, text1, position2, Color.LightPink);
+                batch.DrawString(Font12, text1, position2, Color.LightPink);
             else
-                batch.DrawString(Fonts.Arial12Bold, text1, position2, new Color(byte.MaxValue, 239, 208));
+                batch.DrawString(Font12, text1, position2, new Color(byte.MaxValue, 239, 208));
             batch.Draw(ResourceManager.Texture("NewUI/slider_grd_brown"), new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * (double)ColonySliderProd.sRect.Width), 6), new Rectangle(ColonySliderProd.sRect.X, ColonySliderProd.sRect.Y, (int)(ColonySliderProd.amount * (double)ColonySliderProd.sRect.Width), 6), Color.White);
             batch.DrawRectangle(ColonySliderProd.sRect, ColonySliderProd.Color);
             Rectangle rectangle2 = new Rectangle(ColonySliderProd.sRect.X - 40, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
@@ -431,7 +433,7 @@ namespace Ship_Game
                 else
                     batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, Color.White);
             }
-            position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+            position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderProd.sRect.Y + ColonySliderProd.sRect.Height / 2 - Font12.LineSpacing / 2);
             if (LowRes)
                 position2.X -= 15f;
             float num4;
@@ -449,19 +451,19 @@ namespace Ship_Game
             if (p.CrippledTurns > 0)
             {
                 text2 = Localizer.Token(2202);
-                position2.X -= Fonts.Arial12Bold.MeasureString(text2).X;
+                position2.X -= Font12.MeasureString(text2).X;
             }
             else if (p.RecentCombat)
             {
                 text2 = Localizer.Token(2257);
-                position2.X -= Fonts.Arial12Bold.MeasureString(text2).X;
+                position2.X -= Font12.MeasureString(text2).X;
             }
             else
-                position2.X -= Fonts.Arial12Bold.MeasureString(text2).X;
+                position2.X -= Font12.MeasureString(text2).X;
             if (p.CrippledTurns > 0 || p.RecentCombat || p.Owner.data.Traits.Cybernetic != 0 && p.NetProductionPerTurn - (double)p.Consumption < 0.0 && text2 != "0")
-                batch.DrawString(Fonts.Arial12Bold, text2, position2, Color.LightPink);
+                batch.DrawString(Font12, text2, position2, Color.LightPink);
             else
-                batch.DrawString(Fonts.Arial12Bold, text2, position2, new Color(byte.MaxValue, 239, 208));
+                batch.DrawString(Font12, text2, position2, new Color(byte.MaxValue, 239, 208));
             batch.Draw(ResourceManager.Texture("NewUI/slider_grd_blue"), new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * (double)ColonySliderRes.sRect.Width), 6), new Rectangle(ColonySliderRes.sRect.X, ColonySliderRes.sRect.Y, (int)(ColonySliderRes.amount * (double)ColonySliderRes.sRect.Width), 6), Color.White);
             batch.DrawRectangle(ColonySliderRes.sRect, ColonySliderRes.Color);
             Rectangle rectangle3 = new Rectangle(ColonySliderRes.sRect.X - 40, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_science").Height / 2, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
@@ -480,12 +482,12 @@ namespace Ship_Game
                 else
                     batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), position1, Color.White);
             }
-            position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+            position2 = new Vector2(pLabor.Menu.X + pLabor.Menu.Width - 20, ColonySliderRes.sRect.Y + ColonySliderRes.sRect.Height / 2 - Font12.LineSpacing / 2);
             if (LowRes)
                 position2.X -= 15f;
             string text3 = p.NetResearchPerTurn.ToString(format);
-            position2.X -= Fonts.Arial12Bold.MeasureString(text3).X;
-            batch.DrawString(Fonts.Arial12Bold, text3, position2, new Color(byte.MaxValue, 239, 208));
+            position2.X -= Font12.MeasureString(text3).X;
+            batch.DrawString(Font12, text3, position2, new Color(byte.MaxValue, 239, 208));
             if (p.Owner.data.Traits.Cybernetic == 0)
             {
                 if (!FoodLock.Hover && !FoodLock.Locked)
@@ -513,24 +515,24 @@ namespace Ship_Game
                 num5 += 20f;
             Vector2 vector2_2 = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
             p.Name = PlanetName.Text;
-            PlanetName.Draw(Fonts.Arial20Bold, batch, vector2_2, GameTime, new Color(byte.MaxValue, 239, 208));
-            edit_name_button = new Rectangle((int)(vector2_2.X + (double)Fonts.Arial20Bold.MeasureString(p.Name).X + 12.0), (int)(vector2_2.Y + (double)(Fonts.Arial20Bold.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
-            if (editHoverState == 0 && !PlanetName.HandlingInput)
-                batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), edit_name_button, Color.White);
+            PlanetName.Draw(Font20, batch, vector2_2, GameTime, new Color(byte.MaxValue, 239, 208));
+            EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(p.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
+            if (EditHoverState == 0 && !PlanetName.HandlingInput)
+                batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
             else
-                batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit_hover2"), edit_name_button, Color.White);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit_hover2"), EditNameButton, Color.White);
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 768)
-                vector2_2.Y += Fonts.Arial20Bold.LineSpacing * 2;
+                vector2_2.Y += Font20.LineSpacing * 2;
             else
-                vector2_2.Y += Fonts.Arial20Bold.LineSpacing;
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384) + ":", vector2_2, Color.Orange);
+                vector2_2.Y += Font20.LineSpacing;
+            batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Fonts.Arial12Bold, p.Type, position3, new Color(byte.MaxValue, 239, 208));
-            vector2_2.Y += Fonts.Arial12Bold.LineSpacing + 2;
+            batch.DrawString(Font12, p.Type, position3, new Color(byte.MaxValue, 239, 208));
+            vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
             SpriteBatch spriteBatch1 = batch;
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
+            SpriteFont arial12Bold = Font12;
             num4 = p.Population / 1000f;
             string str2 = num4.ToString(format);
             string str3 = " / ";
@@ -540,21 +542,21 @@ namespace Ship_Game
             Vector2 position4 = position3;
             Color color = new Color(byte.MaxValue, 239, 208);
             spriteBatch1.DrawString(arial12Bold, text4, position4, color);
-            Rectangle rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385) + ":").X, Fonts.Arial12Bold.LineSpacing);
+            Rectangle rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(385) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75);
-            vector2_2.Y += Fonts.Arial12Bold.LineSpacing + 2;
+            vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.Fertility.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386) + ":").X, Fonts.Arial12Bold.LineSpacing);
+            batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, p.Fertility.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
-            vector2_2.Y += Fonts.Arial12Bold.LineSpacing + 2;
+            vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387) + ":").X, Fonts.Arial12Bold.LineSpacing);
+            batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
+            batch.DrawString(Font12, p.MineralRichness.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
 
 
             // The Doctor: For planet income breakdown
@@ -594,7 +596,7 @@ namespace Ship_Game
             positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
 
             batch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
-            batch.DrawString(Fonts.Arial12Bold, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+            batch.DrawString(Font12, netIncome.ToString("F2") + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
 
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
@@ -624,7 +626,7 @@ namespace Ship_Game
                     case Planet.ColonyType.Military:     Localizer.Token(374); break;
                     case Planet.ColonyType.TradeHub:     Localizer.Token(393); break;
                 }
-                batch.DrawString(Fonts.Arial12Bold, "Governor", position5, Color.White);
+                batch.DrawString(Font12, "Governor", position5, Color.White);
                 position5.Y = GovernorDropdown.Rect.Y + 25;
 
                 int ColonyTypeLocalization()
@@ -642,10 +644,10 @@ namespace Ship_Game
                     }
                 }
 
-                string text5 = Fonts.Arial12Bold.ParseText(Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
-                batch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
+                string text5 = Font12.ParseText(Localizer.Token(ColonyTypeLocalization()), (pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                batch.DrawString(Font12, text5, position5, Color.White);
 
-                GovernorDropdown.SetAbsPos(vector2_3.X, vector2_3.Y + Fonts.Arial12Bold.LineSpacing + 5);
+                GovernorDropdown.SetAbsPos(vector2_3.X, vector2_3.Y + Font12.LineSpacing + 5);
                 GovernorDropdown.Reset();
                 GovernorDropdown.Draw(batch);
             }
@@ -678,26 +680,26 @@ namespace Ship_Game
                 prodDropDown.Draw(batch);
                 if (!LowRes)
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), foodStorageIcon, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), profStorageIcon, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
                 }
                 else
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), foodStorageIcon, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), profStorageIcon, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
                 }
             }
 
             base.Draw(batch);
 
             if (ScreenManager.NumScreens == 2)
-                popup = true;
+                Popup = true;
 
             close.Draw(batch);
 
-            if (foodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
+            if (FoodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73);
-            if (profStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
+            if (ProfStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(74);
         }
 
@@ -726,8 +728,8 @@ namespace Ship_Game
                 {
                     troop.Draw(batch, new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30));
                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += Font12.LineSpacing;
                     batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
                     position.X = entry.Right - 100;
                     Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
@@ -735,8 +737,8 @@ namespace Ship_Game
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
                     position = new Vector2(destinationRectangle2.X + 26,
                         destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                        Fonts.Arial12Bold.LineSpacing / 2);
-                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+                        Font12.LineSpacing / 2);
+                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
                     entry.DrawPlusEdit(batch);
                 }
                 else
@@ -744,17 +746,17 @@ namespace Ship_Game
                     vector2_1.Y = entry.Y;
                     troop.Draw(batch, new Rectangle((int) vector2_1.X, (int) vector2_1.Y, 29, 30));
                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += Font12.LineSpacing;
+                    batch.DrawString(Font8, troop.Class, position, Color.Orange);
                     position.X = entry.Right - 100;
                     Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
                     position = new Vector2(destinationRectangle2.X + 26,
                         destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                        Fonts.Arial12Bold.LineSpacing / 2);
-                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+                        Font12.LineSpacing / 2);
+                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
                     entry.DrawPlusEdit(batch);
                 }
             }
@@ -763,7 +765,7 @@ namespace Ship_Game
         private void DrawBuildableShipsList(SpriteBatch batch)
         {
             var added = new HashSet<string>();
-            if (shipsCanBuildLast != p.Owner.ShipsWeCanBuild.Count || Reset)
+            if (ShipsCanBuildLast != p.Owner.ShipsWeCanBuild.Count || Reset)
             {
                 buildSL.Reset();
 
@@ -836,17 +838,17 @@ namespace Ship_Game
                     var ship = entry.Get<Ship>();
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold,
+                    batch.DrawString(Font12,
                         ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    position.Y += Font12.LineSpacing;
 
                     var role = ship.BaseHull.Name;
-                    batch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
-                    position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    batch.DrawString(Font8, role, position, Color.Orange);
+                    position.X = position.X + Font8.MeasureString(role).X + 8;
                     ship.GetTechScore(out int[] scores);
-                    batch.DrawString(Fonts.Arial8Bold,
+                    batch.DrawString(Font8,
                         $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
 
 
@@ -860,7 +862,7 @@ namespace Ship_Game
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
                     position = new Vector2((destinationRectangle2.X - 60),
-                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
                     // Use correct upkeep method depending on mod settings
                     string upkeep;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -872,14 +874,14 @@ namespace Ship_Game
                         upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
                     }
 
-                    batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+                    batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
                     // ~~~
 
                     position = new Vector2(destinationRectangle2.X + 26,
                         destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                        Fonts.Arial12Bold.LineSpacing / 2);
-                    batch.DrawString(Fonts.Arial12Bold, ((int) (ship.GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(),
+                        Font12.LineSpacing / 2);
+                    batch.DrawString(Font12, ((int) (ship.GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(),
                         position, Color.White);
                 }
                 else
@@ -889,18 +891,18 @@ namespace Ship_Game
                     topLeft.Y = entry.Y;
                     batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
                     Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold,
+                    batch.DrawString(Font12,
                         ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
                             ? ship.Name + " " + Localizer.Token(2041)
                             : ship.Name, position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
+                    position.Y += Font12.LineSpacing;
 
                     //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
                     var role = ship.BaseHull.Name;
-                    batch.DrawString(Fonts.Arial8Bold, role, position, Color.Orange);
-                    position.X = position.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
+                    batch.DrawString(Font8, role, position, Color.Orange);
+                    position.X = position.X + Font8.MeasureString(role).X + 8;
                     ship.GetTechScore(out int[] scores);
-                    batch.DrawString(Fonts.Arial8Bold,
+                    batch.DrawString(Font8,
                         $"Off: {scores[2]} Def: {scores[0]} Pwr: {Math.Max(scores[1], scores[3])}", position, Color.Orange);
 
                     position.X = (entry.Right - 120);
@@ -912,7 +914,7 @@ namespace Ship_Game
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
                     position = new Vector2((destinationRectangle2.X - 60),
-                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
                     // Use correct upkeep method depending on mod settings
                     string upkeep;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -924,20 +926,20 @@ namespace Ship_Game
                         upkeep = entry.Get<Ship>().GetMaintCost(p.Owner).ToString("F2");
                     }
 
-                    batch.DrawString(Fonts.Arial8Bold, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+                    batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
 
                     // ~~~
 
                     position = new Vector2((destinationRectangle2.X + 26),
-                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12Bold,
+                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
+                    batch.DrawString(Font12,
                         ((int) (entry.Get<Ship>().GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(), position,
                         Color.White);
                     entry.DrawPlusEdit(batch);
                 }
             }
 
-            playerDesignsToggle.Draw(ScreenManager);
+            PlayerDesignsToggle.Draw(ScreenManager);
         }
 
         private void DrawBuildTroopsList(SpriteBatch batch)
@@ -964,16 +966,16 @@ namespace Ship_Game
                 {
                     troop.Draw(batch, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30));
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += Font12.LineSpacing;
+                    batch.DrawString(Font8, troop.Class, position, Color.Orange);
                     position.X = (entry.Right - 100);
                     var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
                     position = new Vector2((destinationRectangle2.X + 26),
-                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
+                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
 
                     entry.DrawPlusEdit(batch);
                 }
@@ -982,16 +984,16 @@ namespace Ship_Game
                     topLeft.Y = entry.Y;
                     troop.Draw(batch, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30));
                     var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                    position.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
+                    batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
+                    position.Y += Font12.LineSpacing;
+                    batch.DrawString(Font8, troop.Class, position, Color.Orange);
                     position.X = (entry.Right - 100);
                     var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
                     batch.Draw(iconProd, destinationRectangle2, Color.White);
                     position = new Vector2((destinationRectangle2.X + 26),
-                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12Bold, ((int) troop.GetCost()).ToString(), position, Color.White);
+                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
+                    batch.DrawString(Font12, ((int) troop.GetCost()).ToString(), position, Color.White);
 
                     entry.DrawPlusEdit(batch);
                 }
@@ -1040,7 +1042,7 @@ namespace Ship_Game
         private void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
             Array<Building> buildingsWeCanBuildHere = p.GetBuildingsCanBuild();
-            if (p.BuildingList.Count != buildingsHereLast || buildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
+            if (p.BuildingList.Count != BuildingsHereLast || BuildingsCanBuildLast != buildingsWeCanBuildHere.Count || Reset)
             {
                 BuildingsCanBuild = buildingsWeCanBuildHere;
                 buildSL.SetItems(BuildingsCanBuild);
@@ -1060,7 +1062,7 @@ namespace Ship_Game
                 if (entry.Hovered) buildColor = Color.White; // hover color
 
                 string descr = Localizer.Token(building.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
-                descr = Fonts.Arial8Bold.ParseText(descr, LowRes ? 200f : 280f);
+                descr = Font8.ParseText(descr, LowRes ? 200f : 280f);
 
                 var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
 
@@ -1069,7 +1071,7 @@ namespace Ship_Game
 
                 if (!entry.Hovered)
                 {
-                    batch.DrawString(Fonts.Arial8Bold, descr, position, unprofitable ? Color.Chocolate : Color.Green);
+                    batch.DrawString(Font8, descr, position, unprofitable ? Color.Chocolate : Color.Green);
                     position.X = (entry.Right - 100);
                     var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
@@ -1079,23 +1081,23 @@ namespace Ship_Game
 
                     position = new Vector2( (r.X - 60),
                          (1 + r.Y + r.Height / 2 -
-                                 Fonts.Arial12Bold.LineSpacing / 2));
+                                 Font12.LineSpacing / 2));
                     string maintenance = building.Maintenance.ToString("F2");
-                    batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+                    batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~~
 
                     position = new Vector2((r.X + 26),
                         (r.Y + r.Height / 2 -
-                                 Fonts.Arial12Bold.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12Bold,
+                                 Font12.LineSpacing / 2));
+                    batch.DrawString(Font12,
                         ((int) building.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
 
                     entry.DrawPlus(batch);
                 }
                 else
                 {
-                    batch.DrawString(Fonts.Arial8Bold, descr, position, Color.Orange);
+                    batch.DrawString(Font8, descr, position, Color.Orange);
                     position.X = (entry.Right - 100);
                     var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
@@ -1104,22 +1106,22 @@ namespace Ship_Game
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
                     position = new Vector2((r.X - 60),
-                                           (1 + r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
+                                           (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                     float actualMaint = building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod;
                     string maintenance = actualMaint.ToString("F2");
-                    batch.DrawString(Fonts.Arial8Bold, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+                    batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~
 
                     position = new Vector2((r.X + 26),
                         (r.Y + r.Height / 2 -
-                                 Fonts.Arial12Bold.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12Bold,
+                                 Font12.LineSpacing / 2));
+                    batch.DrawString(Font12,
                         ((int) building.Cost * UniverseScreen.GamePaceStatic).ToString(CultureInfo.InvariantCulture), position, Color.White);
                     entry.DrawPlus(batch);
                 }
 
-                entry.CheckHover(currentMouse);
+                entry.CheckHover(CurrentMouse);
             }
         }
 
@@ -1142,8 +1144,8 @@ namespace Ship_Game
 
         private void DrawText(ref Vector2 cursor, string text, Color color)
         {
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, color);
-            cursor.Y += Fonts.Arial12Bold.LineSpacing;
+            ScreenManager.SpriteBatch.DrawString(Font12, text, cursor, color);
+            cursor.Y += Font12.LineSpacing;
         }
 
         private void DrawTitledLine(ref Vector2 cursor, int titleId, string text)
@@ -1151,9 +1153,9 @@ namespace Ship_Game
             Vector2 textCursor = cursor;
             textCursor.X += 100f;
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(titleId) +": ", cursor, TextColor);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, textCursor, TextColor);
-            cursor.Y += Fonts.Arial12Bold.LineSpacing;
+            ScreenManager.SpriteBatch.DrawString(Font12, Localizer.Token(titleId) +": ", cursor, TextColor);
+            ScreenManager.SpriteBatch.DrawString(Font12, text, textCursor, TextColor);
+            cursor.Y += Font12.LineSpacing;
         }
 
         private void DrawMultiLine(ref Vector2 cursor, string text)
@@ -1163,7 +1165,7 @@ namespace Ship_Game
 
         private string MultiLineFormat(string text)
         {
-            return Fonts.Arial12Bold.ParseText(text, pFacilities.Menu.Width - 40);
+            return Font12.ParseText(text, pFacilities.Menu.Width - 40);
         }
 
         private string MultiLineFormat(int token)
@@ -1174,14 +1176,14 @@ namespace Ship_Game
         private void DrawMultiLine(ref Vector2 cursor, string text, Color color)
         {
             string multiline = MultiLineFormat(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, multiline, cursor, color);
-            cursor.Y += (Fonts.Arial12Bold.MeasureString(multiline).Y + Fonts.Arial12Bold.LineSpacing);
+            ScreenManager.SpriteBatch.DrawString(Font12, multiline, cursor, color);
+            cursor.Y += (Font12.MeasureString(multiline).Y + Font12.LineSpacing);
         }
 
         private void DrawCommoditiesArea(Vector2 bCursor)
         {
             string text = MultiLineFormat(4097);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, bCursor, TextColor);
+            ScreenManager.SpriteBatch.DrawString(Font12, text, bCursor, TextColor);
         }
 
         private void DrawDetailInfo(Vector2 bCursor)
@@ -1193,11 +1195,11 @@ namespace Ship_Game
                 return;
             }
             Color color = Color.Wheat;
-            switch (detailInfo)
+            switch (DetailInfo)
             {
                 case Troop t:
-                    spriteBatch.DrawString(Fonts.Arial20Bold, t.DisplayNameEmpire(p.Owner), bCursor, TextColor);
-                    bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
+                    spriteBatch.DrawString(Font20, t.DisplayNameEmpire(p.Owner), bCursor, TextColor);
+                    bCursor.Y += Font20.LineSpacing + 2;
                     string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
                         : t.ActualStrengthMax.String(1);
 
@@ -1252,14 +1254,14 @@ namespace Ship_Game
                     switch (pgs.building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
-                            spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(348), bCursor, color);
-                            bCursor.Y +=Fonts.Arial20Bold.LineSpacing + 5;
-                            spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, color);
+                            spriteBatch.DrawString(Font20, Localizer.Token(348), bCursor, color);
+                            bCursor.Y +=Font20.LineSpacing + 5;
+                            spriteBatch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             return;
                         case null when pgs.Habitable:
-                            spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(350), bCursor, color);
-                            bCursor.Y += Fonts.Arial20Bold.LineSpacing + 5;
-                            spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(349), bCursor, color);
+                            spriteBatch.DrawString(Font20, Localizer.Token(350), bCursor, color);
+                            bCursor.Y += Font20.LineSpacing + 5;
+                            spriteBatch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             return;
                     }
 
@@ -1267,14 +1269,14 @@ namespace Ship_Game
                     {
                         if (p.Type == "Barren")
                         {
-                            spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, color);
-                            bCursor.Y += Fonts.Arial20Bold.LineSpacing + 5;
-                            spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(352), bCursor, color);
+                            spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                            bCursor.Y += Font20.LineSpacing + 5;
+                            spriteBatch.DrawString(Font12, MultiLineFormat(352), bCursor, color);
                             return;
                         }
-                        spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(351), bCursor, color);
-                        bCursor.Y += Fonts.Arial20Bold.LineSpacing + 5;
-                        spriteBatch.DrawString(Fonts.Arial12Bold, MultiLineFormat(353), bCursor, color);
+                        spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                        bCursor.Y += Font20.LineSpacing + 5;
+                        spriteBatch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
                         return;
                     }
 
@@ -1283,26 +1285,26 @@ namespace Ship_Game
 
                     Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     spriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
-                    bCursor.Y   += Fonts.Arial20Bold.LineSpacing + 5;
+                    spriteBatch.DrawString(Font20, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
+                    bCursor.Y   += Font20.LineSpacing + 5;
                     string buildingDescription  = MultiLineFormat(pgs.building.DescriptionIndex);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, buildingDescription, bCursor, color);
-                    bCursor.Y   += Fonts.Arial12Bold.MeasureString(buildingDescription).Y + Fonts.Arial20Bold.LineSpacing;
+                    spriteBatch.DrawString(Font12, buildingDescription, bCursor, color);
+                    bCursor.Y   += Font12.MeasureString(buildingDescription).Y + Font20.LineSpacing;
                     DrawSelectedBuildingInfo(ref bCursor, spriteBatch, pgs.building);
                     if (!pgs.building.Scrappable)
                         return;
 
-                    bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.LineSpacing + 10);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, "You may scrap this building by right clicking it", bCursor, Color.White);
+                    bCursor.Y = bCursor.Y + (Font12.LineSpacing + 10);
+                    spriteBatch.DrawString(Font12, "You may scrap this building by right clicking it", bCursor, Color.White);
                     break;
 
                 case ScrollList.Entry entry:
                     var selectedBuilding = entry.Get<Building>();
-                    spriteBatch.DrawString(Fonts.Arial20Bold, selectedBuilding.Name, bCursor, color);
-                    bCursor.Y = bCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
+                    spriteBatch.DrawString(Font20, selectedBuilding.Name, bCursor, color);
+                    bCursor.Y += Font20.LineSpacing + 5;
                     string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, selectionText, bCursor, color);
-                    bCursor.Y = bCursor.Y + (Fonts.Arial12Bold.MeasureString(selectionText).Y + Fonts.Arial20Bold.LineSpacing);
+                    spriteBatch.DrawString(Font12, selectionText, bCursor, color);
+                    bCursor.Y += Font12.MeasureString(selectionText).Y + Font20.LineSpacing;
                     DrawSelectedBuildingInfo(ref bCursor, spriteBatch, selectedBuilding);
                     break;
             }
@@ -1310,90 +1312,50 @@ namespace Ship_Game
 
         private void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch spriteBatch, Building building)
         {
-            if (Math.Abs(building.PlusFlatFoodAmount) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatFoodAmount,
-                    ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(354));
-
-            if (Math.Abs(building.PlusFoodPerColonist) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFoodPerColonist,
-                    ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(2042));
-
-            if (building.IsSensor && Math.Abs(building.SensorRange) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.SensorRange,
-                    ResourceManager.Texture("NewUI/icon_sensors"), Localizer.Token(6000), signs: false);
-
-            if (building.IsProjector && Math.Abs(building.ProjectorRange) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.ProjectorRange,
-                    ResourceManager.Texture("NewUI/icon_projection"), Localizer.Token(6001), signs: false);
-
-            if (Math.Abs(building.PlusFlatProductionAmount) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatProductionAmount,
-                    ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(355));
-
-            if (Math.Abs(building.PlusProdPerColonist) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerColonist,
-                    ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(356));
-
-            if (Math.Abs(building.PlusFlatPopulation) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatPopulation / 1000,
-                    ResourceManager.Texture("NewUI/icon_population"), Localizer.Token(2043));
-
-            if (Math.Abs(building.PlusFlatResearchAmount) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatResearchAmount,
-                    ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(357));
-
-            if (Math.Abs(building.PlusResearchPerColonist) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusResearchPerColonist,
-                    ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(358));
-
-            if (Math.Abs(building.PlusTaxPercentage) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusTaxPercentage * 100,
-                    ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(359), percent: true);
-
-            if (Math.Abs(building.MinusFertilityOnBuild) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, -building.MinusFertilityOnBuild,
-                    ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(360), percent: true);
-
-            if (Math.Abs(building.PlanetaryShieldStrengthAdded) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlanetaryShieldStrengthAdded,
-                    ResourceManager.Texture("NewUI/icon_planetshield"), Localizer.Token(361));
-
-            if (Math.Abs(building.CreditsPerColonist) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.CreditsPerColonist,
-                    ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(362));
-
-            if (Math.Abs(building.PlusProdPerRichness) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerRichness,
-                    ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
-
-            if (Math.Abs(building.ShipRepair) > 0f)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair,
-                    ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
-
-            if (building.CombatStrength > 0)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
-                    ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
-
-            if (building.Maintenance > 0f)
-            {
-                float maintenance = -(building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod);
-                DrawBuildingInfo(ref bCursor, spriteBatch, maintenance,
-                    ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(365));
-            }
-
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatFoodAmount,
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(354));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFoodPerColonist,
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(2042));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.SensorRange,
+                ResourceManager.Texture("NewUI/icon_sensors"), Localizer.Token(6000), signs: false);
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.ProjectorRange,
+                ResourceManager.Texture("NewUI/icon_projection"), Localizer.Token(6001), signs: false);
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatProductionAmount,
+                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(355));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerColonist,
+                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(356));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatPopulation / 1000,
+                ResourceManager.Texture("NewUI/icon_population"), Localizer.Token(2043));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatResearchAmount,
+                ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(357));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusResearchPerColonist,
+                ResourceManager.Texture("NewUI/icon_science"), Localizer.Token(358));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusTaxPercentage * 100,
+                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(359), percent: true);
+            DrawBuildingInfo(ref bCursor, spriteBatch, -building.MinusFertilityOnBuild,
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(360), percent: true);
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlanetaryShieldStrengthAdded,
+                ResourceManager.Texture("NewUI/icon_planetshield"), Localizer.Token(361));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.CreditsPerColonist,
+                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(362));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerRichness,
+                ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair,
+                ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
+                ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
+            float maintenance = -(building.Maintenance + building.Maintenance * p.Owner.data.Traits.MaintMod);
+            DrawBuildingInfo(ref bCursor, spriteBatch, maintenance,
+                ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(365));
             if (building.TheWeapon == null)
                 return;
 
             DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.Range,
                 ResourceManager.Texture("UI/icon_offense"), "Range", signs: false);
-            if (building.TheWeapon.DamageAmount > 0)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.DamageAmount,
-                    ResourceManager.Texture("UI/icon_offense"), "Damage", signs: false);
-
-            if (building.TheWeapon.EMPDamage > 0)
-                DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.DamageAmount,
-                    ResourceManager.Texture("UI/icon_offense"), "EMP Damage", signs: false);
-
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.DamageAmount,
+                ResourceManager.Texture("UI/icon_offense"), "Damage", signs: false);
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.DamageAmount,
+                ResourceManager.Texture("UI/icon_offense"), "EMP Damage", signs: false);
             DrawBuildingInfo(ref bCursor, spriteBatch, building.TheWeapon.NetFireDelay,
                 ResourceManager.Texture("UI/icon_offense"), "Fire Delay", signs: false);
         }
@@ -1401,7 +1363,10 @@ namespace Ship_Game
         private void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch spriteBatch, float value, Texture2D texture, 
                                       string toolTip, bool percent = false, bool signs = true)
         {
-            SpriteFont font    = Fonts.Arial12Bold;
+            if (value.AlmostEqual(0))
+                return;
+
+            SpriteFont font    = Font12;
             Rectangle fIcon    = new Rectangle((int)cursor.X, (int)cursor.Y, texture.Width, texture.Height);
             Vector2 tCursor    = new Vector2(cursor.X + fIcon.Width + 5f, cursor.Y + 3f);
             string plusOrMinus = "";
@@ -1421,7 +1386,7 @@ namespace Ship_Game
 
         private void DrawTroopLevel(Troop troop, Rectangle rect)
         {
-            SpriteFont font = Fonts.Arial12Bold;
+            SpriteFont font = Font12;
             var levelRect   = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
             var pos         = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
                                          (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
@@ -1533,17 +1498,17 @@ namespace Ship_Game
 
         private void HandleDetailInfo(InputState input)
         {
-            detailInfo = null;
+            DetailInfo = null;
             foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
             {
                 if (e.CheckHover(input))
                 {
-                    if (e.Is<Building>())   detailInfo = e; // @todo Why are we storing Entry here???
-                    else if (e.Is<Troop>()) detailInfo = e.item;
+                    if (e.Is<Building>())   DetailInfo = e; // @todo Why are we storing Entry here???
+                    else if (e.Is<Troop>()) DetailInfo = e.item;
                 }
             }
-            if (detailInfo == null)
-                detailInfo = p.Description;
+            if (DetailInfo == null)
+                DetailInfo = p.Description;
         }
 
         public override bool HandleInput(InputState input)
@@ -1575,7 +1540,7 @@ namespace Ship_Game
                 {
                     Log.Error(ex, "Colony Screen HandleInput(). Likely null reference.");
                 }
-                if (input.MouseCurr.RightButton != ButtonState.Released || previousMouse.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
                 {
                     Empire.Universe.ShipsInCombat.Visible = true;
                     Empire.Universe.PlanetsInCombat.Visible = true;
@@ -1597,7 +1562,7 @@ namespace Ship_Game
                     p = p.Owner.GetPlanets()[thisindex];
                     Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, p, eui);
                 }
-                if (input.MouseCurr.RightButton != ButtonState.Released || previousMouse.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
                 {
                     Empire.Universe.ShipsInCombat.Visible = true;
                     Empire.Universe.PlanetsInCombat.Visible = true;
@@ -1606,14 +1571,14 @@ namespace Ship_Game
             }
             p.UpdateIncomes(false);
             HandleDetailInfo(input);
-            currentMouse = Mouse.GetState();
-            Vector2 MousePos = new Vector2(currentMouse.X, currentMouse.Y);
+            CurrentMouse = Mouse.GetState();
+            Vector2 MousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
             buildSL.HandleInput(input);
             build.HandleInput(this);
             if (p.Owner != EmpireManager.Player)
             {
                 HandleDetailInfo(input);
-                if (input.MouseCurr.RightButton != ButtonState.Released || previousMouse.RightButton != ButtonState.Released)
+                if (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released)
                 {
                     Empire.Universe.ShipsInCombat.Visible = true;
                     Empire.Universe.PlanetsInCombat.Visible = true;
@@ -1621,13 +1586,13 @@ namespace Ship_Game
                 return true;
             }
 
-            if (!edit_name_button.HitTest(MousePos))
+            if (!EditNameButton.HitTest(MousePos))
             {
-                editHoverState = 0;
+                EditHoverState = 0;
             }
             else
             {
-                editHoverState = 1;
+                EditHoverState = 1;
                 if (input.LeftMouseClick)
                 {
                     PlanetName.HandlingInput = true;
@@ -1691,21 +1656,21 @@ namespace Ship_Game
             HandleSlider(input);
             if (p.HasShipyard && build.Tabs.Count > 1 && build.Tabs[1].Selected)
             {
-                if (playerDesignsToggle.Rect.HitTest(input.CursorPosition))
+                if (PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(Localizer.Token(2225));
                 }
-                if (playerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
+                if (PlayerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
                 {
                     GameAudio.PlaySfxAsync("sd_ui_accept_alt3");
                     GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
                     if (GlobalStats.ShowAllDesigns)
                     {
-                        playerDesignsToggle.Active = true;
+                        PlayerDesignsToggle.Active = true;
                     }
                     else
                     {
-                        playerDesignsToggle.Active = false;
+                        PlayerDesignsToggle.Active = false;
                     }
                     Reset = true;
                 }
@@ -1803,7 +1768,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(69);
                 }
             }
-            selector = null;
+            Selector = null;
             ClickedTroop = false;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
@@ -1823,7 +1788,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                detailInfo = pgs.TroopsHere[0];
+                DetailInfo = pgs.TroopsHere[0];
                 if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
                     GameAudio.PlaySfxAsync("sd_troop_takeoff");
@@ -1832,8 +1797,8 @@ namespace Ship_Game
                     pgs.TroopsHere[0].SetPlanet(null);
                     pgs.TroopsHere.Clear();
                     ClickedTroop = true;
-                    detailInfo = null;
-                    rmouse = true;
+                    DetailInfo = null;
+                    Rmouse = true;
                 }
                 return true;                
             }
@@ -1843,20 +1808,20 @@ namespace Ship_Game
                 {
                     if (pgs.ClickRect.HitTest(input.CursorPosition))
                     {
-                        detailInfo = pgs;
+                        DetailInfo = pgs;
                         var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                         if (pgs.building != null  && bRect.HitTest(input.CursorPosition) &&  Input.RightMouseClick)
                         {
                             if (pgs.building.Scrappable)
                             {
-                                toScrap = pgs.building;
+                                ToScrap = pgs.building;
                                 string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
                                 messageBox.Accepted += ScrapAccepted;
                                 ScreenManager.AddScreen(messageBox);                                
                                 
                             }
-                            rmouse = true;
+                            Rmouse = true;
                             ClickedTroop = true;
                             return true;
                         }
@@ -1865,7 +1830,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    detailInfo = pgs.TroopsHere;
+                    DetailInfo = pgs.TroopsHere;
                 }
             }
             if (!GlobalStats.HardcoreRuleset)
@@ -1899,7 +1864,7 @@ namespace Ship_Game
             {
                 foreach (PlanetGridSquare pgs in p.TilesList)
                 {
-                    if (!pgs.ClickRect.HitTest(MousePos) || currentMouse.LeftButton != ButtonState.Released || previousMouse.LeftButton != ButtonState.Pressed)
+                    if (!pgs.ClickRect.HitTest(MousePos) || CurrentMouse.LeftButton != ButtonState.Released || PreviousMouse.LeftButton != ButtonState.Pressed)
                     {
                         continue;
                     }
@@ -1955,7 +1920,7 @@ namespace Ship_Game
                         break;
                     }
                 }
-                if (currentMouse.RightButton == ButtonState.Pressed && previousMouse.RightButton == ButtonState.Released)
+                if (CurrentMouse.RightButton == ButtonState.Pressed && PreviousMouse.RightButton == ButtonState.Released)
                 {
                     ClickedTroop = true;
                     ActiveBuildingEntry = null;
@@ -1975,7 +1940,7 @@ namespace Ship_Game
                 }
                 else if (e.CheckHover(input))
                 {
-                    selector = e.CreateSelector();
+                    Selector = e.CreateSelector();
 
                     if (input.LeftMouseHeldDown && e.item is Building && ActiveBuildingEntry == null)
                     {
@@ -2060,25 +2025,25 @@ namespace Ship_Game
                     }
                 }
             }
-            shipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
-            buildingsHereLast = p.BuildingList.Count;
-            buildingsCanBuildLast = BuildingsCanBuild.Count;
+            ShipsCanBuildLast = p.Owner.ShipsWeCanBuild.Count;
+            BuildingsHereLast = p.BuildingList.Count;
+            BuildingsCanBuildLast = BuildingsCanBuild.Count;
 
-            if (popup)
+            if (Popup)
             {
                 if (input.MouseCurr.RightButton != ButtonState.Released || input.MousePrev.RightButton != ButtonState.Released)
                     return true;
-                popup = false;
+                Popup = false;
             }
             else 
                 {
-                if (input.RightMouseClick && !ClickedTroop) rmouse = false;
-                if (!rmouse && (input.MouseCurr.RightButton != ButtonState.Released || previousMouse.RightButton != ButtonState.Released))
+                if (input.RightMouseClick && !ClickedTroop) Rmouse = false;
+                if (!Rmouse && (input.MouseCurr.RightButton != ButtonState.Released || PreviousMouse.RightButton != ButtonState.Released))
                 {
                     Empire.Universe.ShipsInCombat.Visible = true;
                     Empire.Universe.PlanetsInCombat.Visible = true;
                 }
-                previousMouse = currentMouse;
+                PreviousMouse = CurrentMouse;
                 }
             /*
             if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
@@ -2144,7 +2109,7 @@ namespace Ship_Game
                 pgs.TroopsHere[0].SetPlanet(null);
                 pgs.TroopsHere.Clear();
                 ClickedTroop = true;
-                detailInfo = null;
+                DetailInfo = null;
             }
 
             if (play)
@@ -2160,7 +2125,7 @@ namespace Ship_Game
             {
                 if (e.CheckHover(Input.CursorPosition))
                 {
-                    selector = e.CreateSelector();
+                    Selector = e.CreateSelector();
                 }
 
                 if (e.WasUpHovered(input))
@@ -2261,10 +2226,10 @@ namespace Ship_Game
 
         private void HandleSlider(InputState input)
         {
-            Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
+            Vector2 mousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
             if (p.Owner.data.Traits.Cybernetic == 0)
             {
-                if (ColonySliderFood.sRect.HitTest(mousePos) || draggingSlider1)
+                if (ColonySliderFood.sRect.HitTest(mousePos) || DraggingSlider1)
                 {
                     ColonySliderFood.state = "hover";
                     ColonySliderFood.Color = new Color(164, 154, 133);
@@ -2274,7 +2239,7 @@ namespace Ship_Game
                     ColonySliderFood.state = "normal";
                     ColonySliderFood.Color = new Color(72, 61, 38);
                 }
-                if (ColonySliderFood.cursor.HitTest(mousePos) || draggingSlider1)
+                if (ColonySliderFood.cursor.HitTest(mousePos) || DraggingSlider1)
                 {
                     ColonySliderFood.cState = "hover";
                 }
@@ -2283,7 +2248,7 @@ namespace Ship_Game
                     ColonySliderFood.cState = "normal";
                 }
             }
-            if (ColonySliderProd.sRect.HitTest(mousePos) || draggingSlider2)
+            if (ColonySliderProd.sRect.HitTest(mousePos) || DraggingSlider2)
             {
                 ColonySliderProd.state = "hover";
                 ColonySliderProd.Color = new Color(164, 154, 133);
@@ -2293,7 +2258,7 @@ namespace Ship_Game
                 ColonySliderProd.state = "normal";
                 ColonySliderProd.Color = new Color(72, 61, 38);
             }
-            if (ColonySliderProd.cursor.HitTest(mousePos) || draggingSlider2)
+            if (ColonySliderProd.cursor.HitTest(mousePos) || DraggingSlider2)
             {
                 ColonySliderProd.cState = "hover";
             }
@@ -2301,7 +2266,7 @@ namespace Ship_Game
             {
                 ColonySliderProd.cState = "normal";
             }
-            if (ColonySliderRes.sRect.HitTest(mousePos) || draggingSlider3)
+            if (ColonySliderRes.sRect.HitTest(mousePos) || DraggingSlider3)
             {
                 ColonySliderRes.state = "hover";
                 ColonySliderRes.Color = new Color(164, 154, 133);
@@ -2311,7 +2276,7 @@ namespace Ship_Game
                 ColonySliderRes.state = "normal";
                 ColonySliderRes.Color = new Color(72, 61, 38);
             }
-            if (ColonySliderRes.cursor.HitTest(mousePos) || draggingSlider3)
+            if (ColonySliderRes.cursor.HitTest(mousePos) || DraggingSlider3)
             {
                 ColonySliderRes.cState = "hover";
             }
@@ -2319,21 +2284,21 @@ namespace Ship_Game
             {
                 ColonySliderRes.cState = "normal";
             }
-            if (ColonySliderFood.cursor.HitTest(mousePos) && (!ProdLock.Locked || !ResLock.Locked) && currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed && !FoodLock.Locked)
+            if (ColonySliderFood.cursor.HitTest(mousePos) && (!ProdLock.Locked || !ResLock.Locked) && CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed && !FoodLock.Locked)
             {
-                draggingSlider1 = true;
+                DraggingSlider1 = true;
             }
-            if (ColonySliderProd.cursor.HitTest(mousePos) && (!FoodLock.Locked || !ResLock.Locked) && currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed && !ProdLock.Locked)
+            if (ColonySliderProd.cursor.HitTest(mousePos) && (!FoodLock.Locked || !ResLock.Locked) && CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed && !ProdLock.Locked)
             {
-                draggingSlider2 = true;
+                DraggingSlider2 = true;
             }
-            if (ColonySliderRes.cursor.HitTest(mousePos) && (!ProdLock.Locked || !FoodLock.Locked) && currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed && !ResLock.Locked)
+            if (ColonySliderRes.cursor.HitTest(mousePos) && (!ProdLock.Locked || !FoodLock.Locked) && CurrentMouse.LeftButton == ButtonState.Pressed && PreviousMouse.LeftButton == ButtonState.Pressed && !ResLock.Locked)
             {
-                draggingSlider3 = true;
+                DraggingSlider3 = true;
             }
-            if (draggingSlider1 && !FoodLock.Locked && (!ProdLock.Locked || !ResLock.Locked))
+            if (DraggingSlider1 && !FoodLock.Locked && (!ProdLock.Locked || !ResLock.Locked))
             {
-                ColonySliderFood.cursor.X = currentMouse.X;
+                ColonySliderFood.cursor.X = CurrentMouse.X;
                 if (ColonySliderFood.cursor.X > ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width)
                 {
                     ColonySliderFood.cursor.X = ColonySliderFood.sRect.X + ColonySliderFood.sRect.Width;
@@ -2344,7 +2309,7 @@ namespace Ship_Game
                 }
                 if (input.LeftMouseUp)
                 {
-                    draggingSlider1 = false;
+                    DraggingSlider1 = false;
                 }
                 fPercentLast = p.FarmerPercentage;
                 p.FarmerPercentage = (ColonySliderFood.cursor.X - (float)ColonySliderFood.sRect.X) / ColonySliderFood.sRect.Width;
@@ -2388,9 +2353,9 @@ namespace Ship_Game
                     }
                 }
             }
-            if (draggingSlider2 && !ProdLock.Locked && (!FoodLock.Locked || !ResLock.Locked))
+            if (DraggingSlider2 && !ProdLock.Locked && (!FoodLock.Locked || !ResLock.Locked))
             {
-                ColonySliderProd.cursor.X = currentMouse.X;
+                ColonySliderProd.cursor.X = CurrentMouse.X;
                 if (ColonySliderProd.cursor.X > ColonySliderProd.sRect.X + ColonySliderProd.sRect.Width)
                 {
                     ColonySliderProd.cursor.X = ColonySliderProd.sRect.X + ColonySliderProd.sRect.Width;
@@ -2401,7 +2366,7 @@ namespace Ship_Game
                 }
                 if (input.LeftMouseUp)
                 {
-                    draggingSlider2 = false;
+                    DraggingSlider2 = false;
                 }
                 pPercentLast = p.WorkerPercentage;
                 p.WorkerPercentage = (ColonySliderProd.cursor.X - (float)ColonySliderProd.sRect.X) / ColonySliderProd.sRect.Width;
@@ -2448,9 +2413,9 @@ namespace Ship_Game
                     }
                 }
             }
-            if (draggingSlider3 && !ResLock.Locked && (!FoodLock.Locked || !ProdLock.Locked))
+            if (DraggingSlider3 && !ResLock.Locked && (!FoodLock.Locked || !ProdLock.Locked))
             {
-                ColonySliderRes.cursor.X = currentMouse.X;
+                ColonySliderRes.cursor.X = CurrentMouse.X;
                 if (ColonySliderRes.cursor.X > ColonySliderRes.sRect.X + ColonySliderRes.sRect.Width)
                 {
                     ColonySliderRes.cursor.X = ColonySliderRes.sRect.X + ColonySliderRes.sRect.Width;
@@ -2461,7 +2426,7 @@ namespace Ship_Game
                 }
                 if (input.LeftMouseUp)
                 {
-                    draggingSlider3 = false;
+                    DraggingSlider3 = false;
                 }
                 rPercentLast = p.ResearcherPercentage;
                 p.ResearcherPercentage = (ColonySliderRes.cursor.X - (float)ColonySliderRes.sRect.X) / ColonySliderRes.sRect.Width;
@@ -2539,9 +2504,9 @@ namespace Ship_Game
 
         private void ScrapAccepted(object sender, EventArgs e)
         {
-            if (toScrap != null)
+            if (ToScrap != null)
             {
-                toScrap.ScrapBuilding(p);
+                ToScrap.ScrapBuilding(p);
             }
             Update(0f);
         }
