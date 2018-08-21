@@ -534,7 +534,7 @@ namespace Ship_Game
             SpriteBatch spriteBatch1 = batch;
             SpriteFont arial12Bold = Font12;
             num4 = P.Population / 1000f;
-            string str2 = num4.ToString(format);
+            string str2 = num4.ToString("0.00#");
             string str3 = " / ";
             num4 = (float)((P.MaxPopulation + (double)P.MaxPopBonus) / 1000.0);
             string str4 = num4.ToString(format);
@@ -1248,6 +1248,7 @@ namespace Ship_Game
                     float production = cybernetic ? P.ProductionHere + P.NetProductionPerTurn : P.FoodHere + P.NetFoodPerTurn;
                     if (production - P.Consumption < 0f)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
+                    DrawPlanetStat(ref bCursor, spriteBatch);
                     break;
 
                 case PlanetGridSquare pgs:
@@ -1310,6 +1311,22 @@ namespace Ship_Game
             }
         }
 
+        private void DrawPlanetStat(ref Vector2 cursor, SpriteBatch spriteBatch)
+        {
+            DrawBuildingInfo(ref cursor, spriteBatch, P.Fertility + P.PlusFoodPerColonist,
+                ResourceManager.Texture("NewUI/icon_food"), "food per colonist allocated to Food Production");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatFoodAdded,
+                ResourceManager.Texture("NewUI/icon_food"), "flat food added generated per turn");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.ProductionPerWorker,
+                ResourceManager.Texture("NewUI/icon_production"), "production per colonist allocated to Industry after tax");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatProductionPerTurn,
+                ResourceManager.Texture("NewUI/icon_production"), "flat production added generated per turn after tax");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.ResearchPerResearcher,
+                ResourceManager.Texture("NewUI/icon_science"), "research per colonist allocated to Science after tax");
+            DrawBuildingInfo(ref cursor, spriteBatch, P.FlatResearchPerTurn,
+                ResourceManager.Texture("NewUI/icon_science"), "flat research added generated per turn after tax");
+        }
+
         private void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch spriteBatch, Building building)
         {
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusFlatFoodAmount,
@@ -1333,14 +1350,14 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusTaxPercentage * 100,
                 ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(359), percent: true);
             DrawBuildingInfo(ref bCursor, spriteBatch, -building.MinusFertilityOnBuild,
-                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(360), percent: true);
+                ResourceManager.Texture("NewUI/icon_food"), Localizer.Token(360));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlanetaryShieldStrengthAdded,
                 ResourceManager.Texture("NewUI/icon_planetshield"), Localizer.Token(361));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.CreditsPerColonist,
                 ResourceManager.Texture("NewUI/icon_money"), Localizer.Token(362));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.PlusProdPerRichness,
                 ResourceManager.Texture("NewUI/icon_production"), Localizer.Token(363));
-            DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair,
+            DrawBuildingInfo(ref bCursor, spriteBatch, building.ShipRepair * 10 * P.DevelopmentLevel,
                 ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Localizer.Token(6137));
             DrawBuildingInfo(ref bCursor, spriteBatch, building.CombatStrength,
                 ResourceManager.Texture("Ground_UI/Ground_Attack"), Localizer.Token(364));
@@ -1374,12 +1391,12 @@ namespace Ship_Game
             if (signs)
             {
                 plusOrMinus = value < 0 ? "- " : "+";
-                color = value < 0 ? Color.Pink : Color.Green;
+                color = value < 0 ? Color.Pink : Color.LightGreen;
             }
             spriteBatch.Draw(texture, fIcon, Color.White);
             SpriteBatch spriteBatch2 = spriteBatch;
             string percentage = percent ? "% " : " ";
-            var valueobj             = new object[] { plusOrMinus, Math.Abs(value), percentage, toolTip };
+            var valueobj             = new object[] { plusOrMinus, Math.Round(Math.Abs(value), 2), percentage, toolTip };
             spriteBatch2.DrawString(font, string.Concat(valueobj), tCursor, color);
             cursor.Y += font.LineSpacing + 10;
         }
