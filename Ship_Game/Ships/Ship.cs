@@ -2299,14 +2299,10 @@ namespace Ship_Game.Ships
             ++kills;
             if (loyalty == null)
                 return;
-
             //Added by McShooterz: change level cap, dynamic experience required per level
             var ownerExpSettings = ShipRole.GetExpSettings(this);
             var killedExpSettings = ShipRole.GetExpSettings(killed);
-
-            Empire remnant = EmpireManager.Remnants;  //Changed by Gretman, because this was preventing any "RemnantKills" from getting counted, thus no remnant event.
-            if (loyalty == EmpireManager.Player && killed.loyalty == remnant && (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
-                GlobalStats.IncrementRemnantKills(1);   //I also changed this because the exp before was a lot, killing almost any remnant ship would unlock the remnant event immediately
+            killed.loyalty?.TheyKilledOurShip(loyalty, killedExpSettings);
 
             float exp = killedExpSettings.ExpPerLevel * (1 + killed.Level);
             exp += exp * loyalty.data.ExperienceMod;
