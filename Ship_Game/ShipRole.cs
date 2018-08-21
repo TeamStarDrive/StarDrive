@@ -32,7 +32,7 @@ namespace Ship_Game
             public float Upkeep;
             public float KillExp;
             public float KillExpPerLevel;
-            public float ExpPerLevel;            
+            public float ExpPerLevel;
         }
 
         public ShipRole()
@@ -62,6 +62,16 @@ namespace Ship_Game
             };
 
         }
+        public static float GetMaxExpValue()
+        {
+            float max = float.MinValue;
+            foreach (var kv in ResourceManager.ShipRoles)
+            {
+                if (kv.Value.KillExp > max)
+                    max = kv.Value.KillExp;
+            }
+            return max;            
+        }
 
         public static int GetRoleName(ShipData.RoleName role, Empire owner)
         {
@@ -73,6 +83,6 @@ namespace Ship_Game
                     return race.Localization;
 
             return shipRole.Localization;
-        }    
+        }
     }
 }
