@@ -566,7 +566,7 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length != 0)
             {
-                if (ShipBuilder.IsDynamicLaunch(mod.hangarShipUID))
+                if (ShipBuilder.IsDynamicHangar(mod.hangarShipUID))
                 {
                     modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                     Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);

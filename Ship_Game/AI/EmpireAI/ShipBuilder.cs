@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.Ships;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI
 {
@@ -214,16 +215,38 @@ namespace Ship_Game.AI
             return modifiedStrength;
         }
 
-        public static bool IsDynamicLaunch(string compare)
+        public static Color GetHangarTextColor(string shipName)
         {
-            if (Enum.TryParse(compare, out DynamicHangarLaunch result))
-                return result == DynamicHangarLaunch.DynamicLaunch;
+            if (!Enum.TryParse(shipName, out DynamicHangarType dynamicHangarType))
+                return Color.White;
+
+            switch (dynamicHangarType)
+            {
+                case DynamicHangarType.DynamicLaunch:
+                    return Color.Gold;
+                case DynamicHangarType.DynamicFighter:
+                    return Color.LightGreen;
+                case DynamicHangarType.DynamicBomber:
+                    return Color.Pink;
+                default:
+                    return Color.White;
+            }
+        }
+
+        public static bool IsDynamicHangar(string compare)
+        {
+            if (Enum.TryParse(compare, out DynamicHangarType result))
+                return result == DynamicHangarType.DynamicLaunch
+                    || result ==  DynamicHangarType.DynamicFighter
+                    || result ==  DynamicHangarType.DynamicBomber;
 
             return false;
         }
     }
-    public enum DynamicHangarLaunch
+    public enum DynamicHangarType
     {
-        DynamicLaunch
+        DynamicLaunch,
+        DynamicFighter,
+        DynamicBomber
     }
 }

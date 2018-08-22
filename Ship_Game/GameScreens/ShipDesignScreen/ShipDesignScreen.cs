@@ -153,7 +153,7 @@ namespace Ship_Game
             ActiveModule.SetAttributes();
             if (ActiveModule.ModuleType == ShipModuleType.Hangar
                 && !ActiveModule.IsSupplyBay && !ActiveModule.IsTroopBay)
-                ActiveModule.hangarShipUID = DynamicHangarLaunch.DynamicLaunch.ToString();
+                ActiveModule.hangarShipUID = DynamicHangarType.DynamicLaunch.ToString();
         }
 
         private void ResetActiveModule()
