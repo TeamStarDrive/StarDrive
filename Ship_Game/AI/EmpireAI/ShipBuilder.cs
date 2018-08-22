@@ -217,34 +217,36 @@ namespace Ship_Game.AI
 
         public static Color GetHangarTextColor(string shipName)
         {
-            if (!Enum.TryParse(shipName, out DynamicHangarType dynamicHangarType))
-                return Color.White;
-
+            DynamicHangarOptions dynamicHangarType = GetDynamicHangarOptions(shipName);
             switch (dynamicHangarType)
             {
-                case DynamicHangarType.DynamicLaunch:
+                case DynamicHangarOptions.DynamicLaunch:
                     return Color.Gold;
-                case DynamicHangarType.DynamicFighter:
+                case DynamicHangarOptions.DynamicFighter:
                     return Color.LightGreen;
-                case DynamicHangarType.DynamicBomber:
+                case DynamicHangarOptions.DynamicBomber:
                     return Color.Pink;
                 default:
                     return Color.White;
             }
         }
 
+        public static DynamicHangarOptions GetDynamicHangarOptions(string compare)
+        {
+            return Enum.TryParse(compare, out DynamicHangarOptions result) ? result : DynamicHangarOptions.Static;
+        }
+
         public static bool IsDynamicHangar(string compare)
         {
-            if (Enum.TryParse(compare, out DynamicHangarType result))
-                return result == DynamicHangarType.DynamicLaunch
-                    || result ==  DynamicHangarType.DynamicFighter
-                    || result ==  DynamicHangarType.DynamicBomber;
+            if (Enum.TryParse(compare, out DynamicHangarOptions result))
+                return result != DynamicHangarOptions.Static;
 
             return false;
         }
     }
-    public enum DynamicHangarType
+    public enum DynamicHangarOptions
     {
+        Static,
         DynamicLaunch,
         DynamicFighter,
         DynamicBomber
