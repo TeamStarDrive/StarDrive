@@ -1654,6 +1654,9 @@
     <None Include="Content\Textures\NewUI\DynamicFighter.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\NewUI\DynamicLaunch.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\NewUI\icon_order_explore.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

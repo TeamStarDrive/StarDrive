@@ -216,15 +216,15 @@ namespace Ship_Game
         private void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
             Color color         = Color.Black;
-            color.A             = 140;
+            color.A             = 100;
             Color shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
-            DrawRectangle(slot.ModuleRect, Color.Teal, color);
+            DrawRectangle(slot.ModuleRect, shipNameColor, color);
             DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
             shipNameColor = ShipBuilder.GetHangarTextColor(mirrored.Slot.Module.hangarShipUID);
-            DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
+            DrawRectangle(mirrored.Slot.ModuleRect, shipNameColor, color);
             DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
