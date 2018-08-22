@@ -12,7 +12,7 @@
   <FixedUpkeep>0</FixedUpkeep>
   <IsShipyard>false</IsShipyard>
   <IsOrbitalDefense>false</IsOrbitalDefense>
-  <IconPath>TechIcons/Ace Training</IconPath>
+  <IconPath>NewUI/DynamicLaunch</IconPath>
   <CombatState>AttackRuns</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
   <Hull>Terran/Shuttle</Hull>
