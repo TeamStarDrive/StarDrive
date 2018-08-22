@@ -1480,8 +1480,9 @@ namespace Ship_Game.Ships
                     data.HangarshipGuid = module.GetHangarShip().guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.DynamicHangar ? DynamicHangarOptions.DynamicLaunch.ToString()
-                                                            : module.hangarShipUID;
+                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static 
+                                                               ? module.hangarShipUID
+                                                               : module.DynamicHangar.ToString();
 
                 slots[i] = data;
             }
