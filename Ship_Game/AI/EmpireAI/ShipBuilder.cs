@@ -15,12 +15,13 @@ namespace Ship_Game.AI
         }
 
 
-        public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, ShipModuleType targetModule = ShipModuleType.Dummy)
+        public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, 
+                      ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.Category shipCategory = ShipData.Category.Unclassified)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level 
             // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule);
+            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, shipCategory);
             //return PickFromCandidatesByTechsNeeded(role, empire, maxSize, targetModule);
         }
 
@@ -72,7 +73,8 @@ namespace Ship_Game.AI
             return name;
         }
 
-        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule)
+        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule
+        ,ShipData.Category shipCategory)
         {
             var potentialShips = new Array<Ship>();
             bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
@@ -90,6 +92,9 @@ namespace Ship_Game.AI
                     continue;
 
                 if (maxSize > 0 && ship.Size > maxSize)
+                    continue;
+
+                if (shipCategory != ShipData.Category.Unclassified && shipCategory != ship.shipData.ShipCategory)
                     continue;
 
                 potentialShips.Add(ship);
