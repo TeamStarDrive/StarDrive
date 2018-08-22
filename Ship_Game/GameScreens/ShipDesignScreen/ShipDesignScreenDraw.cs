@@ -215,16 +215,15 @@ namespace Ship_Game
 
         private void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
-            Color color = Color.Black;
-            color.A     = 140;
-
-            Color shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
+            Color color         = Color.Black;
+            color.A             = 140;
+            Color shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
             DrawRectangle(slot.ModuleRect, Color.Teal, color);
             DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
+            shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
             DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
             DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
@@ -232,8 +231,8 @@ namespace Ship_Game
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Texture2D arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
-            var origin       = new Vector2(250f, 250f);
-            Rectangle toDraw = center.ToRect(500, 500);
+            var origin           = new Vector2(250f, 250f);
+            Rectangle toDraw     = center.ToRect(500, 500);
 
             spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
