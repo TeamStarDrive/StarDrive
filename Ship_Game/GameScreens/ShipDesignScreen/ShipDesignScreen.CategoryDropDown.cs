@@ -22,11 +22,11 @@ namespace Ship_Game
                         case ShipData.Category.Civilian: ToolTip.CreateTooltip("Can be used as Freighter. Evade when enemies are near. Repair when internal damage is above 15%"); break;
                         case ShipData.Category.Recon:    ToolTip.CreateTooltip("Repair when internal damage is above 35%"); break;
                         case ShipData.Category.Combat: ToolTip.CreateTooltip("Repair when internal damage is above 75%"); break;
-                        case ShipData.Category.Bomber: ToolTip.CreateTooltip("Repair when internal damage is above 60%." +
-                                                                             "Designate as Bomber/Anti Capital. Dynamic Bomber Hangars" +
+                        case ShipData.Category.Bomber: ToolTip.CreateTooltip("Repair when internal damage is above 60%. " +
+                                                                             "Designate as Bomber/Anti Capital. Dynamic Bomber Hangars " +
                                                                              "will be able to pick the best from this category"); break;
-                        case ShipData.Category.Fighter:  ToolTip.CreateTooltip("Repair when internal damage is above 80%." +
-                                                                               "Designate as Interceptor. Dynamic Fighter Hangars" +
+                        case ShipData.Category.Fighter:  ToolTip.CreateTooltip("Repair when internal damage is above 80%. " +
+                                                                               "Designate as Interceptor. Dynamic Fighter Hangars " +
                                                                                "will be able to pick the best from this category"); break;
                         case ShipData.Category.Kamikaze: ToolTip.CreateTooltip("Never Repair! Never Rearm!\n(unless ordered)"); break;
                     }
