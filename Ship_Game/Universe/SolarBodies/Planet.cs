@@ -147,11 +147,11 @@ namespace Ship_Game
         public float PlusTaxPercentage;
         public float PlusFlatResearchPerTurn;
         //public float ResearchPercentAdded;      //This is never used
-        public float PlusResearchPerColonist;
+        public float PlusResearchPerColonist { get; private set; }
         public float TotalMaintenanceCostsPerTurn;
         public float PlusFlatMoneyPerTurn;
-        private float PlusFoodPerColonist;
-        public float PlusProductionPerColonist;
+        public float PlusFoodPerColonist { get; private set; }
+        public float PlusProductionPerColonist { get; private set; }
         public float MaxPopBonus;
         public bool AllowInfantry;
         public float PlusFlatPopulationPerTurn;
@@ -202,6 +202,43 @@ namespace Ship_Game
         public void HealTroops(int healAmount)                                          => TroopManager.HealTroops(healAmount);
         public float AvgPopulationGrowth { get; private set; }
         private static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
+        private float OutputAfterTax(float value) => value - Owner.data.TaxRate * value;
+
+        public float ProductionPerWorker
+        {
+            get
+            {
+                float productionPerWorker = (MineralRichness + PlusProductionPerColonist) * (1 + Owner.data.Traits.ProductionMod);
+                return OutputAfterTax(productionPerWorker);
+            }
+        }
+
+        public float FlatProductionPerTurn
+        {
+            get
+            {
+                float flatProductionPerTurn = PlusFlatProductionPerTurn + Owner.data.Traits.ProductionMod * PlusFlatProductionPerTurn;
+                return OutputAfterTax(flatProductionPerTurn);
+            }
+        }
+
+        public float ResearchPerResearcher
+        {
+            get
+            {
+                float researchPerResearcher = PlusResearchPerColonist + Owner.data.Traits.ResearchMod * PlusResearchPerColonist;
+                return OutputAfterTax(researchPerResearcher);
+            }
+        }
+
+        public float FlatResearchPerTurn
+        {
+            get
+            {
+                float flatResearchPerTurn = PlusFlatResearchPerTurn + Owner.data.Traits.ResearchMod * PlusFlatResearchPerTurn;
+                return OutputAfterTax(flatResearchPerTurn);
+            }
+        }
 
         public void SetExportWeight(Goods good, float weight)
         {
@@ -490,7 +527,9 @@ namespace Ship_Game
             if (Owner != null && Owner.data.Traits.Cybernetic == 1)
                 return NetFoodPerTurn;
 
-                return NetFoodPerTurn - Consumption; //This is already the correct value. whats incorrect is
+            float minimumFoodAdded = -Consumption + FlatFoodAdded; // FB: added this one so if buildings have negative food per colonist
+            // it can never be lower than the max consumption of the planet minus flat food and then i am clamping it the line below
+            return (NetFoodPerTurn - Consumption).Clamped(minimumFoodAdded, NetFoodPerTurn); //This is already the correct value. whats incorrect is
             //how the variable is named at initial assignment.
             //it should be gross food. That will take a lot of invasive work to fix.
             //but its not correct in the UI... needs more checking and fixing. bleh.
@@ -2622,6 +2661,7 @@ namespace Ship_Game
                 HasShipyard = true;
             else
                 HasShipyard = false;
+
             //Research
             NetResearchPerTurn = (ResearcherPercentage * (Population / 1000)) * PlusResearchPerColonist + PlusFlatResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn + Owner.data.Traits.ResearchMod * NetResearchPerTurn;
@@ -2632,9 +2672,7 @@ namespace Ship_Game
             NetProductionPerTurn = (WorkerPercentage * (Population / 1000) * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
             NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
             MaxProductionPerTurn = GetMaxProductionPotentialCalc();
-
-            Consumption =  ((Population / 1000) + Owner.data.Traits.ConsumptionModifier * (Population / 1000));
-
+            Consumption = ((Population / 1000) + Owner.data.Traits.ConsumptionModifier * (Population / 1000));
             if (Owner.data.Traits.Cybernetic > 0)
                 NetProductionPerTurn = NetProductionPerTurn - Owner.data.TaxRate * (NetProductionPerTurn - Consumption) ;
             else
