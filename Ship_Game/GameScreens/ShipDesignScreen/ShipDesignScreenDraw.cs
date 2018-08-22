@@ -223,7 +223,7 @@ namespace Ship_Game
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
+            shipNameColor = ShipBuilder.GetHangarTextColor(mirrored.Slot.Module.hangarShipUID);
             DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
             DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }

@@ -495,8 +495,8 @@ namespace Ship_Game.Ships
             string selectedShip = ShipBuilder.PickFromCandidates(biggetRole, empire, maxSize: hangar.MaximumHangarShipSize,
                 shipCategory: desiredShipCategory);
 
-            // If not desired category is available in the empire, try to get the best ship we have regardless of category
-            if (selectedShip == null && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
+            // If no desired category is available in the empire, try to get the best ship we have regardless of category
+            if (selectedShip == "" && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
                 selectedShip = ShipBuilder.PickFromCandidates(biggetRole, empire, maxSize: hangar.MaximumHangarShipSize);
 
             return selectedShip;
