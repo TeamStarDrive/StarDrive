@@ -73,8 +73,8 @@ namespace Ship_Game.AI
             return name;
         }
 
-        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule
-        ,ShipData.Category shipCategory)
+        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule,
+                                                           ShipData.Category shipCategory)
         {
             var potentialShips = new Array<Ship>();
             bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
