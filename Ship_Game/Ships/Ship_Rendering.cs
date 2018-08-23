@@ -296,15 +296,22 @@ namespace Ship_Game.Ships
             Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
 
             // display low ammo
-            if (OrdinanceMax > 0.0f && Ordinance < 0.5f * OrdinanceMax)
+            if (OrdnancePercent < 0.5f)
             {
-                Texture2D ammoIcon = ResourceManager.Texture("NewUI/icon_ammo");
-                Color color = (Ordinance <= 0.2f * OrdinanceMax) ? Color.Red : Color.Yellow;
-                float size = ScaleIconSize(screenRadius, 16f , 16f);                
-                us.DrawTextureSized(ammoIcon, screenPos + offSet, 0f, size, size, color);
-                //for future status icons.
-                //offSet.X += size * 1.2f; 
+                Color color = (OrdnancePercent <= 0.15f) ? Color.Red : Color.Yellow;
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
             }
+            // display ressuply icon
+            if (AI.State == Ship_Game.AI.AIState.Resupply || AI.State == Ship_Game.AI.AIState.ResupplyEscort)
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_resupply", Color.White);
+        }
+
+        private void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
+        {
+            Texture2D statusIcon = ResourceManager.Texture(texture);
+            float size = ScaleIconSize(screenRadius, 16f, 16f);
+            us.DrawTextureSized(statusIcon, screenPos + offSet, 0f, size, size, color);
+            offSet.X += size * 1.2f;
         }
 
         public void DrawRepairDrones(UniverseScreen screen)

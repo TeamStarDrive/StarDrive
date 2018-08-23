@@ -385,7 +385,7 @@ namespace Ship_Game.Ships
             }
 
             DrawCarrierStatus(mousePos);
-
+            DrawResuplyReason(Ship);
             if (Ship.CargoSpaceUsed > 0f)
             {
                 foreach (Cargo cargo in Ship.EnumLoadedCargo())
@@ -440,8 +440,37 @@ namespace Ship_Game.Ships
                 DrawIconWithTooltip(iconStructure, Color.White, () => Localizer.Token(1976));
                 var textPos = new Vector2((int)statusArea.X -20 + numStatus * 53 , (int)statusArea.Y + 15);
                 float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100 ;
+                structureIntegrity = Math.Max(1, structureIntegrity);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, structureIntegrity.String(0)+ "%", textPos, Color.White);
             }
+        }
+
+        private void DrawResuplyReason(Ship ship)
+        {
+            string text = "";
+            switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
+            {
+                case ResupplyReason.NotNeeded:
+                    return;
+                case ResupplyReason.FighterReactorsDamaged:
+                    text = "Reactors Damaged";
+                    break;
+                case ResupplyReason.LowHealth:
+                    text = "Structural Integrity Compromized";
+                    break;
+                case ResupplyReason.LowOrdnance:
+                    text = "Ammo Reserves Critical";
+                    break;
+                case ResupplyReason.LowTroops:
+                    text = "Need Troops";
+                    break;
+                case ResupplyReason.NoCommand:
+                    text = "No Command, Cannot Attack";
+                    break;
+
+            }
+            var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, Color.Red);
         }
         
         private void DrawTroopStatus() // Expanded  by Fat Bastard
