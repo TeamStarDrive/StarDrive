@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -9,6 +6,9 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -911,14 +911,18 @@ namespace Ship_Game.Debug
 
         private void PathingInfo()
         {
-            foreach (Empire e in EmpireManager.Empires)
+            int count = 0;
+            //foreach (Empire e in EmpireManager.Empires)                        
+            var e = EmpireManager.Player;//.GetEmpireById(6);
                 for (int x = 0; x < e.grid.GetLength(0); x++)
                     for (int y = 0; y < e.grid.GetLength(1); y++)
                     {
-                        if (e.grid[x, y] != 1)
-                            continue;
-                        var translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
-                        Screen.DrawCircleProjectedZ(translated, Screen.reducer , e.EmpireColor, 4);
+                        var weight = e.grid[x, y];
+                        if (weight == 80 )
+                          continue;
+                    count++;
+                        var translated = new Vector2((x - e.granularity) * Screen.PathMapReducer, (y - e.granularity) * Screen.PathMapReducer);                        
+                        Screen.DrawCircleProjected(translated, Screen.PathMapReducer, weight + 3, e.EmpireColor);
                     }
         }
 

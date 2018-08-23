@@ -2371,7 +2371,7 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
-                psource?.Module.GetParent()?.AddKill(this);
+                psource?.Module?.GetParent().AddKill(this);
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
