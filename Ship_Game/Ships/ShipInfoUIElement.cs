@@ -361,16 +361,19 @@ namespace Ship_Game.Ships
                 ++numStatus;
             }
 
-            Texture2D iconBoosted  = ResourceManager.Texture("StatusIcons/icon_boosted");
-            Texture2D iconGravwell = ResourceManager.Texture("StatusIcons/icon_gravwell");
+            Texture2D iconBoosted   = ResourceManager.Texture("StatusIcons/icon_boosted");
+            Texture2D iconGravwell  = ResourceManager.Texture("StatusIcons/icon_gravwell");
             Texture2D iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
             Texture2D iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
             Texture2D iconDisabled  = ResourceManager.Texture("StatusIcons/icon_disabled");
+            Texture2D iconPack      = ResourceManager.Texture("StatusIcons/icon_pack");
+            Texture2D iconStructure = ResourceManager.Texture("StatusIcons/icon_structure");
+
 
             if (Ship.loyalty.data.Traits.Pack)
             {
                 var packRect         = new Rectangle((int)statusArea.X, (int)statusArea.Y, 48, 32);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("StatusIcons/icon_pack"), packRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(iconPack, packRect, Color.White);
                 var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
                 float damageModifier = Ship.PackDamageModifier * 100f;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
@@ -427,7 +430,17 @@ namespace Ship_Game.Ships
 
             if (Ship.EMPdisabled)
             {
-                DrawIconWithTooltip(iconDisabled, Color.White, () => Localizer.Token(116));
+                DrawIconWithTooltip(iconDisabled, Color.White, () => Localizer.Token(1975));
+                var textPos = new Vector2((int)statusArea.X - 20 + numStatus * 53, (int)statusArea.Y);
+                float empState = Ship.EMPDamage / Ship.EmpTolerance;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, empState.String(1), textPos, Color.White);
+            }
+            if (Ship.InternalSlotsHealthPercent < 1f)
+            {
+                DrawIconWithTooltip(iconStructure, Color.White, () => Localizer.Token(1976));
+                var textPos = new Vector2((int)statusArea.X -20 + numStatus * 53 , (int)statusArea.Y + 15);
+                float structureIntegrity = (1 + (Ship.InternalSlotsHealthPercent - 1) / ShipResupply.ShipDestroyThreshold) * 100 ;
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, structureIntegrity.String(0)+ "%", textPos, Color.White);
             }
         }
         
