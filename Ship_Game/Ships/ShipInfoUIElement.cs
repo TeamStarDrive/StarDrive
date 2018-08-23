@@ -467,7 +467,6 @@ namespace Ship_Game.Ships
                 case ResupplyReason.NoCommand:
                     text = "No Command, Cannot Attack";
                     break;
-
             }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, Color.Red);
