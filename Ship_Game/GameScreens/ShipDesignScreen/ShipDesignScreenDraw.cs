@@ -215,25 +215,24 @@ namespace Ship_Game
 
         private void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
-            Color color = Color.Black;
-            color.A     = 140;
-
-            Color shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
-            DrawRectangle(slot.ModuleRect, Color.Teal, color);
+            Color color         = Color.Black;
+            color.A             = 100;
+            Color shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
+            DrawRectangle(slot.ModuleRect, shipNameColor, color);
             DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
-            DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
+            shipNameColor = ShipBuilder.GetHangarTextColor(mirrored.Slot.Module.hangarShipUID);
+            DrawRectangle(mirrored.Slot.ModuleRect, shipNameColor, color);
             DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Texture2D arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
-            var origin       = new Vector2(250f, 250f);
-            Rectangle toDraw = center.ToRect(500, 500);
+            var origin           = new Vector2(250f, 250f);
+            Rectangle toDraw     = center.ToRect(500, 500);
 
             spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
