@@ -301,7 +301,7 @@ namespace Ship_Game.Ships
                 Color color = (OrdnancePercent <= 0.15f) ? Color.Red : Color.Yellow;
                 DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
             }
-            // display ressuply icons
+            // FB: display ressuply icons
             switch (AI.State)
             {
                 case Ship_Game.AI.AIState.Resupply:
