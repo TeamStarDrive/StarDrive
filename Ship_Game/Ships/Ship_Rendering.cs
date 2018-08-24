@@ -301,9 +301,17 @@ namespace Ship_Game.Ships
                 Color color = (OrdnancePercent <= 0.15f) ? Color.Red : Color.Yellow;
                 DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
             }
-            // display ressuply icon
-            if (AI.State == Ship_Game.AI.AIState.Resupply || AI.State == Ship_Game.AI.AIState.ResupplyEscort)
-                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_resupply", Color.White);
+            // display ressuply icons
+            switch (AI.State)
+            {
+                case Ship_Game.AI.AIState.Resupply:
+                case Ship_Game.AI.AIState.ResupplyEscort:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_resupply", Color.White);
+                    break;
+                case Ship_Game.AI.AIState.ReturnToHangar:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "UI/icon_hangar", Color.Yellow);
+                    break;
+            }
         }
 
         private void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
