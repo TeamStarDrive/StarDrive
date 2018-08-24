@@ -913,7 +913,7 @@ namespace Ship_Game.Debug
         {
             int count = 0;
             //foreach (Empire e in EmpireManager.Empires)                        
-            var e = EmpireManager.Player;//.GetEmpireById(6);
+            var e = EmpireManager.Cordrazine;//.GetEmpireById(6);
                 for (int x = 0; x < e.grid.GetLength(0); x++)
                     for (int y = 0; y < e.grid.GetLength(1); y++)
                     {

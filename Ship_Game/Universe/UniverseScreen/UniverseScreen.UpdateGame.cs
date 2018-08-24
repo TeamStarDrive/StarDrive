@@ -121,62 +121,44 @@ namespace Ship_Game
             foreach (var node in empire.BorderNodes)
             {
                 byte modifiedWeight = weight;
-                SolarSystem ss = node.SourceObject as SolarSystem;
-                Planet p = node.SourceObject as Planet;
-                if (FTLModifier < 1 && ss != null)
-                    modifiedWeight = 0;// (byte)(FTLModifier < .1f ? 0 : 20 / FTLModifier);
-                if ((EnemyFTLModifier < 1 || !FTLInNuetralSystems) && ss != null && modifiedWeight > 1)
+
+                Point point = WorldToPathMap(node.Position, granularity);
+
+
+                Vector2 upscale = new Vector2(point.X * PathMapReducer,
+                    point.Y * PathMapReducer);
+
+                if (modifiedWeight != 0 && modifiedWeight < 81 && upscale.InRadius(node.Position, node.Radius))
                 {
-                    modifiedWeight = 0;// (byte) (EnemyFTLModifier < .1f ? 0 : 20 / EnemyFTLModifier);
-                }
-                //if (p != null && weight > 1)
-                //    weight += 20;
-                float xround = node.Position.X > 0 ? .5f : -.5f;
-                float yround = node.Position.Y > 0 ? .5f : -.5f;
-                int ocx = (int) (node.Position.X / PathMapReducer + xround);
-                int ocy = (int) (node.Position.Y / PathMapReducer + yround);
-                int cx = ocx + granularity;
-                int cy = ocy + granularity;
-                cy = cy < 0 ? 0 : cy;
-                cy = cy > granularity * 2 ? granularity * 2 : cy;
-                cx = cx < 0 ? 0 : cx;
-                cx = cx > granularity * 2 ? granularity * 2 : cx;
-                Vector2 upscale = new Vector2(ocx * PathMapReducer,
-                    ocy * PathMapReducer);
-                if (p == null && ss == null && Vector2.Distance(upscale, node.Position) < node.Radius)
-                {
-                    grid[cx, cy] = modifiedWeight;
+                    grid[point.X, point.Y] = modifiedWeight;
+
                 }
 
-                float test = modifiedWeight == 0 ? 1.25f : 1;
-                int rad = (int) (Math.Ceiling(node.Radius / PathMapReducer * test));
+                float increaser = modifiedWeight == 0 ? 1.25f : 1;
 
-                int negx = cx - rad;
-                if (negx < 0)
-                    negx = 0;
-                int posx = cx + rad;
-                if (posx > granularity * 2)
-                    posx = granularity * 2;
-                int negy = cy - rad;
-                if (negy < 0)
-                    negy = 0;
-                int posy = cy + rad;
-                if (posy > granularity * 2)
-                    posy = granularity * 2;
-                for (int x = negx; x < posx; x++)
-                for (int y = negy; y < posy; y++)
-                {
-                    if (grid[x, y] == 0)
-                    {
-                        continue;
-                    }
-
-                    upscale = new Vector2((x - granularity) * PathMapReducer,
-                        (y - granularity) * PathMapReducer);
-                    if (Vector2.Distance(upscale, node.Position) <= node.Radius * test)
-                        grid[x, y] = modifiedWeight;
-                }
+                ApplyWeightToMapArea(node.Position,node.Radius * increaser, modifiedWeight, granularity, grid);
             }
+        }
+
+        public bool MapPointInWorldRadius(Point mapPoint, Vector2 worldPosition, float worldRadius, int universeOffset)
+        {
+            Vector2 mapInWorld = PathMapPointToWorld(mapPoint.X, mapPoint.Y, universeOffset);
+            return mapInWorld.InRadius(worldPosition, worldRadius);
+        }
+
+        public void ApplyWeightToMapArea(Vector2 worldPosition, float worldRadius, byte weight, int universeOffset, byte[,] grid)
+        {
+            Point topLeft = WorldToPathMap(new Vector2 (worldPosition.X - worldRadius , worldPosition.Y - worldRadius), universeOffset);
+            Point bottomRight = WorldToPathMap(new Vector2(worldPosition.X + worldRadius, worldPosition.Y + worldRadius), universeOffset);
+
+
+            for (int x = topLeft.X; x < bottomRight.X ; x++)
+                for (int y = topLeft.Y; y < bottomRight.Y ; y++)
+                {
+                    if (grid[x, y] == 0) continue;
+                    if (MapPointInWorldRadius(new Point(x,y), worldPosition, worldRadius, universeOffset))
+                        grid[x, y] = weight;
+                }
         }
 
         public static float DeltaTime;
@@ -527,32 +509,53 @@ namespace Ship_Game
             return false;
         }
 
+        public Vector2 PathMapPointToWorld(int x, int y, int universeOffSet)
+        {
+            return new Vector2((x - universeOffSet) * PathMapReducer,
+                (y - universeOffSet) * PathMapReducer);
+        }
+
+        public Point WorldToPathMap(Vector2 worldPostion, int universeOffSet)
+        {
+            int x = universeOffSet;
+            int y = universeOffSet;
+            float xround = worldPostion.X > 0 ? .5f : -.5f;
+            float yround = worldPostion.Y > 0 ? .5f : -.5f;
+            x += (int)(worldPostion.X / PathMapReducer + xround);
+            y += (int)(worldPostion.Y / PathMapReducer + yround);
+            y = y.Clamped(0, universeOffSet * 2);
+            x = x.Clamped(0, universeOffSet * 2);
+            return new Point(x, y);
+        }
+
         public void DoPathingMapRebuild()
         {
             PathMapReducer = (int) (SubSpaceProjectors.Radius * .50f);
-            int granularity = (int) (UniverseSize / PathMapReducer);
-            int elegran = granularity * 2;
+            int universeOffSet = (int) (UniverseSize  / PathMapReducer);
+            int elegran = universeOffSet * 2;
             int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
             byte[,] grid = new byte[elements, elements];
             for (int x = 0; x < elements; x++)
             for (int y = 0; y < elements; y++)
             {
-                if (x > elegran || y > elegran)
-                    grid[x, y] = 0;
-                else
-                    grid[x, y] = 80;
+                    if (x > elegran || y > elegran)
+                        grid[x, y] = 0;
+                    else
+                        grid[x, y] = 80;
             }
-            foreach (Planet p in PlanetsDict.Values)
+            bool blockSystems = !FTLInNuetralSystems || EnemyFTLModifier < 1 || FTLModifier < 1;
+            foreach (var ss in SolarSystemDict)
             {
-                int x = granularity;
-                int y = granularity;
-                float xround = p.Center.X > 0 ? .5f : -.5f;
-                float yround = p.Center.Y > 0 ? .5f : -.5f;
-                x += (int) (p.Center.X / PathMapReducer + xround);
-                y += (int) (p.Center.Y / PathMapReducer + yround);
-                if (y < 0) y = 0;
-                if (x < 0) x = 0;
-                grid[x, y] = 0;
+                var point = WorldToPathMap(ss.Value.Position, universeOffSet);
+
+                byte weight = blockSystems ? (byte)0 : (byte)90;
+                ApplyWeightToMapArea(ss.Value.Position, 150000, weight, universeOffSet, grid);
+
+                foreach(var p in PlanetsDict)
+                {
+                    point = WorldToPathMap(p.Value.Center, universeOffSet);
+                    grid[point.X, point.Y] = 0;
+                }
             }
 
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
@@ -575,7 +578,7 @@ namespace Ship_Game
                 }
                 PathGridtranslateBordernode(empire, 1, grid1);
                 empire.grid = grid1;
-                empire.granularity = granularity;
+                empire.granularity = universeOffSet;
             }
         }
 
