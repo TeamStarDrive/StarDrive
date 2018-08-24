@@ -43,12 +43,16 @@ namespace Ship_Game.Ships
             return threshold;
         }
 
-        public ResupplyReason Resupply()
+        public ResupplyReason Resupply(bool forceSupplyStateCheck = false)
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
-                                                           || Ship.DesignRole == ShipData.RoleName.supply
-                                                           || Ship.AI.State == AIState.Resupply
-                                                           || Ship.AI.State == AIState.ResupplyEscort)
+                                                           || Ship.DesignRole == ShipData.RoleName.supply)
+                return ResupplyReason.NotNeeded;
+
+            // this saves calculating supply again for ships already in supply states. 
+            // but sometimes we want to get the reason (like displaying it to the player when he selects a ship in resupply)
+            if (!forceSupplyStateCheck && (Ship.AI.State == AIState.Resupply
+                                       || Ship.AI.State == AIState.ResupplyEscort))
                 return ResupplyReason.NotNeeded;
 
             if (!Ship.hasCommand)
