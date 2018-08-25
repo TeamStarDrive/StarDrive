@@ -514,6 +514,11 @@ namespace Ship_Game.Gameplay
             InitialStrength = 50f + n;
         }
 
+        public void ShipKilled(float anger)
+        {
+            Anger_MilitaryConflict += anger;
+        }
+
         private void UpdateIntelligence(Empire us, Empire them)
         {
             if (!(us.Money > IntelligenceBudget) || !(IntelligencePenetration < 100f))
