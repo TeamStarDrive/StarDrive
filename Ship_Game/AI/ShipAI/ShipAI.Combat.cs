@@ -463,25 +463,27 @@ namespace Ship_Game.AI
             if (Target == null || Owner.InCombat) return;
             Owner.InCombatTimer = 15f;
             if (!HasPriorityOrder && OrderQueue.NotEmpty && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
-            {
-                var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                State = AIState.Combat;
-                OrderQueue.PushToFront(combat);
-            }
+                EnterCombat();
+
             else if (!HasPriorityOrder)
-            {
-                var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                State = AIState.Combat;
-                OrderQueue.PushToFront(combat);
-            }
+                EnterCombat();
+
+            else if ((Owner.IsPlatform || Owner.shipData.Role == ShipData.RoleName.station) 
+                     && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
+                EnterCombat();
             else
             {
                 if (CombatState == CombatState.HoldPosition || OrderQueue.NotEmpty)
                     return;
-                var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                State = AIState.Combat;
-                OrderQueue.PushToFront(combat);
+                EnterCombat();
             }
+        }
+
+        private void EnterCombat()
+        {
+            var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
+            State = AIState.Combat;
+            OrderQueue.PushToFront(combat);
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship sensorShip);

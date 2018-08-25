@@ -114,7 +114,7 @@ namespace Ship_Game.Ships
         {
             if (Ship.shipData.ShipCategory == ShipData.Category.Kamikaze
                 && Ship.loyalty.isPlayer)
-                return false; // only player manual command will convince player Kamikaze to resupply
+                return false; // only player manual command will convince Kamikaze ship to resupply
 
             float threshold = Ship.InCombat ? OrdnanceThresholdCombat
                                             : OrdnanceThresholdNonCombat;
@@ -134,13 +134,13 @@ namespace Ship_Game.Ships
                                                                  && weapon.OrdinanceRequiredToFire > 0
                                                                  && !weapon.TruePD);
 
-            float ratioTheshold = Ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority
-                                                            : KineticEnergyRatioWithOutPriority;
+            float ratioThreshold = Ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority
+                                                             : KineticEnergyRatioWithOutPriority;
 
             float ratio = (float)numKineticWeapons / numWeapons;
             if (Ship.AI.HasPriorityTarget && ratio < 1f)
                 return false; // if player ordered a specific attack and the ship has energy weapons, continue to fight
-            return ratio >= ratioTheshold;
+            return ratio >= ratioThreshold;
         }
 
         private bool InsufficientOrdnanceProduction()
