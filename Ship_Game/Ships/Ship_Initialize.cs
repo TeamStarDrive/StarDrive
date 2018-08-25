@@ -486,11 +486,10 @@ namespace Ship_Game.Ships
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
-            rotationRadiansPerSecond = Speed / Size;
+            rotationRadiansPerSecond = TurnThrust / Mass / 700f; ;
             ShipMass                 = Mass;
-
-            BaseStrength = CalculateShipStrength();
-            CurrentStrength = BaseStrength;
+            BaseStrength             = CalculateShipStrength();
+            CurrentStrength          = BaseStrength;
 
             // @todo Do we need to recalculate this every time? This whole thing looks fishy
             if (shipData.BaseStrength <= 0f)

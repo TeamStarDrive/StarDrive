@@ -151,6 +151,7 @@ namespace Ship_Game
         {
             return Module != null
                 && Module.UID == module.UID
+                && Module.hangarShipUID == module.hangarShipUID
                 && Orientation == orientation
                 && Facing.AlmostEqual(facing);
         }

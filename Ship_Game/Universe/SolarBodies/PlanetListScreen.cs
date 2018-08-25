@@ -106,9 +106,9 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, new Color(255, 239, 208));
-            EMenu.Draw();
+            EMenu.Draw(batch);
             var textColor = new Color(118, 102, 67, 50);
             PlanetSL.Draw(batch);
             if (PlanetSL.NumEntries > 0)

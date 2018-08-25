@@ -239,7 +239,7 @@ namespace Ship_Game
                 (!input.Escaped && !input.RightMouseClick && colonyScreen?.close.HandleInput(input) != true))
                 return;
 
-            if (colonyScreen != null && colonyScreen.p.Owner == null)
+            if (colonyScreen != null && colonyScreen.P.Owner == null)
             {
                 AdjustCamTimer = 1f;
                 if (returnToShip)

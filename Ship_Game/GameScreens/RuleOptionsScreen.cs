@@ -1,16 +1,16 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game
 {
-	public sealed class RuleOptionsScreen : GameScreen
-	{
-		public bool isOpen;
-		private Menu2 MainMenu;
-		private bool LowRes;
-		private FloatSlider FTLPenaltySlider;
+    public sealed class RuleOptionsScreen : GameScreen
+    {
+        public bool isOpen;
+        private Menu2 MainMenu;
+        private bool LowRes;
+        private FloatSlider FTLPenaltySlider;
         private FloatSlider EnemyFTLPenaltySlider;
         private FloatSlider GravityWellSize;
         private FloatSlider extraPlanets;
@@ -18,29 +18,26 @@ namespace Ship_Game
         private FloatSlider MinimumWarpRange;
         private FloatSlider StartingRichness;
         private FloatSlider TurnTimer;
-		public Ship itemToBuild;
+        public Ship itemToBuild;
 
-		public RuleOptionsScreen(GameScreen parent) : base(parent)
-		{
-			IsPopup = true;
-			TransitionOnTime  = TimeSpan.FromSeconds(0.25);
-			TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
+        public RuleOptionsScreen(GameScreen parent) : base(parent)
+        {
+            IsPopup = true;
+            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+        }
 
-		public override void Draw(SpriteBatch batch)
-		{
-			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-		    batch.Begin();
-		    {
-		        MainMenu.Draw(Color.Black);
-		        base.Draw(batch);
-		    }
-		    batch.End();
-		}
+        public override void Draw(SpriteBatch batch)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.Begin();
+            base.Draw(batch);
+            batch.End();
+        }
 
-	
-		public override bool HandleInput(InputState input)
-		{
+
+        public override bool HandleInput(InputState input)
+        {
             if (base.HandleInput(input))
             {
                 GlobalStats.FTLInSystemModifier      = FTLPenaltySlider.RelativeValue;
@@ -54,30 +51,30 @@ namespace Ship_Game
                 return true;
             }
             return false;
-		}
+        }
 
-		public override void LoadContent()
-		{
+        public override void LoadContent()
+        {
             base.LoadContent();
             RemoveAll();
             int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
             if (width <= 1366 || height <= 720)
-				LowRes = true;
+                LowRes = true;
             var titleRect = new Rectangle(width / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             var nameRect  = new Rectangle(width / 2 - height / 4, titleRect.Y + titleRect.Height + 5, width / 2, 150);
             var leftRect  = new Rectangle(width / 2 - height / 4, nameRect.Y + nameRect.Height + 5, width / 2,
                                               height - (titleRect.Y + titleRect.Height) - (int)(0.28f * height));
-			if (leftRect.Height > 580)
-				leftRect.Height = 580;
+            if (leftRect.Height > 580)
+                leftRect.Height = 580;
 
-		    int x = leftRect.X + 60;
-
-			CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
+            int x = leftRect.X + 60;
+            MainMenu = Add(new Menu2(this, leftRect, Color.Black));
+            CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
 
             var ftlRect = new Rectangle(x, leftRect.Y + 100, 270, 50);
-			FTLPenaltySlider = SliderPercent(ftlRect, Localizer.Token(4007), 0f, 1f, GlobalStats.FTLInSystemModifier);
+            FTLPenaltySlider = SliderPercent(ftlRect, Localizer.Token(4007), 0f, 1f, GlobalStats.FTLInSystemModifier);
 
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(6139), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
@@ -103,21 +100,21 @@ namespace Ship_Game
             MinimumWarpRange    = Slider(minimumWarpRange, "Minimum Warp Range",   0, 1200000f, GlobalStats.MinimumWarpRange);
             IncreaseMaintenance = Slider(maintenanceRect,  "Increase Maintenance", 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
-		    FTLPenaltySlider.TooltipId = 2286;
-		    EnemyFTLPenaltySlider.TooltipId = 7041;
-		    GravityWellSize.TooltipId = 6003;
-		    extraPlanets.Tooltip = "Add up to 6 random planets to each system";
-		    MinimumWarpRange.Tooltip = "Minumum warp range a ship must have before it needs to recharge for the AI to build it";
+            FTLPenaltySlider.TooltipId = 2286;
+            EnemyFTLPenaltySlider.TooltipId = 7041;
+            GravityWellSize.TooltipId = 6003;
+            extraPlanets.Tooltip = "Add up to 6 random planets to each system";
+            MinimumWarpRange.Tooltip = "Minumum warp range a ship must have before it needs to recharge for the AI to build it";
 
             IncreaseMaintenance.Tooltip = "Multiply Global Maintenance Cost By  SSP's Are Not Affected";
-		    TurnTimer.Tooltip = "Time in seconds for turns";
-		    StartingRichness.Tooltip = "Add to all Starting Empire Planets this Value";
+            TurnTimer.Tooltip = "Time in seconds for turns";
+            StartingRichness.Tooltip = "Add to all Starting Empire Planets this Value";
 
-			MainMenu = new Menu2(leftRect);
+
 
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, "Advanced Rule Options", Fonts.Arial20Bold);
-		    string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);
+            string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40 + Fonts.Arial20Bold.LineSpacing + 2, text, Fonts.Arial12);
-		}
-	}
+        }
+    }
 }

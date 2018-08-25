@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -11,6 +6,11 @@ using SgMotion.Controllers;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Ships
 {
@@ -79,7 +79,7 @@ namespace Ship_Game.Ships
         {
             if (BaseHull == null)
                 BaseHull = ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : this;
-            
+
             if (Bonuses == null)
                 Bonuses  = ResourceManager.HullBonuses.TryGetValue(Hull, out HullBonus bonus) ? bonus : HullBonus.Default;
         }
@@ -152,15 +152,15 @@ namespace Ship_Game.Ships
 
         [DllImport("SDNative.dll")]
         private static extern unsafe void DisposeShipDataParser(CShipDataParser* parser);
-        
-        // Added by RedFox - manual parsing of ShipData, because this is the slowest part 
+
+        // Added by RedFox - manual parsing of ShipData, because this is the slowest part
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
         public static unsafe ShipData Parse(FileInfo info)
         {
             CShipDataParser* s = null;
             try
             {
-                s = CreateShipDataParser(info.FullName); // @note This will never throw                
+                s = CreateShipDataParser(info.FullName); // @note This will never throw
                 if (!s->ErrorMessage.Empty)
                 {
                     Log.Error($"Ship Load error in {info.FullName} : {s->ErrorMessage.AsString}");
@@ -215,14 +215,14 @@ namespace Ship_Game.Ships
                     slot.ShieldPowerBeforeWarp = msd->ShieldPowerBeforeWarp;
                     slot.Facing                = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    slot.Orientation           = msd->State.AsInterned;                    
-                    slot.SlotOptions           = msd->SlotOptions.AsInterned;   
-                    
+                    slot.Orientation           = msd->State.AsInterned;
+                    slot.SlotOptions           = msd->SlotOptions.AsInterned;
+
                     ship.ModuleSlots[i] = slot;
                 }
 
                 int slotCount = ship.ModuleSlots.Length;
-              
+
                 if (ship.ModuleSlots.Length != slotCount)
                     Log.Warning($"Ship {ship.Name} loaded with errors ");
                 // @todo Remove conversion to List
@@ -242,9 +242,9 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < s->TechsLen; ++i)
                     ship.TechsNeeded.Add(s->Techs[i].AsInterned);
 
-                ship.UpdateBaseHull();                
+                ship.UpdateBaseHull();
                 return ship;
-            }           
+            }
             catch (Exception e)
             {
                 Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'");
@@ -264,7 +264,7 @@ namespace Ship_Game.Ships
         public string GetRole()
         {
             return RoleArray[(int)Role -1];
-        }        
+        }
 
         public static string GetRole(RoleName role)
         {
@@ -299,7 +299,7 @@ namespace Ship_Game.Ships
                 shipMeshAnim.StartClip(skinned.AnimationClips["Take 001"]);
             }
         }
-       
+
         public enum Category
         {
             Unclassified,
@@ -307,9 +307,9 @@ namespace Ship_Game.Ships
             Recon,
             Combat,
             Bomber,
-            Fighter,            
+            Fighter,
             Kamikaze
-        }       
+        }
 
         public enum RoleName
         {
@@ -326,13 +326,13 @@ namespace Ship_Game.Ships
             bomber,
             carrier,
             fighter,
-            scout,            
+            scout,
             gunboat,
             drone,
             corvette,
             frigate,
             destroyer,
-            cruiser,            
+            cruiser,
             capital,
             prototype
         }
