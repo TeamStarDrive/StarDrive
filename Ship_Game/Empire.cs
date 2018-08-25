@@ -1375,15 +1375,18 @@ namespace Ship_Game
                 var totals = tradePlanet.TradeAI.DebugSummarizeIncomingFreight(lines);
                 float foodHere = tradePlanet.FoodHere;
                 float prodHere = tradePlanet.ProductionHere;
+                float popHere = tradePlanet.GetGoodHere(Goods.Colonists);
                 float foodStorPerc = 100 * foodHere / tradePlanet.MaxStorage;
                 float prodStorPerc = 100 * prodHere / tradePlanet.MaxStorage;
+                float popPerc = 100 * popHere / tradePlanet.MaxPopulation;
                 string food = $"{(int)foodHere}(%{foodStorPerc:00.0}) {tradePlanet.FS}";
                 string prod = $"{(int)prodHere}(%{prodStorPerc:00.0}) {tradePlanet.PS}";
+                string colonists = $"{(int)popHere / 1000f}B(%{popPerc:00.0}) {tradePlanet.GetGoodState(Goods.Colonists)}";
 
                 incomingData.AddLine($"{tradePlanet.ParentSystem.Name} : {tradePlanet.Name} : IN Cargo: {totals.Total}", Color.Yellow);
                 incomingData.AddLine($"FoodHere: {food} IN: {totals.Food}", Color.White);
                 incomingData.AddLine($"ProdHere: {prod} IN: {totals.Prod}" );
-                incomingData.AddLine($"IN Colonists: {totals.Colonists}");
+                incomingData.AddLine($"Colonists: {colonists } IN {totals.Colonists}");
                 incomingData.AddLine($"");
 
             }
