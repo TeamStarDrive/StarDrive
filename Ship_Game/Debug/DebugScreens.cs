@@ -70,7 +70,7 @@ namespace Ship_Game.Debug
             Planet planet = Screen.SelectedPlanet;
 
             Array<DebugTextBlock> text;
-            if (planet == null)
+            if (planet?.Owner == null)
             {
                 text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
