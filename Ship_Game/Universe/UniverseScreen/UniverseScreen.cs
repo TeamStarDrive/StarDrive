@@ -242,7 +242,7 @@ namespace Ship_Game
         public UIButton PlanetsInCombat;
         public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
-        public int reducer          = 1;
+        public int PathMapReducer          = 1;
         public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 

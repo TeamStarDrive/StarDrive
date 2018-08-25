@@ -80,18 +80,12 @@ namespace Ship_Game
         {
             get
             {
-                if (PopulationBillion <= .2f)
-                {
-                    if (PopulationPercent > .9f) return GoodState.STORE;
-                    if (AvgPopulationGrowth < 0) return GoodState.STORE;
-                    return GoodState.IMPORT;
-                }
 
-                if (AvgPopulationGrowth <= 0)
+                if (NeedsFood() || Population > 2000f)
                     return GoodState.EXPORT;
-                if (PopulationPercent < .9f)
+                if (!NeedsFood() && MaxPopulation > 2000f)
                     return GoodState.IMPORT;
-                return GoodState.EXPORT;
+                return GoodState.STORE;
             }
         }
 
@@ -175,6 +169,7 @@ namespace Ship_Game
             {
                 case Goods.Food:       return FoodHere;
                 case Goods.Production: return ProductionHere;
+                case Goods.Colonists:  return Population;
                 default:               return 0;
             }
         }
@@ -508,10 +503,11 @@ namespace Ship_Game
         {
             if (Owner?.isFaction ?? true) return false;
             bool cyber = Owner.data.Traits.Cybernetic > 0;
-            float food = cyber ? ProductionHere : FoodHere;
-            bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .5f :
-                (NetFoodPerTurn <= 0 && FarmerPercentage > .5f);
-            return food / MaxStorage < .10f || badProduction;
+            Goods foodType = cyber ? Goods.Production : Goods.Food;
+            float food = GetGoodHere(foodType);
+            //bool badProduction = cyber ? NetProductionPerTurn <= 0 && WorkerPercentage > .75f :
+            //    (NetFoodPerTurn <= 0 && FarmerPercentage > .75f);
+            return (food + TradeAI.GetAverageTradeFor(foodType)) / MaxStorage < .10f;//|| badProduction;
         }
 
         public void AddProjectile(Projectile projectile)
