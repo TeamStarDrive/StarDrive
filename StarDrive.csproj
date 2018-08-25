@@ -214,6 +214,7 @@
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
+    <Compile Include="Ship_Game\Debug\DebugScreens.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
