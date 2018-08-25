@@ -422,9 +422,10 @@ namespace Ship_Game.Ships
                     || AI.State         == AIState.Scrap
                     || AI.State         == AIState.Resupply
                     || AI.State         == AIState.Refit || Mothership != null
-                    || shipData.Role    == ShipData.RoleName.supply || shipData.HullRole < ShipData.RoleName.fighter
+                    || shipData.Role    == ShipData.RoleName.supply 
+                    || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
                     || OrdinanceMax < 1
-                    || IsTethered())
+                    || (IsTethered() && shipData.HullRole == ShipData.RoleName.platform))
                     return ShipStatus.NotApplicable;
 
                 return ToShipStatus(Ordinance, OrdinanceMax);
