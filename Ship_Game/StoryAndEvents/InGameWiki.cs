@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -42,8 +42,8 @@ namespace Ship_Game
         {
             VideoPlayer?.Dispose(ref VideoPlayer);
             base.Destroy();
-        } 
-         
+        }
+
 
         public override void Draw(SpriteBatch batch)
         {
@@ -82,9 +82,9 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.DrawRectangle(SmallViewer, new Color(32, 30, 18));
                     if (HoverSmallVideo)
                     {
-                        Rectangle playIcon = new Rectangle(SmallViewer.X + SmallViewer.Width / 2 - 64, 
+                        Rectangle playIcon = new Rectangle(SmallViewer.X + SmallViewer.Width / 2 - 64,
                             SmallViewer.Y + SmallViewer.Height / 2 - 64, 128, 128);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("icon_play"), 
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("icon_play"),
                             playIcon, new Color(255, 255, 255, 200));
                     }
                 }
@@ -108,9 +108,9 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, ActiveTopic.Title, TitlePosition, Color.Orange);
                 GameAudio.ResumeGenericMusic();
             }
-            else if (VideoPlayer == null)            
+            else if (VideoPlayer == null)
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, ActiveTopic.Title, TitlePosition, Color.Orange);
-            
+
             ScreenManager.SpriteBatch.End();
         }
 
@@ -134,7 +134,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            
+
             if (input.ExitWiki)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
@@ -174,46 +174,47 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry e in HelpCategories.AllExpandedEntries)
             {
-                if (e.item is ModuleHeader header)                
-                    header.HandleInput(input, e);
-                else if (e.CheckHover(input))
-                {
-                    if (input.LeftMouseClick && e.item is HelpTopic)
+                if (e.item is ModuleHeader header)
+                    if (header.HandleInput(input, e))
+                        break;
+                    else if (e.CheckHover(input))
                     {
-                        HelpEntries.Reset();
-                        ActiveTopic = (HelpTopic) e.item;                        
-                        if (ActiveTopic.Text != null)
-                        {
-                            HelperFunctions.parseTextToSL(ActiveTopic.Text, (TextRect.Width - 40), Fonts.Arial12Bold, ref HelpEntries);
-                            TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2) 
-                                - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
-                        }
-                        if (!string.IsNullOrEmpty(ActiveTopic.Link))
-                        {
-                            try
-                            {
-                                SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);                                
-                            }
-                            catch
-                            {
-                                Process.Start(ActiveTopic.Link);
-                            }
-                        }
-                        if (ActiveTopic.VideoPath == null)
-                        {
-                            ActiveVideo = null;
-                            VideoPlayer = null;
-                        }
-                        else
+                        if (input.LeftMouseClick && e.item is HelpTopic)
                         {
                             HelpEntries.Reset();
-                            VideoPlayer = new VideoPlayer();
-                            ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
-                            VideoPlayer.Play(ActiveVideo);
-                            VideoPlayer.Pause();
+                            ActiveTopic = (HelpTopic)e.item;
+                            if (ActiveTopic.Text != null)
+                            {
+                                HelperFunctions.parseTextToSL(ActiveTopic.Text, (TextRect.Width - 40), Fonts.Arial12Bold, ref HelpEntries);
+                                TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2)
+                                    - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
+                            }
+                            if (!string.IsNullOrEmpty(ActiveTopic.Link))
+                            {
+                                try
+                                {
+                                    SteamManager.ActivateOverlayWebPage(ActiveTopic.Link);
+                                }
+                                catch
+                                {
+                                    Process.Start(ActiveTopic.Link);
+                                }
+                            }
+                            if (ActiveTopic.VideoPath == null)
+                            {
+                                ActiveVideo = null;
+                                VideoPlayer = null;
+                            }
+                            else
+                            {
+                                HelpEntries.Reset();
+                                VideoPlayer = new VideoPlayer();
+                                ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
+                                VideoPlayer.Play(ActiveVideo);
+                                VideoPlayer.Pause();
+                            }
                         }
                     }
-                }
             }
             return base.HandleInput(input);
         }
@@ -228,7 +229,7 @@ namespace Ship_Game
                 MiddleText = $"Mod Loaded: {GlobalStats.ModName} Ver: {GlobalStats.ActiveModInfo.Version}";
             }
             var presentation = ScreenManager.GraphicsDevice.PresentationParameters;
-            
+
             CategoriesRect       = new Rectangle(Rect.X + 25, Rect.Y + 130, 330, 430);
             Submenu blah         = new Submenu(CategoriesRect);
             HelpCategories       = new ScrollList(blah, 40);
@@ -244,9 +245,9 @@ namespace Ship_Game
                 Title = Localizer.Token(1401),
                 Text  = Localizer.Token(1400)
             };
-            HelperFunctions.parseTextToSL(ActiveTopic.Text, TextRect.Width 
+            HelperFunctions.parseTextToSL(ActiveTopic.Text, TextRect.Width
                 - 40, Fonts.Arial12Bold, ref HelpEntries);
-            TitlePosition = new Vector2(TextRect.X + TextRect.Width / 2 
+            TitlePosition = new Vector2(TextRect.X + TextRect.Width / 2
                 - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TextRect.Y + 10);
 
             var categories = new HashSet<string>();

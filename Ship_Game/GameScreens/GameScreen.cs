@@ -181,7 +181,7 @@ namespace Ship_Game
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircle(Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
-            => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, color, thickness);
+            => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, sides, color, thickness);
 
         // Just draws a given rectangle with a color fill
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

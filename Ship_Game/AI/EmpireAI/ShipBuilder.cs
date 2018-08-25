@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.Ships;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI
 {
@@ -14,12 +15,13 @@ namespace Ship_Game.AI
         }
 
 
-        public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, ShipModuleType targetModule = ShipModuleType.Dummy)
+        public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, 
+                      ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.Category shipCategory = ShipData.Category.Unclassified)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level 
             // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule);
+            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, shipCategory);
             //return PickFromCandidatesByTechsNeeded(role, empire, maxSize, targetModule);
         }
 
@@ -71,7 +73,8 @@ namespace Ship_Game.AI
             return name;
         }
 
-        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule)
+        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule,
+                                                           ShipData.Category shipCategory)
         {
             var potentialShips = new Array<Ship>();
             bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
@@ -89,6 +92,9 @@ namespace Ship_Game.AI
                     continue;
 
                 if (maxSize > 0 && ship.Size > maxSize)
+                    continue;
+
+                if (shipCategory != ShipData.Category.Unclassified && shipCategory != ship.shipData.ShipCategory)
                     continue;
 
                 potentialShips.Add(ship);
@@ -115,6 +121,7 @@ namespace Ship_Game.AI
                            && shipStrength <= levelAdjust.MaxStrength
                            && ships.PercentageOfShipByModules(targetModule) >= bestModuleRatio;
 
+                //Log.Info(ConsoleColor.Magenta, $"Name: {ships.Name}, Stength: {ships.BaseStrength}");
                 return shipStrength >= levelAdjust.MinStrength
                        && shipStrength <= levelAdjust.MaxStrength;
             });
@@ -132,7 +139,7 @@ namespace Ship_Game.AI
                 foreach (Ship loggedShip in bestShips)
                 {
                     i++;
-                    Log.Info(ConsoleColor.Magenta, $"{i}) Name: {loggedShip.Name}, Stength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
+                    Log.Info(ConsoleColor.Magenta, $"{i}) Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
                 }
                 Log.Info(ConsoleColor.Magenta, $"Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}  " +
                                     $"Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length} " +
@@ -200,7 +207,7 @@ namespace Ship_Game.AI
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
-            ShipData.RoleName role, float velocity, float rotationSpeed)
+            ShipData.RoleName role, float rotationSpeed)
         {
             float weaponRatio = (float)numWeaponSlots / shipSize;
             float modifiedStrength;
@@ -209,37 +216,44 @@ namespace Ship_Game.AI
             else
                 modifiedStrength = offense + defense;
 
-            float speedModifier = 1f;
-            switch (role)
-            {
-                case ShipData.RoleName.fighter when velocity > 575:
-                    speedModifier = 2f;
-                    break;
-                case ShipData.RoleName.corvette when velocity > 475:
-                    speedModifier = 2.2f;
-                    break;
-                case ShipData.RoleName.frigate when velocity > 375:
-                    speedModifier = 2.4f;
-                    break;
-                case ShipData.RoleName.cruiser when velocity > 250:
-                    speedModifier = 2.6f;
-                    break;
-            }
-
             modifiedStrength += modifiedStrength * rotationSpeed / 100f;
-            return modifiedStrength * speedModifier;
+            return modifiedStrength;
         }
 
-        public static bool IsDynamicLaunch(string compare)
+        public static Color GetHangarTextColor(string shipName)
         {
-            if (Enum.TryParse(compare, out DynamicHangarLaunch result))
-                return result == DynamicHangarLaunch.DynamicLaunch;
+            DynamicHangarOptions dynamicHangarType = GetDynamicHangarOptions(shipName);
+            switch (dynamicHangarType)
+            {
+                case DynamicHangarOptions.DynamicLaunch:
+                    return Color.Gold;
+                case DynamicHangarOptions.DynamicFighter:
+                    return Color.Cyan;
+                case DynamicHangarOptions.DynamicBomber:
+                    return Color.OrangeRed;
+                default:
+                    return Color.White;
+            }
+        }
+
+        public static DynamicHangarOptions GetDynamicHangarOptions(string compare)
+        {
+            return Enum.TryParse(compare, out DynamicHangarOptions result) ? result : DynamicHangarOptions.Static;
+        }
+
+        public static bool IsDynamicHangar(string compare)
+        {
+            if (Enum.TryParse(compare, out DynamicHangarOptions result))
+                return result != DynamicHangarOptions.Static;
 
             return false;
         }
     }
-    public enum DynamicHangarLaunch
+    public enum DynamicHangarOptions
     {
-        DynamicLaunch
+        Static,
+        DynamicLaunch,
+        DynamicFighter,
+        DynamicBomber
     }
 }

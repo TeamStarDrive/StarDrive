@@ -347,7 +347,7 @@ namespace Ship_Game.AI {
         {
             if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Owner.loyalty.ProjectorRadius * 2)
             {
-                int reducer = Empire.Universe.reducer; //  (int)(Empire.ProjectorRadius );
+                int reducer = Empire.Universe.PathMapReducer; //  (int)(Empire.ProjectorRadius );
                 int granularity = Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
 
                 var startp = new Point((int) startPos.X, (int) startPos.Y);

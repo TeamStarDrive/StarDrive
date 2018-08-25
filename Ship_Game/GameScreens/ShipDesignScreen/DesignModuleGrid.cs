@@ -464,8 +464,8 @@ namespace Ship_Game
 
             SetInPowerRadius(x0-radius, x0-1, y0-radius, y0-1, x0, y0, radius); // Check NorthWest
             SetInPowerRadius(x1+1, x1+radius, y0-radius, y0-1, x1, y0, radius); // Check NorthEast
-            SetInPowerRadius(x1+1, x1+radius, y1+1, y0+radius, x1, y1, radius); // Check SouthEast
-            SetInPowerRadius(x0-radius, x0-1, y0-1, y0+radius, x0, y1, radius); // Check SouthWest
+            SetInPowerRadius(x1+1, x1+radius, y1+1, y1+radius, x1, y1, radius); // Check SouthEast
+            SetInPowerRadius(x0-radius, x0-1, y1+1, y1+radius, x0, y1, radius); // Check SouthWest
         }
 
         private void SetInPowerRadius(int x0, int x1, int y0, int y1)

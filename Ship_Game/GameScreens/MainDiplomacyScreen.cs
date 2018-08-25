@@ -159,11 +159,10 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Begin();
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 766)
             {
-                TitleBar.Draw();
+                TitleBar.Draw(batch);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(1600), TitlePos, new Color(255, 239, 208));
             }
-            DMenu.Draw();
-            Color color = new Color(118, 102, 67, 50);
+            DMenu.Draw(batch);
             foreach (RaceEntry race in Races)
             {
                 if (race.e.isFaction)

@@ -1,19 +1,19 @@
-using System;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
 
-        
+
         private void DeRotate()
         {
             if (Owner.yRotation > 0f)
@@ -95,7 +95,7 @@ namespace Ship_Game.AI
                 spacerdistance = adjustedWeaponRange;
 
             Vector2 interceptPoint = Owner.PredictImpact(Target);
-            float distanceToTarget = Owner.Center.Distance(interceptPoint);                                   
+            float distanceToTarget = Owner.Center.Distance(interceptPoint);
 
             if (distanceToTarget > Owner.maxWeaponsRange * 2f) //spacerdistance && distanceToTarget > adjustedWeaponRange)
             {
@@ -106,7 +106,7 @@ namespace Ship_Game.AI
                 {
                     ThrustTowardsPosition(interceptPoint, elapsedTime, Owner.Speed);
                     return;
-                    
+
                 }
                 Vector2 direction = Owner.Center.DirectionToTarget(interceptPoint);
                 MoveInDirection(direction, elapsedTime);
@@ -147,7 +147,7 @@ namespace Ship_Game.AI
                 //DoNonFleetArtillery(elapsedTime);
             RunTimer = 0;
             //DoNonFleetArtillery(elapsedTime);
-            
+
         }
 
         private void DoBoardShip(float elapsedTime)
@@ -226,7 +226,7 @@ namespace Ship_Game.AI
                     {
                         ThrustTowardsPosition(fleetPositon, elapsedTime, Owner.Speed);
                         return;
-                    }                    
+                    }
                     DoHoldPositionCombat(elapsedTime);
                     return;
                 }
@@ -437,9 +437,9 @@ namespace Ship_Game.AI
                     if (Distance < 75000f) PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
                     if (Distance > 15000f)
                     {
-//@todo this should take longer to explore any planet. the explore speed should be based on sensors and such. 
+//@todo this should take longer to explore any planet. the explore speed should be based on sensors and such.
                         if (Owner.velocityMaximum > Distance && Owner.Speed >= Owner.velocityMaximum
-                        ) //@todo fix this speed limiter. it makes little sense as i think it would limit the speed by a very small aoumt. 
+                        ) //@todo fix this speed limiter. it makes little sense as i think it would limit the speed by a very small aoumt.
                             Owner.Speed = Distance;
                         ThrustTowardsPosition(MovePosition, elapsedTime, Owner.Speed);
                     }
@@ -480,7 +480,7 @@ namespace Ship_Game.AI
                     Owner.HyperspaceReturn();
                 float angleDiff = Owner.AngleDiffTo(interceptPoint, out Vector2 right, out Vector2 forward);
                 float facing = Owner.Velocity.Facing(right);
-                if (angleDiff <= 0.2f)                
+                if (angleDiff <= 0.2f)
                     return;
                 RotateToFacing(elapsedTime, angleDiff, facing);
             }
@@ -488,7 +488,7 @@ namespace Ship_Game.AI
             {
                 Vector2 dir = Owner.Center.DirectionToTarget(Target.Center);
                 float angleDiff = Owner.AngleDiffTo(dir, out Vector2 right, out Vector2 forward);
-                if (angleDiff <= 0.02f)                
+                if (angleDiff <= 0.02f)
                     return;
                 RotateToFacing(elapsedTime, angleDiff, dir.Facing(right));
             }
@@ -545,7 +545,7 @@ namespace Ship_Game.AI
             float distanceToTarget = Owner.Center.Distance(Target.Center);
             float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius);// * 0.85f;
             float minDistance = Math.Max(adjustedRange * .25f + Target.Radius, adjustedRange *.5f);
-   
+
             if (distanceToTarget > adjustedRange)
             {
                 if (distanceToTarget > 7500)
@@ -563,14 +563,14 @@ namespace Ship_Game.AI
                 //    //    RotateToFaceMovePosition(elapsedTime, Target.Center);
                 //    //    return;
                 //    //}
-                        
+
                 //}
                 MoveInDirection(vectorToTarget, elapsedTime );
                 return;
             }
             if (distanceToTarget < minDistance)
-            {   
-                float aceel = elapsedTime * Owner.GetSTLSpeed();                
+            {
+                float aceel = elapsedTime * Owner.GetSTLSpeed();
                 Owner.Velocity -= Vector2.Normalize(forward) * aceel;
             }
             else
@@ -677,7 +677,7 @@ namespace Ship_Game.AI
             if (distance < 7500f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();             
+                    Owner.HyperspaceReturn();
             }
             if (distance < 1500f + orbitTarget.ObjectRadius)
             {
@@ -757,7 +757,7 @@ namespace Ship_Game.AI
         private void DoRepairBeamLogic(Weapon w)
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),                    
+                    filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),
                     selector: ship => ship.InternalSlotsHealthPercent);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);
@@ -841,8 +841,8 @@ namespace Ship_Game.AI
                     Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
                 if (Owner.shipData.Role == ShipData.RoleName.supply) //fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
-                Owner.ApplyFighterLaunchCost(false); //fbedard: New spawning cost                
-             
+                Owner.ApplyFighterLaunchCost(false); //fbedard: New spawning cost
+
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
                 {
@@ -863,7 +863,7 @@ namespace Ship_Game.AI
                     if (rearmTime < 0)
                         rearmTime = 1;
                     //CG: if the fighter is fully functional reduce rearm time to very little. The default 5 minute hangar timer is way too high. It cripples fighter usage.
-                    //at 50% that is still 2.5 minutes if the fighter simply launches and returns. with lag that can easily be 10 or 20 minutes. 
+                    //at 50% that is still 2.5 minutes if the fighter simply launches and returns. with lag that can easily be 10 or 20 minutes.
                     //at 1.01 that should be 3 seconds for the default hangar.
                     hangar.SetHangarShip(null);
                     hangar.hangarTimer = rearmTime;
@@ -874,9 +874,9 @@ namespace Ship_Game.AI
 
         private void DoSupplyShip(float elapsedTime, ShipGoal goal)
         {
-            if (EscortTarget == null || !EscortTarget.Active  
-                                     || EscortTarget.AI.State == AIState.Resupply 
-                                     || EscortTarget.AI.State == AIState.Scrap 
+            if (EscortTarget == null || !EscortTarget.Active
+                                     || EscortTarget.AI.State == AIState.Resupply
+                                     || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit
                                      || EscortTarget.OrdnancePercent >= 0.99f)
             {

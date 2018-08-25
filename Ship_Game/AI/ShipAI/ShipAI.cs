@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
+using System;
+using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -20,22 +20,22 @@ namespace Ship_Game.AI
         private SolarSystem SystemToPatrol;
         private readonly Array<Planet> PatrolRoute = new Array<Planet>();
         private int StopNumber;
-        public FleetDataNode FleetNode { get;  set; }         
+        public FleetDataNode FleetNode { get;  set; }
 
         public static UniverseScreen UniverseScreen;
         public Ship Owner;
         public AIState State;// = AIState.AwaitingOrders;
-        public Guid OrbitTargetGuid;        
+        public Guid OrbitTargetGuid;
         public Planet ColonizeTarget;
         public Planet ResupplyTarget;
         public Guid SystemToDefendGuid;
-        public SolarSystem SystemToDefend;        
+        public SolarSystem SystemToDefend;
         public SolarSystem ExplorationTarget;
-        public AIState DefaultAIState                         = AIState.AwaitingOrders;        
-        public SafeQueue<ShipGoal> OrderQueue                 = new SafeQueue<ShipGoal>();        
+        public AIState DefaultAIState                         = AIState.AwaitingOrders;
+        public SafeQueue<ShipGoal> OrderQueue                 = new SafeQueue<ShipGoal>();
         public Array<ShipWeight> NearByShips = new Array<ShipWeight>();
-        public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();        
-        
+        public BatchRemovalCollection<Ship> FriendliesNearby  = new BatchRemovalCollection<Ship>();
+
 
         public ShipAI(Ship owner)
         {
@@ -73,7 +73,7 @@ namespace Ship_Game.AI
                 else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
                 Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);
             }
-            else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);                
+            else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
             Owner.loyalty.AddPlanet(ColonizeTarget);
             ColonizeTarget.InitializeSliders(Owner.loyalty);
             ColonizeTarget.SetExploredBy(Owner.loyalty);
@@ -82,8 +82,8 @@ namespace Ship_Game.AI
 
             ColonizeTarget.TerraformPoints += Owner.loyalty.data.EmpireFertilityBonus;
             ColonizeTarget.CrippledTurns = 0;
-            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);		
-                
+            StatTracker.StatAddColony(ColonizeTarget, Owner.loyalty, UniverseScreen);
+
             foreach (Goal g in Owner.loyalty.GetGSAI().Goals)
             {
                 if (g.type != GoalType.Colonize || g.GetMarkedPlanet() != ColonizeTarget)
@@ -110,7 +110,7 @@ namespace Ship_Game.AI
             foreach (Troop t in TargetPlanet.TroopsHere)
             {
                 Empire owner = t?.GetOwner();
-                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner && 
+                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner &&
                     ColonizeTarget.Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
                     toLaunch.Add(t);
             }
@@ -172,7 +172,7 @@ namespace Ship_Game.AI
             MovePosition.X = p.Center.X;
             MovePosition.Y = p.Center.Y;
         }
-        
+
         public float TimeToTarget(Planet target)
         {
             if (target == null) return 0;
@@ -248,7 +248,7 @@ namespace Ship_Game.AI
                 State = AIState.AwaitingOrders;
             }
             CheckTargetQueue();
-         
+
             PrioritizePlayerCommands();
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
@@ -262,12 +262,12 @@ namespace Ship_Game.AI
                     State = AIState.AwaitingOrders;
                 }
             }
-          
+
             ResetStateFlee();
-            
+
             ScanForThreat(elapsedTime);
 
-            Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);            
+            Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
 
             UpdateUtilityModuleAI(elapsedTime);
 
@@ -281,12 +281,12 @@ namespace Ship_Game.AI
 
             if (UpdateOrderQueueAI(elapsedTime)) return;
 
-            AIStateRebase();	       
-            
+            AIStateRebase();
+
             UpdateCombatStateAI(elapsedTime);
 
             UpdateResupplyAI();
-   
+
             if (!Owner.isTurning)
             {
                 DeRotate();
@@ -421,9 +421,9 @@ namespace Ship_Game.AI
             }
             else
             {
-                for (int x = 0; x < Owner.Weapons.Count; x++)                
-                    Owner.Weapons[x].ClearFireTarget();                     
-                
+                for (int x = 0; x < Owner.Weapons.Count; x++)
+                    Owner.Weapons[x].ClearFireTarget();
+
 
                 if (Owner.Carrier.HasHangars && Owner.loyalty != UniverseScreen.player)
                 {
@@ -482,9 +482,9 @@ namespace Ship_Game.AI
             {
                 if (Owner.fleet == null)
                 {
-                    
+
                     WayPoints.Clear();
-                    
+
                     AIState state = State;
                     if (state <= AIState.MoveTo)
                     {
@@ -580,7 +580,7 @@ namespace Ship_Game.AI
                         ScrapShip(elapsedTime, toEvaluate);
                         break;
                     }
-                    case Plan.Bombard: //Modified by Gretman                        
+                    case Plan.Bombard: //Modified by Gretman
                         if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
                             || targetPlanet.TroopsHere.Count == 0 && targetPlanet.Population <= 0f //Everyone is dead
                             || (targetPlanet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
@@ -761,7 +761,7 @@ namespace Ship_Game.AI
                 //    //OrderMoveToFleetPosition(Owner.fleet.Position + Owner.FleetOffset, 0f, Vector2.Zero, true, Owner.velocityMaximum, Owner.fleet);
                 //    Log.Warning($"Fleet formation warp should not be possible with nothing in order queue.");
                 //    ClearOrdersNext = true;
-                //}                
+                //}
 
                     if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
                         ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.Speed);
@@ -806,7 +806,7 @@ namespace Ship_Game.AI
         public bool ClearOrdersConditional(Plan plan)
         {
             bool clearOrders = false;
-            
+
                 foreach (var order in OrderQueue)
                 {
                     if (order.Plan != plan)
@@ -922,10 +922,10 @@ namespace Ship_Game.AI
                 if (target.Active)
                     continue;
                 TargetQueue.RemoveAtSwapLast(x);
-                
+
             }
 
-            
+
         }
 
         private void AIStatePassengersTransport(float elapsedTime)
@@ -973,19 +973,19 @@ namespace Ship_Game.AI
             // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
             // and a standard 30k around it instead of their own. This hopefully will prevent them flying off too much, as well as keeping them
             // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
-            //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target. 
-            // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
+            //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target.
+            // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
             if(!Owner.InCombat )
             {
                 OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
                 return;
             }
-            
+
             if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
             {
                 Owner.AI.HasPriorityOrder = true;
                 OrbitShip(EscortTarget, elapsedTime, Orbit.Right);
-            }            
+            }
         }
 
         private void AIStateAwaitingOrders(float elapsedTime)
@@ -1021,6 +1021,6 @@ namespace Ship_Game.AI
             FriendliesNearby?.Dispose(ref FriendliesNearby);
             OrderQueue?.Dispose(ref OrderQueue);
             PotentialTargets?.Dispose(ref PotentialTargets);
-        }        
+        }
     }
 }
