@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
                 case ShipData.Category.Recon: threshold        = 0.65f; break;
                 case ShipData.Category.Bomber: threshold       = 0.35f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
-                case ShipData.Category.Combat: threshold       = 0.25f; break;
+                case ShipData.Category.Combat: threshold       = 0.35f; break;
                 case ShipData.Category.Fighter: threshold      = 0.3f; break;
                 case ShipData.Category.Kamikaze: threshold     = 0.0f; break;
             }
