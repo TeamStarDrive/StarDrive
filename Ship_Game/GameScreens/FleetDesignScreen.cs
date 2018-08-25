@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
+using System;
+using System.Collections.Generic;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -394,7 +394,7 @@ namespace Ship_Game
             ScreenManager.RenderSceneObjects();
 
             batch.Begin();
-            TitleBar.Draw();
+            TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
             const int numEntries = 9;
             int k = 9;
@@ -441,7 +441,7 @@ namespace Ship_Game
             }
             if (FleetToEdit != -1)
             {
-                ShipDesigns.Draw();
+                ShipDesigns.Draw(batch);
                 batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
                 batch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
                 SubShips.Draw();
@@ -1143,7 +1143,8 @@ namespace Ship_Game
                 {
                     if (e.item is ModuleHeader header)
                     {
-                        header.HandleInput(input, e);
+                        if (header.HandleInput(input, e))
+                            break;
                     }
                     else
                     {

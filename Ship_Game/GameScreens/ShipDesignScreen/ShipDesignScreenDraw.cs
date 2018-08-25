@@ -215,25 +215,24 @@ namespace Ship_Game
 
         private void DrawHangarShipText(Vector2 center, SlotStruct slot, MirrorSlot mirrored)
         {
-            Color color = Color.Black;
-            color.A     = 140;
-
-            Color shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
-            DrawRectangle(slot.ModuleRect, Color.Teal, color);
+            Color color         = Color.Black;
+            color.A             = 100;
+            Color shipNameColor = ShipBuilder.GetHangarTextColor(slot.Module.hangarShipUID);
+            DrawRectangle(slot.ModuleRect, shipNameColor, color);
             DrawString(center, 0, 0.4f, shipNameColor, slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
                 return;
 
-            shipNameColor = ShipBuilder.IsDynamicLaunch(slot.Module.hangarShipUID) ? Color.Gold : Color.White;
-            DrawRectangle(mirrored.Slot.ModuleRect, Color.Teal, color);
+            shipNameColor = ShipBuilder.GetHangarTextColor(mirrored.Slot.Module.hangarShipUID);
+            DrawRectangle(mirrored.Slot.ModuleRect, shipNameColor, color);
             DrawString(mirrored.Center, 0, 0.4f, shipNameColor, mirrored.Slot.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
         private void DrawArc(Vector2 center, SlotStruct slot, Color drawcolor, SpriteBatch spriteBatch, MirrorSlot mirrored)
         {
             Texture2D arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
-            var origin       = new Vector2(250f, 250f);
-            Rectangle toDraw = center.ToRect(500, 500);
+            var origin           = new Vector2(250f, 250f);
+            Rectangle toDraw     = center.ToRect(500, 500);
 
             spriteBatch.Draw(arcTexture, toDraw, null, drawcolor, slot.Module.Facing.ToRadians(), origin, SpriteEffects.None, 1f);
             if (!IsSymmetricDesignMode || !IsMirrorSlotValid(slot, mirrored))
@@ -423,7 +422,7 @@ namespace Ship_Game
                 if (!wasOffenseDefenseAdded)
                 {
                     offense += slot.Module.CalculateModuleOffense();
-                    defense += slot.Module.CalculateModuleDefense(size);
+                    defense += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                 }
                 //added by gremlin collect weapon stats                  
                 if (!slot.Module.isWeapon && slot.Module.BombType == null)
@@ -512,7 +511,7 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
             }
 
-            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, speed, turn);
+            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
             if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
             var cursorReq = new Vector2(StatsSub.Menu.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);

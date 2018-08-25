@@ -8,330 +8,323 @@ namespace Ship_Game
 {
     public sealed class EspionageScreen : GameScreen
     {
-        private UniverseScreen screen;
-
-        private Menu2 TitleBar;
-
-        private Vector2 TitlePos;
-
-        private Menu2 DMenu;
-
-        public bool LowRes;
-
-        public Rectangle SelectedInfoRect;
-
-        public Rectangle IntelligenceRect;
-
-        public Rectangle OperationsRect;
-
         public Empire SelectedEmpire;
+        private AgentComponent Agents;
+        private static readonly Color PanelBackground = new Color(23, 20, 14);
 
-        private Array<RaceEntry> Races = new Array<RaceEntry>();
-
-        private GenericSlider SpyBudgetSlider;
-
-        private GenericSlider CounterSpySlider;
-
-        private Rectangle OpSLRect;
-
-        private ScrollList OperationsSL;
-
-        private DanButton ExecuteOperation;
-
-        private AgentComponent AgentComponent;
-
-        private CloseButton close;
-
-        private float TransitionElapsedTime;
-
-        public EspionageScreen(UniverseScreen screen) : base(screen)
+        public EspionageScreen(GameScreen parent) : base(parent)
         {
-            this.screen = screen;
             IsPopup = true;
-        
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
+
+            //DebugDraw = true;
+        }
+
+        public override void LoadContent()
+        {
+            var titleRect = new Rectangle(ScreenWidth / 2 - 200, 44, 400, 80);
+            Add(new Menu2(this, titleRect));
+
+            if (ScreenHeight > 766)
+            {
+                Add(new Menu2(this, titleRect));
+
+                // "Espionage"
+                string espionage = Localizer.Token(6089);
+                var titlePos = new Vector2(titleRect.Center.X - Fonts.Laserian14.MeasureString(espionage).X / 2f, 
+                                           titleRect.Center.Y - Fonts.Laserian14.LineSpacing / 2);
+                Label(titlePos, espionage, Fonts.Laserian14, new Color(255, 239, 208));
+            }
+
+
+            var ourRect = new Rectangle(ScreenWidth / 2 - 640, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
+            Add(new Menu2(this, ourRect));
+
+            CloseButton(ourRect.Right - 40, ourRect.Y + 20);
+
+            var agentsRect     = new Rectangle(ourRect.X + 60,         ourRect.Y + 250, 368, 376);
+            var dossierRect    = new Rectangle(agentsRect.Right + 30,  agentsRect.Y,    368, 376);
+            var operationsRect = new Rectangle(dossierRect.Right + 30, agentsRect.Y,    368, 376);
+
+            Add(new EmpiresPanel(this, ourRect, operationsRect));
+            Add(new AgentsPanel(this, agentsRect));
+            Add(new DossierPanel(this, dossierRect));
+            Add(new OperationsPanel(this, operationsRect));
+
+            var agentComponentRect = new Rectangle(agentsRect.X + 20, agentsRect.Y + 35, agentsRect.Width - 40, agentsRect.Height - 95);
+            Agents = Add(new AgentComponent(this, agentComponentRect, operationsRect));
+
+            GameAudio.MuteRacialMusic();
         }
 
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 766)
-            {
-                TitleBar.Draw();
-                ScreenManager.SpriteBatch.DrawString(Fonts.Laserian14, Localizer.Token(6089), TitlePos, new Color(255, 239, 208));
-            }
-            DMenu.Draw();
-            Color color = new Color(118, 102, 67, 50);
-            foreach (RaceEntry race in Races)
-            {
-                if (race.e.isFaction)
-                {
-                    continue;
-                }
-                Vector2 NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
-                if (race.e.data.Defeated)
-                {
-                    if (race.e.data.AbsorbedBy == null)
-                    {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/x_red"), race.container, Color.White);
-                    }
-                    else
-                    {
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
-                        Rectangle r = new Rectangle(race.container.X, race.container.Y, 124, 124);
-                        KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).data.Traits.FlagIndex];
-                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
-                    }
-                }
-                else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
-                {
-                    if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
-                    {
-                        Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
-                        ScreenManager.SpriteBatch.FillRectangle(war, Color.Red);
-                    }
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
-                    //Added by McShooterz: Display Spy Defense value
-                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), EspionageDefenseIcon, Color.White);
-                    Vector2 defPos = new Vector2(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2, EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-                    float EspionageDefense = 0f;
-                    foreach(Agent agent in race.e.data.AgentList)
-                    {
-                        if(agent.Mission == AgentMission.Defending)
-                            EspionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
-                    }
-                    EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
-                    EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
-                    if (EspionageDefenseIcon.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
-                    {
-                        ToolTip.CreateTooltip(Localizer.Token(7031));
-                    }
-                }
-                else if (EmpireManager.Player != race.e)
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/unknown"), race.container, Color.White);
-                }
-                else
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                    NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
-                    //Added by McShooterz: Display Spy Defense value
-                    Rectangle EspionageDefenseIcon = new Rectangle(race.container.X + 62, race.container.Y + (Fonts.Arial12.LineSpacing) + 164, ResourceManager.Texture("UI/icon_shield").Width, ResourceManager.Texture("UI/icon_shield").Height);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), EspionageDefenseIcon, Color.White);
-                    Vector2 defPos = new Vector2(EspionageDefenseIcon.X + EspionageDefenseIcon.Width + 2, EspionageDefenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-                    float EspionageDefense = 0f;
-                    foreach (Agent agent in race.e.data.AgentList)
-                    {
-                        if (agent.Mission == AgentMission.Defending)
-                            EspionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
-                    }
-                    EspionageDefense /= race.e.GetPlanets().Count / 3 + 1;
-                    EspionageDefense += race.e.data.SpyModifier + race.e.data.DefensiveSpyBonus;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, EspionageDefense.ToString("0."), defPos, Color.White);
-                    if (EspionageDefenseIcon.HitTest(new Vector2(Mouse.GetState().X,Mouse.GetState().Y)))
-                    {
-                        ToolTip.CreateTooltip(Localizer.Token(7031));
-                    }
-                }
-                if (race.e != SelectedEmpire)
-                {
-                    continue;
-                }
-                ScreenManager.SpriteBatch.DrawRectangle(race.container, Color.Orange);
-            }
-            ScreenManager.SpriteBatch.FillRectangle(SelectedInfoRect, new Color(23, 20, 14));
-            ScreenManager.SpriteBatch.FillRectangle(IntelligenceRect, new Color(23, 20, 14));
-            ScreenManager.SpriteBatch.FillRectangle(OperationsRect, new Color(23, 20, 14));
-            Vector2 TextCursor = new Vector2(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 10);
-            TextCursor.Y = TextCursor.Y + (Fonts.Arial20Bold.LineSpacing + 4);
-            HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(6090), TextCursor, Fonts.Arial20Bold);
-            TextCursor.X = IntelligenceRect.X + 20;
-            TextCursor.Y = TextCursor.Y - (Fonts.Arial20Bold.LineSpacing + 4);
-            HelperFunctions.DrawDropShadowText(ScreenManager, Localizer.Token(6092), TextCursor, Fonts.Arial20Bold);
-            //Agent Dossier information
-            if (AgentComponent.SelectedAgent != null)
-            {
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 25);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(6108), AgentComponent.SelectedAgent.Name), TextCursor, Color.Orange);
-                //if (this.AgentComponent.SelectedAgent.HomePlanet == "" || this.AgentComponent.SelectedAgent.HomePlanet == null) 
-                if (string.IsNullOrEmpty(AgentComponent.SelectedAgent.HomePlanet))
-                    AgentComponent.SelectedAgent.HomePlanet = EmpireManager.Player.data.Traits.HomeworldName; 
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 6);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6109), AgentComponent.SelectedAgent.HomePlanet), TextCursor, Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6110), AgentComponent.SelectedAgent.Age.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6111), AgentComponent.SelectedAgent.ServiceYears.ToString("0.0"), Localizer.Token(6119)), TextCursor, Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 20);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6112), AgentComponent.SelectedAgent.Training), TextCursor, AgentComponent.SelectedAgent.Training > 0 ? Color.White : Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6113), AgentComponent.SelectedAgent.Assassinations), TextCursor, AgentComponent.SelectedAgent.Assassinations > 0 ? Color.White : Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6114), AgentComponent.SelectedAgent.Infiltrations), TextCursor, AgentComponent.SelectedAgent.Infiltrations > 0 ? Color.White : Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6115), AgentComponent.SelectedAgent.Sabotages), TextCursor, AgentComponent.SelectedAgent.Sabotages > 0 ? Color.White : Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6116), AgentComponent.SelectedAgent.TechStolen), TextCursor, AgentComponent.SelectedAgent.TechStolen > 0 ? Color.White : Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6117), AgentComponent.SelectedAgent.Robberies), TextCursor, AgentComponent.SelectedAgent.Robberies > 0 ? Color.White : Color.LightGray);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial12.LineSpacing + 3);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6118), AgentComponent.SelectedAgent.Rebellions), TextCursor, AgentComponent.SelectedAgent.Rebellions > 0 ? Color.White : Color.LightGray);
-            }
-            //End of dossier
-            AgentComponent.Draw(ScreenManager.SpriteBatch);
-            if (AgentComponent.SelectedAgent != null)
-            {
-                TextCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-                HelperFunctions.DrawDropShadowText(ScreenManager, AgentComponent.SelectedAgent.Name, TextCursor, Fonts.Arial20Bold);
-                TextCursor.Y = TextCursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Level ", AgentComponent.SelectedAgent.Level.ToString(), " Agent"), TextCursor, Color.Gray);
-            }
-            close.Draw(batch);
+            batch.Begin();
+
+            base.Draw(batch);
+
             if (IsActive)
+                ToolTip.Draw(batch); // draw current tooltip
+
+            batch.End();
+        }
+
+        private static float GetEspionageDefense(Empire e)
+        {
+            float espionageDefense = 0f;
+            foreach (Agent agent in e.data.AgentList)
             {
-                ToolTip.Draw(ScreenManager.SpriteBatch);
+                if (agent.Mission == AgentMission.Defending)
+                    espionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
             }
-            ScreenManager.SpriteBatch.End();
+            espionageDefense /= e.NumPlanets / 3 + 1;
+            espionageDefense += e.data.SpyModifier + e.data.DefensiveSpyBonus;
+            return espionageDefense;
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
-            if (input.KeysCurr.IsKeyDown(Keys.E) && !input.KeysPrev.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
+            if (input.Escaped || input.RightMouseClick ||
+                (input.WasKeyPressed(Keys.E) && !GlobalStats.TakingInput))
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                ExitScreen();
-                return true;
-            }
-            AgentComponent.HandleInput(input);
-            //this.showExecuteButton = false;
-            bool GotRace = false;
-            foreach (RaceEntry race in Races)
-            {
-                if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)
-                {
-                    if (EmpireManager.Player != race.e || !HelperFunctions.ClickedRect(race.container, input))
-                    {
-                        continue;
-                    }
-                    SelectedEmpire = race.e;
-                    GotRace = true;
-                    GameAudio.PlaySfxAsync("echo_affirm");
-                    foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
-                    {
-                        ((Operation)f.item).Selected = false;
-                    }
-                }
-                else
-                {
-                    if (!HelperFunctions.ClickedRect(race.container, input))
-                    {
-                        continue;
-                    }
-                    SelectedEmpire = race.e;
-                    GotRace = true;
-                }
-            }
-            
-            if (!AgentComponent.ComponentRect.HitTest(input.CursorPosition))
-            {
-                if (input.InGameSelect && !GotRace)
-                {
-                    AgentComponent.SelectedAgent = null;
-                }
-                else if (input.InGameSelect && GotRace)
-                {
-                    AgentComponent.Reinitialize();
-                }
-            }
-            if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
-            {
                 ExitScreen();
                 return true;
             }
             return base.HandleInput(input);
         }
 
-        public override void LoadContent()
-        {
-            float screenWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
-            TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(6089)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 640, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
-            DMenu = new Menu2(leftRect);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
-            SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
-            IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
-            OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
-            OpSLRect = new Rectangle(OperationsRect.X + 20, OperationsRect.Y + 20, OperationsRect.Width - 40, OperationsRect.Height - 45);
-            Submenu OpSub = new Submenu(OpSLRect);
-            OperationsSL = new ScrollList(OpSub, Fonts.Arial12Bold.LineSpacing + 5);
-            Vector2 ExecutePos = new Vector2(OperationsRect.X + OperationsRect.Width / 2 - 91, OperationsRect.Y + OperationsRect.Height - 60);
-            ExecuteOperation = new DanButton(ExecutePos, "Execute Op")
-            {
-                Toggled = true
-            };
-            Rectangle ComponentRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 35, SelectedInfoRect.Width - 40, SelectedInfoRect.Height - 95);
-            AgentComponent = new AgentComponent(ComponentRect, this);
-            foreach (Empire e in EmpireManager.Empires)
-            {
-                if (e != EmpireManager.Player)
-                {
-                    if (e.isFaction)
-                        continue;
-                }
-                else
-                {
-                    SelectedEmpire = e;
-                }
-                Races.Add(new RaceEntry { e = e });
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+        private class EmpiresPanel : UIElementContainer
+        {
+            private readonly EspionageScreen Screen;
+            private readonly ScrollList OperationsSL;
+
+            public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
+            {
+                Screen = screen;
+
+                var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
+                                            operationsRect.Width - 40, operationsRect.Height - 45);
+                OperationsSL = new ScrollList(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
+
+                var empires = new Array<Empire>();
+                foreach (Empire e in EmpireManager.Empires)
+                    if (!e.isFaction) empires.Add(e);
+
+                float x = Screen.ScreenWidth / 2f - (148f * empires.Count) / 2f;
+                Pos = new Vector2(x, rect.Y + 10);
+                BeginHLayout(Pos.X + 10, rect.Y + 40, 148);
+                foreach (Empire e in empires)
+                {
+                    Vector2 pos = LayoutNext();
+                    var r = new Rectangle((int)pos.X, (int)pos.Y, 134, 148);
+                    Add(new EmpireButton(screen, e, r, OnEmpireSelected));
+                }
+                Vector2 end = EndLayout();
+
+                Size = new Vector2(end.X, 188);
+                Screen.SelectedEmpire = EmpireManager.Player;
             }
-            Vector2 Cursor = new Vector2(screenWidth / 2f - 148 * Races.Count / 2, leftRect.Y + 10);
-            int j = 0;
-            foreach (RaceEntry re in Races)
+
+            private void OnEmpireSelected(EmpireButton button)
             {
-                re.container = new Rectangle((int)Cursor.X + 10 + j * 148, leftRect.Y + 40, 124, 148);
-                j++;
+                if (EmpireManager.Player == button.Empire || EmpireManager.Player.GetRelations(button.Empire).Known)
+                {
+                    Screen.SelectedEmpire = button.Empire;
+                    if (EmpireManager.Player == button.Empire)
+                    {
+                        foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
+                            f.Get<Operation>().Selected = false;
+                    }
+                    Screen.Agents.Reinitialize();
+                }
             }
-            Rectangle rectangle = new Rectangle();
-            SpyBudgetSlider = new GenericSlider(rectangle, Localizer.Token(1637), 0f, 100f)
-            {
-                amount = 0f
-            };
-            Rectangle rectangle1 = new Rectangle();
-            CounterSpySlider = new GenericSlider(rectangle1, Localizer.Token(1637), 0f, 100f)
-            {
-                amount = 0f
-            };
-            GameAudio.MuteRacialMusic();
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+
+        private class EmpireButton : UIElementV2
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            TransitionElapsedTime += elapsedTime;
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            public readonly Empire Empire;
+            private readonly EspionageScreen Screen;
+            private readonly Action<EmpireButton> OnClick;
+
+            public EmpireButton(EspionageScreen screen, Empire e, Rectangle rect, Action<EmpireButton> onClick) : base(null, rect)
+            {
+                Empire = e;
+                Screen = screen;
+                OnClick = onClick;
+            }
+
+            public override bool HandleInput(InputState input)
+            {
+                if (input.InGameSelect && Rect.HitTest(input.CursorPosition))
+                {
+                    GameAudio.PlaySfxAsync("echo_affirm");
+                    OnClick(this);
+                    return true;
+                }
+                return false;
+            }
+
+            public override void Draw(SpriteBatch batch)
+            {
+                // red background:
+                if (EmpireManager.Player != Empire && EmpireManager.Player.GetRelations(Empire).AtWar && !Empire.data.Defeated)
+                {
+                    batch.FillRectangle(Rect.Bevel(2), Color.Red);
+                }
+
+                void DrawRacePortrait()
+                {
+                    batch.Draw(ResourceManager.Texture("Portraits/" + Empire.data.PortraitName), Rect, Color.White);
+                    batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), Rect, Color.White);
+
+                    Vector2 size = Fonts.Arial12Bold.MeasureString(Empire.data.Traits.Name);
+                    var nameCursor = new Vector2(Rect.X + 62 - size.X / 2f, Rect.Y + 148 + 8);
+                    batch.DrawString(Fonts.Arial12Bold, Empire.data.Traits.Name, nameCursor, Color.White);
+                }
+
+                if (Empire.data.Defeated)
+                {
+                    DrawRacePortrait();
+
+                    if (Empire.data.AbsorbedBy == null)
+                    {
+                        batch.Draw(ResourceManager.Texture("NewUI/x_red"), Rect, Color.White);
+                    }
+                    else
+                    {
+                        var r = new Rectangle(Rect.X, Rect.Y, 124, 124);
+                        KeyValuePair<string, Texture2D> item =
+                            ResourceManager.FlagTextures[
+                                EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy).data.Traits.FlagIndex];
+                        batch.Draw(item.Value, r, EmpireManager.GetEmpireByName(Empire.data.AbsorbedBy).EmpireColor);
+                    }
+                }
+                else if (EmpireManager.Player == Empire || EmpireManager.Player.GetRelations(Empire).Known)
+                {
+                    DrawRacePortrait();
+
+                    Texture2D shield = ResourceManager.Texture("UI/icon_shield");
+
+                    // Added by McShooterz: Display Spy Defense value
+                    var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y + Fonts.Arial12.LineSpacing + 164, shield.Width, shield.Height);
+                    batch.Draw(shield, defenseIcon, Color.White);
+
+                    float espionageDefense = GetEspionageDefense(Empire);
+                    var defPos = new Vector2(defenseIcon.Right + 2, defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
+                    batch.DrawString(Fonts.Arial12Bold, espionageDefense.String(1), defPos, Color.White);
+
+                    if (defenseIcon.HitTest(Screen.Input.CursorPosition))
+                        ToolTip.CreateTooltip(Localizer.Token(7031));
+                }
+                else if (EmpireManager.Player != Empire)
+                {
+                    batch.Draw(ResourceManager.Texture("Portraits/unknown"), Rect, Color.White);
+                }
+
+                if (Empire == Screen.SelectedEmpire)
+                    batch.DrawRectangle(Rect, Color.Orange);
+            }
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private class AgentsPanel : UIPanel
+        {
+            public AgentsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
+            {
+                Label(rect.X + 20, rect.Y + 10, 6090, Fonts.Arial20Bold);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private class DossierPanel : UIPanel
+        {
+            private readonly EspionageScreen Screen;
+            public DossierPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
+            {
+                Screen = screen;
+                Label(rect.X + 20, rect.Y + 10, 6092, Fonts.Arial20Bold);
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                base.Draw(batch);
+
+                Agent agent = Screen.Agents.SelectedAgent;
+                if (agent == null)
+                    return;
+
+                var cursor = new Vector2(X + 20, Y + 10);
+
+                void DrawText(int token, string text, Color color)
+                {
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(token) + text, cursor, color);
+                    cursor.Y += (Fonts.Arial12Bold.LineSpacing + 4);
+                }
+
+                void DrawValue(int token, short value)
+                {
+                    DrawText(token, value.ToString(), value > 0 ? Color.White : Color.LightGray);
+                }
+
+                // @todo Why is this here?
+                if (agent.HomePlanet.IsEmpty())
+                    agent.HomePlanet = EmpireManager.Player.data.Traits.HomeworldName;
+
+                cursor.Y += 24;
+                DrawText(6108, agent.Name, Color.Orange);
+                cursor.Y += 4;
+                DrawText(6109, agent.HomePlanet, Color.LightGray);
+                DrawText(6110, agent.Age.String(0), Color.LightGray);
+                DrawText(6111, agent.ServiceYears.String(1) + Localizer.Token(6119), Color.LightGray);
+                cursor.Y += 16;
+                DrawValue(6112, agent.Training);
+                DrawValue(6113, agent.Assassinations);
+                DrawValue(6114, agent.Infiltrations);
+                DrawValue(6115, agent.Sabotages);
+                DrawValue(6116, agent.TechStolen);
+                DrawValue(6117, agent.Robberies);
+                DrawValue(6118, agent.Rebellions);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private class OperationsPanel : UIPanel
+        {
+            private readonly EspionageScreen Screen;
+            private readonly UILabel AgentName;
+            private readonly UILabel AgentLevel;
+            public OperationsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
+            {
+                Screen = screen;
+                AgentName  = Label(rect.X + 20, rect.Y + 10, "", Fonts.Arial20Bold);
+                AgentLevel = Label(AgentName.X, AgentName.Y + Fonts.Arial20Bold.LineSpacing + 2, "", Fonts.Arial12Bold);
+                AgentName.DropShadow = true;
+                AgentLevel.Color = Color.Gray;
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                Agent agent = Screen.Agents.SelectedAgent;
+                AgentName.Visible = agent != null;
+                AgentLevel.Visible = agent != null;
+                if (agent != null)
+                {
+                    AgentName.Text  = agent.Name;
+                    AgentLevel.Text = $"Level {agent.Level} Agent";
+                }
+                base.Draw(batch);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }

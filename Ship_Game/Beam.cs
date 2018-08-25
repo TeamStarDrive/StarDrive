@@ -324,10 +324,11 @@ namespace Ship_Game
             Thickness = thickness;
             Source    = srcCenter;
             ActualHitDestination = dstCenter;
-            // apply drone repair effect
+            // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
-                targetShip.ApplyRepairOnce(-DamageAmount * elapsedTime, Owner?.Level ?? 0);
+                float beamRepairMuliplier = targetShip.InCombat ? 1 : 5;
+                targetShip.ApplyRepairOnce(-DamageAmount * beamRepairMuliplier * elapsedTime, Owner?.Level ?? 0);
             }
 
             UpdateBeamMesh();

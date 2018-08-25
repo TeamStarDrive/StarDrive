@@ -48,7 +48,7 @@ namespace Ship_Game.Ships
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
-        public bool DynamicHangar { get; private set; } 
+        public DynamicHangarOptions DynamicHangar { get; private set; } 
 
 
         public float BombTimer;
@@ -395,8 +395,10 @@ namespace Ship_Game.Ships
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
             if (Parent.loyalty.isFaction)
                 return;
-            if (ShipBuilder.IsDynamicLaunch(hangarShipUID) || !Parent.loyalty.isPlayer)
-                DynamicHangar = true;
+
+            DynamicHangar = ShipBuilder.GetDynamicHangarOptions(hangarShipUID);
+            if (DynamicHangar == DynamicHangarOptions.Static && !Parent.loyalty.isPlayer)
+                DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamiclaunch.
         }
 
         public ShipData.RoleName BiggestPermittedHangarRole
@@ -1193,7 +1195,7 @@ namespace Ship_Game.Ships
                                                     || IsTroopBay)
                 return off;
 
-            if (ShipBuilder.IsDynamicLaunch(hangarShipUID))
+            if (ShipBuilder.IsDynamicHangar(hangarShipUID))
                 off += MaximumHangarShipSize * 2;
             else
             {
