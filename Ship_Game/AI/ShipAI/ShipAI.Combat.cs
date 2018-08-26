@@ -193,7 +193,7 @@ namespace Ship_Game.AI
                 armorAvg += nearbyShip.armor_max;
                 shieldAvg += nearbyShip.shield_max;
                 dpsAvg += nearbyShip.GetDPS();
-                sizeAvg += nearbyShip.Size;
+                sizeAvg += nearbyShip.SurfaceArea;
                 BadGuysNear = true;
                 if (radius < 1)
                     continue;
@@ -273,25 +273,15 @@ namespace Ship_Game.AI
                     NearByShips[i] = copyWeight;//update stored weight from copy
                     continue;
                 }
-                //if (!Intercepting && copyWeight.Ship.Center.OutsideRadius(Owner.Center, GetSensorRadius()))
-                //{
-                //    copyWeight.SetWeight(-100); //Hrmm. Dont know how to simply assign a value with operator
-                //    NearByShips[i] = copyWeight;
-                //    continue;
-                //}
 
                 var fleetPosition = Owner.fleet.FindAveragePosition() + FleetNode.FleetOffset;
                 var distanceToFleet = fleetPosition.Distance(copyWeight.Ship.Center);
                 copyWeight += FleetNode.OrdersRadius <= distanceToFleet ? 0 : -distanceToFleet / FleetNode.OrdersRadius;
-
-
-
-
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
                     FleetNode.AttackShieldedWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.Size, sizeAvg, FleetNode.SizeWeight);
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.SurfaceArea, sizeAvg, FleetNode.SizeWeight);
                 copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
                 //ShipWiegth is a struct so we are working with a copy. Need to overwrite existing value. 
                 NearByShips[i] = copyWeight;
