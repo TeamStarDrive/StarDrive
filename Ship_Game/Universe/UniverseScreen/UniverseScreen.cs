@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -40,7 +39,7 @@ namespace Ship_Game
         public float GameScale = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
-        public string StarDateString => StarDate.ToString("####.0", CultureInfo.InvariantCulture);
+        public string StarDateString => StarDate.StarDateString();
         public float StarDateTimer = 5f;
         public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;

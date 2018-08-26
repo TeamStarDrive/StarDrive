@@ -118,7 +118,7 @@ namespace Ship_Game
                 Rectangle StarRect = new Rectangle((int)starPos.X - 3, (int)starPos.Y - 3, 6, 6);
 				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Suns/", star.SunPath)), StarRect, Color.White);
 			}
-			string date = StarDate.ToString("####.0", CultureInfo.InvariantCulture);
+			string date = StarDate.StarDateString();
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> shotdict in StatTracker.SnapshotsDict)
 			{
 				foreach (KeyValuePair<int, Snapshot> entry in shotdict.Value)
@@ -148,11 +148,12 @@ namespace Ship_Game
 				{
 					foreach (string message in entry.Value.Events)
 					{
-						if (TextMessages.Count > 0 && TextMessages[0] == string.Concat("StarDate ", date, ": ", message))
+                        string newMessage = $"StarDate {date}: {message}";
+                        if (TextMessages.Count > 0 && TextMessages[0] == newMessage)
 						{
 							continue;
 						}
-						TextMessages.Insert(0, string.Concat("StarDate ", date, ": ", message));
+						TextMessages.Insert(0, newMessage);
 						if (TextMessages.Count <= 5)
 						{
 							continue;
@@ -169,7 +170,7 @@ namespace Ship_Game
 						FrameCount = 0;
 					}
 				}
-				else if (state == State.Playing && StatTracker.SnapshotsDict.ContainsKey((StarDate + 0.1f).String(1)))
+				else if (state == State.Playing && StatTracker.SnapshotsDict.ContainsKey((StarDate + 0.1f).StarDateString()))
 				{
 					ReplayElement starDate = this;
 					starDate.StarDate = starDate.StarDate + 0.1f;
@@ -182,17 +183,17 @@ namespace Ship_Game
 				int turn = 0;
 				for (float i = 1000.1f; i < StarDate; i = i + 0.1f)
 				{
-					if (StatTracker.SnapshotsDict.ContainsKey(i.String(1)))
+					if (StatTracker.SnapshotsDict.ContainsKey(i.StarDateString()))
 					{
-						foreach (KeyValuePair<int, Snapshot> entry in StatTracker.SnapshotsDict[i.String(1)])
+						foreach (KeyValuePair<int, Snapshot> entry in StatTracker.SnapshotsDict[i.StarDateString()])
 						{
 							Snapshot shot = entry.Value;
-							if (!StatTracker.SnapshotsDict.ContainsKey((i + 0.1f).String(1)))
+							if (!StatTracker.SnapshotsDict.ContainsKey((i + 0.1f).StarDateString()))
 							{
 								continue;
 							}
 							single = i + 0.1f;
-							foreach (KeyValuePair<int, Snapshot> nextEntry in StatTracker.SnapshotsDict[single.String(1)])
+							foreach (KeyValuePair<int, Snapshot> nextEntry in StatTracker.SnapshotsDict[single.StarDateString()])
 							{
 								Snapshot nextShot = nextEntry.Value;
 								if (nextEntry.Key != entry.Key)
@@ -214,17 +215,17 @@ namespace Ship_Game
 				int turn = 0;
 				for (float i = 1000.1f; i < StarDate; i = i + 0.1f)
 				{
-					if (StatTracker.SnapshotsDict.ContainsKey(i.String(1)))
+					if (StatTracker.SnapshotsDict.ContainsKey(i.StarDateString()))
 					{
-						foreach (KeyValuePair<int, Snapshot> entry in StatTracker.SnapshotsDict[i.String(1)])
+						foreach (KeyValuePair<int, Snapshot> entry in StatTracker.SnapshotsDict[i.StarDateString()])
 						{
 							Snapshot shot = entry.Value;
-							if (!StatTracker.SnapshotsDict.ContainsKey((i + 0.1f).String(1)))
+							if (!StatTracker.SnapshotsDict.ContainsKey((i + 0.1f).StarDateString()))
 							{
 								continue;
 							}
 							single = i + 0.1f;
-							foreach (KeyValuePair<int, Snapshot> nextEntry in StatTracker.SnapshotsDict[single.String(1)])
+							foreach (KeyValuePair<int, Snapshot> nextEntry in StatTracker.SnapshotsDict[single.StarDateString()])
 							{
 								Snapshot nextShot = nextEntry.Value;
 								if (nextEntry.Key != entry.Key)
@@ -246,17 +247,17 @@ namespace Ship_Game
 				int turn = 0;
 				for (float i = 1000.1f; i < StarDate; i = i + 0.1f)
 				{
-					if (StatTracker.SnapshotsDict.ContainsKey(i.String(1)))
+					if (StatTracker.SnapshotsDict.ContainsKey(i.StarDateString()))
 					{
-						foreach (KeyValuePair<int, Snapshot> entry in StatTracker.SnapshotsDict[i.String(1)])
+						foreach (KeyValuePair<int, Snapshot> entry in StatTracker.SnapshotsDict[i.StarDateString()])
 						{
 							Snapshot shot = entry.Value;
-							if (!StatTracker.SnapshotsDict.ContainsKey((i + 0.1f).String(1)))
+							if (!StatTracker.SnapshotsDict.ContainsKey((i + 0.1f).StarDateString()))
 							{
 								continue;
 							}
 							single = i + 0.1f;
-							foreach (KeyValuePair<int, Snapshot> nextEntry in StatTracker.SnapshotsDict[single.String(1)])
+							foreach (KeyValuePair<int, Snapshot> nextEntry in StatTracker.SnapshotsDict[single.StarDateString()])
 							{
 								Snapshot nextShot = nextEntry.Value;
 								if (nextEntry.Key != entry.Key)
@@ -332,7 +333,7 @@ namespace Ship_Game
 			if (input.KeysCurr.IsKeyDown(Keys.Right))
 			{
 				state = State.Paused;
-				if (StatTracker.SnapshotsDict.ContainsKey((StarDate + 0.1f).String(1)))
+				if (StatTracker.SnapshotsDict.ContainsKey((StarDate + 0.1f).StarDateString()))
 				{
 					ReplayElement starDate = this;
 					starDate.StarDate = starDate.StarDate + 0.1f;

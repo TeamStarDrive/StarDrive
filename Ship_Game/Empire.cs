@@ -374,7 +374,7 @@ namespace Ship_Game
             Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);
             var rebelEmpireIndex = EmpireManager.Empires.IndexOf(rebels);
             SerializableDictionary<int, Snapshot> statDict = StatTracker.SnapshotsDict[Universe.StarDateString];
-             statDict[rebelEmpireIndex] = new Snapshot(Universe.StarDate);
+            statDict[rebelEmpireIndex] = new Snapshot(Universe.StarDate);
 
             // StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
             foreach (Ship s in OwnedShips)
@@ -2086,7 +2086,7 @@ namespace Ship_Game
                 MilitaryStrength += ship.GetStrength();
 
                 if (!data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(starDate))
-                    ++StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].ShipCount;
+                    StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].ShipCount++;
             }
             if (!data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(starDate))
             {
