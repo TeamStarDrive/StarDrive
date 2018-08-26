@@ -40,15 +40,14 @@ namespace Ship_Game.AI
 
                 if (role != ship.DesignRole)
                     continue;
-                if (maxSize > 0 && ship.Size > maxSize)
+                if (maxSize > 0 && ship.SurfaceArea > maxSize)
                     continue;
 
                 maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
 
                 potentialShips.Add(ship);
                 if (efficiency)
-                    bestEfficiency = Math.Max(bestEfficiency, ship.PercentageOfShipByModules(targetModule));
-
+                    bestEfficiency = Math.Max(bestEfficiency, ship.SurfaceAreaPercentOf(targetModule));
             }
             float nearmax = maxTech * .80f;
             bestEfficiency *= .80f;
@@ -58,7 +57,7 @@ namespace Ship_Game.AI
             Ship[] bestShips = potentialShips.FilterBy(ships =>
             {
                 if (efficiency)
-                    return ships.PercentageOfShipByModules(targetModule) >= bestEfficiency;
+                    return ships.SurfaceAreaPercentOf(targetModule) >= bestEfficiency;
                 return ships.shipData.TechsNeeded.Count >= nearmax;
             });
 
@@ -124,12 +123,11 @@ namespace Ship_Game.AI
 
         private static Array<Ship> ShipsWeCanBuild(Empire empire)
         {
-            var ships = new Array<Ship>();
+            var ships = new Array<Ship>(empire.ShipsWeCanBuild.Count);
             foreach (string shipWeCanBuild in empire.ShipsWeCanBuild)
             {
-                Ship ship;
-                if ((ship = ResourceManager.GetShipTemplate(shipWeCanBuild, false)) != null)
-                    ships.Add(ship);
+                if (ResourceManager.GetShipTemplate(shipWeCanBuild, out Ship template))
+                    ships.Add(template);
             }
             return ships;
         }
@@ -140,7 +138,7 @@ namespace Ship_Game.AI
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).FilterBy(
                 ship => ship.DesignRole == role
-                && (maxSize <= 0 || ship.Size <= maxSize)
+                && (maxSize <= 0 || ship.SurfaceArea <= maxSize)
                 && (shipCategory == ShipData.Category.Unclassified || shipCategory == ship.shipData.ShipCategory)
             );
 
@@ -150,18 +148,10 @@ namespace Ship_Game.AI
             float maxStrength = potentialShips.Max(ship => ship.NormalizedStrength);
             var levelAdjust = new MinMaxStrength(maxStrength, empire);
 
-            Ship[] bestShips;
+            Ship[] bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
             if (targetModule != ShipModuleType.Dummy)
             {
-                float bestModuleRatio = potentialShips.Max(ship => ship.PercentageOfShipByModules(targetModule));
-
-                bestShips = potentialShips.FilterBy(
-                    ship => levelAdjust.InRange(ship.NormalizedStrength)
-                    && bestModuleRatio <= ship.PercentageOfShipByModules(targetModule));
-            }
-            else
-            {
-                bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
+                bestShips = bestShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
             }
 
             if (bestShips.Length == 0)
