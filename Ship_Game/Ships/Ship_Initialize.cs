@@ -471,7 +471,7 @@ namespace Ship_Game.Ships
             ECMValue                 = 0f;
             FTLSpoolTime             = 0f;
             RangeForOverlay          = 0f;
-            Size                     = Calculatesize();
+            SurfaceArea              = shipData.ModuleSlots.Length;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 

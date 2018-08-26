@@ -257,6 +257,7 @@
     <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\Power.cs" />
+    <Compile Include="Ship_Game\Ships\ShipExtensions.cs" />
     <Compile Include="Ship_Game\Ships\ShipMaintenance.cs" />
     <Compile Include="Ship_Game\Ships\ShipModuleDamageVisualization.cs" />
     <Compile Include="Ship_Game\Ships\ShipResupply.cs" />
