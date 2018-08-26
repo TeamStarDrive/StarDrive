@@ -96,7 +96,7 @@ namespace Ship_Game.Ships
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;
-        public int Size;
+        public int SurfaceArea;
         //public int CrewRequired;    //Not referenced in code, removing to save memory
         //public int CrewSupplied;    //Not referenced in code, removing to save memory
         public float Ordinance { get; private set; }
@@ -242,7 +242,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float EmpTolerance => Size + BonusEMP_Protection;
+        public float EmpTolerance => SurfaceArea + BonusEMP_Protection;
         public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
         public float HealthPercent => Health / HealthMax;
 
@@ -266,20 +266,6 @@ namespace Ship_Game.Ships
             string iconName = "TacticalIcons/symbol_";
             return ResourceManager.TextureOrNull(iconName + roleName) ??
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
-        }
-
-        private int Calculatesize()
-        {
-            int size = 0;
-
-            for (int x = 0; x < SparseModuleGrid.Length; x++)
-            {
-                var gridPoint = SparseModuleGrid[x];
-                if (gridPoint == null) continue;
-                size++;
-            }
-
-            return size;
         }
 
         private float GetyBankAmount(float yBank)
@@ -1388,18 +1374,18 @@ namespace Ship_Game.Ships
         {
             if (loyalty.data.WarpStart != null)
                 return loyalty.data.WarpStart;
-            if (Size < 60)
+            if (SurfaceArea < 60)
                 return "sd_warp_start_small";
-            return Size > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
+            return SurfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
         }
 
         private string GetEndWarpCue()
         {
             if (loyalty.data.WarpStart != null)
                 return loyalty.data.WarpEnd;
-            if (Size < 60)
+            if (SurfaceArea < 60)
                 return "sd_warp_stop_small";
-            return Size > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
+            return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
         }
 
         public void HyperspaceReturn()
@@ -1850,7 +1836,7 @@ namespace Ship_Game.Ships
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
-            Mass = Math.Max(Size * 0.5f, Mass);
+            Mass = Math.Max(SurfaceArea * 0.5f, Mass);
             Mass = Math.Max(Mass, 1);
             PowerCurrent -= PowerDraw * deltaTime;
             if (PowerCurrent < PowerStoreMax)
@@ -2167,7 +2153,7 @@ namespace Ship_Game.Ships
             shipStatusChanged = false;
             float sensorBonus = 0f;
             Thrust                      = 0f;
-            Mass                        = Size;
+            Mass                        = SurfaceArea;
             shield_max                  = 0f;
             ActiveInternalSlotCount     = 0;
             BonusEMP_Protection         = 0f;
@@ -2283,15 +2269,14 @@ namespace Ship_Game.Ships
             return TetheredTo != null;
         }
 
-        //added by Gremlin : active ship strength calculator
-        private float CurrentStrength = -1;
+        private float CurrentStrength = -1.0f;
+
         public float GetStrength()
         {
-            if (CurrentStrength == -1)
-                Debugger.Break();
             return CurrentStrength;
         }
 
+        public float NormalizedStrength => BaseStrength / shipData.ModuleSlots.Length;
 
         public float GetDPS() => DPS;
 
@@ -2380,9 +2365,9 @@ namespace Ship_Game.Ships
             if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
             {
                 dying         = true;
-                xdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
-                ydie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
-                zdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                xdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                ydie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                zdie          = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
                 dietimer      = UniverseRandom.RandomBetween(4f, 6f);
                 if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;
@@ -2401,8 +2386,8 @@ namespace Ship_Game.Ships
             if (!cleanupOnly && InFrustum)
             {
                 string dieSoundEffect;
-                if (Size < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
-                else if (Size < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
+                if (SurfaceArea < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
+                else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
                 else                 dieSoundEffect = "sd_explosion_ship_det_large";
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
@@ -2599,9 +2584,14 @@ namespace Ship_Game.Ships
             return healthMax;
         }
 
-        public float PercentageOfShipByModules(ShipModuleType moduleType)
+        public float SurfaceAreaPercentOf(ShipModuleType moduleType)
         {
-            return RoleData.PercentageOfShipByModules(ModuleSlotList.FilterBy(module => module.ModuleType == moduleType), Size);
+            return ModuleSlotList.SurfaceArea(moduleType) / (float)SurfaceArea;
+        }
+
+        public bool AnyModulesOf(ShipModuleType moduleType)
+        {
+            return ModuleSlotList.Any(moduleType);
         }
 
         private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
@@ -2622,7 +2612,6 @@ namespace Ship_Game.Ships
                 Building building = ResourceManager.CreateBuilding(template);
                 colonizeTarget.BuildingList.Add(building);
                 building.AssignBuildingToTileOnColonize(colonizeTarget);
-
             }
         }
 
@@ -2659,7 +2648,7 @@ namespace Ship_Game.Ships
             bool fighters      = false;
             bool weapons       = false;
             int numWeaponSlots = 0;
-            float mass         = Size / 2f;
+            float mass         = SurfaceArea / 2f;
             float turnThrust   = 0;
 
             foreach (ShipModule slot in ModuleSlotList)
@@ -2673,7 +2662,7 @@ namespace Ship_Game.Ships
                 fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
 
                 offense    += slot.CalculateModuleOffense();
-                defense    += slot.CalculateModuleDefense(Size);
+                defense    += slot.CalculateModuleDefense(SurfaceArea);
                 mass       += slot.Mass;
                 turnThrust += slot.TurnThrust;
 
@@ -2684,7 +2673,7 @@ namespace Ship_Game.Ships
 
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(Size, numWeaponSlots, offense, defense, shipData.Role, rotationSpeed);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense, shipData.Role, rotationSpeed);
         }
 
         private void ApplyRepairToShields(float repairPool)

@@ -687,35 +687,35 @@ namespace Ship_Game
 
             foreach (Empire empire in EmpireManager.Empires)
             {
-                var fleetdic =
-                    empire.GetFleetsDict()
-                        .AtomicValuesArray(); //not sure if this is the right way to do this but its hitting a crash here on collection change when the fleet loop is a foreach
-                for (int i = 0; i < fleetdic.Length; i++)
+                // not sure if this is the right way to do this but its hitting a crash here on collection change when the fleet loop is a foreach
+                Fleet[] fleets = empire.GetFleetsDict().AtomicValuesArray();
+                for (int i = 0; i < fleets.Length; i++)
                 {
-                    var kv = fleetdic[i];
-                    if (kv.Ships.Count <= 0)
+                    Fleet fleet = fleets[i];
+                    if (fleet.Ships.Count <= 0)
                         continue;
-                    if (!Debug && GameDifficulty > UniverseData.GameDifficulty.Normal && player.IsEmpireAttackable(kv.Owner)) continue;
-                    Vector2 averagePosition = kv.FindAveragePositionset();
+                    if (!Debug && CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal && player.IsEmpireAttackable(fleet.Owner))
+                        continue;
+                    Vector2 averagePosition = fleet.FindAveragePositionset();
                     bool flag = player.IsPointInSensors(averagePosition);
 
-                    if (!flag && !Debug && kv.Owner != player) continue;
+                    if (!flag && !Debug && fleet.Owner != player) continue;
 
-                    var icon = ResourceManager.Texture("FleetIcons/" + kv.FleetIconIndex);
+                    var icon = ResourceManager.Texture("FleetIcons/" + fleet.FleetIconIndex);
                     Vector3 vector3_1 =
                         Viewport.Project(new Vector3(averagePosition, 0.0f),
                             projection, view, Matrix.Identity);
                     Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);                        
-                    FleetIconLines(kv, vector2);
+                    FleetIconLines(fleet, vector2);
                     ClickableFleetsList.Add(new ClickableFleet
                     {
-                        fleet = kv,
+                        fleet = fleet,
                         ScreenPos = vector2,
                         ClickRadius = 15f
                     });
                     ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f,
                         icon.Center(), 0.35f, SpriteEffects.None, 1f);
-                    HelperFunctions.DrawDropShadowText(ScreenManager, kv.Name,
+                    HelperFunctions.DrawDropShadowText(ScreenManager, fleet.Name,
                         new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                 }
             }
@@ -943,7 +943,7 @@ namespace Ship_Game
                     if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
                     {
                         //float scale2 = 0.07f;
-                        float scale = ((float) buildTemplate.Size / platform.Width) * 4000f / CamHeight;
+                        float scale = ((float) buildTemplate.SurfaceArea / platform.Width) * 4000f / CamHeight;
                         DrawTextureProjected(platform, item.BuildPos, scale, 0.0f, new Color(0, 255, 0, 100));
                         if (showingDSBW)
                         {
@@ -982,7 +982,7 @@ namespace Ship_Game
 
                 var symbol = ship.GetTacticalIcon();                
 
-                float num = ship.Size / (30f + symbol.Width);
+                float num = ship.SurfaceArea / (30f + symbol.Width);
                 float scale = num * 4000f / CamHeight;
                 if (scale > 1.0f) scale = 1f;
                 else if (scale <= 0.1f)

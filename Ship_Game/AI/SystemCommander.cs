@@ -212,7 +212,7 @@ namespace Ship_Game.AI
 
         public void CalculateTroopNeeds()
         {
-            int mintroopLevel = (int)RankImportance + (int)(Empire.Universe.GameDifficulty + 1) * 2;
+            int mintroopLevel = (int)RankImportance + ((int)CurrentGame.Difficulty + 1) * 2;
             TroopCount = 0;
             {
                 // find max number of troops for system.
