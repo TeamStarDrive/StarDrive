@@ -219,7 +219,7 @@ namespace Ship_Game.Gameplay
             {
                 usStrength += p.DevelopmentLevel;
             }
-            float strength = (themStrength / usStrength) *.25f;
+            float strength = (themStrength / usStrength) * 0.25f;
             return strength > riskLimit ? 0 : strength;
         }
 
@@ -233,7 +233,7 @@ namespace Ship_Game.Gameplay
             
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == Them)
                 return;
-            float angerMod = 1+ ((int)Empire.Universe.GameDifficulty+1) * .2f;
+            float angerMod = 1 + ((int)CurrentGame.Difficulty + 1) * 0.2f;
             Amount *= angerMod;
             string str = why;
             string str1 = str;

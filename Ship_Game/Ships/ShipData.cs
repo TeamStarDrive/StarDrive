@@ -300,6 +300,7 @@ namespace Ship_Game.Ships
             }
         }
 
+
         public enum Category
         {
             Unclassified,

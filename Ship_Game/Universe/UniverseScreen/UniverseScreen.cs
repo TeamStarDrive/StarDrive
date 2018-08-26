@@ -55,7 +55,6 @@ namespace Ship_Game
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
-        public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition;
         public Vector3 camTransitionPosition;
         public Array<NebulousOverlay> Stars        = new Array<NebulousOverlay>();
