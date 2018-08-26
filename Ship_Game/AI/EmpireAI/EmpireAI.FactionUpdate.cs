@@ -67,11 +67,11 @@ namespace Ship_Game.AI {
                                 }
                                 else
                                 {
-                                    if (assimilate.Size < 50)
+                                    if (assimilate.SurfaceArea < 50)
                                         assimilate.AI.OrderRefitTo("Heavy Drone");
-                                    else if (assimilate.Size < 100)
+                                    else if (assimilate.SurfaceArea < 100)
                                         assimilate.AI.OrderRefitTo("Remnant Slaver");
-                                    else if (assimilate.Size >= 100)
+                                    else if (assimilate.SurfaceArea >= 100)
                                         assimilate.AI.OrderRefitTo("Remnant Exterminator");
                                 }
                             }
