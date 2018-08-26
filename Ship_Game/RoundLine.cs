@@ -1,5 +1,5 @@
-using Microsoft.Xna.Framework;
 using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -17,12 +17,12 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.p0;
+				return p0;
 			}
 			set
 			{
-				this.p0 = value;
-				this.RecalcRhoTheta();
+				p0 = value;
+				RecalcRhoTheta();
 			}
 		}
 
@@ -30,12 +30,12 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.p1;
+				return p1;
 			}
 			set
 			{
-				this.p1 = value;
-				this.RecalcRhoTheta();
+				p1 = value;
+				RecalcRhoTheta();
 			}
 		}
 
@@ -43,7 +43,7 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.rho;
+				return rho;
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace Ship_Game
 		{
 			get
 			{
-				return this.theta;
+				return theta;
 			}
 		}
 
@@ -59,21 +59,21 @@ namespace Ship_Game
 		{
 			this.p0 = p0;
 			this.p1 = p1;
-			this.RecalcRhoTheta();
+			RecalcRhoTheta();
 		}
 
 		public RoundLine(float x0, float y0, float x1, float y1)
 		{
-			this.p0 = new Vector2(x0, y0);
-			this.p1 = new Vector2(x1, y1);
-			this.RecalcRhoTheta();
+			p0 = new Vector2(x0, y0);
+			p1 = new Vector2(x1, y1);
+			RecalcRhoTheta();
 		}
 
 		protected void RecalcRhoTheta()
 		{
-			Vector2 delta = this.P1 - this.P0;
-			this.rho = delta.Length();
-			this.theta = (float)Math.Atan2((double)delta.Y, (double)delta.X);
+			Vector2 delta = P1 - P0;
+			rho = delta.Length();
+			theta = (float)Math.Atan2(delta.Y, delta.X);
 		}
 	}
 }

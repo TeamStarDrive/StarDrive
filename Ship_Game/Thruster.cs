@@ -1,9 +1,6 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
-using System.Collections.ObjectModel;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -144,11 +141,11 @@ namespace Ship_Game
 
         public void SetPosition(Vector2 center)
         {
-            double angle = (double)(offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f);
+            double angle = offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f;
             float distance = distanceToParentCenter;
             ThrusterCenter.Y = center.Y + distance * -(float)Math.Sin(angle);
             ThrusterCenter.X = center.X + distance * -(float)Math.Cos(angle);
-            float zPos = -(float)Math.Sin((double)(Parent.yRotation / distance)) + 10f;
+            float zPos = -(float)Math.Sin(Parent.yRotation / distance) + 10f;
             WorldPos = new Vector3(ThrusterCenter, zPos);
         }
 

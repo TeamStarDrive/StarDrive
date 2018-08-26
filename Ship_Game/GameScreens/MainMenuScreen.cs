@@ -1,15 +1,15 @@
+using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NAudio.Wave;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Linq;
 using SgMotion;
 using SgMotion.Controllers;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -78,7 +78,7 @@ namespace Ship_Game
                 {
                     new FadeInOutAnim(AlienText1, rect1, fadeIn:41,  stay:52,  fadeOut:66,  end:95),
                     new FadeInOutAnim(AlienText2, rect2, fadeIn:161, stay:172, fadeOut:188, end:215),
-                    new FadeInOutAnim(AlienText3, rect3, fadeIn:232, stay:242, fadeOut:258, end:286),
+                    new FadeInOutAnim(AlienText3, rect3, fadeIn:232, stay:242, fadeOut:258, end:286)
                 };
             }
 
@@ -127,7 +127,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = this.GameTime;
+            GameTime gameTime = GameTime;
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Rotate += elapsedTime / 350f;
             if (RandomMath.RandomBetween(0f, 100f) > 99.75)
@@ -139,7 +139,7 @@ namespace Ship_Game
                 };
                 c.Velocity = Vector2.Normalize(c.Velocity);
                 c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
-                this.CometList.Add(c);
+                CometList.Add(c);
             }
             if (SplashScreen.DisplayComplete)
             {
@@ -305,14 +305,14 @@ namespace Ship_Game
                 float alphaStep = 35f / 32f;
                 float alpha = 255f - FlareFrames * alphaStep;
                 Rectangle solarFlare = new Rectangle(0, height - 784, 1024, 784);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_solarflare"), solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
             }
             if (FlareFrames > 31 && FlareFrames <= 62)
             {
                 float alphaStep = 35f / 31f;
                 float alpha = 220f + (FlareFrames - 31) * alphaStep;
                 var solarFlare = new Rectangle(0, height - 784, 1024, 784);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/planet_solarflare"), solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
             }
             if (Flip)
             {
@@ -324,7 +324,7 @@ namespace Ship_Game
             }
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/vignette"], screenRect, Color.White);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("MainMenu/vignette"), screenRect, Color.White);
             ScreenManager.SpriteBatch.End();
         }
 

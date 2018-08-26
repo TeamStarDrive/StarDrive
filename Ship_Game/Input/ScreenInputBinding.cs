@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ship_Game
+﻿namespace Ship_Game
 {
     /// <summary>
     /// For every GameScreen, we have specific input bindings.

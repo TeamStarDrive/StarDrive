@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
@@ -165,21 +163,19 @@ namespace Ship_Game.Commands.Goals
                 PlanetBuildingAt = planet;
                 return GoalStep.GoToNextStep;
             }
-            else
+
+            Ship shipTypeToBuild = ResourceManager.ShipsDict[empire.data.DefaultColonyShip];
+            planet.ConstructionQueue.Add(new QueueItem(planet)
             {
-                Ship shipTypeToBuild = ResourceManager.ShipsDict[empire.data.DefaultColonyShip];
-                planet.ConstructionQueue.Add(new QueueItem(planet)
-                {
-                    isShip        = true,
-                    QueueNumber   = planet.ConstructionQueue.Count,
-                    sData         = shipTypeToBuild.shipData,
-                    Goal          = this,
-                    Cost          = shipTypeToBuild.GetCost(empire),
-                    NotifyOnEmpty = false, // @todo wtf is this???
-                });
-                PlanetBuildingAt = planet;
-                return GoalStep.GoToNextStep;
-            }
+                isShip        = true,
+                QueueNumber   = planet.ConstructionQueue.Count,
+                sData         = shipTypeToBuild.shipData,
+                Goal          = this,
+                Cost          = shipTypeToBuild.GetCost(empire),
+                NotifyOnEmpty = false // @todo wtf is this???
+            });
+            PlanetBuildingAt = planet;
+            return GoalStep.GoToNextStep;
         }
 
         private bool IsPlanetBuildingColonyShip()

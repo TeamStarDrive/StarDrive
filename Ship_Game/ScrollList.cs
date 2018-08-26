@@ -1,17 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Ship_Game
 {
     public enum ListControls
     {
         All,    // show all list controls
-        Cancel, // only show Cancel control
+        Cancel // only show Cancel control
     }
 
     public enum ListOptions
@@ -54,12 +54,12 @@ namespace Ship_Game
         private readonly Texture2D ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
         private readonly Texture2D ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
         private readonly Texture2D ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
-        
+
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None)
         {
             Parent = p;
-            MaxVisibleEntries = (p.Menu.Height - 25) / 40;         
+            MaxVisibleEntries = (p.Menu.Height - 25) / 40;
             IsDraggable = options == ListOptions.Draggable;
             InitializeRects(p, 30);
         }
@@ -211,56 +211,43 @@ namespace Ship_Game
             UpdateListElements();
         }
 
-        public IReadOnlyList<Entry> AllEntries => Entries;
+        public IReadOnlyList<Entry> AllEntries         => Entries;
         public IReadOnlyList<Entry> AllExpandedEntries => ExpandedEntries;
-        public int NumEntries => Entries.Count;
+        public int NumEntries         => Entries.Count;
         public int NumExpandedEntries => ExpandedEntries.Count;
 
-        public IEnumerable<Entry> VisibleEntries
+        private int EntriesEnd         => Math.Min(Entries.Count,         FirstVisibleIndex + MaxVisibleEntries);
+        private int ExpandedEntriesEnd => Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
+
+        // @note Optimized for speed
+        private Entry[] CopyVisibleEntries(Array<Entry> entries)
         {
-            get
-            {
-                for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
-                    yield return Entries[i];
-            }
+            int start = FirstVisibleIndex;
+            int end = Math.Min(entries.Count, FirstVisibleIndex + MaxVisibleEntries);
+            int count = end - start;
+
+            Entry[] items = count <= 0 ? Empty<Entry>.Array : new Entry[count];
+            for (int i = 0; i < items.Length; ++i)
+                items[i] = entries[start++];
+            return items;
         }
 
-        public IEnumerable<Entry> VisibleExpandedEntries
+        public Entry[] VisibleEntries         => CopyVisibleEntries(Entries);
+        public Entry[] VisibleExpandedEntries => CopyVisibleEntries(ExpandedEntries);
+
+
+        private static Array<T> CopyAllItemsOfType<T>(Array<Entry> entries)
         {
-            get
-            {
-                for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
-                    yield return ExpandedEntries[i];
-            }
+            var items = new Array<T>();
+            for (int i = 0; i < entries.Count; ++i)
+                if (entries[i].item is T item)
+                    items.Add(item);
+            return items;
         }
 
-        public IEnumerable<T> VisibleItems<T>() where T : class
-        {
-            for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
-                if (Entries[i].item is T item)
-                    yield return item;
-        }
+        public Array<T> AllItems<T>()         => CopyAllItemsOfType<T>(Entries);
+        public Array<T> AllExpandedItems<T>() => CopyAllItemsOfType<T>(ExpandedEntries);
 
-        public IEnumerable<T> VisibleExpandedItems<T>() where T : class
-        {
-            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; ++i)
-                if (ExpandedEntries[i].item is T item)
-                    yield return item;
-        }
-
-        public IEnumerable<T> AllItems<T>() where T : class
-        {
-            for (int i = 0; i < Entries.Count; ++i)
-                if (Entries[i].item is T item)
-                    yield return item;
-        }
-
-        public IEnumerable<T> AllExpandedItems<T>() where T : class
-        {
-            for (int i = 0; i < ExpandedEntries.Count; ++i)
-                if (ExpandedEntries[i].item is T item)
-                    yield return item;
-        }
 
         public void Reset()
         {
@@ -419,11 +406,11 @@ namespace Ship_Game
 
             if (!ScrollBar.HitTest(input.CursorPosition))
                 return false;
-            
+
             ScrollBarHover = 1;
             if (!input.LeftMouseClick)
                 return false;
-            
+
             ScrollBarHover = 2;
             StartDragPos = (int)input.CursorPosition.Y;
             ScrollBarStartDragPos = ScrollBar.Y;
@@ -465,7 +452,7 @@ namespace Ship_Game
             bool hit = HandleScrollUpDownButtons(input);
             hit |= HandleScrollDragInput(input);
             hit |= HandleScrollBarDragging(input);
-            
+
             if (DraggingScrollBar && input.LeftMouseUp)
                 DraggingScrollBar = false;
             return hit;
@@ -599,6 +586,10 @@ namespace Ship_Game
                 return false;
             });
             UpdateListElements();
+
+            // @todo This cannot be implemented before duplicate HandleInput's are removed
+            //if (!hit)
+            //    hit = HandleItemInput(input);
             return hit;
         }
 
@@ -608,11 +599,11 @@ namespace Ship_Game
             ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             int j = 0;
-            int last = FirstVisibleIndex + MaxVisibleEntries - 1;
+            int end = EntriesEnd;
             for (int i = 0; i < Entries.Count; i++)
             {
                 Entry e = Entries[i];
-                if (i >= FirstVisibleIndex && i <= last)
+                if (i >= FirstVisibleIndex && i < end)
                     e.UpdateClickRect(r.Pos(), j++);
                 else
                     e.SetUnclickable();
@@ -625,7 +616,7 @@ namespace Ship_Game
             foreach (Entry e in Entries)
                 e.ExpandSubEntries(ExpandedEntries);
 
-            FirstVisibleIndex = FirstVisibleIndex.Clamped(0, 
+            FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
                 Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
 
             int j = 0;
@@ -639,6 +630,18 @@ namespace Ship_Game
             }
 
             UpdateScrollBar();
+        }
+
+        private bool HandleItemInput(InputState input)
+        {
+            int end = ExpandedEntriesEnd;
+            for (int i = FirstVisibleIndex; i < end; ++i)
+            {
+                Entry e = ExpandedEntries[i];
+                if (e.item is UIElement element && element.HandleInput(input))
+                    return true;
+            }
+            return false;
         }
 
         public class Entry
@@ -833,7 +836,7 @@ namespace Ship_Game
 
                 if (Up.HitTest(pos))
                 {
-                    batch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], Up, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover2"), Up, Color.White);
                 }
                 if (Empire.Universe.IsActive)
                 {
@@ -893,7 +896,7 @@ namespace Ship_Game
                 if (all) Up    = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
                 if (all) Down  = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
                 if (all) Apply = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
-                        Cancel = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
+                        Cancel = new Rectangle(right - (offset +  30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
             }
         }
     }
@@ -902,6 +905,7 @@ namespace Ship_Game
     {
         private readonly ScrollList List;
 
+        // ReSharper disable once UnusedMember.Global
         public ScrollListDebugView(ScrollList list)
         {
             List = list;

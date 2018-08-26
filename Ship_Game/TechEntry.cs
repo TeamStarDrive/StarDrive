@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
-using Ship_Game;
 using Ship_Game.Ships;
 
 namespace Ship_Game

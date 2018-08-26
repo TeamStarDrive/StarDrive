@@ -1,8 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -11,15 +9,15 @@ namespace Ship_Game
         private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
         {
             Vector2 vector2_1 = new Vector2(
-                MousePosition.X - (float) (this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth /
-                                           2),
+                MousePosition.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth /
+                2,
                 MousePosition.Y -
-                (float) (this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-            Vector3 position1 = this.Viewport.Unproject(
-                new Vector3(MousePosition.X, MousePosition.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
+            Vector3 position1 = Viewport.Unproject(
+                new Vector3(MousePosition.X, MousePosition.Y, 0.0f), projection, this.view, Matrix.Identity);
             Vector3 direction1 =
-                this.Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
-                    this.projection, this.view, Matrix.Identity) - position1;
+                Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
+                    projection, this.view, Matrix.Identity) - position1;
             direction1.Normalize();
             Ray ray = new Ray(position1, direction1);
             float num1 = -ray.Position.Z / ray.Direction.Z;
@@ -27,17 +25,17 @@ namespace Ship_Game
                 ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
             Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) *
                           Matrix.CreateRotationX(0.0f.ToRadians()) *
-                          Matrix.CreateLookAt(new Vector3(this.CamPos.X, this.CamPos.Y, DesiredCamHeight),
-                              new Vector3(this.CamPos.X, this.CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+                          Matrix.CreateLookAt(new Vector3(CamPos.X, CamPos.Y, DesiredCamHeight),
+                              new Vector3(CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 =
-                this.Viewport.Project(source, this.projection, view, Matrix.Identity);
-            Vector2 vector2_2 = new Vector2((float) (int) vector3.X - vector2_1.X,
-                (float) (int) vector3.Y - vector2_1.Y);
-            Vector3 position2 = this.Viewport.Unproject(
-                new Vector3(vector2_2.X, vector2_2.Y, 0.0f), this.projection, view, Matrix.Identity);
+                Viewport.Project(source, projection, view, Matrix.Identity);
+            Vector2 vector2_2 = new Vector2((int) vector3.X - vector2_1.X,
+                (int) vector3.Y - vector2_1.Y);
+            Vector3 position2 = Viewport.Unproject(
+                new Vector3(vector2_2.X, vector2_2.Y, 0.0f), projection, view, Matrix.Identity);
             Vector3 direction2 =
-                this.Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
-                    this.projection, view, Matrix.Identity) - position2;
+                Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
+                    projection, view, Matrix.Identity) - position2;
             direction2.Normalize();
             ray = new Ray(position2, direction2);
             float num2 = -ray.Position.Z / ray.Direction.Z;
@@ -47,71 +45,71 @@ namespace Ship_Game
         public void FollowPlayer(object sender)
         {
             SelectedShip.AI.State = AIState.Escort;
-            SelectedShip.AI.EscortTarget = this.playerShip;
+            SelectedShip.AI.EscortTarget = playerShip;
         }
 
         public void ViewShip(object sender)
         {
-            if (this.SelectedShip == null)
+            if (SelectedShip == null)
                 return;
-            if (this.playerShip != null && this.SelectedShip == this.playerShip)
+            if (playerShip != null && SelectedShip == playerShip)
             {
-                this.playerShip.PlayerShip = false;
-                this.playerShip.AI.State = AIState.AwaitingOrders;
-                this.playerShip = (Ship) null;
+                playerShip.PlayerShip = false;
+                playerShip.AI.State = AIState.AwaitingOrders;
+                playerShip = null;
             }
             else
             {
-                if (this.SelectedShip.loyalty != this.player || this.SelectedShip.isConstructor)
+                if (SelectedShip.loyalty != player || SelectedShip.isConstructor)
                     return;
-                this.ShipToView = this.SelectedShip;
-                this.snappingToShip = true;
-                this.HeightOnSnap = this.CamHeight;
-                this.CamDestination.Z = 3500f;
-                if (this.playerShip != null)
+                ShipToView = SelectedShip;
+                snappingToShip = true;
+                HeightOnSnap = CamHeight;
+                CamDestination.Z = 3500f;
+                if (playerShip != null)
                 {
-                    this.playerShip.PlayerShip = false;
-                    this.playerShip.AI.State = AIState.AwaitingOrders;
-                    this.playerShip = this.SelectedShip;
-                    this.playerShip.PlayerShip = true;
-                    this.playerShip.AI.State = AIState.ManualControl;
+                    playerShip.PlayerShip = false;
+                    playerShip.AI.State = AIState.AwaitingOrders;
+                    playerShip = SelectedShip;
+                    playerShip.PlayerShip = true;
+                    playerShip.AI.State = AIState.ManualControl;
                 }
                 else
                 {
-                    this.playerShip = this.SelectedShip;
-                    this.playerShip.PlayerShip = true;
-                    this.playerShip.AI.State = AIState.ManualControl;
+                    playerShip = SelectedShip;
+                    playerShip.PlayerShip = true;
+                    playerShip.AI.State = AIState.ManualControl;
                 }
-                this.AdjustCamTimer = 1.5f;
-                this.transitionElapsedTime = 0.0f;
-                this.CamDestination.Z = 4500f;
-                this.snappingToShip = true;
-                this.ViewingShip = true;
-                if (!this.playerShip.isSpooling)
+                AdjustCamTimer = 1.5f;
+                transitionElapsedTime = 0.0f;
+                CamDestination.Z = 4500f;
+                snappingToShip = true;
+                ViewingShip = true;
+                if (!playerShip.isSpooling)
                     return;
-                this.playerShip.HyperspaceReturn();
+                playerShip.HyperspaceReturn();
             }
         }
 
         public void ViewToShip(object sender)
         {
-            if (this.SelectedShip == null)
+            if (SelectedShip == null)
                 return;
-            this.ShipToView = this.SelectedShip;
-            this.ShipInfoUIElement.SetShip(this.SelectedShip); //fbedard: was not updating correctly from shiplist
-            this.SelectedFleet = (Fleet) null;
-            this.SelectedShipList.Clear();
-            this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction) null;
-            this.SelectedSystem = (SolarSystem) null;
-            this.SelectedPlanet = (Planet) null;
-            this.snappingToShip = true;
-            this.HeightOnSnap = this.CamHeight;
-            this.CamDestination.Z = 3500f;
-            this.AdjustCamTimer = 1.0f;
-            this.transitionElapsedTime = 0.0f;
-            this.CamDestination.Z = 4500f;
-            this.snappingToShip = true;
-            this.ViewingShip = true;
+            ShipToView = SelectedShip;
+            ShipInfoUIElement.SetShip(SelectedShip); //fbedard: was not updating correctly from shiplist
+            SelectedFleet = null;
+            SelectedShipList.Clear();
+            SelectedItem = null;
+            SelectedSystem = null;
+            SelectedPlanet = null;
+            snappingToShip = true;
+            HeightOnSnap = CamHeight;
+            CamDestination.Z = 3500f;
+            AdjustCamTimer = 1.0f;
+            transitionElapsedTime = 0.0f;
+            CamDestination.Z = 4500f;
+            snappingToShip = true;
+            ViewingShip = true;
         }
 
         public void ViewPlanet(object sender)
@@ -167,24 +165,24 @@ namespace Ship_Game
 
         public void SnapViewSystem(SolarSystem system, UnivScreenState camHeight)
         {
-            float x = this.GetZfromScreenState(camHeight);
-            this.CamDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);
-            this.transitionStartPosition = this.CamPos;
-            this.AdjustCamTimer = 2f;
-            this.transitionElapsedTime = 0.0f;
-            this.transDuration = 5f;
-            this.ViewingShip = false;
-            this.snappingToShip = false;
-            if (this.ViewingShip)
-                this.returnToShip = true;
-            this.ViewingShip = false;
-            this.snappingToShip = false;
-            this.SelectedFleet = null;
-            if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
-                this.previousSelection = this.SelectedShip;
-            this.SelectedShip = null;
-            this.SelectedShipList.Clear();
-            this.SelectedItem = null;
+            float x = GetZfromScreenState(camHeight);
+            CamDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);
+            transitionStartPosition = CamPos;
+            AdjustCamTimer = 2f;
+            transitionElapsedTime = 0.0f;
+            transDuration = 5f;
+            ViewingShip = false;
+            snappingToShip = false;
+            if (ViewingShip)
+                returnToShip = true;
+            ViewingShip = false;
+            snappingToShip = false;
+            SelectedFleet = null;
+            if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
+                previousSelection = SelectedShip;
+            SelectedShip = null;
+            SelectedShipList.Clear();
+            SelectedItem = null;
         }
 
         public void SnapViewPlanet(object sender)
@@ -244,8 +242,8 @@ namespace Ship_Game
 
         private void AdjustCamera(float elapsedTime)
         {
-            if (this.ShipToView == null)
-                this.ViewingShip = false;
+            if (ShipToView == null)
+                ViewingShip = false;
 
 
 #if DEBUG
@@ -254,96 +252,96 @@ namespace Ship_Game
                 float minCamHeight = Debug ? 1337.0f : 400.0f;
             #endif
 
-            this.AdjustCamTimer -= elapsedTime;
-            if (this.ViewingShip && !this.snappingToShip)
+            AdjustCamTimer -= elapsedTime;
+            if (ViewingShip && !snappingToShip)
             {
-                this.CamPos.X = this.ShipToView.Center.X;
-                this.CamPos.Y = this.ShipToView.Center.Y;
-                this.CamHeight =
-                    (float) (int) MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, 0.2f);
+                CamPos.X = ShipToView.Center.X;
+                CamPos.Y = ShipToView.Center.Y;
+                CamHeight =
+                    (int) MathHelper.SmoothStep(CamHeight, CamDestination.Z, 0.2f);
                 if (CamHeight < minCamHeight)
                     CamHeight = minCamHeight;
             }
-            if (this.AdjustCamTimer > 0.0)
+            if (AdjustCamTimer > 0.0)
             {
-                if (this.ShipToView == null)
-                    this.snappingToShip = false;
-                if (this.snappingToShip)
+                if (ShipToView == null)
+                    snappingToShip = false;
+                if (snappingToShip)
                 {
-                    this.CamDestination.X = this.ShipToView.Center.X;
-                    this.CamDestination.Y = this.ShipToView.Center.Y;
-                    this.transitionElapsedTime += elapsedTime;
-                    float amount = (float) Math.Pow((double) this.transitionElapsedTime / (double) this.transDuration,
+                    CamDestination.X = ShipToView.Center.X;
+                    CamDestination.Y = ShipToView.Center.Y;
+                    transitionElapsedTime += elapsedTime;
+                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration,
                         0.699999988079071);
-                    this.camTransitionPosition.X =
-                        MathHelper.SmoothStep(this.CamPos.X, this.CamDestination.X, amount);
-                    float num1 = MathHelper.SmoothStep(this.CamPos.Y, this.CamDestination.Y, amount);
-                    float num2 = MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, amount);
-                    this.camTransitionPosition.Y = num1;
-                    this.CamHeight = (float) (int) num2;
-                    this.CamPos = this.camTransitionPosition;
-                    if ((double) this.AdjustCamTimer - (double) elapsedTime <= 0.0)
+                    camTransitionPosition.X =
+                        MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
+                    float num1 = MathHelper.SmoothStep(CamPos.Y, CamDestination.Y, amount);
+                    float num2 = MathHelper.SmoothStep(CamHeight, CamDestination.Z, amount);
+                    camTransitionPosition.Y = num1;
+                    CamHeight = (int) num2;
+                    CamPos = camTransitionPosition;
+                    if (AdjustCamTimer - (double) elapsedTime <= 0.0)
                     {
-                        this.ViewingShip = true;
-                        this.transitionElapsedTime = 0.0f;
-                        this.AdjustCamTimer = -1f;
-                        this.snappingToShip = false;
+                        ViewingShip = true;
+                        transitionElapsedTime = 0.0f;
+                        AdjustCamTimer = -1f;
+                        snappingToShip = false;
                     }
                 }
                 else
                 {
-                    this.transitionElapsedTime += elapsedTime;
-                    float amount = (float) Math.Pow((double) this.transitionElapsedTime / (double) this.transDuration,
+                    transitionElapsedTime += elapsedTime;
+                    float amount = (float) Math.Pow(transitionElapsedTime / (double) transDuration,
                         0.699999988079071);
-                    this.camTransitionPosition.X =
-                        MathHelper.SmoothStep(this.CamPos.X, this.CamDestination.X, amount);
-                    float num1 = MathHelper.SmoothStep(this.CamPos.Y, this.CamDestination.Y, amount);
-                    float num2 = MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, amount);
-                    this.camTransitionPosition.Y = num1;
-                    this.CamHeight = num2;
-                    this.CamPos = this.camTransitionPosition;
-                    if ((double) this.transitionElapsedTime > (double) this.transDuration ||
-                        (double) Vector2.Distance(new Vector2(this.CamPos.X, this.CamPos.Y),
-                            new Vector2(this.CamDestination.X, this.CamDestination.Y)) < 50.0 &&
-                        (double) Math.Abs(this.CamHeight - this.CamDestination.Z) < 50.0)
+                    camTransitionPosition.X =
+                        MathHelper.SmoothStep(CamPos.X, CamDestination.X, amount);
+                    float num1 = MathHelper.SmoothStep(CamPos.Y, CamDestination.Y, amount);
+                    float num2 = MathHelper.SmoothStep(CamHeight, CamDestination.Z, amount);
+                    camTransitionPosition.Y = num1;
+                    CamHeight = num2;
+                    CamPos = camTransitionPosition;
+                    if (transitionElapsedTime > (double) transDuration ||
+                        Vector2.Distance(new Vector2(CamPos.X, CamPos.Y),
+                            new Vector2(CamDestination.X, CamDestination.Y)) < 50.0 &&
+                        Math.Abs(CamHeight - CamDestination.Z) < 50.0)
                     {
-                        this.transitionElapsedTime = 0.0f;
-                        this.AdjustCamTimer = -1f;
+                        transitionElapsedTime = 0.0f;
+                        AdjustCamTimer = -1f;
                     }
                 }
                 if (CamHeight < minCamHeight)
                     CamHeight = minCamHeight;
             }
-            else if (this.LookingAtPlanet && this.SelectedPlanet != null)
+            else if (LookingAtPlanet && SelectedPlanet != null)
             {
-                this.camTransitionPosition.X =
-                    MathHelper.SmoothStep(this.CamPos.X, this.SelectedPlanet.Center.X, 0.2f);
-                this.camTransitionPosition.Y =
-                    MathHelper.SmoothStep(this.CamPos.Y, this.SelectedPlanet.Center.Y + 400f, 0.2f);
-                this.CamPos = this.camTransitionPosition;
+                camTransitionPosition.X =
+                    MathHelper.SmoothStep(CamPos.X, SelectedPlanet.Center.X, 0.2f);
+                camTransitionPosition.Y =
+                    MathHelper.SmoothStep(CamPos.Y, SelectedPlanet.Center.Y + 400f, 0.2f);
+                CamPos = camTransitionPosition;
             }
-            else if (!this.ViewingShip)
+            else if (!ViewingShip)
             {
-                this.camTransitionPosition.X = MathHelper.SmoothStep(this.CamPos.X, this.CamDestination.X, 0.2f);
-                float num1 = MathHelper.SmoothStep(this.CamPos.Y, this.CamDestination.Y, 0.2f);
-                float num2 = MathHelper.SmoothStep(this.CamHeight, this.CamDestination.Z, 0.2f);
-                this.camTransitionPosition.Y = num1;
-                this.CamHeight = num2;
+                camTransitionPosition.X = MathHelper.SmoothStep(CamPos.X, CamDestination.X, 0.2f);
+                float num1 = MathHelper.SmoothStep(CamPos.Y, CamDestination.Y, 0.2f);
+                float num2 = MathHelper.SmoothStep(CamHeight, CamDestination.Z, 0.2f);
+                camTransitionPosition.Y = num1;
+                CamHeight = num2;
                 if (CamHeight < minCamHeight)
                     CamHeight = minCamHeight;
-                this.CamPos = this.camTransitionPosition;
+                CamPos = camTransitionPosition;
             }
 
-            if (this.CamPos.X > this.UniverseSize)
-                this.CamPos.X = this.UniverseSize;
-            if (this.CamPos.X < -this.UniverseSize) //So the camera can pan out into the new negative map coordinates -Gretman
-                this.CamPos.X = -this.UniverseSize;
-            if (this.CamPos.Y > (double) this.UniverseSize)
-                this.CamPos.Y = this.UniverseSize;
-            if ((double) this.CamPos.Y < -this.UniverseSize)
-                this.CamPos.Y = -this.UniverseSize;
-            if ((double) this.CamHeight > (double) this.MaxCamHeight * (double) this.GameScale)
-                this.CamHeight = this.MaxCamHeight * this.GameScale;
+            if (CamPos.X > UniverseSize)
+                CamPos.X = UniverseSize;
+            if (CamPos.X < -UniverseSize) //So the camera can pan out into the new negative map coordinates -Gretman
+                CamPos.X = -UniverseSize;
+            if (CamPos.Y > (double) UniverseSize)
+                CamPos.Y = UniverseSize;
+            if ((double) CamPos.Y < -UniverseSize)
+                CamPos.Y = -UniverseSize;
+            if (CamHeight > MaxCamHeight * (double) GameScale)
+                CamHeight = MaxCamHeight * GameScale;
             else if (CamHeight < minCamHeight)
                 CamHeight = minCamHeight;
             foreach (UnivScreenState screenHeight in Enum.GetValues(typeof(UnivScreenState)))
@@ -373,7 +371,7 @@ namespace Ship_Game
             transitionElapsedTime = 0.0f;
             CamDestination.X = CamPos.X;
             CamDestination.Y = CamPos.Y;
-            CamDestination.Z = 4200000f * UniverseScreen.GameScaleStatic;
+            CamDestination.Z = 4200000f * GameScaleStatic;
         }
 
         private void DefaultZoomPoints()
@@ -393,7 +391,7 @@ namespace Ship_Game
                 transitionElapsedTime = 0.0f;
                 CamDestination = new Vector3(CamPos.X, CamPos.Y, 147000f);
             }
-            else if (viewState < UniverseScreen.UnivScreenState.SystemView)
+            else if (viewState < UnivScreenState.SystemView)
                 CamDestination = new Vector3(CamPos.X, CamPos.Y,
                     GetZfromScreenState(UnivScreenState.SystemView));
         }

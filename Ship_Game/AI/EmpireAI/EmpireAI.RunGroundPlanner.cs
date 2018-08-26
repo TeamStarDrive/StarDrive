@@ -50,7 +50,7 @@ namespace Ship_Game.AI
                 return;
 
 
-            var g = new Commands.Goals.BuildTroop(troop, OwnerEmpire, targetBuild);
+            var g = new BuildTroop(troop, OwnerEmpire, targetBuild);
             Goals.Add(g);
         }
     }

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Ship_Game
 {
 	public sealed class Message
@@ -22,9 +19,5 @@ namespace Ship_Game
 		public int MoneyDemanded;
 
 		public bool EndTransmission;
-
-		public Message()
-		{
-		}
 	}
 }

@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.AI.Budget;
 
 namespace Ship_Game.GameScreens
 {
@@ -29,7 +30,7 @@ namespace Ship_Game.GameScreens
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            Window.Draw();
+            Window.Draw(batch);
             string title     = Localizer.Token(310);
             SpriteFont arial12Bold     = Fonts.Arial12Bold;
             Vector2 cursor   = new Vector2(Window.Menu.X + Window.Menu.Width / 2 - arial12Bold.MeasureString(title).X / 2f, Window.Menu.Y + 20);
@@ -164,7 +165,7 @@ namespace Ship_Game.GameScreens
                 if (!relationship.Value.Treaty_Trade)                
                     continue;                
 
-                float tradeValue = AI.Budget.CommonValues.TradeMoney(relationship.Value.Treaty_Trade_TurnsExisted);
+                float tradeValue = CommonValues.TradeMoney(relationship.Value.Treaty_Trade_TurnsExisted);
 
                 totalTradeIncome = totalTradeIncome + tradeValue;
                 ScreenManager.SpriteBatch.DrawString(arial12Bold, $"{relationship.Key.data.Traits.Plural}: ", cursor,

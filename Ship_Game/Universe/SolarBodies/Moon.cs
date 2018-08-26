@@ -52,7 +52,7 @@ namespace Ship_Game.Gameplay
             So.World = Matrix.CreateScale(scale) 
                         * Matrix.CreateRotationZ(-Zrotate) 
                         * Matrix.CreateTranslation(new Vector3(Position, 3200f));
-            base.Update(elapsedTime);
+            Update(elapsedTime);
         }
     }
 }

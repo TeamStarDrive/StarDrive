@@ -1,4 +1,3 @@
-using Ship_Game.Gameplay;
 using System;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -17,7 +16,7 @@ namespace Ship_Game
         German,
         Polish,
         Russian,
-        Spanish,
+        Spanish
     }
 
     public enum WindowMode
@@ -104,7 +103,7 @@ namespace Ship_Game
         public static float spaceroadlimit          = .025f;
         public static int FreighterLimit            = 50;
         public static int ScriptedTechWithin        = 6;
-        
+
         public static float DefensePlatformLimit    = .025f;
         public static ReaderWriterLockSlim UiLocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         public static int BeamOOM                   = 0;
@@ -134,12 +133,12 @@ namespace Ship_Game
         public static Language Language   = Language.English;
 
         // Render options
-        public static int TextureQuality  = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureQuality;    //0=High, 1=Medium, 2=Low, 3=Off
         public static int TextureSampling = 2;    //0=Bilinear, 1=Trilinear, 2=Anisotropic
         public static int MaxAnisotropy   = 2;    //# of samples, only applies with TextureSampling = 2
         public static float ShadowQuality = 1.0f; //1.0f highest, 0.0f lowest
-        public static int ShadowDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
-        public static int EffectDetail    = 0;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int ShadowDetail;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int EffectDetail;    //0=High, 1=Medium, 2=Low, 3=Off
         public static bool DrawNebulas    = true;
         public static bool DrawStarfield  = true;
 
@@ -159,7 +158,7 @@ namespace Ship_Game
 
         ////////////////////////////////
         /// debug log info
-        /// 
+        ///
         public static bool VerboseLogging;
         public static bool TestLoad;
         public static bool PreLoad;
@@ -178,7 +177,7 @@ namespace Ship_Game
             Version = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;
-       
+
             ExtendedVersion = $"BlackBox : {Version}";
             GetSetting("GravityWellRange"      , ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
@@ -188,10 +187,10 @@ namespace Ship_Game
             GetSetting("WindowMode"            , ref WindowMode);
             GetSetting("AntiAliasSamples"      , ref AntiAlias);
             GetSetting("PostProcessBloom"      , ref RenderBloom);
-            GetSetting("TextureQuality"        , ref TextureQuality);   
-            GetSetting("TextureSampling"       , ref TextureSampling);  
-            GetSetting("MaxAnisotropy"         , ref MaxAnisotropy);    
-            GetSetting("ShadowQuality"         , ref ShadowQuality); 
+            GetSetting("TextureQuality"        , ref TextureQuality);
+            GetSetting("TextureSampling"       , ref TextureSampling);
+            GetSetting("MaxAnisotropy"         , ref MaxAnisotropy);
+            GetSetting("ShadowQuality"         , ref ShadowQuality);
             GetSetting("ShadowDetail"          , ref ShadowDetail);
             GetSetting("EffectDetail"          , ref EffectDetail);
             GetSetting("AutoErrorReport"       , ref AutoErrorReport);
@@ -217,8 +216,8 @@ namespace Ship_Game
             GetSetting("XRES", ref XRES);
             GetSetting("YRES", ref YRES);
             if (bool.TryParse(GetSetting("UIDCaseCheck"), out bool checkForCase))
-                CaseControl = checkForCase ? null : StringComparer.OrdinalIgnoreCase;            
-            
+                CaseControl = checkForCase ? null : StringComparer.OrdinalIgnoreCase;
+
             LoadModInfo(ModName);
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
         }
@@ -395,7 +394,9 @@ namespace Ship_Game
         }
 
 
-
+        //these should not be counted in globalstats anyway. also there ought to be a empire event piece.
+        //where these counters can be stored. but these are here because they were here... i think because the counters are here.
+        //but its pretty stupid to keep the counters in global stats. im thinking they were tagged on.
         // @todo Why is this here??
         public static void IncrementCordrazineCapture()
         {
@@ -410,9 +411,10 @@ namespace Ship_Game
         public static void IncrementRemnantKills(int exp)
         {
             RemnantKills = RemnantKills + exp;
+            float expTrigger = ShipRole.GetMaxExpValue();
             if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (RemnantKills >= 5 + (int)Empire.Universe.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
+                if (RemnantKills >= expTrigger + (int)Empire.Universe.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
                     Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
@@ -421,7 +423,7 @@ namespace Ship_Game
             }
             else
             {
-                if (RemnantKills >= 5 && RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
+                if (RemnantKills >= expTrigger && RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
                     Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     RemnantActivation = 1;

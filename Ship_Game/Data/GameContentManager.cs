@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework.Content;
 using System.Reflection;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SgMotion;
+using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Processors;
 
 namespace Ship_Game
@@ -160,10 +161,6 @@ namespace Ship_Game
                     var fontTex = GetField<Texture2D>(font, "textureValue");
                     numBytes += TextureSize(fontTex);
                     numBytes += font.Characters.Count * 64;
-                }
-                else
-                {
-                    //Debugger.Break();
                 }
             }
             return numBytes;
@@ -366,7 +363,7 @@ namespace Ship_Game
             MethodUtil.ReplaceMethod(newMethod, oldMethod);
 
             XnaAssembly = readerMgrType.Assembly;
-            SunburnAssemblyName = typeof(SynapseGaming.LightingSystem.Core.SceneInterface).Assembly.FullName;
+            SunburnAssemblyName = typeof(SceneInterface).Assembly.FullName;
         }
 
         private static Dictionary<Type, ContentTypeReader> ReaderTypeToReader;

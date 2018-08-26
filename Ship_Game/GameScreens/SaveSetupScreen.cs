@@ -13,19 +13,19 @@ namespace Ship_Game
             : base(screen, SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setups", "Saved Setup already exists.  Overwrite?")
         {
             this.screen = screen;
-            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Setups/");
+            Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Setups/");
             //this.selectedFile = new FileData(null, new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode), this.TitleText);            // save some extra info for filtering purposes
-            this.SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode);
+            SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode);
         }
 
         public override void DoSave()
         {
-            this.SS.Name = this.EnterNameArea.Text;
+            SS.Name = EnterNameArea.Text;
             XmlSerializer Serializer = new XmlSerializer(typeof(SetupSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.EnterNameArea.Text, ".xml"));
-            Serializer.Serialize(WriteFileStream, this.SS);
+            TextWriter WriteFileStream = new StreamWriter(string.Concat(Path, EnterNameArea.Text, ".xml"));
+            Serializer.Serialize(WriteFileStream, SS);
             WriteFileStream.Dispose();
-            this.ExitScreen();
+            ExitScreen();
         }
 
         protected override void InitSaveList()        // Set list of files to show
@@ -61,7 +61,7 @@ namespace Ship_Game
                 }
             }
 
-            var sortedList = from data in saves orderby data.FileName ascending select data;
+            var sortedList = from data in saves orderby data.FileName select data;
             foreach (FileData data in sortedList)
                 SavesSL.AddItem(data).AddSubItem(data.FileLink);
         }

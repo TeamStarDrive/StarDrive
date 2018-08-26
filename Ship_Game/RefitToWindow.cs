@@ -1,9 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -22,33 +20,33 @@ namespace Ship_Game
 
         public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
         {
-            this.Screen = screen;
-            this.Shiptorefit = entry.ship;
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            Screen = screen;
+            Shiptorefit = entry.ship;
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
         public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
         {
-            this.Shiptorefit = ship;
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            Shiptorefit = ship;
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            this.sub_ships.Draw();
+            sub_ships.Draw();
             Rectangle r = sub_ships.Menu;
             r.Y += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch);
             selector?.Draw(batch);
-            this.ShipSL.Draw(batch);
+            ShipSL.Draw(batch);
             var bCursor = new Vector2(sub_ships.Menu.X + 5, sub_ships.Menu.Y + 25);
             foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
@@ -58,14 +56,14 @@ namespace Ship_Game
                 Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                if (this.sub_ships.Tabs[0].Selected)
+                if (sub_ships.Tabs[0].Selected)
                 {
                     batch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
                 }
                 Rectangle moneyRect = new Rectangle(e.X + 165, e.Y, 21, 20);
                 Vector2 moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
-                int refitCost = (int)(ship.GetCost(ship.loyalty) - this.Shiptorefit.GetCost(ship.loyalty));
+                int refitCost = (int)(ship.GetCost(ship.loyalty) - Shiptorefit.GetCost(ship.loyalty));
                 if (refitCost < 0)
                 {
                     refitCost = 0;
@@ -73,13 +71,13 @@ namespace Ship_Game
                 refitCost = refitCost + 10;
                 batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
             }
-            if (this.RefitTo != null)
+            if (RefitTo != null)
             {
                 var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));
                 string text = Fonts.Arial12Bold.ParseText($"Refit {Shiptorefit.Name} to {RefitTo}", 270f);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
-            if (base.IsActive)
+            if (IsActive)
             {
                 ToolTip.Draw(batch);
             }
@@ -113,13 +111,13 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            this.ShipSL.HandleInput(input);
+            ShipSL.HandleInput(input);
             if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
             {
-                this.ExitScreen();
+                ExitScreen();
                 return true;
             }
-            this.selector = null;
+            selector = null;
             foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
                 if (e.CheckHover(input))

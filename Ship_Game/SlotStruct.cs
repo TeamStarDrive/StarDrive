@@ -1,10 +1,9 @@
 using System;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
-using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -152,6 +151,7 @@ namespace Ship_Game
         {
             return Module != null
                 && Module.UID == module.UID
+                && Module.hangarShipUID == module.hangarShipUID
                 && Orientation == orientation
                 && Facing.AlmostEqual(facing);
         }

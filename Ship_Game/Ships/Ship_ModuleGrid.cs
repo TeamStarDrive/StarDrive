@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
+using System;
 
 namespace Ship_Game.Ships
 {
@@ -145,7 +145,7 @@ namespace Ship_Game.Ships
 
             if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
                 AddExternalModule(module, x, y, GetQuadrantEstimate(x, y));
-            else // we turned inactive, so clear self from external module grid and 
+            else // we turned inactive, so clear self from external module grid and
                 RemoveExternalModule(module, x, y);
 
             CheckIfShouldBeExternal(x, y - 1);
@@ -201,14 +201,14 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Shields.Length; ++i)
             {
                 ShipModule shield = Shields[i];
-                if (shield.ShieldPower >= 1f && 
+                if (shield.ShieldPower >= 1f &&
                     shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distance))
                 {
                     if (distance < minD)
                     {
                         minD = distance;
                         hit = shield;
-                    }                 
+                    }
                 }
             }
             hitDistance = minD;
@@ -253,8 +253,8 @@ namespace Ship_Game.Ships
             return 0 <= point.X && point.X < GridWidth
                 && 0 <= point.Y && point.Y < GridHeight;
         }
-        
-        // an out of bounds clipped point would be in any of the extreme corners. 
+
+        // an out of bounds clipped point would be in any of the extreme corners.
         private bool ClippedLocalPointInBounds(Point point)
         {
             return 0 <= point.X && point.X < GridWidth
@@ -398,7 +398,7 @@ namespace Ship_Game.Ships
         // This was done solely for performance reasons. This method gets called
         // every time an exploding projectile hits a ship. So it gets called for every missile impact
         // @note THIS IS ALWAYS AN EXPLOSION
-        public void DamageModulesExplosive(GameplayObject damageSource, float damageAmount, 
+        public void DamageModulesExplosive(GameplayObject damageSource, float damageAmount,
                                            Vector2 worldHitPos, float hitRadius, bool ignoresShields)
         {
             float damageTracker = damageAmount;
@@ -415,7 +415,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));            
+            Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
             Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
             if (!ClippedLocalPointInBounds(a) && !ClippedLocalPointInBounds(b))
                 return;
@@ -425,7 +425,7 @@ namespace Ship_Game.Ships
             ShipModule m;
             if (a == b)
             {
-                if ((m = grid[a.X + a.Y*width]) != null && m.Active 
+                if ((m = grid[a.X + a.Y*width]) != null && m.Active
                     && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
                     return;
                 return;
@@ -656,6 +656,6 @@ namespace Ship_Game.Ships
             float searchRange = projPos.SqDist(Center) + 48*48; // only pick modules that are "visible" to the projectile
             return TargetRandomInternalModule(projPos, level, searchRange);
         }
-        
+
     }
 }

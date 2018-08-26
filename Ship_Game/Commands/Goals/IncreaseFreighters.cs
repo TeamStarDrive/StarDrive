@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -19,7 +16,7 @@ namespace Ship_Game.Commands.Goals
             {
                 FindPlanetToBuildAt,
                 WaitMainGoalCompletion,
-                ReportGoalCompleteToEmpire,
+                ReportGoalCompleteToEmpire
             };
         }
         public IncreaseFreighters(Empire empire) : this()
@@ -54,7 +51,7 @@ namespace Ship_Game.Commands.Goals
             {
                 return GoalStep.TryAgain;
             }
-            if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
+            if (empire.isPlayer && empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoFreighter))
             {
                 planet1.ConstructionQueue.Add(new QueueItem(planet1)
                 {
@@ -68,7 +65,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoToNextStep;
             }
             Array<Ship> list2 = new Array<Ship>();
-            foreach (string index in this.empire.ShipsWeCanBuild)
+            foreach (string index in empire.ShipsWeCanBuild)
             {
                 Ship ship = ResourceManager.GetShipTemplate(index);
                 if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpaceMax > 0
@@ -95,7 +92,7 @@ namespace Ship_Game.Commands.Goals
                 sData = toBuild.shipData,
                 Goal = this,
                 //Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetCost(this.empire)
-                Cost = toBuild.GetCost(this.empire)
+                Cost = toBuild.GetCost(empire)
             });
             return GoalStep.GoToNextStep;
         }
