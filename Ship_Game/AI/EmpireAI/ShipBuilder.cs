@@ -111,7 +111,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            public bool InRange(float strength) => (Min-0.01f) <= strength && strength <= (Max+0.01f);
+            public bool InRange(float strength) => strength.InRange(Min, Max);
 
             public override string ToString() => $"[{Min.String(2)} .. {Max.String(2)}]";
         }
