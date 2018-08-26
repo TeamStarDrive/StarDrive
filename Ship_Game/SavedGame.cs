@@ -78,7 +78,7 @@ namespace Ship_Game
             SaveData.RemnantKills        = GlobalStats.RemnantKills;
             SaveData.RemnantActivation   = GlobalStats.RemnantActivation;
             SaveData.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
-            SaveData.gameDifficulty      = screenToSave.GameDifficulty;
+            SaveData.gameDifficulty      = CurrentGame.Difficulty;
             SaveData.AutoColonize        = EmpireManager.Player.AutoColonize;
             SaveData.AutoExplore         = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters      = EmpireManager.Player.AutoFreighters;
