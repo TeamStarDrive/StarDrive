@@ -387,12 +387,13 @@ namespace Ship_Game
             data = new UniverseData();
             RandomEventManager.ActiveEvent = savedData.RandomEvent;
             data.loadFogPath           = savedData.FogMapName;
-            data.difficulty            = UniverseData.GameDifficulty.Normal;
             data.difficulty            = savedData.gameDifficulty;
             data.Size                  = savedData.Size;
             data.FTLSpeedModifier      = savedData.FTLModifier;
             data.EnemyFTLSpeedModifier = savedData.EnemyFTLModifier;
-            data.GravityWells          = savedData.GravityWells;    
+            data.GravityWells          = savedData.GravityWells;
+
+            CurrentGame.StartNew(data);
                         
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
@@ -780,7 +781,6 @@ namespace Ship_Game
                 {
                     GamePace       = GamePace,
                     GameScale      = GameScale,
-                    GameDifficulty = data.difficulty,
                     StarDate       = savedData.StarDate,
                     ScreenManager  = ScreenManager,
                     CamPos         = new Vector3(savedData.campos.X, savedData.campos.Y, savedData.camheight),
@@ -799,7 +799,7 @@ namespace Ship_Game
                 p.InitializePlanetMesh(this);
             }
             foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
-            foreach (Moon moon in system.MoonList)           AddObject(moon.So);
+            foreach (Moon moon in system.MoonList)          AddObject(moon.So);
 
             ++systemToMake;
             if (systemToMake == data.SolarSystemsList.Count)

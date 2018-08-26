@@ -83,7 +83,7 @@ namespace Ship_Game.AI {
                 }
                 a.AssignMission(AgentMission.Training, OwnerEmpire, "");
             }
-            float offSpyModifier = (int) Empire.Universe.GameDifficulty * .1f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
             int DesiredOffense = (int) (OwnerEmpire.data.AgentList.Count * offSpyModifier);
             //int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
             //int DesiredOffense = this.empire.data.AgentList.Count / 2;
@@ -294,8 +294,7 @@ namespace Ship_Game.AI {
                 }
                 a.AssignMission(AgentMission.Training, OwnerEmpire, "");
             }
-            // int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .2);// (int)(0.20f * (float)this.empire.data.AgentList.Count);
-            float offSpyModifier = (int) Empire.Universe.GameDifficulty * .17f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.17f;
 
             int DesiredOffense = (int) (OwnerEmpire.data.AgentList.Count * offSpyModifier);
             foreach (Agent agent in OwnerEmpire.data.AgentList)
@@ -547,7 +546,8 @@ namespace Ship_Game.AI {
                 }
                 a.AssignMission(AgentMission.Training, OwnerEmpire, "");
             }
-            float offSpyModifier = (int) Empire.Universe.GameDifficulty * .08f;
+
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.08f;
             int DesiredOffense =
                 (int) (OwnerEmpire.data.AgentList.Count *
                        offSpyModifier); // /(int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
