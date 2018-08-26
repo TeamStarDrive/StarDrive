@@ -65,7 +65,7 @@ namespace Ship_Game.Ships
                 return ResupplyReason.LowHealth;
 
             if (ResupplyNeededLowOrdnance())
-                return ResupplyReason.LowOrdnance;
+                return Ship.InCombat ? ResupplyReason.LowOrdnanceCombat : ResupplyReason.LowOrdnanceNonCombat;
 
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
@@ -194,7 +194,8 @@ namespace Ship_Game.Ships
     {
         NotNeeded,
         LowHealth,
-        LowOrdnance,
+        LowOrdnanceCombat,
+        LowOrdnanceNonCombat,
         LowTroops,
         FighterReactorsDamaged,
         NoCommand
