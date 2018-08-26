@@ -1,7 +1,6 @@
 ﻿using System;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -15,7 +14,6 @@ namespace Ship_Game.AI
             rolesPicked.Add(role, numShips / desiredShips);
         }
 
-
         public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, 
                       ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.Category shipCategory = ShipData.Category.Unclassified)
         {
@@ -23,56 +21,7 @@ namespace Ship_Game.AI
             // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
             return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, shipCategory);
-            //return PickFromCandidatesByTechsNeeded(role, empire, maxSize, targetModule);
         }
-
-        private static string PickFromCandidatesByTechsNeeded(ShipData.RoleName role, Empire empire, int maxSize, ShipModuleType targetModule)
-        {
-            var potentialShips = new Array<Ship>();
-            bool efficiency = targetModule != ShipModuleType.Dummy;
-            string name = "";
-            Ship ship;
-            int maxTech = 0;
-            float bestEfficiency = 0;
-            foreach (string shipsWeCanBuild in empire.ShipsWeCanBuild)
-            {
-                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null) continue;
-
-                if (role != ship.DesignRole)
-                    continue;
-                if (maxSize > 0 && ship.SurfaceArea > maxSize)
-                    continue;
-
-                maxTech = Math.Max(maxTech, ship.shipData.TechsNeeded.Count);
-
-                potentialShips.Add(ship);
-                if (efficiency)
-                    bestEfficiency = Math.Max(bestEfficiency, ship.SurfaceAreaPercentOf(targetModule));
-            }
-            float nearmax = maxTech * .80f;
-            bestEfficiency *= .80f;
-            if (potentialShips.Count <= 0)
-                return name;
-
-            Ship[] bestShips = potentialShips.FilterBy(ships =>
-            {
-                if (efficiency)
-                    return ships.SurfaceAreaPercentOf(targetModule) >= bestEfficiency;
-                return ships.shipData.TechsNeeded.Count >= nearmax;
-            });
-
-            if (bestShips.Length == 0)
-                return name;
-
-            ship = RandomMath.RandItem(bestShips);
-            name = ship.Name;
-            if (Empire.Universe?.showdebugwindow == true)
-                Log.Info($"Chosen Role: {ship.DesignRole}  Chosen Hull: {ship.shipData.Hull}  " +
-                         $"Strength: {ship.BaseStrength} Name: {ship.Name} ");
-
-            return name;
-        }
-
 
         private struct MinMaxStrength
         {
@@ -150,9 +99,7 @@ namespace Ship_Game.AI
 
             Ship[] bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
             if (targetModule != ShipModuleType.Dummy)
-            {
                 bestShips = bestShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
-            }
 
             if (bestShips.Length == 0)
                 return "";
@@ -162,14 +109,12 @@ namespace Ship_Game.AI
             if (Empire.Universe?.showdebugwindow == true)
             {
                 Debug($"    Sorted Ship List ({bestShips.Length})");
-                int i = 0;
                 foreach (Ship loggedShip in bestShips)
                 {
-                    i++;
-                    Debug($"    {i} Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
+                    Debug($"    -- Name: {loggedShip.Name}, Strength: {loggedShip.NormalizedStrength}");
                 }
                 Debug($"    Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}\n" +
-                      $"    Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length}\n" +
+                      $"    Strength: {pickedShip.NormalizedStrength}\n" +
                       $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
             return pickedShip.Name;
@@ -177,31 +122,15 @@ namespace Ship_Game.AI
 
         public static string PickShipToRefit(Ship oldShip, Empire empire)
         {
-            var potentialShips = new Array<Ship>();
-            float highestStrength = 0;
-            string name = "";
+            Ship[] ships = ShipsWeCanBuild(empire).FilterBy(s => s.shipData.Hull == oldShip.shipData.Hull
+                                                              && s.BaseStrength >= oldShip.BaseStrength
+                                                              && s.Name != oldShip.Name);
+            if (ships.Length == 0)
+                return "";
 
-            foreach (string shipsWeCanBuild in empire.ShipsWeCanBuild)
-            {
-                Ship ship;
-                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null)
-                    continue;
-
-                if (oldShip.shipData.Hull != ship.shipData.Hull
-                    || oldShip.BaseStrength >= ship.BaseStrength
-                    || oldShip.Name == ship.Name)
-                    continue;
-
-                potentialShips.Add(ship);
-                highestStrength = Math.Max(highestStrength, ship.shipData.BaseStrength);
-            }
-            if (potentialShips.Count <= 0)
-                return name;
-
-            Ship pickedShip = RandomMath.RandItem(potentialShips);
-            name = pickedShip.Name;
-            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {name}, Strength: {pickedShip.BaseStrength}");
-            return name;
+            Ship picked = RandomMath.RandItem(ships);
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Stength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
+            return picked.Name;
         }
 
         public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
@@ -223,14 +152,10 @@ namespace Ship_Game.AI
             DynamicHangarOptions dynamicHangarType = GetDynamicHangarOptions(shipName);
             switch (dynamicHangarType)
             {
-                case DynamicHangarOptions.DynamicLaunch:
-                    return Color.Gold;
-                case DynamicHangarOptions.DynamicFighter:
-                    return Color.Cyan;
-                case DynamicHangarOptions.DynamicBomber:
-                    return Color.OrangeRed;
-                default:
-                    return Color.White;
+                case DynamicHangarOptions.DynamicLaunch:  return Color.Gold;
+                case DynamicHangarOptions.DynamicFighter: return Color.Cyan;
+                case DynamicHangarOptions.DynamicBomber:  return Color.OrangeRed;
+                default:                                  return Color.White;
             }
         }
 
@@ -247,6 +172,7 @@ namespace Ship_Game.AI
             return false;
         }
     }
+    
     public enum DynamicHangarOptions
     {
         Static,
