@@ -99,9 +99,9 @@ namespace Ship_Game
             var c = new Color(255, 255, 255, 160);
             universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, Color.Black);// new Color(12, 17, 24));
             if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
-                universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, c);
+                universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, c);
             else
-                universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, blackRect,
+                universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect,
                     c);
             float percentX = camPos.X / 500000f;
             float percentY = camPos.Y / 500000f;
@@ -154,7 +154,7 @@ namespace Ship_Game
             universe.ScreenManager.SpriteBatch.Begin();
             var c = new Color(255, 255, 255, 160);
             universe.ScreenManager.SpriteBatch.FillRectangle(blackRect, new Color(12, 17, 24));
-            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, blackRect, c);
+            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect, c);
             Camera.Pos = Vector2.Zero;
             starfield.Draw(Camera.Pos, universe.ScreenManager.SpriteBatch);
             universe.ScreenManager.SpriteBatch.End();
@@ -176,7 +176,7 @@ namespace Ship_Game
             Vector3 lowerRight = universe.Viewport.Project(new Vector3(universe.UniverseSize, universe.UniverseSize, 0f), universe.projection, universe.view, Matrix.Identity);
             universe.Viewport.Project(new Vector3(universe.UniverseSize / 2f, universe.UniverseSize / 2f, 0f), universe.projection, universe.view, Matrix.Identity);
             var drawRect = new Rectangle((int)upperLeft.X, (int)upperLeft.Y, (int)lowerRight.X - (int)upperLeft.X, (int)lowerRight.Y - (int)upperLeft.Y);
-            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["galaxy"], drawRect, Color.White);
+            universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("galaxy"), drawRect, Color.White);
             universe.ScreenManager.SpriteBatch.End();
             LastCamPos = camPos;
         }

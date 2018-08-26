@@ -13,14 +13,14 @@ namespace Ship_Game
             : base(parent, SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
         {
             this.f = f;        // set save file data and starting name
-            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");
+            Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");
         }
 
         public override void DoSave()
         {
-            FleetDesign d = new FleetDesign()
+            FleetDesign d = new FleetDesign
             {
-                Name = this.EnterNameArea.Text
+                Name = EnterNameArea.Text
             };
             foreach (FleetDataNode node in f.DataNodes)
             {
@@ -30,7 +30,7 @@ namespace Ship_Game
             {
                 d.FleetIconIndex = f.FleetIconIndex;
                 XmlSerializer Serializer = new XmlSerializer(typeof(FleetDesign));
-                TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.EnterNameArea.Text, ".xml"));
+                TextWriter WriteFileStream = new StreamWriter(string.Concat(Path, EnterNameArea.Text, ".xml"));
                 Serializer.Serialize(WriteFileStream, d);
                 WriteFileStream.Close();
             }
@@ -48,11 +48,11 @@ namespace Ship_Game
         {
             foreach (FileInfo info in Dir.GetFiles(Path))
             {
-                this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
+                SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
             }
             foreach (FileInfo info in Dir.GetFiles("Content/FleetDesigns"))
             {
-                this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
+                SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
             }
         }
     }

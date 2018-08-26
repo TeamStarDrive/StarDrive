@@ -1,7 +1,7 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -27,10 +27,6 @@ namespace Ship_Game
         public TimeSpan TransitionOnTime { get; protected set; } = TimeSpan.Zero;
         public float TransitionPosition { get; protected set; } = 1f;
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
-
-        protected UIElement()
-        {
-        }
 
         public abstract void Draw(GameTime gameTime);
 

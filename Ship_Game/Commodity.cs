@@ -1,5 +1,3 @@
-using System;
-
 namespace Ship_Game
 {
 	public sealed class Commodity
@@ -11,9 +9,5 @@ namespace Ship_Game
 		public CommodityBonusType Type;
 
 		public float Amount;
-
-		public Commodity()
-		{
-		}
 	}
 }

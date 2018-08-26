@@ -38,12 +38,12 @@ namespace Ship_Game
             if (member is PropertyInfo propInfo) // expression is a property
             {
                 PropertyInfo prop = propInfo; // VS2017 RC requires a copy for lambda capture
-                Setter = (x) => prop.SetValue(body.Expression.GetTargetInstance(), x, BindingFlags.Default, null, null, null);
+                Setter = x => prop.SetValue(body.Expression.GetTargetInstance(), x, BindingFlags.Default, null, null, null);
             }
             else if (member is FieldInfo fieldInfo) // expression is a regular variable
             {
                 FieldInfo field = fieldInfo;
-                Setter = (x) => field.SetValue(body.Expression.GetTargetInstance(), x);
+                Setter = x => field.SetValue(body.Expression.GetTargetInstance(), x);
             }
             else
             {

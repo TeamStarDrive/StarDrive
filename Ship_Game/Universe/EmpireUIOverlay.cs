@@ -1,9 +1,8 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
 using Ship_Game.GameScreens;
 
 namespace Ship_Game
@@ -42,64 +41,64 @@ namespace Ship_Game
 			if (device.PresentationParameters.BackBufferWidth > 1366)
 			{
 				Vector2 Cursor = Vector2.Zero;
-				this.res1 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res1"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res1"].Height);
-				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res1"].Width;
-				this.res2 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2"].Height);
-				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2"].Width;
-				this.res3 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3"].Height);
-				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3"].Width;
-				this.res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"].Height);
-				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"].Width;
-				Cursor.X = (float)(Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Width);
-				this.res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Height);
+				res1 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res1").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res1").Height);
+				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_res1").Width;
+				res2 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res2").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res2").Height);
+				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_res2").Width;
+				res3 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res3").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res3").Height);
+				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_res3").Width;
+				res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res4").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res4").Height);
+				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_res4").Width;
+				Cursor.X = Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Width;
+				res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Height);
 				Button r1 = new Button();
 				
-					r1.Rect = this.res1;
-					r1.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res1"];
-					r1.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res1_hover"];
-					r1.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res1_press"];
+					r1.Rect = res1;
+					r1.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res1");
+					r1.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res1_hover");
+					r1.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res1_press");
                     r1.launches = "Research";
 				
-				this.Buttons.Add(r1);
+				Buttons.Add(r1);
 				Button r2 = new Button();
 				
-					r2.Rect = this.res2;
-					r2.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2"];
-					r2.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2"];
-					r2.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2"];
+					r2.Rect = res2;
+					r2.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res2");
+					r2.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res2");
+					r2.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res2");
                     r2.launches = "Research";
 				
-				this.Buttons.Add(r2);
+				Buttons.Add(r2);
 				Button r3 = new Button();
 				
-                    r3.Rect = this.res3;
-                    r3.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3"];
-                    r3.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3_hover"];
-                    r3.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3_press"];
+                    r3.Rect = res3;
+                    r3.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res3");
+                    r3.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res3_hover");
+                    r3.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res3_press");
                     r3.launches = "Budget";
 				
-				this.Buttons.Add(r3);
+				Buttons.Add(r3);
 				Button r4 = new Button();
 				
-					r4.Rect = this.res4;
-                    r4.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"];
-                    r4.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"];
-                    r4.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"];
+					r4.Rect = res4;
+                    r4.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res4");
+                    r4.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res4");
+                    r4.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res4");
                     r4.launches = "Budget";
 				
-				this.Buttons.Add(r4);
+				Buttons.Add(r4);
 				Button r5 = new Button();
 				
-					r5.Rect = this.res5;
-					r5.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"];
-					r5.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"];
-                    r5.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"];
+					r5.Rect = res5;
+					r5.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res5");
+					r5.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res5");
+                    r5.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_res5");
 				
-				this.Buttons.Add(r5);
-				float rangeforbuttons = (float)(r5.Rect.X - (r4.Rect.X + r4.Rect.Width));
+				Buttons.Add(r5);
+				float rangeforbuttons = r5.Rect.X - (r4.Rect.X + r4.Rect.Width);
 				float roomoneitherside = (rangeforbuttons - 734f) / 2f;
                 //Added by McShooterz: Shifted buttons to add new ones, added dummy espionage button
-				Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside;
+				Cursor.X = r4.Rect.X + r4.Rect.Width + roomoneitherside;
 
 
                 if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth >= 1920)
@@ -113,26 +112,26 @@ namespace Ship_Game
 
                     Button ShipList = new Button();
 
-                    ShipList.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-                    ShipList.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
-                    ShipList.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
-                    ShipList.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                    ShipList.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+                    ShipList.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
+                    ShipList.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
+                    ShipList.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
                     ShipList.Text = Localizer.Token(104);
                     ShipList.launches = "ShipList";
 
-                    this.Buttons.Add(ShipList);
-                    Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                    Buttons.Add(ShipList);
+                    Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 5;
                     Button Fleets = new Button();
 
-                    Fleets.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-                    Fleets.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
-                    Fleets.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
-                    Fleets.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                    Fleets.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+                    Fleets.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
+                    Fleets.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
+                    Fleets.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
                     Fleets.Text = Localizer.Token(103);
                     Fleets.launches = "Fleets";
 
-                    this.Buttons.Add(Fleets);
-                    Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                    Buttons.Add(Fleets);
+                    Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 5;
                     Cursor.Y = saveY;
                     
                 }
@@ -143,239 +142,239 @@ namespace Ship_Game
                 }
 				Button Shipyard = new Button();
 
-                Shipyard.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-				Shipyard.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
-				Shipyard.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
-				Shipyard.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                Shipyard.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+				Shipyard.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
+				Shipyard.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
+				Shipyard.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
 				Shipyard.Text = Localizer.Token(98);
 				Shipyard.launches = "Shipyard";
 				
-				this.Buttons.Add(Shipyard);
-				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 40;
+				Buttons.Add(Shipyard);
+				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 40;
 				Button empire = new Button();
-                empire.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-                empire.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-                empire.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-                empire.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+                empire.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+                empire.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
+                empire.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover");
+                empire.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_pressed");
                 empire.launches = "Empire";
                 empire.Text = Localizer.Token(99);
 				
-				this.Buttons.Add(empire);
-				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 40;
+				Buttons.Add(empire);
+				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 40;
                 Button Espionage = new Button();
 
-                Espionage.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-                Espionage.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"];
-                Espionage.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"];
-                Espionage.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"];
+                Espionage.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+                Espionage.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip");
+                Espionage.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_hover");
+                Espionage.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_pressed");
                 Espionage.Text = Localizer.Token(6088);
                 Espionage.launches = "Espionage";
 
-                this.Buttons.Add(Espionage);
-                Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                Buttons.Add(Espionage);
+                Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 5;
 				Button Diplomacy = new Button();
 
-                Diplomacy.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-				Diplomacy.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"];
-				Diplomacy.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"];
-				Diplomacy.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"];
+                Diplomacy.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+				Diplomacy.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip");
+				Diplomacy.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_hover");
+				Diplomacy.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_dip_pressed");
 				Diplomacy.launches = "Diplomacy";
 				Diplomacy.Text = Localizer.Token(100);
 				
-				this.Buttons.Add(Diplomacy);
-				Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 7);
+				Buttons.Add(Diplomacy);
+				Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 7);
 				Button MainMenu = new Button();
 
-                MainMenu.Rect = new Rectangle(this.res5.X + 52, 39, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height);
-					MainMenu.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
-					MainMenu.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
-					MainMenu.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+                MainMenu.Rect = new Rectangle(res5.X + 52, 39, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height);
+					MainMenu.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
+					MainMenu.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
+					MainMenu.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
 					MainMenu.launches = "Main Menu";
 					MainMenu.Text = Localizer.Token(101);
 				
-				this.Buttons.Add(MainMenu);
-				Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"].Width + 5);
+				Buttons.Add(MainMenu);
+				Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover").Width + 5);
 				Button Help = new Button();
 
-                Help.Rect = new Rectangle(this.res5.X + 72, 64, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height);
-					Help.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_menu"];
-					Help.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_menu_hover"];
-					Help.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_68px_menu_pressed"];
+                Help.Rect = new Rectangle(res5.X + 72, 64, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height);
+					Help.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_menu");
+					Help.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_menu_hover");
+					Help.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_68px_menu_pressed");
 					Help.Text = "Help";
 					Help.launches = "?";
 				
-				this.Buttons.Add(Help);
+				Buttons.Add(Help);
 				return;
 			}
-			this.LowRes = true;
+			LowRes = true;
 			Vector2 Cursor0 = Vector2.Zero;
-			this.res1 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"].Height);
-			Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"].Width;
-			this.res2 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"].Height);
-			Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"].Width;
-			this.res3 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Height);
-			Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Width;
-			this.res4 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Height);
-			Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width;
-			Cursor0.X = (float)(Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width);
-			this.res5 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Height);
-			Button r1n = new Button()
+			res1 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1").Height);
+			Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1").Width;
+			res2 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2").Height);
+			Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2").Width;
+			res3 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Height);
+			Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Width;
+			res4 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Height);
+			Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width;
+			Cursor0.X = Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width;
+			res5 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Height);
+			Button r1n = new Button
 			{
-				Rect = this.res1,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1_press"]
+				Rect = res1,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1_press")
 			};
-			this.Buttons.Add(r1n);
+			Buttons.Add(r1n);
 			r1n.launches = "Research";
-			Button r2n = new Button()
+			Button r2n = new Button
 			{
-				Rect = this.res2,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"]
+				Rect = res2,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2")
 			};
-			this.Buttons.Add(r2n);
+			Buttons.Add(r2n);
 			r2n.launches = "Research";
-			Button r3n = new Button()
+			Button r3n = new Button
 			{
-				Rect = this.res3,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3_press"],
+				Rect = res3,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3_press"),
 				launches = "Budget"
 			};
-			this.Buttons.Add(r3n);
-			Button r4n = new Button()
+			Buttons.Add(r3n);
+			Button r4n = new Button
 			{
-				Rect = this.res4,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"],
+				Rect = res4,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4"),
 				launches = "Budget"
 			};
-			this.Buttons.Add(r4n);
-			Button r5n = new Button()
+			Buttons.Add(r4n);
+			Button r5n = new Button
 			{
-				Rect = this.res5,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"]
+				Rect = res5,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5")
 			};
-			this.Buttons.Add(r5n);
-			float rangeforbuttons0 = (float)(r5n.Rect.X - (r4n.Rect.X + r4n.Rect.Width));
+			Buttons.Add(r5n);
+			float rangeforbuttons0 = r5n.Rect.X - (r4n.Rect.X + r4n.Rect.Width);
 			float roomoneitherside0 = (rangeforbuttons0 - 607f) / 2f;
-			Cursor0.X = (float)(r4n.Rect.X + r4n.Rect.Width) + roomoneitherside0 - 50f;
-			Button Shipyard0 = new Button()
+			Cursor0.X = r4n.Rect.X + r4n.Rect.Width + roomoneitherside0 - 50f;
+			Button Shipyard0 = new Button
 			{
-				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
 				Text = Localizer.Token(98),
 				launches = "Shipyard"
 			};
-			this.Buttons.Add(Shipyard0);
+			Buttons.Add(Shipyard0);
             {
                 float saveY = Cursor0.Y;
                 float saveX = Cursor0.X;
                 saveY = Cursor0.Y + 5;
 
-                Cursor0.Y += ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height;
+                Cursor0.Y += ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height;
 
                 Button ShipList = new Button();
 
-                ShipList.Rect = new Rectangle((int)Cursor0.X, (int)Cursor0.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-                ShipList.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
-                ShipList.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
-                ShipList.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                ShipList.Rect = new Rectangle((int)Cursor0.X, (int)Cursor0.Y, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+                ShipList.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
+                ShipList.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
+                ShipList.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
                 ShipList.Text = Localizer.Token(104);
                 ShipList.launches = "ShipList";
 
-                this.Buttons.Add(ShipList);
-                Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                Buttons.Add(ShipList);
+                Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 5;
                 Button Fleets = new Button();
 
-                Fleets.Rect = new Rectangle((int)Cursor0.X, (int)Cursor0.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-                Fleets.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
-                Fleets.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
-                Fleets.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                Fleets.Rect = new Rectangle((int)Cursor0.X, (int)Cursor0.Y, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+                Fleets.NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military");
+                Fleets.HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_hover");
+                Fleets.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_military_pressed");
                 Fleets.Text = Localizer.Token(103);
                 Fleets.launches = "Fleets";
 
-                this.Buttons.Add(Fleets);
-                Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                Buttons.Add(Fleets);
+                Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px_hover").Width + 5;
                 Cursor0.Y = saveY;
                 Cursor0.X = saveX;
             }
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
-			Button Empire0 = new Button()
+			Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 18);
+			Button Empire0 = new Button
 			{
-				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
 				launches = "Empire",
 				Text = Localizer.Token(99)
 			};
-			this.Buttons.Add(Empire0);
-            Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
-            Button Espionage0 = new Button()
+			Buttons.Add(Empire0);
+            Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 18);
+            Button Espionage0 = new Button
             {
-                Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+                Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+                NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+                HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+                PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Espionage",
                 Text = Localizer.Token(6088)
             };
-            this.Buttons.Add(Espionage0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
-			Button Diplomacy0 = new Button()
+            Buttons.Add(Espionage0);
+			Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
+			Button Diplomacy0 = new Button
 			{
-				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+				Rect = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
 				launches = "Diplomacy",
 				Text = Localizer.Token(100)
 			};
-			this.Buttons.Add(Diplomacy0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
-			Button MainMenu0 = new Button()
+			Buttons.Add(Diplomacy0);
+			Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
+			Button MainMenu0 = new Button
 			{
-                Rect = new Rectangle(this.res5.X + 52, 39, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_pressed"],
+                Rect = new Rectangle(res5.X + 52, 39, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_pressed"),
 				launches = "Main Menu",
 				Text = Localizer.Token(101)
 			};
-			this.Buttons.Add(MainMenu0);
-			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"].Width + 5);
-			Button Help0 = new Button()
+			Buttons.Add(MainMenu0);
+			Cursor0.X = Cursor0.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover").Width + 5);
+			Button Help0 = new Button
 			{
-                Rect = new Rectangle(this.res5.X + 72, 64, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px_pressed"],
+                Rect = new Rectangle(res5.X + 72, 64, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px_pressed"),
 				Text = "Help",
 				launches = "?"
 			};
-			this.Buttons.Add(Help0);
+			Buttons.Add(Help0);
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 && !this.LowRes)
+			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 && !LowRes)
 			{
-				this.Buttons.Clear();
-				this.ResetLowRes();
-				this.LowRes = true;
+				Buttons.Clear();
+				ResetLowRes();
+				LowRes = true;
 				return;
 			}
 			Vector2 textCursor = new Vector2();
-			foreach (Button b in this.Buttons)
+			foreach (Button b in Buttons)
 			{
                 //make sure b.Text!=null
                 //System.Diagnostics.Debug.Write(b.launches);
@@ -384,10 +383,10 @@ namespace Ship_Game
                  
 				if (!string.IsNullOrEmpty(b.Text))//&& b.Text != null)
 				{
-					textCursor.X = (float)(b.Rect.X + b.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(b.Text).X / 2f;
-					textCursor.Y = (float)(b.Rect.Y + b.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2 - (this.LowRes ? 1 : 0));
+					textCursor.X = b.Rect.X + b.Rect.Width / 2 - Fonts.Arial12Bold.MeasureString(b.Text).X / 2f;
+					textCursor.Y = b.Rect.Y + b.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2 - (LowRes ? 1 : 0);
 				}
-				if (b.State == EmpireUIOverlay.PressState.Normal)
+				if (b.State == PressState.Normal)
 				{
 					spriteBatch.Draw(b.NormalTexture, b.Rect, Color.White);
 					if (string.IsNullOrEmpty(b.Text))
@@ -396,9 +395,9 @@ namespace Ship_Game
 					}
 					spriteBatch.DrawString(Fonts.Arial12Bold, b.Text, textCursor, new Color(255, 240, 189));
 				}
-				else if (b.State != EmpireUIOverlay.PressState.Hover)
+				else if (b.State != PressState.Hover)
 				{
-					if (b.State != EmpireUIOverlay.PressState.Pressed)
+					if (b.State != PressState.Pressed)
 					{
 						continue;
 					}
@@ -420,20 +419,20 @@ namespace Ship_Game
 					spriteBatch.DrawString(Fonts.Arial12Bold, b.Text, textCursor, new Color(255, 240, 189));
 				}
 			}
-			int Money = (int)this.empire.Money;
+			int Money = (int)empire.Money;
 			float plusMoney = 0f;
-			foreach (Planet p in this.empire.GetPlanets())
+			foreach (Planet p in empire.GetPlanets())
 			{
-				plusMoney = plusMoney + (p.GrossMoneyPT + this.empire.data.Traits.TaxMod * p.GrossMoneyPT);
+				plusMoney = plusMoney + (p.GrossMoneyPT + empire.data.Traits.TaxMod * p.GrossMoneyPT);
 			}
 			float TotalTradeIncome = 0f;
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in EmpireManager.Player.AllRelations)
+			foreach (KeyValuePair<Empire, Relationship> Relationship in EmpireManager.Player.AllRelations)
 			{
 				if (!Relationship.Value.Treaty_Trade)
 				{
 					continue;
 				}
-				float TradeValue = -3f + 0.25f * (float)Relationship.Value.Treaty_Trade_TurnsExisted;
+				float TradeValue = -3f + 0.25f * Relationship.Value.Treaty_Trade_TurnsExisted;
 				if (TradeValue > 3f)
 				{
 					TradeValue = 3f;
@@ -441,101 +440,101 @@ namespace Ship_Game
 				TotalTradeIncome = TotalTradeIncome + TradeValue;
 			}
 			plusMoney = plusMoney + TotalTradeIncome;
-			plusMoney = plusMoney + this.empire.data.FlatMoneyBonus;
+			plusMoney = plusMoney + empire.data.FlatMoneyBonus;
 			float EspionageBudget = 0f;
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> r in this.empire.AllRelations)
+			foreach (KeyValuePair<Empire, Relationship> r in empire.AllRelations)
 			{
 				EspionageBudget = EspionageBudget + r.Value.IntelligenceBudget;
 			}
 			EspionageBudget = EspionageBudget + EmpireManager.Player.data.CounterIntelligenceBudget;
-			plusMoney = plusMoney - (this.empire.GetTotalBuildingMaintenance() + this.empire.GetTotalShipMaintenance() + EspionageBudget);
+			plusMoney = plusMoney - (empire.GetTotalBuildingMaintenance() + empire.GetTotalShipMaintenance() + EspionageBudget);
 			float damoney = Empire.Universe.player.EstimateIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
 			if (damoney <= 0f)
 			{
-				textCursor.X = (float)(this.res4.X + this.res2.Width - 30) - Fonts.Arial12Bold.MeasureString(string.Concat(Money.ToString(), " (", damoney.ToString("#.0"), ")")).X;
-				textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+				textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Money.ToString(), " (", damoney.ToString("#.0"), ")")).X;
+				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Money.ToString(), " (", damoney.ToString("#.0"), ")"), textCursor, new Color(255, 240, 189));
 			}
 			else
 			{
-				textCursor.X = (float)(this.res4.X + this.res2.Width - 30) - Fonts.Arial12Bold.MeasureString(string.Concat(Money.ToString(), " (+", damoney.ToString("#.0"), ")")).X;
-				textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+				textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Money.ToString(), " (+", damoney.ToString("#.0"), ")")).X;
+				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Money.ToString(), " (+", damoney.ToString("#.0"), ")"), textCursor, new Color(255, 240, 189));
 			}
-			Vector2 StarDateCursor = new Vector2((float)(this.res5.X + 75), textCursor.Y);
-			spriteBatch.DrawString(Fonts.Arial12Bold, (this.LowRes ? Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt) : string.Concat("StarDate: ", Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt))), StarDateCursor, new Color(255, 240, 189));
+			Vector2 StarDateCursor = new Vector2(res5.X + 75, textCursor.Y);
+			spriteBatch.DrawString(Fonts.Arial12Bold, (LowRes ? Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt) : string.Concat("StarDate: ", Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt))), StarDateCursor, new Color(255, 240, 189));
 			//this.FirstRun = false;
-			if (!this.LowRes)
+			if (!LowRes)
 			{
-				if (string.IsNullOrEmpty(this.empire.ResearchTopic))
+				if (string.IsNullOrEmpty(empire.ResearchTopic))
 				{
-					textCursor.X = (float)(this.res2.X + this.res2.Width - 30) - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
-					textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+					textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
+					textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 					spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
 					return;
 				}
-				float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / this.empire.GetTDict()[this.empire.ResearchTopic].TechCost;
-				int xOffset = (int)(percentResearch * (float)this.res2.Width);
-				Rectangle gradientSourceRect = this.res2;
+				float percentResearch = empire.GetTDict()[empire.ResearchTopic].Progress / empire.GetTDict()[empire.ResearchTopic].TechCost;
+				int xOffset = (int)(percentResearch * res2.Width);
+				Rectangle gradientSourceRect = res2;
 				gradientSourceRect.X = 159 - xOffset;
-                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_gradient"], new Rectangle(this.res2.X, this.res2.Y, this.res2.Width, this.res2.Height), new Rectangle?(gradientSourceRect), Color.White);
-                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_over"], this.res2, Color.White);
-				int research = (int)this.empire.GetTDict()[this.empire.ResearchTopic].Progress;
-				float plusRes = this.empire.GetProjectedResearchNextTurn();
-				float x = (float)(this.res2.X + this.res2.Width - 30);
+                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
+                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
+				int research = (int)empire.GetTDict()[empire.ResearchTopic].Progress;
+				float plusRes = empire.GetProjectedResearchNextTurn();
+				float x = res2.X + res2.Width - 30;
 				SpriteFont arial12Bold = Fonts.Arial12Bold;
-				object[] str = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+				object[] str = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
 				textCursor.X = x - arial12Bold.MeasureString(string.Concat(str)).X;
-				textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 				SpriteFont spriteFont = Fonts.Arial12Bold;
-				object[] objArray = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+				object[] objArray = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
 				spriteBatch.DrawString(spriteFont, string.Concat(objArray), textCursor, new Color(255, 240, 189));
 				return;
 			}
-			if (this.LowRes)
+			if (LowRes)
 			{
-				if (!string.IsNullOrEmpty(this.empire.ResearchTopic))
+				if (!string.IsNullOrEmpty(empire.ResearchTopic))
 				{
-					float percentResearch = this.empire.GetTDict()[this.empire.ResearchTopic].Progress / this.empire.GetTDict()[this.empire.ResearchTopic].TechCost;
-					int xOffset = (int)(percentResearch * (float)this.res2.Width);
-					Rectangle gradientSourceRect = this.res2;
+					float percentResearch = empire.GetTDict()[empire.ResearchTopic].Progress / empire.GetTDict()[empire.ResearchTopic].TechCost;
+					int xOffset = (int)(percentResearch * res2.Width);
+					Rectangle gradientSourceRect = res2;
 					gradientSourceRect.X = 159 - xOffset;
-                    Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_gradient"], new Rectangle(this.res2.X, this.res2.Y, this.res2.Width, this.res2.Height), new Rectangle?(gradientSourceRect), Color.White);
-                    Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_over"], this.res2, Color.White);
-					int research = (int)this.empire.GetTDict()[this.empire.ResearchTopic].Progress;
-					float plusRes = this.empire.GetProjectedResearchNextTurn();
-					float single = (float)(this.res2.X + this.res2.Width - 20);
+                    Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
+                    Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
+					int research = (int)empire.GetTDict()[empire.ResearchTopic].Progress;
+					float plusRes = empire.GetProjectedResearchNextTurn();
+					float single = res2.X + res2.Width - 20;
 					SpriteFont arial12Bold1 = Fonts.Arial12Bold;
-					object[] str1 = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+					object[] str1 = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
 					textCursor.X = single - arial12Bold1.MeasureString(string.Concat(str1)).X;
-					textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-					object[] objArray1 = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+					textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
+					object[] objArray1 = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
 					string text = string.Concat(objArray1);
 					if (Fonts.Arial12Bold.MeasureString(text).X <= 75f)
 					{
 						spriteBatch.DrawString(Fonts.Arial12Bold, text, textCursor, new Color(255, 240, 189));
 						return;
 					}
-					float x1 = (float)(this.res2.X + this.res2.Width - 20);
+					float x1 = res2.X + res2.Width - 20;
 					SpriteFont tahoma10 = Fonts.Tahoma10;
-					object[] str2 = new object[] { research.ToString(), "/", this.empire.GetTDict()[this.empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
+					object[] str2 = { research.ToString(), "/", empire.GetTDict()[empire.ResearchTopic].TechCost, " (+", plusRes.ToString("#.0"), ")" };
 					textCursor.X = x1 - tahoma10.MeasureString(string.Concat(str2)).X;
-					textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Tahoma10.LineSpacing / 2);
-					textCursor.X = (float)((int)textCursor.X);
-					textCursor.Y = (float)((int)textCursor.Y);
+					textCursor.Y = res2.Height / 2 - Fonts.Tahoma10.LineSpacing / 2;
+					textCursor.X = (int)textCursor.X;
+					textCursor.Y = (int)textCursor.Y;
 					spriteBatch.DrawString(Fonts.Tahoma10, text, textCursor, new Color(255, 240, 189));
 					return;
 				}
-				textCursor.X = (float)(this.res2.X + this.res2.Width - 30) - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
-				textCursor.Y = (float)(this.res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+				textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
+				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
 			}
 		}
 
 		public void HandleInput(InputState input)
 		{
-			this.currentMouse = Mouse.GetState();
-			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+			currentMouse = Mouse.GetState();
+			Vector2 MousePos = new Vector2(currentMouse.X, currentMouse.Y);
             if (!GlobalStats.TakingInput)
             {
                 if (input.WasKeyPressed(Keys.R))
@@ -580,7 +579,7 @@ namespace Ship_Game
 			    }
             }
 
-			foreach (Button b in this.Buttons)
+			foreach (Button b in Buttons)
 			{
 				if (!b.Rect.HitTest(MousePos))
 				{
@@ -648,14 +647,14 @@ namespace Ship_Game
 							}
 						}
 					}
-					if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
+					if (b.State != PressState.Hover && b.State != PressState.Pressed)
 					{
 						GameAudio.PlaySfxAsync("mouse_over4");
 					}
-					b.State = EmpireUIOverlay.PressState.Hover;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+					b.State = PressState.Hover;
+					if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
 					{
-						b.State = EmpireUIOverlay.PressState.Pressed;
+						b.State = PressState.Pressed;
 					}
 					if (!input.InGameSelect)
 					{
@@ -724,32 +723,32 @@ namespace Ship_Game
 					}
 				}
 			}
-			this.previousMouse = Mouse.GetState();
+			previousMouse = Mouse.GetState();
 		}
 
 		public void HandleInput(InputState input, GameScreen caller)
 		{
-			this.currentMouse = Mouse.GetState();
-			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
-			foreach (Button b in this.Buttons)
+			currentMouse = Mouse.GetState();
+			Vector2 MousePos = new Vector2(currentMouse.X, currentMouse.Y);
+			foreach (Button b in Buttons)
 			{
 				if (!b.Rect.HitTest(MousePos))
 				{
-					b.State = EmpireUIOverlay.PressState.Normal;
+					b.State = PressState.Normal;
 				}
 				else
 				{
                     
-                    if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
+                    if (b.State != PressState.Hover && b.State != PressState.Pressed)
 					{
 						GameAudio.PlaySfxAsync("mouse_over4");
 					}
-					b.State = EmpireUIOverlay.PressState.Hover;
-					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
+					b.State = PressState.Hover;
+					if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
 					{
-						b.State = EmpireUIOverlay.PressState.Pressed;
+						b.State = PressState.Pressed;
 					}
-					if (this.currentMouse.LeftButton != ButtonState.Released || this.previousMouse.LeftButton != ButtonState.Pressed)
+					if (currentMouse.LeftButton != ButtonState.Released || previousMouse.LeftButton != ButtonState.Pressed)
 					{
 						continue;
 					}
@@ -841,134 +840,134 @@ namespace Ship_Game
 					}
 				}
 			}
-			this.previousMouse = Mouse.GetState();
+			previousMouse = Mouse.GetState();
 		}
 
 		private void ResetLowRes()
 		{
-			this.LowRes = true;
+			LowRes = true;
 			Vector2 Cursor = Vector2.Zero;
-			this.res1 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"].Height);
-			Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"].Width;
-			this.res2 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"].Height);
-			Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"].Width;
-			this.res3 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Height);
-			Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Width;
-			this.res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Height);
-			Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width;
-			Cursor.X = (float)(Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width);
-			this.res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Height);
-			Button r1 = new Button()
+			res1 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1").Height);
+			Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1").Width;
+			res2 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2").Height);
+			Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2").Width;
+			res3 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Height);
+			Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Width;
+			res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Height);
+			Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width;
+			Cursor.X = Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width;
+			res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Height);
+			Button r1 = new Button
 			{
-				Rect = this.res1,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res1_press"]
+				Rect = res1,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res1_press")
 			};
-			this.Buttons.Add(r1);
+			Buttons.Add(r1);
 			r1.launches = "Research";
-			Button r2 = new Button()
+			Button r2 = new Button
 			{
-				Rect = this.res2,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res2"]
+				Rect = res2,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res2")
 			};
-			this.Buttons.Add(r2);
+			Buttons.Add(r2);
 			r2.launches = "Research";
-			Button r3 = new Button()
+			Button r3 = new Button
 			{
-				Rect = this.res3,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3_press"],
+				Rect = res3,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3_press"),
 				launches = "Budget"
 			};
-			this.Buttons.Add(r3);
-			Button r4 = new Button()
+			Buttons.Add(r3);
+			Button r4 = new Button
 			{
-				Rect = this.res4,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"]
+				Rect = res4,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4")
 			};
-			this.Buttons.Add(r4);
-			Button r5 = new Button()
+			Buttons.Add(r4);
+			Button r5 = new Button
 			{
-				Rect = this.res5,
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"]
+				Rect = res5,
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5")
 			};
-			this.Buttons.Add(r5);
-			float rangeforbuttons = (float)(r5.Rect.X - (r4.Rect.X + r4.Rect.Width));
+			Buttons.Add(r5);
+			float rangeforbuttons = r5.Rect.X - (r4.Rect.X + r4.Rect.Width);
 			float roomoneitherside = (rangeforbuttons - 607f) / 2f;
-			Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside - 50f;
-			Button Shipyard = new Button()
+			Cursor.X = r4.Rect.X + r4.Rect.Width + roomoneitherside - 50f;
+			Button Shipyard = new Button
 			{
-				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
 				Text = Localizer.Token(98),
 				launches = "Shipyard"
 			};
-			this.Buttons.Add(Shipyard);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
-			Button empire = new Button()
+			Buttons.Add(Shipyard);
+			Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 18);
+			Button empire = new Button
 			{
-				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
 				launches = "Empire",
 				Text = Localizer.Token(99)
 			};
-			this.Buttons.Add(empire);
-            Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
-            Button Espionage = new Button()
+			Buttons.Add(empire);
+            Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 18);
+            Button Espionage = new Button
             {
-                Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+                Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+                NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+                HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+                PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
                 launches = "Espionage",
                 Text = Localizer.Token(6088)
             };
-            this.Buttons.Add(Espionage);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
-			Button Diplomacy = new Button()
+            Buttons.Add(Espionage);
+			Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
+			Button Diplomacy = new Button
 			{
-				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_pressed"],
+				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_pressed"),
 				launches = "Diplomacy",
 				Text = Localizer.Token(100)
 			};
-			this.Buttons.Add(Diplomacy);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 6);
-			Button MainMenu = new Button()
+			Buttons.Add(Diplomacy);
+			Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_124px_hover").Width + 6);
+			Button MainMenu = new Button
 			{
-                Rect = new Rectangle(this.res5.X+ 52, 39, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_pressed"],
+                Rect = new Rectangle(res5.X+ 52, 39, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_pressed"),
 				launches = "Main Menu",
 				Text = Localizer.Token(101)
 			};
-			this.Buttons.Add(MainMenu);
-			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px_hover"].Width + 5);
-			Button Help = new Button()
+			Buttons.Add(MainMenu);
+			Cursor.X = Cursor.X + (ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px_hover").Width + 5);
+			Button Help = new Button
 			{
-                Rect = new Rectangle(this.res5.X + 72, 64, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_100px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px_pressed"],
+                Rect = new Rectangle(res5.X + 72, 64, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_100px").Height),
+				NormalTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px"),
+				HoverTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px_hover"),
+				PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_low_btn_80px_pressed"),
 				Text = "Help",
 				launches = "?"
 			};
-			this.Buttons.Add(Help);
+			Buttons.Add(Help);
 		}
 
 		public void Update(float elapsedTime)

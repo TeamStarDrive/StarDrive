@@ -1,8 +1,6 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -52,9 +50,9 @@ namespace Ship_Game
 		{
 			get
 			{
-				string[] names = new string[this.effect.Techniques.Count];
+				string[] names = new string[effect.Techniques.Count];
 				int index = 0;
-				foreach (EffectTechnique technique in this.effect.Techniques)
+				foreach (EffectTechnique technique in effect.Techniques)
 				{
 					int num = index;
 					index = num + 1;
@@ -64,60 +62,56 @@ namespace Ship_Game
 			}
 		}
 
-		public RoundLineManager()
-		{
-		}
-
-		public float ComputeBlurThreshold(float lineRadius, Matrix viewProjMatrix, float viewportWidth)
+	    public float ComputeBlurThreshold(float lineRadius, Matrix viewProjMatrix, float viewportWidth)
 		{
 			Vector4 lineRadiusTestBase = new Vector4(0f, 0f, 0f, 1f);
 			Vector4 lineRadiusTest = new Vector4(lineRadius, 0f, 0f, 1f);
 			Vector4 output = Vector4.Transform(lineRadiusTest - lineRadiusTestBase, viewProjMatrix);
 			output.X = output.X * viewportWidth;
-			double newBlur = 0.125 * Math.Log((double)output.X) + 0.4;
+			double newBlur = 0.125 * Math.Log(output.X) + 0.4;
 			return MathHelper.Clamp((float)newBlur, 0.5f, 0.99f);
 		}
 
 		private void CreateRoundLineMesh()
 		{
-			this.numInstances = 200;
-			this.numVertices = 60 * this.numInstances;
-			this.numPrimitivesPerInstance = 28;
-			this.numPrimitives = this.numPrimitivesPerInstance * this.numInstances;
-			this.numIndices = 3 * this.numPrimitives;
-			short[] indices = new short[this.numIndices];
-			this.bytesPerVertex = RoundLineVertex.SizeInBytes;
-			RoundLineVertex[] tri = new RoundLineVertex[this.numVertices];
-			this.translationData = new float[this.numInstances * 4];
+			numInstances = 200;
+			numVertices = 60 * numInstances;
+			numPrimitivesPerInstance = 28;
+			numPrimitives = numPrimitivesPerInstance * numInstances;
+			numIndices = 3 * numPrimitives;
+			short[] indices = new short[numIndices];
+			bytesPerVertex = RoundLineVertex.SizeInBytes;
+			RoundLineVertex[] tri = new RoundLineVertex[numVertices];
+			translationData = new float[numInstances * 4];
 			int iv = 0;
 			int ii = 0;
-			for (int instance = 0; instance < this.numInstances; instance++)
+			for (int instance = 0; instance < numInstances; instance++)
 			{
 				int iVertex = iv;
 				int num = iv;
 				iv = num + 1;
-				tri[num] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 0f), (float)instance);
+				tri[num] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 0f), instance);
 				int num1 = iv;
 				iv = num1 + 1;
-				tri[num1] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 1f), (float)instance);
+				tri[num1] = new RoundLineVertex(new Vector3(0f, -1f, 0f), new Vector2(1f, 4.712389f), new Vector2(0f, 1f), instance);
 				int num2 = iv;
 				iv = num2 + 1;
-				tri[num2] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 1f), (float)instance);
+				tri[num2] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 1f), instance);
 				int num3 = iv;
 				iv = num3 + 1;
-				tri[num3] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 0f), (float)instance);
+				tri[num3] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 4.712389f), new Vector2(0f, 0f), instance);
 				int num4 = iv;
 				iv = num4 + 1;
-				tri[num4] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 1f), (float)instance);
+				tri[num4] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 1f), instance);
 				int num5 = iv;
 				iv = num5 + 1;
-				tri[num5] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 0f), (float)instance);
+				tri[num5] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, 1.57079637f), new Vector2(0f, 0f), instance);
 				int num6 = iv;
 				iv = num6 + 1;
-				tri[num6] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 1f), (float)instance);
+				tri[num6] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 1f), instance);
 				int num7 = iv;
 				iv = num7 + 1;
-				tri[num7] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 0f), (float)instance);
+				tri[num7] = new RoundLineVertex(new Vector3(0f, 1f, 0f), new Vector2(1f, 1.57079637f), new Vector2(0f, 0f), instance);
 				int num8 = ii;
 				ii = num8 + 1;
 				indices[num8] = (short)iVertex;
@@ -159,12 +153,12 @@ namespace Ship_Game
 				for (int i = 0; i < 13; i++)
 				{
 					float deltaTheta = 0.2617994f;
-					float theta0 = 1.57079637f + (float)i * deltaTheta;
+					float theta0 = 1.57079637f + i * deltaTheta;
 					float theta1 = theta0 + deltaTheta / 2f;
-					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 0f), (float)instance);
-					float x = (float)Math.Cos((double)theta0);
-					float y = (float)Math.Sin((double)theta0);
-					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 0f), (float)instance);
+					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 0f), instance);
+					float x = (float)Math.Cos(theta0);
+					float y = (float)Math.Sin(theta0);
+					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 0f), instance);
 					if (i < 12)
 					{
 						indices[iIndex] = (short)iVertex;
@@ -179,12 +173,12 @@ namespace Ship_Game
 				for (int i = 0; i < 13; i++)
 				{
 					float deltaTheta = 0.2617994f;
-					float theta0 = 4.712389f + (float)i * deltaTheta;
+					float theta0 = 4.712389f + i * deltaTheta;
 					float theta1 = theta0 + deltaTheta / 2f;
-					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 1f), (float)instance);
-					float x = (float)Math.Cos((double)theta0);
-					float y = (float)Math.Sin((double)theta0);
-					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 1f), (float)instance);
+					tri[iVertex] = new RoundLineVertex(new Vector3(0f, 0f, 0f), new Vector2(0f, theta1), new Vector2(0f, 1f), instance);
+					float x = (float)Math.Cos(theta0);
+					float y = (float)Math.Sin(theta0);
+					tri[iVertex + 1] = new RoundLineVertex(new Vector3(x, y, 0f), new Vector2(1f, theta0), new Vector2(1f, 1f), instance);
 					if (i < 12)
 					{
 						indices[iIndex] = (short)iVertex;
@@ -197,75 +191,75 @@ namespace Ship_Game
 					iv = iv + 2;
 				}
 			}
-			this.vb = new VertexBuffer(this.device, this.numVertices * this.bytesPerVertex, BufferUsage.None);
-			this.vb.SetData<RoundLineVertex>(tri);
-			this.vdecl = new VertexDeclaration(this.device, RoundLineVertex.VertexElements);
-			this.ib = new IndexBuffer(this.device, this.numIndices * 2, BufferUsage.None, IndexElementSize.SixteenBits);
-			this.ib.SetData<short>(indices);
+			vb = new VertexBuffer(device, numVertices * bytesPerVertex, BufferUsage.None);
+			vb.SetData(tri);
+			vdecl = new VertexDeclaration(device, RoundLineVertex.VertexElements);
+			ib = new IndexBuffer(device, numIndices * 2, BufferUsage.None, IndexElementSize.SixteenBits);
+			ib.SetData(indices);
 		}
 
 		public void Draw(RoundLine roundLine, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)
 		{
-			this.device.VertexDeclaration = this.vdecl;
-			this.device.Vertices[0].SetSource(this.vb, 0, this.bytesPerVertex);
-			this.device.Indices = this.ib;
-			this.viewProjMatrixParameter.SetValue(viewProjMatrix);
-			this.timeParameter.SetValue(time);
-			this.lineColorParameter.SetValue(lineColor.ToVector4());
-			this.lineRadiusParameter.SetValue(lineRadius);
-			this.blurThresholdParameter.SetValue(this.BlurThreshold);
+			device.VertexDeclaration = vdecl;
+			device.Vertices[0].SetSource(vb, 0, bytesPerVertex);
+			device.Indices = ib;
+			viewProjMatrixParameter.SetValue(viewProjMatrix);
+			timeParameter.SetValue(time);
+			lineColorParameter.SetValue(lineColor.ToVector4());
+			lineRadiusParameter.SetValue(lineRadius);
+			blurThresholdParameter.SetValue(BlurThreshold);
 			int num = 0;
 			int iData = num + 1;
-			this.translationData[num] = roundLine.P0.X;
+			translationData[num] = roundLine.P0.X;
 			int num1 = iData;
 			iData = num1 + 1;
-			this.translationData[num1] = roundLine.P0.Y;
+			translationData[num1] = roundLine.P0.Y;
 			int num2 = iData;
 			iData = num2 + 1;
-			this.translationData[num2] = roundLine.Rho;
+			translationData[num2] = roundLine.Rho;
 			int num3 = iData;
 			iData = num3 + 1;
-			this.translationData[num3] = roundLine.Theta;
-			this.instanceDataParameter.SetValue(this.translationData);
+			translationData[num3] = roundLine.Theta;
+			instanceDataParameter.SetValue(translationData);
 			if (techniqueName != null)
 			{
-				this.effect.CurrentTechnique = this.effect.Techniques[techniqueName];
+				effect.CurrentTechnique = effect.Techniques[techniqueName];
 			}
 			else
 			{
-				this.effect.CurrentTechnique = this.effect.Techniques[0];
+				effect.CurrentTechnique = effect.Techniques[0];
 			}
-			this.effect.Begin();
-			EffectPass pass = this.effect.CurrentTechnique.Passes[0];
+			effect.Begin();
+			EffectPass pass = effect.CurrentTechnique.Passes[0];
 			pass.Begin();
 			int numInstancesThisDraw = 1;
-			this.device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, this.numVertices, 0, this.numPrimitivesPerInstance * numInstancesThisDraw);
+			device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertices, 0, numPrimitivesPerInstance * numInstancesThisDraw);
 			RoundLineManager numLinesDrawn = this;
 			numLinesDrawn.NumLinesDrawn = numLinesDrawn.NumLinesDrawn + numInstancesThisDraw;
 			pass.End();
-			this.effect.End();
+			effect.End();
 		}
 
 		public void Draw(Array<RoundLine> roundLines, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)
 		{
-			this.device.VertexDeclaration = this.vdecl;
-			this.device.Vertices[0].SetSource(this.vb, 0, this.bytesPerVertex);
-			this.device.Indices = this.ib;
-			this.viewProjMatrixParameter.SetValue(viewProjMatrix);
-			this.timeParameter.SetValue(time);
-			this.lineColorParameter.SetValue(lineColor.ToVector4());
-			this.lineRadiusParameter.SetValue(lineRadius);
-			this.blurThresholdParameter.SetValue(this.BlurThreshold);
+			device.VertexDeclaration = vdecl;
+			device.Vertices[0].SetSource(vb, 0, bytesPerVertex);
+			device.Indices = ib;
+			viewProjMatrixParameter.SetValue(viewProjMatrix);
+			timeParameter.SetValue(time);
+			lineColorParameter.SetValue(lineColor.ToVector4());
+			lineRadiusParameter.SetValue(lineRadius);
+			blurThresholdParameter.SetValue(BlurThreshold);
 			if (techniqueName != null)
 			{
-				this.effect.CurrentTechnique = this.effect.Techniques[techniqueName];
+				effect.CurrentTechnique = effect.Techniques[techniqueName];
 			}
 			else
 			{
-				this.effect.CurrentTechnique = this.effect.Techniques[0];
+				effect.CurrentTechnique = effect.Techniques[0];
 			}
-			this.effect.Begin();
-			EffectPass pass = this.effect.CurrentTechnique.Passes[0];
+			effect.Begin();
+			EffectPass pass = effect.CurrentTechnique.Passes[0];
 			pass.Begin();
 			int iData = 0;
 			int numInstancesThisDraw = 0;
@@ -273,24 +267,24 @@ namespace Ship_Game
 			{
 				int num = iData;
 				iData = num + 1;
-				this.translationData[num] = roundLine.P0.X;
+				translationData[num] = roundLine.P0.X;
 				int num1 = iData;
 				iData = num1 + 1;
-				this.translationData[num1] = roundLine.P0.Y;
+				translationData[num1] = roundLine.P0.Y;
 				int num2 = iData;
 				iData = num2 + 1;
-				this.translationData[num2] = roundLine.Rho;
+				translationData[num2] = roundLine.Rho;
 				int num3 = iData;
 				iData = num3 + 1;
-				this.translationData[num3] = roundLine.Theta;
+				translationData[num3] = roundLine.Theta;
 				numInstancesThisDraw++;
-				if (numInstancesThisDraw != this.numInstances)
+				if (numInstancesThisDraw != numInstances)
 				{
 					continue;
 				}
-				this.instanceDataParameter.SetValue(this.translationData);
-				this.effect.CommitChanges();
-				this.device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, this.numVertices, 0, this.numPrimitivesPerInstance * numInstancesThisDraw);
+				instanceDataParameter.SetValue(translationData);
+				effect.CommitChanges();
+				device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertices, 0, numPrimitivesPerInstance * numInstancesThisDraw);
 				RoundLineManager numLinesDrawn = this;
 				numLinesDrawn.NumLinesDrawn = numLinesDrawn.NumLinesDrawn + numInstancesThisDraw;
 				numInstancesThisDraw = 0;
@@ -298,27 +292,27 @@ namespace Ship_Game
 			}
 			if (numInstancesThisDraw > 0)
 			{
-				this.instanceDataParameter.SetValue(this.translationData);
-				this.effect.CommitChanges();
-				this.device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, this.numVertices, 0, this.numPrimitivesPerInstance * numInstancesThisDraw);
+				instanceDataParameter.SetValue(translationData);
+				effect.CommitChanges();
+				device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numVertices, 0, numPrimitivesPerInstance * numInstancesThisDraw);
 				RoundLineManager roundLineManager = this;
 				roundLineManager.NumLinesDrawn = roundLineManager.NumLinesDrawn + numInstancesThisDraw;
 			}
 			pass.End();
-			this.effect.End();
+			effect.End();
 		}
 
 		public void Init(GraphicsDevice device, GameContentManager content)
 		{
 			this.device = device;
-			this.effect = content.Load<Effect>("RoundLine");
-			this.viewProjMatrixParameter = this.effect.Parameters["viewProj"];
-			this.instanceDataParameter = this.effect.Parameters["instanceData"];
-			this.timeParameter = this.effect.Parameters["time"];
-			this.lineRadiusParameter = this.effect.Parameters["lineRadius"];
-			this.lineColorParameter = this.effect.Parameters["lineColor"];
-			this.blurThresholdParameter = this.effect.Parameters["blurThreshold"];
-			this.CreateRoundLineMesh();
+			effect = content.Load<Effect>("RoundLine");
+			viewProjMatrixParameter = effect.Parameters["viewProj"];
+			instanceDataParameter = effect.Parameters["instanceData"];
+			timeParameter = effect.Parameters["time"];
+			lineRadiusParameter = effect.Parameters["lineRadius"];
+			lineColorParameter = effect.Parameters["lineColor"];
+			blurThresholdParameter = effect.Parameters["blurThreshold"];
+			CreateRoundLineMesh();
 		}
         public void Dispose()
         {

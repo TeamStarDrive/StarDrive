@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -10,10 +9,6 @@ namespace Ship_Game
     [XmlRoot("dictionary")]
     public sealed class SerializableDictionary<TKey, TValue> : Map<TKey, TValue>, IXmlSerializable
     {
-        public SerializableDictionary()
-        {
-        }
-
         public XmlSchema GetSchema()
         {
             return null;
@@ -38,7 +33,7 @@ namespace Ship_Game
                 reader.ReadStartElement("value");
                 var value = (TValue)valueSerializer.Deserialize(reader);
                 reader.ReadEndElement();
-                base.Add(key, value);
+                Add(key, value);
                 reader.ReadEndElement();
                 reader.MoveToContent();
             }
@@ -49,7 +44,7 @@ namespace Ship_Game
         {
             var keySerializer = new XmlSerializer(typeof(TKey));
             var valueSerializer = new XmlSerializer(typeof(TValue));
-            foreach (TKey key in base.Keys)
+            foreach (TKey key in Keys)
             {
                 writer.WriteStartElement("item");
                 writer.WriteStartElement("key");

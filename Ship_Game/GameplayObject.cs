@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -18,7 +18,7 @@ namespace Ship_Game
         Proj       = 4,
         Beam       = 8,
         Asteroid   = 16,
-        Moon       = 32,
+        Moon       = 32
     }
 
     public abstract class GameplayObject
@@ -87,7 +87,7 @@ namespace Ship_Game
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {            
-            Active = false;            
+            Active = false; 
             Empire.Universe.QueueGameplayObjectRemoval(this);
         }
 

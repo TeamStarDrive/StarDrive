@@ -18,44 +18,44 @@ namespace Ship_Game
 
 		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(s, 600, 600)
 		{
-			this.screen = s;
-			this.encounter = e;
-			this.encounter.CurrentMessage = 0;
-			this.encounter.SetPlayerEmpire(playerEmpire);
-			this.encounter.SetSys(tarSys);
-			this.encounter.SetTarEmp(targetEmp);
-			this.fade = true;
-			base.IsPopup = true;
-			this.FromGame = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0);
+			screen = s;
+			encounter = e;
+			encounter.CurrentMessage = 0;
+			encounter.SetPlayerEmpire(playerEmpire);
+			encounter.SetSys(tarSys);
+			encounter.SetTarEmp(targetEmp);
+			fade = true;
+			IsPopup = true;
+			FromGame = true;
+			TransitionOnTime = TimeSpan.FromSeconds(0.25);
+			TransitionOffTime = TimeSpan.FromSeconds(0);
 		}
 
 		public override void Draw(SpriteBatch batch)
 		{
-			if (this.fade)
+			if (fade)
 			{
-				base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
+				ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 			}
 			base.Draw(batch);
 
-			base.ScreenManager.SpriteBatch.Begin();
-			this.encounter.Draw(base.ScreenManager);
-			base.ScreenManager.SpriteBatch.End();
+			ScreenManager.SpriteBatch.Begin();
+			encounter.Draw(ScreenManager);
+			ScreenManager.SpriteBatch.End();
 		}
 
 		public override bool HandleInput(InputState input)
 		{
-			this.encounter.HandleInput(input, this);
+			encounter.HandleInput(input, this);
 			return base.HandleInput(input);
 		}
 
 		public override void LoadContent()
 		{
-			this.TitleText = this.encounter.Name;
-			this.MiddleText = this.encounter.DescriptionText;
+			TitleText = encounter.Name;
+			MiddleText = encounter.DescriptionText;
 			base.LoadContent();
-			this.encounter.LoadContent(this.screen.ScreenManager, new Rectangle(this.TitleRect.X - 4, this.TitleRect.Y + this.TitleRect.Height + this.MidContainer.Height + 10, this.TitleRect.Width, 600 - (this.TitleRect.Height + this.MidContainer.Height)));
+			encounter.LoadContent(screen.ScreenManager, new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height)));
 		}
 	}
 }

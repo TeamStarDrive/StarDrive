@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
@@ -305,7 +304,7 @@ namespace Ship_Game
         {
             // Techs using Icon Path need this for notifications
             string techIcon = "TechIcons/" + ResourceManager.TechTree[unlocked].IconPath;
-            bool hasTechIcon = ResourceManager.TextureDict.ContainsKey(techIcon);
+            bool hasTechIcon = ResourceManager.TextureLoaded(techIcon);
 
             AddNotification(new Notification
             {
@@ -393,7 +392,7 @@ namespace Ship_Game
                     Notification n = NotificationList[i];
                     if (n.IconPath != null)
                     {
-                        Texture2D iconTex = ResourceManager.TextureDict[n.IconPath];
+                        Texture2D iconTex = ResourceManager.Texture(n.IconPath);
                         if (!n.Tech)
                         {
                             ScreenManager.SpriteBatch.Draw(iconTex, n.ClickRect, Color.White);
@@ -409,14 +408,14 @@ namespace Ship_Game
 
                             rect.Width = iconTex.Width;
                             rect.Height = iconTex.Height;
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TechIcons/techbg"], rect, Color.White);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("TechIcons/techbg"), rect, Color.White);
                             ScreenManager.SpriteBatch.Draw(iconTex, rect, Color.White);
                             ScreenManager.SpriteBatch.DrawRectangle(rect, new Color(32, 30, 18));
                         }
                     }
                     if (n.RelevantEmpire != null)
                     {
-                        SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
+                        SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
                         KeyValuePair<string, Texture2D> item = ResourceManager.FlagTextures[n.RelevantEmpire.data.Traits.FlagIndex];
                         spriteBatch.Draw(item.Value, n.ClickRect, n.RelevantEmpire.EmpireColor);
                     }
@@ -481,7 +480,7 @@ namespace Ship_Game
                             retValue = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
                             if (GlobalStats.PauseOnNotification && n.Pause)
-                                this.Screen.Paused = false;
+                                Screen.Paused = false;
                         }
                         n.ShowMessage = true;
                     }
@@ -512,7 +511,7 @@ namespace Ship_Game
             Screen.SelectedPlanet = p;
             if (!Screen.SnapBackToSystem)
             {
-                Screen.HeightOnSnap = this.Screen.CamHeight;
+                Screen.HeightOnSnap = Screen.CamHeight;
             }
             Screen.OpenCombatMenu(null);
         }

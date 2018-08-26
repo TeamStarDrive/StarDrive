@@ -1,11 +1,14 @@
-﻿namespace Ship_Game
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace Ship_Game
 {
     partial class ExceptionViewer
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -164,14 +167,14 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox tbError;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btClip;
-        private System.Windows.Forms.Button btClose;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox tbComment;
-        private System.Windows.Forms.Button btOpenBugTracker;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Label descrLabel;
+        private TextBox tbError;
+        private Panel panel1;
+        private Button btClip;
+        private Button btClose;
+        private GroupBox groupBox1;
+        private TextBox tbComment;
+        private Button btOpenBugTracker;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private Label descrLabel;
     }
 }

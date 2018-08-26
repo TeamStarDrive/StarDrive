@@ -2,7 +2,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -55,7 +54,7 @@ namespace Ship_Game
             Prison.LowerLeft  = Prison.UpperLeft + new Vector3(0f, r.Height, 0f);
             Prison.UpperRight = Prison.UpperLeft + new Vector3(r.Width, 0f, 0f);
             Prison.LowerRight = Prison.UpperLeft + new Vector3(r.Width, r.Height, 0f);
-            Prison.Texture = ResourceManager.TextureDict["star_neutron"];
+            Prison.Texture = ResourceManager.Texture("star_neutron");
             Prison.FillVertices();
         }
 

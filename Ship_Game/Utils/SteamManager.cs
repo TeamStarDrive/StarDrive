@@ -1,7 +1,7 @@
-using Ship_Game;
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Ship_Game;
 
 public static class SteamManager
 {
@@ -41,23 +41,23 @@ public static class SteamManager
 
 	static SteamManager()
 	{
-		SteamManager.isInitialized = false;
-		SteamManager.overlayIsUp = false;
-		SteamManager.statsInit = false;
-		SteamManager.achievementsLoaded = false;
-		SteamManager.SPDataLoaded = false;
-		SteamManager.MPDataLoaded = false;
-		SteamManager.weapon1Loaded = false;
-		SteamManager.weapon2Loaded = false;
-		SteamManager.weapon3Loaded = false;
-		SteamManager.bankWeapon1Loaded = false;
-		SteamManager.bankWeapon2Loaded = false;
-		SteamManager.bankWeapon3Loaded = false;
-		SteamManager.cgNEATSettingsLoaded = false;
-		SteamManager.gameSettingsLoaded = false;
-		SteamManager.keyMapLoaded = false;
-		SteamManager.steamID = (ulong)0;
-		SteamManager.steamName = "";
+		isInitialized = false;
+		overlayIsUp = false;
+		statsInit = false;
+		achievementsLoaded = false;
+		SPDataLoaded = false;
+		MPDataLoaded = false;
+		weapon1Loaded = false;
+		weapon2Loaded = false;
+		weapon3Loaded = false;
+		bankWeapon1Loaded = false;
+		bankWeapon2Loaded = false;
+		bankWeapon3Loaded = false;
+		cgNEATSettingsLoaded = false;
+		gameSettingsLoaded = false;
+		keyMapLoaded = false;
+		steamID = 0;
+		steamName = "";
 	}
 
 	[DllImport("GARSteamManager", CharSet=CharSet.None, ExactSpelling=false)]
@@ -92,9 +92,9 @@ public static class SteamManager
 
 	public static string GetFileOnRemoteStorage(string fileName)
 	{
-		int fileSize = SteamManager.GetFileSize(fileName);
+		int fileSize = GetFileSize(fileName);
 		byte[] fileBytes = new byte[fileSize];
-		SteamManager.GetFileOnRemoteStorage(fileName, fileBytes, fileSize);
+		GetFileOnRemoteStorage(fileName, fileBytes, fileSize);
 		return (new UTF8Encoding()).GetString(fileBytes);
 	}
 
@@ -129,8 +129,8 @@ public static class SteamManager
 
 	public static bool SaveAllGARPlayerStats()
 	{
-		SteamManager.SetStatINT("times_played (0-1)", GlobalStats.TimesPlayed);
-		return SteamManager.SaveAllStatAndAchievementChanges();
+		SetStatINT("times_played (0-1)", GlobalStats.TimesPlayed);
+		return SaveAllStatAndAchievementChanges();
 	}
 
 	[DllImport("GARSteamManager", CharSet=CharSet.None, ExactSpelling=false)]
@@ -139,7 +139,7 @@ public static class SteamManager
 	public static bool SaveFileOnRemoteStorage(string fileName, string fileContents)
 	{
 		byte[] saveStrBytes = (new UTF8Encoding()).GetBytes(fileContents);
-		return SteamManager.SaveFileOnRemoteStorage(fileName, saveStrBytes, (int)saveStrBytes.Length);
+		return SaveFileOnRemoteStorage(fileName, saveStrBytes, saveStrBytes.Length);
 	}
 
 	[DllImport("GARSteamManager", CharSet=CharSet.None, ExactSpelling=false)]

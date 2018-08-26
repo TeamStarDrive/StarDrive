@@ -1,5 +1,4 @@
 using System;
-using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -26,7 +25,7 @@ namespace Ship_Game
                 basicEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
                 basicEffect.View = view;
                 basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
-                basicEffect.Texture = this.RingTexture;
+                basicEffect.Texture = RingTexture;
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
             }
@@ -50,7 +49,7 @@ namespace Ship_Game
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
-                basicEffect.Texture = ResourceManager.TextureDict["Atmos"];
+                basicEffect.Texture = ResourceManager.Texture("Atmos");
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;
@@ -64,7 +63,7 @@ namespace Ship_Game
                 basicEffect.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
             }
             modelMesh.Draw();
-            this.DrawAtmo1(world, view, projection);
+            DrawAtmo1(world, view, projection);
             renderState.DepthBufferWriteEnable = true;
             renderState.CullMode = CullMode.CullCounterClockwiseFace;
             renderState.AlphaBlendEnable = false;
@@ -72,18 +71,18 @@ namespace Ship_Game
 
         private void DrawAtmo1(Matrix world, Matrix view, Matrix projection)
         {
-            this.AtmoEffect.Parameters["World"].SetValue(Matrix.CreateScale(3.83f) * world);
-            this.AtmoEffect.Parameters["Projection"].SetValue(projection);
-            this.AtmoEffect.Parameters["View"].SetValue(view);
-            this.AtmoEffect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
-            this.AtmoEffect.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
-            for (int index1 = 0; index1 < this.AtmoEffect.CurrentTechnique.Passes.Count; ++index1)
+            AtmoEffect.Parameters["World"].SetValue(Matrix.CreateScale(3.83f) * world);
+            AtmoEffect.Parameters["Projection"].SetValue(projection);
+            AtmoEffect.Parameters["View"].SetValue(view);
+            AtmoEffect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
+            AtmoEffect.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
+            for (int index1 = 0; index1 < AtmoEffect.CurrentTechnique.Passes.Count; ++index1)
             {
-                for (int index2 = 0; index2 < this.atmoModel.Meshes.Count; ++index2)
+                for (int index2 = 0; index2 < atmoModel.Meshes.Count; ++index2)
                 {
-                    ModelMesh modelMesh = ((ReadOnlyCollection<ModelMesh>) this.atmoModel.Meshes)[index2];
+                    ModelMesh modelMesh = atmoModel.Meshes[index2];
                     for (int index3 = 0; index3 < modelMesh.MeshParts.Count; ++index3)
-                        modelMesh.MeshParts[index3].Effect = this.AtmoEffect;
+                        modelMesh.MeshParts[index3].Effect = AtmoEffect;
                     modelMesh.Draw();
                 }
             }
@@ -91,8 +90,8 @@ namespace Ship_Game
 
         private void DrawClouds(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
         {
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var renderState                                             = ScreenManager.GraphicsDevice.RenderState;
             renderState.AlphaBlendEnable                                = true;
             renderState.AlphaBlendOperation                             = BlendFunction.Add;
@@ -129,45 +128,45 @@ namespace Ship_Game
 
         private void DrawToolTip()
         {
-            if (this.SelectedSystem != null && !this.LookingAtPlanet)
+            if (SelectedSystem != null && !LookingAtPlanet)
             {
                 float num = 4500f;
-                Vector3 vector3_1 = this.Viewport.Project(
-                    new Vector3(this.SelectedSystem.Position, 0.0f), this.projection, this.view, Matrix.Identity);
+                Vector3 vector3_1 = Viewport.Project(
+                    new Vector3(SelectedSystem.Position, 0.0f), projection, view, Matrix.Identity);
                 Vector2 Position = new Vector2(vector3_1.X, vector3_1.Y);
-                Vector3 vector3_2 = this.Viewport.Project(
-                    new Vector3(new Vector2(this.SelectedSystem.Position.X + num, this.SelectedSystem.Position.Y),
-                        0.0f), this.projection, this.view, Matrix.Identity);
+                Vector3 vector3_2 = Viewport.Project(
+                    new Vector3(new Vector2(SelectedSystem.Position.X + num, SelectedSystem.Position.Y),
+                        0.0f), projection, view, Matrix.Identity);
                 float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Position);
-                if ((double) Radius < 5.0)
+                if (Radius < 5.0)
                     Radius = 5f;
                 Rectangle rectangle = new Rectangle((int) Position.X - (int) Radius, (int) Position.Y - (int) Radius,
                     (int) Radius * 2, (int) Radius * 2);
-                this.ScreenManager.SpriteBatch.BracketRectangle(Position, Radius, Color.White);
+                ScreenManager.SpriteBatch.BracketRectangle(Position, Radius, Color.White);
             }
-            if (this.SelectedPlanet == null || this.LookingAtPlanet ||
-                this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+            if (SelectedPlanet == null || LookingAtPlanet ||
+                viewState >= UnivScreenState.GalaxyView)
                 return;
-            float radius = this.SelectedPlanet.SO.WorldBoundingSphere.Radius;
-            Vector3 vector3_3 = this.Viewport.Project(
-                new Vector3(this.SelectedPlanet.Center, 2500f), this.projection, this.view, Matrix.Identity);
+            float radius = SelectedPlanet.SO.WorldBoundingSphere.Radius;
+            Vector3 vector3_3 = Viewport.Project(
+                new Vector3(SelectedPlanet.Center, 2500f), projection, view, Matrix.Identity);
             Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
-            Vector3 vector3_4 = this.Viewport.Project(
-                new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), this.projection, this.view,
+            Vector3 vector3_4 = Viewport.Project(
+                new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), projection, view,
                 Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
-            if ((double) Radius1 < 8.0)
+            if (Radius1 < 8.0)
                 Radius1 = 8f;
             Vector2 vector2 = new Vector2(vector3_3.X, vector3_3.Y - Radius1);
             Rectangle rectangle1 = new Rectangle((int) Position1.X - (int) Radius1, (int) Position1.Y - (int) Radius1,
                 (int) Radius1 * 2, (int) Radius1 * 2);
-            this.ScreenManager.SpriteBatch.BracketRectangle(Position1, Radius1,
-                this.SelectedPlanet.Owner != null ? this.SelectedPlanet.Owner.EmpireColor : Color.Gray);
+            ScreenManager.SpriteBatch.BracketRectangle(Position1, Radius1,
+                SelectedPlanet.Owner != null ? SelectedPlanet.Owner.EmpireColor : Color.Gray);
         }
 
         private void DrawFogNodes()
         {
-            var uiNode = ResourceManager.TextureDict["UI/node"];
+            var uiNode = ResourceManager.Texture("UI/node");
             var viewport = Viewport;
 
             foreach (FogOfWarNode fogOfWarNode in FogNodes)
@@ -175,12 +174,12 @@ namespace Ship_Game
                 if (!fogOfWarNode.Discovered)
                     continue;
 
-                Vector3 vector3_1 = viewport.Project(fogOfWarNode.Position.ToVec3(), this.projection, this.view,
+                Vector3 vector3_1 = viewport.Project(fogOfWarNode.Position.ToVec3(), projection, view,
                     Matrix.Identity);
                 Vector2 vector2 = vector3_1.ToVec2();
                 Vector3 vector3_2 = viewport.Project(
                     new Vector3(fogOfWarNode.Position.PointOnCircle(90f, fogOfWarNode.Radius * 1.5f), 0.0f),
-                    this.projection, this.view, Matrix.Identity);
+                    projection, view, Matrix.Identity);
                 float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
                 Rectangle destinationRectangle =
                     new Rectangle((int) vector2.X, (int) vector2.Y, (int) num * 2, (int) num * 2);
@@ -201,8 +200,8 @@ namespace Ship_Game
                     //Vector2 unProject = ProjectToScreenPosition(influ.Position);
                     Vector2 screenPos = ProjectToScreenPosition(influ.Position);  //local_1.ToVec2();
                     Vector3 local_4 = viewport.Project(
-                        new Vector3(influ.Position.PointOnCircle(90f, influ.Radius * 1.5f), 0.0f), this.projection,
-                        this.view, Matrix.Identity);
+                        new Vector3(influ.Position.PointOnCircle(90f, influ.Radius * 1.5f), 0.0f), projection,
+                        view, Matrix.Identity);
 
                     float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257f;
                     Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
@@ -301,15 +300,15 @@ namespace Ship_Game
 
         private void DrawLights(GameTime gameTime)
         {
-            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.FogMapTarget);
-            this.ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            this.ScreenManager.SpriteBatch.Draw(this.FogMap, new Rectangle(0, 0, 512, 512), Color.White);
+            ScreenManager.GraphicsDevice.SetRenderTarget(0, FogMapTarget);
+            ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
+            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
+            ScreenManager.SpriteBatch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             float num = 512f / UniverseSize;
             var uiNode = ResourceManager.Texture("UI/node");
             foreach (Ship ship in player.GetShips())
             {
-                if (ScreenRectangle.HitTest(ship?.ScreenPosition))
+                if (ship != null && ScreenRectangle.HitTest(ship.ScreenPosition))
                 {
                     Rectangle destinationRectangle = new Rectangle(
                         (int) (ship.Position.X * num),
@@ -320,24 +319,24 @@ namespace Ship_Game
                         uiNode.Center(), SpriteEffects.None, 1f);
                 }
             }
-            this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
-            this.FogMap = this.FogMapTarget.GetTexture();
+            ScreenManager.SpriteBatch.End();
+            ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
+            FogMap = FogMapTarget.GetTexture();
 
-            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.LightsTarget);
-            this.ScreenManager.GraphicsDevice.Clear(Color.White);
+            ScreenManager.GraphicsDevice.SetRenderTarget(0, LightsTarget);
+            ScreenManager.GraphicsDevice.Clear(Color.White);
 
-            this.Viewport.Project(new Vector3(this.UniverseSize / 2f, this.UniverseSize / 2f, 0.0f),
-                this.projection, this.view, Matrix.Identity);
-            this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
+            Viewport.Project(new Vector3(UniverseSize / 2f, UniverseSize / 2f, 0.0f),
+                projection, view, Matrix.Identity);
+            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
                 Vector3 vector3_1 =
-                    Viewport.Project(Vector3.Zero, this.projection, this.view,
+                    Viewport.Project(Vector3.Zero, projection, view,
                         Matrix.Identity);
                 Vector3 vector3_2 =
-                    Viewport.Project(new Vector3(this.UniverseSize, this.UniverseSize, 0.0f),
-                        this.projection, this.view, Matrix.Identity);
+                    Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f),
+                        projection, view, Matrix.Identity);
 
                 Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                     (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
@@ -347,10 +346,10 @@ namespace Ship_Game
                     new Color(0, 0, 0, 170));
                 ScreenManager.SpriteBatch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }
-            this.DrawFogNodes();
-            this.DrawInfluenceNodes();
-            this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
+            DrawFogNodes();
+            DrawInfluenceNodes();
+            ScreenManager.SpriteBatch.End();
+            ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -394,7 +393,7 @@ namespace Ship_Game
             Texture2D texture2 = LightsTarget.GetTexture();
             graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
-            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue((Texture) texture2);
+            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
@@ -732,14 +731,14 @@ namespace Ship_Game
                     Viewport.Project(
                         new Vector3(ship.Center.X, ship.Center.Y, 0.0f), projection, view, Matrix.Identity);
                 ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_2.X, vector3_2.Y),
-                    vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte) 20));
+                    vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, 20));
             }
         }
 
         private void DrawTacticalPlanetIcons()
         {
-            if (this.LookingAtPlanet || this.viewState <= UniverseScreen.UnivScreenState.SystemView 
-                ||this.viewState >= UniverseScreen.UnivScreenState.GalaxyView)
+            if (LookingAtPlanet || viewState <= UnivScreenState.SystemView 
+                ||viewState >= UnivScreenState.GalaxyView)
                 return;
 
             foreach (SolarSystem solarSystem in SolarSystemList)
@@ -772,25 +771,25 @@ namespace Ship_Game
                     {
 
                         Vector3 vector3 =
-                            this.Viewport.Project(new Vector3(planet.Center, 2500f),
-                                this.projection, this.view, Matrix.Identity);
+                            Viewport.Project(new Vector3(planet.Center, 2500f),
+                                projection, view, Matrix.Identity);
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType].Width /
-                                     2f),
-                            (float) (ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType].Height /
-                                     2f));
-                        this.ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.TextureDict["Planets/" + (object) planet.PlanetType], position,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Width /
+                            2f,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
+                            2f);
+                        ScreenManager.SpriteBatch.Draw(
+                            ResourceManager.Texture("Planets/" + planet.PlanetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                         origin =
                             new Vector2(
-                                (float) (ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
-                                             .Value.Width / 2),
-                                (float) (ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
-                                             .Value.Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(
+                                ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
+                                    .Value.Width / 2,
+                                ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex]
+                                    .Value.Height / 2);
+                        ScreenManager.SpriteBatch.Draw(
                             ResourceManager.FlagTextures[planet.Owner.data.Traits.FlagIndex].Value, position,
                             new Rectangle?(), planet.Owner.EmpireColor, 0.0f, origin, 0.045f, SpriteEffects.None,
                             1f);
@@ -798,17 +797,17 @@ namespace Ship_Game
                     else
                     {
                         Vector3 vector3 =
-                            this.Viewport.Project(new Vector3(planet.Center, 2500f),
-                                this.projection, this.view, Matrix.Identity);
+                            Viewport.Project(new Vector3(planet.Center, 2500f),
+                                projection, view, Matrix.Identity);
                         Vector2 position = new Vector2(vector3.X, vector3.Y);
                         Rectangle rectangle = new Rectangle((int) position.X - 8, (int) position.Y - 8, 16, 16);
                         Vector2 origin = new Vector2(
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Width /
-                                     2),
-                            (float) (ResourceManager.Texture("Planets/" + (object) planet.PlanetType).Height /
-                                     2f));
-                        this.ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Planets/" + (object) planet.PlanetType), position,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Width /
+                            2,
+                            ResourceManager.Texture("Planets/" + planet.PlanetType).Height /
+                            2f);
+                        ScreenManager.SpriteBatch.Draw(
+                            ResourceManager.Texture("Planets/" + planet.PlanetType), position,
                             new Rectangle?(), Color.White, 0.0f, origin, fIconScale, SpriteEffects.None, 1f);
                     }
                 }
@@ -826,7 +825,7 @@ namespace Ship_Game
         {            
             lock (GlobalStats.FleetButtonLocker)
             {
-                foreach (FleetButton fleetButton in this.FleetButtons)
+                foreach (FleetButton fleetButton in FleetButtons)
                 {
                     var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
                     var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
@@ -853,7 +852,7 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.Draw(
                         ResourceManager.Texture("FleetIcons/" + fleetButton.Fleet.FleetIconIndex), housing,
                         EmpireManager.Player.EmpireColor);
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
                         new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4), Color.Orange);
                     
                     //draw ship icons to right of button
@@ -871,7 +870,7 @@ namespace Ship_Game
                                 shipSpacingH.X = fleetButton.ClickRect.X + 50f;
                                 shipSpacingH.Y += 15f;
                             }                            
-                            this.ScreenManager.SpriteBatch.Draw(ship.GetTacticalIcon(), iconHousing,
+                            ScreenManager.SpriteBatch.Draw(ship.GetTacticalIcon(), iconHousing,
                                 fleetButton.Fleet.Owner.EmpireColor);
                         }
                         catch { }
@@ -1031,9 +1030,9 @@ namespace Ship_Game
         {
             using (BombList.AcquireReadLock())
             {
-                for (int i = 0; i < this.BombList.Count; i++)
+                for (int i = 0; i < BombList.Count; i++)
                 {
-                    Bomb bomb = this.BombList[i];
+                    Bomb bomb = BombList[i];
                     DrawTransparentModel(bomb.Model, bomb.World, bomb.Texture, 0.5f);
                 }
             }

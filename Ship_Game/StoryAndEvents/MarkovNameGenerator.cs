@@ -24,12 +24,12 @@ namespace Ship_Game
 				string s = "";
 				do
 				{
-					int n = this._rnd.Next(this._samples.Count);
-					int nameLength = this._samples[n].Length;
-					for (s = this._samples[n].Substring(this._rnd.Next(0, this._samples[n].Length - this._order), this._order); s.Length < nameLength; s = string.Concat(s, this.GetLetter(token)))
+					int n = _rnd.Next(_samples.Count);
+					int nameLength = _samples[n].Length;
+					for (s = _samples[n].Substring(_rnd.Next(0, _samples[n].Length - _order), _order); s.Length < nameLength; s = string.Concat(s, GetLetter(token)))
 					{
-						token = s.Substring(s.Length - this._order, this._order);
-						if (this.GetLetter(token) == '?')
+						token = s.Substring(s.Length - _order, _order);
+						if (GetLetter(token) == '?')
 						{
 							break;
 						}
@@ -40,9 +40,9 @@ namespace Ship_Game
 					}
 					else
 					{
-						string[] tokens = s.Split(new char[] { ' ' });
+						string[] tokens = s.Split(' ');
 						s = "";
-						for (int t = 0; t < (int)tokens.Length; t++)
+						for (int t = 0; t < tokens.Length; t++)
 						{
 							if (!string.IsNullOrEmpty(tokens[t]))
 							{
@@ -63,8 +63,8 @@ namespace Ship_Game
 						}
 					}
 				}
-				while (this._used.Contains(s) || s.Length < this._minLength);
-				this._used.Add(s);
+				while (_used.Contains(s) || s.Length < _minLength);
+				_used.Add(s);
 				return s;
 			}
 		}
@@ -79,31 +79,31 @@ namespace Ship_Game
 			{
 				minLength = 1;
 			}
-			this._order = order;
-			this._minLength = minLength;
-			string[] strArrays = sampleNames.Split(new char[] { ',' });
-			for (int i = 0; i < (int)strArrays.Length; i++)
+			_order = order;
+			_minLength = minLength;
+			string[] strArrays = sampleNames.Split(',');
+			for (int i = 0; i < strArrays.Length; i++)
 			{
 				string upper = strArrays[i].Trim().ToUpper();
 				if (upper.Length >= order + 1)
 				{
-					this._samples.Add(upper);
+					_samples.Add(upper);
 				}
 			}
-			foreach (string word in this._samples)
+			foreach (string word in _samples)
 			{
 				for (int letter = 0; letter < word.Length - order; letter++)
 				{
 					string token = word.Substring(letter, order);
 					Array<char> entry = null;
-					if (!this._chains.ContainsKey(token))
+					if (!_chains.ContainsKey(token))
 					{
 						entry = new Array<char>();
-						this._chains[token] = entry;
+						_chains[token] = entry;
 					}
 					else
 					{
-						entry = this._chains[token];
+						entry = _chains[token];
 					}
 					entry.Add(word[letter + order]);
 				}
@@ -112,17 +112,17 @@ namespace Ship_Game
 
 		private char GetLetter(string token)
 		{
-			if (!this._chains.ContainsKey(token))
+			if (!_chains.ContainsKey(token))
 			{
 				return '?';
 			}
-			Array<char> letters = this._chains[token];
-			return letters[this._rnd.Next(letters.Count)];
+			Array<char> letters = _chains[token];
+			return letters[_rnd.Next(letters.Count)];
 		}
 
 		public void Reset()
 		{
-			this._used.Clear();
+			_used.Clear();
 		}
 	}
 }

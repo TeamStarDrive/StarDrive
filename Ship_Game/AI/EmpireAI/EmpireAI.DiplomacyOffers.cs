@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -18,16 +19,16 @@ namespace Ship_Game.AI {
                 {
                     relation.Posture = Posture.Neutral;
                     if (relation.Anger_FromShipsInOurBorders >
-                        (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
+                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3)
                     {
                         relation.Anger_FromShipsInOurBorders =
-                            (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
+                            OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3;
                     }
                     if (relation.Anger_TerritorialConflict >
-                        (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
+                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3)
                     {
                         relation.Anger_TerritorialConflict =
-                            (float) (OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
+                            OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3;
                     }
                 }
                 relation.Anger_MilitaryConflict = 0f;
@@ -45,7 +46,7 @@ namespace Ship_Game.AI {
                 {
                     for (int i = TaskList.Count - 1; i >= 0; i--)
                     {
-                        Tasks.MilitaryTask task = TaskList[i];
+                        MilitaryTask task = TaskList[i];
                         if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
                             task.TargetPlanet.Owner != Them)
                         {
@@ -64,16 +65,16 @@ namespace Ship_Game.AI {
                 if (EmpireManager.Player != Them)
                 {
                     if (relationThem.Anger_FromShipsInOurBorders >
-                        (float) (Them.data.DiplomaticPersonality.Territorialism / 3))
+                        Them.data.DiplomaticPersonality.Territorialism / 3)
                     {
                         relationThem.Anger_FromShipsInOurBorders =
-                            (float) (Them.data.DiplomaticPersonality.Territorialism / 3);
+                            Them.data.DiplomaticPersonality.Territorialism / 3;
                     }
                     if (relationThem.Anger_TerritorialConflict >
-                        (float) (Them.data.DiplomaticPersonality.Territorialism / 3))
+                        Them.data.DiplomaticPersonality.Territorialism / 3)
                     {
                         relationThem.Anger_TerritorialConflict =
-                            (float) (Them.data.DiplomaticPersonality.Territorialism / 3);
+                            Them.data.DiplomaticPersonality.Territorialism / 3;
                     }
                     relationThem.Anger_MilitaryConflict = 0f;
                     relationThem.WarnedAboutShips = false;
@@ -194,7 +195,7 @@ namespace Ship_Game.AI {
             {
                 us.GetRelations(Them).Treaty_Trade = true;
                 us.GetRelations(Them).Treaty_Trade_TurnsExisted = 0;
-                TrustEntry te = new TrustEntry()
+                TrustEntry te = new TrustEntry
                 {
                     TrustCost = 0.1f,
                     Type = TrustEntryType.Treaty
@@ -205,7 +206,7 @@ namespace Ship_Game.AI {
             {
                 Them.GetRelations(us).Treaty_Trade = true;
                 Them.GetRelations(us).Treaty_Trade_TurnsExisted = 0;
-                TrustEntry te = new TrustEntry()
+                TrustEntry te = new TrustEntry
                 {
                     TrustCost = 0.1f,
                     Type = TrustEntryType.Treaty
@@ -215,7 +216,7 @@ namespace Ship_Game.AI {
             if (ToUs.OpenBorders)
             {
                 us.GetRelations(Them).Treaty_OpenBorders = true;
-                TrustEntry te = new TrustEntry()
+                TrustEntry te = new TrustEntry
                 {
                     TrustCost = 5f,
                     Type = TrustEntryType.Treaty
@@ -225,7 +226,7 @@ namespace Ship_Game.AI {
             if (FromUs.OpenBorders)
             {
                 Them.GetRelations(us).Treaty_OpenBorders = true;
-                TrustEntry te = new TrustEntry()
+                TrustEntry te = new TrustEntry
                 {
                     TrustCost = 5f,
                     Type = TrustEntryType.Treaty
@@ -241,7 +242,7 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                TrustEntry te = new TrustEntry()
+                TrustEntry te = new TrustEntry
                 {
                     TrustCost = (us.data.EconomicPersonality.Name == "Technologists"
                         ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
@@ -261,7 +262,7 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                TrustEntry te = new TrustEntry()
+                TrustEntry te = new TrustEntry
                 {
                     TrustCost = (Them.data.EconomicPersonality.Name == "Technologists"
                         ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
@@ -340,7 +341,7 @@ namespace Ship_Game.AI {
                     {
                         value = value + b.Cost / 50f;
                     }
-                    TrustEntry te = new TrustEntry()
+                    TrustEntry te = new TrustEntry
                     {
                         TrustCost = (us.data.EconomicPersonality.Name == "Expansionists"
                             ? value + value
@@ -398,7 +399,7 @@ namespace Ship_Game.AI {
                     }
                     if (Empire.Universe.PlayerEmpire != Them)
                     {
-                        TrustEntry te = new TrustEntry()
+                        TrustEntry te = new TrustEntry
                         {
                             TrustCost = (Them.data.EconomicPersonality.Name == "Expansionists"
                                 ? value + value
@@ -435,16 +436,16 @@ namespace Ship_Game.AI {
                 OwnerEmpire.GetRelations(Them).WarHistory.Add(OwnerEmpire.GetRelations(Them).ActiveWar);
                 OwnerEmpire.GetRelations(Them).Posture = Posture.Neutral;
                 if (OwnerEmpire.GetRelations(Them).Anger_FromShipsInOurBorders >
-                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
+                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3)
                 {
                     OwnerEmpire.GetRelations(Them).Anger_FromShipsInOurBorders =
-                        (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
+                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3;
                 }
                 if (OwnerEmpire.GetRelations(Them).Anger_TerritorialConflict >
-                    (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3))
+                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3)
                 {
                     OwnerEmpire.GetRelations(Them).Anger_TerritorialConflict =
-                        (float) (this.OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3);
+                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3;
                 }
                 OwnerEmpire.GetRelations(Them).Anger_MilitaryConflict = 0f;
                 OwnerEmpire.GetRelations(Them).WarnedAboutShips = false;
@@ -455,11 +456,11 @@ namespace Ship_Game.AI {
                 OwnerEmpire.GetRelations(Them).HasDefenseFleet = false;
                 if (OwnerEmpire.GetRelations(Them).DefenseFleet != -1)
                 {
-                    this.OwnerEmpire.GetFleetsDict()[OwnerEmpire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
+                    OwnerEmpire.GetFleetsDict()[OwnerEmpire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
                 }
                 //lock (GlobalStats.TaskLocker)
                 {
-                    this.TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
+                    TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
                     {
                         if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
                             task.TargetPlanet.Owner != Them)
@@ -470,34 +471,34 @@ namespace Ship_Game.AI {
                     });
                 }
                 OwnerEmpire.GetRelations(Them).ActiveWar = null;
-                Them.GetRelations(this.OwnerEmpire).AtWar = false;
-                Them.GetRelations(this.OwnerEmpire).PreparingForWar = false;
-                Them.GetRelations(this.OwnerEmpire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                Them.GetRelations(this.OwnerEmpire).WarHistory.Add(Them.GetRelations(this.OwnerEmpire).ActiveWar);
-                Them.GetRelations(this.OwnerEmpire).Posture = Posture.Neutral;
+                Them.GetRelations(OwnerEmpire).AtWar = false;
+                Them.GetRelations(OwnerEmpire).PreparingForWar = false;
+                Them.GetRelations(OwnerEmpire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                Them.GetRelations(OwnerEmpire).WarHistory.Add(Them.GetRelations(OwnerEmpire).ActiveWar);
+                Them.GetRelations(OwnerEmpire).Posture = Posture.Neutral;
                 if (EmpireManager.Player != Them)
                 {
-                    if (Them.GetRelations(this.OwnerEmpire).Anger_FromShipsInOurBorders >
-                        (float) (Them.data.DiplomaticPersonality.Territorialism / 3))
+                    if (Them.GetRelations(OwnerEmpire).Anger_FromShipsInOurBorders >
+                        Them.data.DiplomaticPersonality.Territorialism / 3)
                     {
-                        Them.GetRelations(this.OwnerEmpire).Anger_FromShipsInOurBorders =
-                            (float) (Them.data.DiplomaticPersonality.Territorialism / 3);
+                        Them.GetRelations(OwnerEmpire).Anger_FromShipsInOurBorders =
+                            Them.data.DiplomaticPersonality.Territorialism / 3;
                     }
-                    if (Them.GetRelations(this.OwnerEmpire).Anger_TerritorialConflict >
-                        (float) (Them.data.DiplomaticPersonality.Territorialism / 3))
+                    if (Them.GetRelations(OwnerEmpire).Anger_TerritorialConflict >
+                        Them.data.DiplomaticPersonality.Territorialism / 3)
                     {
-                        Them.GetRelations(this.OwnerEmpire).Anger_TerritorialConflict =
-                            (float) (Them.data.DiplomaticPersonality.Territorialism / 3);
+                        Them.GetRelations(OwnerEmpire).Anger_TerritorialConflict =
+                            Them.data.DiplomaticPersonality.Territorialism / 3;
                     }
-                    Them.GetRelations(this.OwnerEmpire).Anger_MilitaryConflict = 0f;
-                    Them.GetRelations(this.OwnerEmpire).WarnedAboutShips = false;
-                    Them.GetRelations(this.OwnerEmpire).WarnedAboutColonizing = false;
-                    Them.GetRelations(this.OwnerEmpire).HaveRejectedDemandTech = false;
-                    Them.GetRelations(this.OwnerEmpire).HaveRejected_OpenBorders = false;
-                    Them.GetRelations(this.OwnerEmpire).HaveRejected_TRADE = false;
-                    if (Them.GetRelations(this.OwnerEmpire).DefenseFleet != -1)
+                    Them.GetRelations(OwnerEmpire).Anger_MilitaryConflict = 0f;
+                    Them.GetRelations(OwnerEmpire).WarnedAboutShips = false;
+                    Them.GetRelations(OwnerEmpire).WarnedAboutColonizing = false;
+                    Them.GetRelations(OwnerEmpire).HaveRejectedDemandTech = false;
+                    Them.GetRelations(OwnerEmpire).HaveRejected_OpenBorders = false;
+                    Them.GetRelations(OwnerEmpire).HaveRejected_TRADE = false;
+                    if (Them.GetRelations(OwnerEmpire).DefenseFleet != -1)
                     {
-                        Them.GetFleetsDict()[Them.GetRelations(this.OwnerEmpire).DefenseFleet].FleetTask.EndTask();
+                        Them.GetFleetsDict()[Them.GetRelations(OwnerEmpire).DefenseFleet].FleetTask.EndTask();
                     }
                     //lock (GlobalStats.TaskLocker)
                     {
@@ -505,7 +506,7 @@ namespace Ship_Game.AI {
                             .TaskList.ForEach(task => //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
                             {
                                 if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
-                                    task.TargetPlanet.Owner != this.OwnerEmpire)
+                                    task.TargetPlanet.Owner != OwnerEmpire)
                                 {
                                     return;
                                 }
@@ -513,7 +514,7 @@ namespace Ship_Game.AI {
                             }, false, false, false);
                     }
                 }
-                Them.GetRelations(this.OwnerEmpire).ActiveWar = null;
+                Them.GetRelations(OwnerEmpire).ActiveWar = null;
             }
             if (ToUs.NAPact)
             {
@@ -595,7 +596,7 @@ namespace Ship_Game.AI {
             {
                 us.GetRelations(Them).Treaty_Trade = true;
                 us.GetRelations(Them).Treaty_Trade_TurnsExisted = 0;
-                FearEntry te = new FearEntry()
+                FearEntry te = new FearEntry
                 {
                     FearCost = 5f
                 };
@@ -605,7 +606,7 @@ namespace Ship_Game.AI {
             {
                 Them.GetRelations(us).Treaty_Trade = true;
                 Them.GetRelations(us).Treaty_Trade_TurnsExisted = 0;
-                FearEntry te = new FearEntry()
+                FearEntry te = new FearEntry
                 {
                     FearCost = 0.1f
                 };
@@ -614,7 +615,7 @@ namespace Ship_Game.AI {
             if (ToUs.OpenBorders)
             {
                 us.GetRelations(Them).Treaty_OpenBorders = true;
-                FearEntry te = new FearEntry()
+                FearEntry te = new FearEntry
                 {
                     FearCost = 5f
                 };
@@ -623,7 +624,7 @@ namespace Ship_Game.AI {
             if (FromUs.OpenBorders)
             {
                 Them.GetRelations(us).Treaty_OpenBorders = true;
-                FearEntry te = new FearEntry()
+                FearEntry te = new FearEntry
                 {
                     FearCost = 5f
                 };
@@ -636,7 +637,7 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                FearEntry te = new FearEntry()
+                FearEntry te = new FearEntry
                 {
                     FearCost = (us.data.EconomicPersonality.Name == "Technologists"
                         ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
@@ -653,7 +654,7 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                FearEntry te = new FearEntry()
+                FearEntry te = new FearEntry
                 {
                     FearCost = (Them.data.EconomicPersonality.Name == "Technologists"
                         ? ResourceManager.TechTree[tech].Cost / 100f * 0.25f +
@@ -702,7 +703,7 @@ namespace Ship_Game.AI {
                     }
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != this.OwnerEmpire)
+                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != OwnerEmpire)
                         {
                             continue;
                         }
@@ -786,7 +787,7 @@ namespace Ship_Game.AI {
                     {
                         continue;
                     }
-                    FearEntry te = new FearEntry()
+                    FearEntry te = new FearEntry
                     {
                         FearCost = (Them.data.EconomicPersonality.Name == "Expansionists"
                             ? value + value
@@ -820,39 +821,39 @@ namespace Ship_Game.AI {
                 {
                     return "AI_ALLIANCE_REJECT";
                 }
-                this.SetAlliance(true, them);
+                SetAlliance(true, them);
                 return "AI_ALLIANCE_ACCEPT";
             }
             if (ToUs.PeaceTreaty)
             {
-                EmpireAI.PeaceAnswer answer = this.AnalyzePeaceOffer(ToUs, FromUs, them, attitude);
+                PeaceAnswer answer = AnalyzePeaceOffer(ToUs, FromUs, them, attitude);
                 if (!answer.peace)
                 {
                     return answer.answer;
                 }
-                this.AcceptOffer(ToUs, FromUs, this.OwnerEmpire, them);
+                AcceptOffer(ToUs, FromUs, OwnerEmpire, them);
                 OwnerEmpire.GetRelations(them).Treaty_Peace = true;
                 OwnerEmpire.GetRelations(them).PeaceTurnsRemaining = 100;
-                them.GetRelations(this.OwnerEmpire).Treaty_Peace = true;
-                them.GetRelations(this.OwnerEmpire).PeaceTurnsRemaining = 100;
+                them.GetRelations(OwnerEmpire).Treaty_Peace = true;
+                them.GetRelations(OwnerEmpire).PeaceTurnsRemaining = 100;
                 return answer.answer;
             }
-            Empire us = this.OwnerEmpire;
+            Empire us = OwnerEmpire;
             float TotalTrustRequiredFromUS = 0f;
             DTrait dt = us.data.DiplomaticPersonality;
             if (FromUs.TradeTreaty)
             {
-                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + (float) dt.Trade;
+                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + dt.Trade;
             }
             if (FromUs.OpenBorders)
             {
-                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + ((float) dt.NAPact + 7.5f);
+                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + (dt.NAPact + 7.5f);
             }
             if (FromUs.NAPact)
             {
-                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + (float) dt.NAPact;
+                TotalTrustRequiredFromUS = TotalTrustRequiredFromUS + dt.NAPact;
                 int numWars = 0;
-                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in us.AllRelations)
+                foreach (KeyValuePair<Empire, Relationship> Relationship in us.AllRelations)
                 {
                     if (Relationship.Key.isFaction || !Relationship.Value.AtWar)
                     {
@@ -862,11 +863,11 @@ namespace Ship_Game.AI {
                 }
                 if (numWars > 0 && !us.GetRelations(them).AtWar)
                 {
-                    TotalTrustRequiredFromUS = TotalTrustRequiredFromUS - (float) dt.NAPact;
+                    TotalTrustRequiredFromUS = TotalTrustRequiredFromUS - dt.NAPact;
                 }
                 else if (us.GetRelations(them).Threat >= 20f)
                 {
-                    TotalTrustRequiredFromUS = TotalTrustRequiredFromUS - (float) dt.NAPact;
+                    TotalTrustRequiredFromUS = TotalTrustRequiredFromUS - dt.NAPact;
                 }
             }
             foreach (string tech in FromUs.TechnologiesOffered)
@@ -898,7 +899,7 @@ namespace Ship_Game.AI {
             if (ToUs.TradeTreaty)
             {
                 ValueToUs = ValueToUs + 5f;
-                if ((double) this.OwnerEmpire.EstimateIncomeAtTaxRate(0.5f) < 1)
+                if ((double) OwnerEmpire.EstimateIncomeAtTaxRate(0.5f) < 1)
                 {
                     ValueToUs = ValueToUs + 20f;
                 }
@@ -991,7 +992,7 @@ namespace Ship_Game.AI {
                         }
                         multiplier++;
                     }
-                    value = value * (float) multiplier;
+                    value = value * multiplier;
                     ValueToUs = ValueToUs + (us.data.EconomicPersonality.Name == "Expansionists"
                                     ? value * 0.5f + value
                                     : value);
@@ -1001,7 +1002,7 @@ namespace Ship_Game.AI {
             if (ValueFromUs == 0f && ValueToUs > 0f)
             {
                 us.GetRelations(them).ImproveRelations(ValueToUs, ValueToUs);
-                this.AcceptOffer(ToUs, FromUs, us, them);
+                AcceptOffer(ToUs, FromUs, us, them);
                 return "OfferResponse_Accept_Gift";
             }
             ValueToUs = ValueToUs - ValueToUs * us.GetRelations(them).TotalAnger / 100f;
@@ -1019,7 +1020,7 @@ namespace Ship_Game.AI {
             {
                 OfferQuality = "Fair";
             }
-            else if ((double) offerdifferential >= 1.1 && (double) offerdifferential < 1.45)
+            else if (offerdifferential >= 1.1 && offerdifferential < 1.45)
             {
                 OfferQuality = "Good";
             }
@@ -1042,7 +1043,7 @@ namespace Ship_Game.AI {
                             return "OfferResponse_InsufficientTrust";
                         }
                         us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        this.AcceptOffer(ToUs, FromUs, us, them);
+                        AcceptOffer(ToUs, FromUs, us, them);
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
                     if (offerdifferential < 0.6f)
@@ -1057,7 +1058,7 @@ namespace Ship_Game.AI {
                     {
                         OfferQuality = "Fair";
                     }
-                    else if ((double) offerdifferential >= 1.1 && (double) offerdifferential < 1.45)
+                    else if (offerdifferential >= 1.1 && offerdifferential < 1.45)
                     {
                         OfferQuality = "Good";
                     }
@@ -1077,13 +1078,13 @@ namespace Ship_Game.AI {
                     if (OfferQuality == "Fair")
                     {
                         us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        this.AcceptOffer(ToUs, FromUs, us, them);
+                        AcceptOffer(ToUs, FromUs, us, them);
                         return "OfferResponse_Accept_Fair_Pleading";
                     }
                     if (OfferQuality == "Good")
                     {
                         us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        this.AcceptOffer(ToUs, FromUs, us, them);
+                        AcceptOffer(ToUs, FromUs, us, them);
                         return "OfferResponse_Accept_Good";
                     }
                     if (OfferQuality != "Great")
@@ -1091,7 +1092,7 @@ namespace Ship_Game.AI {
                         break;
                     }
                     us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                    this.AcceptOffer(ToUs, FromUs, us, them);
+                    AcceptOffer(ToUs, FromUs, us, them);
                     return "OfferResponse_Accept_Great";
                 }
                 case Offer.Attitude.Respectful:
@@ -1111,13 +1112,13 @@ namespace Ship_Game.AI {
                         if (OfferQuality == "Fair")
                         {
                             us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                            this.AcceptOffer(ToUs, FromUs, us, them);
+                            AcceptOffer(ToUs, FromUs, us, them);
                             return "OfferResponse_Accept_Fair";
                         }
                         if (OfferQuality == "Good")
                         {
                             us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                            this.AcceptOffer(ToUs, FromUs, us, them);
+                            AcceptOffer(ToUs, FromUs, us, them);
                             return "OfferResponse_Accept_Good";
                         }
                         if (OfferQuality != "Great")
@@ -1125,32 +1126,30 @@ namespace Ship_Game.AI {
                             break;
                         }
                         us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        this.AcceptOffer(ToUs, FromUs, us, them);
+                        AcceptOffer(ToUs, FromUs, us, them);
                         return "OfferResponse_Accept_Great";
                     }
-                    else
+
+                    if (OfferQuality == "Great")
                     {
-                        if (OfferQuality == "Great")
-                        {
-                            us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs);
-                            this.AcceptOffer(ToUs, FromUs, us, them);
-                            return "OfferResponse_AcceptGreatOffer_LowTrust";
-                        }
-                        if (OfferQuality == "Poor")
-                        {
-                            return "OfferResponse_Reject_PoorOffer_LowTrust";
-                        }
-                        if (OfferQuality == "Fair" || OfferQuality == "Good")
-                        {
-                            return "OfferResponse_InsufficientTrust";
-                        }
-                        if (OfferQuality != "Insulting")
-                        {
-                            break;
-                        }
-                        us.GetRelations(them).DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
-                        return "OfferResponse_Reject_Insulting";
+                        us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs);
+                        AcceptOffer(ToUs, FromUs, us, them);
+                        return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
+                    if (OfferQuality == "Poor")
+                    {
+                        return "OfferResponse_Reject_PoorOffer_LowTrust";
+                    }
+                    if (OfferQuality == "Fair" || OfferQuality == "Good")
+                    {
+                        return "OfferResponse_InsufficientTrust";
+                    }
+                    if (OfferQuality != "Insulting")
+                    {
+                        break;
+                    }
+                    us.GetRelations(them).DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
+                    return "OfferResponse_Reject_Insulting";
                 }
                 case Offer.Attitude.Threaten:
                 {
@@ -1161,7 +1160,7 @@ namespace Ship_Game.AI {
                     us.GetRelations(them).DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
                     if (OfferQuality == "Great")
                     {
-                        this.AcceptThreat(ToUs, FromUs, us, them);
+                        AcceptThreat(ToUs, FromUs, us, them);
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
                     if (offerdifferential < 0.95f)
@@ -1179,24 +1178,24 @@ namespace Ship_Game.AI {
                     }
                     if (OfferQuality == "Poor")
                     {
-                        this.AcceptThreat(ToUs, FromUs, us, them);
+                        AcceptThreat(ToUs, FromUs, us, them);
                         return "OfferResponse_Accept_Bad_Threatening";
                     }
                     if (OfferQuality != "Fair")
                     {
                         break;
                     }
-                    this.AcceptThreat(ToUs, FromUs, us, them);
+                    AcceptThreat(ToUs, FromUs, us, them);
                     return "OfferResponse_Accept_Fair_Threatening";
                 }
             }
             return "";
         }
 
-        public EmpireAI.PeaceAnswer AnalyzePeaceOffer(Offer ToUs, Offer FromUs, Empire them, Offer.Attitude attitude)
+        public PeaceAnswer AnalyzePeaceOffer(Offer ToUs, Offer FromUs, Empire them, Offer.Attitude attitude)
         {
             WarState state;
-            Empire us = this.OwnerEmpire;
+            Empire us = OwnerEmpire;
             DTrait dt = us.data.DiplomaticPersonality;
             float ValueToUs = 0f;
             float ValueFromUs = 0f;
@@ -1809,7 +1808,7 @@ namespace Ship_Game.AI {
             {
                 OfferQuality = "Fair";
             }
-            else if ((double) offerdifferential >= 1.1 && (double) offerdifferential < 1.45)
+            else if (offerdifferential >= 1.1 && offerdifferential < 1.45)
             {
                 OfferQuality = "Good";
             }
@@ -1821,7 +1820,7 @@ namespace Ship_Game.AI {
             {
                 OfferQuality = "Fair";
             }
-            EmpireAI.PeaceAnswer response = new EmpireAI.PeaceAnswer()
+            PeaceAnswer response = new PeaceAnswer
             {
                 peace = false,
                 answer = "REJECT_OFFER_PEACE_POOROFFER"
@@ -1839,25 +1838,26 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else if ((OfferQuality == "Fair" || OfferQuality == "Good") &&
-                                 us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
+
+                        if ((OfferQuality == "Fair" || OfferQuality == "Good") &&
+                            us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
                         {
                             response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
                             return response;
                         }
-                        else if (OfferQuality == "Fair" || OfferQuality == "Good")
+
+                        if (OfferQuality == "Fair" || OfferQuality == "Good")
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.Dominating)
+
+                    if (state == WarState.Dominating)
                     {
                         if (OfferQuality == "Good" || OfferQuality == "Great")
                         {
@@ -1865,27 +1865,25 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.ColdWar)
+
+                    if (state == WarState.ColdWar)
                     {
                         if (OfferQuality != "Great")
                         {
                             response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "ACCEPT_PEACE_COLDWAR";
-                            response.peace = true;
-                            return response;
-                        }
+
+                        response.answer = "ACCEPT_PEACE_COLDWAR";
+                        response.peace = true;
+                        return response;
                     }
-                    else if (state != WarState.EvenlyMatched)
+
+                    if (state != WarState.EvenlyMatched)
                     {
                         if (state != WarState.LosingSlightly)
                         {
@@ -1899,53 +1897,52 @@ namespace Ship_Game.AI {
                                 response.peace = true;
                                 return response;
                             }
-                            else if (OfferQuality != "Poor")
+
+                            if (OfferQuality != "Poor")
                             {
                                 response.answer = "REJECT_OFFER_PEACE_POOROFFER";
                                 return response;
                             }
-                            else
-                            {
-                                response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
-                                response.peace = true;
-                                return response;
-                            }
+
+                            response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
+                            response.peace = true;
+                            return response;
                         }
-                        else if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+
+                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (OfferQuality == "Great")
+
+                    if (OfferQuality == "Great")
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
                         return response;
                     }
-                    else if ((OfferQuality == "Fair" || OfferQuality == "Good") &&
-                             us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
+
+                    if ((OfferQuality == "Fair" || OfferQuality == "Good") &&
+                        us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
                     {
                         response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
                         return response;
                     }
-                    else if (OfferQuality == "Fair" || OfferQuality == "Good")
+
+                    if (OfferQuality == "Fair" || OfferQuality == "Good")
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
                         return response;
                     }
-                    else
-                    {
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
+
+                    response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                    return response;
                 }
                 case WarType.ImperialistWar:
                 {
@@ -1958,13 +1955,12 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.Dominating)
+
+                    if (state == WarState.Dominating)
                     {
                         if (OfferQuality == "Good" || OfferQuality == "Great")
                         {
@@ -1972,13 +1968,12 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.EvenlyMatched)
+
+                    if (state == WarState.EvenlyMatched)
                     {
                         if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
                         {
@@ -1986,15 +1981,14 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.ColdWar)
+
+                    if (state == WarState.ColdWar)
                     {
-                        string name1 = this.OwnerEmpire.data.DiplomaticPersonality.Name;
+                        string name1 = OwnerEmpire.data.DiplomaticPersonality.Name;
                         str1 = name1;
                         if (name1 != null && str1 == "Pacifist")
                         {
@@ -2004,25 +1998,23 @@ namespace Ship_Game.AI {
                                 response.peace = true;
                                 return response;
                             }
-                            else
-                            {
-                                response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                                return response;
-                            }
+
+                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                            return response;
                         }
-                        else if (OfferQuality != "Great")
+
+                        if (OfferQuality != "Great")
                         {
                             response.answer = "REJECT_PEACE_RUTHLESS";
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "ACCEPT_PEACE_COLDWAR";
-                            response.peace = true;
-                            return response;
-                        }
+
+                        response.answer = "ACCEPT_PEACE_COLDWAR";
+                        response.peace = true;
+                        return response;
                     }
-                    else if (state != WarState.LosingSlightly)
+
+                    if (state != WarState.LosingSlightly)
                     {
                         if (state != WarState.LosingBadly)
                         {
@@ -2034,29 +2026,27 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else if (OfferQuality != "Poor")
+
+                        if (OfferQuality != "Poor")
                         {
                             response.answer = "REJECT_OFFER_PEACE_POOROFFER";
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
-                            response.peace = true;
-                            return response;
-                        }
+
+                        response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
+                        response.peace = true;
+                        return response;
                     }
-                    else if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+
+                    if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
                         return response;
                     }
-                    else
-                    {
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
+
+                    response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                    return response;
                 }
                 case WarType.GenocidalWar:
                 {
@@ -2073,13 +2063,12 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.Dominating)
+
+                    if (state == WarState.Dominating)
                     {
                         if (OfferQuality == "Good" || OfferQuality == "Great")
                         {
@@ -2087,13 +2076,12 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.EvenlyMatched)
+
+                    if (state == WarState.EvenlyMatched)
                     {
                         if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
                         {
@@ -2101,15 +2089,14 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                        return response;
                     }
-                    else if (state == WarState.ColdWar)
+
+                    if (state == WarState.ColdWar)
                     {
-                        string name2 = this.OwnerEmpire.data.DiplomaticPersonality.Name;
+                        string name2 = OwnerEmpire.data.DiplomaticPersonality.Name;
                         str1 = name2;
                         if (name2 != null && str1 == "Pacifist")
                         {
@@ -2119,25 +2106,23 @@ namespace Ship_Game.AI {
                                 response.peace = true;
                                 return response;
                             }
-                            else
-                            {
-                                response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                                return response;
-                            }
+
+                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                            return response;
                         }
-                        else if (OfferQuality == "Good" || OfferQuality == "Great")
+
+                        if (OfferQuality == "Good" || OfferQuality == "Great")
                         {
                             response.answer = "ACCEPT_PEACE_COLDWAR";
                             response.peace = true;
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "REJECT_PEACE_RUTHLESS";
-                            return response;
-                        }
+
+                        response.answer = "REJECT_PEACE_RUTHLESS";
+                        return response;
                     }
-                    else if (state != WarState.LosingSlightly)
+
+                    if (state != WarState.LosingSlightly)
                     {
                         if (state != WarState.LosingBadly)
                         {
@@ -2149,29 +2134,27 @@ namespace Ship_Game.AI {
                             response.peace = true;
                             return response;
                         }
-                        else if (OfferQuality != "Poor")
+
+                        if (OfferQuality != "Poor")
                         {
                             response.answer = "REJECT_OFFER_PEACE_POOROFFER";
                             return response;
                         }
-                        else
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
-                            response.peace = true;
-                            return response;
-                        }
+
+                        response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
+                        response.peace = true;
+                        return response;
                     }
-                    else if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+
+                    if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
                         return response;
                     }
-                    else
-                    {
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
+
+                    response.answer = "REJECT_OFFER_PEACE_POOROFFER";
+                    return response;
                 }
                 default:
                 {
@@ -2190,32 +2173,32 @@ namespace Ship_Game.AI {
         {
             if (ally)
             {
-                this.OwnerEmpire.GetRelations(them).Treaty_Alliance = true;
-                this.OwnerEmpire.GetRelations(them).Treaty_OpenBorders = true;
-                them.GetRelations(this.OwnerEmpire).Treaty_Alliance = true;
-                them.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = true;
+                OwnerEmpire.GetRelations(them).Treaty_Alliance = true;
+                OwnerEmpire.GetRelations(them).Treaty_OpenBorders = true;
+                them.GetRelations(OwnerEmpire).Treaty_Alliance = true;
+                them.GetRelations(OwnerEmpire).Treaty_OpenBorders = true;
                 return;
             }
-            this.OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
-            this.OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
-            them.GetRelations(this.OwnerEmpire).Treaty_Alliance = false;
-            them.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = false;
+            OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
+            OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
+            them.GetRelations(OwnerEmpire).Treaty_Alliance = false;
+            them.GetRelations(OwnerEmpire).Treaty_OpenBorders = false;
         }
 
         public void SetAlliance(bool ally)
         {
             if (ally)
             {
-                this.OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = true;
-                this.OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = true;
-                Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_Alliance = true;
-                Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = true;
+                OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = true;
+                OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = true;
+                Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_Alliance = true;
+                Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_OpenBorders = true;
                 return;
             }
             OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = false;
             OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = false;
-            Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_Alliance = false;
-            Empire.Universe.PlayerEmpire.GetRelations(this.OwnerEmpire).Treaty_OpenBorders = false;
+            Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_Alliance = false;
+            Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_OpenBorders = false;
         }
     }
 }

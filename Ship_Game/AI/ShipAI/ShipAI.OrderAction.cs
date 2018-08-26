@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class ShipAI
     {
         public void AddToOrderQueue(ShipGoal goal)
@@ -61,8 +62,8 @@ namespace Ship_Game.AI {
             Owner.InCombatTimer = 15f;
             OrderQueue.Clear();
             IgnoreCombat = false;
-            //HACK. To fix this all the fleet tasks that use attackspecifictarget must be changed 
-            //if they also use hold position to keep ships from moving. 
+            //HACK. To fix this all the fleet tasks that use attackspecifictarget must be changed
+            //if they also use hold position to keep ships from moving.
             if (!Owner.loyalty.isPlayer)
                 CombatState = Owner.shipData.CombatState;
             TargetQueue.Add(toAttack);
@@ -157,9 +158,8 @@ namespace Ship_Game.AI {
                     select planet;
                 if (sortedList.Any())
                 {
-                    ExterminationTarget = sortedList.First<Planet>();
+                    ExterminationTarget = sortedList.First();
                     OrderExterminatePlanet(ExterminationTarget);
-                    return;
                 }
             }
             else if (ExterminationTarget != null && OrderQueue.IsEmpty)
@@ -199,7 +199,7 @@ namespace Ship_Game.AI {
             SetPriorityOrderWithClear();
             ClearWayPoints();
             State = AIState.AssaultPlanet;
-            OrbitTarget = target;;            
+            OrbitTarget = target;;
             AddToOrderQueue(ShipGoal.CreateLandTroopGoal(target));
         }
 
@@ -212,10 +212,10 @@ namespace Ship_Game.AI {
             Target = null;
             HasPriorityTarget = false;
             Vector2 wantedForward = Owner.Center.DirectionToTarget(position);
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            var angleDiff = (float) Math.Acos((double) Vector2.Dot(wantedForward, forward));
+            var angleDiff = (float) Math.Acos(Vector2.Dot(wantedForward, forward));
             Vector2.Dot(wantedForward, right);
             if (angleDiff > 0.2f)
                 Owner.HyperspaceReturn();
@@ -343,13 +343,13 @@ namespace Ship_Game.AI {
             if (ClearOrders)
             {
                 OrderQueue.Clear();
-                WayPoints.Clear();                
+                WayPoints.Clear();
             }
             State             = AIState.MoveTo;
             MovePosition      = position;
             FinalFacingVector = fVec;
             DesiredFacing     = desiredFacing;
-            
+
             AddShipGoal(Plan.RotateToFaceMovePosition, MovePosition, 0f);
             var to1k          = new ShipGoal(Plan.MoveToWithin1000, MovePosition, desiredFacing)
             {
@@ -385,14 +385,14 @@ namespace Ship_Game.AI {
             OrderQueue.Clear();
             if (clearOrders)
                 WayPoints.Clear();
-                
+
             if (UniverseScreen != null && Owner.loyalty == EmpireManager.Player)
                 HasPriorityOrder = true;
             State = AIState.MoveTo;
             MovePosition = position;
 
             PlotCourseToNew(position, WayPoints.Count() > 0 ? WayPoints.Last() : Owner.Center);
-            
+
             DesiredFacing = desiredFacing;
 
             CreateFullMovementGoals(desiredFacing, targetPlanet);
@@ -430,7 +430,7 @@ namespace Ship_Game.AI {
         public void OrderOrbitNearest(bool ClearOrders)
         {
             WayPoints.Clear();
-            
+
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
@@ -442,7 +442,7 @@ namespace Ship_Game.AI {
                 select toOrbit;
             if (sortedList.Any())
             {
-                var planet = sortedList.First<Planet>();
+                var planet = sortedList.First();
                 OrbitTarget = planet;
                 var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
                 {
@@ -468,13 +468,17 @@ namespace Ship_Game.AI {
                 ResupplyTarget = item;
                 OrderQueue.Enqueue(orbit);
                 State = AIState.Orbit;
+                return;
             }
+            var emergencyPlanet = Empire.Universe.PlanetsDict.Values.ToArray().FilterBy(p => p.Owner == null);
+            emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Center));
+            OrbitTarget = emergencyPlanet[0];
         }
 
         public void OrderFlee(bool ClearOrders)
         {
             WayPoints.Clear();
-            
+
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
@@ -488,7 +492,7 @@ namespace Ship_Game.AI {
                 select solarsystem;
             if (systemList.Any())
             {
-                Planet item = systemList.First<SolarSystem>().PlanetList[0];
+                Planet item = systemList.First().PlanetList[0];
                 OrbitTarget = item;
                 var orbit = new ShipGoal(Plan.Orbit, Vector2.Zero, 0f)
                 {
@@ -503,7 +507,7 @@ namespace Ship_Game.AI {
         public void OrderOrbitPlanet(Planet p)
         {
             WayPoints.Clear();
-            
+
             Target = null;
             Intercepting = false;
             Owner.HyperspaceReturn();
@@ -547,9 +551,9 @@ namespace Ship_Game.AI {
                         return;
                     }
                     Intercepting = true;
-                    
+
                     WayPoints.Clear();
-                    
+
                     State = AIState.AttackTarget;
                     TargetQueue.Add(toAttack);
                     HasPriorityTarget = true;
@@ -562,9 +566,9 @@ namespace Ship_Game.AI {
 
         public void OrderRebase(Planet p, bool ClearOrders)
         {
-            
+
             WayPoints.Clear();
-            
+
             if (ClearOrders)
                 OrderQueue.Clear();
             int troops = Owner.loyalty
@@ -593,7 +597,7 @@ namespace Ship_Game.AI {
 
         public void OrderRebaseToNearest()
         {
-            WayPoints.Clear();            
+            WayPoints.Clear();
 
             var sortedList =
                 from planet in Owner.loyalty.GetPlanets()
@@ -604,9 +608,9 @@ namespace Ship_Game.AI {
                               .Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet)) <=
                       planet.GetGroundLandingSpots()
                 /*where planet.TroopsHere.Count + this.Owner.loyalty.GetShips()
-                .Where(troop => troop.Role == ShipData.RoleName.troop 
-                    
-                    && troop.GetAI().State == AIState.Rebase 
+                .Where(troop => troop.Role == ShipData.RoleName.troop
+
+                    && troop.GetAI().State == AIState.Rebase
                     && troop.GetAI().OrbitTarget == planet).Count() < planet.TilesList.Sum(space => space.number_allowed_troops)*/
                 orderby Vector2.Distance(Owner.Center, planet.Center)
                 select planet;
@@ -634,9 +638,9 @@ namespace Ship_Game.AI {
 
         public void OrderRefitTo(string toRefit)
         {
-            
+
             WayPoints.Clear();
-            
+
             HasPriorityOrder = true;
             IgnoreCombat = true;
 
@@ -644,7 +648,7 @@ namespace Ship_Game.AI {
 
 
             OrbitTarget = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
-         
+
             if (OrbitTarget == null)
             {
                 State = AIState.AwaitingOrders;
@@ -665,7 +669,7 @@ namespace Ship_Game.AI {
             SetPriorityOrder(clearOrders);
             HadPO = clearOrders;
             ClearWayPoints();
-            
+
             Target           = null;
             OrbitTarget      = toOrbit;
             AwaitClosest     = toOrbit;
@@ -687,8 +691,8 @@ namespace Ship_Game.AI {
         public void OrderScrapShip()
         {
 #if SHOWSCRUB
-//Log.Info(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
-#endif            
+//Log.Info(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role));
+#endif
             Owner.ClearFleet();
             Owner.loyalty.ForcePoolRemove(Owner);
             if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
@@ -699,9 +703,9 @@ namespace Ship_Game.AI {
                 Owner.QueueTotalRemoval(); //fbedard
                 return;
             }
-                        
-            WayPoints.Clear();            
-            
+
+            WayPoints.Clear();
+
             HasPriorityOrder = true;
             IgnoreCombat = true;
             OrderQueue.Clear();
@@ -748,7 +752,7 @@ namespace Ship_Game.AI {
             //bool inSystem = true;
             //if (this.Owner.BaseCanWarp && Vector2.Distance(system.Position, this.Owner.Position) / this.Owner.velocityMaximum > 11)
             //    inSystem = false;
-            //else 
+            //else
             //    inSystem = this.Owner.GetSystem() == this.SystemToDefend;
             //if (this.SystemToDefend == null)
             //{
@@ -766,13 +770,13 @@ namespace Ship_Game.AI {
             {
 #if SHOWSCRUB
                 if (this.Target != null && (this.Target as Ship).Name == "Subspace Projector")
-                    Log.Info(string.Concat("Scrubbed", (this.Target as Ship).Name)); 
+                    Log.Info(string.Concat("Scrubbed", (this.Target as Ship).Name));
 #endif
                 SystemToDefend = system;
                 HasPriorityOrder = false;
                 SystemToDefend = system;
                 OrderQueue.Clear();
-                OrbitTarget = (Planet) null;
+                OrbitTarget = null;
                 if (SystemToDefend.PlanetList.Count > 0)
                 {
                     var Potentials = new Array<Planet>();
@@ -800,7 +804,7 @@ namespace Ship_Game.AI {
                 //this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
             }
 
-            //this.State = AIState.SystemDefender;                   
+            //this.State = AIState.SystemDefender;
         }
 
         public void GoOrbitNearestPlanetAndResupply(bool cancelOrders)
@@ -815,7 +819,7 @@ namespace Ship_Game.AI {
             {
                 State = AIState.AwaitingOrders;
                 OrderQueue.Clear();
-                WayPoints.Clear();                
+                WayPoints.Clear();
             }
             FinalFacingVector = fVec;
             DesiredFacing = desiredFacing;
@@ -827,9 +831,9 @@ namespace Ship_Game.AI {
             if (ClearOrders)
                 OrderQueue.Clear();
             HasPriorityOrder = true;
-            
+
             WayPoints.Clear();
-            
+
             State = AIState.Orbit;
             OrbitTarget = toOrbit;
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian) //fbedard: civilian ship will use projectors
@@ -861,12 +865,12 @@ namespace Ship_Game.AI {
                     return;
                 }
 
-                if (!Owner.loyalty.isFaction) //for empire find whatever is close. might add to this for better logic. 
+                if (!Owner.loyalty.isFaction) //for empire find whatever is close. might add to this for better logic.
                 {
                     home = (Owner.loyalty.GetOwnedSystems() as Array<SolarSystem>)
                         .FindMin(s => Owner.Center.SqDist(s.Position));
                 }
-                else //for factions look for ships in a system so they group up. 
+                else //for factions look for ships in a system so they group up.
                 {
                     home = Owner.loyalty.GetShips()
                         .FindMinFiltered(inSystem => inSystem.System != null,
@@ -896,7 +900,7 @@ namespace Ship_Game.AI {
 
                     else ours = p.Owner == Owner.loyalty;
 
-                    if (closestOurs && !ours) // if we already have an owned planet and the current isnt. forget it. 
+                    if (closestOurs && !ours) // if we already have an owned planet and the current isnt. forget it.
                         continue;
                     distance = Owner.Center.SqDist(p.Center);
 
@@ -930,7 +934,7 @@ namespace Ship_Game.AI {
                     AwaitClosest = p;
                     return;
                 }
-                else
+
                 if (AwaitClosest != null)
                 {
                     DoOrbit(AwaitClosest, elapsedTime);
@@ -942,7 +946,7 @@ namespace Ship_Game.AI {
                         .FindMin(
                             planet => planet.Center.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
                 return;
-            }	        
+            }
             if (Owner.System?.OwnerList.Contains(Owner.loyalty) ?? false)
             {
                 HadPO = false;
@@ -953,7 +957,7 @@ namespace Ship_Game.AI {
 
         public bool ClearOrdersNext;
         public bool HasPriorityOrder;
-        public bool HadPO;        
+        public bool HadPO;
         public void ClearPriorityOrder()
         {
             HasPriorityOrder = false;

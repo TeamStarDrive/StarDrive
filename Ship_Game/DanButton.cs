@@ -1,68 +1,61 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
 	public sealed class DanButton
 	{
 		public Rectangle r;
+	    public readonly Vector2 Pos;
 
-		public string Text;
-
+        private readonly string Text;
 		public string ToggledText;
 
 		public bool IsToggle;
 
 		public bool Toggled;
+	    private bool Hover;
 
-		public Vector2 Pos;
+		private readonly Vector2 TextPos;
 
-		public bool Hover;
-
-		private Vector2 TextPos;
-
-		public DanButton(Vector2 rPos, string Text)
+		public DanButton(Vector2 pos, string text)
 		{
-			this.Pos = rPos;
-			this.r = new Rectangle((int)rPos.X, (int)rPos.Y, 182, 25);
-			this.Text = Text;
-			this.TextPos = new Vector2((float)(this.r.X + 20), (float)(this.r.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
-			this.ToggledText = Text;
+			Pos = pos;
+			r = new Rectangle((int)pos.X, (int)pos.Y, 182, 25);
+			Text = text;
+			TextPos = new Vector2(r.X + 20, r.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
+			ToggledText = text;
 		}
 
 		public void Draw(ScreenManager screenManager)
 		{
-			string str;
-			Color color;
-			Vector2 pos = this.TextPos;
+		    Color color;
+			Vector2 pos = TextPos;
 			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button"], this.r, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button"), r, Color.White);
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			str = (this.Toggled ? this.ToggledText : this.Text);
+			string str = (Toggled ? ToggledText : Text);
 			Vector2 vector2 = pos;
-			if (this.Hover)
+			if (Hover)
 			{
 				color = new Color(255, 255, 255, 150);
 			}
 			else
 			{
-				color = (this.Toggled ? new Color(121, 98, 75) : Color.White);
+				color = (Toggled ? new Color(121, 98, 75) : Color.White);
 			}
 			spriteBatch.DrawString(arial12Bold, str, vector2, color);
 		}
 
 		public void Draw(ScreenManager screenManager, Rectangle rect)
 		{
-			string str;
-			Color color;
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button"], rect, Color.White);
-			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
+		    Color color;
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button"), rect, Color.White);
+			var tPos = new Vector2(rect.X + 25, rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);
 			Vector2 pos = tPos;
 			if (GlobalStats.IsGerman)
 			{
@@ -70,15 +63,15 @@ namespace Ship_Game
 			}
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			str = (this.Toggled ? this.ToggledText : this.Text);
+			string str = (Toggled ? ToggledText : Text);
 			Vector2 vector2 = pos;
-			if (this.Hover)
+			if (Hover)
 			{
 				color = new Color(255, 255, 255, 150);
 			}
 			else
 			{
-				color = (this.Toggled ? new Color(121, 98, 75) : Color.White);
+				color = (Toggled ? new Color(121, 98, 75) : Color.White);
 			}
 			spriteBatch.DrawString(arial12Bold, str, vector2, color);
 		}
@@ -86,68 +79,42 @@ namespace Ship_Game
 		public void DrawBlue(ScreenManager screenManager)
 		{
 		    Color color;
-			Vector2 pos = this.TextPos;
+			Vector2 pos = TextPos;
 			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], this.r, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), r, Color.White);
 			SpriteBatch spriteBatch = screenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			string str = (this.Toggled ? this.ToggledText : this.Text);
+			string str = (Toggled ? ToggledText : Text);
 			Vector2 vector2 = pos;
-			if (this.Hover)
+			if (Hover)
 			{
 				color = new Color(174, 202, 255);
 			}
 			else
 			{
-				color = (this.Toggled ? Color.White : new Color(88, 108, 146));
-			}
-			spriteBatch.DrawString(arial12Bold, str, vector2, color);
-		}
-
-		public void DrawBlue(ScreenManager screenManager, Rectangle rect)
-		{
-			string str;
-			Color color;
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], rect, Color.White);
-			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
-			Vector2 pos = tPos;
-			if (GlobalStats.IsGerman)
-			{
-				pos.X = pos.X - 9f;
-			}
-			SpriteBatch spriteBatch = screenManager.SpriteBatch;
-			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			str = (this.Toggled ? this.ToggledText : this.Text);
-			Vector2 vector2 = pos;
-			if (this.Hover)
-			{
-				color = new Color(174, 202, 255);
-			}
-			else
-			{
-				color = (this.Toggled ? Color.White : new Color(88, 108, 146));
+				color = (Toggled ? Color.White : new Color(88, 108, 146));
 			}
 			spriteBatch.DrawString(arial12Bold, str, vector2, color);
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			if (!this.r.HitTest(input.CursorPosition))
+			if (!r.HitTest(input.CursorPosition))
 			{
-				this.Hover = false;
+				Hover = false;
 			}
 			else
 			{
-				this.Hover = true;
+				Hover = true;
 				if (input.InGameSelect)
 				{
 					GameAudio.PlaySfxAsync("echo_affirm");
-					if (this.IsToggle)
+					if (IsToggle)
 					{
-						this.Toggled = !this.Toggled;
+						Toggled = !Toggled;
 					}
 					return true;
 				}
