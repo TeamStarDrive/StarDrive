@@ -79,9 +79,9 @@ namespace Ship_Game.AI
             var potentialShips = new Array<Ship>();
             bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
             string name = "";
-            float bestModuleRatio = 0;
+            float bestModuleRatio = 0.8f;
             float highestStrength = 0;
-
+            //empire.UpdateShipsWeCanBuild();
             foreach (string shipsWeCanBuild in empire.ShipsWeCanBuild)
             {
                 Ship ship;
@@ -99,36 +99,29 @@ namespace Ship_Game.AI
 
                 potentialShips.Add(ship);
                 int shipSize = ship.shipData.ModuleSlots.Length;
+                highestStrength = Math.Max(highestStrength, ship.BaseStrength / shipSize);
                 if (specificModuleWanted)
-                {
                     bestModuleRatio = Math.Max(bestModuleRatio, ship.PercentageOfShipByModules(targetModule));
-                    highestStrength = Math.Max(highestStrength, ship.BaseStrength / shipSize);
-                }
-                else
-                    highestStrength = Math.Max(highestStrength, ship.BaseStrength / shipSize);
             }
 
             if (potentialShips.Count <= 0)
                 return name;
-
-            bestModuleRatio *= 0.8f;
             MinMaxStrength levelAdjust = new MinMaxStrength(highestStrength, empire);
             Ship[] bestShips = potentialShips.FilterBy(ships =>
-            {
-                float shipStrength = ships.BaseStrength / ships.shipData.ModuleSlots.Length;
-                if (specificModuleWanted)
+                {
+                    float shipStrength = ships.BaseStrength / ships.shipData.ModuleSlots.Length;
+                    //Log.Warning($"blabla");
+                    if (!specificModuleWanted)
+                        return shipStrength >= levelAdjust.MinStrength
+                               && shipStrength <= levelAdjust.MaxStrength;
+
                     return shipStrength >= levelAdjust.MinStrength
                            && shipStrength <= levelAdjust.MaxStrength
                            && ships.PercentageOfShipByModules(targetModule) >= bestModuleRatio;
-
-                //Log.Info(ConsoleColor.Magenta, $"Name: {ships.Name}, Stength: {ships.BaseStrength}");
-                return shipStrength >= levelAdjust.MinStrength
-                       && shipStrength <= levelAdjust.MaxStrength;
-            });
+                });
 
             if (bestShips.Length == 0)
                 return name;
-
             Ship pickedShip = RandomMath.RandItem(bestShips);
             name = pickedShip.Name;
 
@@ -155,25 +148,33 @@ namespace Ship_Game.AI
 
             public MinMaxStrength(float inputStrength, Empire empire)
             {
-                float minStrength = inputStrength * 0.9f; ;
-                float maxStrength = inputStrength;
-                switch (Empire.Universe?.GameDifficulty)
+                MinStrength = 0;
+                MaxStrength = 0;
+                if (empire.isPlayer)
                 {
-                    case UniverseData.GameDifficulty.Easy when !empire.isPlayer:
-                        minStrength = inputStrength * 0.3f;
-                        maxStrength = inputStrength * 0.8f;
-                        break;
-                    case UniverseData.GameDifficulty.Normal when !empire.isPlayer:
-                        minStrength = inputStrength * 0.7f;
-                        maxStrength = inputStrength;
-                        break;
-                    case UniverseData.GameDifficulty.Hard when !empire.isPlayer :
-                        minStrength = inputStrength * 0.8f;
-                        maxStrength = inputStrength;
-                        break;
+                    MinStrength = inputStrength * 0.9f;
+                    MaxStrength = inputStrength;
                 }
-                MinStrength = minStrength;
-                MaxStrength = maxStrength;
+                else
+                    switch (Empire.Universe?.GameDifficulty)
+                    {
+                        case UniverseData.GameDifficulty.Easy:
+                            MinStrength = inputStrength * 0.3f;
+                            MaxStrength = inputStrength * 0.8f;
+                            break;
+                        case UniverseData.GameDifficulty.Normal:
+                            MinStrength = inputStrength * 0.7f;
+                            MaxStrength = inputStrength;
+                            break;
+                        case UniverseData.GameDifficulty.Hard: 
+                            MinStrength = inputStrength * 0.8f;
+                            MaxStrength = inputStrength;
+                            break;
+                        case UniverseData.GameDifficulty.Brutal:
+                            MinStrength = inputStrength * 0.8f;
+                            MaxStrength = inputStrength;
+                            break;
+                    }
             }
         }
 
