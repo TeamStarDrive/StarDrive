@@ -123,7 +123,7 @@ namespace Ship_Game.Ships
 
         private bool HighKineticToEnergyRatio()
         {
-            if (Ship.OrdinanceMax < 1 || Ship.Weapons.Count == 0)
+            if (Ship.OrdinanceMax < 1 || Ship.Weapons.Count == 0 && Ship.BombCount == 0)
                 return false;
 
             if (!Ship.InCombat)
