@@ -405,6 +405,7 @@ namespace Ship_Game
                 sensorRange       = Math.Max(slot.Module.SensorRange, sensorRange);
                 sensorBonus       = Math.Max(slot.Module.SensorBonus, sensorBonus);
                 fixedTargets      = Math.Max(slot.Module.FixedTracking, fixedTargets);
+                ordnanceUsed     += slot.Module.BayOrdnanceUsagePerSecond;
 
                 if (slot.Module.IsCommandModule)
                     hasBridge = true;
