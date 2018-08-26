@@ -152,7 +152,7 @@ namespace Ship_Game
             if (itemToBuild != null)
             {
                 var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-                float scale = (float)itemToBuild.Size / platform.Width;
+                float scale = (float)itemToBuild.SurfaceArea / platform.Width;
                 Vector2 IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
                 scale = scale * 4000f / screen.CamHeight;
                 if (scale > 1f)
