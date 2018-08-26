@@ -116,9 +116,9 @@ namespace Ship_Game.Ships
                         return ShipData.RoleName.scout;
                     case ShipData.Category.Combat:
                         break;
-                    case ShipData.Category.Bomber:
+                    case ShipData.Category.AntiShip:
                         break;
-                    case ShipData.Category.Fighter:
+                    case ShipData.Category.Interceptor:
                         break;
                     case ShipData.Category.Kamikaze:
                         break;
