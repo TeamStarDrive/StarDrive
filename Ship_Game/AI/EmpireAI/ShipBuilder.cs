@@ -138,12 +138,6 @@ namespace Ship_Game.AI
                                                            ShipModuleType targetModule,
                                                            ShipData.Category shipCategory)
         {
-            bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
-            float bestModuleRatio = 0.8f;
-
-            //string targetModuleStr = specificModuleWanted ? targetModule.ToString() : "";
-            //Debug($"PickFromCandidatesByStrength {role}  {shipCategory}  {targetModuleStr}  (total {empire.ShipsWeCanBuild.Count})");
-
             Ship[] potentialShips = ShipsWeCanBuild(empire).FilterBy(
                 ship => ship.DesignRole == role
                 && (maxSize <= 0 || ship.Size <= maxSize)
@@ -151,36 +145,29 @@ namespace Ship_Game.AI
             );
 
             if (potentialShips.Length == 0)
-            {
-                //Debug($"    No potential ships in category: {shipCategory} with role: {role}");
                 return "";
-            }
 
             float maxStrength = potentialShips.Max(ship => ship.NormalizedStrength);
-
-            if (specificModuleWanted)
-                bestModuleRatio = potentialShips.Max(ship => ship.PercentageOfShipByModules(targetModule));
-
             var levelAdjust = new MinMaxStrength(maxStrength, empire);
-            Ship[] bestShips = potentialShips.FilterBy(ship =>
+
+            Ship[] bestShips;
+            if (targetModule != ShipModuleType.Dummy)
             {
-                if (!levelAdjust.InRange(ship.NormalizedStrength))
-                    return false; // ignore ships not in adjusted level range
+                float bestModuleRatio = potentialShips.Max(ship => ship.PercentageOfShipByModules(targetModule));
 
-                if (specificModuleWanted)
-                    return ship.PercentageOfShipByModules(targetModule) >= bestModuleRatio;
-
-                return true;
-            });
-
-            if (bestShips.Length == 0)
+                bestShips = potentialShips.FilterBy(
+                    ship => levelAdjust.InRange(ship.NormalizedStrength)
+                    && bestModuleRatio <= ship.PercentageOfShipByModules(targetModule));
+            }
+            else
             {
-                //Debug($"    No best ships in strength range: {levelAdjust}");
-                return "";
+                bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
             }
 
+            if (bestShips.Length == 0)
+                return "";
+
             Ship pickedShip = RandomMath.RandItem(bestShips);
-            //Debug($"    Picked ship: {pickedShip.Name} ");
 
             if (Empire.Universe?.showdebugwindow == true)
             {
