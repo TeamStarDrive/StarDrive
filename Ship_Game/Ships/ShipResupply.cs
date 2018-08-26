@@ -5,8 +5,8 @@ namespace Ship_Game.Ships
     public struct ShipResupply
     {
         private readonly Ship Ship;
-        private const float OrdnanceThresholdCombat            = 0.05f;
-        private const float OrdnanceThresholdNonCombat         = 0.15f;
+        public const float OrdnanceThresholdCombat             = 0.05f;
+        public const float OrdnanceThresholdNonCombat          = 0.15f;
         private const float ResupplyTroopThreshold             = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
