@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
@@ -70,7 +69,7 @@ namespace Ship_Game.Ships.AI
         //}
         public IReadOnlyList<Vector2> ToArray()
         {
-            IReadOnlyList<Vector2> t = Array.AsReadOnly<Vector2>(ActiveWayPoints.ToArray());
+            IReadOnlyList<Vector2> t = Array.AsReadOnly(ActiveWayPoints.ToArray());
             
             return t;
         }

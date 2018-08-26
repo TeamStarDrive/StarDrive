@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
@@ -11,7 +10,7 @@ namespace Ship_Game.AI
     public sealed partial class ShipAI
     {
         public bool UseSensorsForTargets = true;
-        public CombatState CombatState = AI.CombatState.AttackRuns;
+        public CombatState CombatState = CombatState.AttackRuns;
         public CombatAI CombatAI = new CombatAI();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
         public Ship EscortTarget;
@@ -464,25 +463,27 @@ namespace Ship_Game.AI
             if (Target == null || Owner.InCombat) return;
             Owner.InCombatTimer = 15f;
             if (!HasPriorityOrder && OrderQueue.NotEmpty && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
-            {
-                var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                State = AIState.Combat;
-                OrderQueue.PushToFront(combat);
-            }
+                EnterCombat();
+
             else if (!HasPriorityOrder)
-            {
-                var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                State = AIState.Combat;
-                OrderQueue.PushToFront(combat);
-            }
+                EnterCombat();
+
+            else if ((Owner.IsPlatform || Owner.shipData.Role == ShipData.RoleName.station) 
+                     && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
+                EnterCombat();
             else
             {
                 if (CombatState == CombatState.HoldPosition || OrderQueue.NotEmpty)
                     return;
-                var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
-                State = AIState.Combat;
-                OrderQueue.PushToFront(combat);
+                EnterCombat();
             }
+        }
+
+        private void EnterCombat()
+        {
+            var combat = new ShipGoal(Plan.DoCombat, Vector2.Zero, 0f);
+            State = AIState.Combat;
+            OrderQueue.PushToFront(combat);
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship sensorShip);

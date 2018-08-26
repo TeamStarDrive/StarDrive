@@ -1,8 +1,8 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
@@ -10,7 +10,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.Gameplay
 {
     [Flags]
-    public enum WeaponTag : int
+    public enum WeaponTag
     {
         Kinetic   = (1 << 0),
         Energy    = (1 << 1),
@@ -32,7 +32,7 @@ namespace Ship_Game.Gameplay
         PD        = (1 << 17),
         Flak      = (1 << 18),
         Array     = (1 << 19),
-        Tractor   = (1 << 20),
+        Tractor   = (1 << 20)
     }
 
     public sealed class Weapon : IDisposable, IDamageModifier
@@ -431,7 +431,7 @@ namespace Ship_Game.Gameplay
                 return Vector2.Zero; //|| Tag_PD 
 
             //calaculate level. 
-            int trackingPower = (int)(Owner?.TrackingPower ?? 1);                        
+            int trackingPower = Owner?.TrackingPower ?? 1;                        
             if(level == -1)
                 level = (Owner?.Level ?? level) 
                     + trackingPower //(Owner?.TrackingPower  ?? 0)
@@ -931,10 +931,8 @@ namespace Ship_Game.Gameplay
             off *= restrictions;
 
             //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-            off *= OffPowerMod;
-
             if (m == null)
-                return off;
+                return off * OffPowerMod;
 
             //FB: Kinetics which does also require more than minimal power to shoot is less effective
             off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
@@ -947,7 +945,8 @@ namespace Ship_Game.Gameplay
             // FB: Field of Fire is also important
             off *= m.FieldOfFire > 60 ? m.FieldOfFire / 60f : 1f;
 
-            return off;
+            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+            return off * OffPowerMod;
         }
 
         public void Dispose()

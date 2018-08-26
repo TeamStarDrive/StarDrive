@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -19,44 +17,44 @@ namespace Ship_Game
 
 		public SlidingElement(Rectangle r)
 		{
-			this.Housing = r;
-			this.ClickArea = new Rectangle(r.X + r.Width - 32, r.Y + 38, 21, 56);
+			Housing = r;
+			ClickArea = new Rectangle(r.X + r.Width - 32, r.Y + 38, 21, 56);
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, int HowFar)
+		public void Draw(ScreenManager ScreenManager, int HowFar)
 		{
-			Rectangle r = this.Housing;
+			Rectangle r = Housing;
 			r.X = r.X + HowFar;
             ButtonHousing = r;
-			this.ClickArea.X = r.X + r.Width - 32;
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/unitselmenu_tab"], r, Color.White);
-			if (!this.Open)
+			ClickArea.X = r.X + r.Width - 32;
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_tab"), r, Color.White);
+			if (!Open)
 			{
-				if (!this.Hover)
+				if (!Hover)
 				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_right"], this.ClickArea, Color.White);
+					ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_right"), ClickArea, Color.White);
 					return;
 				}
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_right_hover"], this.ClickArea, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_right_hover"), ClickArea, Color.White);
 				return;
 			}
-			if (!this.Hover)
+			if (!Hover)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_left"], this.ClickArea, Color.White);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_left"), ClickArea, Color.White);
 				return;
 			}
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["SelectionBox/button_arrow_left_hover"], this.ClickArea, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/button_arrow_left_hover"), ClickArea, Color.White);
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			this.Hover = false;
-			if (this.ClickArea.HitTest(input.CursorPosition))
+			Hover = false;
+			if (ClickArea.HitTest(input.CursorPosition))
 			{
-				this.Hover = true;
+				Hover = true;
 				if (input.InGameSelect)
 				{
-					this.Open = !this.Open;
+					Open = !Open;
 					return true;
 				}
 			}

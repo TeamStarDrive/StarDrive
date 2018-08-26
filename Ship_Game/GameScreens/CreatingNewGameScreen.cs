@@ -3,16 +3,15 @@
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-
 
 namespace Ship_Game
 {
@@ -123,7 +122,7 @@ namespace Ship_Game
             ScreenManager.ClearScene();
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             string adviceString  = ResourceManager.LoadRandomAdvice();
-            text = HelperFunctions.ParseText(Fonts.Arial12Bold, adviceString, 500f);
+            text = Fonts.Arial12Bold.ParseText(adviceString, 500f);
 
             WorkerThread = new Thread(Worker) { IsBackground = true };
             WorkerThread.Start();
@@ -415,7 +414,7 @@ namespace Ship_Game
             for (; systemCount < NumSystems; ++systemCount)
             {
                 var solarSystem2 = new SolarSystem();
-                solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, this.Data, this.Scale);
+                solarSystem2.GenerateRandomSystem(markovNameGenerator.NextName, Data, Scale);
                 Data.SolarSystemsList.Add(solarSystem2);
                 ++counter;
                 PercentLoaded = counter / (float)(NumSystems * 2);
@@ -456,7 +455,7 @@ namespace Ship_Game
         private short StartingPositionCorners()
         {
             short whichcorner = (short) RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
-            foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
+            foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
             {
                 if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
                 {
@@ -563,8 +562,8 @@ namespace Ship_Game
             //2 = Bottom Left
             //3 = Bottom Right
 
-            float SizeX = this.Data.Size.X * 2;     //Allow for new negative coordinates
-            float SizeY = this.Data.Size.Y * 2;
+            float SizeX = Data.Size.X * 2;     //Allow for new negative coordinates
+            float SizeY = Data.Size.Y * 2;
 
             double CornerSizeX = SizeX * 0.4;    //20% of map per corner
             double CornerSizeY = SizeY * 0.4;
@@ -580,43 +579,43 @@ namespace Ship_Game
             long noinfiniteloop = 0;
             do
             {
-                sysPos = new Vector2(   RandomMath.RandomBetween(-this.Data.Size.X + (float)offsetX, -this.Data.Size.X + (float)(CornerSizeX + offsetX)),
-                                        RandomMath.RandomBetween(-this.Data.Size.Y + (float)offsetY, -this.Data.Size.Y + (float)(CornerSizeY + offsetY)));
+                sysPos = new Vector2(   RandomMath.RandomBetween(-Data.Size.X + (float)offsetX, -Data.Size.X + (float)(CornerSizeX + offsetX)),
+                                        RandomMath.RandomBetween(-Data.Size.Y + (float)offsetY, -Data.Size.Y + (float)(CornerSizeY + offsetY)));
                 noinfiniteloop += 1000;
             } 
             //Decrease the acceptable proximity slightly each attempt, so there wont be an infinite loop here on 'tiny' + 'SuperPacked' maps
-            while (!this.SystemPosOK(sysPos, 400000 - noinfiniteloop));
-            this.ClaimedSpots.Add(sysPos);
+            while (!SystemPosOK(sysPos, 400000 - noinfiniteloop));
+            ClaimedSpots.Add(sysPos);
             return sysPos;
         }
 
         public void GenerateArm(int numOfStars, float rotation)
         {
             Random random = new Random();
-            Vector2 vector2 = this.GalacticCenter;
-            float num1 = (float)((double)(2f / (float)numOfStars) * 2.0 * 3.14159274101257);
+            Vector2 vector2 = GalacticCenter;
+            float num1 = (float)(2f / numOfStars * 2.0 * 3.14159274101257);
             for (int index = 0; index < numOfStars; ++index)
             {
-                float num2 = (float)Math.Pow((double)this.Data.Size.X - 0.0850000008940697 * (double)this.Data.Size.X, (double)((float)index / (float)numOfStars));
-                float num3 = (float)index * num1 + rotation;
-                float x = vector2.X + (float)Math.Cos((double)num3) * num2;
-                float y = vector2.Y + (float)Math.Sin((double)num3) * num2;
-                Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-10000f, 10000f) * (float)index, (float)((double)RandomMath.RandomBetween(-10000f, 10000f) * (double)index / 4.0));
+                float num2 = (float)Math.Pow(Data.Size.X - 0.0850000008940697 * Data.Size.X, index / (float)numOfStars);
+                float num3 = index * num1 + rotation;
+                float x = vector2.X + (float)Math.Cos(num3) * num2;
+                float y = vector2.Y + (float)Math.Sin(num3) * num2;
+                Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-10000f, 10000f) * index, (float)(RandomMath.RandomBetween(-10000f, 10000f) * (double)index / 4.0));
                 sysPos = new Vector2(x, y) + sysPos;
-                if (this.SystemPosOK(sysPos))
+                if (SystemPosOK(sysPos))
                 {
-                    this.stars.Add(sysPos);
-                    this.ClaimedSpots.Add(sysPos);
+                    stars.Add(sysPos);
+                    ClaimedSpots.Add(sysPos);
                 }
                 else
                 {
-                    while (!this.SystemPosOK(sysPos))
+                    while (!SystemPosOK(sysPos))
                     {
-                        sysPos.X = this.GalacticCenter.X + RandomMath.RandomBetween((float)(-(double)this.Data.Size.X / 2.0 + 0.0850000008940697 * (double)this.Data.Size.X), (float)((double)this.Data.Size.X / 2.0 - 0.0850000008940697 * (double)this.Data.Size.X));
-                        sysPos.Y = this.GalacticCenter.Y + RandomMath.RandomBetween((float)(-(double)this.Data.Size.X / 2.0 + 0.0850000008940697 * (double)this.Data.Size.X), (float)((double)this.Data.Size.X / 2.0 - 0.0850000008940697 * (double)this.Data.Size.X));
+                        sysPos.X = GalacticCenter.X + RandomMath.RandomBetween((float)(-(double)Data.Size.X / 2.0 + 0.0850000008940697 * Data.Size.X), (float)(Data.Size.X / 2.0 - 0.0850000008940697 * Data.Size.X));
+                        sysPos.Y = GalacticCenter.Y + RandomMath.RandomBetween((float)(-(double)Data.Size.X / 2.0 + 0.0850000008940697 * Data.Size.X), (float)(Data.Size.X / 2.0 - 0.0850000008940697 * Data.Size.X));
                     }
-                    this.stars.Add(sysPos);
-                    this.ClaimedSpots.Add(sysPos);
+                    stars.Add(sysPos);
+                    ClaimedSpots.Add(sysPos);
                 }
             }
         }
@@ -747,19 +746,19 @@ namespace Ship_Game
             Log.Info($"Creating Empire {data.PortraitName}");
             if (data.Faction == 1)
                 empire.isFaction = true;
-            int index1 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.DiplomaticTraitsList.Count);
-            data.DiplomaticPersonality = this.DTraits.DiplomaticTraitsList[index1];
+            int index1 = (int)RandomMath.RandomBetween(0.0f, DTraits.DiplomaticTraitsList.Count);
+            data.DiplomaticPersonality = DTraits.DiplomaticTraitsList[index1];
             while (!CheckPersonality(data))
             {
-                int index2 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.DiplomaticTraitsList.Count);
-                data.DiplomaticPersonality = this.DTraits.DiplomaticTraitsList[index2];
+                int index2 = (int)RandomMath.RandomBetween(0.0f, DTraits.DiplomaticTraitsList.Count);
+                data.DiplomaticPersonality = DTraits.DiplomaticTraitsList[index2];
             }
-            int index3 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.EconomicTraitsList.Count);
-            data.EconomicPersonality = this.DTraits.EconomicTraitsList[index3];
+            int index3 = (int)RandomMath.RandomBetween(0.0f, DTraits.EconomicTraitsList.Count);
+            data.EconomicPersonality = DTraits.EconomicTraitsList[index3];
             while (!CheckEPersonality(data))
             {
-                int index2 = (int)RandomMath.RandomBetween(0.0f, (float)this.DTraits.EconomicTraitsList.Count);
-                data.EconomicPersonality = this.DTraits.EconomicTraitsList[index2];
+                int index2 = (int)RandomMath.RandomBetween(0.0f, DTraits.EconomicTraitsList.Count);
+                data.EconomicPersonality = DTraits.EconomicTraitsList[index2];
             }
             empire.data = data;
             //Added by McShooterz: set values for alternate race file structure

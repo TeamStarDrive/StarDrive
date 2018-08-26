@@ -1,14 +1,14 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
+using Ship_Game.Commands.Goals;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Commands.Goals;
-using Ship_Game.Ships;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -20,12 +20,153 @@ namespace Ship_Game.Debug
         Pathing,
         DefenseCo,
         Trade,
+        Planets,
         AO,
         ThreatMatrix,
         SpatialManager,
         input,
         Tech,
-        Last, // dummy value
+        Last // dummy value
+    }
+    public struct DebugTextBlock
+    {
+        public Array<string> Lines;
+        public string Header;
+        public float HeaderSize;
+        public Color HeaderColor;
+        public string Footer;
+        public float FooterSize;
+        public Color FooterColor;
+        public Array<Color> LineColor;
+        public void AddRange(Array<string> lines)
+        {            
+            foreach (var line in lines)            
+                AddLine(line);                            
+        }
+        public void AddRange(Array<string> lines, Color color)
+        {
+            foreach (var line in lines)
+            {
+                AddLine(line);
+                LineColor.Add(color);
+            }
+        }
+        public Array<string> GetFormattedLines()
+        {
+            Array<string> text = new Array<string>();
+            if (Header.NotEmpty()) text.Add(Header);
+            text.AddRange(Lines);
+            if (Footer.NotEmpty()) text.Add(Footer);
+            return text;
+        }
+        public void AddLine(string text) => AddLine(text, GetLastColor());        
+        public void AddLine(string text, Color color)
+        {
+            Lines = Lines ?? new Array<string>();
+            LineColor = LineColor ?? new Array<Color>();
+            Lines.Add(text);
+            LineColor.Add(color);
+        }
+        private Color GetLastColor()
+        {
+            if (LineColor?.IsEmpty ?? true) return Color.White;
+            return LineColor.Last;
+        }
+
+    }
+
+    
+    
+
+    public class PlanetData : DebugPage
+    {
+        private UniverseScreen Screen;
+        private DebugInfoScreen Parent;
+        private Rectangle DrawArea;
+        public PlanetData(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Planets)
+        {
+            Screen = screen;
+            Parent = parent;
+            DrawArea = parent.Rect;
+        }
+
+        public override void Update(float deltaTime, DebugModes mode)
+        {
+            Planet planet = Screen.SelectedPlanet;
+
+            Array<DebugTextBlock> text;
+            if (planet == null)
+            {
+                text = new Array<DebugTextBlock>();
+                foreach (Empire empire in EmpireManager.Empires)
+                {
+                    if (empire.isFaction) continue;
+
+                    var block = empire.DebugEmpirePlanetInfo();
+                    block.Header = empire.Name;
+                    block.HeaderColor = empire.EmpireColor;
+
+                    text.Add(block);
+
+                }
+                for (int i = 0; i < text.Count; i++)
+                {
+                    var lines = text[i];
+                    ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+                }
+                return;
+            }
+            HideAllDebugText();
+            
+            text = planet.DebugPlanetInfo();
+            if (text == null)
+                return;
+            if (text?.IsEmpty == true) return;
+            for (int i = 0; i < text.Count; i++)
+            {
+                DebugTextBlock lines = text[i];
+                ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+            }
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            if (!Visible)
+            {
+                base.Draw(spriteBatch);
+                return;
+            }
+            Planet planet = Screen.SelectedPlanet;
+            int totalFreighters = 0;
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                foreach (Ship ship in e.GetShips())
+                {
+                    if (ship?.Active != true) continue;
+                    ShipAI ai = ship.AI;
+                    if (ai.State != AIState.SystemTrader) continue;
+                    if (ai.OrderQueue.Count == 0) continue;
+
+                    switch (ai.OrderQueue.PeekLast.Plan)
+                    {
+                        case Plan.DropOffGoods:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                            if (planet == ship.AI.end) totalFreighters++;
+
+                            break;
+                        case Plan.PickupGoods:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
+                            break;
+                        case Plan.PickupPassengers:
+                        case Plan.DropoffPassengers:
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
+                            break;
+                    }
+                }
+
+            }
+            base.Draw(spriteBatch);
+        }
     }
 
     public sealed class DebugInfoScreen : GameScreen
@@ -63,15 +204,15 @@ namespace Ship_Game.Debug
         public static sbyte Loadmodels = 0;
         public static DebugModes Mode { get; private set; }
         private readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
-        private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
+        private Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();        
+        private DebugPage Page;
 
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen) : base(screen)
         {
             IsOpen = true;
             Screen = screen;
             ScreenManager = screenManager;
-            Win = new Rectangle(30, 200, 1200, 700);
-
+            Win = new Rectangle(30, 200, 1200, 700);            
             foreach (Empire empire in EmpireManager.Empires)
             {
                 if (empire == Empire.Universe.player || empire.isFaction)
@@ -103,6 +244,35 @@ namespace Ship_Game.Debug
                 }
             }
         }
+   
+        private Array<UILabel> DebugText;
+        private void HideAllDebugGameInfo()
+        {
+            if (DebugText == null) return;
+            for (int i = 0; i < DebugText.Count; i++)
+            {
+                var column = DebugText[i];
+                column.Hide();
+            }
+        }
+        private void HideDebugGameInfo(int column)
+        {
+            DebugText?[column].Hide();
+        }
+
+        private void ShowDebugGameInfo(int column, Array<string> lines, float x, float y)
+        {
+            if (DebugText == null)            
+                DebugText = new Array<UILabel>();                
+            
+            if (DebugText.Count <= column)            
+                DebugText.Add(Label(x, y, ""));
+            
+
+            DebugText[column].Show();
+            DebugText[column].MultilineText = lines;
+        
+        }
 
         public bool DebugLogText(string text, DebugModes mode)
         {
@@ -114,7 +284,7 @@ namespace Ship_Game.Debug
         public static void LogSelected(object selected, string text, DebugModes mode = DebugModes.Last)
         {     
             if (Empire.Universe.SelectedShip        != selected
-                && Empire.Universe.SelectedPlanet   != selected
+                && Empire.Universe.SelectedPlanet    != selected
                 && Empire.Universe.SelectedFleet    != selected
                 && Empire.Universe.SelectedItem     != selected
                 && Empire.Universe.SelectedSystem   != selected
@@ -187,6 +357,9 @@ namespace Ship_Game.Debug
 
         public void Draw(GameTime gameTime)
         {
+
+            Page?.Draw(Screen.ScreenManager.SpriteBatch);
+            
             try
             {
                 TextFont = Fonts.Arial20Bold;
@@ -216,18 +389,69 @@ namespace Ship_Game.Debug
                     case DebugModes.Normal        : EmpireInfo(); break;
                     case DebugModes.DefenseCo     : DefcoInfo(); break;
                     case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
-                    case DebugModes.Pathing       : PathingInfo(); break;
-                    case DebugModes.Trade         : TradeInfo(); break;
+                    //case DebugModes.Pathing       : PathingInfo(); break;
+                    //case DebugModes.Trade         : TradeInfo(); break;
                     case DebugModes.Targeting     : Targeting(); break;
                     case DebugModes.SpatialManager: SpatialManagement(); break;
                     case DebugModes.input         : InputDebug(); break;
                     case DebugModes.Tech          : Tech(); break;
                 }
+                base.Draw(ScreenManager.SpriteBatch);
                 ShipInfo();
             }
             catch { }
         }
 
+        public bool ValidatePage()
+        {
+            if (Page?.DebugMode == Mode)
+            {
+                Page.Show();
+                return true;
+            }
+            switch (Mode)
+            {
+                case DebugModes.Normal:
+                    break;
+                case DebugModes.Targeting:
+                    break;
+                case DebugModes.Pathing:
+                    Page = new PathDebug(Screen, this);
+                    return true;
+                case DebugModes.DefenseCo:
+                    break;
+                case DebugModes.Trade:
+                    Page = new TradeDebug(Screen, this);
+                    return true;
+                case DebugModes.AO:
+                    break;
+                case DebugModes.ThreatMatrix:
+                    break;
+                case DebugModes.SpatialManager:
+                    break;
+                case DebugModes.input:
+                    break;
+                case DebugModes.Tech:
+                    break;
+                case DebugModes.Last:
+                    break;
+                case DebugModes.Planets:
+                    Page = new PlanetData(Screen, this);
+                    return true;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return false;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (ValidatePage())
+                Page?.Update(deltaTime, Mode);
+            else Page?.Hide();
+            
+            base.Update(deltaTime);
+        }
         private void Tech()
         {
             TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
@@ -551,25 +775,17 @@ namespace Ship_Game.Debug
             }
         }
 
-        private void PathingInfo()
-        {
-            foreach (Empire e in EmpireManager.Empires)
-                for (int x = 0; x < e.grid.GetLength(0); x++)
-                    for (int y = 0; y < e.grid.GetLength(1); y++)
-                    {
-                        if (e.grid[x, y] != 1)
-                            continue;
-                        var translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
-                        Screen.DrawCircleProjectedZ(translated, Screen.reducer , e.EmpireColor, 4);
-                    }
-        }
+
 
         private void TradeInfo()
         {
+            Planet planet = Screen.SelectedPlanet;
+            int totalFreighters = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
                 foreach (Ship ship in e.GetShips())
                 {
+                    if (ship?.Active != true) continue;
                     ShipAI ai = ship.AI;
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
@@ -578,6 +794,8 @@ namespace Ship_Game.Debug
                     {
                         case Plan.DropOffGoods:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
+                            if (planet == ship.AI.end) totalFreighters++;
+
                             break;
                         case Plan.PickupGoods:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
@@ -589,6 +807,18 @@ namespace Ship_Game.Debug
                     }
                 }   
 
+            }
+            if (planet?.Owner == null)
+            {
+                HideAllDebugGameInfo();
+                return;
+            }
+
+            Array<DebugTextBlock> text = planet.TradeAI.DebugText();
+            for (int i = 0; i < text.Count; i++)
+            {
+                var lines = text[i];
+                ShowDebugGameInfo(i, lines.Lines, Win.X + 10 + 400 * i, Win.Y + 20);  
             }
         }
 
@@ -611,15 +841,16 @@ namespace Ship_Game.Debug
 
         public override bool HandleInput(InputState input)
         {
+            Page?.HandleInput(input);
             if (!input.WasKeyPressed(Keys.Left) && !input.WasKeyPressed(Keys.Right))
                 return false;
             ResearchText.Clear();
-
+            HideAllDebugGameInfo();
             if (input.WasKeyPressed(Keys.Left)) --Mode;
             else                                ++Mode;
 
             if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
-            else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
+            else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;            
             return false;
         }
 

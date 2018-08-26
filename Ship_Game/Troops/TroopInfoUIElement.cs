@@ -44,19 +44,19 @@ namespace Ship_Game
             Rectangle desRect = new Rectangle(HardAttackRect.X, HardAttackRect.Y - 10, LeftRect.Width + 8, 95);
             Submenu sub       = new Submenu(desRect);
             DescriptionSL     = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
-            TippedItem def    = new TippedItem()
+            TippedItem def    = new TippedItem
             {
                 r = DefenseRect,
                 TIP_ID = 33
             };
             ToolTipItems.Add(def);
-            def = new TippedItem()
+            def = new TippedItem
             {
                 r = SoftAttackRect,
                 TIP_ID = 34
             };
             ToolTipItems.Add(def);
-            def = new TippedItem()
+            def = new TippedItem
             {
                 r = HardAttackRect,
                 TIP_ID = 35
@@ -171,7 +171,7 @@ namespace Ship_Game
         {
             try
             {
-                this.DescriptionSL.HandleInput(input);
+                DescriptionSL.HandleInput(input);
             }
             catch
             {
@@ -185,12 +185,12 @@ namespace Ship_Game
                 }
                 ToolTip.CreateTooltip(ti.TIP_ID);
             }
-            if (this.LaunchTroop != null && this.LaunchTroop.r.HitTest(input.CursorPosition))
+            if (LaunchTroop != null && LaunchTroop.r.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(67);
-                if (this.LaunchTroop.HandleInput(input))
+                if (LaunchTroop.HandleInput(input))
                 {
-                    if ((this.screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
+                    if ((screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
                     {
                         GameAudio.PlaySfxAsync("UI_Misc20");                        
                         return true;
@@ -200,7 +200,7 @@ namespace Ship_Game
                     using (pgs.TroopsHere.AcquireWriteLock())
                         if (pgs.TroopsHere.Count > 0) pgs.TroopsHere[0].Launch();
 
-                    (this.screen.workersPanel as CombatScreen).ActiveTroop = null;
+                    (screen.workersPanel as CombatScreen).ActiveTroop = null;
                 }
             }            
             return false;

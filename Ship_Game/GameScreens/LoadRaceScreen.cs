@@ -23,7 +23,7 @@ namespace Ship_Game
             {
                 GameAudio.PlaySfxAsync("UI_Misc20");
             }
-            this.ExitScreen();
+            ExitScreen();
         }
 
         protected override void InitSaveList()        // Set list of files to show
@@ -54,7 +54,7 @@ namespace Ship_Game
                 }
             }
 
-            var sortedList = from data in saves orderby data.FileName ascending select data;
+            var sortedList = from data in saves orderby data.FileName select data;
             foreach (FileData data in sortedList)
                 SavesSL.AddItem(data).AddSubItem(data.FileLink);
         }

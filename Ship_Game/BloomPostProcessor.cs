@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -25,9 +25,9 @@ namespace Ship_Game
 
 	    public BloomSettings Settings { get; set; } = BloomSettings.PresetSettings[5];
 
-	    public override SurfaceFormat[] SupportedSourceFormats => this.supportedSourceFormats.ToArray();
+	    public override SurfaceFormat[] SupportedSourceFormats => supportedSourceFormats.ToArray();
 
-	    public override SurfaceFormat[] SupportedTargetFormats => this.supportedSourceFormats.ToArray();
+	    public override SurfaceFormat[] SupportedTargetFormats => supportedSourceFormats.ToArray();
 
 	    public BloomPostProcessor(GraphicsDeviceManager deviceManager) : base(deviceManager)
 		{
@@ -39,25 +39,25 @@ namespace Ship_Game
 
 		private float ComputeGaussian(float n)
 		{
-			float theta = this.Settings.BlurAmount;
-			return (float)(1 / Math.Sqrt(6.28318530717959 * (double)theta) * Math.Exp((double)(-(n * n) / (2f * theta * theta))));
+			float theta = Settings.BlurAmount;
+			return (float)(1 / Math.Sqrt(6.28318530717959 * theta) * Math.Exp(-(n * n) / (2f * theta * theta)));
 		}
 
 		private void DrawFullscreenQuad(Texture2D texture, RenderTarget2D renderTarget, Effect effect)
 		{
-			GraphicsDevice device = base.GraphicsDeviceManager.GraphicsDevice;
+			GraphicsDevice device = GraphicsDeviceManager.GraphicsDevice;
 			device.SetRenderTarget(0, renderTarget);
-			this.DrawFullscreenQuad(texture, renderTarget.Width, renderTarget.Height, effect);
+			DrawFullscreenQuad(texture, renderTarget.Width, renderTarget.Height, effect);
 			device.SetRenderTarget(0, null);
 		}
 
 		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect)
 		{
-			this.spriteRenderer.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+			spriteRenderer.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
 			effect.Begin();
 			effect.CurrentTechnique.Passes[0].Begin();
-			this.spriteRenderer.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-			this.spriteRenderer.End();
+			spriteRenderer.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
+			spriteRenderer.End();
 			effect.CurrentTechnique.Passes[0].End();
 			effect.End();
 		}
@@ -66,65 +66,65 @@ namespace Ship_Game
 		{
 			Texture2D source = base.EndFrameRendering(mastersource, lastprocessorsource);
 			Rectangle rectangle = new Rectangle(0, 0, source.Width, source.Height);
-			GraphicsDevice device = base.GraphicsDeviceManager.GraphicsDevice;
-			this.bloomExtractEffect.Parameters["BloomThreshold"].SetValue(this.Settings.BloomThreshold);
-			this.DrawFullscreenQuad(source, this.renderTarget1, this.bloomExtractEffect);
-			this.SetBlurEffectParameters(1f / (float)this.renderTarget1.Width, 0f);
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), this.renderTarget2, this.gaussianBlurEffect);
-			this.SetBlurEffectParameters(0f, 1f / (float)this.renderTarget1.Height);
-			this.DrawFullscreenQuad(this.renderTarget2.GetTexture(), this.renderTarget1, this.gaussianBlurEffect);
+			GraphicsDevice device = GraphicsDeviceManager.GraphicsDevice;
+			bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);
+			DrawFullscreenQuad(source, renderTarget1, bloomExtractEffect);
+			SetBlurEffectParameters(1f / renderTarget1.Width, 0f);
+			DrawFullscreenQuad(renderTarget1.GetTexture(), renderTarget2, gaussianBlurEffect);
+			SetBlurEffectParameters(0f, 1f / renderTarget1.Height);
+			DrawFullscreenQuad(renderTarget2.GetTexture(), renderTarget1, gaussianBlurEffect);
 			device.SetRenderTarget(0, null);
-			EffectParameterCollection parameters = this.bloomCombineEffect.Parameters;
-			parameters["BloomIntensity"].SetValue(this.Settings.BloomIntensity);
-			parameters["BaseIntensity"].SetValue(this.Settings.BaseIntensity);
-			parameters["BloomSaturation"].SetValue(this.Settings.BloomSaturation);
-			parameters["BaseSaturation"].SetValue(this.Settings.BaseSaturation);
+			EffectParameterCollection parameters = bloomCombineEffect.Parameters;
+			parameters["BloomIntensity"].SetValue(Settings.BloomIntensity);
+			parameters["BaseIntensity"].SetValue(Settings.BaseIntensity);
+			parameters["BloomSaturation"].SetValue(Settings.BloomSaturation);
+			parameters["BaseSaturation"].SetValue(Settings.BaseSaturation);
 			device.Textures[1] = source;
 			Viewport viewport = Game1.Instance.Viewport;
-			this.DrawFullscreenQuad(this.renderTarget1.GetTexture(), viewport.Width, viewport.Height, this.bloomCombineEffect);
+			DrawFullscreenQuad(renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect);
 			return source;
 		}
 
 		public override bool Initialize(List<SurfaceFormat> availableformats)
 		{
-			this.supportedSourceFormats = availableformats;
+			supportedSourceFormats = availableformats;
 			return base.Initialize(availableformats);
 		}
 
 		public void LoadContent(GameContentManager manager)
 		{
-			this.spriteRenderer = new SpriteBatch(base.GraphicsDeviceManager.GraphicsDevice);
-			this.bloomExtractEffect = manager.Load<Effect>("Effects/BloomExtract");
-			this.bloomCombineEffect = manager.Load<Effect>("Effects/BloomCombine");
-			this.gaussianBlurEffect = manager.Load<Effect>("Effects/GaussianBlur");
-			int width = base.GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2;
-			int height = base.GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2;
-			this.renderTarget1 = new RenderTarget2D(base.GraphicsDeviceManager.GraphicsDevice, width, height, 1, base.GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferFormat);
-			this.renderTarget2 = new RenderTarget2D(base.GraphicsDeviceManager.GraphicsDevice, width, height, 1, base.GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferFormat);
+			spriteRenderer = new SpriteBatch(GraphicsDeviceManager.GraphicsDevice);
+			bloomExtractEffect = manager.Load<Effect>("Effects/BloomExtract");
+			bloomCombineEffect = manager.Load<Effect>("Effects/BloomCombine");
+			gaussianBlurEffect = manager.Load<Effect>("Effects/GaussianBlur");
+			int width = GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2;
+			int height = GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2;
+			renderTarget1 = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width, height, 1, GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferFormat);
+			renderTarget2 = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width, height, 1, GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferFormat);
 		}
 
 		private void SetBlurEffectParameters(float dx, float dy)
 		{
-			EffectParameter weightsParameter = this.gaussianBlurEffect.Parameters["SampleWeights"];
-			EffectParameter offsetsParameter = this.gaussianBlurEffect.Parameters["SampleOffsets"];
+			EffectParameter weightsParameter = gaussianBlurEffect.Parameters["SampleWeights"];
+			EffectParameter offsetsParameter = gaussianBlurEffect.Parameters["SampleOffsets"];
 			int sampleCount = weightsParameter.Elements.Count;
 			float[] sampleWeights = new float[sampleCount];
 			Vector2[] sampleOffsets = new Vector2[sampleCount];
-			sampleWeights[0] = this.ComputeGaussian(0f);
+			sampleWeights[0] = ComputeGaussian(0f);
 			sampleOffsets[0] = new Vector2(0f);
 			float totalWeights = sampleWeights[0];
 			for (int i = 0; i < sampleCount / 2; i++)
 			{
-				float weight = this.ComputeGaussian((float)(i + 1));
+				float weight = ComputeGaussian(i + 1);
 				sampleWeights[i * 2 + 1] = weight;
 				sampleWeights[i * 2 + 2] = weight;
 				totalWeights = totalWeights + weight * 2f;
-				float sampleOffset = (float)(i * 2) + 1.5f;
+				float sampleOffset = i * 2 + 1.5f;
 				Vector2 delta = new Vector2(dx, dy) * sampleOffset;
 				sampleOffsets[i * 2 + 1] = delta;
 				sampleOffsets[i * 2 + 2] = -delta;
 			}
-			for (int i = 0; i < (int)sampleWeights.Length; i++)
+			for (int i = 0; i < sampleWeights.Length; i++)
 			{
 				sampleWeights[i] = sampleWeights[i] / totalWeights;
 			}
@@ -134,8 +134,8 @@ namespace Ship_Game
 
 		public void UnloadContent()
 		{
-			this.renderTarget1.Dispose();
-			this.renderTarget2.Dispose();
+			renderTarget1.Dispose();
+			renderTarget2.Dispose();
 		}
 
 		public class BloomSettings
@@ -154,23 +154,23 @@ namespace Ship_Game
 
 			public readonly float BaseSaturation;
 
-			public static BloomPostProcessor.BloomSettings[] PresetSettings;
+			public static BloomSettings[] PresetSettings;
 
 			static BloomSettings()
 			{
-				BloomPostProcessor.BloomSettings[] bloomSetting = new BloomPostProcessor.BloomSettings[] { new BloomPostProcessor.BloomSettings("Default", 0.25f, 4f, 1.25f, 1f, 1f, 1f), new BloomPostProcessor.BloomSettings("Soft", 0f, 3f, 1f, 1f, 1f, 1f), new BloomPostProcessor.BloomSettings("Desaturated", 0.5f, 8f, 2f, 1f, 0f, 1f), new BloomPostProcessor.BloomSettings("Saturated", 0.25f, 4f, 2f, 1f, 2f, 0f), new BloomPostProcessor.BloomSettings("Blurry", 0f, 2f, 1f, 0.1f, 1f, 1f), new BloomPostProcessor.BloomSettings("Subtle", 0.5f, 2f, 1f, 1f, 1f, 1f) };
-				BloomPostProcessor.BloomSettings.PresetSettings = bloomSetting;
+				BloomSettings[] bloomSetting = { new BloomSettings("Default", 0.25f, 4f, 1.25f, 1f, 1f, 1f), new BloomSettings("Soft", 0f, 3f, 1f, 1f, 1f, 1f), new BloomSettings("Desaturated", 0.5f, 8f, 2f, 1f, 0f, 1f), new BloomSettings("Saturated", 0.25f, 4f, 2f, 1f, 2f, 0f), new BloomSettings("Blurry", 0f, 2f, 1f, 0.1f, 1f, 1f), new BloomSettings("Subtle", 0.5f, 2f, 1f, 1f, 1f, 1f) };
+				PresetSettings = bloomSetting;
 			}
 
 			public BloomSettings(string name, float bloomThreshold, float blurAmount, float bloomIntensity, float baseIntensity, float bloomSaturation, float baseSaturation)
 			{
-				this.Name = name;
-				this.BloomThreshold = bloomThreshold;
-				this.BlurAmount = blurAmount;
-				this.BloomIntensity = bloomIntensity;
-				this.BaseIntensity = baseIntensity;
-				this.BloomSaturation = bloomSaturation;
-				this.BaseSaturation = baseSaturation;
+				Name = name;
+				BloomThreshold = bloomThreshold;
+				BlurAmount = blurAmount;
+				BloomIntensity = bloomIntensity;
+				BaseIntensity = baseIntensity;
+				BloomSaturation = bloomSaturation;
+				BaseSaturation = baseSaturation;
 			}
 		}
 

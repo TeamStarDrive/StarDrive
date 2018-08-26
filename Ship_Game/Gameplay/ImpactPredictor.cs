@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 using static System.Math;
 
 namespace Ship_Game.Gameplay
@@ -42,7 +42,7 @@ namespace Ship_Game.Gameplay
         }
 
         // This is used during interception / attack runs
-        public ImpactPredictor(Ships.Ship ourShip, GameplayObject target)
+        public ImpactPredictor(Ship ourShip, GameplayObject target)
         {
             Pos = ourShip.Center;
             Vel = ourShip.Velocity;
@@ -73,7 +73,7 @@ namespace Ship_Game.Gameplay
 
         private static TargetInfo GetTargetInfo(GameplayObject target)
         {
-            if (target is Ships.Ship ship || target is Ships.ShipModule sm && (ship = sm.GetParent()) != null)
+            if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {
                 return new TargetInfo { Pos = target.Center, Vel = ship.Velocity, Acc = ship.Acceleration };
             }

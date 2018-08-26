@@ -1,10 +1,10 @@
-using Microsoft.Xna.Framework;
 using System;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-using Microsoft.Xna.Framework.Media;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -181,7 +181,7 @@ namespace Ship_Game
         // just draws a circle, no fancy reprojections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawCircle(Vector2 posOnScreen, float radius, int sides, Color color, float thickness = 1f)
-            => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, color, thickness);
+            => ScreenManager.SpriteBatch.DrawCircle(posOnScreen, radius, sides, color, thickness);
 
         // Just draws a given rectangle with a color fill
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -327,7 +327,7 @@ namespace Ship_Game
             if (!string.IsNullOrEmpty(videoPath))
             {
                 VideoFile = ResourceManager.LoadVideo(contentManagment, videoPath);
-                VideoPlaying = new VideoPlayer()
+                VideoPlaying = new VideoPlayer
                 {
                     Volume = GlobalStats.MusicVolume,
                     IsLooped = true

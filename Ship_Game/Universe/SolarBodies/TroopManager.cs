@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Gameplay;
 
@@ -30,7 +29,7 @@ namespace Ship_Game
 
         // ReSharper disable once UnusedParameter.Local Habital concept here is to not use this class if the planet cant have
         // ground combat. but that will be a future project. 
-        public TroopManager (SolarSystemBody solarSystemBody, bool habitable)
+        public TroopManager (SolarSystemBody solarSystemBody)
         {
             Ground = solarSystemBody;
         }
@@ -94,10 +93,9 @@ namespace Ship_Game
                                             else if (planetGridSquare.x < pgs.x)
                                                 pgs.TroopsHere[0].facingRight = false;
                                             CombatScreen.StartCombat(pgs, planetGridSquare, (Planet) Ground);
-                                            break;
                                         }
-                                        else
-                                            break;
+
+                                        break;
                                     }
                                 }
                             }
@@ -109,7 +107,7 @@ namespace Ship_Game
                     {
                         if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                         {
-                            foreach (PlanetGridSquare planetGridSquare in ((IEnumerable<PlanetGridSquare>)TilesList).OrderBy<PlanetGridSquare, int>((Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
+                            foreach (PlanetGridSquare planetGridSquare in TilesList.OrderBy(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y)))
                             {
                                 if (!pgs.TroopsHere.Any())
                                     break;
@@ -396,112 +394,108 @@ namespace Ship_Game
                         ActiveCombats.QueuePendingRemoval(combat);
                         break;
                     }
+
+                    if (combat.Attacker.TroopsHere.Count > 0)
+                    {
+                        if (combat.Attacker.TroopsHere[0].Strength <= 0)
+                        {
+                            ActiveCombats.QueuePendingRemoval(combat);
+                            break;
+                        }
+                    }
+                    else if (combat.Attacker.building != null && combat.Attacker.building.Strength <= 0)
+                    {
+                        ActiveCombats.QueuePendingRemoval(combat);
+                        break;
+                    }
+                    if (combat.Defender.TroopsHere.Count == 0 && combat.Defender.building == null)
+                    {
+                        ActiveCombats.QueuePendingRemoval(combat);
+                        break;
+                    }
+
+                    if (combat.Defender.TroopsHere.Count > 0)
+                    {
+                        if (combat.Defender.TroopsHere[0].Strength <= 0)
+                        {
+                            ActiveCombats.QueuePendingRemoval(combat);
+                            break;
+                        }
+                    }
+                    else if (combat.Defender.building != null && combat.Defender.building.Strength <= 0)
+                    {
+                        ActiveCombats.QueuePendingRemoval(combat);
+                        break;
+                    }
+                    float num1;
+                    int num2;
+                    int num3;
+                    if (combat.Attacker.TroopsHere.Count > 0)
+                    {
+                        num1 = combat.Attacker.TroopsHere[0].Strength;
+                        num2 = combat.Attacker.TroopsHere[0].NetHardAttack;
+                        num3 = combat.Attacker.TroopsHere[0].NetSoftAttack;
+                    }
                     else
                     {
-                        if (combat.Attacker.TroopsHere.Count > 0)
+                        num1 = combat.Attacker.building.Strength;
+                        num2 = combat.Attacker.building.HardAttack;
+                        num3 = combat.Attacker.building.SoftAttack;
+                    }
+                    string str = combat.Defender.TroopsHere.Count <= 0 ? "Hard" : combat.Defender.TroopsHere[0].TargetType;
+                    combat.Timer -= elapsedTime;
+                    int num4 = 0;
+                    if (combat.Timer < 3.0 && combat.phase == 1)
+                    {
+                        for (int index = 0; index < num1; ++index)
                         {
-                            if (combat.Attacker.TroopsHere[0].Strength <= 0)
-                            {
-                                ActiveCombats.QueuePendingRemoval(combat);
-                                break;
-                            }
+                            if (RandomMath.RandomBetween(0.0f, 100f) < (str == "Soft" ? num3 : (double)num2))
+                                ++num4;
                         }
-                        else if (combat.Attacker.building != null && combat.Attacker.building.Strength <= 0)
+                        if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
                         {
-                            ActiveCombats.QueuePendingRemoval(combat);
-                            break;
-                        }
-                        if (combat.Defender.TroopsHere.Count == 0 && combat.Defender.building == null)
-                        {
-                            ActiveCombats.QueuePendingRemoval(combat);
-                            break;
-                        }
-                        else
-                        {
+                            GameAudio.PlaySfxAsync("sd_troop_attack_hit");
+                            CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(1);
+                            smallExplosion.grid = combat.Defender.TroopClickRect;
+                            lock (GlobalStats.ExplosionLocker)
+                                (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
                             if (combat.Defender.TroopsHere.Count > 0)
                             {
+                                combat.Defender.TroopsHere[0].Strength -= num4;
                                 if (combat.Defender.TroopsHere[0].Strength <= 0)
                                 {
+                                    TroopsHere.Remove(combat.Defender.TroopsHere[0]);
+                                    combat.Defender.TroopsHere.Clear();
                                     ActiveCombats.QueuePendingRemoval(combat);
-                                    break;
+                                    GameAudio.PlaySfxAsync("Explo1");
+                                    lock (GlobalStats.ExplosionLocker)
+                                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
+                                        {
+                                            grid = combat.Defender.TroopClickRect
+                                        });
+                                    if (combat.Attacker.TroopsHere.Count > 0)
+                                    {
+                                        combat.Attacker.TroopsHere[0].AddKill();
+                                    }
                                 }
-                            }
-                            else if (combat.Defender.building != null && combat.Defender.building.Strength <= 0)
-                            {
-                                ActiveCombats.QueuePendingRemoval(combat);
-                                break;
-                            }
-                            float num1;
-                            int num2;
-                            int num3;
-                            if (combat.Attacker.TroopsHere.Count > 0)
-                            {
-                                num1 = combat.Attacker.TroopsHere[0].Strength;
-                                num2 = combat.Attacker.TroopsHere[0].NetHardAttack;
-                                num3 = combat.Attacker.TroopsHere[0].NetSoftAttack;
                             }
                             else
                             {
-                                num1 = combat.Attacker.building.Strength;
-                                num2 = combat.Attacker.building.HardAttack;
-                                num3 = combat.Attacker.building.SoftAttack;
-                            }
-                            string str = combat.Defender.TroopsHere.Count <= 0 ? "Hard" : combat.Defender.TroopsHere[0].TargetType;
-                            combat.Timer -= elapsedTime;
-                            int num4 = 0;
-                            if (combat.Timer < 3.0 && combat.phase == 1)
-                            {
-                                for (int index = 0; index < num1; ++index)
+                                combat.Defender.building.Strength -= num4;
+                                combat.Defender.building.CombatStrength -= num4;
+                                if (combat.Defender.building.Strength <= 0)
                                 {
-                                    if (RandomMath.RandomBetween(0.0f, 100f) < (str == "Soft" ? num3 : (double)num2))
-                                        ++num4;
+                                    BuildingList.Remove(combat.Defender.building);
+                                    combat.Defender.building = null;
                                 }
-                                if (num4 > 0 && (combat.Defender.TroopsHere.Count > 0 || combat.Defender.building != null && combat.Defender.building.Strength > 0))
-                                {
-                                    GameAudio.PlaySfxAsync("sd_troop_attack_hit");
-                                    CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(1);
-                                    smallExplosion.grid = combat.Defender.TroopClickRect;
-                                    lock (GlobalStats.ExplosionLocker)
-                                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
-                                    if (combat.Defender.TroopsHere.Count > 0)
-                                    {
-                                        combat.Defender.TroopsHere[0].Strength -= num4;
-                                        if (combat.Defender.TroopsHere[0].Strength <= 0)
-                                        {
-                                            TroopsHere.Remove(combat.Defender.TroopsHere[0]);
-                                            combat.Defender.TroopsHere.Clear();
-                                            ActiveCombats.QueuePendingRemoval(combat);
-                                            GameAudio.PlaySfxAsync("Explo1");
-                                            lock (GlobalStats.ExplosionLocker)
-                                                (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
-                                                {
-                                                    grid = combat.Defender.TroopClickRect
-                                                });
-                                            if (combat.Attacker.TroopsHere.Count > 0)
-                                            {
-                                                combat.Attacker.TroopsHere[0].AddKill();
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        combat.Defender.building.Strength -= num4;
-                                        combat.Defender.building.CombatStrength -= num4;
-                                        if (combat.Defender.building.Strength <= 0)
-                                        {
-                                            BuildingList.Remove(combat.Defender.building);
-                                            combat.Defender.building = null;
-                                        }
-                                    }
-                                }
-                                else if (num4 == 0)
-                                    GameAudio.PlaySfxAsync("sd_troop_attack_miss");
-                                combat.phase = 2;
                             }
-                            else if (combat.phase == 2)
-                                ActiveCombats.QueuePendingRemoval(combat);
                         }
+                        else if (num4 == 0)
+                            GameAudio.PlaySfxAsync("sd_troop_attack_miss");
+                        combat.phase = 2;
                     }
+                    else if (combat.phase == 2)
+                        ActiveCombats.QueuePendingRemoval(combat);
                 }
         }
 

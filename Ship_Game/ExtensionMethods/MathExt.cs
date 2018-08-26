@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using static System.Math;
 
@@ -249,10 +251,6 @@ namespace Ship_Game
 
         public static Color Alpha(this Color color, float newAlpha) => new Color(color, newAlpha);
 
-        // True if pos is inside the rectangle
-        //Saftey catch. allow a null to be sent to hit test. 
-        public static bool HitTest(this Rectangle r, object o) => false;
-
         public static bool HitTest(this Rectangle r, Vector2 pos)
         {
             return pos.X > r.X && pos.Y > r.Y && pos.X < r.X + r.Width && pos.Y < r.Y + r.Height;
@@ -265,6 +263,9 @@ namespace Ship_Game
         public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
         public static Vector2 PosVec(this Rectangle r) => new Vector2(r.X, r.Y);
         public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
+
+        public static Rectangle Bevel(this Rectangle r, int bevel)
+            => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
 
         public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
@@ -416,14 +417,14 @@ namespace Ship_Game
             return deltaV / deltaTime;
         }
 
-        public static Vector2 PredictImpact(this Ships.Ship ourShip, GameplayObject target)
+        public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
-            return new Gameplay.ImpactPredictor(ourShip, target).Predict();
+            return new ImpactPredictor(ourShip, target).Predict();
         }
 
-        public static Vector2 PredictImpact(this Gameplay.Projectile proj, GameplayObject target)
+        public static Vector2 PredictImpact(this Projectile proj, GameplayObject target)
         {
-            return new Gameplay.ImpactPredictor(proj, target).Predict();
+            return new ImpactPredictor(proj, target).Predict();
         }
 
         // can be used for collision detection

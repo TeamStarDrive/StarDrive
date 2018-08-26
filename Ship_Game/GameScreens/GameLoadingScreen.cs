@@ -70,7 +70,7 @@ namespace Ship_Game
 		{
 		    if (IsExiting || !IsActive)
                 return false;
-		    if (this.PlayedOnce && SplashPlayer.State != MediaState.Playing)
+		    if (PlayedOnce && SplashPlayer.State != MediaState.Playing)
 		    {
 		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
 		        AddedScreen = true;
@@ -134,14 +134,14 @@ namespace Ship_Game
 			}
 			else if (SplashScreen.DisplayComplete)
 			{
-				if (!LoadingPlayer.IsDisposed && !this.PlayedOnceA)
+				if (!LoadingPlayer.IsDisposed && !PlayedOnceA)
 				{
-					this.PlayedOnceA = true;
+					PlayedOnceA = true;
 					LoadingPlayer.Play(LoadingVideo);
 				}
-				if (!SplashPlayer.IsDisposed && !this.PlayedOnce)
+				if (!SplashPlayer.IsDisposed && !PlayedOnce)
 				{
-                    this.PlayedOnce = true;
+                    PlayedOnce = true;
                     SplashPlayer.Play(SplashVideo);
 				}
 				if (LoadingPlayer.State == MediaState.Paused) LoadingPlayer.Resume();

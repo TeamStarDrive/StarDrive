@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Algorithms;
 using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI {
     public sealed partial class ShipAI
@@ -15,7 +13,7 @@ namespace Ship_Game.AI {
         
         public Planet OrbitTarget;
         private float OrbitalAngle = RandomMath.RandomBetween(0f, 360f);
-        public Ships.AI.WayPoints WayPoints;
+        public WayPoints WayPoints;
         public void ClearWayPoints() => WayPoints.Clear();
     
 
@@ -349,7 +347,7 @@ namespace Ship_Game.AI {
         {
             if (Owner.loyalty.grid != null && Vector2.Distance(startPos, endPos) > Owner.loyalty.ProjectorRadius * 2)
             {
-                int reducer = Empire.Universe.reducer; //  (int)(Empire.ProjectorRadius );
+                int reducer = Empire.Universe.PathMapReducer; //  (int)(Empire.ProjectorRadius );
                 int granularity = Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
 
                 var startp = new Point((int) startPos.X, (int) startPos.Y);
@@ -536,8 +534,8 @@ namespace Ship_Game.AI {
                 Owner.Velocity = Vector2.Zero;
                 return;
             }
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             if (Owner.Velocity.Length() / Owner.velocityMaximum <= elapsedTime ||
                 (forward.X <= 0f || Owner.Velocity.X <= 0f) && (forward.X >= 0f || Owner.Velocity.X >= 0f))
             {
@@ -557,8 +555,8 @@ namespace Ship_Game.AI {
                 OrderQueue.RemoveFirst();
                 return;
             }
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             if (Owner.Velocity.Length() / Owner.velocityMaximum <= elapsedTime ||
                 (forward.X <= 0f || Owner.Velocity.X <= 0f) && (forward.X >= 0f || Owner.Velocity.X >= 0f))
             {
@@ -594,8 +592,8 @@ namespace Ship_Game.AI {
             Owner.HyperspaceReturn();
             //Vector2 forward2 = Quaternion
             //Quaternion.AngleAxis(_angle, Vector3.forward) * normalizedDirection1
-            var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
-                -(float) Math.Cos((double) Owner.Rotation));
+            var forward = new Vector2((float) Math.Sin(Owner.Rotation),
+                -(float) Math.Cos(Owner.Rotation));
             if (Owner.Velocity == Vector2.Zero ||
                 Vector2.Distance(Owner.Center + Owner.Velocity * elapsedTime, Goal.MovePosition) >
                 Vector2.Distance(Owner.Center, Goal.MovePosition))
@@ -625,7 +623,6 @@ namespace Ship_Game.AI {
                 if (Owner.Velocity.Length() > Goal.SpeedLimit)
                 {
                     Owner.Velocity = Vector2.Normalize(Owner.Velocity) * Goal.SpeedLimit;
-                    return;
                 }
             }
         }

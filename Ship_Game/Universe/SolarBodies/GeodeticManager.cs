@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -24,7 +22,7 @@ namespace Ship_Game.Universe.SolarBodies
         private SceneObject SO => SolarSystemBody.SO;
         private bool HasSpacePort => SolarSystemBody.HasShipyard;
         private int DevelopmentLevel => SolarSystemBody.DevelopmentLevel;
-        private Map<System.Guid,Ship> Stations => SolarSystemBody.Shipyards;
+        private Map<Guid,Ship> Stations => SolarSystemBody.Shipyards;
         private float RepairPerTurn => SolarSystemBody.RepairPerTurn;        
         
         public GeodeticManager (Planet planet)

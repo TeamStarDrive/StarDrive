@@ -7,7 +7,13 @@ namespace Ship_Game.Ships
     {
         public string CargoId;
         public float Amount;
-        public Cargo(string id, float amount) { CargoId = id; Amount = amount; }
+        public Goods Good;        
+        public Cargo(string id, float amount, Goods type = Goods.None) 
+        {
+            CargoId      = id;
+            Amount       = amount;
+            Good         = type;            
+        }
     }
 
     // Ship_Cargo.cs -- All the data related to Cargo
@@ -53,7 +59,8 @@ namespace Ship_Game.Ships
             public float Food;
             public float Production;
             public float Colonists;
-
+            //hack this all needs to be rebuilt.
+            public Goods GoodType;
             // this can be any other kind of cargo.
             // to save on memory usage, we only initialize this on demand
             public Cargo[] Other = Empty<Cargo>.Array;
@@ -74,7 +81,7 @@ namespace Ship_Game.Ships
                 return i != -1 ? Other[i].Amount : 0f;
             }
 
-            public float LoadOther(string cargoId, float amount)
+            public float LoadOther(string cargoId, float amount, Goods good = Goods.None)
             {
                 int i = IndexOf(cargoId);
                 if (i == -1) {
@@ -82,6 +89,7 @@ namespace Ship_Game.Ships
                     Array.Resize(ref Other, i + 1); // Add new slot
                     Other[i].CargoId = cargoId;
                 }
+                Other[i].Good = good;
                 return LoadCargoRef(ref Other[i].Amount, amount);
             }
 
@@ -116,9 +124,9 @@ namespace Ship_Game.Ships
         public IEnumerable<Cargo> EnumLoadedCargo()
         {
             if (Cargo == null) yield break;
-            if (Cargo.Food       > 0f) yield return new Cargo("Food",           Cargo.Food);
-            if (Cargo.Production > 0f) yield return new Cargo("Production",     Cargo.Production);
-            if (Cargo.Colonists  > 0f) yield return new Cargo("Colonists_1000", Cargo.Colonists * PassengerModifier);
+            if (Cargo.Food       > 0f) yield return new Cargo("Food",           Cargo.Food, Goods.Food);
+            if (Cargo.Production > 0f) yield return new Cargo("Production",     Cargo.Production, Goods.Production);
+            if (Cargo.Colonists  > 0f) yield return new Cargo("Colonists_1000", Cargo.Colonists * PassengerModifier, Goods.Colonists);
 
             Cargo[] other = Cargo.Other;
             for (int i = 0; i < other.Length; ++i)
@@ -145,7 +153,16 @@ namespace Ship_Game.Ships
                 default:               return 0f;
             }
         }
-
+   
+        public Cargo GetCargo()
+        {
+            foreach(var cargo in EnumLoadedCargo())
+            {
+                if (cargo.Amount > 0)
+                    return cargo;
+            }
+            return new Cargo("", 0);
+        }
         public float GetColonists()  => Cargo?.Colonists * PassengerModifier ?? 0f;
         public float GetProduction() => Cargo?.Production ?? 0f;
         public float GetFood()       => Cargo?.Food       ?? 0f;
@@ -163,16 +180,31 @@ namespace Ship_Game.Ships
             if (cargoId == "Colonists_1000") return LoadColonists(amount);
             return cargo.LoadOther(cargoId, amount);
         }
-
+        public float LoadCargo(Goods good, float amount)
+        {
+            if (GetCargo().Good != good) ClearCargo();
+            var cargoCont = CargoCont;
+            Cargo.GoodType = good;
+            return cargoCont.LoadOther(good.ToString(), amount, good);
+        }       
         public float LoadColonists(float amount)
         {
             // Colonists get special treatment due to Cryogenic Freezing and Manifest Destiny passenger modifiers
             float mod = PassengerModifier;
+            CargoCont.GoodType = Goods.Colonists;
             // if mod is 0f, we have a serious bug during savegame loading
             return CargoCont.LoadCargoRef(ref Cargo.Colonists, amount / mod) * mod;
         }
-        public float LoadProduction(float amount) => CargoCont.LoadCargoRef(ref Cargo.Production, amount);
-        public float LoadFood(float amount)       => CargoCont.LoadCargoRef(ref Cargo.Food,       amount);
+        public float LoadProduction(float amount)
+        {
+            CargoCont.GoodType = Goods.Production;
+            return CargoCont.LoadCargoRef(ref Cargo.Production, amount);
+        }
+        public float LoadFood(float amount)
+        {
+            CargoCont.GoodType = Goods.Food;
+            return CargoCont.LoadCargoRef(ref Cargo.Food, amount);
+        } 
 
         // Unloads the specified amount of cargo (or all, by default) (or none if there's no cargo)
         // If there's less than maxAmount, all available cargo will be unloaded

@@ -1,5 +1,4 @@
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -60,22 +59,22 @@ namespace Ship_Game
 
         public Artifact GetArtifact()
         {
-            return this._grantedArtifact;
+            return _grantedArtifact;
         }
 
         public Planet GetPlanet()
         {
-            return this._selectedPlanet;
+            return _selectedPlanet;
         }
 
         public void SetArtifact(Artifact art)
         {
-            this._grantedArtifact = art;
+            _grantedArtifact = art;
         }
 
         public void SetPlanet(Planet p)
         {
-            this._selectedPlanet = p;
+            _selectedPlanet = p;
         }
 
         private void FlatGrants(Empire triggerEmpire)
@@ -185,7 +184,7 @@ namespace Ship_Game
 
         public bool InValidOutcome(Empire triggerer)
         {
-            return this.OnlyTriggerOnce && this.AlreadyTriggered && triggerer.isPlayer;
+            return OnlyTriggerOnce && AlreadyTriggered && triggerer.isPlayer;
 
         }
         public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
@@ -236,7 +235,7 @@ namespace Ship_Game
 
             //events that trigger on other planets
             if(!SetRandomPlanet()) return;
-            p = this._selectedPlanet;
+            p = _selectedPlanet;
                         
             if (eventLocation == null)
             {

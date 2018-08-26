@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Ship_Game
+﻿namespace Ship_Game
 {
     //Added by McShooterz: defines new enemy fleets to spawn in place of Remnant
     public sealed class HostileFleets

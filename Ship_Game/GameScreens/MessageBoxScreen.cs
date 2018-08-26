@@ -1,6 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
@@ -19,11 +19,11 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message) : base(parent)
         {
-            this.Message = message;
-            this.Message = Fonts.Arial12Bold.ParseText(message, 250f);
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            Message = message;
+            Message = Fonts.Arial12Bold.ParseText(message, 250f);
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
             Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
@@ -36,11 +36,11 @@ namespace Ship_Game
         
         public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
         {
-            this.Message = message;
-            this.Message = Fonts.Arial12Bold.ParseText(message, 250f);
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            Message = message;
+            Message = Fonts.Arial12Bold.ParseText(message, 250f);
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
             Ok     = ButtonSmall(0f, 0f, oktext,     click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, canceltext, click: OnCancelClicked);
@@ -48,13 +48,13 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
         {
-            this.Timed = true;
+            Timed = true;
             this.Timer = Timer;
-            this.Original = message;
-            this.Message = message;
-            base.IsPopup = true;
-            base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+            Original = message;
+            Message = message;
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
 
             Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
@@ -67,16 +67,16 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
-            if (!this.Timed)
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            if (!Timed)
             {
                 Rectangle r = new Rectangle(ScreenWidth / 2 - 135,
-                    ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
-                Vector2 textPosition = new Vector2((float)(r.X + r.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Message).X / 2f, (float)(r.Y + 10));
+                    ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) + 15);
+                Vector2 textPosition = new Vector2(r.X + r.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r.Y + 10);
                 batch.Begin();
                 batch.FillRectangle(r, Color.Black);
                 batch.DrawRectangle(r, Color.Orange);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat(this.Message, this.Toappend), textPosition, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, string.Concat(Message, Toappend), textPosition, Color.White);
 
                 Ok.SetAbsPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
                 Cancel.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
@@ -84,14 +84,14 @@ namespace Ship_Game
                 batch.End();
                 return;
             }
-            this.Message = HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat(this.Original, this.Toappend), 250f);
+            Message = Fonts.Arial12Bold.ParseText(string.Concat(Original, Toappend), 250f);
             //renamed r, textposition
-            Rectangle r2 = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(this.Message).Y + 40f) + 15);
-            Vector2 textPosition2 = new Vector2((float)(r2.X + r2.Width / 2) - Fonts.Arial12Bold.MeasureString(Message).X / 2f, (float)(r2.Y + 10));
+            Rectangle r2 = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) + 15);
+            Vector2 textPosition2 = new Vector2(r2.X + r2.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r2.Y + 10);
             batch.Begin();
             batch.FillRectangle(r2, Color.Black);
             batch.DrawRectangle(r2, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, this.Message, textPosition2, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, Message, textPosition2, Color.White);
 
             Ok.SetAbsPos(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
             Cancel.SetAbsPos(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);

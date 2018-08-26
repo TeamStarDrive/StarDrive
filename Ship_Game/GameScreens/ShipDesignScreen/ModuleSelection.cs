@@ -160,13 +160,13 @@ namespace Ship_Game
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
-                modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 6);
+                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial20Bold.LineSpacing + 6);
             }
             else
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
-                modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 4);
+                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial14Bold.LineSpacing + 4);
             }
             string rest = "";
             switch (moduleTemplate.Restrictions)
@@ -360,7 +360,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.Token(122)+": "+rest, modTitlePos, Color.Orange);
             modTitlePos.Y = modTitlePos.Y + Fonts.Arial8Bold.LineSpacing;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
-            modTitlePos.Y = modTitlePos.Y + (float)(Fonts.Arial8Bold.LineSpacing + 11);
+            modTitlePos.Y = modTitlePos.Y + (Fonts.Arial8Bold.LineSpacing + 11);
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon && moduleTemplate.BombType == null)
             {
@@ -407,7 +407,7 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
             float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
-            DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
+            DrawStat(ref modTitlePos, "Offense", strength, 227);
             
             if (!mod.isWeapon || mod.InstalledWeapon == null)
             {
@@ -564,29 +564,46 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", mod.TargetTracking, 226);
             if (mod.RepairDifficulty > 0) DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
 
-            if (mod.PermittedHangarRoles.Length != 0)
+            if (mod.PermittedHangarRoles.Length == 0)
+                return;
+            DynamicHangarOptions hangarOption = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
+            if (hangarOption != DynamicHangarOptions.Static)
             {
-                if (ShipBuilder.IsDynamicLaunch(mod.hangarShipUID))
+                modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
+                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                string bestShip = ParseText(GetDynamicHangarText(), ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12Bold);
+                Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
+                DrawString(ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
+                return;
+            }
+            Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
+            if (ship == null) return;
+            modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
+            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+            string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
+            DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
+            shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+            shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
+            DrawStat(ref shipSelectionPos, "LaunchCost", ship.FighterLaunchCost, -1);                
+            DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
+            DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
+            DrawStat(ref shipSelectionPos, "FTL", ship.maxFTLSpeed, -1);
+
+            string GetDynamicHangarText()
+            {
+                switch (hangarOption)
                 {
-                    modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
-                    Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                    string bestShip = ParseText("Hangar will launch more advanced ships, as they become available in your empire"
-                                                , ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12Bold);
-                    DrawString(ref bestShipSelectionPos, bestShip, Color.Gold, Fonts.Arial12Bold);
-                    return;
+                    case DynamicHangarOptions.DynamicLaunch:
+                        return "Hangar will launch more advanced ships, as they become available in your empire";
+                    case DynamicHangarOptions.DynamicFighter:
+                        return "Hangar will launch more advanced ships which their designated ship category is 'Fighter', " +
+                               "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
+                    case DynamicHangarOptions.DynamicBomber:
+                        return "Hangar will launch more advanced ships which their designated ship category is 'Bomber', " +
+                               "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
+                    default:
+                        return "";
                 }
-                Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
-                if (ship == null) return;
-                modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
-                Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
-                DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
-                shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
-                DrawStat(ref shipSelectionPos, "LaunchCost", ship.FighterLaunchCost, -1);                
-                DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
-                DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
-                DrawStat(ref shipSelectionPos, "FTL", ship.maxFTLSpeed, -1);
             }
         }
 
@@ -717,7 +734,7 @@ namespace Ship_Game
 
         private enum WeaponStat
         {
-            Damage, Range, Speed, FireDelay, Armor, Shield,
+            Damage, Range, Speed, FireDelay, Armor, Shield
         }
 
         private static float GetStatForWeapon(WeaponStat stat, Weapon weapon)

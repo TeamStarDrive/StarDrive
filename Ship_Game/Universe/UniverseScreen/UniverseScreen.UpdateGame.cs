@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -17,7 +16,7 @@ namespace Ship_Game
         {
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
-            {                
+            {
                 try
                 {
                     // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
@@ -81,13 +80,13 @@ namespace Ship_Game
                                 if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
                                     ++GameSpeed;
                                 else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-                                
+
                             }
-                            
-                            
+
+
                         }
-                    }                    
-                    failedLoops = 0; // no exceptions this turn                    
+                    }
+                    failedLoops = 0; // no exceptions this turn
                 }
                 catch (ThreadAbortException)
                 {
@@ -96,14 +95,19 @@ namespace Ship_Game
                 catch (Exception ex)
                 {
                     if (++failedLoops > 1)
-                    {                        
+                    {
                         throw; // the loop is having a cyclic crash, no way to recover
                     }
-                    
+
                     Log.Error(ex, "ProcessTurns crashed");
                 }
                 finally
                 {
+                    //if the debug window hits a cyclic crash it can be turned off ingame.
+                    // i dont see a point in crashing the game because of a debug window error.
+                    try { DebugWin?.Update(DeltaTime); }
+                    catch { Log.Info("DebugWindowCrashed"); }
+
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
                     ProcessTurnsCompletedEvt.Set();
                 }
@@ -113,62 +117,48 @@ namespace Ship_Game
         private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int) (this.UniverseSize / this.reducer);
+            int granularity = (int) (UniverseSize / PathMapReducer);
             foreach (var node in empire.BorderNodes)
             {
-                SolarSystem ss = node.SourceObject as SolarSystem;
-                Planet p = node.SourceObject as Planet;
-                if (this.FTLModifier < 1 && ss != null)
-                    weight += 20;
-                if ((this.EnemyFTLModifier < 1 || !this.FTLInNuetralSystems) && ss != null && weight > 1)
-                    weight += 20;
-                if (p != null && weight > 1)
-                    weight += 20;
-                float xround = node.Position.X > 0 ? .5f : -.5f;
-                float yround = node.Position.Y > 0 ? .5f : -.5f;
-                int ocx = (int) (node.Position.X / this.reducer + xround);
-                int ocy = (int) (node.Position.Y / this.reducer + yround);
-                int cx = ocx + granularity;
-                int cy = ocy + granularity;
-                cy = cy < 0 ? 0 : cy;
-                cy = cy > granularity * 2 ? granularity * 2 : cy;
-                cx = cx < 0 ? 0 : cx;
-                cx = cx > granularity * 2 ? granularity * 2 : cx;
-                Vector2 upscale = new Vector2((float) (ocx * this.reducer),
-                    (float) (ocy * this.reducer));
-                if (Vector2.Distance(upscale, node.Position) < node.Radius)
-                    grid[cx, cy] = weight;
-                if (weight > 1 || weight == 0 || node.Radius > empire.ProjectorRadius)
-                {
-                    float test = node.Radius > empire.ProjectorRadius ? 1 : 2;
-                    int rad = (int) (Math.Ceiling((double) (node.Radius / ((float) reducer) * test)));
-                    //rad--;
+                byte modifiedWeight = weight;
 
-                    int negx = cx - rad;
-                    if (negx < 0)
-                        negx = 0;
-                    int posx = cx + rad;
-                    if (posx > granularity * 2)
-                        posx = granularity * 2;
-                    int negy = cy - rad;
-                    if (negy < 0)
-                        negy = 0;
-                    int posy = cy + rad;
-                    if (posy > granularity * 2)
-                        posy = granularity * 2;
-                    for (int x = negx; x < posx; x++)
-                    for (int y = negy; y < posy; y++)
-                    {
-                        //if (grid[x, y] >= 80 || grid[x, y] <= weight)
-                        {
-                            upscale = new Vector2((float) ((x - granularity) * reducer),
-                                (float) ((y - granularity) * reducer));
-                            if (Vector2.Distance(upscale, node.Position) <= node.Radius * test)
-                                grid[x, y] = weight;
-                        }
-                    }
+                Point point = WorldToPathMap(node.Position, granularity);
+
+
+                Vector2 upscale = new Vector2(point.X * PathMapReducer,
+                    point.Y * PathMapReducer);
+
+                if (modifiedWeight != 0 && modifiedWeight < 81 && upscale.InRadius(node.Position, node.Radius))
+                {
+                    grid[point.X, point.Y] = modifiedWeight;
+
                 }
+
+                float increaser = modifiedWeight == 0 ? 1.25f : 1;
+
+                ApplyWeightToMapArea(node.Position,node.Radius * increaser, modifiedWeight, granularity, grid);
             }
+        }
+
+        public bool MapPointInWorldRadius(Point mapPoint, Vector2 worldPosition, float worldRadius, int universeOffset)
+        {
+            Vector2 mapInWorld = PathMapPointToWorld(mapPoint.X, mapPoint.Y, universeOffset);
+            return mapInWorld.InRadius(worldPosition, worldRadius);
+        }
+
+        public void ApplyWeightToMapArea(Vector2 worldPosition, float worldRadius, byte weight, int universeOffset, byte[,] grid)
+        {
+            Point topLeft = WorldToPathMap(new Vector2 (worldPosition.X - worldRadius , worldPosition.Y - worldRadius), universeOffset);
+            Point bottomRight = WorldToPathMap(new Vector2(worldPosition.X + worldRadius, worldPosition.Y + worldRadius), universeOffset);
+
+
+            for (int x = topLeft.X; x < bottomRight.X ; x++)
+                for (int y = topLeft.Y; y < bottomRight.Y ; y++)
+                {
+                    if (grid[x, y] == 0) continue;
+                    if (MapPointInWorldRadius(new Point(x,y), worldPosition, worldRadius, universeOffset))
+                        grid[x, y] = weight;
+                }
         }
 
         public static float DeltaTime;
@@ -197,7 +187,7 @@ namespace Ship_Game
             SpaceManager.Update(elapsedTime);
 
             ProcessTurnUpdateMisc(elapsedTime);
-            
+
             // bulk remove all dead projectiles to prevent their update next frame
             ProcessProjectileDeaths();
 
@@ -230,30 +220,30 @@ namespace Ship_Game
 
         private void ProcessTurnUpdateMisc(float elapsedTime)
         {
-            this.UpdateClickableItems();
-            if (this.LookingAtPlanet)
-                this.workersPanel.Update(elapsedTime);
+            UpdateClickableItems();
+            if (LookingAtPlanet)
+                workersPanel.Update(elapsedTime);
             bool flag1 = false;
             lock (GlobalStats.ClickableSystemsLock)
             {
-                for (int i = 0; i < this.ClickPlanetList.Count; ++i)
+                for (int i = 0; i < ClickPlanetList.Count; ++i)
                 {
-                    ClickablePlanets local_12 = this.ClickPlanetList[i];
-                    if (Vector2.Distance(new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y),
+                    ClickablePlanets local_12 = ClickPlanetList[i];
+                    if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
                             local_12.ScreenPos) <= local_12.Radius)
                     {
                         flag1 = true;
-                        this.TooltipTimer -= 0.01666667f;
-                        this.tippedPlanet = local_12;
+                        TooltipTimer -= 0.01666667f;
+                        tippedPlanet = local_12;
                     }
                 }
             }
-            if (this.TooltipTimer <= 0f && !this.LookingAtPlanet)
-                this.TooltipTimer = 0.5f;
+            if (TooltipTimer <= 0f && !LookingAtPlanet)
+                TooltipTimer = 0.5f;
             if (!flag1)
             {
-                this.ShowingPlanetToolTip = false;
-                this.TooltipTimer = 0.5f;
+                ShowingPlanetToolTip = false;
+                TooltipTimer = 0.5f;
             }
 
             bool flag2 = false;
@@ -261,24 +251,24 @@ namespace Ship_Game
             {
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    for (int local_15 = 0; local_15 < this.ClickableSystems.Count; ++local_15)
+                    for (int local_15 = 0; local_15 < ClickableSystems.Count; ++local_15)
                     {
                         ClickableSystem local_16 = ClickableSystems[local_15];
-                        if (Vector2.Distance(new Vector2((float) Mouse.GetState().X, (float) Mouse.GetState().Y),
+                        if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
                                 local_16.ScreenPos) <= local_16.Radius)
                         {
-                            this.sTooltipTimer -= 0.01666667f;
-                            this.tippedSystem = local_16;
+                            sTooltipTimer -= 0.01666667f;
+                            tippedSystem = local_16;
                             flag2 = true;
                         }
                     }
                 }
-                if (this.sTooltipTimer <= 0f)
-                    this.sTooltipTimer = 0.5f;
+                if (sTooltipTimer <= 0f)
+                    sTooltipTimer = 0.5f;
             }
             if (!flag2)
-                this.ShowingSysTooltip = false;
-            this.Zrotate += 0.03f * elapsedTime;
+                ShowingSysTooltip = false;
+            Zrotate += 0.03f * elapsedTime;
 
             JunkList.ApplyPendingRemovals();
 
@@ -299,16 +289,16 @@ namespace Ship_Game
             {
                 using (BombList.AcquireReadLock())
                 {
-                    for (int local_19 = 0; local_19 < this.BombList.Count; ++local_19)
+                    for (int local_19 = 0; local_19 < BombList.Count; ++local_19)
                     {
-                        Bomb local_20 = this.BombList[local_19];
+                        Bomb local_20 = BombList[local_19];
                         if (local_20 != null)
                             local_20.Update(elapsedTime);
                     }
                 }
                 BombList.ApplyPendingRemovals();
             }
-            this.anomalyManager.AnomaliesList.ApplyPendingRemovals();
+            anomalyManager.AnomaliesList.ApplyPendingRemovals();
             if (elapsedTime > 0)
             {
                 ShieldManager.Update();
@@ -358,8 +348,8 @@ namespace Ship_Game
                             break; // No need to keep looping through all other systems if one is found -Gretman
                         }
                     }
-                    // Add ships to deepspacemanageer if system is null. 
-                    // Ships are not getting added to the deepspace manager from here. 
+                    // Add ships to deepspacemanageer if system is null.
+                    // Ships are not getting added to the deepspace manager from here.
                     if (ship.System == null)
                         ship.SetSystem(null);
                 }
@@ -391,7 +381,7 @@ namespace Ship_Game
             DeepSpaceThread();
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);                
+                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this);
             }
 #else
             FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(this.DeepSpaceThread);
@@ -441,7 +431,7 @@ namespace Ship_Game
                         exterminator.AI.DefaultAIState = AIState.Exterminate;
                     }
                 }
-            }                
+            }
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
@@ -519,60 +509,79 @@ namespace Ship_Game
             return false;
         }
 
-        private void DoPathingMapRebuild()
+        public Vector2 PathMapPointToWorld(int x, int y, int universeOffSet)
         {
-            reducer = (int) (SubSpaceProjectors.Radius * .75f);
-            int granularity = (int) (UniverseSize / reducer);
-            int elegran = granularity * 2;
+            return new Vector2((x - universeOffSet) * PathMapReducer,
+                (y - universeOffSet) * PathMapReducer);
+        }
+
+        public Point WorldToPathMap(Vector2 worldPostion, int universeOffSet)
+        {
+            int x = universeOffSet;
+            int y = universeOffSet;
+            float xround = worldPostion.X > 0 ? .5f : -.5f;
+            float yround = worldPostion.Y > 0 ? .5f : -.5f;
+            x += (int)(worldPostion.X / PathMapReducer + xround);
+            y += (int)(worldPostion.Y / PathMapReducer + yround);
+            y = y.Clamped(0, universeOffSet * 2);
+            x = x.Clamped(0, universeOffSet * 2);
+            return new Point(x, y);
+        }
+
+        public void DoPathingMapRebuild()
+        {
+            PathMapReducer = (int) (SubSpaceProjectors.Radius * .50f);
+            int universeOffSet = (int) (UniverseSize  / PathMapReducer);
+            int elegran = universeOffSet * 2;
             int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
             byte[,] grid = new byte[elements, elements];
             for (int x = 0; x < elements; x++)
             for (int y = 0; y < elements; y++)
             {
-                if (x > elegran || y > elegran)
-                    grid[x, y] = 0;
-                else
-                    grid[x, y] = 80;
+                    if (x > elegran || y > elegran)
+                        grid[x, y] = 0;
+                    else
+                        grid[x, y] = 80;
             }
-            foreach (Planet p in PlanetsDict.Values)
+            bool blockSystems = !FTLInNuetralSystems || EnemyFTLModifier < 1 || FTLModifier < 1;
+            foreach (var ss in SolarSystemDict)
             {
-                int x = granularity;
-                int y = granularity;
-                float xround = p.Center.X > 0 ? .5f : -.5f;
-                float yround = p.Center.Y > 0 ? .5f : -.5f;
-                x += (int) (p.Center.X / reducer + xround);
-                y += (int) (p.Center.Y / reducer + yround);
-                if (y < 0) y = 0;
-                if (x < 0) x = 0;
-                grid[x, y] = 200;
+                var point = WorldToPathMap(ss.Value.Position, universeOffSet);
+
+                byte weight = blockSystems ? (byte)0 : (byte)90;
+                ApplyWeightToMapArea(ss.Value.Position, 150000, weight, universeOffSet, grid);
+
+                foreach(var p in PlanetsDict)
+                {
+                    point = WorldToPathMap(p.Value.Center, universeOffSet);
+                    grid[point.X, point.Y] = 0;
+                }
             }
 
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
                 var empire = EmpireManager.Empires[i];
 
-                byte[,] grid1 = (byte[,]) grid.Clone();
-                PathGridtranslateBordernode(empire, 1, grid1);
+                byte[,] grid1 = new byte[elements, elements];
+                Array.Copy(grid, grid1, grid.Length);
 
                 foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
                 {
                     if (!rels.Value.Known)
                         continue;
                     if (rels.Value.Treaty_Alliance)
-                    {
                         PathGridtranslateBordernode(rels.Key, 1, grid1);
-                    }
-                    if (rels.Value.AtWar)
+                    else if (rels.Value.AtWar || rels.Value.Treaty_OpenBorders)
                         PathGridtranslateBordernode(rels.Key, 80, grid1);
-                    else if (!rels.Value.Treaty_OpenBorders)
+                    else
                         PathGridtranslateBordernode(rels.Key, 0, grid1);
                 }
-
+                PathGridtranslateBordernode(empire, 1, grid1);
                 empire.grid = grid1;
-                empire.granularity = granularity;
+                empire.granularity = universeOffSet;
             }
         }
-        
+
         private void DeepSpaceThread()
         {
             float elapsedTime = !Paused ? 0.01666667f : 0.0f;

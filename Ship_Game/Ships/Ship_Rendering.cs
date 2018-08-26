@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.Ships
@@ -138,7 +139,7 @@ namespace Ship_Game.Ships
                 {
                     Projectile projectile = Projectiles[i];
                     if (projectile == null) continue;
-                    us.DebugWin.DrawCircle(Debug.DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
+                    us.DebugWin.DrawCircle(DebugModes.Targeting, projectile.Center, projectile.Radius, 1.5f);
                     //us.DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
                 }
             }
@@ -295,15 +296,30 @@ namespace Ship_Game.Ships
             Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
 
             // display low ammo
-            if (OrdinanceMax > 0.0f && Ordinance < 0.5f * OrdinanceMax)
+            if (OrdnancePercent < 0.5f)
             {
-                Texture2D ammoIcon = ResourceManager.Texture("NewUI/icon_ammo");
-                Color color = (Ordinance <= 0.2f * OrdinanceMax) ? Color.Red : Color.Yellow;
-                float size = ScaleIconSize(screenRadius, 16f , 16f);                
-                us.DrawTextureSized(ammoIcon, screenPos + offSet, 0f, size, size, color);
-                //for future status icons.
-                //offSet.X += size * 1.2f; 
+                Color color = (OrdnancePercent <= 0.15f) ? Color.Red : Color.Yellow;
+                DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
             }
+            // FB: display ressuply icons
+            switch (AI.State)
+            {
+                case Ship_Game.AI.AIState.Resupply:
+                case Ship_Game.AI.AIState.ResupplyEscort:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_resupply", Color.White);
+                    break;
+                case Ship_Game.AI.AIState.ReturnToHangar:
+                    DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "UI/icon_hangar", Color.Yellow);
+                    break;
+            }
+        }
+
+        private void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
+        {
+            Texture2D statusIcon = ResourceManager.Texture(texture);
+            float size = ScaleIconSize(screenRadius, 16f, 16f);
+            us.DrawTextureSized(statusIcon, screenPos + offSet, 0f, size, size, color);
+            offSet.X += size * 1.2f;
         }
 
         public void DrawRepairDrones(UniverseScreen screen)

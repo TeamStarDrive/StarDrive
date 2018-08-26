@@ -1,8 +1,8 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
 
 namespace Ship_Game
 {
@@ -16,8 +16,8 @@ namespace Ship_Game
 
 		public RenderedScreen() : base(null)
 		{
-			base.TransitionOnTime = TimeSpan.FromSeconds(1);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
+			TransitionOnTime = TimeSpan.FromSeconds(1);
+			TransitionOffTime = TimeSpan.FromSeconds(0.5);
 		}
 
 		public override void Draw(SpriteBatch batch)

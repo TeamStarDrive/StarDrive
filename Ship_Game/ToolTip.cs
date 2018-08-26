@@ -1,8 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -19,7 +18,7 @@ namespace Ship_Game
         public static float TipTimer;
         public static int LastWhich;
         private static bool HoldTip;
-        private static bool AlwaysShow = false;
+        private static bool AlwaysShow;
         private static float MaxTipTime;
 
         static ToolTip()
@@ -29,30 +28,27 @@ namespace Ship_Game
             LastWhich = -1;
         }
 
-        public ToolTip()
-        {
-        }
         public static void ShipYardArcTip() => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
         public static void PlanetLandingSpotsTip(string locationText, int spots) => CreateTooltip($"{locationText}\n{spots} Landing Spots",alwaysShow:true);
 
-    /* @todo tooltip issues
-* Main issue here. 
-* this class doesnt play well with the uielementv2 process.
-* 
-* so that several places are creating tooltips here in an unencapsulated way.
-* 
-* as far as i can tell... also the tooltip rectangle isnt right.
-*/
-    private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, bool holdTip = false, Vector2? position = null, bool alwaysShow = false)
+        /**
+         * @todo tooltip issues
+         * Main issue here. 
+         * this class doesnt play well with the uielementv2 process.
+         * 
+         * so that several places are creating tooltips here in an unencapsulated way.
+         * 
+         * as far as i can tell... also the tooltip rectangle isnt right.
+         */
+        private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, Vector2? position = null, bool alwaysShow = false)
         {    
             Hotkey = hotkey;
-            //HoldTip = holdTip;
             MaxTipTime = timer;
             AlwaysShow = alwaysShow;
             MouseState state = Mouse.GetState();
             if (toolTipId >= 0)
             {
-                var tooltip = ResourceManager.GetToolTip(toolTipId);
+                ToolTip tooltip = ResourceManager.GetToolTip(toolTipId);
                 if (tooltip != null)
                 {
                     intext = Localizer.Token(tooltip.Data);
@@ -69,7 +65,7 @@ namespace Ship_Game
                 Ti = "";
             }
 
-            var text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
+            var text = Fonts.Arial12Bold.ParseText(intext, 200f);
             
             if (TipTimer > 0 && Text == text)
             {
@@ -80,8 +76,7 @@ namespace Ship_Game
             Text = text;
             
             Vector2 pos = position ?? new Vector2(state.X, state.Y);
-            Vector2 size;
-            size = Fonts.Arial12Bold.MeasureString(hotkey.NotEmpty() ? $"{Text}\n\n{hotkey}" : Text);
+            Vector2 size = Fonts.Arial12Bold.MeasureString(hotkey.NotEmpty() ? $"{Text}\n\n{hotkey}" : Text);
             var tipRect = new Rectangle((int) pos.X + 10, (int) pos.Y + 10,
                 (int) size.X + 20, (int) size.Y + 10);
 
@@ -98,9 +93,9 @@ namespace Ship_Game
             Rect = tipRect;
         }
 
-        public static void CreateTooltip(string intext, Vector2? position = null, bool alwaysShow = false, bool holdTip = false)
+        public static void CreateTooltip(string intext, Vector2? position = null, bool alwaysShow = false)
         {
-            SpawnTooltip(intext, -1, "", position: position,alwaysShow: alwaysShow, holdTip: holdTip);
+            SpawnTooltip(intext, -1, "", position: position,alwaysShow: alwaysShow);
         }
 
         public static void CreateTooltip(string intext, string hotKey)
@@ -120,38 +115,33 @@ namespace Ship_Game
 
         public static void Draw(SpriteBatch spriteBatch)
         {            
-            float elaspsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
+            float elapsedTime = (float)Game1.Instance.GameTime.ElapsedGameTime.TotalSeconds;
             if (TipTimer <= 0) return;
-            TipTimer = Math.Max(TipTimer - elaspsedTime, 0);
-            if (!AlwaysShow && MaxTipTime - TipTimer < .5f)
+            TipTimer = Math.Max(TipTimer - elapsedTime, 0);
+            if (!AlwaysShow && MaxTipTime - TipTimer < 0.5f)
                 return;
-            var fadeOutTimer = MaxTipTime * .25f;
-            var fadeInTimer = MaxTipTime * .75f;
-            //var state = Mouse.GetState();
-            //HoldTip = Rect.HitTest(state.X, state.Y);
-
+            float fadeOutTimer = MaxTipTime * 0.25f;
+            float fadeInTimer  = MaxTipTime * 0.75f;
             
             if (HoldTip && TipTimer  < fadeOutTimer)                
-                    TipTimer = fadeOutTimer;
+                TipTimer = fadeOutTimer;
+
             HoldTip = false;
             if (TipTimer <= 0 || Text == null)
             {
                 if (Text == null)
-                {
                     TipTimer = MaxTipTime;
-                }
                 if (TipTimer <= 0)
                     Text = null;
                 return;
             }
 
-            float alpha =255;
+            float alpha = 255;
             if (TipTimer < fadeOutTimer)
-            {              
                 alpha = 255f * TipTimer / fadeOutTimer;
-            }
             else if (TipTimer > fadeInTimer)
                 alpha = 255f * ((MaxTipTime - TipTimer) / (MaxTipTime - fadeInTimer));
+
             var textpos = new Vector2(Rect.X + 10, Rect.Y + 5);
             var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);            
             sel.Draw(spriteBatch);
@@ -169,8 +159,6 @@ namespace Ship_Game
                 textpos.Y = textpos.Y + Fonts.Arial12Bold.LineSpacing * 2;
             }
             spriteBatch.DrawString(Fonts.Arial12Bold, Text, textpos, color);
-
-            
         }
     }
 }

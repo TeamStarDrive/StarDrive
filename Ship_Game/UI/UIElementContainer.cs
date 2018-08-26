@@ -10,7 +10,7 @@ namespace Ship_Game
         HorizontalEven,   // elements are spaced evenly
         HorizontalPacked, // elements are packed tightly
         VerticalEven,     // 
-        VerticalPacked,   //
+        VerticalPacked   //
     }
 
     public abstract class UIElementContainer : UIElementV2
@@ -24,6 +24,15 @@ namespace Ship_Game
         protected bool LayoutStarted;
         protected Vector2 LayoutCursor = Vector2.Zero;
         protected Vector2 LayoutStep   = Vector2.Zero;
+
+        /// <summary>
+        /// If enabled, UI elements will be drawn with a fixed delay
+        /// in their appropriate ZOrder
+        /// </summary>
+        public bool DebugDraw;
+        private int DebugDrawIndex;
+        private float DebugDrawTimer;
+        private const float DebugDrawInterval = 0.5f;
 
         public LayoutStyle Layout
         {
@@ -56,11 +65,26 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            for (int i = 0; i < Elements.Count; ++i)
+            if (!DebugDraw)
             {
-                UIElementV2 e = Elements[i];
-                if (e.Visible) e.Draw(batch);
+                for (int i = 0; i < Elements.Count; ++i)
+                {
+                    UIElementV2 e = Elements[i];
+                    if (e.Visible) e.Draw(batch);
+                }
             }
+            else
+            {
+                for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
+                {
+                    UIElementV2 e = Elements[i];
+                    if (!e.Visible) continue;
+                    e.Draw(batch);
+                    if (i == DebugDrawIndex)
+                        batch.DrawRectangle(e.Rect, Color.Orange);
+                }
+            }
+
             if (ToolTip.Hotkey.IsEmpty())
                 ToolTip.Draw(batch);
         }
@@ -83,10 +107,25 @@ namespace Ship_Game
         public override void Update(float deltaTime)
         {
             base.Update(deltaTime);
+
             for (int i = 0; i < Elements.Count; ++i)
             {
                 UIElementV2 e = Elements[i];
                 if (e.Visible) e.Update(deltaTime);
+            }
+
+            if (DebugDraw)
+            {
+                DebugDrawTimer -= deltaTime;
+                if (DebugDrawTimer <= 0f)
+                {
+                    DebugDrawTimer = DebugDrawInterval;
+                    ++DebugDrawIndex;
+                    if (DebugDrawIndex >= Elements.Count)
+                        DebugDrawIndex = 0;
+                    else if (DebugDrawIndex == Elements.Count - 1)
+                        DebugDrawTimer *= 5f; // freeze the UI now
+                }
             }
         }
 
@@ -216,7 +255,7 @@ namespace Ship_Game
             return LayoutCursor;
         }
 
-        private Vector2 LayoutNext()
+        protected Vector2 LayoutNext()
         {
             if (!LayoutStarted)
                 throw new InvalidOperationException("You must call BeginLayout befor calling auto-layout methods");
@@ -270,6 +309,9 @@ namespace Ship_Game
             return Add(button);
         }
 
+        protected UIButton Button(ButtonStyle style, float x, float y, string text, UIButton.ClickHandler click, string clickSfx = null)
+            => Button(style, new Vector2(x, y), text, click, clickSfx);
+
 
         protected UIButton Button(float x, float y, string text, UIButton.ClickHandler click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
@@ -277,6 +319,8 @@ namespace Ship_Game
             => Button(ButtonStyle.Default, new Vector2(x, y), Localizer.Token(titleId), click);
 
 
+        protected UIButton ButtonLow(float x, float y, string text, UIButton.ClickHandler click)
+            => Button(ButtonStyle.Low80, new Vector2(x, y), text, click);
         protected UIButton ButtonLow(float x, float y, int titleId, UIButton.ClickHandler click)
             => Button(ButtonStyle.Low80, new Vector2(x, y), Localizer.Token(titleId), click);
 
@@ -319,6 +363,8 @@ namespace Ship_Game
         protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
             => Add(new UICheckBox(this, pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
 
+        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
+            => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
         protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
             => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
 

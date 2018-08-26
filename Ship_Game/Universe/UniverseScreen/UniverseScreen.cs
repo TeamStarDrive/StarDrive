@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -9,10 +8,12 @@ using Particle3DSample;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
+using Ship_Game.Empires;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game
 {
@@ -73,7 +74,7 @@ namespace Ship_Game
         private GameTime zgameTime = new GameTime();
         public Array<ShipModule> ModulesNeedingReset = new Array<ShipModule>();
         private bool TurnFlip = true;
-        private float TurnFlipCounter = 0;
+        private float TurnFlipCounter;
         private int Auto = 1;
         private AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
         private ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);
@@ -241,9 +242,9 @@ namespace Ship_Game
         public UIButton PlanetsInCombat;
         public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
-        public int reducer          = 1;
+        public int PathMapReducer          = 1;
         public float screenDelay    = 0f;
-        public Empires.SubSpaceProjectors SubSpaceProjectors;
+        public SubSpaceProjectors SubSpaceProjectors;
 
         // for really specific debuggingD
         public static int FrameId;
@@ -265,9 +266,9 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             ShipToView                  = playerShip;
             PlayerEmpire.isPlayer       = true;
-            SubSpaceProjectors          = new Empires.SubSpaceProjectors(UniverseSize);
+            SubSpaceProjectors          = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
-            
+            DoPathingMapRebuild();
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -285,11 +286,12 @@ namespace Ship_Game
             ShipToView            = playerShip;
             PlayerEmpire.isPlayer = true;
             loading               = true;
-            SubSpaceProjectors    = new Empires.SubSpaceProjectors(UniverseSize);
+            SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
+            DoPathingMapRebuild();
             
         }
-
+        
         public void ResetLighting() => SetLighting(UseRealLights);
 
         private void SetLighting(bool useRealLights)
@@ -364,11 +366,11 @@ namespace Ship_Game
                 Enabled             = true,
                 FalloffStrength     = fallOff,
                 ShadowPerSurfaceLOD = true,
-                ShadowQuality = shadowQuality,
+                ShadowQuality = shadowQuality
             };
 
             if (shadowQuality > 0f)
-                light.ShadowType = SynapseGaming.LightingSystem.Shadows.ShadowType.AllObjects;
+                light.ShadowType = ShadowType.AllObjects;
 
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light);
@@ -376,21 +378,21 @@ namespace Ship_Game
         
         public void ContactLeader(object sender)
         {
-            if (this.SelectedShip == null)
+            if (SelectedShip == null)
                 return;
-            if (this.SelectedShip.loyalty.isFaction)
+            if (SelectedShip.loyalty.isFaction)
             {
                 foreach (Encounter e in ResourceManager.Encounters)
                 {
-                    if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
+                    if (SelectedShip.loyalty.data.Traits.Name == e.Faction && player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
                     {
-                        this.ScreenManager.AddScreen(new EncounterPopup(this, player, this.SelectedShip.loyalty, (SolarSystem)null, e));
+                        ScreenManager.AddScreen(new EncounterPopup(this, player, SelectedShip.loyalty, null, e));
                         break;
                     }
                 }
             }
             else
-                this.ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, this.player, "Greeting"));
+                ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, player, "Greeting"));
         }
 
         private void CreateProjectionMatrix()
@@ -947,9 +949,9 @@ namespace Ship_Game
         {
             if (weapon.WeaponType == "Flak" || weapon.WeaponType == "Vulcan")
                 return Color.Yellow;
-            else if (weapon.WeaponType == "Laser" || weapon.WeaponType == "HeavyLaser")
+            if (weapon.WeaponType == "Laser" || weapon.WeaponType == "HeavyLaser")
                 return Color.Red;
-            else if (weapon.WeaponType == "PhotonCannon")
+            if (weapon.WeaponType == "PhotonCannon")
                 return Color.Blue;
             return new Color(255, 165, 0, 100);
             //color = new Color(255, 0, 0, 75); // full red is kinda too strong :|
@@ -1085,7 +1087,7 @@ namespace Ship_Game
             ShipView   = 30000,
             SystemView = 250000,
             SectorView = 1775000,
-            GalaxyView,
+            GalaxyView
         }
 
         public float GetZfromScreenState(UnivScreenState screenState)
@@ -1123,7 +1125,7 @@ namespace Ship_Game
             Move,
             Follow,
             Attack,
-            Orbit,
+            Orbit
         }
     }
 }

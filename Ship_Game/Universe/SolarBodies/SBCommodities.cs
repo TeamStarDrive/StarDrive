@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Ship_Game.Universe.SolarBodies.AI;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     public class SBCommodities
     {
         private readonly Planet Ground;
-
-        //private Array<PlanetGridSquare> TilesList => Ground.TilesList;
-        private Empire Owner => Ground.Owner;
-        //private BatchRemovalCollection<Troop> TroopsHere => Ground.TroopsHere;
+        public TradeAI Trade { get;}
+        private Empire Owner => Ground.Owner;        
         private Array<Building> BuildingList => Ground.BuildingList;
-        //private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
-        //private SolarSystem ParentSystem => Ground.ParentSystem;        
         private Map<string, float> Commoditites = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         public IReadOnlyDictionary<string, float> ResourcesDictionary => Commoditites;
         private float Waste;
@@ -20,6 +17,7 @@ namespace Ship_Game.Universe.SolarBodies
         public SBCommodities (Planet planet)
         {
             Ground = planet;
+            Trade = new TradeAI(planet);
         }
 
         public float FoodHere
@@ -72,6 +70,24 @@ namespace Ship_Game.Universe.SolarBodies
             Commoditites[goodId] = stored;
             return amount - stored;
         }
+        public float GetGoodAmount(Goods good)
+        {
+            switch(good)
+            {
+                case Goods.None:
+                    return 0;
+                case Goods.Production:
+                    return ProductionHere;
+                case Goods.Food:
+                    return FoodHere;
+                case Goods.Colonists:
+                    return Population;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(good), good, null);
+            }
+       
+        }        
+
         public float GetGoodAmount(string goodId)
         {
             if (Commoditites.TryGetValue(goodId, out float commodity)) return commodity;
