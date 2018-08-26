@@ -373,7 +373,7 @@ namespace Ship_Game
 
             Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);
             var rebelEmpireIndex = EmpireManager.Empires.IndexOf(rebels);
-            SerializableDictionary<int, Snapshot> statDict = StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")];
+            SerializableDictionary<int, Snapshot> statDict = StatTracker.SnapshotsDict[Universe.StarDateString];
              statDict[rebelEmpireIndex] = new Snapshot(Universe.StarDate);
 
             // StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
@@ -1239,7 +1239,7 @@ namespace Ship_Game
                     Universe.StarDate += 0.1f;
                     Universe.StarDate = (float)Math.Round(Universe.StarDate, 1);
 
-                    string starDate = Universe.StarDate.ToString("#.0");
+                    string starDate = Universe.StarDateString;
                     if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
                         StatTracker.SnapshotsDict.Add(starDate, new SerializableDictionary<int, Snapshot>());
                     foreach (Empire empire in EmpireManager.Empires)
@@ -2079,7 +2079,7 @@ namespace Ship_Game
                     data.TurnsBelowZero = 0;
             }
             float MilitaryStrength = 0.0f;
-            string starDate = Universe.StarDate.ToString("#.0");
+            string starDate = Universe.StarDateString;
             for (int index = 0; index < OwnedShips.Count; ++index)
             {
                 Ship ship = OwnedShips[index];
@@ -2171,7 +2171,7 @@ namespace Ship_Game
                 foreach (Planet planet in OwnedPlanets)
                 {
                     if (!data.IsRebelFaction)
-                        StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
+                        StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                     if (planet.HasWinBuilding)
                     {
                         Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(5085)));
@@ -2184,7 +2184,7 @@ namespace Ship_Game
             foreach (Planet planet in OwnedPlanets)
             {
                 if (!data.IsRebelFaction)
-                    StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
+                    StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
                 Research += planet.NetResearchPerTurn;
                 MaxResearchPotential += planet.GetMaxResearchPotential;
