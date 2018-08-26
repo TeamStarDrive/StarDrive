@@ -285,7 +285,7 @@ namespace Ship_Game
                 }
                 else evt["Mod"] = "Vanilla";
 
-                evt["StarDate"]  = Empire.Universe?.StarDate.ToString("F1") ?? "NULL";
+                evt["StarDate"]  = Empire.Universe?.StarDateString ?? "NULL";
                 evt["Ships"]     = Empire.Universe?.MasterShipList?.Count.ToString() ?? "NULL";
                 evt["Planets"]   = Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL";
 
