@@ -101,10 +101,10 @@ namespace Ship_Game.AI
             if (size < 30)
             {
                 switch (Owner.shipData.ShipCategory) {
-                    case ShipData.Category.Fighter:
+                    case ShipData.Category.Interceptor:
                         weight += SmallAttackWeight * 2f;
                         break;
-                    case ShipData.Category.Bomber:
+                    case ShipData.Category.AntiShip:
                         weight += SmallAttackWeight / 2f;
                         break;
                     default:
@@ -114,15 +114,15 @@ namespace Ship_Game.AI
             }
             if (size > 30 && size < 100)
             {                
-                weight += Owner.shipData.ShipCategory == ShipData.Category.Bomber ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;                
+                weight += Owner.shipData.ShipCategory == ShipData.Category.AntiShip ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;                
             }
             if (size > 100)
             {
                 switch (Owner.shipData.ShipCategory) {
-                    case ShipData.Category.Fighter:
+                    case ShipData.Category.Interceptor:
                         weight += LargeAttackWeight /2f;
                         break;
-                    case ShipData.Category.Bomber:
+                    case ShipData.Category.AntiShip:
                         weight += LargeAttackWeight * 2f;
                         break;
                     default:
