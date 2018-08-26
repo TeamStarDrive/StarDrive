@@ -185,7 +185,7 @@ namespace Ship_Game.AI
             }
 
             int totalShips = CenterShips.Count;
-            foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.Size))
+            foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.SurfaceArea))
             {
                 if (totalShips < 4) CenterShips.Add(ship);
                 else if (totalShips < 8) LeftShips.Add(ship);
@@ -310,7 +310,7 @@ namespace Ship_Game.AI
                 switch (sort)
                 {
                     case SquadSortType.Size:
-                        return -ship.Size;
+                        return -ship.SurfaceArea;
                     case SquadSortType.Speed:
                         return -ship.Speed;
                     default:

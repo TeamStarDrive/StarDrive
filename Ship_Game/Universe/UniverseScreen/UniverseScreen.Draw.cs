@@ -943,7 +943,7 @@ namespace Ship_Game
                     if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
                     {
                         //float scale2 = 0.07f;
-                        float scale = ((float) buildTemplate.Size / platform.Width) * 4000f / CamHeight;
+                        float scale = ((float) buildTemplate.SurfaceArea / platform.Width) * 4000f / CamHeight;
                         DrawTextureProjected(platform, item.BuildPos, scale, 0.0f, new Color(0, 255, 0, 100));
                         if (showingDSBW)
                         {
@@ -982,7 +982,7 @@ namespace Ship_Game
 
                 var symbol = ship.GetTacticalIcon();                
 
-                float num = ship.Size / (30f + symbol.Width);
+                float num = ship.SurfaceArea / (30f + symbol.Width);
                 float scale = num * 4000f / CamHeight;
                 if (scale > 1.0f) scale = 1f;
                 else if (scale <= 0.1f)
