@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -73,47 +74,97 @@ namespace Ship_Game.AI
             return name;
         }
 
+
+        private struct MinMaxStrength
+        {
+            private readonly float Min;
+            private readonly float Max;
+
+            public MinMaxStrength(float maxStrength, Empire empire)
+            {
+                if (empire.isPlayer) // always select the best for player
+                {
+                    Min = maxStrength * 0.9f;
+                    Max = maxStrength;
+                }
+                else // for AI, set the range based on difficulty
+                {
+                    switch (CurrentGame.Difficulty)
+                    {
+                        case UniverseData.GameDifficulty.Easy:
+                            Min = maxStrength * 0.3f;
+                            Max = maxStrength * 0.8f;
+                            break;
+                        case UniverseData.GameDifficulty.Normal:
+                            Min = maxStrength * 0.7f;
+                            Max = maxStrength;
+                            break;
+                        case UniverseData.GameDifficulty.Hard:
+                            Min = maxStrength * 0.8f;
+                            Max = maxStrength;
+                            break;
+                        case UniverseData.GameDifficulty.Brutal:
+                        default:
+                            Min = maxStrength * 0.9f;
+                            Max = maxStrength;
+                            break;
+                    }
+                }
+            }
+
+            public bool InRange(float strength) => (Min-0.01f) <= strength && strength <= (Max+0.01f);
+
+            public override string ToString() => $"[{Min.String(2)} .. {Max.String(2)}]";
+        }
+
+        private static void Debug(string message)
+        {
+            Log.DebugInfo(ConsoleColor.Blue, message);
+        }
+
+        private static Array<Ship> ShipsWeCanBuild(Empire empire)
+        {
+            var ships = new Array<Ship>();
+            foreach (string shipWeCanBuild in empire.ShipsWeCanBuild)
+            {
+                Ship ship;
+                if ((ship = ResourceManager.GetShipTemplate(shipWeCanBuild, false)) != null)
+                    ships.Add(ship);
+            }
+            return ships;
+        }
+
         private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
                                                            ShipModuleType targetModule,
                                                            ShipData.Category shipCategory)
         {
-            var potentialShips = new Array<Ship>();
             bool specificModuleWanted = targetModule != ShipModuleType.Dummy;
             float bestModuleRatio = 0.8f;
-            float maxStrength = 0;
-            
-            // @todo This is also a .FilterBy
-            foreach (string shipsWeCanBuild in empire.ShipsWeCanBuild)
+
+            //string targetModuleStr = specificModuleWanted ? targetModule.ToString() : "";
+            //Debug($"PickFromCandidatesByStrength {role}  {shipCategory}  {targetModuleStr}  (total {empire.ShipsWeCanBuild.Count})");
+
+            Ship[] potentialShips = ShipsWeCanBuild(empire).FilterBy(
+                ship => ship.DesignRole == role
+                && (maxSize <= 0 || ship.Size <= maxSize)
+                && (shipCategory == ShipData.Category.Unclassified || shipCategory == ship.shipData.ShipCategory)
+            );
+
+            if (potentialShips.Length == 0)
             {
-                Ship ship;
-                if ((ship = ResourceManager.GetShipTemplate(shipsWeCanBuild, false)) == null)
-                    continue;
-
-                if (role != ship.DesignRole)
-                    continue;
-
-                if (maxSize > 0 && ship.Size > maxSize)
-                    continue;
-
-                if (shipCategory != ShipData.Category.Unclassified && shipCategory != ship.shipData.ShipCategory)
-                    continue;
-
-                potentialShips.Add(ship);
-                int shipSize = ship.shipData.ModuleSlots.Length;
-                maxStrength = Math.Max(maxStrength, ship.BaseStrength / shipSize);
-                if (specificModuleWanted)
-                    bestModuleRatio = Math.Max(bestModuleRatio, ship.PercentageOfShipByModules(targetModule));
+                //Debug($"    No potential ships in category: {shipCategory} with role: {role}");
+                return "";
             }
 
-            if (potentialShips.Count <= 0)
-                return "";
+            float maxStrength = potentialShips.Max(ship => ship.NormalizedStrength);
+
+            if (specificModuleWanted)
+                bestModuleRatio = potentialShips.Max(ship => ship.PercentageOfShipByModules(targetModule));
 
             var levelAdjust = new MinMaxStrength(maxStrength, empire);
             Ship[] bestShips = potentialShips.FilterBy(ship =>
             {
-                float shipStrength = ship.BaseStrength / ship.shipData.ModuleSlots.Length;
-                //Log.Warning($"blabla");
-                if (!levelAdjust.InRange(shipStrength))
+                if (!levelAdjust.InRange(ship.NormalizedStrength))
                     return false; // ignore ships not in adjusted level range
 
                 if (specificModuleWanted)
@@ -124,68 +175,27 @@ namespace Ship_Game.AI
 
             if (bestShips.Length == 0)
             {
-                Log.Warning($"No best ships in level range: [{levelAdjust.Min}..{levelAdjust.Max}]");
+                //Debug($"    No best ships in strength range: {levelAdjust}");
                 return "";
             }
 
             Ship pickedShip = RandomMath.RandItem(bestShips);
+            //Debug($"    Picked ship: {pickedShip.Name} ");
 
             if (Empire.Universe?.showdebugwindow == true)
             {
-                Log.Info($"Sorted Ship List ({bestShips.Length})");
+                Debug($"    Sorted Ship List ({bestShips.Length})");
                 int i = 0;
                 foreach (Ship loggedShip in bestShips)
                 {
                     i++;
-                    Log.Info(ConsoleColor.Magenta, 
-                        $"{i}) Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
+                    Debug($"    {i} Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength / loggedShip.shipData.ModuleSlots.Length}");
                 }
-                Log.Info(ConsoleColor.Magenta, 
-                    $"Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}  " +
-                    $"Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length} " +
-                    $"Name: {pickedShip.Name} . Min STR: {levelAdjust.Min}, Max STR: {levelAdjust.Max}.");
+                Debug($"    Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}\n" +
+                      $"    Strength: {pickedShip.BaseStrength / pickedShip.shipData.ModuleSlots.Length}\n" +
+                      $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
             return pickedShip.Name;
-        }
-
-        private struct MinMaxStrength
-        {
-            public readonly float Min;
-            public readonly float Max;
-
-            public MinMaxStrength(float inputStrength, Empire empire)
-            {
-                if (empire.isPlayer) // always select the best for player
-                {
-                    Min = inputStrength * 0.9f;
-                    Max = inputStrength;
-                }
-                else // for AI, set the range based on difficulty
-                {
-                    switch (CurrentGame.Difficulty)
-                    {
-                        case UniverseData.GameDifficulty.Easy:
-                            Min = inputStrength * 0.3f;
-                            Max = inputStrength * 0.8f;
-                            break;
-                        case UniverseData.GameDifficulty.Normal:
-                            Min = inputStrength * 0.7f;
-                            Max = inputStrength;
-                            break;
-                        case UniverseData.GameDifficulty.Hard:
-                            Min = inputStrength * 0.8f;
-                            Max = inputStrength;
-                            break;
-                        case UniverseData.GameDifficulty.Brutal:
-                        default:
-                            Min = inputStrength * 0.9f;
-                            Max = inputStrength;
-                            break;
-                    }
-                }
-            }
-
-            public bool InRange(float strength) => Min <= strength && strength <= Max;
         }
 
         public static string PickShipToRefit(Ship oldShip, Empire empire)

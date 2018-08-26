@@ -628,6 +628,7 @@ namespace Ship_Game
         /// <summary>
         /// Optimized version of LINQ Any(x => x.MatchesCondition), tailored specifically to T[].
         /// </summary>
+        /// <param name="items"></param>
         /// <param name="itemMatchesPredicate">example: item => item.IsExplosive</param>
         /// <returns>TRUE if any item matches the predicate condition, false otherwise</returns>
         public static bool Any<T>(this T[] items, Predicate<T> itemMatchesPredicate)
@@ -687,5 +688,37 @@ namespace Ship_Game
                 sum += sumFromItem(items[i]);
             return sum;
         }
+
+
+        /// <summary>
+        /// Optimized version of LINQ Max(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Max item from selected range</returns>
+        public static int Max<T>(this T[] items, Func<T, int> valueFromItem)
+        {
+            if (items.Length == 0)
+                return 0;
+
+            int max = valueFromItem(items[0]);
+            for (int i = 1; i < items.Length; ++i)
+                max = Math.Max(max, valueFromItem(items[i]));
+            return max;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Max(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Max item from selected range</returns>
+        public static float Max<T>(this T[] items, Func<T, float> valueFromItem)
+        {
+            if (items.Length == 0)
+                return 0f;
+
+            float max = valueFromItem(items[0]);
+            for (int i = 1; i < items.Length; ++i)
+                max = Math.Max(max, valueFromItem(items[i]));
+            return max;
+        }
+
     }
 }

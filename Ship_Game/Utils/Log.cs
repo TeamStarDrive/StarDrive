@@ -19,6 +19,7 @@ namespace Ship_Game
         private static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
         private static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
         private static ConsoleColor CurrentColor = DefaultColor;
+        private static object ConsoleSync = new object();
 
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
         // instead, we count identical exceptions and resend them only over a certain threshold 
@@ -76,12 +77,15 @@ namespace Ship_Game
 
         private static void WriteToConsole(ConsoleColor color, string text)
         {
-            if (CurrentColor != color)
+            lock (ConsoleSync)
             {
-                Console.ForegroundColor = color;
-                CurrentColor = color;
+                if (CurrentColor != color)
+                {
+                    Console.ForegroundColor = color;
+                    CurrentColor = color;
+                }
+                Console.WriteLine(text);
             }
-            Console.WriteLine(text);
         }
 
 
@@ -105,7 +109,12 @@ namespace Ship_Game
             if (!HasDebugger) return;
             WriteToConsole(color, text);
         }
-        
+
+        public static void DebugInfo(ConsoleColor color, string text)
+        {
+            if (!HasDebugger) return;
+            WriteToConsole(color, text);
+        }
 
 
         // write a warning to logfile and debug console
@@ -117,17 +126,17 @@ namespace Ship_Game
 
         public static void Warning(string warning)
         {
-            string text = "Warning: " + warning;
-            WriteToLog(text);
-            if (!HasDebugger) return;
-            WriteToConsole(ConsoleColor.Yellow, text);
+            Warning(ConsoleColor.Yellow, warning);
         }
 
         public static void WarningWithCallStack(string warning)
         {
-            var st = new StackTrace();
+            Warning(ConsoleColor.Yellow, $"{warning}\n{new StackTrace()}");
+        }
 
-            string text = $"Warning:  {warning}\n{st}";
+        public static void Warning(ConsoleColor color, string warning)
+        {
+            string text = "Warning: " + warning;
             WriteToLog(text);
             if (!HasDebugger) return;
             WriteToConsole(ConsoleColor.Yellow, text);
@@ -217,7 +226,7 @@ namespace Ship_Game
             if (!HasDebugger && ShouldIgnoreErrorText(text))
                 return;
 
-            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace ?? "");
+            string withStack = text + "\n" + CleanStackTrace(ex);
             WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {                
@@ -239,7 +248,7 @@ namespace Ship_Game
             IsTerminating = true;
 
             string text = CurryExceptionMessage(ex, error);
-            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace ?? ex.InnerException?.StackTrace);
+            string withStack = text + "\n" + CleanStackTrace(ex);
             WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
@@ -297,10 +306,7 @@ namespace Ship_Game
                     evt["WarpBehaviorsEnabled"] = true;
             }
             var sb = new StringBuilder("(!) Exception: ");
-            sb.Append(ex.Message);
-
-            if (ex.InnerException != null)
-                sb.Append("\nInnerEx: ").Append(ex.InnerException.Message);
+            AppendMessages(sb, ex);
 
             if (moreInfo.NotEmpty())
                 sb.Append("\nInfo: ").Append(moreInfo);
@@ -313,10 +319,36 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        private static string CleanStackTrace(string stackTrace)
+        private static void AppendMessages(StringBuilder sb, Exception ex)
         {
+            Exception inner = ex.InnerException;
+            if (inner != null)
+            {
+                AppendMessages(sb, inner);
+                sb.Append("\nFollowed by: ");
+            }
+            sb.Append(ex.Message);
+        }
+
+        private static void CollectStackTraces(StringBuilder trace, Exception ex)
+        {
+            Exception inner = ex.InnerException;
+            if (inner != null)
+            {
+                CollectStackTraces(trace, inner);
+                trace.AppendLine("\nFollowed by:");
+            }
+            trace.AppendLine(ex.StackTrace ?? "");
+        }
+
+        private static string CleanStackTrace(Exception ex)
+        {
+            var trace = new StringBuilder(4096);
+            CollectStackTraces(trace, ex);
+            string stackTraces = trace.ToString();
+
             var sb = new StringBuilder("StackTrace:\r\n");
-            string[] lines = stackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = stackTraces.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string errorLine in lines)
             {
                 string line = errorLine.Replace("Microsoft.Xna.Framework", "XNA");
@@ -330,7 +362,7 @@ namespace Ship_Game
 
                     sb.Append(method).Append(" in ").Append(file).AppendLine();
                 }
-                else if (line.Contains("System.Windows.Forms"))    continue; // ignore winforms
+                else if (line.Contains("System.Windows.Forms")) continue; // ignore winforms
                 else sb.AppendLine(line);
             }
             return sb.ToString();

@@ -2283,15 +2283,14 @@ namespace Ship_Game.Ships
             return TetheredTo != null;
         }
 
-        //added by Gremlin : active ship strength calculator
-        private float CurrentStrength = -1;
+        private float CurrentStrength = -1.0f;
+
         public float GetStrength()
         {
-            if (CurrentStrength == -1)
-                Debugger.Break();
             return CurrentStrength;
         }
 
+        public float NormalizedStrength => BaseStrength / shipData.ModuleSlots.Length;
 
         public float GetDPS() => DPS;
 
