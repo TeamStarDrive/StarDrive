@@ -40,7 +40,7 @@ namespace Ship_Game
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship hangarShip)) continue;
-                string role = ShipData.GetRole(hangarShip.shipData.Role);
+                string role = ShipData.GetRole(hangarShip.shipData.HullRole);
                 if (!ActiveModule.PermittedHangarRoles.Contains(role)) continue;
                 if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize) continue;
                 AddItem(ResourceManager.ShipsDict[shipname]);
