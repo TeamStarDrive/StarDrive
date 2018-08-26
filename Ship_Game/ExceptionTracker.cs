@@ -38,7 +38,7 @@ namespace Ship_Game
             
             if (Empire.Universe != null)
             {
-                ex.Data["StarDate"] = Empire.Universe.StarDate.ToString("F1");
+                ex.Data["StarDate"] = Empire.Universe.StarDateString;
                 if (Empire.Universe.MasterShipList != null)
                     ex.Data["ShipCount"] = Empire.Universe.MasterShipList.Count.ToString();
                     
