@@ -307,8 +307,8 @@ namespace Ship_Game.Ships
             Civilian,
             Recon,
             Combat,
-            AntiShip,
-            Interceptor,
+            Bomber,
+            Fighter,
             Kamikaze
         }
 
