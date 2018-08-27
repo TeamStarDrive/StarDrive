@@ -32,10 +32,10 @@ namespace Ship_Game.Ships
                 default:
                 case ShipData.Category.Civilian: threshold     = 0.85f; break;
                 case ShipData.Category.Recon: threshold        = 0.65f; break;
-                case ShipData.Category.AntiShip: threshold     = 0.35f; break;
+                case ShipData.Category.Bomber: threshold     = 0.35f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
                 case ShipData.Category.Combat: threshold       = 0.35f; break;
-                case ShipData.Category.Interceptor: threshold  = 0.3f; break;
+                case ShipData.Category.Fighter: threshold  = 0.3f; break;
                 case ShipData.Category.Kamikaze: threshold     = 0.0f; break;
             }
 
