@@ -103,11 +103,11 @@ namespace Ship_Game.Ships
                         break;
                     case ShipData.Category.Recon:
                         return ShipData.RoleName.scout;
-                    case ShipData.Category.Combat:
+                    case ShipData.Category.Conservative:
                         break;
-                    case ShipData.Category.Bomber:
+                    case ShipData.Category.Netural:
                         break;
-                    case ShipData.Category.Fighter:
+                    case ShipData.Category.Reckless:
                         break;
                     case ShipData.Category.Kamikaze:
                         break;
