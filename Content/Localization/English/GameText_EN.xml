@@ -4696,6 +4696,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
+      <Index>1975</Index>
+      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has revocered from the EMP overload</Text>
+    </Token>
+    <Token>
+      <Index>1976</Index>
+      <Text>Structural Integrity of the ship reflecting internal damage. If this reaches 0%, the ship will be immediately destroyed.</Text>
+    </Token>
+    <Token>
       <Index>1977</Index>
       <Text>Dodge Modifier</Text>
     </Token>
