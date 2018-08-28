@@ -920,7 +920,7 @@ namespace Ship_Game.AI {
                                 if (check.Treaty_NAPact)
                                     weight *= .5f;
                                 if (enemy.isPlayer)
-                                    weight *= ((int)Empire.Universe.GameDifficulty + 1);
+                                    weight *= ((int)CurrentGame.Difficulty + 1);
 
                                 if (check.Anger_TerritorialConflict > 0)
                                     check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);

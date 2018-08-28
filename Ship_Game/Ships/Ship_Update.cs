@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
+using System;
 
 namespace Ship_Game.Ships
 {
@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
         {
             if (!Active)
                 return;
-       
+
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
                 ScuttleTimer -= elapsedTime;
@@ -40,7 +40,7 @@ namespace Ship_Game.Ships
             }
 
             UpdateVisibility();
-            
+
             ShieldRechargeTimer += elapsedTime;
             InhibitedTimer      -= elapsedTime;
             Inhibited = InhibitedTimer > 0f;
@@ -53,7 +53,7 @@ namespace Ship_Game.Ships
                 Center   = TetheredTo.Center + TetherOffset;
                 velocityMaximum = 0;
             }
-            if (Mothership != null && !Mothership.Active) //Problematic for drones... 
+            if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
             if (dying) UpdateDying(elapsedTime);
@@ -128,7 +128,7 @@ namespace Ship_Game.Ships
             //if (ClickTimer < 0f) ClickTimer = 10f;
 
             if (elapsedTime > 0f)
-            {                
+            {
                 UpdateProjectiles(elapsedTime);
                 UpdateBeams(elapsedTime);
                 if (!EMPdisabled && Active) AI.Update(elapsedTime);
@@ -139,7 +139,7 @@ namespace Ship_Game.Ships
             InCombatTimer -= elapsedTime;
             if (InCombatTimer > 0.0f)
             {
-                    
+
                 InCombat = true;
             }
             else
@@ -168,7 +168,7 @@ namespace Ship_Game.Ships
                     ShipSO.SkinBones = ShipMeshAnim.SkinnedBoneTransforms;
                     ShipMeshAnim.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                 }
-                UpdateThrusters();                
+                UpdateThrusters();
             }
 
             if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500)
@@ -255,8 +255,8 @@ namespace Ship_Game.Ships
             if (dietimer <= 1.9f && InFrustum && DeathSfx.IsStopped)
             {
                 string cueName;
-                if (Size < 80) cueName = "sd_explosion_ship_warpdet_small";
-                else if (Size < 250) cueName = "sd_explosion_ship_warpdet_medium";
+                if (SurfaceArea < 80) cueName = "sd_explosion_ship_warpdet_small";
+                else if (SurfaceArea < 250) cueName = "sd_explosion_ship_warpdet_medium";
                 else cueName = "sd_explosion_ship_warpdet_large";
                 DeathSfx.PlaySfxAsync(cueName, SoundEmitter);
             }
@@ -324,7 +324,7 @@ namespace Ship_Game.Ships
         }
 
 
-        
+
         private void UpdateProjectiles(float elapsedTime)
         {
             for (int i = projectiles.Count - 1; i >= 0; --i)
@@ -365,7 +365,7 @@ namespace Ship_Game.Ships
         }
 
 
-        
+
         private void CheckAndPowerConduit(ShipModule module)
         {
             if (!module.Active)
@@ -387,7 +387,7 @@ namespace Ship_Game.Ships
                         continue;
 
                 }
-    
+
                 CheckAndPowerConduit(slot);
             }
         }
@@ -396,7 +396,7 @@ namespace Ship_Game.Ships
         {
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
-                ShipModule slot      = ModuleSlotList[i];                
+                ShipModule slot      = ModuleSlotList[i];
                 slot.Powered         = false;
                 slot.CheckedConduits = false;
             }
@@ -404,15 +404,15 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                //better fix for modules that dont use power. 
+                //better fix for modules that dont use power.
                 if (module.PowerRadius < 1 && (module.PowerDraw <= 0 || module.AlwaysPowered))
                 {
                     module.Powered = true;
                     continue;
-                }                
-                //Filter by powerplants. 
+                }
+                //Filter by powerplants.
                 if (!module.Is(ShipModuleType.PowerPlant) || !module.Active) continue;
-                //This is a change. powerplants are now marked powered 
+                //This is a change. powerplants are now marked powered
                 module.Powered = true;
                 Vector2 moduleCenter = module.LocalCenter;
                 //conduit check.
@@ -437,12 +437,12 @@ namespace Ship_Game.Ships
 
                 foreach (ShipModule slot2 in ModuleSlotList)
                 {
-                    if (!slot2.Active || slot2.Powered  || slot2 == module || slot2.ModuleType == ShipModuleType.PowerConduit)                                    
+                    if (!slot2.Active || slot2.Powered  || slot2 == module || slot2.ModuleType == ShipModuleType.PowerConduit)
                         continue;
 
                     int distanceFromPowerX = (int)Math.Abs(cx - (slot2.Position.X + 8)) ;
                     int distanceFromPowerY = (int)Math.Abs(cy - (slot2.Position.Y + 8));
-                    if (distanceFromPowerX + distanceFromPowerY <= powerRadius)                      
+                    if (distanceFromPowerX + distanceFromPowerY <= powerRadius)
                     {
                         slot2.Powered = true;
                         continue;
@@ -450,7 +450,7 @@ namespace Ship_Game.Ships
                     //if its really far away dont bother.
                     if (distanceFromPowerX + distanceFromPowerY > slot2.Radius * 2 + powerRadius)
                         continue;
-                    slot2.Powered = IsAnyPartOfModuleInRadius(slot2, new Vector2(cx, cy), powerRadius);        
+                    slot2.Powered = IsAnyPartOfModuleInRadius(slot2, new Vector2(cx, cy), powerRadius);
                 }
             }
         }
@@ -459,9 +459,9 @@ namespace Ship_Game.Ships
         {
             float cx = pos.X;
             float cy = pos.Y;
-            
+
             for (int y = 0; y < moduleAreaToCheck.YSIZE; ++y)
-            {                
+            {
                 float sy = moduleAreaToCheck.Position.Y + (y * 16) +8;
                 for (int x = 0; x < moduleAreaToCheck.XSIZE; ++x)
                 {

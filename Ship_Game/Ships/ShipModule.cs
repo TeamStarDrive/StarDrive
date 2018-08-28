@@ -48,7 +48,7 @@ namespace Ship_Game.Ships
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
-        public bool DynamicHangar { get; private set; } 
+        public DynamicHangarOptions DynamicHangar { get; private set; } 
 
 
         public float BombTimer;
@@ -395,23 +395,44 @@ namespace Ship_Game.Ships
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
             if (Parent.loyalty.isFaction)
                 return;
-            if (ShipBuilder.IsDynamicLaunch(hangarShipUID) || !Parent.loyalty.isPlayer)
-                DynamicHangar = true;
+
+            DynamicHangar = ShipBuilder.GetDynamicHangarOptions(hangarShipUID);
+            if (DynamicHangar == DynamicHangarOptions.Static && !Parent.loyalty.isPlayer)
+                DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamiclaunch.
         }
 
-        public ShipData.RoleName BiggestPermittedHangarRole
+        public ShipData.RoleName[] HangarRoles
         {
             get
             {
-                ShipData.RoleName biggestRole = ShipData.RoleName.drone;
-                if (PermittedHangarRoles.Contains("frigate"))
-                    biggestRole = ShipData.RoleName.frigate;
-                else if (PermittedHangarRoles.Contains("corvette"))
-                    biggestRole = ShipData.RoleName.corvette;
-                else if (PermittedHangarRoles.Contains("fighter"))
-                    biggestRole = ShipData.RoleName.fighter;
+                var tempRoles = new Array<ShipData.RoleName>();
+                foreach (var roleName in PermittedHangarRoles)
+                {
+                    tempRoles.Add((ShipData.RoleName)Enum.Parse(typeof(ShipData.RoleName), roleName));
+                }
+                return tempRoles.ToArray();
+            }
+        }
 
-                return biggestRole;
+        public float BayOrdnanceUsagePerSecond
+        {
+            get
+            {
+                float ordnancePerSecond = 0;
+                if (IsSupplyBay && hangarTimerConstant > 0)
+                    ordnancePerSecond = (OrdinanceCapacity + 8) / hangarTimerConstant; //8 because shuttle mass is 40
+                else if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
+                {
+                    if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+                        ordnancePerSecond = MaximumHangarShipSize / hangarTimerConstant;
+                    else
+                    {
+
+                        ResourceManager.ShipsDict.TryGetValue(hangarShipUID, out Ship template);
+                        ordnancePerSecond = (template?.Mass / 5 ?? 0) / hangarTimerConstant;
+                    }
+                }
+                return ordnancePerSecond;
             }
         }
 
@@ -1193,8 +1214,8 @@ namespace Ship_Game.Ships
                                                     || IsTroopBay)
                 return off;
 
-            if (ShipBuilder.IsDynamicLaunch(hangarShipUID))
-                off += MaximumHangarShipSize * 2;
+            if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+                off += MaximumHangarShipSize * 10;
             else
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship thangarShip))
