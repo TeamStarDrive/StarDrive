@@ -851,17 +851,16 @@ namespace Ship_Game
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-           
-            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.15f), (int)ClassifCursor.Y + 50, 150, 18);
-            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, behaviorRect);
-            foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
-                ShieldsBehaviorList.AddOption(item.ToString(), item);
-                
             var hangarRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
             HangarOptionsList = new HangarDesignationDropDown(this, hangarRect);
             foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
                 HangarOptionsList.AddOption(item.ToString(), item);
 
+            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.15f), (int)ClassifCursor.Y + 50, 150, 18);
+            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, behaviorRect);
+            foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
+                ShieldsBehaviorList.AddOption(item.ToString(), item);
+                
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
 
