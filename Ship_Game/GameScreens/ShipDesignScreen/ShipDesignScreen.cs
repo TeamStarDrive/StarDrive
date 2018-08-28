@@ -47,6 +47,7 @@ namespace Ship_Game
         private Selector selector;
         private CategoryDropDown CategoryList;
         private ShieldBehaviorDropDown ShieldsBehaviorList;
+        private HangarDesignationDropDown HangarOptionsList;
 
         private bool ShowAllArcs;
         public bool ToggleOverlay = true;

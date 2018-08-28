@@ -28,19 +28,20 @@ namespace Ship_Game
             RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
-                Animated        = hull.Animated,
-                CombatState     = hull.CombatState,
-                Hull            = hull.Hull,
-                IconPath        = hull.ActualIconPath,
-                ModelPath       = hull.HullModel,
-                Name            = hull.Name,
-                Role            = hull.Role,
-                ShipStyle       = hull.ShipStyle,
-                ThrusterList    = hull.ThrusterList,
-                ShipCategory    = hull.ShipCategory,
-                ShieldsBehavior = hull.ShieldsBehavior,
-                CarrierShip     = hull.CarrierShip,
-                BaseHull        = hull.BaseHull
+                Animated          = hull.Animated,
+                CombatState       = hull.CombatState,
+                Hull              = hull.Hull,
+                IconPath          = hull.ActualIconPath,
+                ModelPath         = hull.HullModel,
+                Name              = hull.Name,
+                Role              = hull.Role,
+                ShipStyle         = hull.ShipStyle,
+                ThrusterList      = hull.ThrusterList,
+                ShipCategory      = hull.ShipCategory,
+                HangarDesignation = hull.HangarDesignation,
+                ShieldsBehavior   = hull.ShieldsBehavior,
+                CarrierShip       = hull.CarrierShip,
+                BaseHull          = hull.BaseHull
             };
             ActiveHull.UpdateBaseHull();
 
@@ -111,6 +112,10 @@ namespace Ship_Game
             {
                 CategoryList.SetActiveValue(ActiveHull.ShipCategory);
             }
+
+
+            HangarOptionsList.PropertyBinding = () => ActiveHull.HangarDesignation;
+            HangarOptionsList.SetActiveValue(ActiveHull.HangarDesignation);
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
@@ -195,6 +200,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             CategoryList.HandleInput(input);
+            HangarOptionsList.HandleInput(input);
             ShieldsBehaviorList.HandleInput(input);
             if (DesignRoleRect.HitTest(input.CursorPosition))
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect);
@@ -845,10 +851,16 @@ namespace Ship_Game
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
-            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
+           
+            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.15f), (int)ClassifCursor.Y + 50, 150, 18);
             ShieldsBehaviorList = new ShieldBehaviorDropDown(this, behaviorRect);
             foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
+                
+            var hangarRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
+            HangarOptionsList = new HangarDesignationDropDown(this, hangarRect);
+            foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
+                HangarOptionsList.AddOption(item.ToString(), item);
 
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);

@@ -37,18 +37,19 @@ namespace SDNative
 
     struct ShipData
     {
-        strview Name             = Empty;
-        strview Hull             = Empty;
-        strview ShipStyle        = Empty;
-        strview EventOnDeath     = Empty;
-        strview SelectionGraphic = Empty;
-        strview IconPath         = Empty;
-        strview ModelPath        = Empty;
-        strview DefaultAIState   = Empty;
-        strview Role             = "fighter";
-        strview CombatState      = "AttackRuns";
-        strview ShipCategory     = "Unclassified";
-        strview ShieldsBehavior  = "FullPower";
+        strview Name              = Empty;
+        strview Hull              = Empty;
+        strview ShipStyle         = Empty;
+        strview EventOnDeath      = Empty;
+        strview SelectionGraphic  = Empty;
+        strview IconPath          = Empty;
+        strview ModelPath         = Empty;
+        strview DefaultAIState    = Empty;
+        strview Role              = "fighter";
+        strview CombatState       = "AttackRuns";
+        strview ShipCategory      = "Unclassified";
+		strview HangarDesignation = "General";
+        strview ShieldsBehavior   = "FullPower";
         int      TechScore             = 0;
         float    BaseStrength          = 0.0f;
         float    FixedUpkeep           = 0.0f;

@@ -733,6 +733,9 @@ namespace Ship_Game
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
 
+            DrawTitle(ScreenWidth * 0.65f, "Hangar Designation");
+            HangarOptionsList.Draw(ScreenManager.SpriteBatch);
+
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
                 DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
