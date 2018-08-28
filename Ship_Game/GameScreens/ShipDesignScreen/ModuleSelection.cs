@@ -595,10 +595,10 @@ namespace Ship_Game
                 {
                     case DynamicHangarOptions.DynamicLaunch:
                         return "Hangar will launch more advanced ships, as they become available in your empire";
-                    case DynamicHangarOptions.DynamicFighter:
+                    case DynamicHangarOptions.DynamicInterceptor:
                         return "Hangar will launch more advanced ships which their designated ship category is 'Fighter', " +
                                "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
-                    case DynamicHangarOptions.DynamicBomber:
+                    case DynamicHangarOptions.DynamicAntiShip:
                         return "Hangar will launch more advanced ships which their designated ship category is 'Bomber', " +
                                "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
                     default:

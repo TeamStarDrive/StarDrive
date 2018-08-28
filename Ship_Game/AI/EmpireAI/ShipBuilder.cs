@@ -153,8 +153,8 @@ namespace Ship_Game.AI
             switch (dynamicHangarType)
             {
                 case DynamicHangarOptions.DynamicLaunch:  return Color.Gold;
-                case DynamicHangarOptions.DynamicFighter: return Color.Cyan;
-                case DynamicHangarOptions.DynamicBomber:  return Color.OrangeRed;
+                case DynamicHangarOptions.DynamicInterceptor: return Color.Cyan;
+                case DynamicHangarOptions.DynamicAntiShip:  return Color.OrangeRed;
                 default:                                  return Color.White;
             }
         }
@@ -177,7 +177,7 @@ namespace Ship_Game.AI
     {
         Static,
         DynamicLaunch,
-        DynamicFighter,
-        DynamicBomber
+        DynamicInterceptor,
+        DynamicAntiShip
     }
 }
