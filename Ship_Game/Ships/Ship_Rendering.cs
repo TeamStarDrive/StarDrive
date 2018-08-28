@@ -298,7 +298,8 @@ namespace Ship_Game.Ships
             // display low ammo
             if (OrdnancePercent < 0.5f)
             {
-                Color color = (OrdnancePercent <= 0.15f) ? Color.Red : Color.Yellow;
+                float criticalThreshold = InCombat ? ShipResupply.OrdnanceThresholdCombat : ShipResupply.OrdnanceThresholdNonCombat;
+                Color color             = OrdnancePercent <= criticalThreshold ? Color.Red : Color.Yellow;
                 DrawSingleStatusIcon(us, screenRadius, screenPos, ref offSet, "NewUI/icon_ammo", color);
             }
             // FB: display ressuply icons

@@ -414,7 +414,8 @@ namespace Ship_Game
             float expTrigger = ShipRole.GetMaxExpValue();
             if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (RemnantKills >= expTrigger + (int)Empire.Universe.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
+                if (RemnantKills >= (expTrigger + (int)CurrentGame.Difficulty * 3) &&
+                    RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
                     Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);

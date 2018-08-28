@@ -23,17 +23,14 @@ namespace Ship_Game.AI
 
         public CombatAI(Ship ship)
         {
-            int size = ship.Size;
             Owner = ship;
             UpdateCombatAI(ship);
-            if (size == 0) return;
-          
         }
 
         public void UpdateCombatAI(Ship ship)
         {
-            if (ship.Size <= 0) return;
-
+            if (ship.SurfaceArea <= 0)
+                return;
 
             byte pd        = 0;
             byte mains     = 0;
@@ -97,8 +94,8 @@ namespace Ship_Game.AI
             {
                 weight = weight + VultureWeight;
             }
-            float size = nearbyShip.Size;
-            if (size < 30)
+            int surfaceArea = nearbyShip.SurfaceArea;
+            if (surfaceArea < 30)
             {
                 switch (Owner.shipData.ShipCategory) {
                     case ShipData.Category.Fighter:
@@ -112,11 +109,11 @@ namespace Ship_Game.AI
                         break;
                 }
             }
-            if (size > 30 && size < 100)
+            if (surfaceArea > 30 && surfaceArea < 100)
             {                
                 weight += Owner.shipData.ShipCategory == ShipData.Category.Bomber ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;                
             }
-            if (size > 100)
+            if (surfaceArea > 100)
             {
                 switch (Owner.shipData.ShipCategory) {
                     case ShipData.Category.Fighter:

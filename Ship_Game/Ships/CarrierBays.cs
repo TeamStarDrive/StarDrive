@@ -470,7 +470,7 @@ namespace Ship_Game.Ships
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
                 hangar.hangarShipUID = selectedShip ?? defaultShip;
-                if (Empire.Universe?.showdebugwindow ?? false)
+                if (Empire.Universe?.showdebugwindow == true)
                     Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
             }
         }
@@ -479,9 +479,9 @@ namespace Ship_Game.Ships
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicFighter:
+                case DynamicHangarOptions.DynamicInterceptor:
                     return ShipData.Category.Fighter;
-                case DynamicHangarOptions.DynamicBomber:
+                case DynamicHangarOptions.DynamicAntiShip:
                     return ShipData.Category.Bomber;
                 default:
                     return ShipData.Category.Unclassified;
