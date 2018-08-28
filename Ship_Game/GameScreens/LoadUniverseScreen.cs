@@ -861,7 +861,7 @@ namespace Ship_Game
                             ship.AI.State = AIState.SystemDefender;
                         }
                     }
-                    if (ship.shipData.IsShipyard && !ship.IsTethered())
+                    if (ship.shipData.IsShipyard && !ship.IsTethered)
                         ship.Active = false;
                     Guid escortTargetGuid = ship.AI.EscortTargetGuid;
                     foreach (Ship s in data.MasterShipList)
