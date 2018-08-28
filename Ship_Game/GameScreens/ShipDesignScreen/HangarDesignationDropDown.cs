@@ -16,7 +16,7 @@ namespace Ship_Game
                 if (Rect.HitTest(input.CursorPosition))
                 {
                     string tooltip = new[]{
-                        "This ship is desgined for general purpose tasks.",
+                        "This ship is designed for general purpose tasks.",
 
                         "This ship is designated as Anti Ship. It is designed to engage capital ships. " +
                         "Carrier Dynamic Anti Ship hangars will pick the best from Anti Ship designated ships when launching ships.",
