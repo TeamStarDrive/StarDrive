@@ -1,9 +1,9 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game
 {
@@ -278,31 +278,29 @@ namespace Ship_Game
                     switch (orderType)
                     {
                         case OrderType.TradeFood:
-                        {
-                            for (int i = 0; i < ShipList.Count; i++)
                             {
-                                    if (ShipList[i].AI.State != AIState.SystemTrader)
-                                    {
-                                        ShipList[i].AI.start = null;
-                                        ShipList[i].AI.end = null;
-                                        ShipList[i].AI.State = AIState.SystemTrader;
-                                    }                        
-                                
-                                ShipList[i].AI.OrderTrade(0);
-                                
-
+                                for (int i = 0; i < ShipList.Count; i++)
+                                {
+                                    ShipList[i].AI.start = null;
+                                    ShipList[i].AI.end = null;
+                                    ShipList[i].AI.State = AIState.SystemTrader;
+                                    ShipList[i].AI.FoodOrProd = Goods.Food;
+                                    ShipList[i].AI.OrderTrade(0);
+                                    ShipList[i].TransportingFood = !ShipList[i].TransportingFood;
                                 }
-                            return true;
-                        }
+
+                                return true;
+                            }
                         case OrderType.TradeProduction:
                         {
-                            for (int i = 0; i < ShipList.Count; i++)
-                            {
-                                ShipList[i].AI.start = null;
-                                ShipList[i].AI.end = null;
-                                ShipList[i].AI.FoodOrProd = Goods.Production;
-                                ShipList[i].AI.OrderTrade(0);
-                                //    ShipList[i].AI.State = AIState.SystemTrader;
+                                for (int i = 0; i < ShipList.Count; i++)
+                                {
+                                    ShipList[i].AI.start = null;
+                                    ShipList[i].AI.end = null;
+                                    ShipList[i].AI.State = AIState.SystemTrader;
+                                    ShipList[i].AI.FoodOrProd = Goods.Production;
+                                    ShipList[i].AI.OrderTrade(0);
+                                    ShipList[i].TransportingProduction = !ShipList[i].TransportingProduction;
 
 
                                 }

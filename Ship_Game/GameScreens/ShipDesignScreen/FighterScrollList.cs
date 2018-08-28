@@ -34,14 +34,15 @@ namespace Ship_Game
         private void Populate()
         {
             Reset();
-            AddItem(ResourceManager.GetShipTemplate(DynamicHangarLaunch.DynamicLaunch.ToString()));
+            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicLaunch.ToString()));
+            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicInterceptor.ToString()));
+            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicAntiShip.ToString()));
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
-                if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship fighter)) continue;
-                string role = ShipData.GetRole(fighter.DesignRole);
+                if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship hangarShip)) continue;
+                string role = ShipData.GetRole(hangarShip.shipData.HullRole);
                 if (!ActiveModule.PermittedHangarRoles.Contains(role)) continue;
-                if (fighter.Size > ActiveModule.MaximumHangarShipSize) continue;
-
+                if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize) continue;
                 AddItem(ResourceManager.ShipsDict[shipname]);
             }         
         }
@@ -95,7 +96,7 @@ namespace Ship_Game
             Populate();
 
             Ship fighter = ResourceManager.GetShipTemplate(HangarShipUIDLast, false);
-            if (HangarShipUIDLast != "" && activeModule.PermittedHangarRoles.Contains(fighter?.shipData.GetRole()) && activeModule.MaximumHangarShipSize >= fighter?.Size)
+            if (HangarShipUIDLast != "" && activeModule.PermittedHangarRoles.Contains(fighter?.shipData.GetRole()) && activeModule.MaximumHangarShipSize >= fighter?.SurfaceArea)
             {
                 activeModule.hangarShipUID = HangarShipUIDLast;
             }
@@ -116,7 +117,7 @@ namespace Ship_Game
                 bCursor.Y = e.Y;
                 spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                Color color = ShipBuilder.IsDynamicLaunch(ship.Name) ? Color.Gold : Color.White;
+                Color color = ShipBuilder.GetHangarTextColor(ship.Name);
                 spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, color);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
             }

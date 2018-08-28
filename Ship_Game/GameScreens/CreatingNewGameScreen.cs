@@ -81,7 +81,8 @@ namespace Ship_Game
                 FTLSpeedModifier      = GlobalStats.FTLInSystemModifier,
                 EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,                    
                 GravityWells          = GlobalStats.PlanetaryGravityWells,
-                FTLinNeutralSystem    = GlobalStats.WarpInSystem
+                FTLinNeutralSystem    = GlobalStats.WarpInSystem,
+                difficulty            = difficulty
             };
 
             bool corners = Mode == RaceDesignScreen.GameMode.Corners;
@@ -106,6 +107,8 @@ namespace Ship_Game
             EmpireManager.Add(empire);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.SnapshotsDict.Clear();
+
+            CurrentGame.StartNew(Data);
         }
 
         private void SaveRace(Empire empire)
@@ -208,13 +211,12 @@ namespace Ship_Game
                 if (empire.isFaction || empire.data.Traits.BonusExplored <= 0)
                     continue;
 
-                var planet0 = empire.GetPlanets()[0];
-                var solarSystems = Data.SolarSystemsList;
-                var orderedEnumerable = solarSystems.OrderBy(system => Vector2.Distance(planet0.Center, system.Position));
-                int numSystemsExplored = solarSystems.Count >= 20 ? empire.data.Traits.BonusExplored : solarSystems.Count;
+                Planet homeworld = empire.GetPlanets()[0];
+                SolarSystem[] closestSystems = Data.SolarSystemsList.Sorted(system => homeworld.Center.Distance(system.Position));
+                int numSystemsExplored = Data.SolarSystemsList.Count >= 20 ? empire.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
                 for (int i = 0; i < numSystemsExplored; ++i)
                 {
-                    var system = orderedEnumerable.ElementAt(i);
+                    SolarSystem system = closestSystems[i];
                     system.SetExploredBy(empire);
                     foreach (Planet planet in system.PlanetList)
                         planet.SetExploredBy(empire);
@@ -365,14 +367,15 @@ namespace Ship_Game
                 {
                     if (empire == e)
                         continue;
-                    Relationship r = new Relationship(e.data.Traits.Name);
+
+                    var r = new Relationship(e.data.Traits.Name);
                     empire.AddRelationships(e, r);
-                    if (PlayerEmpire != e)
-                        continue;
-                    if (Difficulty <= UniverseData.GameDifficulty.Normal) continue;
+                    if (e == PlayerEmpire && Difficulty > UniverseData.GameDifficulty.Normal)
+                    {
                         float angerMod = (int)Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
-                    r.Anger_DiplomaticConflict = angerMod;
-                    r.Anger_MilitaryConflict = 1;
+                        r.Anger_DiplomaticConflict = angerMod;
+                        r.Anger_MilitaryConflict = 1;
+                    }
                 }
             }
             ResourceManager.MarkShipDesignsUnlockable();
@@ -751,7 +754,6 @@ namespace Ship_Game
                 player         = PlayerEmpire,
                 CamPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
                 ScreenManager  = ScreenManager,
-                GameDifficulty = Difficulty,
                 GameScale      = Scale
             };
 

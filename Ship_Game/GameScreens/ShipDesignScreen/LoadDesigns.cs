@@ -152,7 +152,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             {
                 if (e.item is ModuleHeader header)
                 {
-                    header.HandleInput(input, e);
+                    if (header.HandleInput(input, e))
+                        break;
                 }
                 else if (e.item is ShipData data)
                 {

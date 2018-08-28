@@ -182,7 +182,7 @@ namespace Ship_Game.Universe.SolarBodies.AI
                 case Goods.Production:
                     return TradePlanet.MaxStorage - TradePlanet.GetGoodHere(good);
                 case Goods.Colonists:
-                    return TradePlanet.MaxPopulation / 1000f - TradePlanet.Population /1000f;
+                    return TradePlanet.MaxPopulation - TradePlanet.Population;
 
             }
             return 0;

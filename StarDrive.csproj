@@ -214,6 +214,7 @@
     <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\Data\RawContentLoader.cs" />
     <Compile Include="Ship_Game\Data\StaticMesh.cs" />
+    <Compile Include="Ship_Game\Debug\DebugScreens.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
@@ -232,6 +233,7 @@
     <Compile Include="Ship_Game\FGPathing\PathFinder.cs" />
     <Compile Include="Ship_Game\FGPathing\PathFinderFast.cs" />
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
+    <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\InputMessageBox.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreenInterfaces.cs" />
@@ -255,6 +257,7 @@
     <Compile Include="Ship_Game\Ships\IDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\InternalDamageModifier.cs" />
     <Compile Include="Ship_Game\Ships\Power.cs" />
+    <Compile Include="Ship_Game\Ships\ShipExtensions.cs" />
     <Compile Include="Ship_Game\Ships\ShipMaintenance.cs" />
     <Compile Include="Ship_Game\Ships\ShipModuleDamageVisualization.cs" />
     <Compile Include="Ship_Game\Ships\ShipResupply.cs" />
@@ -1648,6 +1651,15 @@
     <None Include="Content\Textures\Modules\PolaronTurret3x3.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\NewUI\DynamicBomber.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\NewUI\DynamicFighter.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\NewUI\DynamicLaunch.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\NewUI\icon_order_explore.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1669,6 +1681,9 @@
     <None Include="Content\Textures\NewUI\icon_projection.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\NewUI\icon_resupply.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\NewUI\icon_sensors.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1685,6 +1700,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\StatusIcons\icon_structure.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\UI\icon_hangar.xnb">
@@ -2136,6 +2154,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\Drone Scout.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\DynamicAntiShip.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\DynamicInterceptor.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\DynamicLaunch.xml">

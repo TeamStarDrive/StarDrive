@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -9,6 +6,9 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -38,22 +38,25 @@ namespace Ship_Game.Debug
         public float FooterSize;
         public Color FooterColor;
         public Array<Color> LineColor;
+
         public void AddRange(Array<string> lines)
         {            
-            foreach (var line in lines)            
+            foreach (string line in lines)            
                 AddLine(line);                            
         }
+
         public void AddRange(Array<string> lines, Color color)
         {
-            foreach (var line in lines)
+            foreach (string line in lines)
             {
                 AddLine(line);
                 LineColor.Add(color);
             }
         }
+
         public Array<string> GetFormattedLines()
         {
-            Array<string> text = new Array<string>();
+            var text = new Array<string>();
             if (Header.NotEmpty()) text.Add(Header);
             text.AddRange(Lines);
             if (Footer.NotEmpty()) text.Add(Footer);
@@ -75,153 +78,16 @@ namespace Ship_Game.Debug
 
     }
 
-    public class DebugPage : UIElementContainer
-    {
-
-        public DebugPage(GameScreen parent, DebugModes mode) : base(parent, parent.Rect)
-        {
-            DebugMode = mode;
-        }
-        protected Array<UILabel> DebugText;
-        public void HideAllDebugText()
-        {
-            if (DebugText == null) return;
-            for (int i = 0; i < DebugText.Count; i++)
-            {
-                var column = DebugText[i];
-                column.Hide();
-            }
-        }
-        public void HideDebugGameInfo(int column)
-        {
-            DebugText?[column].Hide();
-        }
-        public DebugModes DebugMode { get; private set; }
-
-        public void ShowDebugGameInfo(int column, DebugTextBlock lines, float x, float y)
-        {
-            if (DebugText == null)
-                DebugText = new Array<UILabel>();
-
-            if (DebugText.Count <= column)
-                DebugText.Add(Label(x, y, ""));
-
-
-            DebugText[column].Show();
-            DebugText[column].MultilineText = lines.GetFormattedLines();
-
-        }
-        public virtual void Update(float deltaTime,DebugModes mode)
-        {
-            if (mode != DebugMode) return;
-            base.Update(deltaTime);
-        }
-    }
-    public class TradeDebug : DebugPage
-    {        
-        private UniverseScreen Screen;
-        private DebugInfoScreen Parent;
-        private Rectangle DrawArea;
-        public TradeDebug(UniverseScreen screen, DebugInfoScreen parent) :base(parent, DebugModes.Trade)
-        {
-            Screen = screen;
-            Parent = parent;
-            DrawArea = parent.Rect;
-        }
-
-        public override void Update(float deltaTime, DebugModes mode)
-        {
-
-            Planet planet = Screen.SelectedPlanet;
-
-            Array<DebugTextBlock> text;
-            if (planet == null)
-            {
-                text = new Array<DebugTextBlock>();
-                foreach (Empire empire in EmpireManager.Empires)
-                {
-                    if (empire.isFaction || empire.data.Defeated) continue;
-
-                    var block = empire.DebugEmpireTradeInfo();
-                    block.Header = empire.Name;
-                    block.HeaderColor = empire.EmpireColor;
-
-                    text.Add(block);
-
-                }
-                for (int i = 0; i < text.Count; i++)
-                {
-                    var lines = text[i];
-                    ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
-                }
-                return;
-            }
-            
-            
-            HideAllDebugText();
-            
-            text = planet?.TradeAI?.DebugText();
-            if (text == null)
-                return;
-            if (text?.IsEmpty == true) return;
-            for (int i = 0; i < text.Count; i++)
-            {
-                DebugTextBlock lines = text[i];
-                ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
-            }
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            if (!Visible)
-            {
-                base.Draw(spriteBatch);
-                return;
-            }
-            Planet planet = Screen.SelectedPlanet;
-            int totalFreighters = 0;
-            foreach (Empire e in EmpireManager.Empires)
-            {
-                foreach (Ship ship in e.GetShips())
-                {
-                    if (ship?.Active != true) continue;
-                    ShipAI ai = ship.AI;
-                    if (ai.State != AIState.SystemTrader) continue;
-                    if (ai.OrderQueue.Count == 0) continue;
-
-                    switch (ai.OrderQueue.PeekLast.Plan)
-                    {
-                        case Plan.DropOffGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
-                            if (planet == ship.AI.end) totalFreighters++;
-
-                            break;
-                        case Plan.PickupGoods:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
-                            break;
-                        case Plan.PickupPassengers:
-                        case Plan.DropoffPassengers:
-                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
-                            break;
-                    }
-                }
-
-            }
-
-            base.Draw(spriteBatch);
-        }
-
-    }
+    
+    
 
     public class PlanetData : DebugPage
     {
         private UniverseScreen Screen;
-        private DebugInfoScreen Parent;
         private Rectangle DrawArea;
         public PlanetData(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Planets)
         {
             Screen = screen;
-            Parent = parent;
             DrawArea = parent.Rect;
         }
 
@@ -235,9 +101,9 @@ namespace Ship_Game.Debug
                 text = new Array<DebugTextBlock>();
                 foreach (Empire empire in EmpireManager.Empires)
                 {
-                    if (empire.isFaction) continue;
-
-                    var block = empire.DebugEmpirePlanetInfo();
+                    if (empire.isFaction)
+                        continue;
+                    DebugTextBlock block = empire.DebugEmpirePlanetInfo();
                     block.Header = empire.Name;
                     block.HeaderColor = empire.EmpireColor;
 
@@ -246,8 +112,7 @@ namespace Ship_Game.Debug
                 }
                 for (int i = 0; i < text.Count; i++)
                 {
-                    var lines = text[i];
-                    ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+                    ShowDebugGameInfo(i, text[i], Rect.X + 10 + 300 * i, Rect.Y + 250);
                 }
                 return;
             }
@@ -431,7 +296,8 @@ namespace Ship_Game.Debug
 
         public void ClearResearchLog(Empire empire)
         {
-            if (!ResearchText.TryGetValue(empire.Name, out var empireTechs)) return;
+            if (!ResearchText.TryGetValue(empire.Name, out Array<string> empireTechs))
+                return;
             
             empireTechs.Clear();
             
@@ -439,7 +305,7 @@ namespace Ship_Game.Debug
         public void ResearchLog(string text, Empire empire)
         {
             if (!DebugLogText(text, DebugModes.Tech)) return;
-            if (!ResearchText.TryGetValue(empire.Name, out var empireTechs))
+            if (!ResearchText.TryGetValue(empire.Name, out Array<string> empireTechs))
             {
                 var techs = new Array<string>();
                 techs.Add(text);
@@ -524,7 +390,7 @@ namespace Ship_Game.Debug
                     case DebugModes.Normal        : EmpireInfo(); break;
                     case DebugModes.DefenseCo     : DefcoInfo(); break;
                     case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
-                    case DebugModes.Pathing       : PathingInfo(); break;
+                    //case DebugModes.Pathing       : PathingInfo(); break;
                     //case DebugModes.Trade         : TradeInfo(); break;
                     case DebugModes.Targeting     : Targeting(); break;
                     case DebugModes.SpatialManager: SpatialManagement(); break;
@@ -551,7 +417,8 @@ namespace Ship_Game.Debug
                 case DebugModes.Targeting:
                     break;
                 case DebugModes.Pathing:
-                    break;
+                    Page = new PathDebug(Screen, this);
+                    return true;
                 case DebugModes.DefenseCo:
                     break;
                 case DebugModes.Trade:
@@ -625,7 +492,7 @@ namespace Ship_Game.Debug
                         DrawString($"Str : {(int)bestShip.BaseStrength} - Tech : {bestShip.shipData.TechScore}");
                     }
                 }
-                DrawString($"");
+                DrawString("");
                 if (ResearchText.TryGetValue(e.Name, out var empireLog))
                     for (int x = 0; x < empireLog.Count - 1; x++)
                     {
@@ -786,12 +653,14 @@ namespace Ship_Game.Debug
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
                 DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
-                DrawString($"Ship Count:    {e.GetShips().Count}" +
-                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
-                           $" :{e.GetShips().Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser || warship?.DesignRole == ShipData.RoleName.frigate)}" +                           
-                           $" :{e.GetShips().Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
-                           $" :{e.GetShips().Count(warship => warship?.DesignRole >= ShipData.RoleName.bomber && warship?.DesignRole <= ShipData.RoleName.carrier)}"
+
+                Array<Ship> ships = e.GetShips();
+                DrawString($"Ship Count:    {ships.Count}" +
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
+                           $" :{ships.Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser || warship?.DesignRole == ShipData.RoleName.frigate)}" +                           
+                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
+                           $" :{ships.Count(warship => warship?.DesignRole >= ShipData.RoleName.bomber && warship?.DesignRole <= ShipData.RoleName.carrier)}"
                            );
                 DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
@@ -842,7 +711,7 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                foreach (var relationship in e.AllRelations)
+                foreach (KeyValuePair<Empire, Relationship> relationship in e.AllRelations)
                 {
                     TextColor = relationship.Key.EmpireColor;
                     if (relationship.Value.Treaty_NAPact)
@@ -909,23 +778,11 @@ namespace Ship_Game.Debug
             }
         }
 
-        private void PathingInfo()
-        {
-            foreach (Empire e in EmpireManager.Empires)
-                for (int x = 0; x < e.grid.GetLength(0); x++)
-                    for (int y = 0; y < e.grid.GetLength(1); y++)
-                    {
-                        if (e.grid[x, y] != 1)
-                            continue;
-                        var translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
-                        Screen.DrawCircleProjectedZ(translated, Screen.reducer , e.EmpireColor, 4);
-                    }
-        }
+
 
         private void TradeInfo()
         {
             Planet planet = Screen.SelectedPlanet;
-            int totalFreighters = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
                 foreach (Ship ship in e.GetShips())
@@ -939,8 +796,6 @@ namespace Ship_Game.Debug
                     {
                         case Plan.DropOffGoods:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 6);
-                            if (planet == ship.AI.end) totalFreighters++;
-
                             break;
                         case Plan.PickupGoods:
                             Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.IsFood ? Color.GreenYellow : Color.SteelBlue, 3);
@@ -962,8 +817,7 @@ namespace Ship_Game.Debug
             Array<DebugTextBlock> text = planet.TradeAI.DebugText();
             for (int i = 0; i < text.Count; i++)
             {
-                var lines = text[i];
-                ShowDebugGameInfo(i, lines.Lines, Win.X + 10 + 400 * i, Win.Y + 20);  
+                ShowDebugGameInfo(i, text[i].Lines, Win.X + 10 + 400 * i, Win.Y + 20);  
             }
         }
 
