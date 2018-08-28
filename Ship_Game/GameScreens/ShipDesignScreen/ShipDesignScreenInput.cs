@@ -845,7 +845,7 @@ namespace Ship_Game
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
 
-            var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 100, 18);
+            var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
 
             CategoryList = new CategoryDropDown(this, dropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
