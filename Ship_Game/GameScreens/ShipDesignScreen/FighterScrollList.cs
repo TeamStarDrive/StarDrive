@@ -35,15 +35,14 @@ namespace Ship_Game
         {
             Reset();
             AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicLaunch.ToString()));
-            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicFighter.ToString()));
-            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicBomber.ToString()));
+            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicInterceptor.ToString()));
+            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicAntiShip.ToString()));
             foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
             {
-                if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship fighter)) continue;
-                string role = ShipData.GetRole(fighter.DesignRole);
+                if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship hangarShip)) continue;
+                string role = ShipData.GetRole(hangarShip.shipData.HullRole);
                 if (!ActiveModule.PermittedHangarRoles.Contains(role)) continue;
-                if (fighter.SurfaceArea > ActiveModule.MaximumHangarShipSize) continue;
-
+                if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize) continue;
                 AddItem(ResourceManager.ShipsDict[shipname]);
             }         
         }

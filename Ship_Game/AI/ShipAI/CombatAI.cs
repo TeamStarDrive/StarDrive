@@ -97,8 +97,7 @@ namespace Ship_Game.AI
             int surfaceArea = nearbyShip.SurfaceArea;
             if (surfaceArea < 30)
             {
-                switch (Owner.shipData.ShipCategory)
-                {
+                switch (Owner.shipData.ShipCategory) {
                     case ShipData.Category.Fighter:
                         weight += SmallAttackWeight * 2f;
                         break;

@@ -93,6 +93,29 @@ namespace Ship_Game.Ships
             if (pSpecial > 0.10f)
                 return ShipData.RoleName.support;
 
+            if (Category != ShipData.Category.Unclassified)
+            {
+                switch (Category)
+                {
+                    case ShipData.Category.Unclassified:
+                        break;
+                    case ShipData.Category.Civilian:
+                        break;
+                    case ShipData.Category.Recon:
+                        return ShipData.RoleName.scout;
+                    case ShipData.Category.Combat:
+                        break;
+                    case ShipData.Category.Bomber:
+                        break;
+                    case ShipData.Category.Fighter:
+                        break;
+                    case ShipData.Category.Kamikaze:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
             ShipData.RoleName fixRole = DataRole == ShipData.RoleName.prototype ? DataRole : HullRole;
             switch (fixRole)
             {

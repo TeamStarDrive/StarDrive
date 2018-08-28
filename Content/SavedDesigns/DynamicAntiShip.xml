@@ -5,7 +5,7 @@
   <experience>0</experience>
   <Level>0</Level>
   <SelectionGraphic />
-  <Name>DynamicBomber</Name>
+  <Name>DynamicAntiShip</Name>
   <HasFixedCost>false</HasFixedCost>
   <FixedCost>0</FixedCost>
   <HasFixedUpkeep>false</HasFixedUpkeep>
