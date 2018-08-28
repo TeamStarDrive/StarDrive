@@ -309,9 +309,9 @@ namespace Ship_Game.Ships
             Unclassified,
             Civilian,
             Recon,
-            Combat,
-            Bomber,
-            Fighter,
+            Conservative,
+            Netural,
+            Reckless,
             Kamikaze
         }
 
