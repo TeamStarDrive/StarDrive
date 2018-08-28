@@ -100,7 +100,7 @@ namespace SDNative
                 elem.parse("ModelPath"         , ModelPath);
                 elem.parse("DefaultAIState"    , DefaultAIState);
                 elem.parse("ShipCategory"      , ShipCategory);
-				elem.parse("HangarDesignation" , HangarDesignation);
+                elem.parse("HangarDesignation" , HangarDesignation);
                 elem.parse("ShieldsBehavior"   , ShieldsBehavior);
                 elem.parse("CarrierShip"       , CarrierShip);
                 elem.parse("BaseStrength"      , BaseStrength);

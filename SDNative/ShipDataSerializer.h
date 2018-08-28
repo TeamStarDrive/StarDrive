@@ -48,7 +48,7 @@ namespace SDNative
         strview Role              = "fighter";
         strview CombatState       = "AttackRuns";
         strview ShipCategory      = "Unclassified";
-		strview HangarDesignation = "General";
+        strview HangarDesignation = "General";
         strview ShieldsBehavior   = "FullPower";
         int      TechScore             = 0;
         float    BaseStrength          = 0.0f;
