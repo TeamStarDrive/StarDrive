@@ -554,7 +554,7 @@ namespace Ship_Game
                 Guid key = keys[x];
                 Ship shipyard = Shipyards[key];
                 if (shipyard == null || !shipyard.Active //Remove this null check later.
-                                     || shipyard.Size == 0)
+                                     || shipyard.SurfaceArea == 0)
                     Shipyards.Remove(key);
             }
             if (!Habitable)

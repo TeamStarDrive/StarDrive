@@ -311,7 +311,7 @@ namespace Ship_Game
             MasterShipList.ApplyPendingRemovals();
             if (perStarDateTimer <= StarDate)
             {
-                perStarDateTimer = StarDate + .1f;
+                perStarDateTimer = StarDate + 0.1f;
                 perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
                 empireShipCountReserve = EmpireManager.Empires.Sum(empire =>
                     {
