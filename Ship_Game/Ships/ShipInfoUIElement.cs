@@ -458,7 +458,8 @@ namespace Ship_Game.Ships
                 case ResupplyReason.LowHealth:
                     text = "Structural Integrity Compromized";
                     break;
-                case ResupplyReason.LowOrdnance:
+                case ResupplyReason.LowOrdnanceNonCombat:
+                case ResupplyReason.LowOrdnanceCombat:
                     text = "Ammo Reserves Critical";
                     break;
                 case ResupplyReason.LowTroops:

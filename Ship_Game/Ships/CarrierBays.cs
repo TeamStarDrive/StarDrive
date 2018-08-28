@@ -479,9 +479,9 @@ namespace Ship_Game.Ships
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicFighter:
+                case DynamicHangarOptions.DynamicInterceptor:
                     return ShipData.Category.Fighter;
-                case DynamicHangarOptions.DynamicBomber:
+                case DynamicHangarOptions.DynamicAntiShip:
                     return ShipData.Category.Bomber;
                 default:
                     return ShipData.Category.Unclassified;
