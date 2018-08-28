@@ -42,6 +42,7 @@ namespace Ship_Game.Ships
         public Category ShipCategory = Category.Unclassified;
 
         public ShieldsWarpBehavior ShieldsBehavior = ShieldsWarpBehavior.FullPower;
+        public HangarOptions HangarDesignation = HangarOptions.General;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
@@ -117,6 +118,7 @@ namespace Ship_Game.Ships
             public readonly CStrView CombatState;
             public readonly CStrView ShipCategory;
             public readonly CStrView ShieldsBehavior;
+            public readonly CStrView HangarDesignation;
 
             public readonly int TechScore;
             public readonly float BaseStrength;
@@ -194,11 +196,12 @@ namespace Ship_Game.Ships
                     AllModulesUnlocakable     = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
-                Enum.TryParse(s->Role.AsString,            out ship.Role);
-                Enum.TryParse(s->CombatState.AsString,     out ship.CombatState);
-                Enum.TryParse(s->ShipCategory.AsString,    out ship.ShipCategory);
-                Enum.TryParse(s->ShieldsBehavior.AsString, out ship.ShieldsBehavior);
-                Enum.TryParse(s->DefaultAIState.AsString,  out ship.DefaultAIState);
+                Enum.TryParse(s->Role.AsString,              out ship.Role);
+                Enum.TryParse(s->CombatState.AsString,       out ship.CombatState);
+                Enum.TryParse(s->ShipCategory.AsString,      out ship.ShipCategory);
+                Enum.TryParse(s->HangarDesignation.AsString, out ship.HangarDesignation);
+                Enum.TryParse(s->ShieldsBehavior.AsString,   out ship.ShieldsBehavior);
+                Enum.TryParse(s->DefaultAIState.AsString,    out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
                 ship.ModuleSlots = new ModuleSlotData[s->ModuleSlotsLen];
@@ -310,6 +313,13 @@ namespace Ship_Game.Ships
             Bomber,
             Fighter,
             Kamikaze
+        }
+
+        public enum HangarOptions
+        {
+            General,
+            AntiShip,
+            Interceptor
         }
 
         public enum RoleName
