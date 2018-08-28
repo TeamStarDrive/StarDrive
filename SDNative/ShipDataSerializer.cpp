@@ -97,13 +97,14 @@ namespace SDNative
                         thrusterZone.parse("scale", tz.Scale);
                     }
                 });
-                elem.parse("ModelPath"      , ModelPath);
-                elem.parse("DefaultAIState" , DefaultAIState);
-                elem.parse("ShipCategory"   , ShipCategory);
-                elem.parse("ShieldsBehavior", ShieldsBehavior);
-                elem.parse("CarrierShip"    , CarrierShip);
-                elem.parse("BaseStrength"   , BaseStrength);
-                elem.parse("BaseCanWarp"    , BaseCanWarp);
+                elem.parse("ModelPath"        , ModelPath);
+                elem.parse("DefaultAIState"   , DefaultAIState);
+                elem.parse("ShipCategory"     , ShipCategory);
+				elem.parse("HangarDesignation", HangarDesignation);
+                elem.parse("ShieldsBehavior"  , ShieldsBehavior);
+                elem.parse("CarrierShip"      , CarrierShip);
+                elem.parse("BaseStrength"     , BaseStrength);
+                elem.parse("BaseCanWarp"      , BaseCanWarp);
                 elem.parseList("ModuleSlotList", [this](NodeParser slotData)
                 {
                     ModuleSlotList.emplace_back();
