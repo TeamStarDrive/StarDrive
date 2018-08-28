@@ -572,7 +572,7 @@ namespace Ship_Game
                 Texture2D item;
                 Ship ship = ActiveShipDesign;
                 {
-                    scale = ship.Size / (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
+                    scale = ship.SurfaceArea / (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
                     iconOrigin = new Vector2(ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f, ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f);
                     scale = scale * 4000f / CamPos.Z;
                     if (scale > 1f)
