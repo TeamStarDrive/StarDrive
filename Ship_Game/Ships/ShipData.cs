@@ -41,8 +41,8 @@ namespace Ship_Game.Ships
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
 
-        public ShieldsWarpBehavior ShieldsBehavior = ShieldsWarpBehavior.FullPower;
         public HangarOptions HangarDesignation = HangarOptions.General;
+        public ShieldsWarpBehavior ShieldsBehavior = ShieldsWarpBehavior.FullPower;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
@@ -117,8 +117,8 @@ namespace Ship_Game.Ships
             public readonly CStrView Role;
             public readonly CStrView CombatState;
             public readonly CStrView ShipCategory;
-            public readonly CStrView ShieldsBehavior;
             public readonly CStrView HangarDesignation;
+            public readonly CStrView ShieldsBehavior;
 
             public readonly int TechScore;
             public readonly float BaseStrength;
