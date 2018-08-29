@@ -448,27 +448,30 @@ namespace Ship_Game.Ships
         private void DrawResuplyReason(Ship ship)
         {
             string text = "";
-            switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
-            {
-                case ResupplyReason.NotNeeded:
-                    return;
-                case ResupplyReason.FighterReactorsDamaged:
-                    text = "Reactors Damaged";
-                    break;
-                case ResupplyReason.LowHealth:
-                    text = "Structural Integrity Compromized";
-                    break;
-                case ResupplyReason.LowOrdnanceNonCombat:
-                case ResupplyReason.LowOrdnanceCombat:
-                    text = "Ammo Reserves Critical";
-                    break;
-                case ResupplyReason.LowTroops:
-                    text = "Need Troops";
-                    break;
-                case ResupplyReason.NoCommand:
-                    text = "No Command, Cannot Attack";
-                    break;
-            }
+            if (ship.ScuttleTimer > 0)
+                text = $"Ship will be Scuttled in {(int)ship.ScuttleTimer} seconds";
+            else
+                switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
+                {
+                    case ResupplyReason.NotNeeded:
+                        return;
+                    case ResupplyReason.FighterReactorsDamaged:
+                        text = "Reactors Damaged";
+                        break;
+                    case ResupplyReason.LowHealth:
+                        text = "Structural Integrity Compromized";
+                        break;
+                    case ResupplyReason.LowOrdnanceNonCombat:
+                    case ResupplyReason.LowOrdnanceCombat:
+                        text = "Ammo Reserves Critical";
+                        break;
+                    case ResupplyReason.LowTroops:
+                        text = "Need Troops";
+                        break;
+                    case ResupplyReason.NoCommand:
+                        text = "No Command, Cannot Attack";
+                        break;
+                }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, Color.Red);
         }
