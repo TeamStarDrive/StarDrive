@@ -32,10 +32,10 @@ namespace Ship_Game.Ships
                 default:
                 case ShipData.Category.Civilian: threshold     = 0.85f; break;
                 case ShipData.Category.Recon: threshold        = 0.65f; break;
-                case ShipData.Category.Netural: threshold     = 0.35f; break;
+                case ShipData.Category.Netural: threshold      = 0.5f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
-                case ShipData.Category.Conservative: threshold       = 0.35f; break;
-                case ShipData.Category.Reckless: threshold  = 0.3f; break;
+                case ShipData.Category.Conservative: threshold = 0.35f; break;
+                case ShipData.Category.Reckless: threshold     = 0.2f; break;
                 case ShipData.Category.Kamikaze: threshold     = 0.0f; break;
             }
 
@@ -86,6 +86,14 @@ namespace Ship_Game.Ships
                 case SupplyType.Troops:
                     return TroopsOk();
             }
+        }
+
+        public void ResupplyFromButton()
+        {
+            if (Ship.Mothership != null)
+                Ship.AI.OrderReturnToHangar();
+            else
+                Ship.AI.GoOrbitNearestPlanetAndResupply(true);
         }
 
         private bool ResupplyNeededLowHealth()

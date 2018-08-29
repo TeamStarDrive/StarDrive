@@ -549,7 +549,7 @@ namespace Ship_Game.Ships
         public bool DoingResupply
         {
             get => AI.State == AIState.Resupply;
-            set => AI.GoOrbitNearestPlanetAndResupply(true);
+            set => Supply.ResupplyFromButton();
         }
 
         public bool DoingSystemDefense
