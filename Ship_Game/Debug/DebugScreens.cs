@@ -55,12 +55,10 @@ namespace Ship_Game.Debug
     public class TradeDebug : DebugPage
     {
         private UniverseScreen Screen;
-        private DebugInfoScreen Parent;
         private Rectangle DrawArea;
         public TradeDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Trade)
         {
             Screen = screen;
-            Parent = parent;
             DrawArea = parent.Rect;
         }
 
@@ -150,13 +148,11 @@ namespace Ship_Game.Debug
     public class PathDebug : DebugPage
     {
         private UniverseScreen Screen;
-        private DebugInfoScreen Parent;
         private Rectangle DrawArea;
         private int EmpireID =1;
         public PathDebug(UniverseScreen screen, DebugInfoScreen parent) : base(parent, DebugModes.Pathing)
         {
             Screen = screen;
-            Parent = parent;
             DrawArea = parent.Rect;
             if (DebugText == null)
                 DebugText = new Array<UILabel>();

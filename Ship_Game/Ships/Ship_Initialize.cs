@@ -211,9 +211,11 @@ namespace Ship_Game.Ships
                 ship.Level += owner.data.BonusFighterLevels;
             ship.Level += owner.data.BaseShipLevel;
             // during new game creation, universeScreen can still be null its not supposed to work on players.
-            if (Empire.Universe != null && Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Normal &&
+            if (Empire.Universe != null && CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal &&
                 owner != EmpireManager.Player)
-                ship.Level += (int)Empire.Universe.GameDifficulty;
+            {
+                ship.Level += (int)CurrentGame.Difficulty;
+            }
 
             ship.InitializeShip(loadingFromSavegame: false);
             owner.AddShip(ship);
@@ -469,7 +471,7 @@ namespace Ship_Game.Ships
             ECMValue                 = 0f;
             FTLSpoolTime             = 0f;
             RangeForOverlay          = 0f;
-            Size                     = Calculatesize();
+            SurfaceArea              = shipData.ModuleSlots.Length;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
