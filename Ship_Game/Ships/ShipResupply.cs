@@ -5,8 +5,8 @@ namespace Ship_Game.Ships
     public struct ShipResupply
     {
         private readonly Ship Ship;
-        private const float OrdnanceThresholdCombat            = 0.05f;
-        private const float OrdnanceThresholdNonCombat         = 0.15f;
+        public const float OrdnanceThresholdCombat             = 0.05f;
+        public const float OrdnanceThresholdNonCombat          = 0.15f;
         private const float ResupplyTroopThreshold             = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
@@ -32,10 +32,10 @@ namespace Ship_Game.Ships
                 default:
                 case ShipData.Category.Civilian: threshold     = 0.85f; break;
                 case ShipData.Category.Recon: threshold        = 0.65f; break;
-                case ShipData.Category.Bomber: threshold       = 0.4f; break;
-                case ShipData.Category.Unclassified: threshold = 0.35f; break;
-                case ShipData.Category.Combat: threshold       = 0.25f; break;
-                case ShipData.Category.Fighter: threshold      = 0.2f; break;
+                case ShipData.Category.Bomber: threshold     = 0.35f; break;
+                case ShipData.Category.Unclassified: threshold = 0.4f; break;
+                case ShipData.Category.Combat: threshold       = 0.35f; break;
+                case ShipData.Category.Fighter: threshold  = 0.3f; break;
                 case ShipData.Category.Kamikaze: threshold     = 0.0f; break;
             }
 
@@ -65,7 +65,7 @@ namespace Ship_Game.Ships
                 return ResupplyReason.LowHealth;
 
             if (ResupplyNeededLowOrdnance())
-                return ResupplyReason.LowOrdnance;
+                return Ship.InCombat ? ResupplyReason.LowOrdnanceCombat : ResupplyReason.LowOrdnanceNonCombat;
 
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
@@ -114,7 +114,7 @@ namespace Ship_Game.Ships
         {
             if (Ship.shipData.ShipCategory == ShipData.Category.Kamikaze
                 && Ship.loyalty.isPlayer)
-                return false; // only player manual command will convince player Kamikaze to resupply
+                return false; // only player manual command will convince Kamikaze ship to resupply
 
             float threshold = Ship.InCombat ? OrdnanceThresholdCombat
                                             : OrdnanceThresholdNonCombat;
@@ -123,7 +123,7 @@ namespace Ship_Game.Ships
 
         private bool HighKineticToEnergyRatio()
         {
-            if (Ship.OrdinanceMax < 1 || Ship.Weapons.Count == 0)
+            if (Ship.OrdinanceMax < 1 || Ship.Weapons.Count == 0 && Ship.BombCount == 0)
                 return false;
 
             if (!Ship.InCombat)
@@ -134,13 +134,13 @@ namespace Ship_Game.Ships
                                                                  && weapon.OrdinanceRequiredToFire > 0
                                                                  && !weapon.TruePD);
 
-            float ratioTheshold = Ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority
-                                                            : KineticEnergyRatioWithOutPriority;
+            float ratioThreshold = Ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority
+                                                             : KineticEnergyRatioWithOutPriority;
 
             float ratio = (float)numKineticWeapons / numWeapons;
             if (Ship.AI.HasPriorityTarget && ratio < 1f)
                 return false; // if player ordered a specific attack and the ship has energy weapons, continue to fight
-            return ratio >= ratioTheshold;
+            return ratio >= ratioThreshold;
         }
 
         private bool InsufficientOrdnanceProduction()
@@ -194,7 +194,8 @@ namespace Ship_Game.Ships
     {
         NotNeeded,
         LowHealth,
-        LowOrdnance,
+        LowOrdnanceCombat,
+        LowOrdnanceNonCombat,
         LowTroops,
         FighterReactorsDamaged,
         NoCommand

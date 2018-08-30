@@ -15,8 +15,8 @@ namespace Ship_Game.AI {
         {
             get
             {
-                var baseVal = 2;
-                var difMod = (int)Empire.Universe.GameDifficulty;
+                int baseVal = 2;
+                int difMod = (int)CurrentGame.Difficulty;
                 difMod = (int)(difMod * OwnerEmpire.getResStrat().ExpansionRatio);
                 int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
 

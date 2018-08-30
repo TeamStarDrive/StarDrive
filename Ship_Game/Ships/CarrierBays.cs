@@ -470,7 +470,7 @@ namespace Ship_Game.Ships
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
                 hangar.hangarShipUID = selectedShip ?? defaultShip;
-                if (Empire.Universe?.showdebugwindow ?? false)
+                if (Empire.Universe?.showdebugwindow == true)
                     Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
             }
         }
@@ -479,9 +479,9 @@ namespace Ship_Game.Ships
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicFighter:
+                case DynamicHangarOptions.DynamicInterceptor:
                     return ShipData.Category.Fighter;
-                case DynamicHangarOptions.DynamicBomber:
+                case DynamicHangarOptions.DynamicAntiShip:
                     return ShipData.Category.Bomber;
                 default:
                     return ShipData.Category.Unclassified;
@@ -490,15 +490,18 @@ namespace Ship_Game.Ships
 
         private string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
-            ShipData.RoleName biggetRole = hangar.BiggestPermittedHangarRole;
             ShipData.Category desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
-            string selectedShip = ShipBuilder.PickFromCandidates(biggetRole, empire, maxSize: hangar.MaximumHangarShipSize,
-                shipCategory: desiredShipCategory);
+            string selectedShip = string.Empty;
+            foreach (var role in hangar.HangarRoles)
+            {
+                selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
+                    shipCategory: desiredShipCategory);
 
-            // If no desired category is available in the empire, try to get the best ship we have regardless of category
-            if (selectedShip == "" && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
-                selectedShip = ShipBuilder.PickFromCandidates(biggetRole, empire, maxSize: hangar.MaximumHangarShipSize);
-
+                // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role
+                if (selectedShip.IsEmpty() && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
+                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize);
+                if (selectedShip.NotEmpty()) break;
+            }
             return selectedShip;
         }
     }

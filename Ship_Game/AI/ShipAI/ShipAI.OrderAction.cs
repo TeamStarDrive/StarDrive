@@ -730,17 +730,6 @@ namespace Ship_Game.AI
             State = AIState.Scrap;
         }
 
-        private void OrderSupplyShip(Ship tosupply, float ord_amt)
-        {
-            var g = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-            EscortTarget = tosupply;
-            g.VariableNumber = ord_amt;
-            IgnoreCombat = true;
-            OrderQueue.Clear();
-            OrderQueue.Enqueue(g);
-            State = AIState.Ferrying;
-        }
-
         /// <summary>
         /// sysdefense order defend system
         /// </summary>

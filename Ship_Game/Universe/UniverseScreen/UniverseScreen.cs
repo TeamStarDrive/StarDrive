@@ -39,7 +39,7 @@ namespace Ship_Game
         public float GameScale = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
-        public string StarDateFmt = "0000.0";
+        public string StarDateString => StarDate.StarDateString();
         public float StarDateTimer = 5f;
         public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
@@ -55,7 +55,6 @@ namespace Ship_Game
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
-        public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition;
         public Vector3 camTransitionPosition;
         public Array<NebulousOverlay> Stars        = new Array<NebulousOverlay>();

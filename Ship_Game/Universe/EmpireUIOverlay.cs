@@ -461,9 +461,10 @@ namespace Ship_Game
 				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
 				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Money.ToString(), " (+", damoney.ToString("#.0"), ")"), textCursor, new Color(255, 240, 189));
 			}
-			Vector2 StarDateCursor = new Vector2(res5.X + 75, textCursor.Y);
-			spriteBatch.DrawString(Fonts.Arial12Bold, (LowRes ? Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt) : string.Concat("StarDate: ", Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt))), StarDateCursor, new Color(255, 240, 189));
-			//this.FirstRun = false;
+
+			var starDatePos = new Vector2(res5.X + 75, textCursor.Y);
+            string starDateText = LowRes ? Empire.Universe.StarDateString : "StarDate: " + Empire.Universe.StarDateString;
+            spriteBatch.DrawString(Fonts.Arial12Bold, starDateText, starDatePos, new Color(255, 240, 189));
 			if (!LowRes)
 			{
 				if (string.IsNullOrEmpty(empire.ResearchTopic))
