@@ -255,8 +255,8 @@ namespace Ship_Game.Ships
             if (dietimer <= 1.9f && InFrustum && DeathSfx.IsStopped)
             {
                 string cueName;
-                if (Size < 80) cueName = "sd_explosion_ship_warpdet_small";
-                else if (Size < 250) cueName = "sd_explosion_ship_warpdet_medium";
+                if (SurfaceArea < 80) cueName = "sd_explosion_ship_warpdet_small";
+                else if (SurfaceArea < 250) cueName = "sd_explosion_ship_warpdet_medium";
                 else cueName = "sd_explosion_ship_warpdet_large";
                 DeathSfx.PlaySfxAsync(cueName, SoundEmitter);
             }

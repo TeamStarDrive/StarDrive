@@ -799,6 +799,24 @@ namespace Ship_Game
             return -tolerance <= delta && delta <= tolerance;
         }
 
+        /// <summary>Returns true if a less than b or almost equal</summary>
+        public static bool LessOrEqual(this float a, float b)
+        {
+            return a < b || AlmostEqual(a, b);
+        }
+
+        /// <summary>Returns true if a greater than b or almost equal</summary>
+        public static bool GreaterOrEqual(this float a, float b)
+        {
+            return a > b || AlmostEqual(a, b);
+        }
+
+        /// <summary>Returns true if x is inside the range of [min .. max]</summary>
+        public static bool InRange(this float x, float min, float max)
+        {
+            return (min - 0.000001f) <= x && x <= (max + 0.000001f);
+        }
+
         public static Vector2 ProjectTo2D(this Viewport viewport, Vector3 source, ref Matrix projection, ref Matrix view)
         {
             Matrix.Multiply(ref view, ref projection, out Matrix viewProjection);

@@ -19,5 +19,10 @@ namespace Ship_Game
                 default: return number.ToString("0.###", CultureInfo.InvariantCulture);
             }
         }
+
+        public static string StarDateString(this float starDate)
+        {
+            return starDate.ToString("####.0", CultureInfo.InvariantCulture);
+        }
     }
 }

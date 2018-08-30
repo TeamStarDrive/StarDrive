@@ -316,13 +316,21 @@ namespace Ship_Game.AI
             Planet nearestRallyPoint = null;
             switch (resupplyReason)
             {
-                case ResupplyReason.LowOrdnance:
+                case ResupplyReason.LowOrdnanceCombat:
                     if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
                     {
                         Ship supplyShip = FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays,
                                                                            supply => -supply.Center.SqDist(Owner.Center));
 
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
+                        return;
+                    }
+                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    break;
+                case ResupplyReason.LowOrdnanceNonCombat:
+                    if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
+                    {
+                        State = AIState.ResupplyEscort; // FB: this will signal supply carriers to dispatch a supply shuttle
                         return;
                     }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
