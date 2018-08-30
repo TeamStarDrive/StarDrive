@@ -203,7 +203,7 @@ namespace Ship_Game
         {
             get
             {
-                float productionPerWorker = (MineralRichness + PlusProductionPerColonist) * (1 + Owner.data.Traits.ProductionMod);
+                float productionPerWorker = MineralRichness * (1 + PlusProductionPerColonist + Owner.data.Traits.ProductionMod);
                 return OutputAfterTax(productionPerWorker);
             }
         }
@@ -554,7 +554,7 @@ namespace Ship_Game
                 Guid key = keys[x];
                 Ship shipyard = Shipyards[key];
                 if (shipyard == null || !shipyard.Active //Remove this null check later.
-                                     || shipyard.Size == 0)
+                                     || shipyard.SurfaceArea == 0)
                     Shipyards.Remove(key);
             }
             if (!Habitable)
@@ -2663,10 +2663,9 @@ namespace Ship_Game
             NetResearchPerTurn = NetResearchPerTurn + Owner.data.Traits.ResearchMod * NetResearchPerTurn;
             NetResearchPerTurn = NetResearchPerTurn - Owner.data.TaxRate * NetResearchPerTurn;
             //Food
-            NetFoodPerTurn =  (FarmerPercentage * (Population / 1000) * (Fertility + PlusFoodPerColonist)) + FlatFoodAdded;//NetFoodPerTurn is finished being calculated in another file...
+            NetFoodPerTurn =  ((FarmerPercentage * PopulationBillion) * (Fertility * (1 + PlusFoodPerColonist))) + FlatFoodAdded;//NetFoodPerTurn is finished being calculated in another file...
             //Production
-            NetProductionPerTurn = (WorkerPercentage * (Population / 1000) * (MineralRichness + PlusProductionPerColonist)) + PlusFlatProductionPerTurn;
-            NetProductionPerTurn = NetProductionPerTurn + Owner.data.Traits.ProductionMod * NetProductionPerTurn;
+            NetProductionPerTurn = ((WorkerPercentage * PopulationBillion) * (MineralRichness * (1 + PlusProductionPerColonist + Owner.data.Traits.ProductionMod))) + PlusFlatProductionPerTurn;
             MaxProductionPerTurn = GetMaxProductionPotentialCalc();
             Consumption = ((Population / 1000) + Owner.data.Traits.ConsumptionModifier * (Population / 1000));
             if (Owner.data.Traits.Cybernetic > 0)
