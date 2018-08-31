@@ -414,6 +414,28 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float BayOrdnanceUsagePerSecond
+        {
+            get
+            {
+                float ordnancePerSecond = 0;
+                if (IsSupplyBay && hangarTimerConstant > 0)
+                    ordnancePerSecond = (OrdinanceCapacity + 8) / hangarTimerConstant; //8 because shuttle mass is 40
+                else if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
+                {
+                    if (ShipBuilder.IsDynamicHangar(hangarShipUID))
+                        ordnancePerSecond = MaximumHangarShipSize / hangarTimerConstant;
+                    else
+                    {
+
+                        ResourceManager.ShipsDict.TryGetValue(hangarShipUID, out Ship template);
+                        ordnancePerSecond = (template?.Mass / 5 ?? 0) / hangarTimerConstant;
+                    }
+                }
+                return ordnancePerSecond;
+            }
+        }
+
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
         public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
         {

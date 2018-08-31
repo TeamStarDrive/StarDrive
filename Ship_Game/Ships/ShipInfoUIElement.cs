@@ -448,28 +448,43 @@ namespace Ship_Game.Ships
         private void DrawResuplyReason(Ship ship)
         {
             string text = "";
-            switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
-            {
-                case ResupplyReason.NotNeeded:
-                    return;
-                case ResupplyReason.FighterReactorsDamaged:
-                    text = "Reactors Damaged";
-                    break;
-                case ResupplyReason.LowHealth:
-                    text = "Structural Integrity Compromized";
-                    break;
-                case ResupplyReason.LowOrdnance:
-                    text = "Ammo Reserves Critical";
-                    break;
-                case ResupplyReason.LowTroops:
-                    text = "Need Troops";
-                    break;
-                case ResupplyReason.NoCommand:
-                    text = "No Command, Cannot Attack";
-                    break;
-            }
+            Color color = Color.Red;
+            if (ship.ScuttleTimer > 0)
+                text = $"Ship will be Scuttled in {(int)ship.ScuttleTimer} seconds";
+            else
+                switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
+                {
+                    case ResupplyReason.NotNeeded:
+                        if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
+                            text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
+                        else if (!ship.InCombat && ship.HealthPercent < 1)
+                        {
+                            text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
+                            color = Color.Yellow;
+                        }
+                        else
+                            return;
+
+                        break;
+                    case ResupplyReason.FighterReactorsDamaged:
+                        text = "Reactors Damaged";
+                        break;
+                    case ResupplyReason.LowHealth:
+                        text = "Structural Integrity Compromized";
+                        break;
+                    case ResupplyReason.LowOrdnanceNonCombat:
+                    case ResupplyReason.LowOrdnanceCombat:
+                        text = "Ammo Reserves Critical";
+                        break;
+                    case ResupplyReason.LowTroops:
+                        text = "Need Troops";
+                        break;
+                    case ResupplyReason.NoCommand:
+                        text = "No Command, Cannot Attack";
+                        break;
+                }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, Color.Red);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
         }
         
         private void DrawTroopStatus() // Expanded  by Fat Bastard
