@@ -448,13 +448,24 @@ namespace Ship_Game.Ships
         private void DrawResuplyReason(Ship ship)
         {
             string text = "";
+            Color color = Color.Red;
             if (ship.ScuttleTimer > 0)
                 text = $"Ship will be Scuttled in {(int)ship.ScuttleTimer} seconds";
             else
                 switch (ship.Supply.Resupply(forceSupplyStateCheck: true))
                 {
                     case ResupplyReason.NotNeeded:
-                        return;
+                        if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
+                            text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
+                        else if (!ship.InCombat && ship.HealthPercent < 1)
+                        {
+                            text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
+                            color = Color.Yellow;
+                        }
+                        else
+                            return;
+
+                        break;
                     case ResupplyReason.FighterReactorsDamaged:
                         text = "Reactors Damaged";
                         break;
@@ -473,7 +484,7 @@ namespace Ship_Game.Ships
                         break;
                 }
             var supplyTextPos = new Vector2(Housing.X + 175, Housing.Y + 5);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, Color.Red);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, supplyTextPos, color);
         }
         
         private void DrawTroopStatus() // Expanded  by Fat Bastard
