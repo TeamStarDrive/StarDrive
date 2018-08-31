@@ -303,7 +303,7 @@ namespace Ship_Game.Ships
             ship.VanityName                = troop.DisplayName;
             ship.TroopList.Add(ResourceManager.CopyTroop(troop));
             if (ship.shipData.Role == ShipData.RoleName.troop)
-                ship.shipData.ShipCategory = ShipData.Category.Combat;
+                ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;
         }
 

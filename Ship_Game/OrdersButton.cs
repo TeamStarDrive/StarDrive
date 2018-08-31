@@ -330,7 +330,7 @@ namespace Ship_Game
                         {
                             for (int i = 0; i < ShipList.Count; i++)
                             {
-                                ShipList[i].AI.GoOrbitNearestPlanetAndResupply(true);
+                                ShipList[i].Supply.ResupplyFromButton();
                             }
                             return true;
                         }
