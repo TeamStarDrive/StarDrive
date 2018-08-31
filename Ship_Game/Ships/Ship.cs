@@ -304,7 +304,7 @@ namespace Ship_Game.Ships
 
         public void CauseRepulsionDamage(Beam beam)
         {
-            if (IsTethered() || EnginesKnockedOut)
+            if (IsTethered || EnginesKnockedOut)
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
@@ -313,7 +313,7 @@ namespace Ship_Game.Ships
 
         public void CauseMassDamage(float massDamage)
         {
-            if (IsTethered() || EnginesKnockedOut)
+            if (IsTethered || EnginesKnockedOut)
                 return;
             Mass += massDamage;
             velocityMaximum = Thrust / Mass;
@@ -408,10 +408,10 @@ namespace Ship_Game.Ships
                     || AI.State         == AIState.Scrap
                     || AI.State         == AIState.Resupply
                     || AI.State         == AIState.Refit || Mothership != null
-                    || shipData.Role    == ShipData.RoleName.supply 
+                    || shipData.Role    == ShipData.RoleName.supply
                     || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
                     || OrdinanceMax < 1
-                    || (IsTethered() && shipData.HullRole == ShipData.RoleName.platform))
+                    || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
                     return ShipStatus.NotApplicable;
 
                 return ToShipStatus(Ordinance, OrdinanceMax);
@@ -421,6 +421,7 @@ namespace Ship_Game.Ships
 
         public int BombCount
         {
+
             get
             {
                 int Bombs = 0;
@@ -549,7 +550,7 @@ namespace Ship_Game.Ships
         public bool DoingResupply
         {
             get => AI.State == AIState.Resupply;
-            set => AI.GoOrbitNearestPlanetAndResupply(true);
+            set => Supply.ResupplyFromButton();
         }
 
         public bool DoingSystemDefense
@@ -964,7 +965,7 @@ namespace Ship_Game.Ships
             {
                 if (w.MassDamage > 0 || w.RepulsionDamage > 0)
                 {
-                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered())
+                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
                 if ((loyalty == targetShip.loyalty || !loyalty.isFaction &&
@@ -1105,7 +1106,7 @@ namespace Ship_Game.Ships
 
             if (w.MassDamage > 0 || w.RepulsionDamage > 0)
             {
-                if (ship.EnginesKnockedOut || ship.IsTethered())
+                if (ship.EnginesKnockedOut || ship.IsTethered)
                     return false;
             }
 
@@ -1264,7 +1265,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            int numShipYards = IsTethered() ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
+            int numShipYards = IsTethered ? GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
@@ -1467,7 +1468,7 @@ namespace Ship_Game.Ships
                     data.HangarshipGuid = module.GetHangarShip().guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
-                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static 
+                    data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
                                                                ? module.hangarShipUID
                                                                : module.DynamicHangar.ToString();
 
@@ -1872,7 +1873,7 @@ namespace Ship_Game.Ships
             {
                 Velocity = Rotation.RadiansToDirection() * velocityMaximum;
             }
-            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered())
+            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered)
             {
                 EnginesKnockedOut = true;
                 velocityMaximum = Velocity.Length();
@@ -2264,10 +2265,7 @@ namespace Ship_Game.Ships
 
         }
 
-        public bool IsTethered()
-        {
-            return TetheredTo != null;
-        }
+        public bool IsTethered => TetheredTo != null;
 
         private float CurrentStrength = -1.0f;
 

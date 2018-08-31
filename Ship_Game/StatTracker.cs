@@ -14,7 +14,7 @@ namespace Ship_Game
 
 	    public static void StatAddColony(Object add,Empire owner,UniverseScreen universeScreen)
 	    {
-            string starDate = universeScreen.StarDate.ToString("#.0");
+            string starDate = universeScreen.StarDateString;
 	        if (!SnapshotsDict.TryGetValue(starDate, out var stat))
 	            return;
             Planet planet = add as Planet;
@@ -35,7 +35,7 @@ namespace Ship_Game
 
 	    public static void StatAddRoad(Object add, Empire owner)
 	    {
-            string starDate = Empire.Universe.StarDate.ToString("#.0");
+            string starDate = Empire.Universe.StarDateString;
 	        if (!SnapshotsDict.ContainsKey(starDate))
 	            return;
 	        RoadNode node = add as RoadNode;

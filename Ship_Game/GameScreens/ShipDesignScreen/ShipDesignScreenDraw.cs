@@ -405,6 +405,7 @@ namespace Ship_Game
                 sensorRange       = Math.Max(slot.Module.SensorRange, sensorRange);
                 sensorBonus       = Math.Max(slot.Module.SensorBonus, sensorBonus);
                 fixedTargets      = Math.Max(slot.Module.FixedTracking, fixedTargets);
+                ordnanceUsed     += slot.Module.BayOrdnanceUsagePerSecond;
 
                 if (slot.Module.IsCommandModule)
                     hasBridge = true;
@@ -731,6 +732,8 @@ namespace Ship_Game
 
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
+            DrawTitle(ScreenWidth * 0.65f, "Hangar Designation");
+            HangarOptionsList.Draw(ScreenManager.SpriteBatch);
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
