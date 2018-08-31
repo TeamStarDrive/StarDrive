@@ -148,8 +148,14 @@ namespace Ship_Game
                 ? null
                 : RallyPoints.FindMaxFiltered(planet => planet?.HasShipyard ?? false,
                     planet => -position.SqDist(planet?.Center ?? Vector2.Zero));
-            if (p == null)
-                Log.Warning($"RallyShipYardNearestTo Had null elements: RallyPoints {RallyPoints.Length}");
+            switch (p) {
+                case null when RallyPoints.Length > 0:
+                    return RallyPoints.FindMin(planet => -position.SqDist(planet.Center));
+                case null:
+                    Log.Warning($"RallyShipYardNearestTo Had null elements: RallyPoints {RallyPoints.Length}");
+                    break;
+            }
+
             return p;
         }
 
@@ -239,8 +245,10 @@ namespace Ship_Game
 
         public void SetRallyPoints()
         {
+            if (NoPlanetsForRally()) return;
+
             Array<Planet> rallyPlanets = new Array<Planet>();
-            var goodSystems = new HashSet<SolarSystem>();
+
             foreach (SolarSystem systemCheck in OwnedSolarSystems)
             {
                 if (systemCheck.combatTimer > 10) continue;
@@ -281,6 +289,63 @@ namespace Ship_Game
             RallyPoints = rallyPlanets.ToArray();
             if (RallyPoints.Length == 0)
                 Log.Error("SetRallyPoint: No Planets found");
+        }
+
+        private bool NoPlanetsForRally()
+        {
+            //defeated empires and factions can use rally points now. 
+            if (OwnedPlanets.Count != 0) return false;
+            Array<Planet> rallyPlanets = new Array<Planet>();
+            rallyPlanets = GetPlanetsNearStations();
+            if (rallyPlanets.Count == 0)
+            {
+                Planet p = GetNearestUnOwnedPlanet();
+                if (p != null)
+                    rallyPlanets.Add(p);
+            }
+
+            //super failSafe. just take any planet.
+            if (rallyPlanets.Count == 0)
+                rallyPlanets.Add(Universe.PlanetsDict.First().Value);
+
+            RallyPoints = rallyPlanets.ToArray();
+            return true;
+        }
+
+
+        private Array<Planet> GetPlanetsNearStations()
+        {
+            var planets = new Array<Planet>();
+            foreach(var station in OwnedShips)
+            {
+                if (station.BaseHull.Role != ShipData.RoleName.station
+                    && station.BaseHull.Role != ShipData.RoleName.platform) continue;
+                if (station.IsTethered)
+                {
+                    planets.Add(station.GetTether());
+                    continue;
+                }
+
+                if (station.System == null) continue;
+                foreach(var planet in station.System.PlanetList)
+                {
+                    if (planet.Owner == null)
+                        planets.Add(planet);
+                }
+
+            }
+            return planets;
+        }
+
+        public Planet GetNearestUnOwnedPlanet()
+        {
+            foreach(var system in Empire.Universe.SolarSystemDict)
+            {
+                if (system.Value.OwnerList.Count > 0) continue;
+                if (system.Value.PlanetList.Count == 0) continue;
+                return system.Value.PlanetList[0];
+            }
+            return null;
         }
 
         public int GetUnusedKeyForFleet()
@@ -675,7 +740,7 @@ namespace Ship_Game
             }
             //unlock ships from empire data
             foreach (string ship in data.unlockShips)
-                ShipsWeCanBuild.Add(ship);
+                ShipsWeCanBuild.Add(ship);            
 
             // fbedard: Add missing troop ship
             if (data.DefaultTroopShip == null)
@@ -821,7 +886,7 @@ namespace Ship_Game
                 ShipsWeCanBuild.Add(ship);
 
             UpdateShipsWeCanBuild();
-
+                  
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
@@ -837,6 +902,7 @@ namespace Ship_Game
             }
             return false;
         }
+        
 
         public EconomicResearchStrategy getResStrat()
         {
@@ -1502,7 +1568,7 @@ namespace Ship_Game
                 {
                     if (!ship.Active || ship.AI.State >= AIState.Scrap) continue;
                     float maintenance = ship.GetMaintCost();
-                    if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered())
+                    if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered)
                                                    || (ship.shipData.HullRole == ShipData.RoleName.station &&
                                                        (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
@@ -1552,9 +1618,35 @@ namespace Ship_Game
         {
             return (GrossTaxes * data.TaxRate + totalTradeIncome - AllTimeMaintTotal) / numberForAverage;
         }
+        
+        public void FactionShipsWeCanBuild()
+        {
+            if (!isFaction) return;
+            foreach (var ship in ResourceManager.ShipsDict)
+            {
+                if (data.Traits.ShipType == ship.Value.shipData.ShipStyle
+                    || ship.Value.shipData.ShipStyle == "Misc"
+                    || ship.Value.shipData.ShipStyle.IsEmpty())
+                {
+                    ShipsWeCanBuild.Add(ship.Key);
+                    foreach (var hangar in ship.Value.Carrier.AllHangars)
+                    {
+                        ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                    }
+                }
+            }
+            foreach (var hull in UnlockedHullsDict.Keys.ToArray())
+                UnlockedHullsDict[hull] = true;
+        }
 
         public void UpdateShipsWeCanBuild(Array<string> hulls = null)
         {
+            if (isFaction)
+            {
+                FactionShipsWeCanBuild();
+                return;
+            }
+
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
