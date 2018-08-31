@@ -16,7 +16,8 @@ namespace Ship_Game.Ships
 
         public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
         public const float ShipDestroyThreshold                = 0.5f;
-        public const float RepairDroneThreshold                = 0.9f; 
+        public const float RepairDroneThreshold                = 0.9f;
+        public const float RepairDoneThreshold                 = 0.9f;
         public const float RepairDroneRange                    = 20000f;
 
         public ShipResupply(Ship ship)
@@ -178,15 +179,18 @@ namespace Ship_Game.Ships
 
         private bool HealthOk()
         {
-            float threshold = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1) : 0.9f;
-            return Ship.InternalSlotsHealthPercent >= threshold && Ship.hasCommand;
+            float threshold     = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1) 
+                                                : RepairDoneThreshold;
+
+            float healthTypeToCheck = Ship.InCombat ? Ship.InternalSlotsHealthPercent
+                                                    : Ship.HealthPercent;
+
+            return healthTypeToCheck >= threshold && Ship.hasCommand;
         }
 
         private bool OrdnanceOk()
         {
-            float threshold = Ship.InCombat ? OrdnanceThresholdCombat * 4
-                                            : 0.99f;
-
+            float threshold = Ship.InCombat ? OrdnanceThresholdCombat * 4 : 0.99f;
             return Ship.OrdnancePercent >= threshold;
         }
 
