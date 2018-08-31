@@ -15,12 +15,12 @@ namespace Ship_Game.AI
         }
 
         public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0, 
-                      ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.Category shipCategory = ShipData.Category.Unclassified)
+                      ShipModuleType targetModule = ShipModuleType.Dummy, ShipData.HangarOptions designation = ShipData.HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level 
             // instead of techs needed. This allows it to choose the toughest ships to build. This is notmalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, shipCategory);
+            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, designation);
         }
 
         private struct MinMaxStrength
@@ -83,12 +83,12 @@ namespace Ship_Game.AI
 
         private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
                                                            ShipModuleType targetModule,
-                                                           ShipData.Category shipCategory)
+                                                           ShipData.HangarOptions designation)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).FilterBy(
                 ship => ship.DesignRole == role
                 && (maxSize <= 0 || ship.SurfaceArea <= maxSize)
-                && (shipCategory == ShipData.Category.Unclassified || shipCategory == ship.shipData.ShipCategory)
+                && (designation == ShipData.HangarOptions.General || designation == ship.shipData.HangarDesignation)
             );
 
             if (potentialShips.Length == 0)
@@ -153,8 +153,8 @@ namespace Ship_Game.AI
             switch (dynamicHangarType)
             {
                 case DynamicHangarOptions.DynamicLaunch:  return Color.Gold;
-                case DynamicHangarOptions.DynamicFighter: return Color.Cyan;
-                case DynamicHangarOptions.DynamicBomber:  return Color.OrangeRed;
+                case DynamicHangarOptions.DynamicInterceptor: return Color.Cyan;
+                case DynamicHangarOptions.DynamicAntiShip:  return Color.OrangeRed;
                 default:                                  return Color.White;
             }
         }
@@ -177,7 +177,7 @@ namespace Ship_Game.AI
     {
         Static,
         DynamicLaunch,
-        DynamicFighter,
-        DynamicBomber
+        DynamicInterceptor,
+        DynamicAntiShip
     }
 }
