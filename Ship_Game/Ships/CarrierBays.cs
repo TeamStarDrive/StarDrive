@@ -454,7 +454,7 @@ namespace Ship_Game.Ships
 
         public void PrepShipHangars(Empire empire) // This will set dynamic hangar UIDs to the best ships
         {
-            if (empire.Id == -1 || empire.isFaction) // ID -1 since there is a loyalty without a race when saving s ship
+            if (empire.Id == -1) // ID -1 since there is a loyalty without a race when saving s ship
                 return;
 
             string defaultShip = empire.data.StartingShip;

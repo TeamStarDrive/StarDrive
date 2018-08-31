@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
             if (ship.Name == "Subspace Projector")
                 return maint;
             //added by gremlin shipyard exploit fix
-            if (ship.IsTethered())
+            if (ship.IsTethered)
             {
                 if (role == ShipData.RoleName.platform)
                     return maint * 0.5f;
