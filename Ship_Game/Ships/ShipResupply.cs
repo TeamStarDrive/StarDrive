@@ -7,6 +7,7 @@ namespace Ship_Game.Ships
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.05f;
         public const float OrdnanceThresholdNonCombat          = 0.15f;
+        public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
         private const float ResupplyTroopThreshold             = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
@@ -125,9 +126,19 @@ namespace Ship_Game.Ships
                 && Ship.loyalty.isPlayer)
                 return false; // only player manual command will convince Kamikaze ship to resupply
 
-            float threshold = Ship.InCombat ? OrdnanceThresholdCombat
-                                            : OrdnanceThresholdNonCombat;
-            return Ship.OrdnancePercent < threshold;
+            float threshold;
+            float ordnancePercent = Ship.OrdnancePercent;
+            if (Ship.InCombat)
+                threshold = OrdnanceThresholdCombat;
+            else
+            {
+                if (ordnancePercent < OrdnanceThresholdSupplyShipsNear
+                        && (Ship.Mothership != null || Ship.AI.FriendliesNearby.Any(supply => supply.SupplyShipCanSupply)))
+                    return true; // FB: let supply shuttles supply ships with partly depleted reserves
+
+                threshold = OrdnanceThresholdNonCombat;
+            }
+            return ordnancePercent < threshold;
         }
 
         private bool HighKineticToEnergyRatio()
