@@ -698,7 +698,7 @@ namespace Ship_Game.AI.Tasks {
             var aos = Owner.GetGSAI().AreasOfOperations;
             if (aos.Count == 0)
             {
-                Log.Error($"{Owner.Name} has no areas of operation");
+                Log.Info($"{Owner.Name} has no areas of operation");
                 return null;
             }
         
