@@ -293,6 +293,7 @@ namespace Ship_Game
 
         private bool NoPlanetsForRally()
         {
+            //defeated empires and factions can use rally points now. 
             if (OwnedPlanets.Count != 0) return false;
             Array<Planet> rallyPlanets = new Array<Planet>();
             rallyPlanets = GetPlanetsNearStations();
@@ -305,9 +306,7 @@ namespace Ship_Game
 
             //super failSafe. just take any planet.
             if (rallyPlanets.Count == 0)
-            {
                 rallyPlanets.Add(Universe.PlanetsDict.First().Value);
-            }
 
             RallyPoints = rallyPlanets.ToArray();
             return true;
@@ -741,26 +740,7 @@ namespace Ship_Game
             }
             //unlock ships from empire data
             foreach (string ship in data.unlockShips)
-                ShipsWeCanBuild.Add(ship);
-
-            if(isFaction)
-            {
-                foreach(var ship in ResourceManager.ShipsDict)
-                {
-                    if (data.Traits.ShipType == ship.Value.shipData.ShipStyle
-                        || ship.Value.shipData.ShipStyle == "Misc"
-                        || ship.Value.shipData.ShipStyle.IsEmpty())
-                    {
-                        ShipsWeCanBuild.Add(ship.Key);
-                        foreach (var hangar in ship.Value.Carrier.AllHangars)
-                        {
-                            ShipsWeCanBuild.Add(hangar.hangarShipUID);
-                        }
-                    }
-                }
-                foreach(var hull in UnlockedHullsDict.Keys.ToArray())
-                    UnlockedHullsDict[hull] = true;
-            }
+                ShipsWeCanBuild.Add(ship);            
 
             // fbedard: Add missing troop ship
             if (data.DefaultTroopShip == null)
@@ -906,24 +886,7 @@ namespace Ship_Game
                 ShipsWeCanBuild.Add(ship);
 
             UpdateShipsWeCanBuild();
-            if (isFaction)
-            {
-                foreach (var ship in ResourceManager.ShipsDict)
-                {
-                    if (data.Traits.ShipType == ship.Value.shipData.ShipStyle
-                        || ship.Value.shipData.ShipStyle == "Misc"
-                        || ship.Value.shipData.ShipStyle.IsEmpty())
-                    {
-                        ShipsWeCanBuild.Add(ship.Key);
-                        foreach (var hangar in ship.Value.Carrier.AllHangars)
-                        {
-                            ShipsWeCanBuild.Add(hangar.hangarShipUID);
-                        }
-                    }
-                }
-                foreach (var hull in UnlockedHullsDict.Keys.ToArray())
-                    UnlockedHullsDict[hull] = true;
-            }
+                  
             if (data.EconomicPersonality == null)
                 data.EconomicPersonality = new ETrait { Name = "Generalists" };
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
@@ -939,6 +902,7 @@ namespace Ship_Game
             }
             return false;
         }
+        
 
         public EconomicResearchStrategy getResStrat()
         {
@@ -1654,9 +1618,35 @@ namespace Ship_Game
         {
             return (GrossTaxes * data.TaxRate + totalTradeIncome - AllTimeMaintTotal) / numberForAverage;
         }
+        
+        public void FactionShipsWeCanBuild()
+        {
+            if (!isFaction) return;
+            foreach (var ship in ResourceManager.ShipsDict)
+            {
+                if (data.Traits.ShipType == ship.Value.shipData.ShipStyle
+                    || ship.Value.shipData.ShipStyle == "Misc"
+                    || ship.Value.shipData.ShipStyle.IsEmpty())
+                {
+                    ShipsWeCanBuild.Add(ship.Key);
+                    foreach (var hangar in ship.Value.Carrier.AllHangars)
+                    {
+                        ShipsWeCanBuild.Add(hangar.hangarShipUID);
+                    }
+                }
+            }
+            foreach (var hull in UnlockedHullsDict.Keys.ToArray())
+                UnlockedHullsDict[hull] = true;
+        }
 
         public void UpdateShipsWeCanBuild(Array<string> hulls = null)
         {
+            if (isFaction)
+            {
+                FactionShipsWeCanBuild();
+                return;
+            }
+
             foreach (var kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;

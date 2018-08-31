@@ -209,10 +209,9 @@ namespace Ship_Game.Debug
             for (int y = 0; y < e.grid.GetLength(1); y++)
             {
                 var weight = e.grid[x, y];
-                if (weight == 80)
-                    continue;
+                    Color color = weight == 80 ? Color.Black : e.EmpireColor;
                 var translated = new Vector2((x - e.granularity) * Screen.PathMapReducer, (y - e.granularity) * Screen.PathMapReducer);
-                Screen.DrawCircleProjected(translated, Screen.PathMapReducer, weight + 3, e.EmpireColor);
+                Screen.DrawCircleProjected(translated, Screen.PathMapReducer *.5f, weight + 5, color);
             }
         }
     }
