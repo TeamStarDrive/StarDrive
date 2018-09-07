@@ -257,20 +257,22 @@ namespace Ship_Game
                 Duration = 0f;
                 return;
             }
-            var ship = (Target as Ship) ?? (Target as ShipModule)?.GetParent() ;
-            
-            if (Owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
+
+            var ship = (Target as Ship) ?? (Target as ShipModule)?.GetParent();
+
+            if (Owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp)
             {
                 Die(null, false);
                 Duration = 0f;
                 return;
             }
+
             Duration -= elapsedTime;
-            Source    = srcCenter;
-            if (ship != null && ship.Active && !DisableSpatialCollision )
+            Source = srcCenter;
+            if (ship != null && ship.Active && !DisableSpatialCollision)
             {
-                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;//* .25f);                
-                //sweep *= RandomMath.AvgRandomBetween(1, 100) > 80 ? -1 : 1;
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 4f; //* .25f);                
+
                 if (Destination.OutsideRadius(Target.Center, JitterRadius * .5f))
                     WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
                 if (float.IsNaN(WanderPath.X))
@@ -279,38 +281,30 @@ namespace Ship_Game
 
             if (FollowMouse)
             {
-                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f;//* .25f);                                           
-                WanderPath = Vector2.Normalize(Empire.Universe.mouseWorldPos - Destination) * sweep;           
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) *
+                              16f; //* .25f);                                           
+                WanderPath = Vector2.Normalize(Empire.Universe.mouseWorldPos - Destination) * sweep;
             }
 
             // always update Destination to ensure beam stays in range
-            SetDestination(//FollowMouse
-                        //? Empire.Universe.mouseWorldPos
-                         DisableSpatialCollision ? Target?.Center ?? Destination
-                        : Destination + WanderPath );
+            SetDestination( //FollowMouse
+                //? Empire.Universe.mouseWorldPos
+                DisableSpatialCollision
+                    ? Target?.Center ?? Destination
+                    : Destination + WanderPath);
 
-      
 
-            if (!BeamCollidedThisFrame) ActualHitDestination = Destination;           
-            
+            if (!BeamCollidedThisFrame) ActualHitDestination = Destination;
+
             BeamCollidedThisFrame = false;
-
-            //if (!Owner.PlayerShip)
+           
+            if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
             {
-                //if (Destination.OutsideRadius(Source, Range + Owner.Radius)) // +Radius So beams at the back of a ship can hit too!
-                //{
-                //    Log.Info($"Beam killed because of distance: Dist = {Destination.Distance(Source)}  Beam Range = {Range}");
-                //    Die(null, true);
-                //    return;
-                //}
-                if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
-                {
-                    if (ship != null)
-                        Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
-                    Log.Info("Beam killed because of angle");
-                    Die(null, true);
-                    return;
-                }
+                if (ship != null)
+                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, Destination, ship.Radius, Color.Yellow);
+                Log.Info("Beam killed because of angle");
+                Die(null, true);
+                return;
             }
 
             UpdateBeamMesh();
