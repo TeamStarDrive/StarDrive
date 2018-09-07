@@ -774,7 +774,7 @@ namespace Ship_Game
                 if (kv.Value.RaceRestrictions.Count != 0 || kv.Value.RaceExclusions.Count != 0)
                 {
                     techEntry.Discovered |= kv.Value.RaceRestrictions.Count == 0 && kv.Value.ComesFrom.Count >0;
-                    kv.Value.Secret |= kv.Value.RaceRestrictions.Count != 0; ;
+                    kv.Value.Secret |= kv.Value.RaceRestrictions.Count != 0; 
                     foreach (Technology.RequiredRace raceTech in kv.Value.RaceRestrictions)
                     {
                         if (raceTech.ShipType != data.Traits.ShipType) continue;
