@@ -9,7 +9,6 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -352,7 +351,7 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        public override Vector2 JitterPosition()
+        public override Vector2 TargetErrorPos()
         {
             Vector2 jitter = Vector2.Zero;
             if (CombatDisabled)

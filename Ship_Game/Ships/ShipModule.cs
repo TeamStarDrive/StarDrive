@@ -1,9 +1,9 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
+using System;
 
 namespace Ship_Game.Ships
 {
@@ -1257,7 +1257,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override Vector2 JitterPosition() => Parent?.JitterPosition() ?? base.JitterPosition();
+        public override Vector2 TargetErrorPos() => Parent?.TargetErrorPos() ?? base.TargetErrorPos();
 
         public bool FighterOut
         {
