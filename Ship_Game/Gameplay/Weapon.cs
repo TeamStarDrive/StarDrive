@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -478,7 +478,7 @@ namespace Ship_Game.Gameplay
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
             Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
-            Vector2 jitter = target.JitterPosition() + AdjustTargetting();
+            Vector2 jitter = target.TargetErrorPos() + AdjustTargetting();
 
             pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target).Predict();
             Vector2 jitteredtarget = SetDestination(pip, weaponOrigin, 1000) + jitter;
@@ -600,12 +600,11 @@ namespace Ship_Game.Gameplay
             }
             if (Tag_Tractor || isRepairBeam) return destination;
 
-            Vector2 ownerCenter =  Owner?.Center ?? Vector2.Zero;
-            Vector2 jitter = target?.JitterPosition() ?? Vector2.Zero;
-            jitter += AdjustTargetting();
-            jitter += SetDestination(destination, Center, 1000);
-            jitter = SetDestination(jitter, Center, Center.Distance(destination));
-            return jitter;
+            Vector2 targetError = target?.TargetErrorPos() ?? Vector2.Zero;
+            targetError += AdjustTargetting();
+            targetError += SetDestination(destination, Center, 1000);
+            targetError = SetDestination(targetError, Center, Center.Distance(destination));
+            return targetError;
         }
 
         private void FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false)
