@@ -22,13 +22,13 @@ namespace Ship_Game
         private static object ConsoleSync = new object();
 
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
-        // instead, we count identical exceptions and resend them only over a certain threshold 
+        // instead, we count identical exceptions and resend them only over a certain threshold
         private static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         private const int ErrorThreshold = 100;
         private static bool IsTerminating;
         //public static bool FatalError = true;
         static Log()
-        {            
+        {
             string init = "\r\n\r\n";
             init +=  " ================================================================== \r\n";
             init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
@@ -142,8 +142,8 @@ namespace Ship_Game
             WriteToConsole(ConsoleColor.Yellow, text);
         }
 
-        public static bool TestMessage(string testMessage, 
-            Importance importance = Importance.None, 
+        public static bool TestMessage(string testMessage,
+            Importance importance = Importance.None,
             bool waitForEnter = false,
             bool waitForYes = false)
         {
@@ -229,8 +229,8 @@ namespace Ship_Game
             string withStack = text + "\n" + CleanStackTrace(ex);
             WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
-            {                
-                CaptureEvent(text, errorLevel, ex);                
+            {
+                CaptureEvent(text, errorLevel, ex);
                 return;
             }
 

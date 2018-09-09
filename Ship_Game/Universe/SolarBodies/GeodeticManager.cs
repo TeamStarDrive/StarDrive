@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
+using System;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -227,10 +227,7 @@ namespace Ship_Game.Universe.SolarBodies
                             {
                                 if (TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && TroopsHere[i].TargetType == "Soft")
                                 {
-                                    if (SteamManager.SetAchievement("Owlwoks_Freed"))
-                                    {
-                                        SteamManager.SaveAllStatAndAchievementChanges();
-                                    }
+                                    Game1.Instance.SetSteamAchievment("Owlwoks_Freed");                                   
                                     TroopsHere[i].SetOwner(bomb.Owner);
                                     TroopsHere[i].Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
                                     TroopsHere[i].Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
