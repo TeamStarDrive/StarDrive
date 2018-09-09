@@ -92,9 +92,11 @@ namespace Ship_Game
             }
             if (UnlockTech != null)
             {
-                if (!triggerer.GetTDict()[UnlockTech].Unlocked)
+                var tech = triggerer.GetTechEntry(UnlockTech);
+                if (!tech.Unlocked)
                 {
-                    triggerer.UnlockTech(UnlockTech);
+                    tech.Discovered = true;
+                    tech.Unlocked = true;
                 }
                 else
                 {
