@@ -477,12 +477,11 @@ namespace Ship_Game.Gameplay
         {
             Vector2 weaponOrigin = Module?.Center ?? Center;
             Vector2 ownerVel     = Owner?.Velocity ?? Vector2.Zero;
-            Vector2 ownerCenter  = Owner?.Center ?? Vector2.Zero;
-            Vector2 jitter = target.TargetErrorPos() + AdjustTargetting();
+            Vector2 error = target.TargetErrorPos() + AdjustTargetting();
 
             pip = new ImpactPredictor(weaponOrigin, ownerVel, ProjectileSpeed, Range, target).Predict();
-            Vector2 jitteredtarget = SetDestination(pip, weaponOrigin, 1000) + jitter;
-            pip = SetDestination(jitteredtarget, weaponOrigin, weaponOrigin.Distance(pip));
+            Vector2 targetError = SetDestination(pip, weaponOrigin, 1000) + error;
+            pip = SetDestination(targetError, weaponOrigin, weaponOrigin.Distance(pip));
 
             //Log.Info($"FindPIP center:{center}  pip:{pip}");
             return pip != Vector2.Zero;
@@ -533,7 +532,7 @@ namespace Ship_Game.Gameplay
         {
             if (enemyProjectiles.NotEmpty && Tag_PD)
             {
-                int maxTrackable = (int)(Owner.TrackingPower + Owner.Level *.05f);
+                int maxTrackable = Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < maxTrackable && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
@@ -560,7 +559,7 @@ namespace Ship_Game.Gameplay
             else if (Owner.TrackingPower > 0)
             {
                 // limit to one target per level.
-                int tracking = (int)(Owner.TrackingPower + Owner.Level * 0.05f);
+                int tracking = Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < potentialTargets.Count && i < tracking; i++) //
                 {
                     Ship potentialTarget = potentialTargets[i];
