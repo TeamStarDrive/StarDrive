@@ -1,11 +1,11 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Core;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 using Point = System.Drawing.Point;
 
@@ -87,7 +87,16 @@ namespace Ship_Game
             Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
             IsMouseVisible = true;
         }
-
+        public void SetSteamAchievment(string name)
+        {
+            if (SteamManager.SteamInitialize())
+            {
+                if (SteamManager.SetAchievement(name))
+                    SteamManager.SaveAllStatAndAchievementChanges();
+            }
+            else
+            { Log.Warning("Steam not initialized"); }
+        }
         private void GameExiting(object sender, EventArgs e)
         {
             IsExiting = true;
@@ -146,7 +155,7 @@ namespace Ship_Game
         }
 
 
-        
+
         private void UpdateRendererPreferences(ref GraphicsSettings settings)
         {
             var prefs = new LightingSystemPreferences
@@ -161,7 +170,7 @@ namespace Ship_Game
             ScreenManager?.UpdatePreferences(prefs);
         }
 
-        
+
         private void ApplySettings(ref GraphicsSettings settings)
         {
             Graphics.ApplyChanges();
@@ -176,7 +185,7 @@ namespace Ship_Game
             UpdateRendererPreferences(ref settings);
             ScreenManager?.UpdateViewports();
         }
-        
+
 
         private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
@@ -184,7 +193,7 @@ namespace Ship_Game
             PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
 
             var samples = (MultiSampleType)GlobalStats.AntiAlias;
-            if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
+            if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format,
                                              false, samples, out int quality))
             {
                 p.MultiSampleQuality = (quality == 1 ? 0 : 1);
@@ -206,7 +215,7 @@ namespace Ship_Game
                 settings.Width  = 800;
                 settings.Height = 600;
             }
-            var form = (Form)Control.FromHandle(Window.Handle);        
+            var form = (Form)Control.FromHandle(Window.Handle);
             if (Debugger.IsAttached && settings.Mode == WindowMode.Fullscreen)
                 settings.Mode = WindowMode.Borderless;
 
@@ -219,7 +228,7 @@ namespace Ship_Game
                 case WindowMode.Windowed:   form.FormBorderStyle = FormBorderStyle.Fixed3D; break;
                 case WindowMode.Borderless: form.FormBorderStyle = FormBorderStyle.None;    break;
             }
-            if (settings.Mode != WindowMode.Fullscreen && Graphics.IsFullScreen || 
+            if (settings.Mode != WindowMode.Fullscreen && Graphics.IsFullScreen ||
                 settings.Mode == WindowMode.Fullscreen && !Graphics.IsFullScreen)
             {
                 Graphics.ToggleFullScreen();
@@ -235,7 +244,7 @@ namespace Ship_Game
                 // set form to the center of the primary screen
                 var size = Screen.PrimaryScreen.Bounds.Size;
                 form.Location = new Point(
-                    size.Width / 2 - settings.Width / 2, 
+                    size.Width / 2 - settings.Width / 2,
                     size.Height / 2 - settings.Height / 2);
             }
         }
