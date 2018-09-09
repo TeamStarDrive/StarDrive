@@ -205,7 +205,7 @@ namespace Ship_Game
                 Progress = Tech.Cost ;
                 Unlocked = true;
             }            
-            DoRevelaedTechs(empire);            
+            DoRevealedTechs(empire);            
             TriggerAnyEvents(empire);
             UnlockModules(empire);
             UnlockTroops(empire);
@@ -213,6 +213,16 @@ namespace Ship_Game
             UnlockBuildings(empire);            
             UnlockBonus(empire);
             return true;
+        }
+        public void UnlockFromSave(Empire empire)
+        {
+            Progress = TechCost;
+            Unlocked = true;
+            DoRevealedTechs(empire);
+            UnlockModules(empire);
+            UnlockTroops(empire);
+            UnLockHulls(empire);
+            UnlockBuildings(empire);            
         }
 
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
@@ -249,7 +259,7 @@ namespace Ship_Game
             return Tech.RaceRestrictions.Count > 0 && !IsInRequiredRaceArray(empire, Tech.RaceRestrictions);     
         }
 
-        public void DoRevelaedTechs(Empire empire)
+        public void DoRevealedTechs(Empire empire)
         {
             // Added by The Doctor - reveal specified 'secret' techs with unlocking of techs, via Technology XML
             foreach (Technology.RevealedTech revealedTech in Tech.TechsRevealed)
@@ -257,7 +267,6 @@ namespace Ship_Game
                 if (!CheckSource(revealedTech.Type, empire))
                     continue;
                 empire.SetEmpireTechRevealed(revealedTech.RevUID);
-                
             }
         }
 
@@ -267,10 +276,7 @@ namespace Ship_Game
                 return false;
             
             Discovered = true;
-            GetPreReq(empire);
-            var rootTech = DiscoverToRoot(empire);
-            //if (rootTech != null)            
-            //    rootTech.Unlocked = rootTech.Discovered = true;
+            DiscoverToRoot(empire);
             if (discoverForward)
             foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
             {

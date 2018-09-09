@@ -1038,7 +1038,7 @@ namespace Ship_Game
                                 continue;
                             tech.Unlockable = true;
                             if (GlobalStats.VerboseLogging)
-                                Log.WarningVerbose($"Technology was marked unlockable by encounter '{encounter.Name}' : '{tech.UID}'");
+                                Log.WarningVerbose($"Technology can be unlocked by encounter '{encounter.Name}' : '{tech.UID}'");
                         }
                     }
                 }
@@ -1056,8 +1056,13 @@ namespace Ship_Game
                     {
                         if (tech.Unlockable) continue;
                         tech.Unlockable = true;
-                        if (GlobalStats.VerboseLogging)
-                            Log.WarningVerbose($"Technology was marked unlockable by event '{pair.Entity.Name}' : '{tech.UID}'");
+                        Log.WarningVerbose($"Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
+                    }
+                    if (TechTree.TryGetValue(outcome.SecretTechDiscovered ?? "", out tech))
+                    {
+                        if (tech.Unlockable) continue;
+                        tech.Unlockable = true;
+                        Log.WarningVerbose($"Secret Technology can be unlocked by event '{pair.Entity.Name}' : '{tech.UID}'");
                     }
                 }
 
@@ -1582,7 +1587,7 @@ namespace Ship_Game
             foreach (Technology tech in techs)
             {
                 if (!tech.Unlockable)
-                    Log.WarningVerbose($"Tech {tech.UID} cannot be researched! Source: '{tech.DebugSourceFile}'");
+                    Log.WarningVerbose($"Tech {tech.UID} has no way to unlock! Source: '{tech.DebugSourceFile}'");
             }
         }
 
