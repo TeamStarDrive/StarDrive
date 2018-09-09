@@ -868,7 +868,7 @@ namespace Ship_Game
             }
 
             //fbedard: Add missing troop ship
-            if (data.DefaultTroopShip == null)
+            if (data.DefaultTroopShip.IsEmpty())
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
             foreach (KeyValuePair<string, TechEntry> kv in TechnologyDict)
@@ -968,9 +968,18 @@ namespace Ship_Game
         {
             UnlockedBuildingsDict[buildingName] = true;
         }
-        public void SetEmpireTechDiscovered(string techUID) => GetTechEntry(techUID)?.SetDiscovered(this);
+        public void SetEmpireTechDiscovered(string techUID)
+        {
+            TechEntry tech = GetTechEntry(techUID);
+            if (tech == null)
+            {
+                Log.Warning($"SetEmpireTechDiscovered: Tech UID was not found: Tech({techUID})");
+                return; //don't crash.
+            }
+            tech.SetDiscovered(this);
+        }
 
-        public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevelaedTechs(this);
+        public void SetEmpireTechRevealed(string techUID) => GetTechEntry(techUID).DoRevealedTechs(this);
 
         public void IncreaseEmpireShipRoleLevel(ShipData.RoleName role, int bonus)
         {
@@ -1000,14 +1009,9 @@ namespace Ship_Game
 
         private void UnlockTechFromSave(TechEntry tech)
         {
+            tech.UnlockFromSave(this);
+
             var technology = tech.Tech;
-            tech.Progress = technology.Cost * UniverseScreen.GamePaceStatic;
-            tech.Unlocked = true;
-            foreach (Technology.UnlockedBuilding unlockedBuilding in technology.BuildingsUnlocked)
-            {
-                if (unlockedBuilding.Type == data.Traits.ShipType || unlockedBuilding.Type == null || unlockedBuilding.Type == tech.AcquiredFrom)
-                    UnlockedBuildingsDict[unlockedBuilding.Name] = true;
-            }
             if (technology.RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
@@ -1016,33 +1020,6 @@ namespace Ship_Game
                     Technology theTechnology = leadsTo.Tech;
                     if (theTechnology.RaceRestrictions.Count == 0 && !theTechnology.Secret)
                         leadsTo.Discovered = true;
-                }
-            }
-            foreach (Technology.UnlockedMod unlockedMod in technology.ModulesUnlocked)
-            {
-                if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == tech.AcquiredFrom)
-                    UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-            }
-//            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
-            foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
-            {
-                if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
-                    UnlockedHullsDict[unlockedHull.Name] = true;
-            }
-            foreach (Technology.UnlockedMod unlockedMod in technology.ModulesUnlocked)
-            {
-                if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == tech.AcquiredFrom)
-                {
-                    UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-                }
-            }
-            tech.UnlockTroops(this);
-
-            foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
-            {
-                if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
-                {
-                    UnlockedHullsDict[unlockedHull.Name] = true;
                 }
             }
         }
