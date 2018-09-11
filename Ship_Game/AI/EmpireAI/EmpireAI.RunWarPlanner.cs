@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         public void CallAllyToWar(Empire ally, Empire enemy)
@@ -426,8 +427,8 @@ namespace Ship_Game.AI {
 
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
-            float warWeight = 1 + OwnerEmpire.getResStrat().ExpansionPriority +
-                              OwnerEmpire.getResStrat().MilitaryPriority;
+            float warWeight = 1 + OwnerEmpire.GetResStrat().ExpansionPriority +
+                              OwnerEmpire.GetResStrat().MilitaryPriority;
             foreach (MilitaryTask militaryTask in TaskList)
             {
                 if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
@@ -541,7 +542,7 @@ namespace Ship_Game.AI {
                 return;
 
             float warWeight = 1 +
-                              OwnerEmpire.getResStrat().MilitaryPriority;
+                              OwnerEmpire.GetResStrat().MilitaryPriority;
             var weightedTargets = EmpireAttackWeights();
             foreach (var kv in weightedTargets)
             {
