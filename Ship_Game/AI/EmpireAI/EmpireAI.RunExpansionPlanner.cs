@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
+using System.Collections.Generic;
+using System.Linq;
 
 // ReSharper disable once CheckNamespace
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         /// <summary>
@@ -17,7 +18,7 @@ namespace Ship_Game.AI {
             {
                 int baseVal = 2;
                 int difMod = (int)CurrentGame.Difficulty;
-                difMod = (int)(difMod * OwnerEmpire.getResStrat().ExpansionRatio);
+                difMod = (int)(difMod * OwnerEmpire.GetResStrat().ExpansionRatio);
                 int econmicPersonalityMod = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
 
                 //int waiting = Goals.FilterBy(g => g.type == GoalType.Colonize && (g as MarkForColonization)?.WaitingForEscort == true).Length;

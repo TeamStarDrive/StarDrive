@@ -1,9 +1,10 @@
 // ReSharper disable once CheckNamespace
 
-using System;
 using Ship_Game.AI.Budget;
+using System;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {        
         private float FindTaxRateToReturnAmount(float amount)
@@ -29,7 +30,7 @@ namespace Ship_Game.AI {
             AutoSetTaxes(treasuryGoal, goal);
 
             float goalClamped = goal.Clamped(0, 1);
-            var resStrat = OwnerEmpire.getResStrat();
+            var resStrat = OwnerEmpire.GetResStrat();
             float buildRatio = (resStrat.MilitaryRatio + resStrat.IndustryRatio + resStrat.ExpansionRatio) /2f;
             
             SetBudgetForeArea(goalClamped * .01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, resStrat.MilitaryRatio));            
