@@ -475,27 +475,27 @@ namespace Ship_Game.Ships
             }
         }
 
-        private ShipData.Category GetCategoryFromHangarType(DynamicHangarOptions hangarType)
+        private ShipData.HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
         {
             switch (hangarType)
             {
                 case DynamicHangarOptions.DynamicInterceptor:
-                    return ShipData.Category.Fighter;
+                    return ShipData.HangarOptions.Interceptor;
                 case DynamicHangarOptions.DynamicAntiShip:
-                    return ShipData.Category.Bomber;
+                    return ShipData.HangarOptions.AntiShip;
                 default:
-                    return ShipData.Category.Unclassified;
+                    return ShipData.HangarOptions.General;
             }
         }
 
         private string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
-            ShipData.Category desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
+            ShipData.HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
             string selectedShip = string.Empty;
             foreach (var role in hangar.HangarRoles)
             {
                 selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
-                    shipCategory: desiredShipCategory);
+                    designation: desiredShipCategory);
 
                 // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role
                 if (selectedShip.IsEmpty() && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
