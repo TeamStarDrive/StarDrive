@@ -932,6 +932,7 @@ namespace Ship_Game
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
         public void AcquireTech(string techID, Empire target)
         {
+            //acquiredFrom here should be an array.
             TechnologyDict[techID].AcquiredFrom = target.data.Traits.ShipType;
             UnlockTech(techID);
         }
@@ -2084,12 +2085,12 @@ namespace Ship_Game
                         {
                             if (isPlayer)
                                 Universe.NotificationManager.AddRebellionNotification(planet,
-                                    rebelsFromEmpireData); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
+                                    rebelsFromEmpireData);
                             for (int index = 0; index < planet.Population / 1000; ++index)
                             {
                                 Troop troop = EmpireManager.CreateRebelTroop(rebelsFromEmpireData);
                                 troop.AssignTroopToTile(
-                                    planet); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
+                                    planet);
                             }
                         }
 
@@ -2103,11 +2104,7 @@ namespace Ship_Game
                                 break;
                             }
 
-                        if (pirate != null)
-                        {
-                            pirate.loyalty = rebelsFromEmpireData;
-                            RemoveShip(pirate);
-                        }
+                        pirate?.ChangeLoyalty(rebelsFromEmpireData);
                     }
                     else Log.Info($"Rebellion Failure: {data.RebelName}");
                     data.TurnsBelowZero = 0;
@@ -2203,14 +2200,14 @@ namespace Ship_Game
         private void UpdateRelationships()
         {
             if (isFaction) return;
-            int atwar = 0;
+            int atWarCount = 0;
             foreach (var kv in Relationships)
                 if (kv.Value.Known || isPlayer)
                 {
                     kv.Value.UpdateRelationship(this, kv.Key);
-                    if (kv.Value.AtWar && !kv.Key.isFaction) atwar++;
+                    if (kv.Value.AtWar && !kv.Key.isFaction) atWarCount++;
                 }
-            AtWarCount = atwar;
+            AtWarCount = atWarCount;
         }
 
         private void CalculateScore()
@@ -2285,10 +2282,10 @@ namespace Ship_Game
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
-            foreach (KeyValuePair<string, TechEntry> keyValuePair in target.GetTDict())
+            foreach (TechEntry techEntry in target.GetTDict().Values)
             {
-                if (keyValuePair.Value.Unlocked && !TechnologyDict[keyValuePair.Key].Unlocked)
-                    UnlockTech(keyValuePair.Key);
+                if (techEntry.Unlocked)
+                    AcquireTech(techEntry.UID, target);
             }
             foreach (KeyValuePair<string, bool> kv in target.GetHDict())
             {
@@ -2320,24 +2317,22 @@ namespace Ship_Game
             if (this != EmpireManager.Player)
             {
                 data.difficulty = Difficulty.Brutal;
-                //lock (GlobalStats.TaskLocker)
-                {
-                    EmpireAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (Array<MilitaryTask>)this.GSAI.TaskList)
-                        { item_7.EndTask(); }, false, false, false);
-                    EmpireAI.TaskList.ApplyPendingRemovals();
-                }
+                EmpireAI.TaskList.ForEach(
+                    militaryTask =>
+                    {
+                        militaryTask.EndTask();
+                    }, false, false, false);
+                EmpireAI.TaskList.ApplyPendingRemovals();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
                 ForcePool.Clear();
-                //foreach (Ship s in (Array<Ship>)this.OwnedShips) //.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.BaseStrength))
                 foreach (Ship s in OwnedShips)
                 {
                     //added by gremlin Do not include 0 strength ships in defensive force pool
                     s.AI.OrderQueue.Clear();
                     s.AI.State = AIState.AwaitingOrders;
-                    //ShipsToAdd.Add(s);
-
                 }
+
                 if (data.Traits.Cybernetic != 0)
                 {
                     foreach (Planet planet in OwnedPlanets)
@@ -2345,14 +2340,17 @@ namespace Ship_Game
                         Array<Building> list = new Array<Building>();
                         foreach (Building building in planet.BuildingList)
                         {
-                            if (building.PlusFlatFoodAmount > 0.0 || building.PlusFoodPerColonist > 0.0 || building.PlusTerraformPoints > 0.0)
+                            if (building.PlusFlatFoodAmount > 0.0 || building.PlusFoodPerColonist > 0.0 ||
+                                building.PlusTerraformPoints > 0.0)
                                 list.Add(building);
                         }
+
                         foreach (Building b in list)
                             b.ScrapBuilding(planet);
                     }
                 }
             }
+
             foreach (Agent agent in target.data.AgentList)
             {
                 data.AgentList.Add(agent);
