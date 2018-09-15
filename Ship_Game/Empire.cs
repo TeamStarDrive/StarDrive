@@ -793,30 +793,10 @@ namespace Ship_Game
             // Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
             ResetTechsUsableByShips(ourShips);
-            //foreach (KeyValuePair<string, TechEntry> entry in TechnologyDict)
-            //{
-            //    Technology tech = entry.Value.Tech;
-            //    if (tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0 && !WeCanUseThis(tech, ourShips))
-            //        entry.Value.shipDesignsCanuseThis = false;
-            //}
-            //foreach (KeyValuePair<string, TechEntry> tech in TechnologyDict)
-            //{
-            //    if (!tech.Value.shipDesignsCanuseThis)
-            //        tech.Value.shipDesignsCanuseThis = WeCanUseThisLater(tech.Value);
-            //}
 
             //fbedard: Add missing troop ship
             if (data.DefaultTroopShip.IsEmpty())
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
-
-            //foreach (KeyValuePair<string, TechEntry> kv in TechnologyDict)
-            //{
-            //    AddToShipTechLists(kv.Value);
-            //    if (!kv.Value.Unlocked)
-            //        continue;
-            //    kv.Value.Unlocked = false;
-            //    UnlockTechFromSave(kv.Value);
-            //}
 
             foreach (string building in data.unlockBuilding)
                 UnlockedBuildingsDict[building] = true;
