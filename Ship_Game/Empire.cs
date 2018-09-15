@@ -1083,20 +1083,10 @@ namespace Ship_Game
 
         }
 
-        public Empire FindExistingRelation(Empire empire)
-        {
-            foreach(var relation in Relationships)
-            {
-                if (relation.Key == empire) return empire;
-                if (relation.Key.data.Traits.Name == empire.data.Traits.Name) return empire;
-            }
-            return null;
-        }
-
-
         public void AddRelation(Empire empire)
         {
-            if (FindExistingRelation(empire) == null)
+            if (empire == this) return;
+            if (!TryGetRelations(empire, out Relationship relation))
                 Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
         }
         public bool TryGetRelations(Empire empire, out Relationship relations)
@@ -1895,29 +1885,7 @@ namespace Ship_Game
 
         private void TakeTurn()
         {
-            //Added by McShooterz: Home World Elimination game mode
-            if (!isFaction && !data.Defeated
-                && (OwnedPlanets.Count == 0 || GlobalStats.EliminationMode
-                && Capital != null && Capital.Owner != this))
-            {
-                SetAsDefeated();
-                if (Universe.PlayerEmpire == this)
-                {
-                    Game1.Instance.EndingGame(true);
-                    foreach (Ship ship in Universe.MasterShipList)
-                        ship.Die(null, true);
-
-                    Universe.Paused = true;
-                    HelperFunctions.CollectMemory();
-                    Game1.Instance.EndingGame(false);
-                    Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
-                    Universe.Paused = false;
-                    return;
-                }
-
-                Universe.NotificationManager.AddEmpireDiedNotification(this);
-                return;
-            }
+            if (IsEmpireDead()) return;
 
             var list1 = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
@@ -2114,54 +2082,7 @@ namespace Ship_Game
             CalculateScore();
 
 
-            if (!string.IsNullOrEmpty(ResearchTopic))
-            {
-
-                float research = Research + leftoverResearch;
-                TechEntry tech = GetTechEntry(ResearchTopic);
-
-                if (tech != null)
-                {
-                    float cyberneticMultiplier = 1.0f;
-                    if (data.Traits.Cybernetic > 0)
-                    {
-                        foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
-                        {
-                            Building building = ResourceManager.GetBuildingTemplate(buildingName.Name);
-                            if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
-                            {
-                                cyberneticMultiplier = .5f;
-                                break;
-                            }
-                        }
-                    }
-                    if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
-                    {
-                        tech.Progress += research;
-                        leftoverResearch = 0f;
-                        research = 0;
-                    }
-                    else
-                    {
-                        research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
-                        tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
-                        UnlockTech(ResearchTopic);
-                        if (isPlayer)
-                            Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
-                        data.ResearchQueue.Remove(ResearchTopic);
-                        if (data.ResearchQueue.Count > 0)
-                        {
-                            ResearchTopic = data.ResearchQueue[0];
-                            data.ResearchQueue.RemoveAt(0);
-                        }
-                        else
-                            ResearchTopic = "";
-                    }
-                }
-                leftoverResearch = research;
-            }
-            else if (data.ResearchQueue.Count > 0)
-                ResearchTopic = data.ResearchQueue[0];
+            ApplyResearchPoints();
 
             UpdateRelationships();
 
@@ -2195,6 +2116,80 @@ namespace Ship_Game
                 if (AutoExplore)
                     AssignExplorationTasks();
             }
+        }
+
+        private bool IsEmpireDead()
+        {
+            if (isFaction) return false;
+            if (data.Defeated) return true;
+            if (!GlobalStats.EliminationMode && OwnedPlanets.Count != 0)
+                return false;
+            if (GlobalStats.EliminationMode && (Capital == null || Capital.Owner == this))
+                return false;
+
+            SetAsDefeated();
+            if (!isPlayer)
+            {
+                if (EmpireManager.Player.TryGetRelations(this, out Relationship relationship) && relationship.Known)
+                    Universe.NotificationManager.AddEmpireDiedNotification(this);
+                return true;
+            }
+
+            Game1.Instance.EndingGame(true);
+            foreach (Ship ship in Universe.MasterShipList)
+                ship.Die(null, true);
+
+            Universe.Paused = true;
+            HelperFunctions.CollectMemory();
+            Game1.Instance.EndingGame(false);
+            Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
+            Universe.Paused = false;
+            return true;
+
+        }
+
+        private void ApplyResearchPoints()
+        {
+            if (string.IsNullOrEmpty(ResearchTopic))
+            {
+                if (data.ResearchQueue.Count > 0)
+                    ResearchTopic = data.ResearchQueue[0];
+                else
+                    return;
+            }
+
+            float research = Research + leftoverResearch;
+            TechEntry tech = GetTechEntry(ResearchTopic);
+            if (tech.UID.IsEmpty())
+                return;
+            //reduce the impact of tech that doesnt affect cybernetics.
+            float cyberneticMultiplier = 1.0f;
+            if (data.Traits.Cybernetic > 0 && tech.UnlocksFoodBuilding)
+                cyberneticMultiplier = .5f;
+
+            float techCost = tech.TechCost * cyberneticMultiplier;
+            if (techCost - tech.Progress > research)
+            {
+                tech.Progress += research;
+                leftoverResearch = 0f;
+                return;
+            }
+
+            research -= techCost - tech.Progress;
+            tech.Progress = techCost;
+            UnlockTech(ResearchTopic);
+            if (isPlayer)
+                Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
+            data.ResearchQueue.Remove(ResearchTopic);
+            if (data.ResearchQueue.Count > 0)
+            {
+                ResearchTopic = data.ResearchQueue[0];
+                data.ResearchQueue.RemoveAt(0);
+            }
+            else
+                ResearchTopic = "";
+
+            leftoverResearch = research;
         }
 
         private void UpdateRelationships()
@@ -2363,10 +2358,6 @@ namespace Ship_Game
             CalculateScore();
         }
 
-        private void SystemDefensePlanner(SolarSystem system)
-        {
-        }
-
         public void ForcePoolAdd(Ship s)
         {
             if (s.shipData.Role <= ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian )
@@ -2374,15 +2365,9 @@ namespace Ship_Game
             EmpireAI.AssignShipToForce(s);
         }
 
-        public void ForcePoolRemove(Ship s)
-        {
-            ForcePool.RemoveSwapLast(s);
-        }
+        public void ForcePoolRemove(Ship s) => ForcePool.RemoveSwapLast(s);
 
-        public Array<Ship> GetForcePool()
-        {
-            return ForcePool;
-        }
+        public Array<Ship> GetForcePool() => ForcePool;
 
         public float GetForcePoolStrength()
         {
@@ -2392,37 +2377,7 @@ namespace Ship_Game
             return num;
         }
 
-        public string GetPreReq(string techID)
-        {
-            foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
-            {
-                Technology technology = ResourceManager.GetTreeTech(keyValuePair.Key);
-                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
-                {
-                    if (leadsToTech.UID == techID)
-                        return keyValuePair.Key;
-                }
-            }
-            return "";
-        }
-
-        public bool HavePreReq(string techID)
-        {
-            if (ResourceManager.TechTree[techID].RootNode == 1)
-                return true;
-            foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
-            {
-                if (keyValuePair.Value.Unlocked || !keyValuePair.Value.Discovered )
-                {
-                    foreach (Technology.LeadsToTech leadsToTech in ResourceManager.TechTree[keyValuePair.Key].LeadsTo)
-                    {
-                        if (leadsToTech.UID == techID)
-                            return true;
-                    }
-                }
-            }
-            return false;
-        }
+        public bool HavePreReq(string techID) => GetTechEntry(techID).HasPreReq(this);
 
         public bool TradeBlocked { get; private set; }
 
