@@ -438,7 +438,7 @@ namespace Ship_Game.Gameplay
                     + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
 
             //reduce jitter by level cubed. if jitter is less than a module radius stop.
-            float baseJitter = 178f + 8 * Module.XSIZE * Module.YSIZE;
+            float baseJitter = 45f + 8 * Module.XSIZE * Module.YSIZE;
             float adjust     = Math.Max(0, baseJitter - level * level * level);
             if (adjust < 8) return Vector2.Zero;
 

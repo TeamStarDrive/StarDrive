@@ -670,6 +670,7 @@ namespace Ship_Game.AI
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != null))
                 return;
+            task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
             {
                 case 0:
@@ -1054,7 +1055,7 @@ namespace Ship_Game.AI
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
                     float facing    = ship.Center.RadiansToTarget(kv.Key);
-                    ship.AI.OrderMoveTowardsPosition(kv.Key, facing, false, null);
+                    ship.AI.OrderMoveTowardsPosition(kv.Key, facing, true, null);
                     ship.ForceCombatTimer();
 
                     availableShips.RemoveAtSwapLast(x);
@@ -1098,7 +1099,7 @@ namespace Ship_Game.AI
         {
             return AllButRearShips.Any(ship => !ship.AI.HasPriorityOrder
                                      && (!ship.InCombat
-                                         && ship.Center.OutsideRadius(task.AO, task.AORadius)));
+                                         && ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
         }
 
         private void SetRestrictedCombatWeights(float ordersRadius)
