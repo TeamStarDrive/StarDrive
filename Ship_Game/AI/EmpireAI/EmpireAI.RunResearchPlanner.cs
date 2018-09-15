@@ -1,9 +1,10 @@
+using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.Ships;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         private ResearchStrategy res_strat = ResearchStrategy.Scripted;
@@ -43,7 +44,7 @@ namespace Ship_Game.AI {
                 researchDebt = OwnerEmpire.GetTechEntry(postResearchTopic).TechCost;
                 researchDebt = researchDebt / OwnerEmpire.MaxResearchPotential;
             }
-            researchDebt += OwnerEmpire.getResStrat().ResearchPriority -wars;
+            researchDebt += OwnerEmpire.GetResStrat().ResearchPriority -wars;
             float economics = (OwnerEmpire.data.TaxRate * 10); 
             float needsFood = 0;
 
@@ -110,7 +111,7 @@ namespace Ship_Game.AI {
             float economics, string command = "CHEAPEST")
         {
             Map<string, float> priority = new Map<string, float>();
-            var resStrat = OwnerEmpire.getResStrat();
+            var resStrat = OwnerEmpire.GetResStrat();
 
             priority.Add("SHIPTECH", randomizer(resStrat.MilitaryPriority, wars + shipBuildBonus));
 
@@ -151,7 +152,7 @@ namespace Ship_Game.AI {
         private bool ProcessScript(bool atWar, bool highTaxes, bool lowResearch, bool lowincome)
         {
             int loopcount = 0;
-            var strat = OwnerEmpire.getResStrat();
+            var strat = OwnerEmpire.GetResStrat();
             Start:
             if (strat != null &&
                 ScriptIndex < strat.TechPath.Count &&
@@ -183,7 +184,7 @@ namespace Ship_Game.AI {
                     case "LOOP":
                         {
                             ScriptIndex =
-                                int.Parse(OwnerEmpire.getResStrat().TechPath[ScriptIndex].id
+                                int.Parse(OwnerEmpire.GetResStrat().TechPath[ScriptIndex].id
                                     .Split(':')[1]);
                             loopcount++;
                             goto Start;
@@ -332,7 +333,7 @@ namespace Ship_Game.AI {
                             }
 
 
-                            foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.getResStrat()
+                            foreach (EconomicResearchStrategy.Tech tech in OwnerEmpire.GetResStrat()
                                 .TechPath)
                             {
                                 if (!OwnerEmpire.GetTDict().ContainsKey(tech.id) ||
@@ -356,7 +357,7 @@ namespace Ship_Game.AI {
             if (OwnerEmpire.ResearchTopic.IsEmpty())
             {
                 GoRandomOnce();
-                if (loopcount >= OwnerEmpire.getResStrat().TechPath.Count)
+                if (loopcount >= OwnerEmpire.GetResStrat().TechPath.Count)
                     res_strat = ResearchStrategy.Random;
 
             }
@@ -378,7 +379,7 @@ namespace Ship_Game.AI {
             {
                 ScriptIndex =
                     int.Parse(
-                        OwnerEmpire.getResStrat().TechPath[ScriptIndex].id.Split(':')[1]);                
+                        OwnerEmpire.GetResStrat().TechPath[ScriptIndex].id.Split(':')[1]);                
                 return 1;
             }
             ScriptIndex++;
