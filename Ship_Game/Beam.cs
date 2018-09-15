@@ -36,8 +36,8 @@ namespace Ship_Game
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
         public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null, bool followMouse = false) : base(GameObjectType.Beam)
         {
-            //there is an error here in beam creation where the weapon has no module. 
-            // i am setting these values in the weapon CreateDroneBeam where possible. 
+            //there is an error here in beam creation where the weapon has no module.
+            // i am setting these values in the weapon CreateDroneBeam where possible.
             FollowMouse             = followMouse;
             Weapon                  = weapon;
             Target                  = target;
@@ -51,24 +51,22 @@ namespace Ship_Game
             WeaponEffectType        = weapon.WeaponEffectType;
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
-            DisableSpatialCollision = DamageAmount < 0f;            
+            DisableSpatialCollision = DamageAmount < 0f;
             Jitter                  = destination;
             JitterRadius            = 0;
             Emitter.Position        = new Vector3(source, 0f);
             Owner                   = weapon.Owner ;
             Source                  = source;
             Destination             = destination;
-            //WanderPath = Owner?.Center.RightVector() ?? source.RightVector();
-            // if (target != null && destination.OutsideRadius(target.Center, 32))
 
             TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
-            JitterRadius = target?.Center.Distance(Jitter) ?? 0 ;
+            JitterRadius = Target?.Center.Distance(Jitter) ?? 0;
             if (JitterRadius > 0)
                 WanderPath = Vector2.Normalize(destination - target.Center) * 8f;
             if (float.IsNaN(WanderPath.X))
                 WanderPath = Vector2.Zero;
-            
-            ActualHitDestination    = Destination;                        
+
+            ActualHitDestination    = Destination;
             Initialize();
             weapon.ModifyProjectile(this);
 
@@ -107,7 +105,7 @@ namespace Ship_Game
         private void SetDestination(Vector2 destination, float range =-1)
         {
             range = range < 0 ? Range : range;
-            Vector2 deltaVec = destination - Source;            
+            Vector2 deltaVec = destination - Source;
             if (!DisableSpatialCollision)
             {
                 TargetPosistion = Target?.Center.NearestPointOnFiniteLine(Source, destination) ?? destination;
@@ -167,7 +165,7 @@ namespace Ship_Game
                 rs.DestinationBlend       = Blend.InverseSourceAlpha;
                 rs.AlphaTestEnable        = true;
                 rs.AlphaFunction          = CompareFunction.Less;
-                rs.ReferenceAlpha         = 200;                
+                rs.ReferenceAlpha         = 200;
                 foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
                 {
                     pass.Begin();
@@ -180,7 +178,7 @@ namespace Ship_Game
                 BeamEffect.End();
             }
         }
-        
+
         private void InitBeamMeshIndices()
         {
             Vertices[0].TextureCoordinate = new Vector2(0f, 1f);
@@ -237,7 +235,7 @@ namespace Ship_Game
 
                 projectile.DamageMissile(this, DamageAmount);
                 return true;
-            }           
+            }
 
             var targetModule = target as ShipModule;
             if (DamageAmount < 0f && targetModule?.ShieldPower >= 1f) // @todo Repair beam??
@@ -271,7 +269,7 @@ namespace Ship_Game
             Source = srcCenter;
             if (ship != null && ship.Active && !DisableSpatialCollision)
             {
-                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 4f; //* .25f);                
+                float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) * 16f; //* .25f);
 
                 if (Destination.OutsideRadius(Target.Center, JitterRadius * .5f))
                     WanderPath = Vector2.Normalize(Target.Center - Destination) * sweep;
@@ -282,7 +280,7 @@ namespace Ship_Game
             if (FollowMouse)
             {
                 float sweep = ((Module?.WeaponRotationSpeed ?? 1f)) *
-                              16f; //* .25f);                                           
+                              16f; //* .25f);
                 WanderPath = Vector2.Normalize(Empire.Universe.mouseWorldPos - Destination) * sweep;
             }
 
@@ -297,7 +295,7 @@ namespace Ship_Game
             if (!BeamCollidedThisFrame) ActualHitDestination = Destination;
 
             BeamCollidedThisFrame = false;
-           
+
             if (!Owner.CheckIfInsideFireArc(Weapon, Destination, Owner.Rotation, skipRangeCheck: true))
             {
                 if (ship != null)
