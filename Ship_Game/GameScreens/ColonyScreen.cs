@@ -2225,11 +2225,11 @@ namespace Ship_Game
                     {
                         if (item.Goal is BuildConstructionShip)
                         {
-                            P.Owner.GetGSAI().Goals.Remove(item.Goal);
+                            P.Owner.GetEmpireAI().Goals.Remove(item.Goal);
                         }
 
                         if (item.Goal.GetFleet() != null)
-                            P.Owner.GetGSAI().Goals.Remove(item.Goal);
+                            P.Owner.GetEmpireAI().Goals.Remove(item.Goal);
                     }
 
                     P.ConstructionQueue.Remove(item);

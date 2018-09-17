@@ -429,7 +429,7 @@ namespace Ship_Game.AI
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
             }
-            Owner.GetGSAI().TaskList.ApplyPendingRemovals();
+            Owner.GetEmpireAI().TaskList.ApplyPendingRemovals();
         }
 
         private void DoExplorePlanet(MilitaryTask task) //Mer Gretman Left off here
@@ -528,9 +528,9 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet.Owner == Owner || task.TargetPlanet.AnyOfOurTroops(Owner))
                 {
                     var militaryTask = MilitaryTask.CreatePostInvasion(task.TargetPlanet.Center, task.WhichFleet, Owner);
-                    Owner.GetGSAI().RemoveFromTaskList(task);
+                    Owner.GetEmpireAI().RemoveFromTaskList(task);
                     FleetTask = militaryTask;
-                    Owner.GetGSAI().AddToTaskList(militaryTask);
+                    Owner.GetEmpireAI().AddToTaskList(militaryTask);
                     for (int x =0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
@@ -812,7 +812,7 @@ namespace Ship_Game.AI
                         TaskStep += step;
                         break;
                     case 2:
-                        if (task.WaitForCommand && Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.TargetPlanet.Center, 30000f, Owner) > 250.0)
+                        if (task.WaitForCommand && Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.TargetPlanet.Center, 30000f, Owner) > 250.0)
                             break;
                         foreach (Ship ship in Ships)
                             ship.AI.OrderBombardPlanet(task.TargetPlanet);
@@ -1030,7 +1030,7 @@ namespace Ship_Game.AI
 
         private bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
         {
-            Map<Vector2, float> enemyClumpsDict = Owner.GetGSAI().ThreatMatrix
+            Map<Vector2, float> enemyClumpsDict = Owner.GetEmpireAI().ThreatMatrix
                 .PingRadarStrengthClusters(task.AO, task.AORadius, 2500, Owner);
 
             if (enemyClumpsDict.Count == 0)
@@ -1085,7 +1085,7 @@ namespace Ship_Game.AI
                 Radius = task.AORadius
             };
 
-            strengthCluster = Owner.GetGSAI().ThreatMatrix.FindLargestStengthClusterLimited(strengthCluster, GetStrength(), FindAveragePosition());
+            strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStengthClusterLimited(strengthCluster, GetStrength(), FindAveragePosition());
             if (strengthCluster.Strength <= 0) return false;
             CoreFleetSubTask = new MilitaryTask
             {
@@ -1154,7 +1154,7 @@ namespace Ship_Game.AI
         private bool StillCombatEffective(MilitaryTask task)
         {
             float targetStrength =
-                Owner.GetGSAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
+                Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
             float fleetStrengthThreshold = GetStrength() * 2;
             if (!(targetStrength >= fleetStrengthThreshold))
                 return true;
@@ -1345,7 +1345,7 @@ namespace Ship_Game.AI
                     }
                     return;
                 }
-                Owner.GetGSAI().UsedFleets.Remove(which);
+                Owner.GetEmpireAI().UsedFleets.Remove(which);
                 for (int i = 0; i < Ships.Count; ++i)
                 {
                     Ship s = Ships[i];

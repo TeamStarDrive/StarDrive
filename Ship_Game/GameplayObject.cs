@@ -136,7 +136,7 @@ namespace Ship_Game
                 oldLoyalty.GetShips().QueuePendingRemoval(ship);
                 oldLoyalty.RemoveShip(ship);
                                                          
-                oldLoyalty.GetGSAI().ThreatMatrix.RemovePin(ship);
+                oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
                 ((Ship)this).loyalty = changeTo;

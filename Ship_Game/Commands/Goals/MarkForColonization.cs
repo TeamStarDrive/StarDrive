@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (markedPlanet.Owner == null) return true;
             foreach (var relationship in empire.AllRelations)
-                empire.GetGSAI().CheckClaim(relationship, GetMarkedPlanet());
+                empire.GetEmpireAI().CheckClaim(relationship, GetMarkedPlanet());
                         
             RemoveEscortTask();
 
@@ -56,9 +56,9 @@ namespace Ship_Game.Commands.Goals
 
         private MilitaryTask GetClaimTask()
         {
-            using (empire.GetGSAI().TaskList.AcquireReadLock())
+            using (empire.GetEmpireAI().TaskList.AcquireReadLock())
             {
-                foreach (MilitaryTask escort in empire.GetGSAI().TaskList)
+                foreach (MilitaryTask escort in empire.GetEmpireAI().TaskList)
                 {
                     foreach (Guid held in escort.HeldGoals)
                     {
@@ -75,7 +75,7 @@ namespace Ship_Game.Commands.Goals
         {
             MilitaryTask defendClaim = GetClaimTask();
             if (defendClaim != null)            
-                empire.GetGSAI().TaskList.QueuePendingRemoval(defendClaim);
+                empire.GetEmpireAI().TaskList.QueuePendingRemoval(defendClaim);
         }
 
 
@@ -96,7 +96,7 @@ namespace Ship_Game.Commands.Goals
             WaitingForEscort = HasEscort = false;
             if (empire.isPlayer || empire.isFaction) return false;
             
-            float str = empire.GetGSAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 150000f, empire);
+            float str = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(markedPlanet.Center, 150000f, empire);
             if (str < 10)
                 return false;
             WaitingForEscort = true;
@@ -113,7 +113,7 @@ namespace Ship_Game.Commands.Goals
                 var task =
                     new MilitaryTask(markedPlanet.Center, 125000f, tohold, empire, str);
                 task.SetTargetPlanet(markedPlanet);
-                    empire.GetGSAI().TaskList.Add(task);                                    
+                    empire.GetEmpireAI().TaskList.Add(task);                                    
             }
 
             var militaryTask = new MilitaryTask
@@ -128,7 +128,7 @@ namespace Ship_Game.Commands.Goals
             militaryTask.HeldGoals.Add(guid);
             militaryTask.type                     = MilitaryTask.TaskType.DefendClaim;
             {
-                empire.GetGSAI().TaskList.Add(militaryTask);
+                empire.GetEmpireAI().TaskList.Add(militaryTask);
             }
             WaitingForEscort = true;
             return true;
@@ -201,7 +201,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetGSAI().CheckClaim(them, markedPlanet);
+                empire.GetEmpireAI().CheckClaim(them, markedPlanet);
             return GoalStep.GoalComplete;
         }
 

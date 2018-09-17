@@ -1,10 +1,10 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
 
 namespace Ship_Game
 {
@@ -563,9 +563,9 @@ namespace Ship_Game
             else if (SelectedItem != null)
             {
                 bool flag = false;
-                for (int index = 0; index < SelectedItem.AssociatedGoal.empire.GetGSAI().Goals.Count; ++index)
+                for (int index = 0; index < SelectedItem.AssociatedGoal.empire.GetEmpireAI().Goals.Count; ++index)
                 {
-                    if (SelectedItem.AssociatedGoal.empire.GetGSAI().Goals[index].guid !=
+                    if (SelectedItem.AssociatedGoal.empire.GetEmpireAI().Goals[index].guid !=
                         SelectedItem.AssociatedGoal.guid) continue;
                     flag = true;
                     break;

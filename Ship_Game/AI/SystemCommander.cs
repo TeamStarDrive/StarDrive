@@ -1,6 +1,6 @@
+using Ship_Game.Ships;
 using System;
 using System.Linq;
-using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
@@ -143,7 +143,7 @@ namespace Ship_Game.AI
         }
         public void AssignTargets()
         {
-            EnemyClumpsDict = Us.GetGSAI().ThreatMatrix.PingRadarShipClustersByShip(System.Position, 150000, 15000, Us);
+            EnemyClumpsDict = Us.GetEmpireAI().ThreatMatrix.PingRadarShipClustersByShip(System.Position, 150000, 15000, Us);
             
             if (EnemyClumpsDict.Count != 0)
             {
@@ -234,7 +234,7 @@ namespace Ship_Game.AI
         }
         public void CalculateShipneeds()
         {
-            int predicted = (int)Us.GetGSAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);            
+            int predicted = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);            
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
             min /= 4;
             IdealShipStrength = Math.Max(predicted, min);

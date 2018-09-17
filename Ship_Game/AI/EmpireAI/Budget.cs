@@ -30,7 +30,7 @@ namespace Ship_Game.AI.Budget
 
             if (planet == null) return;
 
-            Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(System, out SystemCommander systemCommander);
+            Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(System, out SystemCommander systemCommander);
             SysCom       = systemCommander;
 
             if (SysCom == null) return;
