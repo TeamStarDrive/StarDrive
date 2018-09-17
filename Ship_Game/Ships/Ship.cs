@@ -342,7 +342,7 @@ namespace Ship_Game.Ships
                 && System != null && attacker.GetOwnedSystems().Contains(System)) return true;
             //the below does a search for being inborders so its expensive.
             if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality)
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(this))
+                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
             {
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed border violations against : {loyalty.Name}  ");
                 return true;
@@ -554,20 +554,20 @@ namespace Ship_Game.Ships
 
         public bool DoingSystemDefense
         {
-            get => loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
+            get => loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
             set
             {
                 //added by gremlin Toggle Ship System Defense.
-                if (EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                if (EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(this);
+                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(this);
                     AI.OrderQueue.Clear();
                     AI.HasPriorityOrder = false;
                     AI.State = AIState.AwaitingOrders;
 
                     return;
                 }
-                EmpireManager.Player.GetGSAI().DefensiveCoordinator.AddShip(this);
+                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -2390,7 +2390,7 @@ namespace Ship_Game.Ships
             }
             for (int index = 0; index < EmpireManager.Empires.Count; index++)
             {
-                EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);
+                EmpireManager.Empires[index].GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
             Carrier.ScuttleNonWarpHangarShips();
             ModuleSlotList     = Empty<ShipModule>.Array;
@@ -2490,7 +2490,7 @@ namespace Ship_Game.Ships
             }
             foreach (Empire empire in EmpireManager.Empires)
             {
-                empire.GetGSAI().ThreatMatrix.RemovePin(this);
+                empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
 
             foreach (Projectile projectile in projectiles)

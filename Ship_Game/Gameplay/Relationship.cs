@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using System;
+using System.Collections.Generic;
 
 namespace Ship_Game.Gameplay
 {
@@ -175,16 +175,16 @@ namespace Ship_Game.Gameplay
             if (!them.isFaction && !AtWar && !PreparingForWar &&
                 !(TotalAnger > us.data.DiplomaticPersonality.Territorialism)) return 0;
             if (!them.isFaction)            
-                return (risk = us.GetGSAI().ThreatMatrix.StrengthOfEmpire(them) / strength) > riskLimit ? 0 :risk;
+                return (risk = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpire(them) / strength) > riskLimit ? 0 :risk;
             var s = new HashSet<SolarSystem>();
-            foreach (var task in us.GetGSAI().TaskList)
+            foreach (var task in us.GetEmpireAI().TaskList)
             {
                 if (task.type != MilitaryTask.TaskType.DefendClaim) continue;
                 var p = task.TargetPlanet;
                 var ss = p.ParentSystem;
                 if (!s.Add(ss)) continue;
                 float test;
-                if ((test = us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss)) > 0 && test <  risk)
+                if ((test = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss)) > 0 && test <  risk)
                     risk = test;
             }            
             risk /= strength;
@@ -197,7 +197,7 @@ namespace Ship_Game.Gameplay
             float strength = 0;
             foreach (var ss in us.GetBorderSystems(them))
             {
-                strength += us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss);
+                strength += us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(them, ss);
             }
             strength /= Math.Max(us.currentMilitaryStrength, 100);
             return strength > riskLimit ? 0 : strength;            
@@ -382,7 +382,7 @@ namespace Ship_Game.Gameplay
                 {
                     Array<Planet> OurTargetPlanets = new Array<Planet>();
                     Array<Planet> TheirTargetPlanets = new Array<Planet>();
-                    foreach (Goal g in Us.GetGSAI().Goals)
+                    foreach (Goal g in Us.GetEmpireAI().Goals)
                     {
                         if (g.type != GoalType.Colonize)
                         {
@@ -672,7 +672,7 @@ namespace Ship_Game.Gameplay
 
             if (!Treaty_Alliance && !Treaty_OpenBorders)
             {
-                float strengthofshipsinborders = us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
+                float strengthofshipsinborders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
                 if (strengthofshipsinborders > 0)
                 {
                     if (!Treaty_NAPact)

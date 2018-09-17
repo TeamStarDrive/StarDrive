@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -363,7 +363,7 @@ namespace Ship_Game.AI
                 if (g.type == GoalType.Colonize)
                     ourTargetPlanets.Add(g.GetMarkedPlanet());
             }
-            foreach (Goal g in them.Key.GetGSAI().Goals)
+            foreach (Goal g in them.Key.GetEmpireAI().Goals)
             {
                 if (g.type == GoalType.Colonize)
                     theirTargetPlanets.Add(g.GetMarkedPlanet());

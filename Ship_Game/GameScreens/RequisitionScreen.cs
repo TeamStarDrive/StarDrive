@@ -94,7 +94,7 @@ namespace Ship_Game
                 var g = new FleetRequisition(node.ShipName, f.Owner);
                 g.SetFleet(f);
                 node.GoalGUID = g.guid;
-                f.Owner.GetGSAI().Goals.Add(g);
+                f.Owner.GetEmpireAI().Goals.Add(g);
                 g.Evaluate();
             }
         }
@@ -244,7 +244,7 @@ namespace Ship_Game
             UpdateRequisitionStatus();
             foreach (FleetDataNode node in f.DataNodes)
             {
-                foreach (Goal g in f.Owner.GetGSAI().Goals)
+                foreach (Goal g in f.Owner.GetEmpireAI().Goals)
                 {
                     if (g.guid != node.GoalGUID)
                     {
@@ -285,7 +285,7 @@ namespace Ship_Game
             numBeingBuilt = 0;
             foreach (FleetDataNode node in f.DataNodes)
             {
-                foreach (Goal g in f.Owner.GetGSAI().Goals)
+                foreach (Goal g in f.Owner.GetEmpireAI().Goals)
                 {
                     if (g.guid != node.GoalGUID)
                     {

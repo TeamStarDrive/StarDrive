@@ -60,7 +60,7 @@ namespace Ship_Game
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
             ShipNameEntry.Text = shipName;
 
-            foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
+            foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
                 if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
                 {
@@ -331,14 +331,14 @@ namespace Ship_Game
             if (!marked)
             {
                 GameAudio.PlaySfxAsync("echo_affirm");
-                Empire.Universe.player.GetGSAI().Goals.Add(
+                Empire.Universe.player.GetEmpireAI().Goals.Add(
                     new MarkForColonization(planet, Empire.Universe.player));
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;
                 marked = true;
                 return;
             }
-            foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
+            foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
                 if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != planet)
                 {
@@ -349,13 +349,13 @@ namespace Ship_Game
                 {
                     g.GetColonyShip().AI.OrderOrbitNearest(true);
                 }
-                Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
+                Empire.Universe.player.GetEmpireAI().Goals.QueuePendingRemoval(g);
                 marked = false;
                 Colonize.Text = "Colonize";
                 Colonize.Style = ButtonStyle.BigDip;
                 break;
             }
-            Empire.Universe.player.GetGSAI().Goals.ApplyPendingRemovals();
+            Empire.Universe.player.GetEmpireAI().Goals.ApplyPendingRemovals();
         }
 
         public void SetNewPos(int x, int y)

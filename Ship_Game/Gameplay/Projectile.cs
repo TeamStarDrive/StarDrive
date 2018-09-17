@@ -260,7 +260,7 @@ namespace Ship_Game.Gameplay
         {
             if (MissileAI?.GetTarget.GetLoyalty() == attacker) return true;            
             if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
-                && attacker.GetGSAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
+                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(Owner)) return true;
            
             return false;
         }

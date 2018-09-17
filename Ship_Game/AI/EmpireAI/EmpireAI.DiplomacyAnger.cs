@@ -46,7 +46,7 @@ namespace Ship_Game.AI {
                     };
                     if (Relationship.Key != Empire.Universe.PlayerEmpire)
                     {
-                        Relationship.Key.GetGSAI()
+                        Relationship.Key.GetEmpireAI()
                             .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                         return;
                     }
@@ -76,7 +76,7 @@ namespace Ship_Game.AI {
                     };
                     if (Relationship.Key != Empire.Universe.PlayerEmpire)
                     {
-                        Relationship.Key.GetGSAI()
+                        Relationship.Key.GetEmpireAI()
                             .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                         return;
                     }
@@ -139,7 +139,7 @@ namespace Ship_Game.AI {
                         };
                         if (Relationship.Key != Empire.Universe.PlayerEmpire)
                         {
-                            Relationship.Key.GetGSAI()
+                            Relationship.Key.GetEmpireAI()
                                 .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                             return;
                         }
@@ -169,7 +169,7 @@ namespace Ship_Game.AI {
                     };
                     if (Relationship.Key != Empire.Universe.PlayerEmpire)
                     {
-                        Relationship.Key.GetGSAI()
+                        Relationship.Key.GetEmpireAI()
                             .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Pleading);
                         return;
                     }
