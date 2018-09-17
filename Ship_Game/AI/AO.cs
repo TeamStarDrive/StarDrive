@@ -88,7 +88,7 @@ namespace Ship_Game.AI
             if (OffensiveForcePool.Contains(ship))
             {
                 Log.Warning("offensive forcepool already contains this ship. not adding");
-                foreach (var ao in Owner.GetGSAI().AreasOfOperations)
+                foreach (var ao in Owner.GetEmpireAI().AreasOfOperations)
                 {
                     ao.RemoveShip(ship);                    
                 }
@@ -98,7 +98,7 @@ namespace Ship_Game.AI
             }
             if (ship.fleet != null)
                 Log.Error("corefleet ship in {0}" , ship.fleet.Name);
-            Owner.GetGSAI().RemoveShipFromForce(ship);
+            Owner.GetEmpireAI().RemoveShipFromForce(ship);
             if (IsCoreFleetFull() || GetPoolStrength() < Owner.currentMilitaryStrength * .05f) 
             {
                 OffensiveForcePool.Add(ship);
@@ -300,9 +300,9 @@ namespace Ship_Game.AI
                     if (CoreFleet.Owner == null)
                     {
                         CoreFleet.Owner = CoreWorld.Owner;
-                        CoreFleet.Owner.GetGSAI().TaskList.Add(clearArea);
+                        CoreFleet.Owner.GetEmpireAI().TaskList.Add(clearArea);
                     }
-                    else CoreFleet.Owner.GetGSAI().TaskList.Add(clearArea);
+                    else CoreFleet.Owner.GetEmpireAI().TaskList.Add(clearArea);
                 }
                 TurnsToRelax = 1;
             }
@@ -321,7 +321,7 @@ namespace Ship_Game.AI
                 }
 
                 if (Empire.Universe.Debug)
-                    foreach (AO ao in Owner.GetGSAI().AreasOfOperations)
+                    foreach (AO ao in Owner.GetEmpireAI().AreasOfOperations)
                     {
                         if (ao == this) continue;
                         if (ao.GetOffensiveForcePool().Contains(ship))

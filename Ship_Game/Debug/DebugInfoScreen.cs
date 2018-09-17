@@ -223,7 +223,7 @@ namespace Ship_Game.Debug
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
                     if (empire.GetForcePool().Contains(ship)) continue;
 
-                    foreach (AO ao in empire.GetGSAI().AreasOfOperations)
+                    foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                         if (ao.GetOffensiveForcePool().Contains(ship) || ao.GetWaitingShips().Contains(ship) || ao.GetCoreFleet() == ship.fleet)
                         {
                             ShipsInAOPool++;
@@ -232,7 +232,7 @@ namespace Ship_Game.Debug
                     if (flag)
                         continue;
 
-                    if (empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
+                    if (empire.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
                     {
                         ++ShipsinDefforcepool;
                         continue;
@@ -483,7 +483,7 @@ namespace Ship_Game.Debug
                     float gamePaceStatic = techEntry.TechCost;
                     DrawString($"Research: {techEntry.Progress:0}/{gamePaceStatic:0} ({e.GetProjectedResearchNextTurn().ToString(Fmt)} / {e.MaxResearchPotential.ToString(Fmt)})");
                     DrawString("   --" + e.ResearchTopic);
-                    Ship bestShip = e.GetGSAI().GetBestCombatShip;
+                    Ship bestShip = e.GetEmpireAI().GetBestCombatShip;
                     if (bestShip != null)
                     {
                         DrawString($"Ship : {bestShip.Name}");
@@ -625,7 +625,7 @@ namespace Ship_Game.Debug
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
-                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
+                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.ShipsDict) {
                         if (defender.Key == ship.guid)
                             DrawString(entry.Value.System.Name);
@@ -677,9 +677,9 @@ namespace Ship_Game.Debug
                 DrawString("Total Pop: "+ e.GetTotalPop().ToString(Fmt));
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().ToString(Fmt));
                 DrawString("Military Str: "+ e.MilitaryScore);
-                for (int x = 0; x < e.GetGSAI().Goals.Count; x++)
+                for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {
-                    Goal g = e.GetGSAI().Goals[x];
+                    Goal g = e.GetEmpireAI().Goals[x];
                     if (!(g is MarkForColonization))
                         continue;
 
@@ -691,9 +691,9 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                for (int j = 0; j < e.GetGSAI().TaskList.Count; j++)
+                for (int j = 0; j < e.GetEmpireAI().TaskList.Count; j++)
                 {
-                    MilitaryTask task = e.GetGSAI().TaskList[j];
+                    MilitaryTask task = e.GetEmpireAI().TaskList[j];
                     if (task == null)
                         continue;
                     string sysName = "Deep Space";
@@ -744,7 +744,7 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                DefensiveCoordinator defco = e.GetGSAI().DefensiveCoordinator;
+                DefensiveCoordinator defco = e.GetEmpireAI().DefensiveCoordinator;
                 foreach (var kv in defco.DefenseDict)
                 {                    
                     Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.RankImportance * 100, e.EmpireColor, 6);
@@ -754,7 +754,7 @@ namespace Ship_Game.Debug
                 foreach(Ship ship in defco.DefensiveForcePool)                                                        
                     Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 6);
                 
-                foreach(AO ao in e.GetGSAI().AreasOfOperations)                
+                foreach(AO ao in e.GetEmpireAI().AreasOfOperations)                
                     Screen.DrawCircleProjectedZ(ao.Center, ao.Radius, e.EmpireColor, 16);
             }
         }
@@ -766,7 +766,7 @@ namespace Ship_Game.Debug
                 if (e.isPlayer || e.isFaction)
                     continue;
               
-                foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values.ToArray())
+                foreach (ThreatMatrix.Pin pin in e.GetEmpireAI().ThreatMatrix.Pins.Values.ToArray())
                 {
                     if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;
                     Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);

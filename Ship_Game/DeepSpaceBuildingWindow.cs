@@ -235,7 +235,7 @@ namespace Ship_Game
                 buildstuff.TetherOffset = TetherOffset;
                 buildstuff.TetherTarget = TargetPlanet;
             }
-            EmpireManager.Player.GetGSAI().Goals.Add(buildstuff);
+            EmpireManager.Player.GetEmpireAI().Goals.Add(buildstuff);
             GameAudio.PlaySfxAsync("echo_affirm");
             lock (GlobalStats.ClickableItemLocker)
             {
