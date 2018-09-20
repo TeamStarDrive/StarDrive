@@ -120,7 +120,5 @@ namespace Ship_Game
             if (artifactBonus <= 0) return 0;
             return artifactBonus + artifactBonus * empireBonus;
         }
-        
-
     }
 }
