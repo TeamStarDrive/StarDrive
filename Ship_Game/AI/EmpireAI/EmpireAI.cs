@@ -492,10 +492,13 @@ namespace Ship_Game.AI
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
             if (!OwnerEmpire.isFaction)            
                 RunManagers();
-            
-            foreach (Goal g in Goals)
+
+            for (int i = Goals.Count - 1; i >= 0; i--)
+            {
+                Goal g = Goals[i];
                 g.Evaluate();
-            
+            }
+
             Goals.ApplyPendingRemovals();
         }
         

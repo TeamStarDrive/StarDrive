@@ -281,7 +281,7 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
             foreach (Empire empire in EmpireManager.Empires)
             {
-                var pBudget = empire.GetGSAI()?.PlanetBudgets;
+                var pBudget = empire.GetEmpireAI()?.PlanetBudgets;
                 if (pBudget != null)
                     foreach (var budget in pBudget)
                     {

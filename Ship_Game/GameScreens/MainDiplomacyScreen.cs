@@ -263,7 +263,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.Grossincome(1) descending
+                    orderby empire.GrossIncome(1) descending
                     select empire;
                 int rank = 1;
                 foreach (Empire e in MoneySortedList)
@@ -445,7 +445,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1613), TextCursor, Color.White);
                 IOrderedEnumerable<Empire> MoneySortedList = 
                     from empire in Sortlist
-                    orderby empire.Grossincome(1) descending
+                    orderby empire.GrossIncome(1) descending
                     select empire;
                 int rank = 1;
 
