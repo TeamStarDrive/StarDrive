@@ -2306,8 +2306,18 @@ namespace Ship_Game
 
         public void InitFertility(float amount)
         {
-            Fertility    = amount;
+            Fertility = amount;
+        }
+
+        public void InitMaxFertility(float amount)
+        {
             MaxFertility = amount;
+        }
+
+        public void InitFertilityValues(float amount)
+        {
+            InitFertility(amount);
+            InitMaxFertility(amount);
         }
 
         public void DoGoverning()
