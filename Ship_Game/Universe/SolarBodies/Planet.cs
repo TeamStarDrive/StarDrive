@@ -631,42 +631,40 @@ namespace Ship_Game
 
         public void TerraformExternal(float amount) // FB: todo change this for dynamic fertility for random events as well
         {
-            Fertility += amount;
-            if (Fertility <= 0.0)
+            ChangeMaxFertility(amount);
+            ChangePlanetType();
+        }
+
+        private void ChangePlanetType()
+        {
+            switch (Type)
             {
-                Fertility = 0.0f;
-                PlanetType = 7;
-                Terraform();
-            }
-            else switch (Type)
-            {
-                case "Barren" when Fertility > 0.01:
+                case "Barren" when MaxFertility > 0.01:
                     PlanetType = 14;
-                    Terraform();
                     break;
-                case "Desert" when Fertility > 0.35:
+                case "Desert" when MaxFertility > 0.35:
                     PlanetType = 18;
-                    Terraform();
                     break;
-                case "Ice" when Fertility > 0.35:
+                case "Ice" when MaxFertility > 0.35:
                     PlanetType = 19;
-                    Terraform();
                     break;
-                case "Swamp" when Fertility > 0.75:
+                case "Swamp" when MaxFertility > 0.75:
                     PlanetType = 21;
-                    Terraform();
                     break;
-                case "Steppe" when Fertility > 0.6:
+                case "Steppe" when MaxFertility > 0.6:
                     PlanetType = 11;
-                    Terraform();
+                    break;
+                case "Tundra" when MaxFertility > 0.95:
+                    PlanetType = 22;
                     break;
                 default:
-                    if (Type != "Tundra" || Fertility <= 0.95)
-                        return;
-                    PlanetType = 22;
-                    Terraform();
+                    if (MaxFertility <= 0.0f)
+                        PlanetType = 7;
                     break;
             }
+
+            Terraform();
+            MaxFertility.Clamped(0f, 1f);
         }
 
         public void UpdateOwnedPlanet()
@@ -685,36 +683,8 @@ namespace Ship_Game
             TerraformPoints += TerraformToAdd;
             if (TerraformPoints > 0.0f && Fertility < 1.0)
             {
-                Fertility += TerraformToAdd;
-                switch (Type) // FB: todo remove this duplication  (external terraform)
-                {
-                    case "Barren" when Fertility > 0.01:
-                        PlanetType = 14;
-                        Terraform();
-                        break;
-                    case "Desert" when Fertility > 0.35:
-                        PlanetType = 18;
-                        Terraform();
-                        break;
-                    case "Ice" when Fertility > 0.35:
-                        PlanetType = 19;
-                        Terraform();
-                        break;
-                    case "Swamp" when Fertility > 0.75:
-                        PlanetType = 21;
-                        Terraform();
-                        break;
-                    case "Steppe" when Fertility > 0.6:
-                        PlanetType = 11;
-                        Terraform();
-                        break;
-                    case "Tundra" when Fertility > 0.95:
-                        PlanetType = 22;
-                        Terraform();
-                        break;
-                }
-                if (Fertility > 1.0)
-                    Fertility = 1f;
+                ChangeMaxFertility(TerraformToAdd);
+                ChangePlanetType();
             }
             UpdateFertility();
             DoGoverning();
@@ -2193,13 +2163,13 @@ namespace Ship_Game
         private void BuildBuildings(float budget)
         {
             //Do some existing bulding recon
-            int openTiles = TilesList.Count(tile => tile.Habitable && tile.building == null);
+            int openTiles      = TilesList.Count(tile => tile.Habitable && tile.building == null);
             int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
 
             //Construction queue recon
-            bool buildingInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
+            bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
             bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding && building.Building.CombatStrength > 0);
-            bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
+            bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
 
 
             //New Build Logic by Gretman
@@ -2225,16 +2195,11 @@ namespace Ship_Game
         {
             if (Name == "Cordron Vf") Debugger.Break();
 
-            float buildingValue = 0.0f;
-            float costWeight = 0.0f;
-
-            Building bldg = null;
-
             for (int i = 0; i < BuildingList.Count; i++)
             {
-                buildingValue = 0;
-                costWeight = 0;
-                bldg = BuildingList[i];
+                float buildingValue = 0;
+                float costWeight    = 0;
+                Building bldg       = BuildingList[i];
                 if (bldg.Name == "Biospheres" || !bldg.Scrappable || bldg.IsPlayerAdded) continue;
 
                 costWeight     = EvaluateBuildingScrapWeight(bldg, income);
@@ -2295,13 +2260,13 @@ namespace Ship_Game
         public void ChangeMaxFertility(float amount)
         {
             MaxFertility += amount;
-            MaxFertility = Math.Max(0, MaxFertility);
+            MaxFertility  = Math.Max(0, MaxFertility);
         }
 
         public void ChangeFertility(float amount) // FB: to enable bombs to temp change ferility immediately by specified amount
         {
             Fertility += amount;
-            Fertility = Math.Max(0, Fertility);
+            Fertility  = Math.Max(0, Fertility);
         }
 
         public void InitFertility(float amount)
