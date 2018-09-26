@@ -383,7 +383,7 @@ namespace Ship_Game
 
             buildSL.Draw(batch);
             Selector?.Draw(batch);
-            string format = "0.#";
+            string format = "0.0#";
             batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), new Rectangle(ColonySliderFood.sRect.X, ColonySliderFood.sRect.Y, (int)(ColonySliderFood.amount * (double)ColonySliderFood.sRect.Width), 6), P.Owner.data.Traits.Cybernetic > 0 ? Color.DarkGray : Color.White);
             batch.DrawRectangle(ColonySliderFood.sRect, ColonySliderFood.Color);
             Rectangle rectangle1 = new Rectangle(ColonySliderFood.sRect.X - 40, ColonySliderFood.sRect.Y + ColonySliderFood.sRect.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
@@ -534,7 +534,7 @@ namespace Ship_Game
             SpriteBatch spriteBatch1 = batch;
             SpriteFont arial12Bold = Font12;
             num4 = P.Population / 1000f;
-            string str2 = num4.ToString("0.00#");
+            string str2 = num4.ToString(format);
             string str3 = " / ";
             num4 = (float)((P.MaxPopulation + (double)P.MaxPopBonus) / 1000.0);
             string str4 = num4.ToString(format);
@@ -548,7 +548,14 @@ namespace Ship_Game
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Font12, P.Fertility.ToString(format), position3, new Color(byte.MaxValue, 239, 208));
+            if (P.Fertility.AlmostEqual(P.MaxFertility))
+                batch.DrawString(Font12, P.Fertility.ToString(format), position3, color);
+            else
+            {
+                Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Red;
+                batch.DrawString(Font12, P.Fertility.ToString(format) + " / " + P.MaxFertility.ToString(format), position3, fertColor);
+            }
+
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);

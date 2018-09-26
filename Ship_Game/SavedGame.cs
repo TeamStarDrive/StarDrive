@@ -803,6 +803,7 @@ namespace Ship_Game
             [Serialize(30)] public bool ResLock;
             [Serialize(31)] public bool ProdLock;
             [Serialize(32)] public float ShieldStrength;
+            [Serialize(33)] public float MaxFertility;
         }
 
         public struct ProjectileSaveData

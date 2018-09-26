@@ -225,8 +225,8 @@ namespace Ship_Game
             newOrbital.InitializeSliders(this);
             AddPlanet(newOrbital);
             newOrbital.SetPlanetAttributes(26f);
+            newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
             newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            newOrbital.Fertility       = 2f + data.Traits.HomeworldFertMod;
             newOrbital.MaxPopulation   = 14000f + 14000f * data.Traits.HomeworldSizeMod;
             newOrbital.Population      = 14000f;
             newOrbital.FoodHere        = 100f;
@@ -2636,8 +2636,9 @@ namespace Ship_Game
                 data.EmpireFertilityBonus += art.FertilityMod;
                 foreach (Planet planet in GetPlanets())
                 {
-                    planet.Fertility += (art.FertilityMod + art.FertilityMod * data.Traits.Spiritual);
+                    planet.ChangeFertility(art.FertilityMod + art.FertilityMod * data.Traits.Spiritual);
                 }
+
             }
             if (art.GroundCombatMod > 0f)
             {
@@ -2686,7 +2687,7 @@ namespace Ship_Game
                 data.EmpireFertilityBonus -= art.FertilityMod;
                 foreach (Planet planet in GetPlanets())
                 {
-                    planet.Fertility -= (art.FertilityMod + art.FertilityMod * data.Traits.Spiritual);
+                    planet.ChangeFertility(-(art.FertilityMod + art.FertilityMod * data.Traits.Spiritual));
                 }
             }
             if (art.GroundCombatMod > 0f)

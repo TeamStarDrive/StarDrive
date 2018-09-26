@@ -130,8 +130,10 @@ namespace Ship_Game
             p.ResLocked             = psdata.ResLock;
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopulation         = psdata.PopulationMax;
-                   
-            p.Fertility             = psdata.Fertility;
+
+            p.InitFertility(psdata.Fertility);
+            p.ChangeMaxFertility(psdata.MaxFertility);
+
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
             p.HasRings              = psdata.HasRings;
