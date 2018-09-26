@@ -648,7 +648,7 @@ namespace Ship_Game
                             newOrbital.MineralRichness = 1f;
                             newOrbital.colonyType      = Planet.ColonyType.Core;
                             newOrbital.GovernorOn      = true;
-                            newOrbital.InitFertility(2f);
+                            newOrbital.InitFertilityValues(2f);
                         }
                     }
                     else
@@ -660,7 +660,7 @@ namespace Ship_Game
                         newOrbital.SetPlanetAttributes(26f);
                         //newOrbital.Special         = "None";
                         newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                        newOrbital.InitFertility(2f + owner.data.Traits.HomeworldFertMod);
+                        newOrbital.InitFertilityValues(2f + owner.data.Traits.HomeworldFertMod);
                         if (ringData.MaxPopDefined > 0)
                             newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f + ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMod;
                         else
