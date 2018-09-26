@@ -95,8 +95,8 @@ namespace Ship_Game
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         protected float HabitalTileChance = 10;        
         public float Density;
-        public float Fertility;
-        public float MaxFertility;
+        public float Fertility { get; protected set; }
+        public float MaxFertility { get; protected set; }
         public float MineralRichness;
         public float MaxPopulation;
         public Array<Building> BuildingList = new Array<Building>();
@@ -1500,6 +1500,5 @@ namespace Ship_Game
         {
             BasedShips.Add(ship);
         }
-
     }
 }
