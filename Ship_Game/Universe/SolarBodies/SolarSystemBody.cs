@@ -96,6 +96,7 @@ namespace Ship_Game
         protected float HabitalTileChance = 10;        
         public float Density;
         public float Fertility;
+        public float MaxFertility;
         public float MineralRichness;
         public float MaxPopulation;
         public Array<Building> BuildingList = new Array<Building>();
@@ -394,6 +395,7 @@ namespace Ship_Game
                     Zone = SunZone.Habital;
                     break;
             }
+            MaxFertility = Fertility;
         }
         public void SetPlanetAttributes(bool setType = true)
         {
@@ -742,6 +744,7 @@ namespace Ship_Game
                     HabitalTileChance = 50;
                     break;
             }
+            MaxFertility = Fertility;
 
             if (!Habitable)
                 MineralRichness = 0.0f;
@@ -1013,7 +1016,7 @@ namespace Ship_Game
                 var planet1 = this;
                 string str1 = planet1.Description + Name + " " + PlanetComposition + ". ";
                 planet1.Description = str1;
-                if (Fertility > 2)
+                if (MaxFertility > 2)
                 {
                     if (PlanetType == 21)
                     {
@@ -1034,7 +1037,7 @@ namespace Ship_Game
                         planet2.Description = str2;
                     }
                 }
-                else if (Fertility > 1)
+                else if (MaxFertility > 1)
                 {
                     if (PlanetType == 19)
                     {
@@ -1057,7 +1060,7 @@ namespace Ship_Game
                         planet2.Description = str2;
                     }
                 }
-                else if (Fertility > 0.6f)
+                else if (MaxFertility > 0.6f)
                 {
                     if (PlanetType == 14)
                     {
@@ -1196,7 +1199,7 @@ namespace Ship_Game
                             break;
                     }
                 }
-                if (Fertility < 0.6f && MineralRichness >= 2 && Habitable)
+                if (MaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
                 {
                     var planet2 = this;
                     string str2 = planet2.Description + Localizer.Token(1754);
