@@ -629,7 +629,7 @@ namespace Ship_Game
             UpdatePosition(elapsedTime);
         }
 
-        public void TerraformExternal(float amount)
+        public void TerraformExternal(float amount) // FB: todo change this for dynamic fertility for random events as well
         {
             Fertility += amount;
             if (Fertility <= 0.0)
@@ -638,37 +638,34 @@ namespace Ship_Game
                 PlanetType = 7;
                 Terraform();
             }
-            else if (Type == "Barren" && Fertility > 0.01)
+            else switch (Type)
             {
-                PlanetType = 14;
-                Terraform();
-            }
-            else if (Type == "Desert" && Fertility > 0.35)
-            {
-                PlanetType = 18;
-                Terraform();
-            }
-            else if (Type == "Ice" && Fertility > 0.35)
-            {
-                PlanetType = 19;
-                Terraform();
-            }
-            else if (Type == "Swamp" && Fertility > 0.75)
-            {
-                PlanetType = 21;
-                Terraform();
-            }
-            else if (Type == "Steppe" && Fertility > 0.6)
-            {
-                PlanetType = 11;
-                Terraform();
-            }
-            else
-            {
-                if (!(Type == "Tundra") || Fertility <= 0.95)
-                    return;
-                PlanetType = 22;
-                Terraform();
+                case "Barren" when Fertility > 0.01:
+                    PlanetType = 14;
+                    Terraform();
+                    break;
+                case "Desert" when Fertility > 0.35:
+                    PlanetType = 18;
+                    Terraform();
+                    break;
+                case "Ice" when Fertility > 0.35:
+                    PlanetType = 19;
+                    Terraform();
+                    break;
+                case "Swamp" when Fertility > 0.75:
+                    PlanetType = 21;
+                    Terraform();
+                    break;
+                case "Steppe" when Fertility > 0.6:
+                    PlanetType = 11;
+                    Terraform();
+                    break;
+                default:
+                    if (Type != "Tundra" || Fertility <= 0.95)
+                        return;
+                    PlanetType = 22;
+                    Terraform();
+                    break;
             }
         }
 
@@ -689,39 +686,37 @@ namespace Ship_Game
             if (TerraformPoints > 0.0f && Fertility < 1.0)
             {
                 Fertility += TerraformToAdd;
-                if (Type == "Barren" && Fertility > 0.01)
+                switch (Type) // FB: todo remove this duplication  (external terraform)
                 {
-                    PlanetType = 14;
-                    Terraform();
-                }
-                else if (Type == "Desert" && Fertility > 0.35)
-                {
-                    PlanetType = 18;
-                    Terraform();
-                }
-                else if (Type == "Ice" && Fertility > 0.35)
-                {
-                    PlanetType = 19;
-                    Terraform();
-                }
-                else if (Type == "Swamp" && Fertility > 0.75)
-                {
-                    PlanetType = 21;
-                    Terraform();
-                }
-                else if (Type == "Steppe" && Fertility > 0.6)
-                {
-                    PlanetType = 11;
-                    Terraform();
-                }
-                else if (Type == "Tundra" && Fertility > 0.95)
-                {
-                    PlanetType = 22;
-                    Terraform();
+                    case "Barren" when Fertility > 0.01:
+                        PlanetType = 14;
+                        Terraform();
+                        break;
+                    case "Desert" when Fertility > 0.35:
+                        PlanetType = 18;
+                        Terraform();
+                        break;
+                    case "Ice" when Fertility > 0.35:
+                        PlanetType = 19;
+                        Terraform();
+                        break;
+                    case "Swamp" when Fertility > 0.75:
+                        PlanetType = 21;
+                        Terraform();
+                        break;
+                    case "Steppe" when Fertility > 0.6:
+                        PlanetType = 11;
+                        Terraform();
+                        break;
+                    case "Tundra" when Fertility > 0.95:
+                        PlanetType = 22;
+                        Terraform();
+                        break;
                 }
                 if (Fertility > 1.0)
                     Fertility = 1f;
             }
+            // FB: todo: updateFertility call will be here
             DoGoverning();
             UpdateIncomes(false);
 
