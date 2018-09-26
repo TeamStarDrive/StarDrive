@@ -2345,94 +2345,83 @@ namespace Ship_Game
             {
                 case ColonyType.TradeHub:
                 case ColonyType.Core:
+                    //New resource management by Gretman
+                    FarmerPercentage = CalculateFoodWorkers();
+                    FillOrResearch(1 - FarmerPercentage);
+
+                    if (colonyType == ColonyType.TradeHub)
                     {
-                        //New resource management by Gretman
-                        FarmerPercentage = CalculateFoodWorkers();
-                        FillOrResearch(1 - FarmerPercentage);
-
-                        if (colonyType == ColonyType.TradeHub)
-                        {
-                            DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                            DetermineProdState(0.15f, 0.95f);
-                            break;
-                        }
-
-                        BuildBuildings(budget);
-
-                        DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
-                        DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
-
+                        DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                        DetermineProdState(0.15f, 0.95f);
                         break;
                     }
 
+                    BuildBuildings(budget);
+
+                    DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
+                    DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
+
+                    break;
                 case ColonyType.Industrial:
-                    {
-                        //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
-                        FarmerPercentage = FarmToPercentage(0.333f);
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(1));
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
+                    //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
+                    FarmerPercentage = FarmToPercentage(0.333f);
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(1));
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
-                        DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                    DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
 
-                        break;
-                    }
+                    break;
 
                 case ColonyType.Research:
-                    {
-                        //This governor will rely on imports, focusing on research as long as no one is starving
-                        FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
+                    //This governor will rely on imports, focusing on research as long as no one is starving
+                    FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
-                        DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
+                    DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
+                    DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
 
-                        break;
-                    }
+                    break;
 
                 case ColonyType.Agricultural:
-                    {
-                        FarmerPercentage = FarmToPercentage(1);     //Farm all you can
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
+                    FarmerPercentage = FarmToPercentage(1);     //Farm all you can
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
-                        DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
+                    DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
 
-                        break;
-                    }
+                    break;
 
                 case ColonyType.Military:    //This on is incomplete
-                    {
-                        FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
+                    FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
-                        DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
+                    DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
+                    DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
 
-                        break;
-                    }
+                    break;
+
             } //End Gov type Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
                 colonyType != ColonyType.Research)
 
-                #region Troops and platforms
-
+            #region Troops and platforms
             {
                 //Added by McShooterz: build defense platforms
 
@@ -2475,13 +2464,14 @@ namespace Ship_Game
                             }
                         }
 
-                        foreach (Ship platform in Shipyards.Values)
-                        {
+                    foreach (Ship platform in Shipyards.Values)
+                    {
 
-                            if (platform.AI.State == AIState.Scrap)
-                                continue;
-                            if (platform.shipData.HullRole == ShipData.RoleName.station )
-                            {
+                        if (platform.AI.State == AIState.Scrap)
+                            continue;
+                        switch (platform.shipData.HullRole)
+                        {
+                            case ShipData.RoleName.station:
                                 stationUpkeep = platform.GetMaintCost();
                                 if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
@@ -2490,10 +2480,8 @@ namespace Ship_Game
                                 }
                                 defBudget -= stationUpkeep;
                                 stationCount++;
-                            }
-                            if (platform.shipData.HullRole == ShipData.RoleName.platform
-                            )
-                            {
+                                break;
+                            case ShipData.RoleName.platform:
                                 platformUpkeep = platform.GetMaintCost();
                                 if (defBudget - platformUpkeep < -platformUpkeep)
                                 {
@@ -2503,29 +2491,29 @@ namespace Ship_Game
                                 }
                                 defBudget -= platformUpkeep;
                                 platformCount++;
-                            }
+                                break;
                         }
+                    }
 
-                        if (defBudget > stationUpkeep &&
-                            stationCount < (int) (systemCommander.RankImportance * .5f)
-                            && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                    if (defBudget > stationUpkeep 
+                        && stationCount < (int) (systemCommander.RankImportance * .5f)
+                        && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                    {
+                        if (!string.IsNullOrEmpty(station))
                         {
-                            if (!string.IsNullOrEmpty(station))
-                            {
-                                Ship ship = ResourceManager.ShipsDict[station];
-                                if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
-                                    ConstructionQueue.Add(new QueueItem(this)
-                                    {
-                                        isShip = true,
-                                        sData = ship.shipData,
-                                        Cost = ship.GetCost(Owner)
-                                    });
-                            }
-                            defBudget -= stationUpkeep;
+                            Ship ship = ResourceManager.ShipsDict[station];
+                            if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
+                                ConstructionQueue.Add(new QueueItem(this)
+                                {
+                                    isShip = true,
+                                    sData = ship.shipData,
+                                    Cost = ship.GetCost(Owner)
+                                });
                         }
+                        defBudget -= stationUpkeep;
+                    }
                         if (defBudget > platformUpkeep
-                            && platformCount <
-                            systemCommander.RankImportance
+                            && platformCount < systemCommander.RankImportance
                             && platformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
                             string platform = Owner.GetGSAI().GetDefenceSatellite();
