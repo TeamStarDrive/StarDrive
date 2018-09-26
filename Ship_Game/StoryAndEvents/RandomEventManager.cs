@@ -103,7 +103,6 @@ namespace Ship_Game
                     }
                     else Log.Info($"Something horrible would have happened to '{targetplanet.Name}' but it was on a planet the player hasn't discovered yet.");
                 }
-
             }
         }
 
