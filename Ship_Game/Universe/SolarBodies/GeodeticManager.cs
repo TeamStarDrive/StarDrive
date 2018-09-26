@@ -49,24 +49,24 @@ namespace Ship_Game.Universe.SolarBodies
         public void DropBomb(Bomb bomb)
         {
             if (bomb.Owner == Owner)
-            {
                 return;
-            }
+
             if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar && TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner)
-            {
                 Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
-            }
+
             SolarSystemBody.SetInGroundCombat();
             if (ShieldStrengthCurrent <= 0f)
             {
-                float ran = RandomMath.RandomBetween(0f, 100f);
-                bool hit = !(ran < 75f);
-                SolarSystemBody.Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+                float popKilled = ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+                float ran       = RandomMath.RandomBetween(0f, 100f);
+                bool hit        = !(ran < 75f);
+
+                SolarSystemBody.Population -= 1000f * popKilled;
+                SolarSystemBody.ChangeFertility(-(popKilled / 2));
 
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && ParentSystem.isVisible)
                 {
                     PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
-
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int i = 0; i < 50; i++)
@@ -95,9 +95,8 @@ namespace Ship_Game.Universe.SolarBodies
                     {
                         int ranhit = (int)RandomMath.RandomBetween(0f, potentialHits.Count + 1f);
                         if (ranhit > potentialHits.Count - 1)
-                        {
                             ranhit = potentialHits.Count - 1;
-                        }
+
                         od.Target = potentialHits[ranhit];
                     }
                 }
@@ -116,9 +115,8 @@ namespace Ship_Game.Universe.SolarBodies
                     foreach (PlanetGridSquare pgs in TilesList)
                     {
                         if (pgs.x != column || pgs.y != row)
-                        {
                             continue;
-                        }
+
                         od.Target = pgs;
                         break;
                     }
