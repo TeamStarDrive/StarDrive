@@ -93,9 +93,9 @@ namespace Ship_Game
                     Planet targetplanet = potentials[RandomMath.InRange(potentials.Count)];
                     if (targetplanet.IsExploredBy(EmpireManager.Player))
                     {
-                        float sizeofmeteor = RandomMath.RandomBetween(1, 3) / 10;
-                        if (targetplanet.Fertility > 0) targetplanet.TerraformExternal(-sizeofmeteor);      //Lose half of the richness gained (if not already 0);
-                        targetplanet.MineralRichness += sizeofmeteor * 2;
+                        float sizeOfMeteor = RandomMath.RandomBetween(1, 3) / 10;
+                        targetplanet.TerraformExternal(-sizeOfMeteor);
+                        targetplanet.MineralRichness += sizeOfMeteor * 2;
 
                         string eventtext = targetplanet.Name + Localizer.Token(4105);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
