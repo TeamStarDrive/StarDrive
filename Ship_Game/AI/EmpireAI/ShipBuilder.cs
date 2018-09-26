@@ -123,7 +123,7 @@ namespace Ship_Game.AI
         public static string PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).FilterBy(s => s.shipData.Hull == oldShip.shipData.Hull
-                                                              && s.BaseStrength >= oldShip.BaseStrength
+                                                              && s.BaseStrength.Greater(oldShip.BaseStrength)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
                 return "";
