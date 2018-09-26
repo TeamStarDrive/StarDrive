@@ -2,7 +2,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class Technology
+	public sealed class Technology
     {
         public string UID;
         public string IconPath;
@@ -108,6 +108,14 @@ namespace Ship_Game
             public string RevUID;
             public string Type;
         }
-       
+        public Building[] GetBuildings()
+        {
+            Array<Building> buildings = new Array<Building>();
+            foreach (UnlockedBuilding buildingName in BuildingsUnlocked)
+            {
+                buildings.AddUniqueRef(ResourceManager.GetBuildingTemplate(buildingName.Name));
+            }
+            return buildings.ToArray();
+        }
     }
 }
