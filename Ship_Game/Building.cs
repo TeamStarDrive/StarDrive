@@ -237,7 +237,7 @@ namespace Ship_Game
         {
             Building building1 = null;
             if (MinusFertilityOnBuild < 0)
-                planet.Fertility += MinusFertilityOnBuild;
+                planet.ChangeMaxFertility(MinusFertilityOnBuild);
 
             foreach (Building building2 in planet.BuildingList)
             {

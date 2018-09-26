@@ -716,7 +716,7 @@ namespace Ship_Game
                 if (Fertility > 1.0)
                     Fertility = 1f;
             }
-            // FB: todo: updateFertility call will be here
+            UpdateFertility();
             DoGoverning();
             UpdateIncomes(false);
 
@@ -2279,6 +2279,37 @@ namespace Ship_Game
             return income;
         }
 
+        private void UpdateFertility()
+        {
+            if (Fertility.AlmostEqual(MaxFertility))
+                return;
+
+            if (Fertility < MaxFertility)
+                Fertility += 0.01f;
+            else
+                Fertility -= 0.01f;
+
+            Fertility.Clamped(0, MaxFertility);
+        }
+
+        public void ChangeMaxFertility(float amount)
+        {
+            MaxFertility += amount;
+            MaxFertility = Math.Max(0, MaxFertility);
+        }
+
+        public void ChangeFertility(float amount) // FB: to enable bombs to temp change ferility immediately by specified amount
+        {
+            Fertility += amount;
+            Fertility = Math.Max(0, Fertility);
+        }
+
+        public void InitFertility(float amount)
+        {
+            Fertility    = amount;
+            MaxFertility = amount;
+        }
+
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
@@ -2406,7 +2437,7 @@ namespace Ship_Game
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
                         float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
                         string station = Owner.GetGSAI().GetStarBase();
-                        int PlatformCount = 0;
+                        int platformCount = 0;
                         int stationCount = 0;
                         foreach (QueueItem queueItem in ConstructionQueue)
                         {
@@ -2420,7 +2451,7 @@ namespace Ship_Game
                                     continue;
                                 }
                                 defBudget -= platformUpkeep;
-                                PlatformCount++;
+                                platformCount++;
                             }
                             if (queueItem.sData.HullRole == ShipData.RoleName.station)
                             {
@@ -2461,7 +2492,7 @@ namespace Ship_Game
                                     continue;
                                 }
                                 defBudget -= platformUpkeep;
-                                PlatformCount++;
+                                platformCount++;
                             }
                         }
 
@@ -2483,9 +2514,9 @@ namespace Ship_Game
                             defBudget -= stationUpkeep;
                         }
                         if (defBudget > platformUpkeep
-                            && PlatformCount <
+                            && platformCount <
                             systemCommander.RankImportance
-                            && PlatformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                            && platformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
                             string platform = Owner.GetGSAI().GetDefenceSatellite();
                             if (!string.IsNullOrEmpty(platform))
@@ -2558,7 +2589,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void UpdateIncomes(bool LoadUniverse)
+        public void UpdateIncomes(bool loadUniverse)
         {
             if (Owner == null)
                 return;
@@ -2581,7 +2612,7 @@ namespace Ship_Game
             Array<Guid> list = new Array<Guid>();
             float shipyards =1;
 
-            if (!LoadUniverse)
+            if (!loadUniverse)
             foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
             {
                 if (keyValuePair.Value == null)
@@ -2589,15 +2620,11 @@ namespace Ship_Game
 
                 else if (keyValuePair.Value.Active && keyValuePair.Value.shipData.IsShipyard)
                 {
-
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
-                    {
                         shipbuildingmodifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
-                    }
                     else
-                    {
                         shipbuildingmodifier *= (1-(.25f/shipyards));
-                    }
+
                     shipyards += .2f;
                 }
                 else if (!keyValuePair.Value.Active)
@@ -2643,7 +2670,7 @@ namespace Ship_Game
                 RepairPerTurn += building.ShipRepair;
             }
 
-            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
+            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
 
             //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
@@ -2672,7 +2699,7 @@ namespace Ship_Game
             GrossProductionPerTurn = GrossProductionPerTurn + Owner.data.Traits.ProductionMod * GrossProductionPerTurn;
 
 
-            if (Station != null && !LoadUniverse)
+            if (Station != null && !loadUniverse)
             {
                 if (!HasShipyard)
                     Station.SetVisibility(false, Empire.Universe.ScreenManager, this);

@@ -161,8 +161,7 @@ namespace Ship_Game.Universe.SolarBodies
                         if (queueItem.IsPlayerAdded)
                             building.IsPlayerAdded = queueItem.IsPlayerAdded;
                         BuildingList.Add(building);
-                        Ground.Fertility -= building.MinusFertilityOnBuild;
-                        Ground.Fertility = Math.Max(Fertility, 0);
+                        Ground.ChangeMaxFertility(-building.MinusFertilityOnBuild);
                         if (queueItem.pgs != null)
                         {
                             if (queueItem.Building != null && queueItem.Building.Name == "Biospheres")
