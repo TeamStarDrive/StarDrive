@@ -556,7 +556,7 @@ namespace Ship_Game
             foreach (var ss in SolarSystemDict)
             {
                 var point = WorldToPathMap(ss.Value.Position, universeOffSet);
-
+                grid[point.X, point.Y] = 0;
                 byte weight = blockSystems ? (byte)0 : (byte)90;
                 ApplyWeightToMapArea(ss.Value.Position, 150000, weight, universeOffSet, grid);
 
