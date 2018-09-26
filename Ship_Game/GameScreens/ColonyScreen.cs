@@ -552,7 +552,7 @@ namespace Ship_Game
                 batch.DrawString(Font12, P.Fertility.ToString(format), position3, color);
             else
             {
-                Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Red;
+                Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Pink;
                 batch.DrawString(Font12, P.Fertility.ToString(format) + " / " + P.MaxFertility.ToString(format), position3, fertColor);
             }
 
