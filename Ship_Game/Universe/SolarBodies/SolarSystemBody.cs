@@ -1262,6 +1262,7 @@ namespace Ship_Game
                 }
             }
         }
+
         public void Terraform()
         {
             switch (PlanetType)
@@ -1270,111 +1271,68 @@ namespace Ship_Game
                     Type = "Barren";
                     PlanetComposition = Localizer.Token(1704);
                     MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 500f);
-                    HasEarthLikeClouds = false;
-                    Habitable = true;
+                    break;
+                case 9:
+                    Type = "Volcanic";
+                    PlanetComposition = Localizer.Token(1705);
+                    MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 200f);
                     break;
                 case 11:
                     Type = "Tundra";
                     PlanetComposition = Localizer.Token(1724);
                     MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
-                    HasEarthLikeClouds = true;
-                    Habitable = true;
                     break;
                 case 14:
                     Type = "Desert";
                     PlanetComposition = Localizer.Token(1725);
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    Habitable = true;
+                    break;
+                case 17:
+                    Type = "Ice";
+                    PlanetComposition = Localizer.Token(1713);
+                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
                     break;
                 case 18:
                     Type = "Steppe";
                     PlanetComposition = Localizer.Token(1726);
-                    HasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
-                    Habitable = true;
                     break;
                 case 19:
                     Type = "Swamp";
                     PlanetComposition = Localizer.Token(1727);
-                    Habitable = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    HasEarthLikeClouds = true;
                     break;
                 case 21:
                     Type = "Oceanic";
                     PlanetComposition = Localizer.Token(1728);
-                    Habitable = true;
-                    HasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
                     break;
                 case 22:
                     Type = "Terran";
                     PlanetComposition = Localizer.Token(1717);
-                    Habitable = true;
-                    HasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(6000f, 10000f);
                     break;
             }
+            HasEarthLikeClouds = true;
+            Habitable = true;
             foreach (PlanetGridSquare planetGridSquare in TilesList)
             {
                 switch (Type)
                 {
                     case "Barren":
                         if (!planetGridSquare.Biosphere)
-                        {
                             planetGridSquare.Habitable = false;
-                            continue;
-                        }
-                        else
-                            continue;
+                        continue;
+                    case "Swamp":
+                    case "Ice":
+                    case "Ocean":
+                    case "Desert":
+                    case "Steppe":
+                    case "Tundra":
                     case "Terran":
                         if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
                             planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Swamp":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Ocean":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Desert":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Steppe":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Tundra":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
+                        continue;
                     default:
                         continue;
                 }
