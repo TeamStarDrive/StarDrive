@@ -46,7 +46,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void PlayPlanetSfx(string name, Vector3 position) => SolarSystemBody.PlayPlanetSfx(name, position);
 
-        private void ApplyBombEnvEffects(float amount)
+        private void ApplyBombEnvEffects(float amount) // added by Fat Bastard
         {
             SolarSystemBody.Population -= 1000f * amount;
             SolarSystemBody.ChangeFertility(-(amount / 2));
