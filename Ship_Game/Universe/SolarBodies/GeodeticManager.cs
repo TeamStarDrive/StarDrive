@@ -54,10 +54,10 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             float envDestructionRoll = RandomMath.RandomBetween(0f, 100f);
-            if (envDestructionRoll > amount * 1000)
+            if (envDestructionRoll > amount * 250)
                 return;
 
-            SolarSystemBody.ChangeMaxFertility(-0.1f);
+            SolarSystemBody.ChangeMaxFertility(-0.02f);
             SolarSystemBody.DegradePlanetType();
         }
 
