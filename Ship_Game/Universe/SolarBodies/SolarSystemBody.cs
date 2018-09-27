@@ -1332,6 +1332,11 @@ namespace Ship_Game
                     case "Terran":
                         if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                             planetGridSquare.Habitable = true;
+                        else
+                        {
+                            planetGridSquare.Habitable = false;
+                            planetGridSquare.Biosphere = false;
+                        }
                         continue;
                     default:
                         continue;

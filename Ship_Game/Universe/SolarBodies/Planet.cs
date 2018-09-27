@@ -643,25 +643,30 @@ namespace Ship_Game
             {
                 case "Barren" when MaxFertility > 0.01:
                     PlanetType = 14; // desert
+                    Terraform();
                     break;
                 case "Desert" when MaxFertility > 0.35:
                     PlanetType = 18; // steppe
+                    Terraform();
                     break;
                 case "Ice" when MaxFertility > 0.35:
                     PlanetType = 19; // swamp
+                    Terraform();
                     break;
                 case "Swamp" when MaxFertility > 0.75:
                     PlanetType = 21; // oceanic
+                    Terraform();
                     break;
                 case "Steppe" when MaxFertility > 0.6:
                     PlanetType = 11; // tundra
+                    Terraform();
                     break;
                 case "Tundra" when MaxFertility > 0.95:
                     PlanetType = 22; // terran
+                    Terraform();
                     break;
             }
             MaxFertility = Math.Max(0, MaxFertility);
-            Terraform();
         }
 
         public void DegradePlanetType()
@@ -671,29 +676,31 @@ namespace Ship_Game
                 // degrade 
                 case "Terran" when MaxFertility < 0.5:
                     PlanetType = 14; // desert
+                    Terraform();
                     break;
                 case "Oceanic" when MaxFertility < 0.5:
                     PlanetType = 17; // ice
+                    Terraform();
                     break;
                 case "Swamp" when MaxFertility < 0.2:
                     PlanetType = 14; // desert
+                    Terraform();
                     break;
                 case "Steppe" when MaxFertility < 0.5:
                     PlanetType = 17; // ice
+                    Terraform();
                     break;
                 case "Tundra" when MaxFertility < 0.5:
                     PlanetType = 14; // desert
+                    Terraform();
                     break;
                 case "Desert" when MaxFertility < 0.1:
-                    PlanetType = 7; // barren
-                    break;
-                case "Barren" when MaxFertility <= 0.0:
-                    if (RandomMath.RandomBetween(0f, 100f) < 5)
-                        PlanetType = 9; // volcanic
+                case "Ice" when MaxFertility < 0.1:
+                    PlanetType = RandomMath.IntBetween(1, 10) > 5 ? 9 : 7; // volcanic or desert
+                    Terraform();
                     break;
             }
             MaxFertility = Math.Max(0, MaxFertility);
-            Terraform();
         }
 
         public void UpdateOwnedPlanet()
