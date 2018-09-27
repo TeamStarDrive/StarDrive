@@ -578,7 +578,6 @@ namespace Ship_Game
                         if (Owner == null) continue;
                         Ship target = null;
                         Ship troop = null;
-                        float currentD = 0;
                         float previousD = building.TheWeapon.Range + 1000f;
                         //float currentT = 0;
                         float previousT = building.TheWeapon.Range + 1000f;
@@ -588,7 +587,7 @@ namespace Ship_Game
                             Ship ship = ParentSystem.ShipList[index2];
                             if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact))
                                 continue;
-                            currentD = Vector2.Distance(Center, ship.Center);
+                            float currentD = Vector2.Distance(Center, ship.Center);
                             if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                             {
                                 previousT = currentD;
@@ -629,42 +628,72 @@ namespace Ship_Game
             UpdatePosition(elapsedTime);
         }
 
-        public void TerraformExternal(float amount) // FB: todo change this for dynamic fertility for random events as well
+        public void TerraformExternal(float amount)
         {
             ChangeMaxFertility(amount);
-            ChangePlanetType();
+            if (amount > 0)
+                ImprovePlanetType();
+            else
+                DegradePlanetType();
         }
 
-        private void ChangePlanetType()
+        public void ImprovePlanetType()
         {
             switch (Type)
             {
                 case "Barren" when MaxFertility > 0.01:
-                    PlanetType = 14;
+                    PlanetType = 14; // desert
                     break;
                 case "Desert" when MaxFertility > 0.35:
-                    PlanetType = 18;
+                    PlanetType = 18; // steppe
                     break;
                 case "Ice" when MaxFertility > 0.35:
-                    PlanetType = 19;
+                    PlanetType = 19; // swamp
                     break;
                 case "Swamp" when MaxFertility > 0.75:
-                    PlanetType = 21;
+                    PlanetType = 21; // oceanic
                     break;
                 case "Steppe" when MaxFertility > 0.6:
-                    PlanetType = 11;
+                    PlanetType = 11; // tundra
                     break;
                 case "Tundra" when MaxFertility > 0.95:
-                    PlanetType = 22;
-                    break;
-                default:
-                    if (MaxFertility <= 0.0f)
-                        PlanetType = 7;
+                    PlanetType = 22; // terran
                     break;
             }
-
+            MaxFertility = Math.Max(0, MaxFertility);
             Terraform();
-            MaxFertility.Clamped(0f, 1f);
+        }
+
+        public void DegradePlanetType()
+        {
+            switch (Type)
+            {
+                // degrade 
+                case "Terran" when MaxFertility < 0.5:
+                    PlanetType = 14; // desert
+                    break;
+                case "Oceanic" when MaxFertility < 0.5:
+                    PlanetType = 17; // ice
+                    break;
+                case "Swamp" when MaxFertility < 0.2:
+                    PlanetType = 14; // desert
+                    break;
+                case "Steppe" when MaxFertility < 0.5:
+                    PlanetType = 17; // ice
+                    break;
+                case "Tundra" when MaxFertility < 0.5:
+                    PlanetType = 14; // desert
+                    break;
+                case "Desert" when MaxFertility < 0.1:
+                    PlanetType = 7; // barren
+                    break;
+                case "Barren" when MaxFertility <= 0.0:
+                    if (RandomMath.RandomBetween(0f, 100f) < 5)
+                        PlanetType = 9; // volcanic
+                    break;
+            }
+            MaxFertility = Math.Max(0, MaxFertility);
+            Terraform();
         }
 
         public void UpdateOwnedPlanet()
@@ -684,7 +713,8 @@ namespace Ship_Game
             if (TerraformPoints > 0.0f && Fertility < 1.0)
             {
                 ChangeMaxFertility(TerraformToAdd);
-                ChangePlanetType();
+                MaxFertility.Clamped(0f, 1f);
+                ImprovePlanetType();
             }
             UpdateFertility();
             DoGoverning();

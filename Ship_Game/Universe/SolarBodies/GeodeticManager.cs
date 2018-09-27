@@ -46,6 +46,21 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void PlayPlanetSfx(string name, Vector3 position) => SolarSystemBody.PlayPlanetSfx(name, position);
 
+        private void ApplyBombEnvEffects(float amount)
+        {
+            SolarSystemBody.Population -= 1000f * amount;
+            SolarSystemBody.ChangeFertility(-(amount / 2));
+            if (SolarSystemBody.Fertility > 0)
+                return;
+
+            float envDestructionRoll = RandomMath.RandomBetween(0f, 100f);
+            if (envDestructionRoll > amount * 1000)
+                return;
+
+            SolarSystemBody.ChangeMaxFertility(-0.1f);
+            SolarSystemBody.DegradePlanetType();
+        }
+
         public void DropBomb(Bomb bomb)
         {
             if (bomb.Owner == Owner)
@@ -57,13 +72,11 @@ namespace Ship_Game.Universe.SolarBodies
             SolarSystemBody.SetInGroundCombat();
             if (ShieldStrengthCurrent <= 0f)
             {
-                float popKilled = ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
-                float ran       = RandomMath.RandomBetween(0f, 100f);
-                bool hit        = !(ran < 75f);
+                float popKilled    = ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+                float ran          = RandomMath.RandomBetween(0f, 100f);
+                bool hit           = !(ran < 75f);
 
-                SolarSystemBody.Population -= 1000f * popKilled;
-                SolarSystemBody.ChangeFertility(-(popKilled / 2));
-
+                ApplyBombEnvEffects(popKilled);
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && ParentSystem.isVisible)
                 {
                     PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
@@ -121,10 +134,14 @@ namespace Ship_Game.Universe.SolarBodies
                         break;
                     }
                 }
+                int troopDamageMin    = ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min;
+                int troopDamageMax    = ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
+                int buildingDamageMin = ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin;
+                int buildingDamageMax = ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
                 if (od.Target.TroopsHere.Count > 0)
                 {
                     Troop item = od.Target.TroopsHere[0];
-                    item.Strength = item.Strength - (int)RandomMath.RandomBetween(ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min, ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max);
+                    item.Strength = item.Strength - (int)RandomMath.RandomBetween(troopDamageMin, troopDamageMax);
                     if (od.Target.TroopsHere[0].Strength <= 0)
                     {
                         TroopsHere.Remove(od.Target.TroopsHere[0]);
@@ -134,7 +151,7 @@ namespace Ship_Game.Universe.SolarBodies
                 else if (od.Target.building != null)
                 {
                     Building target = od.Target.building;
-                    target.Strength = target.Strength - (int)RandomMath.RandomBetween(ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin, ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax);
+                    target.Strength = target.Strength - (int)RandomMath.RandomBetween(buildingDamageMin, buildingDamageMax);
                     if (od.Target.building.CombatStrength > 0)
                     {
                         od.Target.building.CombatStrength = od.Target.building.Strength;
