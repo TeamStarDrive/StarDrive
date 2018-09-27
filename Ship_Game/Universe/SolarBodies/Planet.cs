@@ -637,12 +637,18 @@ namespace Ship_Game
                 DegradePlanetType();
         }
 
-        public void ImprovePlanetType()
+        public void ImprovePlanetType() // Refactored by Fat Bastard
         {
+            // Barren  --> Desert --> Steppe --> Tundra --> Terran
+            // Vocanic --> Ice    --> Swamp  --> Oceanic
             switch (Type)
             {
-                case "Barren" when MaxFertility > 0.01:
+                case "Barren" when MaxFertility > 0.14:
                     PlanetType = 14; // desert
+                    Terraform();
+                    break;
+                case "Volcanic" when MaxFertility > 0.14:
+                    PlanetType = 17; // desert
                     Terraform();
                     break;
                 case "Desert" when MaxFertility > 0.35:
@@ -669,38 +675,59 @@ namespace Ship_Game
             MaxFertility = Math.Max(0, MaxFertility);
         }
 
-        public void DegradePlanetType()
+        public void DegradePlanetType() // Added by Fat Bastard
         {
+            // Terran  --> Desert --> Barren or Volcanic
+            // Oceanic --> Ice    --> Barren or Volcanic
+            // Swamp   --> Ice    --> Barren or Volcanic
+            // Steppe  --> Desert --> Barren or Volcanic
+            // Tundra  --> Desert --> Barren or Volcanic
             switch (Type)
             {
-                // degrade 
                 case "Terran" when MaxFertility < 0.5:
                     PlanetType = 14; // desert
-                    Terraform();
+                    Terraform(recalculateTileHabitation: true);
                     break;
                 case "Oceanic" when MaxFertility < 0.5:
                     PlanetType = 17; // ice
-                    Terraform();
+                    Terraform(recalculateTileHabitation: true);
                     break;
                 case "Swamp" when MaxFertility < 0.2:
-                    PlanetType = 14; // desert
-                    Terraform();
+                    PlanetType = 17; // ice
+                    Terraform(recalculateTileHabitation: true);
                     break;
                 case "Steppe" when MaxFertility < 0.5:
-                    PlanetType = 17; // ice
-                    Terraform();
+                    PlanetType = 14; // desert
+                    Terraform(recalculateTileHabitation: true);
                     break;
                 case "Tundra" when MaxFertility < 0.5:
                     PlanetType = 14; // desert
-                    Terraform();
+                    Terraform(recalculateTileHabitation: true);
                     break;
                 case "Desert" when MaxFertility < 0.1:
                 case "Ice" when MaxFertility < 0.1:
                     PlanetType = RandomMath.IntBetween(1, 10) > 5 ? 9 : 7; // volcanic or desert
-                    Terraform();
+                    Terraform(recalculateTileHabitation: true);
                     break;
             }
             MaxFertility = Math.Max(0, MaxFertility);
+        }
+
+        private void DoTerraforming() // Added by Fat Bastard
+        {
+            TerraformPoints += TerraformToAdd;
+            if (TerraformPoints > 0.0f && Fertility < 1f)
+            {
+                ChangeMaxFertility(TerraformToAdd * 10);
+                MaxFertility.Clamped(0f, 1f);
+                ImprovePlanetType();
+                if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
+                    foreach (PlanetGridSquare planetGridSquare in TilesList)
+                    {
+                        if (planetGridSquare.building?.PlusTerraformPoints > 0)
+                            planetGridSquare.building.ScrapBuilding(this);
+                    }
+            }
         }
 
         public void UpdateOwnedPlanet()
@@ -716,13 +743,7 @@ namespace Ship_Game
             UpdateDevelopmentStatus();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
-            TerraformPoints += TerraformToAdd;
-            if (TerraformPoints > 0.0f && Fertility < 1.0)
-            {
-                ChangeMaxFertility(TerraformToAdd);
-                MaxFertility.Clamped(0f, 1f);
-                ImprovePlanetType();
-            }
+            DoTerraforming();
             UpdateFertility();
             DoGoverning();
             UpdateIncomes(false);

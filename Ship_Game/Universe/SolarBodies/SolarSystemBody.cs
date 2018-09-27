@@ -1263,7 +1263,7 @@ namespace Ship_Game
             }
         }
 
-        public void Terraform()
+        public void Terraform(bool recalculateTileHabitation = false) // Refactored by Fat Bastard
         {
             switch (PlanetType)
             {
@@ -1271,11 +1271,13 @@ namespace Ship_Game
                     Type = "Barren";
                     PlanetComposition = Localizer.Token(1704);
                     MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 500f);
+                    HabitalTileChance = 10;
                     break;
                 case 9:
                     Type = "Volcanic";
                     PlanetComposition = Localizer.Token(1705);
                     MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 200f);
+                    HabitalTileChance = 10;
                     break;
                 case 11:
                     Type = "Tundra";
@@ -1286,43 +1288,49 @@ namespace Ship_Game
                     Type = "Desert";
                     PlanetComposition = Localizer.Token(1725);
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(10f, 40f);
                     break;
                 case 17:
                     Type = "Ice";
                     PlanetComposition = Localizer.Token(1713);
                     MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 30f);
                     break;
                 case 18:
                     Type = "Steppe";
                     PlanetComposition = Localizer.Token(1726);
                     MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(20f, 45f);
                     break;
                 case 19:
                     Type = "Swamp";
                     PlanetComposition = Localizer.Token(1727);
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 50f);
                     break;
                 case 21:
                     Type = "Oceanic";
                     PlanetComposition = Localizer.Token(1728);
                     MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(25f, 55f);
                     break;
                 case 22:
                     Type = "Terran";
                     PlanetComposition = Localizer.Token(1717);
                     MaxPopulation = (int)RandomMath.RandomBetween(6000f, 10000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(50f, 70f);
                     break;
             }
             HasEarthLikeClouds = true;
             Habitable = true;
             foreach (PlanetGridSquare planetGridSquare in TilesList)
             {
+                if (!recalculateTileHabitation && planetGridSquare.Habitable && !planetGridSquare.Biosphere) 
+                    continue;
+
                 switch (Type)
                 {
                     case "Barren":
-                        if (!planetGridSquare.Biosphere)
-                            planetGridSquare.Habitable = false;
-                        continue;
                     case "Swamp":
                     case "Ice":
                     case "Ocean":
@@ -1331,12 +1339,13 @@ namespace Ship_Game
                     case "Tundra":
                     case "Terran":
                         if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                            planetGridSquare.Habitable = true;
-                        else
                         {
-                            planetGridSquare.Habitable = false;
+                            planetGridSquare.Habitable = true;
                             planetGridSquare.Biosphere = false;
                         }
+                        else
+                            planetGridSquare.Habitable = planetGridSquare.Biosphere;
+
                         continue;
                     default:
                         continue;
@@ -1345,8 +1354,11 @@ namespace Ship_Game
             UpdateDescription();
             CreatePlanetSceneObject(Empire.Universe);
         }
+
         private static void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
+
         private static void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
+
         public void ChangeOwnerByInvasion(Empire newOwner)
         {
             if (newOwner.TryGetRelations(Owner, out Relationship rel))
