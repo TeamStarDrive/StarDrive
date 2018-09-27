@@ -718,7 +718,7 @@ namespace Ship_Game
             TerraformPoints += TerraformToAdd;
             if (TerraformPoints > 0.0f && Fertility < 1f)
             {
-                ChangeMaxFertility(TerraformToAdd * 10);
+                ChangeMaxFertility(TerraformToAdd);
                 MaxFertility.Clamped(0f, 1f);
                 ImprovePlanetType();
                 if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
