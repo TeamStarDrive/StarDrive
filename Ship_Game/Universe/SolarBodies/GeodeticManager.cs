@@ -323,9 +323,12 @@ namespace Ship_Game.Universe.SolarBodies
         {
             ship.AI.TerminateResupplyIfDone();
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
-            if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax)
+            if (!HasSpacePort || ship.Health.AlmostEqual(ship.HealthMax))
                 return;
-                 
+
+            if (ship.InCombat)
+                repairPool /= 10; // allow minimal repair for ships near space port even in combat, per turn (good for ships which lost command modules)
+
             int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
             ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
         }
