@@ -341,8 +341,8 @@ namespace Ship_Game.Universe.SolarBodies
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             using (TroopsHere.AcquireWriteLock())
             {
-                if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
-                    TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty
+                    || TroopsHere.Any(troop => troop.GetOwner() != Owner))
                     return;
                 foreach (var pgs in TilesList)
                 {
