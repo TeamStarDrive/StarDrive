@@ -457,7 +457,7 @@ namespace Ship_Game.Ships
                     case ResupplyReason.NotNeeded:
                         if (ship.HealthPercent < ShipResupply.RepairDoneThreshold && (ship.AI.State == AIState.Resupply || ship.AI.State == AIState.ResupplyEscort))
                             text = $"Repairing Ship by Resupply ({(int)(ship.HealthPercent * 100)}%)";
-                        else if (!ship.InCombat && !ship.HealthPercent.AlmostEqual(1))
+                        else if (!ship.InCombat && !ship.HealthPercent.Less(1))
                         {
                             text = $"Self Repairing Ship ({(int)(ship.HealthPercent * 100)}%)";
                             color = Color.Yellow;
