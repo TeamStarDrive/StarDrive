@@ -80,7 +80,8 @@ namespace Ship_Game
             {
                 if (!ResourceManager.TryGetTech(tech.UID, out _))
                     Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
-                else e.TechnologyDict.Add(tech.UID, tech);
+                else
+                    e.TechnologyDict.Add(tech.UID, tech);
             }            
             e.InitializeFromSave();
             e.Money = sdata.Money;
@@ -98,30 +99,31 @@ namespace Ship_Game
                 guid = psdata.guid,
                 Name = psdata.Name
             };
+
             if (!string.IsNullOrEmpty(psdata.Owner))
             {
                 p.Owner = EmpireManager.GetEmpireByName(psdata.Owner);
                 p.Owner.AddPlanet(p);
             }
+
             if(!string.IsNullOrEmpty(psdata.SpecialDescription))
-            {
                 p.SpecialDescription = psdata.SpecialDescription;
-            }
+
             if (psdata.Scale > 0f)
-            {
                 p.Scale = psdata.Scale;
-            }
             else
             {
                 float scale = RandomMath.RandomBetween(1f, 2f);
                 p.Scale = scale;
             }
+
             p.colonyType = psdata.ColonyType;
             if (!psdata.GovernorOn)
             {
                 p.GovernorOn = false;
                 p.colonyType = Planet.ColonyType.Colony;
             }
+
             p.OrbitalAngle          = psdata.OrbitalAngle;
             p.FS                    = psdata.FoodState;
             p.PS                    = psdata.ProdState;
@@ -130,8 +132,10 @@ namespace Ship_Game
             p.ResLocked             = psdata.ResLock;
             p.OrbitalRadius         = psdata.OrbitalDistance;
             p.MaxPopulation         = psdata.PopulationMax;
-                   
-            p.Fertility             = psdata.Fertility;
+
+            p.InitFertility(psdata.Fertility);
+            p.InitMaxFertility(psdata.MaxFertility);
+
             p.MineralRichness       = psdata.Richness;
             p.TerraformPoints       = psdata.TerraformPoints;
             p.HasRings              = psdata.HasRings;
@@ -150,9 +154,8 @@ namespace Ship_Game
             
 
             if (p.HasRings)
-            {
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
-            }
+
             foreach (SavedGame.PGSData d in psdata.PGSList)
             {
                 var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable)
@@ -160,9 +163,7 @@ namespace Ship_Game
                     Biosphere = d.Biosphere
                 };
                 if (pgs.Biosphere)
-                {
                     p.BuildingList.Add(ResourceManager.CreateBuilding("Biospheres"));
-                }
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
