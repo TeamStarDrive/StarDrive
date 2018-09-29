@@ -578,7 +578,6 @@ namespace Ship_Game
                         if (Owner == null) continue;
                         Ship target = null;
                         Ship troop = null;
-                        float currentD = 0;
                         float previousD = building.TheWeapon.Range + 1000f;
                         //float currentT = 0;
                         float previousT = building.TheWeapon.Range + 1000f;
@@ -588,7 +587,7 @@ namespace Ship_Game
                             Ship ship = ParentSystem.ShipList[index2];
                             if (ship.loyalty == Owner || (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact))
                                 continue;
-                            currentD = Vector2.Distance(Center, ship.Center);
+                            float currentD = Vector2.Distance(Center, ship.Center);
                             if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                             {
                                 previousT = currentD;
@@ -631,44 +630,103 @@ namespace Ship_Game
 
         public void TerraformExternal(float amount)
         {
-            Fertility += amount;
-            if (Fertility <= 0.0)
-            {
-                Fertility = 0.0f;
-                PlanetType = 7;
-                Terraform();
-            }
-            else if (Type == "Barren" && Fertility > 0.01)
-            {
-                PlanetType = 14;
-                Terraform();
-            }
-            else if (Type == "Desert" && Fertility > 0.35)
-            {
-                PlanetType = 18;
-                Terraform();
-            }
-            else if (Type == "Ice" && Fertility > 0.35)
-            {
-                PlanetType = 19;
-                Terraform();
-            }
-            else if (Type == "Swamp" && Fertility > 0.75)
-            {
-                PlanetType = 21;
-                Terraform();
-            }
-            else if (Type == "Steppe" && Fertility > 0.6)
-            {
-                PlanetType = 11;
-                Terraform();
-            }
+            ChangeMaxFertility(amount);
+            if (amount > 0)
+                ImprovePlanetType();
             else
+                DegradePlanetType();
+        }
+
+        public void ImprovePlanetType() // Refactored by Fat Bastard
+        {
+            // Barren  --> Desert --> Steppe --> Tundra --> Terran
+            // Vocanic --> Ice    --> Swamp  --> Oceanic
+            switch (Type)
             {
-                if (!(Type == "Tundra") || Fertility <= 0.95)
-                    return;
-                PlanetType = 22;
-                Terraform();
+                case "Barren" when MaxFertility > 0.14:
+                    PlanetType = 14; // desert
+                    Terraform();
+                    break;
+                case "Volcanic" when MaxFertility > 0.14:
+                    PlanetType = 17; // desert
+                    Terraform();
+                    break;
+                case "Desert" when MaxFertility > 0.35:
+                    PlanetType = 18; // steppe
+                    Terraform();
+                    break;
+                case "Ice" when MaxFertility > 0.35:
+                    PlanetType = 19; // swamp
+                    Terraform();
+                    break;
+                case "Swamp" when MaxFertility > 0.75:
+                    PlanetType = 21; // oceanic
+                    Terraform();
+                    break;
+                case "Steppe" when MaxFertility > 0.6:
+                    PlanetType = 11; // tundra
+                    Terraform();
+                    break;
+                case "Tundra" when MaxFertility > 0.95:
+                    PlanetType = 22; // terran
+                    Terraform();
+                    break;
+            }
+            MaxFertility = Math.Max(0, MaxFertility);
+        }
+
+        public void DegradePlanetType() // Added by Fat Bastard
+        {
+            // Terran  --> Desert --> Barren or Volcanic
+            // Oceanic --> Ice    --> Barren or Volcanic
+            // Swamp   --> Ice    --> Barren or Volcanic
+            // Steppe  --> Desert --> Barren or Volcanic
+            // Tundra  --> Desert --> Barren or Volcanic
+            switch (Type)
+            {
+                case "Terran" when MaxFertility < 0.5:
+                    PlanetType = 14; // desert
+                    Terraform(recalculateTileHabitation: true);
+                    break;
+                case "Oceanic" when MaxFertility < 0.5:
+                    PlanetType = 17; // ice
+                    Terraform(recalculateTileHabitation: true);
+                    break;
+                case "Swamp" when MaxFertility < 0.2:
+                    PlanetType = 17; // ice
+                    Terraform(recalculateTileHabitation: true);
+                    break;
+                case "Steppe" when MaxFertility < 0.5:
+                    PlanetType = 14; // desert
+                    Terraform(recalculateTileHabitation: true);
+                    break;
+                case "Tundra" when MaxFertility < 0.5:
+                    PlanetType = 14; // desert
+                    Terraform(recalculateTileHabitation: true);
+                    break;
+                case "Desert" when MaxFertility < 0.1:
+                case "Ice" when MaxFertility < 0.1:
+                    PlanetType = RandomMath.IntBetween(1, 10) > 5 ? 9 : 7; // volcanic or desert
+                    Terraform(recalculateTileHabitation: true);
+                    break;
+            }
+            MaxFertility = Math.Max(0, MaxFertility);
+        }
+
+        private void DoTerraforming() // Added by Fat Bastard
+        {
+            TerraformPoints += TerraformToAdd;
+            if (TerraformPoints > 0.0f && Fertility < 1f)
+            {
+                ChangeMaxFertility(TerraformToAdd);
+                MaxFertility.Clamped(0f, 1f);
+                ImprovePlanetType();
+                if (MaxFertility.AlmostEqual(1f)) // remove Terraformers - their job is done
+                    foreach (PlanetGridSquare planetGridSquare in TilesList)
+                    {
+                        if (planetGridSquare.building?.PlusTerraformPoints > 0)
+                            planetGridSquare.building.ScrapBuilding(this);
+                    }
             }
         }
 
@@ -685,43 +743,8 @@ namespace Ship_Game
             UpdateDevelopmentStatus();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
-            TerraformPoints += TerraformToAdd;
-            if (TerraformPoints > 0.0f && Fertility < 1.0)
-            {
-                Fertility += TerraformToAdd;
-                if (Type == "Barren" && Fertility > 0.01)
-                {
-                    PlanetType = 14;
-                    Terraform();
-                }
-                else if (Type == "Desert" && Fertility > 0.35)
-                {
-                    PlanetType = 18;
-                    Terraform();
-                }
-                else if (Type == "Ice" && Fertility > 0.35)
-                {
-                    PlanetType = 19;
-                    Terraform();
-                }
-                else if (Type == "Swamp" && Fertility > 0.75)
-                {
-                    PlanetType = 21;
-                    Terraform();
-                }
-                else if (Type == "Steppe" && Fertility > 0.6)
-                {
-                    PlanetType = 11;
-                    Terraform();
-                }
-                else if (Type == "Tundra" && Fertility > 0.95)
-                {
-                    PlanetType = 22;
-                    Terraform();
-                }
-                if (Fertility > 1.0)
-                    Fertility = 1f;
-            }
+            DoTerraforming();
+            UpdateFertility();
             DoGoverning();
             UpdateIncomes(false);
 
@@ -2198,13 +2221,13 @@ namespace Ship_Game
         private void BuildBuildings(float budget)
         {
             //Do some existing bulding recon
-            int openTiles = TilesList.Count(tile => tile.Habitable && tile.building == null);
+            int openTiles      = TilesList.Count(tile => tile.Habitable && tile.building == null);
             int totalbuildings = TilesList.Count(tile => tile.building != null && tile.building.Name != "Biospheres");
 
             //Construction queue recon
-            bool buildingInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
+            bool buildingInTheWorks  = SbProduction.ConstructionQueue.Any(building => building.isBuilding);
             bool militaryBInTheWorks = SbProduction.ConstructionQueue.Any(building => building.isBuilding && building.Building.CombatStrength > 0);
-            bool lotsInQueueToBuild = ConstructionQueue.Count >= 4;
+            bool lotsInQueueToBuild  = ConstructionQueue.Count >= 4;
 
 
             //New Build Logic by Gretman
@@ -2230,16 +2253,11 @@ namespace Ship_Game
         {
             if (Name == "Cordron Vf") Debugger.Break();
 
-            float buildingValue = 0.0f;
-            float costWeight = 0.0f;
-
-            Building bldg = null;
-
             for (int i = 0; i < BuildingList.Count; i++)
             {
-                buildingValue = 0;
-                costWeight = 0;
-                bldg = BuildingList[i];
+                float buildingValue = 0;
+                float costWeight    = 0;
+                Building bldg       = BuildingList[i];
                 if (bldg.Name == "Biospheres" || !bldg.Scrappable || bldg.IsPlayerAdded) continue;
 
                 costWeight     = EvaluateBuildingScrapWeight(bldg, income);
@@ -2284,6 +2302,47 @@ namespace Ship_Game
             return income;
         }
 
+        private void UpdateFertility()
+        {
+            if (Fertility.AlmostEqual(MaxFertility))
+                return;
+
+            if (Fertility < MaxFertility)
+                Fertility += 0.01f;
+            else
+                Fertility -= 0.01f;
+
+            Fertility.Clamped(0, MaxFertility);
+        }
+
+        public void ChangeMaxFertility(float amount)
+        {
+            MaxFertility += amount;
+            MaxFertility  = Math.Max(0, MaxFertility);
+        }
+
+        public void ChangeFertility(float amount) // FB: to enable bombs to temp change ferility immediately by specified amount
+        {
+            Fertility += amount;
+            Fertility  = Math.Max(0, Fertility);
+        }
+
+        public void InitFertility(float amount)
+        {
+            Fertility = amount;
+        }
+
+        public void InitMaxFertility(float amount)
+        {
+            MaxFertility = amount;
+        }
+
+        public void InitFertilityValues(float amount)
+        {
+            InitFertility(amount);
+            InitMaxFertility(amount);
+        }
+
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
@@ -2309,94 +2368,83 @@ namespace Ship_Game
             {
                 case ColonyType.TradeHub:
                 case ColonyType.Core:
+                    //New resource management by Gretman
+                    FarmerPercentage = CalculateFoodWorkers();
+                    FillOrResearch(1 - FarmerPercentage);
+
+                    if (colonyType == ColonyType.TradeHub)
                     {
-                        //New resource management by Gretman
-                        FarmerPercentage = CalculateFoodWorkers();
-                        FillOrResearch(1 - FarmerPercentage);
-
-                        if (colonyType == ColonyType.TradeHub)
-                        {
-                            DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
-                            DetermineProdState(0.15f, 0.95f);
-                            break;
-                        }
-
-                        BuildBuildings(budget);
-
-                        DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
-                        DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
-
+                        DetermineFoodState(0.15f, 0.95f);   //Minimal Intervention for the Tradehub, so the player can control it except in extreme cases
+                        DetermineProdState(0.15f, 0.95f);
                         break;
                     }
 
+                    BuildBuildings(budget);
+
+                    DetermineFoodState(0.25f, 0.666f);   //these will evaluate to: Start Importing if stores drop below 25%, and stop importing once stores are above 50%.
+                    DetermineProdState(0.25f, 0.666f);   //                        Start Exporting if stores are above 66%, but dont stop exporting unless stores drop below 33%.
+
+                    break;
                 case ColonyType.Industrial:
-                    {
-                        //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
-                        FarmerPercentage = FarmToPercentage(0.333f);
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(1));
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
+                    //Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
+                    FarmerPercentage = FarmToPercentage(0.333f);
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(1));
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
-                        DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineFoodState(0.50f, 1.0f);     //Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                    DetermineProdState(0.15f, 0.666f);   //Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
 
-                        break;
-                    }
+                    break;
 
                 case ColonyType.Research:
-                    {
-                        //This governor will rely on imports, focusing on research as long as no one is starving
-                        FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
+                    //This governor will rely on imports, focusing on research as long as no one is starving
+                    FarmerPercentage = FarmToPercentage(0.333f);    //Farm to a small savings, and prevent starvation
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));        //Save a litle production too
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
-                        DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
+                    DetermineFoodState(0.50f, 1.0f);     //Import if either drops below 50%, and stop importing once stores reach 100%.
+                    DetermineProdState(0.50f, 1.0f);     //This planet will only export Food or Prod if there is excess FlatFood or FlatProd
 
-                        break;
-                    }
+                    break;
 
                 case ColonyType.Agricultural:
-                    {
-                        FarmerPercentage = FarmToPercentage(1);     //Farm all you can
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
+                    FarmerPercentage = FarmToPercentage(1);     //Farm all you can
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.333f));    //Then work to a small savings
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Otherwise, research!
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
-                        DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
+                    DetermineFoodState(0.15f, 0.666f);   //Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    DetermineProdState(0.50f, 1.000f);   //Start Importing if prod drops below 50%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
 
-                        break;
-                    }
+                    break;
 
                 case ColonyType.Military:    //This on is incomplete
-                    {
-                        FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
-                        WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
-                        if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
-                        ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
+                    FarmerPercentage = FarmToPercentage(0.5f);     //Keep everyone fed, but dont be desperate for imports
+                    WorkerPercentage = Math.Min(1 - FarmerPercentage, WorkToPercentage(0.5f));    //Keep some prod handy
+                    if (ConstructionQueue.Count > 0) WorkerPercentage = Math.Max(WorkerPercentage, (1 - FarmerPercentage) * 0.5f);
+                    ResearcherPercentage = Math.Max(1 - FarmerPercentage - WorkerPercentage, 0);    //Research if bored
 
-                        BuildBuildings(budget);
+                    BuildBuildings(budget);
 
-                        DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
-                        DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
+                    DetermineFoodState(0.4f, 1.0f);     //Import if either drops below 40%, and stop importing once stores reach 80%.
+                    DetermineProdState(0.4f, 1.0f);     //This planet will only export Food or Prod due to excess FlatFood or FlatProd
 
-                        break;
-                    }
+                    break;
+
             } //End Gov type Switch
 
             if (ConstructionQueue.Count < 5 && !ParentSystem.CombatInSystem && DevelopmentLevel > 2 &&
                 colonyType != ColonyType.Research)
 
-                #region Troops and platforms
-
+            #region Troops and platforms
             {
                 //Added by McShooterz: build defense platforms
 
@@ -2411,7 +2459,7 @@ namespace Ship_Game
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
                         float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
                         string station = Owner.GetGSAI().GetStarBase();
-                        int PlatformCount = 0;
+                        int platformCount = 0;
                         int stationCount = 0;
                         foreach (QueueItem queueItem in ConstructionQueue)
                         {
@@ -2425,7 +2473,7 @@ namespace Ship_Game
                                     continue;
                                 }
                                 defBudget -= platformUpkeep;
-                                PlatformCount++;
+                                platformCount++;
                             }
                             if (queueItem.sData.HullRole == ShipData.RoleName.station)
                             {
@@ -2439,13 +2487,14 @@ namespace Ship_Game
                             }
                         }
 
-                        foreach (Ship platform in Shipyards.Values)
-                        {
+                    foreach (Ship platform in Shipyards.Values)
+                    {
 
-                            if (platform.AI.State == AIState.Scrap)
-                                continue;
-                            if (platform.shipData.HullRole == ShipData.RoleName.station )
-                            {
+                        if (platform.AI.State == AIState.Scrap)
+                            continue;
+                        switch (platform.shipData.HullRole)
+                        {
+                            case ShipData.RoleName.station:
                                 stationUpkeep = platform.GetMaintCost();
                                 if (defBudget - stationUpkeep < -stationUpkeep)
                                 {
@@ -2454,10 +2503,8 @@ namespace Ship_Game
                                 }
                                 defBudget -= stationUpkeep;
                                 stationCount++;
-                            }
-                            if (platform.shipData.HullRole == ShipData.RoleName.platform
-                            )
-                            {
+                                break;
+                            case ShipData.RoleName.platform:
                                 platformUpkeep = platform.GetMaintCost();
                                 if (defBudget - platformUpkeep < -platformUpkeep)
                                 {
@@ -2466,31 +2513,31 @@ namespace Ship_Game
                                     continue;
                                 }
                                 defBudget -= platformUpkeep;
-                                PlatformCount++;
-                            }
+                                platformCount++;
+                                break;
                         }
+                    }
 
-                        if (defBudget > stationUpkeep &&
-                            stationCount < (int) (systemCommander.RankImportance * .5f)
-                            && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                    if (defBudget > stationUpkeep 
+                        && stationCount < (int) (systemCommander.RankImportance * .5f)
+                        && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                    {
+                        if (!string.IsNullOrEmpty(station))
                         {
-                            if (!string.IsNullOrEmpty(station))
-                            {
-                                Ship ship = ResourceManager.ShipsDict[station];
-                                if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
-                                    ConstructionQueue.Add(new QueueItem(this)
-                                    {
-                                        isShip = true,
-                                        sData = ship.shipData,
-                                        Cost = ship.GetCost(Owner)
-                                    });
-                            }
-                            defBudget -= stationUpkeep;
+                            Ship ship = ResourceManager.ShipsDict[station];
+                            if (ship.GetCost(Owner) / GrossProductionPerTurn < 10)
+                                ConstructionQueue.Add(new QueueItem(this)
+                                {
+                                    isShip = true,
+                                    sData = ship.shipData,
+                                    Cost = ship.GetCost(Owner)
+                                });
                         }
+                        defBudget -= stationUpkeep;
+                    }
                         if (defBudget > platformUpkeep
-                            && PlatformCount <
-                            systemCommander.RankImportance
-                            && PlatformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
+                            && platformCount < systemCommander.RankImportance
+                            && platformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
                             string platform = Owner.GetGSAI().GetDefenceSatellite();
                             if (!string.IsNullOrEmpty(platform))
@@ -2563,7 +2610,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void UpdateIncomes(bool LoadUniverse)
+        public void UpdateIncomes(bool loadUniverse)
         {
             if (Owner == null)
                 return;
@@ -2586,7 +2633,7 @@ namespace Ship_Game
             Array<Guid> list = new Array<Guid>();
             float shipyards =1;
 
-            if (!LoadUniverse)
+            if (!loadUniverse)
             foreach (KeyValuePair<Guid, Ship> keyValuePair in Shipyards)
             {
                 if (keyValuePair.Value == null)
@@ -2594,15 +2641,11 @@ namespace Ship_Game
 
                 else if (keyValuePair.Value.Active && keyValuePair.Value.shipData.IsShipyard)
                 {
-
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
-                    {
                         shipbuildingmodifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
-                    }
                     else
-                    {
                         shipbuildingmodifier *= (1-(.25f/shipyards));
-                    }
+
                     shipyards += .2f;
                 }
                 else if (!keyValuePair.Value.Active)
@@ -2648,7 +2691,7 @@ namespace Ship_Game
                 RepairPerTurn += building.ShipRepair;
             }
 
-            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner); ;
+            TotalDefensiveStrength = (int)TroopManager.GetGroundStrength(Owner);
 
             //Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             if (ShieldStrengthCurrent > ShieldStrengthMax) ShieldStrengthCurrent = ShieldStrengthMax;
@@ -2677,7 +2720,7 @@ namespace Ship_Game
             GrossProductionPerTurn = GrossProductionPerTurn + Owner.data.Traits.ProductionMod * GrossProductionPerTurn;
 
 
-            if (Station != null && !LoadUniverse)
+            if (Station != null && !loadUniverse)
             {
                 if (!HasShipyard)
                     Station.SetVisibility(false, Empire.Universe.ScreenManager, this);

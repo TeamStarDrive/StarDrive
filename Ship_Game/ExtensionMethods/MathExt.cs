@@ -817,6 +817,12 @@ namespace Ship_Game
             return a > b && !AlmostEqual(a, b);
         }
 
+        /// <summary>Returns true if a less than b and not almost equal</summary>
+        public static bool Less(this float a, float b)
+        {
+            return a < b && !AlmostEqual(a, b);
+        }
+
         /// <summary>Returns true if x is inside the range of [min .. max]</summary>
         public static bool InRange(this float x, float min, float max)
         {
