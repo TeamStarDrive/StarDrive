@@ -2458,13 +2458,10 @@ namespace Ship_Game
 
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
                         float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
-<<<<<<< local
+
                         string station = Owner.GetEmpireAI().GetStarBase();
-                        int PlatformCount = 0;
-=======
-                        string station = Owner.GetGSAI().GetStarBase();
                         int platformCount = 0;
->>>>>>> other
+
                         int stationCount = 0;
                         foreach (QueueItem queueItem in ConstructionQueue)
                         {
@@ -2523,7 +2520,7 @@ namespace Ship_Game
                         }
                     }
 
-                    if (defBudget > stationUpkeep 
+                    if (defBudget > stationUpkeep
                         && stationCount < (int) (systemCommander.RankImportance * .5f)
                         && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                     {
