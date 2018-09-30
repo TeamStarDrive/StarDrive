@@ -893,7 +893,7 @@ Drag a selection box around the area of the galaxy you want to define as the AO.
     </Token>
     <Token>
       <Index>219</Index>
-      <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate)</Text>
+      <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time.</Text>
     </Token>
 
     <Token>
@@ -2954,7 +2954,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1001</Index>
-      <Text>A bomb bay that allows a ship to strike a planet with low-yield tactical nuclear bombs.</Text>
+      <Text>A bomb bay that allows a ship to strike a planet with low-yield tactical nuclear bombs. The Target planet will suffer temporary reduction to its Fertility level. Constant bombing might permanently reduce fertility and even change the plant climate forever.</Text>
     </Token>
     <Token>
       <Index>1002</Index>
@@ -6393,7 +6393,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>929</Index>
-      <Text>A bomb bay specially equipped to deliver prion-based death spore ordnance to planetary surfaces. This weapon is ineffective against hard targets but very effective against ground troops and planetary population.</Text>
+      <Text>A bomb bay specially equipped to deliver prion-based death spore ordnance to planetary surfaces. This weapon is ineffective against hard targets but very effective against ground troops and planetary population. The Target planet will suffer temporary reduction to its Fertility level. Constant bombing might permanently reduce fertility and even change the plant climate forever.</Text>
     </Token>
     <Token>
       <Index>909</Index>

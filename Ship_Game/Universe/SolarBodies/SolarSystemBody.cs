@@ -95,7 +95,8 @@ namespace Ship_Game
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         protected float HabitalTileChance = 10;        
         public float Density;
-        public float Fertility;
+        public float Fertility { get; protected set; }
+        public float MaxFertility { get; protected set; }
         public float MineralRichness;
         public float MaxPopulation;
         public Array<Building> BuildingList = new Array<Building>();
@@ -394,6 +395,7 @@ namespace Ship_Game
                     Zone = SunZone.Habital;
                     break;
             }
+            MaxFertility = Fertility;
         }
         public void SetPlanetAttributes(bool setType = true)
         {
@@ -742,6 +744,7 @@ namespace Ship_Game
                     HabitalTileChance = 50;
                     break;
             }
+            MaxFertility = Fertility;
 
             if (!Habitable)
                 MineralRichness = 0.0f;
@@ -1013,7 +1016,7 @@ namespace Ship_Game
                 var planet1 = this;
                 string str1 = planet1.Description + Name + " " + PlanetComposition + ". ";
                 planet1.Description = str1;
-                if (Fertility > 2)
+                if (MaxFertility > 2)
                 {
                     if (PlanetType == 21)
                     {
@@ -1034,7 +1037,7 @@ namespace Ship_Game
                         planet2.Description = str2;
                     }
                 }
-                else if (Fertility > 1)
+                else if (MaxFertility > 1)
                 {
                     if (PlanetType == 19)
                     {
@@ -1057,7 +1060,7 @@ namespace Ship_Game
                         planet2.Description = str2;
                     }
                 }
-                else if (Fertility > 0.6f)
+                else if (MaxFertility > 0.6f)
                 {
                     if (PlanetType == 14)
                     {
@@ -1196,7 +1199,7 @@ namespace Ship_Game
                             break;
                     }
                 }
-                if (Fertility < 0.6f && MineralRichness >= 2 && Habitable)
+                if (MaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
                 {
                     var planet2 = this;
                     string str2 = planet2.Description + Localizer.Token(1754);
@@ -1259,7 +1262,8 @@ namespace Ship_Game
                 }
             }
         }
-        public void Terraform()
+
+        public void Terraform(bool recalculateTileHabitation = false) // Refactored by Fat Bastard
         {
             switch (PlanetType)
             {
@@ -1267,111 +1271,82 @@ namespace Ship_Game
                     Type = "Barren";
                     PlanetComposition = Localizer.Token(1704);
                     MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 500f);
-                    HasEarthLikeClouds = false;
-                    Habitable = true;
+                    HabitalTileChance = 10;
+                    break;
+                case 9:
+                    Type = "Volcanic";
+                    PlanetComposition = Localizer.Token(1705);
+                    MaxPopulation = (int)RandomMath.RandomBetween(0.0f, 200f);
+                    HabitalTileChance = 10;
                     break;
                 case 11:
                     Type = "Tundra";
                     PlanetComposition = Localizer.Token(1724);
                     MaxPopulation = (int)RandomMath.RandomBetween(4000f, 8000f);
-                    HasEarthLikeClouds = true;
-                    Habitable = true;
                     break;
                 case 14:
                     Type = "Desert";
                     PlanetComposition = Localizer.Token(1725);
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    Habitable = true;
+                    HabitalTileChance = RandomMath.AvgRandomBetween(10f, 40f);
+                    break;
+                case 17:
+                    Type = "Ice";
+                    PlanetComposition = Localizer.Token(1713);
+                    MaxPopulation = (int)RandomMath.RandomBetween(100f, 500f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 30f);
                     break;
                 case 18:
                     Type = "Steppe";
                     PlanetComposition = Localizer.Token(1726);
-                    HasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(2000f, 4000f);
-                    Habitable = true;
+                    HabitalTileChance = RandomMath.AvgRandomBetween(20f, 45f);
                     break;
                 case 19:
                     Type = "Swamp";
                     PlanetComposition = Localizer.Token(1727);
-                    Habitable = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(1000f, 3000f);
-                    HasEarthLikeClouds = true;
+                    HabitalTileChance = RandomMath.AvgRandomBetween(15f, 50f);
                     break;
                 case 21:
                     Type = "Oceanic";
                     PlanetComposition = Localizer.Token(1728);
-                    Habitable = true;
-                    HasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(3000f, 6000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(25f, 55f);
                     break;
                 case 22:
                     Type = "Terran";
                     PlanetComposition = Localizer.Token(1717);
-                    Habitable = true;
-                    HasEarthLikeClouds = true;
                     MaxPopulation = (int)RandomMath.RandomBetween(6000f, 10000f);
+                    HabitalTileChance = RandomMath.AvgRandomBetween(50f, 70f);
                     break;
             }
+            HasEarthLikeClouds = true;
+            Habitable = true;
             foreach (PlanetGridSquare planetGridSquare in TilesList)
             {
+                if (!recalculateTileHabitation && planetGridSquare.Habitable && !planetGridSquare.Biosphere) 
+                    continue;
+
                 switch (Type)
                 {
                     case "Barren":
-                        if (!planetGridSquare.Biosphere)
-                        {
-                            planetGridSquare.Habitable = false;
-                            continue;
-                        }
-                        else
-                            continue;
+                    case "Swamp":
+                    case "Ice":
+                    case "Ocean":
+                    case "Desert":
+                    case "Steppe":
+                    case "Tundra":
                     case "Terran":
                         if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
                         {
                             planetGridSquare.Habitable = true;
-                            continue;
+                            planetGridSquare.Biosphere = false;
                         }
                         else
-                            continue;
-                    case "Swamp":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Ocean":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Desert":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Steppe":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case "Tundra":
-                        if ((int)RandomMath.RandomBetween(0.0f, 100f) < HabitalTileChance)
-                        {
-                            planetGridSquare.Habitable = true;
-                            continue;
-                        }
-                        else
-                            continue;
+                            planetGridSquare.Habitable = planetGridSquare.Biosphere;
+
+                        continue;
                     default:
                         continue;
                 }
@@ -1379,8 +1354,11 @@ namespace Ship_Game
             UpdateDescription();
             CreatePlanetSceneObject(Empire.Universe);
         }
+
         private static void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
+
         private static void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
+
         public void ChangeOwnerByInvasion(Empire newOwner)
         {
             if (newOwner.TryGetRelations(Owner, out Relationship rel))
@@ -1497,6 +1475,5 @@ namespace Ship_Game
         {
             BasedShips.Add(ship);
         }
-
     }
 }
