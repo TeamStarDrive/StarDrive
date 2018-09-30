@@ -218,8 +218,8 @@ namespace Ship_Game
             newOrbital.InitializeSliders(this);
             AddPlanet(newOrbital);
             newOrbital.SetPlanetAttributes(26f);
+            newOrbital.ChangeFertility(2f + data.Traits.HomeworldFertMod);
             newOrbital.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            newOrbital.Fertility       = 2f + data.Traits.HomeworldFertMod;
             newOrbital.MaxPopulation   = 14000f + 14000f * data.Traits.HomeworldSizeMod;
             newOrbital.Population      = 14000f;
             newOrbital.FoodHere        = 100f;
@@ -2607,6 +2607,7 @@ namespace Ship_Game
         public void AddArtifact(Artifact art)
         {
             data.OwnedArtifacts.Add(art);
+<<<<<<< local
             ApplyFertilityChange(art.GetFertilityBonus(data));
             data.Traits.DiplomacyMod         += art.GetDiplomacyBonus(data);
             data.Traits.GroundCombatModifier += art.GetGroundCombatBonus(data);
@@ -2618,11 +2619,60 @@ namespace Ship_Game
             data.SensorModifier              += art.GetSensorMod(data);
             data.ShieldPenBonusChance        += art.GetShieldPenMod(data);
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+=======
+            if (art.DiplomacyMod > 0f)
+            {
+                data.Traits.DiplomacyMod += (art.DiplomacyMod + art.DiplomacyMod * data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                data.EmpireFertilityBonus += art.FertilityMod;
+                foreach (Planet planet in GetPlanets())
+                {
+                    planet.ChangeFertility(art.FertilityMod + art.FertilityMod * data.Traits.Spiritual);
+                }
+
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                data.Traits.GroundCombatModifier += (art.GroundCombatMod + art.GroundCombatMod * data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                data.FlatMoneyBonus += (art.PlusFlatMoney + art.PlusFlatMoney * data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                data.Traits.ProductionMod += (art.ProductionMod + art.ProductionMod * data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                data.Traits.ReproductionMod += (art.ReproductionMod + art.ReproductionMod * data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                data.Traits.ResearchMod += (art.ResearchMod + art.ResearchMod * data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                data.SensorModifier += (art.SensorMod + art.SensorMod * data.Traits.Spiritual);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                data.ShieldPenBonusChance += (art.ShieldPenBonus + art.ShieldPenBonus * data.Traits.Spiritual);
+            }
+>>>>>>> other
         }
 
         public void RemoveArtifact(Artifact art)
         {
             data.OwnedArtifacts.Remove(art);
+<<<<<<< local
             ApplyFertilityChange(-art.GetFertilityBonus(data));
             data.Traits.DiplomacyMod         -= art.GetDiplomacyBonus(data);
             data.Traits.GroundCombatModifier -= art.GetGroundCombatBonus(data);
@@ -2634,6 +2684,59 @@ namespace Ship_Game
             data.SensorModifier              -= art.GetSensorMod(data);
             data.ShieldPenBonusChance        -= art.GetShieldPenMod(data);
             EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+=======
+            if (art.DiplomacyMod > 0f)
+            {
+                data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * data.Traits.Spiritual);
+            }
+            if (art.FertilityMod > 0f)
+            {
+                data.EmpireFertilityBonus -= art.FertilityMod;
+                foreach (Planet planet in GetPlanets())
+                {
+                    planet.ChangeFertility(-(art.FertilityMod + art.FertilityMod * data.Traits.Spiritual));
+                }
+            }
+            if (art.GroundCombatMod > 0f)
+            {
+                data.Traits.GroundCombatModifier -= (art.GroundCombatMod + art.GroundCombatMod * data.Traits.Spiritual);
+            }
+            if (art.ModuleHPMod > 0f)
+            {
+                data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this); // RedFox: This will refresh all empire module stats
+            }
+            if (art.PlusFlatMoney > 0f)
+            {
+                data.FlatMoneyBonus -= (art.PlusFlatMoney + art.PlusFlatMoney * data.Traits.Spiritual);
+            }
+            if (art.ProductionMod > 0f)
+            {
+                data.Traits.ProductionMod -= (art.ProductionMod + art.ProductionMod * data.Traits.Spiritual);
+            }
+            if (art.ReproductionMod > 0f)
+            {
+                data.Traits.ReproductionMod -= (art.ReproductionMod + art.ReproductionMod * data.Traits.Spiritual);
+            }
+            if (art.ResearchMod > 0f)
+            {
+                data.Traits.ResearchMod -= (art.ResearchMod + art.ResearchMod * data.Traits.Spiritual);
+            }
+            if (art.SensorMod > 0f)
+            {
+                data.SensorModifier -= (art.SensorMod + art.SensorMod * data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this);
+            }
+            if (art.ShieldPenBonus > 0f)
+            {
+                data.ShieldPenBonusChance -= (art.ShieldPenBonus + art.ShieldPenBonus * data.Traits.Spiritual);
+                EmpireShipBonuses.RefreshBonuses(this);
+            }
+        }
+
+        private void DeviseExpansionGoal()
+        {
+>>>>>>> other
         }
 
         public void RemoveShip(Ship ship)
