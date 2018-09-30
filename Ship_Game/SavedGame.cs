@@ -58,7 +58,7 @@ namespace Ship_Game
     public sealed class SavedGame
     {
         // Every time the savegame layout changes significantly, this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 1;
+        public const int SaveGameVersion = 2;
 
         public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
