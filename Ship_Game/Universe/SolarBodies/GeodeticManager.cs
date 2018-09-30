@@ -67,14 +67,8 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar && TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner)
-<<<<<<< local
-            {
                 Owner.GetEmpireAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
-            }
-=======
-                Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
 
->>>>>>> other
             SolarSystemBody.SetInGroundCombat();
             if (ShieldStrengthCurrent <= 0f)
             {
