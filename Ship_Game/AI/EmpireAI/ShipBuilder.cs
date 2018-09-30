@@ -91,6 +91,9 @@ namespace Ship_Game.AI
                 && (designation == ShipData.HangarOptions.General || designation == ship.shipData.HangarDesignation)
             );
 
+            if (targetModule != ShipModuleType.Dummy)
+                potentialShips = potentialShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
+
             if (potentialShips.Length == 0)
                 return "";
 
@@ -98,8 +101,6 @@ namespace Ship_Game.AI
             var levelAdjust = new MinMaxStrength(maxStrength, empire);
 
             Ship[] bestShips = potentialShips.FilterBy(ship => levelAdjust.InRange(ship.NormalizedStrength));
-            if (targetModule != ShipModuleType.Dummy)
-                bestShips = bestShips.FilterBy(ship => ship.AnyModulesOf(targetModule));
 
             if (bestShips.Length == 0)
                 return "";
@@ -123,7 +124,7 @@ namespace Ship_Game.AI
         public static string PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).FilterBy(s => s.shipData.Hull == oldShip.shipData.Hull
-                                                              && s.BaseStrength >= oldShip.BaseStrength
+                                                              && s.BaseStrength.Greater(oldShip.BaseStrength)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
                 return "";

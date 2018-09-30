@@ -46,27 +46,46 @@ namespace Ship_Game.Universe.SolarBodies
 
         private void PlayPlanetSfx(string name, Vector3 position) => SolarSystemBody.PlayPlanetSfx(name, position);
 
+        private void ApplyBombEnvEffects(float amount) // added by Fat Bastard
+        {
+            SolarSystemBody.Population -= 1000f * amount;
+            SolarSystemBody.ChangeFertility(-(amount / 2));
+            if (SolarSystemBody.Fertility > 0)
+                return;
+
+            float envDestructionRoll = RandomMath.RandomBetween(0f, 100f);
+            if (envDestructionRoll > amount * 250)
+                return;
+
+            SolarSystemBody.ChangeMaxFertility(-0.02f);
+            SolarSystemBody.DegradePlanetType();
+        }
+
         public void DropBomb(Bomb bomb)
         {
             if (bomb.Owner == Owner)
-            {
                 return;
-            }
+
             if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar && TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner)
+<<<<<<< local
             {
                 Owner.GetEmpireAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             }
+=======
+                Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
+
+>>>>>>> other
             SolarSystemBody.SetInGroundCombat();
             if (ShieldStrengthCurrent <= 0f)
             {
-                float ran = RandomMath.RandomBetween(0f, 100f);
-                bool hit = !(ran < 75f);
-                SolarSystemBody.Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+                float popKilled    = ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
+                float ran          = RandomMath.RandomBetween(0f, 100f);
+                bool hit           = !(ran < 75f);
 
+                ApplyBombEnvEffects(popKilled);
                 if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && ParentSystem.isVisible)
                 {
                     PlayPlanetSfx("sd_bomb_impact_01", bomb.Position);
-
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
                     Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int i = 0; i < 50; i++)
@@ -95,9 +114,8 @@ namespace Ship_Game.Universe.SolarBodies
                     {
                         int ranhit = (int)RandomMath.RandomBetween(0f, potentialHits.Count + 1f);
                         if (ranhit > potentialHits.Count - 1)
-                        {
                             ranhit = potentialHits.Count - 1;
-                        }
+
                         od.Target = potentialHits[ranhit];
                     }
                 }
@@ -116,17 +134,20 @@ namespace Ship_Game.Universe.SolarBodies
                     foreach (PlanetGridSquare pgs in TilesList)
                     {
                         if (pgs.x != column || pgs.y != row)
-                        {
                             continue;
-                        }
+
                         od.Target = pgs;
                         break;
                     }
                 }
+                int troopDamageMin    = ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min;
+                int troopDamageMax    = ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
+                int buildingDamageMin = ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin;
+                int buildingDamageMax = ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax;
                 if (od.Target.TroopsHere.Count > 0)
                 {
                     Troop item = od.Target.TroopsHere[0];
-                    item.Strength = item.Strength - (int)RandomMath.RandomBetween(ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Min, ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max);
+                    item.Strength = item.Strength - (int)RandomMath.RandomBetween(troopDamageMin, troopDamageMax);
                     if (od.Target.TroopsHere[0].Strength <= 0)
                     {
                         TroopsHere.Remove(od.Target.TroopsHere[0]);
@@ -136,7 +157,7 @@ namespace Ship_Game.Universe.SolarBodies
                 else if (od.Target.building != null)
                 {
                     Building target = od.Target.building;
-                    target.Strength = target.Strength - (int)RandomMath.RandomBetween(ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMin, ResourceManager.WeaponsDict[bomb.WeaponName].BombHardDamageMax);
+                    target.Strength = target.Strength - (int)RandomMath.RandomBetween(buildingDamageMin, buildingDamageMax);
                     if (od.Target.building.CombatStrength > 0)
                     {
                         od.Target.building.CombatStrength = od.Target.building.Strength;
@@ -308,9 +329,12 @@ namespace Ship_Game.Universe.SolarBodies
         {
             ship.AI.TerminateResupplyIfDone();
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
-            if (!HasSpacePort || ship.InCombat || ship.Health >= ship.HealthMax)
+            if (!HasSpacePort || ship.Health.AlmostEqual(ship.HealthMax))
                 return;
-                 
+
+            if (ship.InCombat)
+                repairPool /= 10; // allow minimal repair for ships near space port even in combat, per turn (good for ships which lost command modules)
+
             int repairLevel = SolarSystemBody.DevelopmentLevel + CountShipYards();
             ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
         }
@@ -323,8 +347,8 @@ namespace Ship_Game.Universe.SolarBodies
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             using (TroopsHere.AcquireWriteLock())
             {
-                if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty ||
-                    TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                if ((ParentSystem.combatTimer > 0 && ship.InCombat) || TroopsHere.IsEmpty
+                    || TroopsHere.Any(troop => troop.GetOwner() != Owner))
                     return;
                 foreach (var pgs in TilesList)
                 {

@@ -58,7 +58,7 @@ namespace Ship_Game
     public sealed class SavedGame
     {
         // Every time the savegame layout changes significantly, this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 1;
+        public const int SaveGameVersion = 2;
 
         public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
@@ -150,6 +150,7 @@ namespace Ship_Game
                             Population           = ring.planet.Population,
                             PopulationMax        = ring.planet.MaxPopulation,
                             Fertility            = ring.planet.Fertility,
+                            MaxFertility         = ring.planet.MaxFertility,
                             Richness             = ring.planet.MineralRichness,
                             Owner                = ring.planet.Owner?.data.Traits.Name ?? "",
                             WhichPlanet          = ring.planet.PlanetType,
@@ -803,6 +804,7 @@ namespace Ship_Game
             [Serialize(30)] public bool ResLock;
             [Serialize(31)] public bool ProdLock;
             [Serialize(32)] public float ShieldStrength;
+            [Serialize(33)] public float MaxFertility;
         }
 
         public struct ProjectileSaveData
