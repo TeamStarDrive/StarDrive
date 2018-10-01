@@ -76,7 +76,7 @@ namespace Ship_Game.AI {
                                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                                         Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
                                 else
-                                    Relationship.Key.GetGSAI()
+                                    Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                             AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust);
@@ -106,7 +106,7 @@ namespace Ship_Game.AI {
                                     continue;
                                 }
 
-                                Relationship.Key.GetGSAI()
+                                Relationship.Key.GetEmpireAI()
                                     .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                                 continue;
                             }
@@ -129,7 +129,7 @@ namespace Ship_Game.AI {
                                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                                         Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
                                 else
-                                    Relationship.Key.GetGSAI()
+                                    Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                             if (Relationship.Value.TurnsKnown > FirstDemand && Relationship.Value.Treaty_NAPact)
@@ -281,7 +281,7 @@ namespace Ship_Game.AI {
                     {
                         TradeTreaty = true
                     };
-                    Relationship.Key.GetGSAI()
+                    Relationship.Key.GetEmpireAI()
                         .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                 }
                 float usedTrust = 0f;
@@ -403,7 +403,7 @@ namespace Ship_Game.AI {
                         };
                         if (Relationship.Key != Empire.Universe.PlayerEmpire)
                         {
-                            Relationship.Key.GetGSAI()
+                            Relationship.Key.GetEmpireAI()
                                 .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                             continue;
                         }
@@ -451,7 +451,7 @@ namespace Ship_Game.AI {
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 if (Relationship.Key != Empire.Universe.PlayerEmpire)
                                 {
-                                    Relationship.Key.GetGSAI()
+                                    Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(DemandTech, TheirDemand, OwnerEmpire, Offer.Attitude.Threaten);
                                 }
                                 else
@@ -516,7 +516,7 @@ namespace Ship_Game.AI {
                     {
                         TradeTreaty = true
                     };
-                    Relationship.Key.GetGSAI()
+                    Relationship.Key.GetEmpireAI()
                         .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                 }
                 float usedTrust = 0f;
@@ -583,7 +583,7 @@ namespace Ship_Game.AI {
                             };
                             if (Relationship.Key != Empire.Universe.PlayerEmpire)
                             {
-                                Relationship.Key.GetGSAI()
+                                Relationship.Key.GetEmpireAI()
                                     .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                             else
@@ -615,7 +615,7 @@ namespace Ship_Game.AI {
                         Offer OurOffer0 = new Offer();
                         if (Relationship.Key != Empire.Universe.PlayerEmpire)
                         {
-                            Relationship.Key.GetGSAI()
+                            Relationship.Key.GetEmpireAI()
                                 .AnalyzeOffer(OurOffer0, OfferAlliance, OwnerEmpire, Offer.Attitude.Respectful);
                             continue;
                         }
@@ -717,7 +717,7 @@ namespace Ship_Game.AI {
                                     Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
                                         Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
                                 else
-                                    Relationship.Key.GetGSAI()
+                                    Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                             AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust1);
@@ -747,7 +747,7 @@ namespace Ship_Game.AI {
                                     continue;
                                 }
 
-                                Relationship.Key.GetGSAI()
+                                Relationship.Key.GetEmpireAI()
                                     .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                                 continue;
                             }
@@ -771,7 +771,7 @@ namespace Ship_Game.AI {
                                         Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2,
                                         offer1));
                                 else
-                                    Relationship.Key.GetGSAI()
+                                    Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                             if (Relationship.Value.TurnsKnown > FirstDemand && Relationship.Value.Treaty_NAPact)

@@ -320,7 +320,7 @@ namespace Ship_Game.AI
                 platform.TetherToPlanet(UniverseScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
                 platform.TetherOffset = shipgoal.goal.TetherOffset;
             }
-            Owner.loyalty.GetGSAI().Goals.Remove(shipgoal.goal);
+            Owner.loyalty.GetEmpireAI().Goals.Remove(shipgoal.goal);
             Owner.QueueTotalRemoval();
         }
 
@@ -352,7 +352,7 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                ExplorationTarget = Owner.loyalty.GetGSAI().AssignExplorationTarget(Owner);
+                ExplorationTarget = Owner.loyalty.GetEmpireAI().AssignExplorationTarget(Owner);
                 if (ExplorationTarget == null)
                 {
                     OrderQueue.Clear();
@@ -732,7 +732,7 @@ namespace Ship_Game.AI
             {
                 var refitgoal = new FleetRequisition(goal, this);
                 FleetNode.GoalGUID = refitgoal.guid;
-                Owner.loyalty.GetGSAI().Goals.Add(refitgoal);
+                Owner.loyalty.GetEmpireAI().Goals.Add(refitgoal);
                 qi.Goal = refitgoal;
             }
             OrbitTarget.ConstructionQueue.Add(qi);

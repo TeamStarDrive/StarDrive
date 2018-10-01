@@ -1101,7 +1101,7 @@ namespace Ship_Game
                 return false;
 
             //determine defensive needs.
-            if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out SC))
+            if (Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out SC))
             {
                 if (makingMoney)
                     needDefense = SC.RankImportance >= defenseratio * 10; ;// / (defensiveBuildings + offensiveBuildings+1)) >defensiveNeeds;
@@ -2452,14 +2452,16 @@ namespace Ship_Game
                     && (!Owner.isPlayer || colonyType == ColonyType.Military))
                 {
                     SystemCommander systemCommander;
-                    if (Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out systemCommander))
+                    if (Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(ParentSystem, out systemCommander))
                     {
                         float defBudget = Owner.data.DefenseBudget * systemCommander.PercentageOfValue;
 
                         float platformUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.platform].Upkeep;
                         float stationUpkeep = ResourceManager.ShipRoles[ShipData.RoleName.station].Upkeep;
-                        string station = Owner.GetGSAI().GetStarBase();
+
+                        string station = Owner.GetEmpireAI().GetStarBase();
                         int platformCount = 0;
+
                         int stationCount = 0;
                         foreach (QueueItem queueItem in ConstructionQueue)
                         {
@@ -2518,7 +2520,7 @@ namespace Ship_Game
                         }
                     }
 
-                    if (defBudget > stationUpkeep 
+                    if (defBudget > stationUpkeep
                         && stationCount < (int) (systemCommander.RankImportance * .5f)
                         && stationCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                     {
@@ -2539,7 +2541,7 @@ namespace Ship_Game
                             && platformCount < systemCommander.RankImportance
                             && platformCount < GlobalStats.ShipCountLimit * GlobalStats.DefensePlatformLimit)
                         {
-                            string platform = Owner.GetGSAI().GetDefenceSatellite();
+                            string platform = Owner.GetEmpireAI().GetDefenceSatellite();
                             if (!string.IsNullOrEmpty(platform))
                             {
                                 Ship ship = ResourceManager.ShipsDict[platform];

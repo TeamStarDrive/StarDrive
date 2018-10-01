@@ -97,7 +97,7 @@ namespace Ship_Game.Ships
                         };
                         militaryTask.SetTargetPlanet(p);
                         militaryTask.SetEmpire(loyalty);
-                        loyalty.GetGSAI().TaskList.Add(militaryTask);
+                        loyalty.GetEmpireAI().TaskList.Add(militaryTask);
                     }
                 }
                 if (AI.BadGuysNear && InCombat && System != null && LastDamagedBy != null)

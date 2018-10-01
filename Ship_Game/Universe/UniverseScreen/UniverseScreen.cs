@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,6 +11,9 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
+using System;
+using System.IO;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -566,7 +566,7 @@ namespace Ship_Game
             defensiveFleetAt.TaskStep = 3;
             militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
             EmpireManager.Remnants.GetFleetsDict().Add(militaryTask.WhichFleet, defensiveFleetAt);
-            EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
+            EmpireManager.Remnants.GetEmpireAI().TaskList.Add(militaryTask);
             militaryTask.Step = 2;
         }
 

@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -86,7 +86,7 @@ namespace Ship_Game
             e.InitializeFromSave();
             e.Money = sdata.Money;
             e.Research = sdata.Research;
-            e.GetGSAI().AreasOfOperations = sdata.AOs;            
+            e.GetEmpireAI().AreasOfOperations = sdata.AOs;            
   
             return e;
         }
@@ -340,7 +340,7 @@ namespace Ship_Game
         {
             foreach (Empire e in data.EmpireList)
             {
-                e.GetGSAI().InitialzeAOsFromSave(data);
+                e.GetEmpireAI().InitialzeAOsFromSave(data);
             }
             foreach (Ship ship in us.MasterShipList)
             {
@@ -355,7 +355,7 @@ namespace Ship_Game
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {
-                    ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+                    ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
                     ship.AddedOnLoad = true;
                 }
             }
@@ -578,19 +578,19 @@ namespace Ship_Game
                         if (gsave.colonyShipGuid == s.guid) g.SetColonyShip(s);
                         if (gsave.beingBuiltGUID == s.guid) g.SetBeingBuilt(s);
                     }
-                    e.GetGSAI().Goals.Add(g);
+                    e.GetEmpireAI().Goals.Add(g);
                 }
                 for (int i = 0; i < d.GSAIData.PinGuids.Count; i++)
                 {
-                    e.GetGSAI().ThreatMatrix.Pins.Add(d.GSAIData.PinGuids[i], d.GSAIData.PinList[i]);
+                    e.GetEmpireAI().ThreatMatrix.Pins.Add(d.GSAIData.PinGuids[i], d.GSAIData.PinList[i]);
                 }
-                e.GetGSAI().UsedFleets = d.GSAIData.UsedFleets;
+                e.GetEmpireAI().UsedFleets = d.GSAIData.UsedFleets;
                 lock (GlobalStats.TaskLocker)
                 {
                     foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
                     {
                         task.SetEmpire(e);
-                        e.GetGSAI().TaskList.Add(task);
+                        e.GetEmpireAI().TaskList.Add(task);
                         if (task.TargetPlanetGuid != Guid.Empty)
                         {
                             foreach (SolarSystem s in data.SolarSystemsList)
@@ -609,7 +609,7 @@ namespace Ship_Game
                         }
                         foreach (Guid guid in task.HeldGoals)
                         {
-                            foreach (Goal g in e.GetGSAI().Goals)
+                            foreach (Goal g in e.GetEmpireAI().Goals)
                             {
                                 if (g.guid == guid)
                                     g.Held = true;
@@ -663,7 +663,7 @@ namespace Ship_Game
                             g.VariableString = sg.VariableString;
                             g.DesiredFacing  = sg.DesiredFacing;
                             g.SpeedLimit     = sg.SpeedLimit;
-                            foreach (Goal goal in ship.loyalty.GetGSAI().Goals)
+                            foreach (Goal goal in ship.loyalty.GetEmpireAI().Goals)
                             {
                                 if (sg.goalGuid == goal.guid)
                                     g.goal = goal;
@@ -738,7 +738,7 @@ namespace Ship_Game
                                 qi.Cost = qisave.RefitCost;
                             }
                         }
-                        foreach (Goal g in p.Owner.GetGSAI().Goals)
+                        foreach (Goal g in p.Owner.GetEmpireAI().Goals)
                         {
                             if (g.guid != qisave.GoalGUID)
                                 continue;
