@@ -62,7 +62,7 @@ namespace Ship_Game.AI
             float strength = 0;
             foreach (SolarSystem ss in us.GetBorderSystems(Them))
             {
-                strength += us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
+                strength += us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
             }
             strength /= Math.Max(us.currentMilitaryStrength, 100);
             return strength > riskLimit ? 0 : strength;
@@ -81,12 +81,12 @@ namespace Ship_Game.AI
 
             if (!Them.isFaction)
             {
-                risk = us.GetGSAI().ThreatMatrix.StrengthOfEmpire(Them) / strength;
+                risk = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpire(Them) / strength;
                 return risk > riskLimit ? 0 : risk;
             }
 
             var s = new HashSet<SolarSystem>();
-            foreach (MilitaryTask task in us.GetGSAI().TaskList)
+            foreach (MilitaryTask task in us.GetEmpireAI().TaskList)
             {
                 if (task.type != MilitaryTask.TaskType.DefendClaim)
                     continue;
@@ -95,7 +95,7 @@ namespace Ship_Game.AI
                 SolarSystem ss = p.ParentSystem;
                 if (!s.Add(ss))
                     continue;
-                float test = us.GetGSAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
+                float test = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
                 if (test > 0 && test < risk)
                     risk = test;
             }

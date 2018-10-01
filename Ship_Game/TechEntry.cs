@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class TechEntry
+    public sealed class TechEntry
     {
         [Serialize(0)] public string UID;
         [Serialize(1)] public float Progress;
@@ -242,6 +242,7 @@ namespace Ship_Game
             UnlockBonus(empire);
             return true;
         }
+
         public void UnlockFromSave(Empire empire)
         {
             Progress = TechCost;
@@ -349,15 +350,15 @@ namespace Ship_Game
             }
             return null;
         }
-		public bool HasPreReq(Empire empire)
-	    {
-		    TechEntry preReq = GetPreReq(empire);
-			if (preReq == null || preReq.UID.IsEmpty()) return false;
-			if (preReq.Unlocked || !preReq.Discovered) return true;
-			return false;
-	    }
+        public bool HasPreReq(Empire empire)
+        {
+            TechEntry preReq = GetPreReq(empire);
+            if (preReq == null || preReq.UID.IsEmpty()) return false;
+            if (preReq.Unlocked || !preReq.Discovered) return true;
+            return false;
+        }
 
-	    public TechEntry FindNextDiscoveredTech(Empire empire)
+        public TechEntry FindNextDiscoveredTech(Empire empire)
         {
             Technology technology = Tech;
             if (Discovered) return this;

@@ -1,9 +1,10 @@
-using System.Collections.Generic;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Collections.Generic;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
         public void AcceptOffer(Offer ToUs, Offer FromUs, Empire us, Empire Them)
@@ -89,7 +90,7 @@ namespace Ship_Game.AI {
                     //lock (GlobalStats.TaskLocker)
                     {
                         //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
-                        Them.GetGSAI()
+                        Them.GetEmpireAI()
                             .TaskList.ForEach(task =>
                             {
                                 if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
@@ -502,7 +503,7 @@ namespace Ship_Game.AI {
                     }
                     //lock (GlobalStats.TaskLocker)
                     {
-                        Them.GetGSAI()
+                        Them.GetEmpireAI()
                             .TaskList.ForEach(task => //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
                             {
                                 if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||

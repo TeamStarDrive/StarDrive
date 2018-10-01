@@ -240,7 +240,7 @@ namespace Ship_Game
                     Text.X = Text.X - 9f;
                 }
                 bool marked = false;
-                foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
+                foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                 {
                     if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
                     {
@@ -542,7 +542,7 @@ namespace Ship_Game
             {
                 bool marked = false;
                 Goal markedGoal = null;
-                foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
+                foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                 {
                     if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
                     {
@@ -562,13 +562,13 @@ namespace Ship_Game
                             markedGoal.GetColonyShip().AI.State = AIState.AwaitingOrders;
                         }
                     }
-                    EmpireManager.Player.GetGSAI().Goals.QueuePendingRemoval(markedGoal);
-                    EmpireManager.Player.GetGSAI().Goals.ApplyPendingRemovals();
+                    EmpireManager.Player.GetEmpireAI().Goals.QueuePendingRemoval(markedGoal);
+                    EmpireManager.Player.GetEmpireAI().Goals.ApplyPendingRemovals();
                 }
                 else
                 {
                     GameAudio.PlaySfxAsync("echo_affirm");
-                    EmpireManager.Player.GetGSAI().Goals.Add(new MarkForColonization(p, EmpireManager.Player));
+                    EmpireManager.Player.GetEmpireAI().Goals.Add(new MarkForColonization(p, EmpireManager.Player));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)

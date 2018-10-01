@@ -109,11 +109,11 @@ namespace Ship_Game
                     }
                     if (MessageList[CurrentMessage].SetWar)
                     {
-                        empToDiscuss.GetGSAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
+                        empToDiscuss.GetEmpireAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
                     }
                     if (MessageList[CurrentMessage].EndWar)
                     {
-                        empToDiscuss.GetGSAI().EndWarFromEvent(playerEmpire);
+                        empToDiscuss.GetEmpireAI().EndWarFromEvent(playerEmpire);
                     }
                     playerEmpire.GetRelations(empToDiscuss).EncounterStep = MessageList[CurrentMessage].SetEncounterStep;
                     SetResponses();
